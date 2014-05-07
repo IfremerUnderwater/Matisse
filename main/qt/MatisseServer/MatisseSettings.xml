@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MatisseSettings>
+	<ProgramVersion>0.1</ProgramVersion>
+	<Date>14/02/2014</Date>
+	<XmlRootDir>../xml</XmlRootDir>
+	<Port>8888</Port>
+    <DataRootDir>../../../test/qt/IntegQGis/data</DataRootDir>
+</MatisseSettings>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="robomosstest" assembly="InitMatch4" version="">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="robomosstest"/>
+	<Execution executed="true" executionDate="07/05/2014 09:18" result="D:/DATA/MOSAIC_DATASETS/ROBOMOS/27_10_2010-AGA/Resize_01/GeoTiff_data/MosaicOut.tiff"/>
+</MatisseJob>

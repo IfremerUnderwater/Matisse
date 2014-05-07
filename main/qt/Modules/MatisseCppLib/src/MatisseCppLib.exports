@@ -1,0 +1,8 @@
+MatisseCppLibInitialize
+MatisseCppLibInitializeWithHandlers
+MatisseCppLibTerminate
+MatisseCppLibPrintStackTrace
+mlxMosaic_draw_and_write
+mlxMosaic_init_and_matching
+mlxMosaic_optimization
+

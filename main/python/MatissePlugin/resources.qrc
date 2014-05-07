@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/ifremer-grand.jpg</file>
+        <file>images/led-green.png</file>
+        <file>images/led-grey.png</file>
+    </qresource>
+</RCC>

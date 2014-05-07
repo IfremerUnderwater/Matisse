@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="test" assembly="VortexMosaicking" version="">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="test"/>
+	<Execution executed="true" executionDate="06/05/2014 16:11" result="D:/Projects/MATISSE-SNAPSHOT-20140424/main/qt/MatisseServer/Geotiff_data/MosaicOut.tiff"/>
+</MatisseJob>

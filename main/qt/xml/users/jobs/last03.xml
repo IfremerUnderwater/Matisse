@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="last03" assembly="InitMatch4" version="">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="last03"/>
+	<Execution executed="true" executionDate="07/05/2014 09:03" result="D:/Projects/MATISSE-SNAPSHOT-20140424/main/qt/MatisseServer/Geotiff_data/MosaicOut.tiff"/>
+</MatisseJob>
