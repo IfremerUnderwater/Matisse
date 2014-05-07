@@ -70,10 +70,9 @@
     <Structure name = "dataset_param">
       <Parameters>
         <ParametersGroup>
-          <Parameter name = "relative_path" user = "true" text = "Utilisation du chemin relatif / au xml" type = "bool" show = "check" default ="1"/>
           <Parameter name = "dataset_dir" user = "true" text = "Chemin du dataset" type = "string" show = "dir" default ="./"/>
           <Parameter name = "output_dir" user = "true" text = "Chemin de sortie" type = "string" show = "dir" default = "./Geotiff_data"/>
-          <Parameter name = "output_filename" user = "true" text = "Fichier de sortie" type = "string" show = "file:relative" default = "OutputImage.tif"/>
+          <Parameter name = "output_filename" user = "true" text = "Fichier de sortie" type = "string" show = "line" default = "OutputImage.tif"/>
           <Parameter name = "navFile" user = "true" text = "Fichier de navigation" type = "string" show = "file" default = "navFile_mv.txt"/>
           <Parameter name = "utm_zone" user = "true" text = "Zone UTM" type = "integer" range = "[1,60]" show = "spin" default = "31"/>
           <Parameter name = "utm_hemisphere" user = "true" text = "Hémisphère UTM" type = "string" range = "{N,S}" show = "combo" default = "N"/>

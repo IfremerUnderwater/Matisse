@@ -50,7 +50,6 @@
 </cam_param>
 
 <dataset_param>
-<relative_path>true</relative_path>
 <dataset_dir>./</dataset_dir>
 <output_dir>./Geotiff_data</output_dir>
 <output_filename>outpufile.tif</output_filename>

@@ -48,7 +48,6 @@
 </cam_param>
 
 <dataset_param>
-<relative_path>false</relative_path>
 <dataset_dir>D:\DATA\MOSAIC_DATASETS\Morph\Vortex-day5\CanonG9Corr</dataset_dir>
 <output_dir>./Geotiff_data</output_dir>
 <output_filename>MosaicOut.tiff</output_filename>

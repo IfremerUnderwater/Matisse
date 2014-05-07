@@ -80,7 +80,8 @@ private:
     void init();
     void test();
     bool getAssemblyValues(QString filename, QString & name, bool &valid, KeyValueList & assemblyValues);
-    void selectAssemblyInTree(QString assemblyName);
+    void selectAssembly(QString assemblyName);
+    void selectJob(QString jobName);
     void showError(QString title, QString message);
     QTreeWidgetItem * addAssemblyInTree(AssemblyDefinition *assembly);
     QTreeWidgetItem * addJobInTree(JobDefinition *job);

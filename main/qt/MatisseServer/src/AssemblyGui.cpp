@@ -308,97 +308,16 @@ bool AssemblyGui::getAssemblyValues(QString fileWithPath, QString &name, bool &v
 void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int column)
 {
     QString name = selectedItem->text(column);
-    _ui->_TRW_assemblyInfo->clear();
-    if(_userFormWidget) {
-        _userFormWidget->clear();
-    }
+
 
     setActionsStates(selectedItem);
 
     if (!selectedItem->parent()) {
         // On a selectionné un assemblage
-
-        QString filename = selectedItem->data(column, Qt::UserRole).toString();
-        if (_server.xmlTool().readAssemblyFile(filename)) {
-
-            AssemblyDefinition * selectedAssembly = _server.xmlTool().getAssembly(name);
-            if (selectedAssembly) {
-                QString parametersVersion = selectedAssembly->parametersDefinition()->model();
-                QString modelFile = _rootXml + QDir::separator() + "models" + QDir::separator() + "parameters" + QDir::separator() + "Parameters_" + parametersVersion + ".xml";
-                QString parametersFile = _rootXml + QDir::separator() + "parameters" + QDir::separator() + parametersVersion + QDir::separator() + selectedAssembly->parametersDefinition()->name().replace(" ", "_") + ".xml";
-                //                if (!_parameters) {
-                //                    _parameters = new Tools();
-                //                }
-                if (_parameters->readUserParametersFile(parametersFile, modelFile)) {
-                    _userFormWidget->showUserParameters(_parameters);
-                }
-                // chargement des infos
-
-                new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Version:" << selectedAssembly->version());
-                new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Date de création:" << selectedAssembly->date());
-                new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Auteur:" << selectedAssembly->author());
-                new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Commentaire:" << selectedAssembly->comment());
-
-                if (!_userMode) {
-                    _expertFormWidget -> loadAssembly(name);
-                    _expertFormWidget->showParameters(selectedAssembly);
-                }
-            } else {
-                _userFormWidget->showUserParameters(NULL);
-            }
-        }
-
-
+        selectAssembly(name);
     } else {
-        JobDefinition * selectedJob = _server.xmlTool().getJob(name);
-        if (selectedJob) {
-            _currentJobName = selectedJob->name();
-            // chargement des parametres
-            // le modele est dans (rootXml)/models/parameters
-            // les parametres utilisateurs est dans (rootXml)/users/parameters
-            //            if (!_parameters) {
-            //                _parameters = new Tools();
-            //            }
-
-            QString parametersVersion = selectedJob->parametersDefinition()->model();
-            QString modelFile = _rootXml + QDir::separator() + "models" + QDir::separator() + "parameters" + QDir::separator() + "Parameters_" + parametersVersion + ".xml";
-            QString parametersFile = _rootXml + QDir::separator() + "users" + QDir::separator() + "parameters" + QDir::separator() + parametersVersion + QDir::separator() + selectedJob->parametersDefinition()->name().replace(" ", "_") + ".xml";
-            if (_parameters->readUserParametersFile(parametersFile, modelFile)) {
-                _userFormWidget->showUserParameters(_parameters);
-            }
-
-            // chargement des infos
-            QString comments = selectedJob->comment();
-
-            new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Commentaire:" << comments);
-
-            if (selectedJob->executionDefinition()) {
-                if (selectedJob->executionDefinition()->executed()) {
-                    new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Date d'exécution:" << selectedJob->executionDefinition()->executionDate().toString("le dd/MM/yyyy à HH:mm"));
-                    new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Image résultat:" << selectedJob->executionDefinition()->resultFileName());
-                }
-            }
-            // si le job a été exécuté, chargement de l'image
-            QString resultFile = selectedJob->executionDefinition()->resultFileName();
-            if (selectedJob->executionDefinition()->executed() && (!resultFile.isEmpty())) {
-                // affichage de l'image
-                QFileInfo infoImage(resultFile);
-                if (infoImage.isRelative()) {
-                    infoImage.setFile(QDir(_dataPath), resultFile);
-                }
-                if (!infoImage.exists()) {
-                    qDebug() << "Erreur fichier image introuvable" << infoImage.absoluteFilePath();
-                }else{
-                    qDebug() << "Chargement de l'image :" << infoImage.absoluteFilePath();
-                    _userFormWidget->loadRasterFile(infoImage.absoluteFilePath());
-                }
-            }
-        }
-        else {
-            _currentJobName = "";
-        }
+        selectJob(name);
     }
-
 }
 
 void AssemblyGui::slot_assemblyElementsCount(int count)
@@ -483,20 +402,100 @@ void AssemblyGui::slot_saveAsAssembly()
         // on recharge
         slot_assembliesReload();
         // puis on selectionne...
-        selectAssemblyInTree(name);
+        selectAssembly(name);
 
     }
 }
 
 
-void AssemblyGui::selectAssemblyInTree(QString assemblyName) {
-    for (int index=0; index < _ui->_TRW_assemblies->topLevelItemCount(); index++) {
-        QTreeWidgetItem * item = _ui->_TRW_assemblies->topLevelItem(index);
-        if (item->text(0) == assemblyName) {
-            _ui->_TRW_assemblies->setCurrentItem(item);
-            slot_selectAssemblyOrJob(item);
-            break;
+void AssemblyGui::selectAssembly(QString assemblyName) {
+
+    _ui->_TRW_assemblyInfo->clear();
+    if(_userFormWidget) {
+        _userFormWidget->clear();
+    }
+
+    AssemblyDefinition *selectedAssembly = _server.xmlTool().getAssembly(assemblyName);
+
+    if (selectedAssembly) {
+        QString parametersVersion = selectedAssembly->parametersDefinition()->model();
+        QString modelFile = _rootXml + QDir::separator() + "models" + QDir::separator() + "parameters" + QDir::separator() + "Parameters_" + parametersVersion + ".xml";
+        QString parametersFile = _rootXml + QDir::separator() + "parameters" + QDir::separator() + parametersVersion + QDir::separator() + selectedAssembly->parametersDefinition()->name().replace(" ", "_") + ".xml";
+        //                if (!_parameters) {
+        //                    _parameters = new Tools();
+        //                }
+        if (_parameters->readUserParametersFile(parametersFile, modelFile)) {
+            _userFormWidget->showUserParameters(_parameters);
         }
+        // chargement des infos
+
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Version:" << selectedAssembly->version());
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Date de création:" << selectedAssembly->date());
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Auteur:" << selectedAssembly->author());
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Commentaire:" << selectedAssembly->comment());
+
+        if (!_userMode) {
+            _expertFormWidget->loadAssembly(assemblyName);
+            _expertFormWidget->showParameters(selectedAssembly);
+        }
+    } else {
+        _userFormWidget->showUserParameters(NULL);
+    }
+}
+
+void AssemblyGui::selectJob(QString jobName)
+{
+    _ui->_TRW_assemblyInfo->clear();
+    if(_userFormWidget) {
+        _userFormWidget->clear();
+    }
+
+    JobDefinition * selectedJob = _server.xmlTool().getJob(jobName);
+    if (selectedJob) {
+        _currentJobName = selectedJob->name();
+        // chargement des parametres
+        // le modele est dans (rootXml)/models/parameters
+        // les parametres utilisateurs est dans (rootXml)/users/parameters
+        //            if (!_parameters) {
+        //                _parameters = new Tools();
+        //            }
+
+        QString parametersVersion = selectedJob->parametersDefinition()->model();
+        QString modelFile = _rootXml + QDir::separator() + "models" + QDir::separator() + "parameters" + QDir::separator() + "Parameters_" + parametersVersion + ".xml";
+        QString parametersFile = _rootXml + QDir::separator() + "users" + QDir::separator() + "parameters" + QDir::separator() + parametersVersion + QDir::separator() + selectedJob->parametersDefinition()->name().replace(" ", "_") + ".xml";
+        if (_parameters->readUserParametersFile(parametersFile, modelFile)) {
+            _userFormWidget->showUserParameters(_parameters);
+        }
+
+        // chargement des infos
+        QString comments = selectedJob->comment();
+
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Commentaire:" << comments);
+
+        if (selectedJob->executionDefinition()) {
+            if (selectedJob->executionDefinition()->executed()) {
+                new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Date d'exécution:" << selectedJob->executionDefinition()->executionDate().toString("le dd/MM/yyyy à HH:mm"));
+
+                QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Image résultat:" << selectedJob->executionDefinition()->resultFileName());
+                item->setToolTip(1, selectedJob->executionDefinition()->resultFileName());
+            }
+        }
+        // si le job a été exécuté, chargement de l'image
+        QString resultFile = selectedJob->executionDefinition()->resultFileName();
+        if (selectedJob->executionDefinition()->executed() && (!resultFile.isEmpty())) {
+            // affichage de l'image
+            QFileInfo infoImage(resultFile);
+            if (infoImage.isRelative()) {
+                infoImage.setFile(QDir(_dataPath), resultFile);
+            }
+            if (!infoImage.exists()) {
+                qDebug() << "Erreur fichier image introuvable" << infoImage.absoluteFilePath();
+            }
+            _userFormWidget->loadRasterFile(infoImage.absoluteFilePath());
+        }
+    }
+    else {
+        _currentJobName = "";
     }
 }
 
@@ -1042,6 +1041,7 @@ void AssemblyGui::slot_jobProcessed(QString name) {
             // mise a jour de la led...
             _lastJobLaunchedItem->setIcon(0, QIcon(":/png/led-green.png"));
             showStatusMessage("Travail " + jobDef->name() + " terminé...", OK);
+            selectJob(jobDef->name());
         }
     }
 }
@@ -1077,7 +1077,7 @@ void AssemblyGui::slot_modifiedParameters(bool changed)
         qDebug() << "expert parameters modified";
         _expertValuesModified = changed;
         // on disable les boutons de sauvegarde pour forcer l'enregistrement ou le rechargement
-        // Commenté car NOK aaprès un new assembly...
+        // Commenté car NOK après un new assembly...
         //        _ui->_ACT_saveAssembly->setDisabled(true);
         //        _ui->_ACT_saveAsAssembly->setDisabled(true);
     }

@@ -43,7 +43,6 @@
 </cam_param>
 
 <dataset_param>
-<relative_path>false</relative_path>
 <dataset_dir>D:\Dev\Matisse\CanonG9Corr</dataset_dir>
 <output_dir>./Geotiff_data</output_dir>
 <output_filename>truc.tif</output_filename>

@@ -5,7 +5,7 @@ using namespace MatisseTools;
 EnrichedLineEdit::EnrichedLineEdit(QWidget *parent, QString label, QString defaultValue):
     EnrichedFormWidget(parent)
 {
-    _lineEdit = new QLineEdit(this);
+    _lineEdit = new QLineEdit(defaultValue, this);
     _defaultValue = defaultValue;
     setWidget(label, _lineEdit);
     connect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));

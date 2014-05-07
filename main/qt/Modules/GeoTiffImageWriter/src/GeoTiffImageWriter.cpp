@@ -8,7 +8,7 @@ GeoTiffImageWriter::GeoTiffImageWriter(QObject *parent):
     RasterProvider(NULL, "GeoTiffImageWriter", "", 1)
 {
     addExpectedParameter("dataset_param", "output_dir");
-    addExpectedParameter("dataset_param", "relative_path");
+    addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("dataset_param", "output_filename");
 }
 
@@ -20,23 +20,23 @@ GeoTiffImageWriter::~GeoTiffImageWriter()
 bool GeoTiffImageWriter::configure(Context *context, MatisseParameters *mosaicParameters)
 {
     qDebug() << logPrefix() << "configure";
-    QFileInfo* pXmlFileInfo=mosaicParameters->getXmlFileInfo();
+    QString datasetDirnameStr = mosaicParameters->getStringParamValue("dataset_param", "dataset_dir");
     QString outputDirnameStr = mosaicParameters->getStringParamValue("dataset_param", "output_dir");
+    QString outputFilename = mosaicParameters->getStringParamValue("dataset_param", "output_filename");
 
-    bool isOk = false;
-    bool isRelativeDir = mosaicParameters->getBoolParamValue("dataset_param", "relative_path", isOk);
-
-    // TODO Améliorer le check
-    if (outputDirnameStr.isEmpty() || pXmlFileInfo==NULL)
+    if (outputDirnameStr.isEmpty()
+     || datasetDirnameStr.isEmpty()
+     || outputFilename.isEmpty())
         return false;
 
-    // TODO Use Absolute if path is relative?
-    if (isRelativeDir) {
-        outputDirnameStr = QDir::cleanPath( pXmlFileInfo->absolutePath() + QDir::separator() + outputDirnameStr);
-    }
-    qDebug()<< "outputDirnameStr: "  << outputDirnameStr;
+    QFileInfo outputDirInfo(outputDirnameStr);
+    QFileInfo datasetDirInfo(datasetDirnameStr);
 
-    QString outputFilename = mosaicParameters->getStringParamValue("dataset_param", "output_filename");
+    bool isRelativeDir = outputDirInfo.isRelative();
+
+    if (isRelativeDir) {
+        outputDirnameStr = QDir::cleanPath( datasetDirInfo.absoluteFilePath() + QDir::separator() + outputDirnameStr);
+    }
 
     _outputFileInfo.setFile(QDir(outputDirnameStr), outputFilename);
 

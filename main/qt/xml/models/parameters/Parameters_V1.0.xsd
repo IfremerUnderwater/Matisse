@@ -88,7 +88,6 @@
   <xs:element name="dataset_param">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="relative_path"/>
         <xs:element ref="dataset_dir"/>
         <xs:element ref="output_dir"/>
         <xs:element ref="output_filename"/>
@@ -98,7 +97,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="relative_path" type="xs:boolean"/>
   <xs:element name="dataset_dir" type="xs:string"/>
   <xs:element name="output_dir" type="xs:string"/>
   <xs:element name="navFile" type="xs:NCName"/>

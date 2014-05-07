@@ -10,7 +10,6 @@ DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *parent):
 {
     _imageSet = new ImageSet();
     addExpectedParameter("dataset_param", "dataset_dir");
-    addExpectedParameter("dataset_param", "relative_path");
     addExpectedParameter("dataset_param", "navFile");
 }
 
@@ -33,7 +32,6 @@ bool DTPictureFileSetImageProvider::configure(Context *context, MatisseParameter
     QString rootDirnameStr = mosaicParameters->getStringParamValue("dataset_param", "dataset_dir");
 
     bool isOk = false;
-    bool isRelativeDir = mosaicParameters->getBoolParamValue("dataset_param", "relative_path", isOk);
     QString navFileStr = mosaicParameters->getStringParamValue("dataset_param", "navFile");
     quint32 firstImageIndex = mosaicParameters->getIntParamValue("algo_param", "First_processed_image", isOk);
     if (!isOk) {
@@ -52,11 +50,7 @@ bool DTPictureFileSetImageProvider::configure(Context *context, MatisseParameter
     if (rootDirnameStr.isEmpty() || navFileStr.isEmpty() || pXmlFileInfo==NULL)
         return false;
 
-    // TODO Use Absolute if path is relative?
-    if (isRelativeDir) {
-        rootDirnameStr = QDir::cleanPath( pXmlFileInfo->absolutePath() + QDir::separator() + rootDirnameStr);
-        navFileStr = QDir::cleanPath( pXmlFileInfo->absolutePath() + QDir::separator() + navFileStr);
-    }
+
     qDebug()<< "rootDirnameStr: "  << rootDirnameStr;
     qDebug()<< "navFileStr: "  << navFileStr;
 

@@ -249,8 +249,6 @@ QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString paramGroupName, QSt
 
     QString valuesStr = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"");
 
-    qDebug() << "valuesStr = " << valuesStr;
-
     QStringList args = valuesStr.split(";");
     if (args.size() != 9) {
         ok = false;

@@ -447,13 +447,33 @@
     qDebug() << "dataset_dir = " << tempString;
     algo_param.Get(paramfields[25],1,1).Set(mwArray(tempString.toLocal8Bit().data()));
 
-    tempString = mosaicParameters->getStringParamValue("dataset_param", "output_dir");
-    qDebug() << "output_dir = " << tempString;
-    algo_param.Get(paramfields[26],1,1).Set(mwArray(tempString.toLocal8Bit().data()));
 
-    tempString = mosaicParameters->getStringParamValue("dataset_param", "output_filename");
-    qDebug() << "output_filename = " << tempString;
-    algo_param.Get(paramfields[27],1,1).Set(mwArray(tempString.toLocal8Bit().data()));
+
+    // ********************************Define output_filename *************************************************
+    QString datasetDirnameStr = mosaicParameters->getStringParamValue("dataset_param", "dataset_dir");
+    QString outputDirnameStr = mosaicParameters->getStringParamValue("dataset_param", "output_dir");
+    QString outputFilename = mosaicParameters->getStringParamValue("dataset_param", "output_filename");
+
+    if (outputDirnameStr.isEmpty()
+     || datasetDirnameStr.isEmpty()
+     || outputFilename.isEmpty())
+        return;
+
+    QFileInfo outputDirInfo(outputDirnameStr);
+    QFileInfo datasetDirInfo(datasetDirnameStr);
+
+    bool isRelativeDir = outputDirInfo.isRelative();
+
+    if (isRelativeDir) {
+        outputDirnameStr = QDir::cleanPath( datasetDirInfo.absoluteFilePath() + QDir::separator() + outputDirnameStr);
+    }
+
+    qDebug() << "output_dir = " << outputDirnameStr;
+    algo_param.Get(paramfields[26],1,1).Set(mwArray(outputDirnameStr.toLocal8Bit().data()));
+    qDebug() << "output_filename = " << outputDirnameStr;
+    algo_param.Get(paramfields[27],1,1).Set(mwArray(outputFilename.toLocal8Bit().data()));
+
+    // ********************************************************************************************************
 
     tempString = mosaicParameters->getStringParamValue("dataset_param", "navFile");
     qDebug() << "navFile = " << tempString;

@@ -43,7 +43,6 @@
 </cam_param>
 
 <dataset_param>
-<relative_path>false</relative_path>
 <dataset_dir>D:\DATA\MOSAIC_DATASETS\ROBOMOS\27_10_2010-AGA\Resize_01</dataset_dir>
 <output_dir>D:\DATA\MOSAIC_DATASETS\ROBOMOS\27_10_2010-AGA\Resize_01\GeoTiff_data</output_dir>
 <output_filename>MosaicOut.tiff</output_filename>
