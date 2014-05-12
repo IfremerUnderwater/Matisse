@@ -53,12 +53,12 @@ bool Xml::readAssemblyFile(QString filename)
     bool endDescriptor = false;
 
     while(!reader.atEnd() &&
-          !reader.hasError()) {
+               !reader.hasError()) {
         /* Read next element.*/
         QXmlStreamReader::TokenType token = reader.readNext();
         /* If token is just StartDocument, we'll go to next.*/
         if(token == QXmlStreamReader::StartDocument) {
-            continue;
+           continue;
         }
         /* If token is StartElement, we'll see if we can read it.*/
         if(token == QXmlStreamReader::StartElement) {
@@ -183,9 +183,9 @@ bool Xml::readJobFile(QString filename)
     QFileInfo fileInfo(_jobsPath + QDir::separator() + filename);
 
 
-    //    if (!xmlIsValid(_assembliesSchema, fileInfo)) {
-    //        return false;
-    //    }
+//    if (!xmlIsValid(_assembliesSchema, fileInfo)) {
+//        return false;
+//    }
 
     qDebug()<< "Loading job " << fileInfo.absoluteFilePath();
 
@@ -194,15 +194,15 @@ bool Xml::readJobFile(QString filename)
 
     QXmlStreamReader reader(&jobFile);
 
-    JobDefinition *newJob = NULL;
+   JobDefinition *newJob = NULL;
 
     while(!reader.atEnd() &&
-          !reader.hasError()) {
+               !reader.hasError()) {
         /* Read next element.*/
         QXmlStreamReader::TokenType token = reader.readNext();
         /* If token is just StartDocument, we'll go to next.*/
         if(token == QXmlStreamReader::StartDocument) {
-            continue;
+           continue;
         }
         /* If token is StartElement, we'll see if we can read it.*/
         if(token == QXmlStreamReader::StartElement) {
@@ -376,24 +376,24 @@ bool Xml::validateXmlFile(QString xmlSchema, QString xmlFile)
 {
     bool ret = false;
     QXmlSchema schema;
-    schema.load(QUrl::fromLocalFile(xmlSchema));
-    if ( schema.isValid() ) {
-        if (!xmlFile.isEmpty()) {
-            QXmlSchemaValidator validator( schema );
-            if ( validator.validate(QUrl::fromLocalFile(xmlFile))) {
-                qDebug() << "instance is valid";
-                ret = true;
+        schema.load(QUrl::fromLocalFile(xmlSchema));
+        if ( schema.isValid() ) {
+            if (!xmlFile.isEmpty()) {
+                QXmlSchemaValidator validator( schema );
+                if ( validator.validate(QUrl::fromLocalFile(xmlFile))) {
+                    qDebug() << "instance is valid";
+                    ret = true;
+                } else {
+                    qDebug() << "instance is invalid";
+                }
             } else {
-                qDebug() << "instance is invalid";
+                ret = true;
             }
         } else {
-            ret = true;
+            qDebug() << "schema is invalid";
         }
-    } else {
-        qDebug() << "schema is invalid";
-    }
 
-    return ret;
+        return ret;
 }
 
 QStringList Xml::getAssembliesList()
@@ -511,18 +511,18 @@ KeyValueList Xml::readParametersFileDescriptor(QString filename)
     query.evaluateTo(&bufferStr);
     QStringList fields = bufferStr.split("\n");
     foreach(QString field, fields) {
-        QXmlStreamReader reader(field);
+    QXmlStreamReader reader(field);
 
-        if (reader.readNextStartElement()) {
-            QString name(reader.name().toUtf8());
-            if (name != "") {
-                reader.readNext();
-                QString value(reader.text().toUtf8());
-                keyValueList.append(name, value);
-                qDebug() << "Ajout de" << name << value;
-            }
+    if (reader.readNextStartElement()) {
+        QString name(reader.name().toUtf8());
+        if (name != "") {
+            reader.readNext();
+            QString value(reader.text().toUtf8());
+            keyValueList.append(name, value);
+            qDebug() << "Ajout de" << name << value;
         }
     }
+}
 
     return keyValueList;
 }

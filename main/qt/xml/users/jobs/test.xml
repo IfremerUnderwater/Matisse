@@ -2,5 +2,5 @@
 <MatisseJob name="test" assembly="VortexMosaicking" version="">
 	<Comments></Comments>
 	<Parameters model="V1.0" name="test"/>
-	<Execution executed="true" executionDate="06/05/2014 16:11" result="D:/Projects/MATISSE-SNAPSHOT-20140424/main/qt/MatisseServer/Geotiff_data/MosaicOut.tiff"/>
+	<Execution executed="true" executionDate="07/05/2014 17:43" result="D:/DATA/MOSAIC_DATASETS/Morph/Vortex-day5/CanonG9Corr/Geotiff_data/MosaicOut.tiff"/>
 </MatisseJob>

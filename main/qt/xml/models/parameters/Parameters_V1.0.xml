@@ -28,17 +28,17 @@
           <Parameter name = "min_overlap" text = "Overlap min entre 2 images" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "0.7"/>
         </ParametersGroup>
         <ParametersGroup name = "Bundle adjustment parameters">
-          <Parameter name = "MaxIter" text = "Nombre max d'itérations dans l'optimisation" type = "integer" range = "]1,inf[" show = "spin" default = "300"/>
-          <Parameter name = "MaxRoll" text = "Roll maximum" type = "integer" range = "[0,inf[" show = "spin" default = "inf"/>
-          <Parameter name = "max_Pitch" text = "Pitch maximum" type = "integer" range = "[0,inf[" show = "spin" default = "inf"/>
-          <Parameter name = "ba_method" text = "Choix de la méthode de mosaique" type = "string" range="{$BA_METHOD}" show = "combo" default = "Ferrer_2008_with_nav"/>
-          <Parameter name = "cosmetic_strech" user = "true" text = "Stretching des couleurs" type = "bool" show = "check" default = "1"/>
+          <Parameter name = "MaxIter" text = "Nombre max d'itérations dans l'optimisation" type = "integer" range = "]1,inf[" show = "spin" default = "50"/>
+          <Parameter name = "max_Roll" text = "Roll maximum" type = "double" range = "[0,inf[" show = "spin" default = "0.1"/>
+          <Parameter name = "max_Pitch" text = "Pitch maximum" type = "double" range = "[0,inf[" show = "spin" default = "0.1"/>
+          <Parameter name = "ba_method" user = "true" text = "Choix de la méthode de mosaique" type = "string" range="{$BA_METHOD}" show = "combo" default = "Nav_only"/>
+          <Parameter name = "cosmetic_strech" user = "true" text = "Stretching des couleurs" type = "bool" show = "check" default = "0"/>
         </ParametersGroup>
         <ParametersGroup name = "Blending and displaying parameters">
           <Parameter name = "expo_comp_method" text = "Méthode de compensation d'exposition" type = "string" range = "{$EXPO_COMP_METHOD}" show = "combo" default = "gain"/>
           <Parameter name = "seam_method" text = "Méthode de découpage des images" type = "string" range = "{$SEAM_METHOD}" show = "combo" default = "gc_color"/>
           <Parameter name = "blending_method" text = "Méthode de blending" type = "string" range = "{$BLENDING_METHOD}" show = "combo" default = "multiband"/>
-          <Parameter name = "no_plot" user = "true" text = "Pas de tracé" type = "bool" show = "check" default = "0"/>
+          <Parameter name = "no_plot" user = "true" text = "Pas de tracé" type = "bool" show = "check" default = "1"/>
           <Parameter name = "WriteGeoTiff" user = "true" text = "Ecriture du GeoTiff" type = "bool" show = "check" default = "1"/>
         </ParametersGroup>
       </Parameters>
@@ -73,7 +73,7 @@
           <Parameter name = "dataset_dir" user = "true" text = "Chemin du dataset" type = "string" show = "dir" default ="./"/>
           <Parameter name = "output_dir" user = "true" text = "Chemin de sortie" type = "string" show = "dir" default = "./Geotiff_data"/>
           <Parameter name = "output_filename" user = "true" text = "Fichier de sortie" type = "string" show = "line" default = "OutputImage.tif"/>
-          <Parameter name = "navFile" user = "true" text = "Fichier de navigation" type = "string" show = "file" default = "navFile_mv.txt"/>
+          <Parameter name = "navFile" user = "true" text = "Fichier de navigation" type = "string" show = "file" default = "OTUS.dim2"/>
           <Parameter name = "utm_zone" user = "true" text = "Zone UTM" type = "integer" range = "[1,60]" show = "spin" default = "31"/>
           <Parameter name = "utm_hemisphere" user = "true" text = "Hémisphère UTM" type = "string" range = "{N,S}" show = "combo" default = "N"/>
         </ParametersGroup>
@@ -90,6 +90,8 @@
         <EnumValue name = "Ferrer_2008_with_nav" text = "Ferrer_2008_with_nav"/>
         <EnumValue name = "Ferrer_without_nav" text = "Ferrer_without_nav"/>
         <EnumValue name = "Robust_2D_with_nav" text = "Robust_2D_with_nav"/>
+        <EnumValue name = "Nav_only" text = "Nav_only"/>
+        <EnumValue name = "Calib_with_nav" text = "Calib_with_nav"/>
       </Enum>
       <Enum name = "EXPO_COMP_METHOD">
         <EnumValue name = "no" text = "no"/>

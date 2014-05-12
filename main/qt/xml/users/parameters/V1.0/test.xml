@@ -24,7 +24,7 @@
 <MaxIter>99</MaxIter>
 <MaxRoll>0</MaxRoll>
 <max_Pitch>0</max_Pitch>
-<ba_method>Robust_2D_with_nav</ba_method>
+<ba_method>Calib_with_nav</ba_method>
 <cosmetic_strech>true</cosmetic_strech>
 
 <!--Blending and displaying parameters-->

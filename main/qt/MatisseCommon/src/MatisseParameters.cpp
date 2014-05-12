@@ -200,24 +200,32 @@ bool MatisseParameters::containsParam(QString paramGroupName, QString paramName)
 
 qint64 MatisseParameters::getIntParamValue(QString paramGroupName, QString paramName, bool &ok)
 {
-    QString value = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"").trimmed();
-    if (value.endsWith("inf")) {
-        value.replace("inf", QString("%1").arg(InfInt));
-    }
+    ok=true;
+    QString valueStr = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"").trimmed();
 
-    return value.toLongLong(&ok);
+    qint64 value;
+    ok = true;
+    if (valueStr == "-inf") {
+        value=-1 * InfInt;
+    } else if (valueStr == "inf") {
+        value=InfInt;
+    } else {
+        value=valueStr.toLongLong(&ok);
+    }
+    return value;
+
 }
 
 bool MatisseParameters::getBoolParamValue(QString paramGroupName, QString paramName, bool &ok)
 {
-    QString value = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"").trimmed().toLower();
+    QString valueStr = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"").trimmed().toLower();
 
     bool retValue = false;
 
-    if (_boolRegExpTrue.exactMatch(value)) {
+    if (_boolRegExpTrue.exactMatch(valueStr)) {
         retValue = true;
         ok = true;
-    } else if (_boolRegExpFalse.exactMatch(value)) {
+    } else if (_boolRegExpFalse.exactMatch(valueStr)) {
         ok = true;
     } else {
         ok = false;
@@ -228,12 +236,18 @@ bool MatisseParameters::getBoolParamValue(QString paramGroupName, QString paramN
 
 qreal MatisseParameters::getDoubleParamValue(QString paramGroupName, QString paramName, bool &ok)
 {
-    QString value = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"").trimmed();
-    if (value.endsWith("inf")) {
-        value.replace("inf", QString("%1").arg(InfDouble));
+    ok=true;
+    QString valueStr = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"").trimmed();
+    double value;
+    ok = true;
+    if (valueStr == "-inf") {
+        value=-1 * InfDouble;
+    } else if (valueStr == "inf") {
+        value=InfDouble;
+    } else {
+        value=valueStr.toDouble(&ok);
     }
-
-    return value.toDouble(&ok);
+    return value;
 }
 
 QString MatisseParameters::getStringParamValue(QString paramGroupName, QString paramName)
@@ -258,12 +272,20 @@ QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString paramGroupName, QSt
         ok = true;
         for (int noRow = 0; noRow < 3; noRow++) {
             for (int noCol = 0; noCol < 3; noCol++) {
-                QString arg = args.at(index).trimmed();
-                if (arg.endsWith("inf")) {
-                    arg.replace("inf", QString("%1").arg(InfDouble));
+                QString valueStr = args.at(index).trimmed();
+
+                double value;
+                locOk = true;
+                if (valueStr == "-inf") {
+                    value=-1 * InfDouble;
+                } else if (valueStr == "inf") {
+                    value=InfDouble;
+                } else {
+                    value=valueStr.toDouble(&locOk);
                 }
 
-                values(noRow, noCol) = arg.toDouble(&locOk);
+
+                values(noRow, noCol) = value;
                 ok = ok && locOk;
                 index++;
             }
@@ -286,14 +308,21 @@ Matrix6x1 MatisseParameters::getMatrix6x1ParamValue(QString paramGroupName, QStr
         bool locOk;
         ok = true;
         for (int noCol = 0; noCol < 6; noCol++) {
-            QString arg = args.at(index).trimmed();
-            if (arg.endsWith("inf")) {
-                arg.replace("inf", QString("%1").arg(InfDouble));
+            QString valueStr = args.at(index).trimmed();
+            double value;
+            locOk = true;
+            if (valueStr == "-inf") {
+                value=-1 * InfDouble;
+            } else if (valueStr == "inf") {
+                value=InfDouble;
+            } else {
+                value=valueStr.toDouble(&locOk);
             }
-                values(0, noCol) =arg.toDouble(&locOk);
-                ok = ok && locOk;
-                index++;
-            }
+
+            values(0, noCol) =value;
+            ok = ok && locOk;
+            index++;
+        }
      }
 
     return values;

@@ -10,7 +10,7 @@
 <scale_factor>1,000</scale_factor>
 <maxdist_centers>8,000</maxdist_centers>
 <min_matches>12</min_matches>
-<max_matches>99</max_matches>
+<max_matches>inf</max_matches>
 <First_processed_image>1</First_processed_image>
 <Last_processed_image>10</Last_processed_image>
 <step_im>1</step_im>
@@ -24,7 +24,7 @@
 <MaxIter>40</MaxIter>
 <MaxRoll>0</MaxRoll>
 <max_Pitch>0</max_Pitch>
-<ba_method>Calib_with_nav</ba_method>
+<ba_method>Robust_2D_with_nav</ba_method>
 <cosmetic_strech>true</cosmetic_strech>
 
 <!--Blending and displaying parameters-->
