@@ -935,6 +935,7 @@ void AssemblyGui::slot_launchJob()
                                                          QMessageBox::No)) {
                 return;
             }
+            _userFormWidget->clear();
         }
 
         // si un parametre est modifié, on demande si on sauvegarde sous un nouveau nom...
