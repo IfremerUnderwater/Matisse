@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<MatisseAssembly name="InitMatch4" usable="0">
+<MatisseAssembly name="Std1Test" usable="0">
 	<DescriptorFields>
 		<Author>
 			
@@ -8,15 +8,15 @@
 			
 		</Version>
 		<Comments>
-			Et la touche finale
+			
 		</Comments>
 		<Date>
-			30/04/2014
+			13/05/2014
 		</Date>
 	</DescriptorFields>
-	<Parameters id="99" model="V1.0" name="MorphFinal2"/>
+	<Parameters id="99" model="V1.0" name="Std1"/>
 
-	<Source id="99" name="DTPictureFileSetImageProvider" order="0"/>
+	<Source id="99" name="Flusher" order="0"/>
 
 	<Processors>
 		<Processor id="99" name="InitMatchModule" order="1"/>
@@ -27,9 +27,9 @@
 	<Destination id="99" name="GeoTiffImageWriter" order="4"/>
 
 	<Connections>
-		<Connection startOrder="0" startLine="0" endOrder="1" endLine="0" color="4278255360"/>
 		<Connection startOrder="1" startLine="0" endOrder="2" endLine="0" color="4294902015"/>
 		<Connection startOrder="2" startLine="0" endOrder="3" endLine="0" color="4278222848"/>
 		<Connection startOrder="3" startLine="0" endOrder="4" endLine="0" color="4278190208"/>
+		<Connection startOrder="0" startLine="0" endOrder="1" endLine="0" color="4286578816"/>
 	</Connections>
 </MatisseAssembly>

@@ -6,11 +6,11 @@
 </fileDescriptor>
 
 <algo_param>
-<sift_code>GPU_sift</sift_code>
+<sift_code>GPUsift</sift_code>
 <scale_factor>1,000</scale_factor>
-<maxdist_centers>10,000</maxdist_centers>
-<min_matches>8</min_matches>
-<max_matches>inf</max_matches>
+<maxdist_centers>8,000</maxdist_centers>
+<min_matches>12</min_matches>
+<max_matches>10000</max_matches>
 <First_processed_image>1</First_processed_image>
 <Last_processed_image>10</Last_processed_image>
 <step_im>1</step_im>
@@ -21,10 +21,10 @@
 <min_overlap>0,700</min_overlap>
 
 <!--Bundle adjustment parameters-->
-<MaxIter>99</MaxIter>
-<MaxRoll>0</MaxRoll>
-<max_Pitch>0</max_Pitch>
-<ba_method>Calib_with_nav</ba_method>
+<MaxIter>40</MaxIter>
+<max_Roll>0,100</max_Roll>
+<max_Pitch>0,100</max_Pitch>
+<ba_method>Robust_2D_with_nav</ba_method>
 <cosmetic_strech>true</cosmetic_strech>
 
 <!--Blending and displaying parameters-->
@@ -33,33 +33,36 @@
 <blending_method>multiband</blending_method>
 <no_plot>false</no_plot>
 <WriteGeoTiff>true</WriteGeoTiff>
+<block_drawing>false</block_drawing>
+<block_width>7000</block_width>
+<block_height>7000</block_height>
 
 </algo_param>
 
 <cam_param>
-<K>5560;0;1960;0;5560;1440;0;0;1</K>
-<V_Pose_C>0.45;0.35;-1.07;0;0;-1.6</V_Pose_C>
+<K>540.6770;0;199.9878;0;539.5830;143.9180;0;0;1</K>
+<V_Pose_C>-1.1;0.25;-0.15;0;0;-1.5708</V_Pose_C>
 
 </cam_param>
 
 <dataset_param>
-<dataset_dir>D:\DATA\MOSAIC_DATASETS\Morph\Vortex-day5\CanonG9Corr</dataset_dir>
+<dataset_dir>D:\DATA\MOSAIC_DATASETS\ROBOMOS\27_10_2010-AGA\Resize_01</dataset_dir>
 <output_dir>./Geotiff_data</output_dir>
 <output_filename>MosaicOut.tiff</output_filename>
-<navFile>iPhoto.dim2</navFile>
+<navFile>navFile_mv_small_profile2.txt</navFile>
 <utm_zone>31</utm_zone>
 <utm_hemisphere>N</utm_hemisphere>
 
 </dataset_param>
 
 <vehic_param>
-<reproj_std>1,000</reproj_std>
-<X_std>2,000</X_std>
-<Y_std>2,000</Y_std>
-<alt_std>2,000</alt_std>
+<reproj_std>10,000</reproj_std>
+<X_std>5,000</X_std>
+<Y_std>5,000</Y_std>
+<alt_std>0,800</alt_std>
 <Roll_std>0,010</Roll_std>
 <Pitch_std>0,010</Pitch_std>
-<Yaw_std>0,010</Yaw_std>
+<Yaw_std>0,100</Yaw_std>
 
 </vehic_param>
 

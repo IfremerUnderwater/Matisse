@@ -13,7 +13,7 @@
     <Structure name = "algo_param">
       <Parameters>
         <ParametersGroup>
-          <Parameter name = "sift_code" text = "Code à executer pour le sift" type = "string" range= "{$SIFT_CODE}" show = "combo" default = "GPU_sift"/>
+          <Parameter name = "sift_code" text = "Code à executer pour le sift" type = "string" range= "{$SIFT_CODE}" show = "combo" default = "GPUsift"/>
           <Parameter name = "scale_factor" user = "true" text = "Réduction de la taille de l'image" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "1"/>
           <Parameter name = "maxdist_centers" text = "Distance max de recherche" suffix = "pixels" type = "double" range = "]0,inf[" show = "spin" default = "10"/>
           <Parameter name = "min_matches" text = "Nombre min de correspondances" type = "integer" range = "[4,inf[" show = "spin" default = "10"/>
@@ -40,6 +40,9 @@
           <Parameter name = "blending_method" text = "Méthode de blending" type = "string" range = "{$BLENDING_METHOD}" show = "combo" default = "multiband"/>
           <Parameter name = "no_plot" user = "true" text = "Pas de tracé" type = "bool" show = "check" default = "1"/>
           <Parameter name = "WriteGeoTiff" user = "true" text = "Ecriture du GeoTiff" type = "bool" show = "check" default = "1"/>
+		  <Parameter name = "block_drawing" user = "true" text = "Dessin par blocs (gain mémoire)" type = "bool" show = "check" default = "0"/>
+		  <Parameter name = "block_width" user = "true" text = "Largeur moyenne d'un bloc" type = "integer" range = "]0,inf[" show = "spin" default = "7000"/>
+		  <Parameter name = "block_height" user = "true" text = "Hauteur moyenne d'un bloc" type = "integer" range = "]0,inf[" show = "spin" default = "7000"/>
         </ParametersGroup>
       </Parameters>
       <Conditions>
@@ -82,7 +85,7 @@
     </Structures>
     <Enums>
       <Enum name = "SIFT_CODE">
-        <EnumValue name = "GPU_sift" text = "GPU_sift"/>
+        <EnumValue name = "GPUsift" text = "GPUsift"/>
         <EnumValue name = "Lowe_sift" text = "Lowe_sift"/>
         <EnumValue name = "OpenCV_sift" text = "OpenCV_sift"/>
       </Enum>

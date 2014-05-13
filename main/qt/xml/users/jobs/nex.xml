@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="nex" assembly="RobomossLabFix" version="">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="nex"/>
+	<Execution executed="true" executionDate="13/05/2014 11:27" result="D:/DATA/MOSAIC_DATASETS/ROBOMOS/27_10_2010-AGA/Resize_01/Geotiff_data/MosaicOut.tiff"/>
+</MatisseJob>

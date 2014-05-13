@@ -313,12 +313,13 @@
     bool Ok;
 
     const char *paramfields[] = {"sift_code", "scale_factor", "maxdist_centers", "min_matches", "max_matches", "filter_overlap", "max_overlap", "min_overlap",
-    "MaxIter", "ba_method", "cosmetic_stretch", "expo_comp_method", "seam_method", "blending_method", "no_plot", "WriteGeoTiff",
-    "reproj_std", "X_std", "Y_std", "alt_std", "Roll_std", "Pitch_std", "Yaw_std", "K", "V_Pose_C", "dataset_dir", "output_dir",
-    "output_filename", "navFile" , "First_processed_image", "Last_processed_image", "step_im", "utm_hemisphere", "utm_zone"};
+                                 "MaxIter", "ba_method", "cosmetic_stretch", "expo_comp_method", "seam_method", "blending_method", "no_plot", "WriteGeoTiff",
+                                 "reproj_std", "X_std", "Y_std", "alt_std", "Roll_std", "Pitch_std", "Yaw_std", "K", "V_Pose_C", "dataset_dir", "output_dir",
+                                 "output_filename", "navFile" , "First_processed_image", "Last_processed_image", "step_im", "utm_hemisphere", "utm_zone",
+                                 "block_drawing", "block_width", "block_height", "max_Roll", "max_Pitch"};
 
     mwSize pdims[2] = {1, 1};
-    algo_param = mwArray(2,pdims, 34, paramfields);
+    algo_param = mwArray(2,pdims, 39, paramfields);
 
     QString tempString;
     double tempDouble;
@@ -343,7 +344,7 @@
 
     tempInt = mosaicParameters->getIntParamValue("algo_param", "max_matches", Ok);
     qDebug() << "max_matches = " <<  tempInt;
-    algo_param.Get(paramfields[4],1,1).Set(mwArray(tempDouble));
+    algo_param.Get(paramfields[4],1,1).Set(mwArray(tempInt));
 
     tempBool = mosaicParameters->getBoolParamValue("algo_param", "filter_overlap", Ok);
     qDebug() << "filter_overlap = " << tempBool;
@@ -353,7 +354,7 @@
     qDebug() << "max_overlap = " << tempDouble;
     algo_param.Get(paramfields[6],1,1).Set(mwArray(tempDouble));
 
-    tempDouble =     mosaicParameters->getDoubleParamValue("algo_param", "min_overlap", Ok);
+    tempDouble = mosaicParameters->getDoubleParamValue("algo_param", "min_overlap", Ok);
     qDebug() << "min_overlap = " << tempDouble;
     algo_param.Get(paramfields[7],1,1).Set(mwArray(tempDouble));
 
@@ -365,9 +366,9 @@
     qDebug() << "ba_method = " << tempString;
     algo_param.Get(paramfields[9],1,1).Set(mwArray(tempString.toLocal8Bit().data()));
 
-    tempString = mosaicParameters->getBoolParamValue("algo_param", "cosmetic_stretch", Ok);
-    qDebug() << "cosmetic_stretch = " << tempString;
-    algo_param.Get(paramfields[10],1,1).Set(mwArray(tempString.toLocal8Bit().data()));
+    tempBool = mosaicParameters->getBoolParamValue("algo_param", "cosmetic_stretch", Ok);
+    qDebug() << "cosmetic_stretch = " << tempBool;
+    algo_param.Get(paramfields[10],1,1).Set(mwArray(tempBool));
 
     tempString = mosaicParameters->getStringParamValue("algo_param", "expo_comp_method");
     qDebug() << "expo_comp_method = " << tempString;
@@ -405,7 +406,7 @@
     qDebug() << "alt_std = " << tempDouble;
     algo_param.Get(paramfields[19],1,1).Set(mwArray(tempDouble));
 
-    mosaicParameters->getDoubleParamValue("vehic_param", "Roll_std", Ok);
+    tempDouble = mosaicParameters->getDoubleParamValue("vehic_param", "Roll_std", Ok);
     qDebug() << "Roll_std = " << tempDouble;
     algo_param.Get(paramfields[20],1,1).Set(mwArray(tempDouble));
 
@@ -491,5 +492,24 @@
     qDebug() << "step_im = " << tempInt;
     algo_param.Get(paramfields[31],1,1).Set(mwArray(tempInt));
 
+    tempBool = mosaicParameters->getBoolParamValue("algo_param", "block_drawing", Ok);
+    qDebug() << "block_drawing = " << tempBool;
+    algo_param.Get(paramfields[34],1,1).Set(mwArray(tempBool));
+
+    tempInt = mosaicParameters->getIntParamValue("algo_param", "block_width", Ok);
+    qDebug() << "block_width = " << tempInt;
+    algo_param.Get(paramfields[35],1,1).Set(mwArray(tempInt));
+
+    tempInt = mosaicParameters->getIntParamValue("algo_param", "block_height", Ok);
+    qDebug() << "block_height = " << tempInt;
+    algo_param.Get(paramfields[36],1,1).Set(mwArray(tempInt));
+
+    tempDouble = mosaicParameters->getDoubleParamValue("algo_param", "max_Roll", Ok);
+    qDebug() << "max_Roll = " << tempDouble;
+    algo_param.Get(paramfields[37],1,1).Set(mwArray(tempDouble));
+
+    tempDouble = mosaicParameters->getDoubleParamValue("algo_param", "max_Pitch", Ok);
+    qDebug() << "max_Pitch = " << tempDouble;
+    algo_param.Get(paramfields[38],1,1).Set(mwArray(tempDouble));
 
 }
