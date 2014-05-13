@@ -9,7 +9,6 @@
 
     // ********************* Complete mosaicData structure from matlab object *************************
 
-    qDebug() << "Trace 1";
 
     //Fill Init field
     mosaicDataCpp.init.mosaicOrigin.x = mosaicData.Get("init",1,1).Get("mosaic_origin",1,1).Get("x",1,1);
@@ -24,6 +23,7 @@
     double mosaic_ullr_value[4];
     mosaicData.Get("init",1,1).Get("mosaic_ullr",1,1).GetData(mosaic_ullr_value,4);
     mosaicDataCpp.init.mosaic_ullr = Mat(1,4,CV_64F,mosaic_ullr_value).clone();
+
 
     //Fill Nodes field
     double matrix3x3[9];
@@ -477,6 +477,10 @@
     // ********************************************************************************************************
 
     tempString = mosaicParameters->getStringParamValue("dataset_param", "navFile");
+    QFileInfo navFile(tempString);
+    if (navFile.isAbsolute()){
+        tempString = navFile.fileName();
+    }
     qDebug() << "navFile = " << tempString;
     algo_param.Get(paramfields[28],1,1).Set(mwArray(tempString.toLocal8Bit().data()));
 
