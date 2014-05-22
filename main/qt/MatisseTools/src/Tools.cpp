@@ -277,12 +277,12 @@ ParametersWidgetSkeleton * Tools::createDialog(QString structName, bool user) {
                 break;
             case FILE_SELECTOR_RELATIVE:
             case FILE_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(0, param._text, "Fichier", param._show, param._value.toString());
+                widget = new EnrichedFileChooser(0, param._text, "File", param._show, param._value.toString());
             }
                 break;
             case DIR_SELECTOR_RELATIVE:
             case DIR_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(0, param._text, "Répertoire", param._show, param._value.toString());
+                widget = new EnrichedFileChooser(0, param._text, "Directory", param._show, param._value.toString());
             }
                 break;
             case UNKNOWN_SHOW:

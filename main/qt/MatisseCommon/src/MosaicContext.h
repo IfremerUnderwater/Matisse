@@ -12,9 +12,9 @@ struct Matching2Images {
 
     int indexes[2];
 
-    QVector<Point2f> pointsImage1;
+    QVector<Point2d> pointsImage1;
 
-    QVector<Point2f> pointsImage2;
+    QVector<Point2d> pointsImage2;
 
 };
 
@@ -32,11 +32,11 @@ struct MosaicInit {
 
  QString filename;
 
- Point3f mosaicOrigin;
+ Point3d mosaicOrigin;
 
- Point2f pixelSize;
+ Point2d pixelSize;
 
- Point2f mosaicSize;
+ Point2d mosaicSize;
 
  Mat mosaic_ullr;
 

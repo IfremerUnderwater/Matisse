@@ -30,26 +30,26 @@ bool Server::setSettingsFile(QString settings)
     QFileInfo settingsFile(settings);
     if (!settingsFile.exists()) {
         //QMessageBox::critical(this, "Fichier de configuration introuvable", "Impossible de trouver le fichier:\n" + _settingsFile + "\nRelancez l'application avec un nom de fichier valide en paramètre\nou un fichier " + standardFile + " valide!");
-        setMessageStr("Fichier de configuration introuvable: " + settingsFile.absoluteFilePath());
+        setMessageStr("Cannot find the configuration file: " + settingsFile.absoluteFilePath());
         return false;
     }
 
     if (!settingsFile.isReadable()) {
         //QMessageBox::critical(this, "Fichier de configuration illisible", "Impossible de lire le fichier:\n" + _settingsFile + "\nRelancez l'application avec un nom de fichier lisible en paramètre\nou rendez le fichier " + standardFile + " lisible!");
-        setMessageStr("Fichier de configuration illisible: " + settingsFile.absoluteFilePath());
+        setMessageStr("Cannot read the configuration file: " + settingsFile.absoluteFilePath());
         return false;
     }
 
     _xmlTool.readMatisseGuiSettings(settings);
     if (( _xmlTool.getBasePath()) == "") {
         //QMessageBox::critical(this, "Fichier de configuration incorrect", "La valeur de XmlRootDir ne peut être déterminée.\nRelancez l'application avec un paramètre XmlRootDir valide\ndans le fichier de configuration!");
-        setMessageStr("XmlRootDir introuvable dans le fichier de configuration: " + settingsFile.absoluteFilePath());
+        setMessageStr("XmlRootDir has not been find in the config file: " + settingsFile.absoluteFilePath());
         return false;
     }
 
     if ((_xmlTool.getDataPath()) == "") {
         //QMessageBox::critical(this, "Fichier de configuration incorrect", "La valeur de XmlRootDir ne peut être déterminée.\nRelancez l'application avec un paramètre XmlRootDir valide\ndans le fichier de configuration!");
-        setMessageStr("DataRootDir introuvable dans le fichier de configuration: " + settingsFile.absoluteFilePath());
+        setMessageStr("DataRootDir has not been find in the config file: " + settingsFile.absoluteFilePath());
         return false;
     }
 
@@ -92,7 +92,7 @@ MatisseParameters* Server::buildMosaicParameters(JobDefinition &job) {
     if (QFile::exists(file)) {
         parameters = new MatisseParameters(file);
     } else {
-        setMessageStr("Fichier de paramètres introuvable: " + file);
+        setMessageStr("Cannot find parameters file: " + file);
     }
 
     return parameters;
@@ -127,7 +127,7 @@ bool Server::checkAssembly(MatisseParameters *mosaicParameters, AssemblyDefiniti
     qDebug() << "Verification de l'assemblage";
     setMessageStr();
     if (!mosaicParameters) {
-        setMessageStr("Fichier de paramètres invalide");
+        setMessageStr("Invalid parameters file");
         return false;
     }
 
@@ -137,7 +137,7 @@ bool Server::checkAssembly(MatisseParameters *mosaicParameters, AssemblyDefiniti
     qDebug() << "Verification présence de la source" << sourceName;
     ImageProvider* imageProvider = _imageProviders.value(sourceName);
     if (!imageProvider) {
-        setMessageStr("Module source introuvable: " + sourceName);
+        setMessageStr("Cannot find source module: " + sourceName);
         return false;
     }
 
@@ -145,7 +145,7 @@ bool Server::checkAssembly(MatisseParameters *mosaicParameters, AssemblyDefiniti
     QList<MatisseParameter> expectedParams = imageProvider->expectedParameters();
     foreach (MatisseParameter mp, expectedParams) {
         if (!mosaicParameters->containsParam(mp.structure, mp.param)) {
-            setMessageStr("Paramètre requis manquant dans l'assemblage: (" + mp.structure + ", " + mp.param + ") pour " + sourceName);
+            setMessageStr("Required parameter missing: (" + mp.structure + ", " + mp.param + ") for " + sourceName);
             return false;
         }
     }
@@ -160,21 +160,21 @@ bool Server::checkAssembly(MatisseParameters *mosaicParameters, AssemblyDefiniti
         QString processorName = procDef->name();
         qDebug() << "Processeur" << processorName;
         if (order=0) {
-            setMessageStr("Processeur défini avec un ordre incorrect: " + processorName);
+            setMessageStr("Incorrect position for the processor: " + processorName);
             // impossible :source
             return false;
         }
         else {
             Processor *processor = _processors.value(processorName ,NULL);
             if (!processor) {
-                setMessageStr("Module processeur introuvable: " + processorName);
+                setMessageStr("Cannot find the module: " + processorName);
                 return false;
             }
 
             expectedParams = processor->expectedParameters();
             foreach (MatisseParameter mp, expectedParams) {
                 if (!mosaicParameters->containsParam(mp.structure, mp.param)) {
-                    setMessageStr("Paramètre requis manquant dans l'assemblage: (" + mp.structure + ", " + mp.param + ") pour " + processorName);
+                    setMessageStr("Required parameter missing: (" + mp.structure + ", " + mp.param + ") for " + processorName);
                     return false;
                 }
             }
@@ -185,25 +185,25 @@ bool Server::checkAssembly(MatisseParameters *mosaicParameters, AssemblyDefiniti
     qDebug() << "Verification présence destination";
     DestinationDefinition * destinationDef= assembly.destinationDefinition();
     if (!destinationDef) {
-         setMessageStr("Destination non définie");
+         setMessageStr("Destination not defined");
         return false;
     }
     quint32 order = destinationDef->order();
     QString destinationName = destinationDef->name();
     if (order <= maxOrder) {
-        setMessageStr("Destination définie avec un ordre incorrect: " + destinationName);
+        setMessageStr("Incorrect order for destination: " + destinationName);
         return false;
     }
     else {
         RasterProvider * rasterProvider = _rasterProviders.value(destinationName);
         if (!rasterProvider) {
-            setMessageStr("Module de destination introuvable: " + destinationName);
+            setMessageStr("Cannot find the module: " + destinationName);
             return false;
         }
         expectedParams = rasterProvider->expectedParameters();
         foreach (MatisseParameter mp, expectedParams) {
             if (!mosaicParameters->containsParam(mp.structure, mp.param)) {
-                setMessageStr("Paramètre requis manquant dans l'assemblage: (" + mp.structure + ", " + mp.param + ") pour " + destinationName);
+                setMessageStr("Missing required parameter: (" + mp.structure + ", " + mp.param + ") for " + destinationName);
                 return false;
             }
         }
@@ -221,12 +221,12 @@ bool Server::processJob(JobDefinition &job)
     AssemblyDefinition * assembly = xmlTool().getAssembly(assemblyName);
     // normalement il existe!!!!
     if (!assembly) {
-        setMessageStr("Impossible de charger l'assemblage " + assemblyName);
+        setMessageStr("Cannot load the processing chain " + assemblyName);
         return false;
     }
 
     if (!checkAssembly(parameters, *assembly)) {
-        setMessageStr("Echec de verification de l'assemblage...");
+        setMessageStr("Cannot check the processing chain...");
         return false;
     }
 
@@ -298,11 +298,11 @@ bool Server::processJob(JobDefinition &job)
 
     if (imageProvider) {
         if (!imageProvider->callConfigure(context, parameters)) {
-            setMessageStr("Erreur de configuration de la source. Arrêt");
+            setMessageStr("Source incorrectly configured. Stopping !");
             return false;
         }
     } else {
-        setMessageStr("Source introuvable...");
+        setMessageStr("Cannot find source...");
         return false;
     }
 
@@ -312,7 +312,7 @@ bool Server::processJob(JobDefinition &job)
     if (rasterProvider) {
         rasterProvider->callConfigure(context, parameters);
     } else {
-        setMessageStr("Destination introuvable...");
+        setMessageStr("Cannot find destination...");
         return false;
     }
 
@@ -464,11 +464,3 @@ void Server::init(){
     }
 
 }
-
-
-
-
-
-
-
-

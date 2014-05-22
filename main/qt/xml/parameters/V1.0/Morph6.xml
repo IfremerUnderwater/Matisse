@@ -30,7 +30,7 @@
 <max_Roll>inf</max_Roll>
 <max_Pitch>inf</max_Pitch>
 <ba_method>Robust_2D_with_nav</ba_method>
-<cosmetic_strech>true</cosmetic_strech>
+<cosmetic_stretch>true</cosmetic_stretch>
 
 <!--Blending and displaying parameters-->
 <expo_comp_method>gain</expo_comp_method>

@@ -2,5 +2,5 @@
 <MatisseJob name="test" assembly="Std1Test" version="">
 	<Comments></Comments>
 	<Parameters model="V1.0" name="test"/>
-	<Execution executed="true" executionDate="13/05/2014 15:20" result="D:/DATA/MOSAIC_DATASETS/ROBOMOS/27_10_2010-AGA/Resize_01/Geotiff_data/MosaicOut.tiff"/>
+	<Execution executed="true" executionDate="14/05/2014 15:43" result="C:/arunima/RobomossTestingDataset/Geotiff_data/MosaicOut.tiff"/>
 </MatisseJob>

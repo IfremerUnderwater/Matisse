@@ -45,7 +45,7 @@
         <xs:element ref="MaxRoll"/>
         <xs:element ref="max_Pitch"/>
         <xs:element ref="ba_method"/>
-        <xs:element ref="cosmetic_strech"/>
+        <xs:element ref="cosmetic_stretch"/>
         <xs:element ref="expo_comp_method"/>
         <xs:element ref="seam_method"/>
         <xs:element ref="blending_method"/>
@@ -69,7 +69,7 @@
   <xs:element name="MaxRoll" type="xs:NCName"/>
   <xs:element name="max_Pitch" type="xs:NCName"/>
   <xs:element name="ba_method" type="xs:NCName"/>
-  <xs:element name="cosmetic_strech" type="xs:boolean"/>
+  <xs:element name="cosmetic_stretch" type="xs:boolean"/>
   <xs:element name="expo_comp_method" type="xs:NCName"/>
   <xs:element name="seam_method" type="xs:NCName"/>
   <xs:element name="blending_method" type="xs:NCName"/>

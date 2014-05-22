@@ -1,6 +1,6 @@
 //
 // MATLAB Compiler: 4.18.1 (R2013a)
-// Date: Tue May 13 15:19:24 2014
+// Date: Wed May 21 11:34:18 2014
 // Arguments: "-B" "macro_default" "-W" "cpplib:MatisseCppLib" "-T" "link:lib"
 // "-d"
 // "D:\Projects\Matlab_MosaicTool_and_Lib\MosaicTool\MatisseCppLib\MatisseCppLib
@@ -12,7 +12,9 @@
 // "D:\Projects\Matlab_MosaicTool_and_Lib\MosaicTool\MatisseCppLib\mosaic_init_a
 // nd_matching.m"
 // "D:\Projects\Matlab_MosaicTool_and_Lib\MosaicTool\MatisseCppLib\mosaic_optimi
-// zation.m" 
+// zation.m" "-a"
+// "D:\Projects\Matlab_MosaicTool_and_Lib\MosaicTool\calib_bundle_adjustment\cal
+// ib_param_selection.fig" 
 //
 
 #ifndef __MatisseCppLib_h

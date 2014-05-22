@@ -162,7 +162,7 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
              ParametersWidgetSkeleton * paramWidget  = qobject_cast<ParametersWidgetSkeleton *>(_ui->_SCA_element->widget());
              if (paramWidget) {
                  if (paramWidget->hasModifiedValues() && (noCol>-1)) {
-                     if (QMessageBox::Yes ==QMessageBox::question(this, "Paramètres modifiés...", "Voulez vous enregistrer les paramètres?"
+                     if (QMessageBox::Yes ==QMessageBox::question(this, "Parameters has changed...", "Go on without saving ?"
                                                                   , QMessageBox::Yes, QMessageBox::No)) {
                          emit signal_saveParameters();
                      }
@@ -181,7 +181,7 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
                     + QDir::separator() + "parameters"
                     + QDir::separator() + "Parameters_" + item->data(0, Qt::DisplayRole).toString().replace(" ", "_") + ".xml";
             if (!_currentParameters -> readParametersModelFile(modelName)) {
-                QMessageBox::warning(this, "Fichier modèle de paramètres", "Le fichier modèle\n" + modelName + "\nn'est pas au format attendu ");
+                QMessageBox::warning(this, "Parameters model file", "The model file\n" + modelName + "\n is not in the good format ");
                 return;
             }
 
@@ -200,7 +200,7 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
                     + QDir::separator() + modelVersion
                     + QDir::separator() + item->data(0, Qt::DisplayRole).toString().replace(" ", "_") + ".xml";
             if (!_currentParameters -> readUserParametersFile(filename, modelName)) {
-                QMessageBox::warning(this, "Fichier de paramètres", "Le fichier\n" + filename + "\nn'est pas au format attendu ");
+                QMessageBox::warning(this, "Parameters model file", "The model file\n" + modelName + "\n is not in the good format ");
                 return;
             }
         }
@@ -215,7 +215,7 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
         }
         _ui->_SCA_element->setWidget(new QWidget());
     }
-    QString groupBoxTitle = "Paramètres courants " + modelVersionStr;
+    QString groupBoxTitle = "Algorithm parameters " + modelVersionStr;
     if (!parametersNameStr.isEmpty()) {
         groupBoxTitle.append("/" + parametersNameStr);
     }

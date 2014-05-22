@@ -25,13 +25,13 @@
 <max_Roll>0,100</max_Roll>
 <max_Pitch>0,100</max_Pitch>
 <ba_method>Robust_2D_with_nav</ba_method>
-<cosmetic_strech>true</cosmetic_strech>
+<cosmetic_stretch>true</cosmetic_stretch>
 
 <!--Blending and displaying parameters-->
 <expo_comp_method>gain</expo_comp_method>
 <seam_method>gc_color</seam_method>
 <blending_method>multiband</blending_method>
-<no_plot>false</no_plot>
+<no_plot>true</no_plot>
 <WriteGeoTiff>true</WriteGeoTiff>
 <block_drawing>false</block_drawing>
 <block_width>7000</block_width>
@@ -46,7 +46,7 @@
 </cam_param>
 
 <dataset_param>
-<dataset_dir>D:\DATA\MOSAIC_DATASETS\ROBOMOS\27_10_2010-AGA\Resize_01</dataset_dir>
+<dataset_dir>C:\arunima\RobomossTestingDataset</dataset_dir>
 <output_dir>./Geotiff_data</output_dir>
 <output_filename>MosaicOut.tiff</output_filename>
 <navFile>navFile_mv_small_profile2.txt</navFile>

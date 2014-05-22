@@ -68,7 +68,7 @@
      </widget>
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
-       <string>Paramètres</string>
+       <string>Algorithm parameters</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -117,8 +117,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>409</width>
-            <height>649</height>
+            <width>408</width>
+            <height>646</height>
            </rect>
           </property>
           <property name="sizePolicy">

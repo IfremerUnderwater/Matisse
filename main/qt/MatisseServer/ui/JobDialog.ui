@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>285</width>
-    <height>297</height>
+    <width>311</width>
+    <height>311</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,7 +20,7 @@
    <string>Sauvegarde du travail</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../ui/resources/resources.qrc">
+   <iconset resource="resources/resources.qrc">
     <normaloff>:/jpg/ifremer-grand.jpg</normaloff>:/jpg/ifremer-grand.jpg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -47,7 +47,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Nom:</string>
+        <string>Name:</string>
        </property>
       </widget>
      </item>
@@ -74,7 +74,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Commentaires:</string>
+        <string>Comments:</string>
        </property>
       </widget>
      </item>
@@ -114,14 +114,14 @@
      <item>
       <widget class="QPushButton" name="_PB_save">
        <property name="text">
-        <string>Enregistrer</string>
+        <string>Save</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="_PB_cancel">
        <property name="text">
-        <string>Annuler</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>
@@ -143,7 +143,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../ui/resources/resources.qrc"/>
+  <include location="resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

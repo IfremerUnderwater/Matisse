@@ -91,15 +91,15 @@ void ParametersDialog::slot_save()
     QFileInfo info(_path, _filename);
     if (info.exists()) {
         if (info.isWritable()) {
-            if (QMessageBox::No == QMessageBox::question(this, "Confirmation d'enregistrement", _filename + " existe déjà.\nVoulez vous le remplacer?", QMessageBox::Yes, QMessageBox::No)) {
+            if (QMessageBox::No == QMessageBox::question(this, "Saving", "The file " + _filename + " already exist.\n Do you want to replace it ?", QMessageBox::Yes, QMessageBox::No)) {
                 return;
             }
         } else {
-            QMessageBox::warning(this, "Enregistrement impossible", _filename + " existe déjà et ne peut être écrasé!");
+            QMessageBox::warning(this, "Cannot save ! ","The file " + _filename + " already exist and cannot be overwritten!");
             return;
         }
     } else if (!QFileInfo(_path,"").isWritable()) {
-        QMessageBox::warning(this, "Enregistrement impossible", "Impossible d'écrire dans le répertoire de sauvegarde!");
+        QMessageBox::warning(this, "Cannot save", "Cannot write in the destination directory!");
         return;
     }
     accept();
