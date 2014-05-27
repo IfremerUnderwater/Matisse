@@ -48,7 +48,7 @@
 <dataset_param>
 <dataset_dir>D:\DATA\MOSAIC_DATASETS\ROBOMOS\27_10_2010-AGA\Resize_01</dataset_dir>
 <output_dir>./Geotiff_data</output_dir>
-<output_filename>MosaicOut.tiff</output_filename>
+<output_filename>MosaicOutColorCorr.tiff</output_filename>
 <navFile>navFile_mv_small_profile2.txt</navFile>
 <utm_zone>31</utm_zone>
 <utm_hemisphere>N</utm_hemisphere>

@@ -20,7 +20,7 @@
           <Parameter name = "max_matches" text = "Max number of matches" type = "integer" range = "[4,inf[" show = "spin" default = "500"/>
           <Parameter name = "First_processed_image" user = "true" text = "Index of the first image" type = "integer" range = "[1,inf[" show = "spin" default = "1"/>
           <Parameter name = "Last_processed_image" user = "true" text = "Index of the last image" type = "integer" range = "[1,inf[" show = "spin" default = "inf"/>
-          <Parameter name = "step_im" user = "true" text = "Saut inter-images" type = "integer" range = "[1,inf[" show = "spin" default = "1"/>
+          <Parameter name = "step_im" user = "true" text = "Images step" type = "integer" range = "[1,inf[" show = "spin" default = "1"/>
         </ParametersGroup>
         <ParametersGroup name = "Filtering overlap parameters">
           <Parameter name = "filter_overlap" text = "Filtering flag" type = "bool" show = "check" default = "1"/>

@@ -50,7 +50,7 @@ void JobDialog::slot_close()
         QFileInfo info(_jobsPath + QDir::separator() + filename);
         if (info.exists()) {
             // Le nom est déjà utilisé
-            QMessageBox::warning(this, "Enregistrement impossible...", "Un travail sous ce nom existe déjà...");
+            QMessageBox::warning(this, "Cannot Save...", "A job already exist with the same name...");
             return;
         }
         _keyValues->set("name", name);

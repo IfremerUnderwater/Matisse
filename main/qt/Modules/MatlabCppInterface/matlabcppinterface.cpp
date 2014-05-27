@@ -214,7 +214,7 @@
 
     int mdim[2];
     int pdim[2];
-    Point2f tempPoint;
+    Point2d tempPoint;
 
     matchingData.GetDimensions().GetData(mdim,2);
     qDebug() << "matchingDataSize = (" << mdim[0] << ", " << mdim[1] << ")";
