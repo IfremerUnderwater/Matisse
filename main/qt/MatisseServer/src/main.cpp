@@ -31,10 +31,13 @@ int main(int argc, char *argv[])
     QgsApplication::initQgis();
     QgsApplication a(argc, argv, true);
 
-    QTranslator translator;
-    translator.load("MatisseServer_en");
-    translator.load("MatisseTools_en");
-    a.installTranslator(&translator);
+    QTranslator toolsTranslator;
+    toolsTranslator.load("MatisseTools_en");
+    a.installTranslator(&toolsTranslator);
+
+    QTranslator matisseTranslator;
+    matisseTranslator.load("MatisseServer_en");
+    a.installTranslator(&matisseTranslator);
 
 
     qDebug() << QgsApplication::showSettings();

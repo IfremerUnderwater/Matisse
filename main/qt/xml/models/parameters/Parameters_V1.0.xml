@@ -13,33 +13,36 @@
     <Structure name = "algo_param">
       <Parameters>
         <ParametersGroup>
-          <Parameter name = "sift_code" text = "Code à executer pour le sift" type = "string" range= "{$SIFT_CODE}" show = "combo" default = "GPU_sift"/>
-          <Parameter name = "scale_factor" user = "true" text = "Réduction de la taille de l'image" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "1"/>
-          <Parameter name = "maxdist_centers" text = "Distance max de recherche" suffix = "pixels" type = "double" range = "]0,inf[" show = "spin" default = "10"/>
-          <Parameter name = "min_matches" text = "Nombre min de correspondances" type = "integer" range = "[4,inf[" show = "spin" default = "10"/>
-          <Parameter name = "max_matches" text = "Nombre max de correspondances" type = "integer" range = "[4,inf[" show = "spin" default = "inf"/>
-          <Parameter name = "First_processed_image" user = "true" text = "Index première image" type = "integer" range = "[1,inf[" show = "spin" default = "1"/>
-          <Parameter name = "Last_processed_image" user = "true" text = "Index dernière image" type = "integer" range = "[1,inf[" show = "spin" default = "inf"/>
-          <Parameter name = "step_im" user = "true" text = "Saut inter-images" type = "integer" range = "[1,inf[" show = "spin" default = "1"/>
+          <Parameter name = "sift_code" text = "Sift algorithm" type = "string" range= "{$SIFT_CODE}" show = "combo" default = "GPUsift"/>
+          <Parameter name = "scale_factor" user = "true" text = "Image reduction scale factor" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "0.5"/>
+          <Parameter name = "maxdist_centers" text = "Max searching distance for matching (m)" suffix = "pixels" type = "double" range = "]0,inf[" show = "spin" default = "8"/>
+          <Parameter name = "min_matches" text = "Min number of matches" type = "integer" range = "[4,inf[" show = "spin" default = "12"/>
+          <Parameter name = "max_matches" text = "Max number of matches" type = "integer" range = "[4,inf[" show = "spin" default = "500"/>
+          <Parameter name = "First_processed_image" user = "true" text = "Index of the first image" type = "integer" range = "[1,inf[" show = "spin" default = "1"/>
+          <Parameter name = "Last_processed_image" user = "true" text = "Index of the last image" type = "integer" range = "[1,inf[" show = "spin" default = "inf"/>
+          <Parameter name = "step_im" user = "true" text = "Images step" type = "integer" range = "[1,inf[" show = "spin" default = "1"/>
         </ParametersGroup>
         <ParametersGroup name = "Filtering overlap parameters">
-          <Parameter name = "filter_overlap" text = "Flag de filtrage" type = "bool" show = "check" default = "0"/>
-          <Parameter name = "max_overlap" text = "Overlap max entre 2 images" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "0.9"/>
-          <Parameter name = "min_overlap" text = "Overlap min entre 2 images" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "0.7"/>
+          <Parameter name = "filter_overlap" text = "Filtering flag" type = "bool" show = "check" default = "1"/>
+          <Parameter name = "max_overlap" text = "Max overlap between successive images" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "0.8"/>
+          <Parameter name = "min_overlap" text = "Min overlap between successive images" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "0.6"/>
         </ParametersGroup>
         <ParametersGroup name = "Bundle adjustment parameters">
-          <Parameter name = "MaxIter" text = "Nombre max d'itérations dans l'optimisation" type = "integer" range = "]1,inf[" show = "spin" default = "300"/>
-          <Parameter name = "MaxRoll" text = "Roll maximum" type = "integer" range = "[0,inf[" show = "spin" default = "inf"/>
-          <Parameter name = "max_Pitch" text = "Pitch maximum" type = "integer" range = "[0,inf[" show = "spin" default = "inf"/>
-          <Parameter name = "ba_method" text = "Choix de la méthode de mosaique" type = "string" range="{$BA_METHOD}" show = "combo" default = "Ferrer_2008_with_nav"/>
-          <Parameter name = "cosmetic_strech" user = "true" text = "Stretching des couleurs" type = "bool" show = "check" default = "1"/>
+          <Parameter name = "MaxIter" text = "Max number of iteration in the optimization" type = "integer" range = "]1,inf[" show = "spin" default = "50"/>
+          <Parameter name = "max_Roll" text = "Maximum Roll" type = "double" range = "[0,inf[" show = "spin" default = "0.1"/>
+          <Parameter name = "max_Pitch" text = "Maximum Pitch" type = "double" range = "[0,inf[" show = "spin" default = "0.1"/>
+          <Parameter name = "ba_method" user = "true" text = "Mosaicking method" type = "string" range="{$BA_METHOD}" show = "combo" default = "Nav_only"/>
+          <Parameter name = "cosmetic_stretch" user = "true" text = "Color/Constrast Stretching" type = "bool" show = "check" default = "0"/>
         </ParametersGroup>
         <ParametersGroup name = "Blending and displaying parameters">
-          <Parameter name = "expo_comp_method" text = "Méthode de compensation d'exposition" type = "string" range = "{$EXPO_COMP_METHOD}" show = "combo" default = "gain"/>
-          <Parameter name = "seam_method" text = "Méthode de découpage des images" type = "string" range = "{$SEAM_METHOD}" show = "combo" default = "gc_color"/>
-          <Parameter name = "blending_method" text = "Méthode de blending" type = "string" range = "{$BLENDING_METHOD}" show = "combo" default = "multiband"/>
-          <Parameter name = "no_plot" user = "true" text = "Pas de tracé" type = "bool" show = "check" default = "0"/>
-          <Parameter name = "WriteGeoTiff" user = "true" text = "Ecriture du GeoTiff" type = "bool" show = "check" default = "1"/>
+          <Parameter name = "expo_comp_method" text = "Exposure compensation method" type = "string" range = "{$EXPO_COMP_METHOD}" show = "combo" default = "gain"/>
+          <Parameter name = "seam_method" text = "Images seaming method" type = "string" range = "{$SEAM_METHOD}" show = "combo" default = "gc_color"/>
+          <Parameter name = "blending_method" text = "Blending method" type = "string" range = "{$BLENDING_METHOD}" show = "combo" default = "multiband"/>
+          <Parameter name = "no_plot" user = "true" text = "No plot (just progress bars)" type = "bool" show = "check" default = "1"/>
+          <Parameter name = "WriteGeoTiff" user = "true" text = "Write a GeoTiff file" type = "bool" show = "check" default = "1"/>
+		  <Parameter name = "block_drawing" user = "true" text = "Blocks drawing (better for memory use)" type = "bool" show = "check" default = "0"/>
+		  <Parameter name = "block_width" user = "true" text = "Mean block width" type = "integer" range = "]0,inf[" show = "spin" default = "7000"/>
+		  <Parameter name = "block_height" user = "true" text = "Mean block height" type = "integer" range = "]0,inf[" show = "spin" default = "7000"/>
         </ParametersGroup>
       </Parameters>
       <Conditions>
@@ -49,40 +52,40 @@
     <Structure name = "vehic_param">
       <Parameters>
         <ParametersGroup>
-          <Parameter name = "reproj_std" text = "St. dev. de la localisation des sift dans les images" type = "double" range = "]0,inf[" show = "spin" default = "1"/>
-          <Parameter name = "X_std" text = "St. dev. du champ UTM X" type = "double" range = "]0,inf[" show = "spin" default = "2"/>
-          <Parameter name = "Y_std" text = "Stdev du champ UTM Y" type = "double" range = "]0,inf[" show = "spin" default = "2"/>
-          <Parameter name = "alt_std" text = "Stdev de l'altitude" type = "double" range = "]0,inf[" show = "spin" default = "2"/>
-          <Parameter name = "Roll_std" text = "Stdev du Roll" type = "double" range = "]0,inf[" show = "spin" default = "0.01"/>
-          <Parameter name = "Pitch_std" text = "Stdev du Pitch" type = "double" range = "]0,inf[" show = "spin" default = "0.01"/>
-          <Parameter name = "Yaw_std" text = "Stdev du Yaw" type = "double" range = "]0,inf[" show = "spin" default = "0.01"/>
+          <Parameter name = "reproj_std" text = "Sift matching precision (in pixels)" type = "double" range = "]0,inf[" show = "spin" default = "10"/>
+          <Parameter name = "X_std" text = "UTM X precision (std dev in m)" type = "double" range = "]0,inf[" show = "spin" default = "5"/>
+          <Parameter name = "Y_std" text = "UTM Y precision (m)" type = "double" range = "]0,inf[" show = "spin" default = "5"/>
+          <Parameter name = "alt_std" text = "Altitude precision (m)" type = "double" range = "]0,inf[" show = "spin" default = "0.8"/>
+          <Parameter name = "Roll_std" text = "Roll precision (rad)" type = "double" range = "]0,inf[" show = "spin" default = "0.01"/>
+          <Parameter name = "Pitch_std" text = "Pitch precision (rad)" type = "double" range = "]0,inf[" show = "spin" default = "0.01"/>
+          <Parameter name = "Yaw_std" text = "Yaw precision (rad)" type = "double" range = "]0,inf[" show = "spin" default = "0.1"/>
         </ParametersGroup>
       </Parameters>
       </Structure>
     <Structure name = "cam_param">
       <Parameters>
         <ParametersGroup>
-          <Parameter name = "K" text = "Matrice de la caméra" type = "double" size = "(3,3)" range = "]-inf,inf[" show = "table" default = "540.677; 0; 199.9878; 0; 539.5830; 143.9180; 0; 0; 1"/>
-          <Parameter name = "V_Pose_C" text = "Position de la caméra / centre de nav" type = "double" size = "(6,1)" range = "]-inf,inf[" show = "table" default = "-1.1000; 0.2500; -0.1500; 0; 0; -1.5708"/>
+          <Parameter name = "K" user = "true" text = "Camera matrix" type = "double" size = "(3,3)" range = "]-inf,inf[" show = "table" default = "(1035.26002; 0; 505.70854; 0; 1034.57204; 474.60786; 0; 0; 1)"/>
+          <Parameter name = "V_Pose_C" user = "true" text = "Camera position / navigation center" type = "double" size = "(6,1)" range = "]-inf,inf[" show = "table" default = "(0; 0; 0; 0; 0; 1.5708)"/>
         </ParametersGroup>
       </Parameters>
       </Structure>
     <Structure name = "dataset_param">
       <Parameters>
         <ParametersGroup>
-          <Parameter name = "dataset_dir" user = "true" text = "Chemin du dataset" type = "string" show = "dir" default ="./"/>
-          <Parameter name = "output_dir" user = "true" text = "Chemin de sortie" type = "string" show = "dir" default = "./Geotiff_data"/>
-          <Parameter name = "output_filename" user = "true" text = "Fichier de sortie" type = "string" show = "line" default = "OutputImage.tif"/>
-          <Parameter name = "navFile" user = "true" text = "Fichier de navigation" type = "string" show = "file" default = "navFile_mv.txt"/>
-          <Parameter name = "utm_zone" user = "true" text = "Zone UTM" type = "integer" range = "[1,60]" show = "spin" default = "31"/>
-          <Parameter name = "utm_hemisphere" user = "true" text = "Hémisphère UTM" type = "string" range = "{N,S}" show = "combo" default = "N"/>
+          <Parameter name = "dataset_dir" user = "true" text = "Dataset path" type = "string" show = "dir" default ="./"/>
+          <Parameter name = "output_dir" user = "true" text = "Output path" type = "string" show = "dir" default = "./Geotiff_data"/>
+          <Parameter name = "output_filename" user = "true" text = "Output file" type = "string" show = "line" default = "OutputImage.tif"/>
+          <Parameter name = "navFile" user = "true" text = "Navigation file" type = "string" show = "file" default = "OTUS.dim2"/>
+          <Parameter name = "utm_zone" user = "true" text = "UTM Zone" type = "integer" range = "[1,60]" show = "spin" default = "31"/>
+          <Parameter name = "utm_hemisphere" user = "true" text = "UTM Hemisphere" type = "string" range = "{N,S}" show = "combo" default = "N"/>
         </ParametersGroup>
       </Parameters>
       </Structure>
     </Structures>
     <Enums>
       <Enum name = "SIFT_CODE">
-        <EnumValue name = "GPU_sift" text = "GPU_sift"/>
+        <EnumValue name = "GPUsift" text = "GPUsift"/>
         <EnumValue name = "Lowe_sift" text = "Lowe_sift"/>
         <EnumValue name = "OpenCV_sift" text = "OpenCV_sift"/>
       </Enum>
@@ -90,6 +93,8 @@
         <EnumValue name = "Ferrer_2008_with_nav" text = "Ferrer_2008_with_nav"/>
         <EnumValue name = "Ferrer_without_nav" text = "Ferrer_without_nav"/>
         <EnumValue name = "Robust_2D_with_nav" text = "Robust_2D_with_nav"/>
+        <EnumValue name = "Nav_only" text = "Nav_only"/>
+        <EnumValue name = "Calib_with_nav" text = "Calib_with_nav"/>
       </Enum>
       <Enum name = "EXPO_COMP_METHOD">
         <EnumValue name = "no" text = "no"/>

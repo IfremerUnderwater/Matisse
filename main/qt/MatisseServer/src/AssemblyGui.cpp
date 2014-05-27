@@ -446,6 +446,9 @@ void AssemblyGui::displayAssembly(QString assemblyName) {
 
 void AssemblyGui::displayJob(QString jobName)
 {
+
+    qDebug() << "%%%%%%%%%%%%% displayJob " << jobName;
+
     _ui->_TRW_assemblyInfo->clear();
     if(_userFormWidget) {
         _userFormWidget->clear();
@@ -496,19 +499,23 @@ void AssemblyGui::displayJob(QString jobName)
 
 void AssemblyGui::selectJob(QString jobName)
 {
+    bool found=false;
     // on parcourt l'arbre à  la recherche du job
     for (int indexAssembly = 0; indexAssembly < _ui->_TRW_assemblies->topLevelItemCount(); indexAssembly++) {
         QTreeWidgetItem * assemblyItem = _ui->_TRW_assemblies->topLevelItem(indexAssembly);
         for (int indexJob = 0; indexJob < assemblyItem->childCount(); indexJob++) {
             QTreeWidgetItem * jobItem = assemblyItem->child(indexJob);
+             qDebug() << "%%%%%%%%%%%%% jobItem " << jobItem->text(0);
             if (jobItem->text(0) == jobName) {
                 // selection de l'item...
+                found = true;
                 _ui->_TRW_assemblies->setCurrentItem(jobItem);
                 displayJob(jobName);
                 break;
             }
         }
-        break;
+        if (found)
+            break;
     }
 }
 
@@ -1066,7 +1073,6 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
                 setActionsStates(_lastJobLaunchedItem);
                 QString msg = tr("Travail %1 terminé...").arg(jobDef->name());
                 showStatusMessage(msg, OK);
-
                 selectJob(jobDef->name());
             }
         }

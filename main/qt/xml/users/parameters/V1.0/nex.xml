@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mosaic_settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../models/parameters/Parameters_V1.0.xsd">
+<mosaic_settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../models/parameters/Parameters_VV1.0.xsd">
 
 <fileDescriptor>
 </fileDescriptor>
@@ -12,8 +12,8 @@
 <min_matches>12</min_matches>
 <max_matches>10000</max_matches>
 <First_processed_image>1</First_processed_image>
-<Last_processed_image>10</Last_processed_image>
-<step_im>1</step_im>
+<Last_processed_image>300</Last_processed_image>
+<step_im>8</step_im>
 
 <!--Filtering overlap parameters-->
 <filter_overlap>false</filter_overlap>
@@ -24,7 +24,7 @@
 <MaxIter>40</MaxIter>
 <max_Roll>inf</max_Roll>
 <max_Pitch>inf</max_Pitch>
-<ba_method>Robust_2D_with_nav</ba_method>
+<ba_method>Nav_only</ba_method>
 <cosmetic_stretch>true</cosmetic_stretch>
 
 <!--Blending and displaying parameters-->
@@ -33,7 +33,7 @@
 <blending_method>multiband</blending_method>
 <no_plot>false</no_plot>
 <WriteGeoTiff>true</WriteGeoTiff>
-<block_drawing>true</block_drawing>
+<block_drawing>false</block_drawing>
 <block_width>7000</block_width>
 <block_height>7000</block_height>
 

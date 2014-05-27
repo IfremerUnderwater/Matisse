@@ -558,6 +558,7 @@ void JobTask::slot_stop()
     else {
         // recuperation du nom du fichier de sortie
         _resultFileName = _rasterProvider->rasterInfo().absoluteFilePath();
+        qDebug()<<"Nom fichier résultat: " <<_resultFileName;
     }
     delete _context;
     emit signal_jobStopped();
