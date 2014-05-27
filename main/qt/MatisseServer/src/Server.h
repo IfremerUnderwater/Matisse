@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QTcpSocket>
+#include <QThread>
 #include <QTcpServer>
 #include <QNetworkInterface>
 #include <QModelIndex>
@@ -19,6 +20,46 @@ using namespace MatisseTools;
 
 namespace MatisseServer {
 
+class Server;
+class JobTask : public QObject{
+    Q_OBJECT
+
+public:
+    explicit JobTask(ImageProvider *imageProvider, QList<Processor *> processors, RasterProvider *rasterProvider , JobDefinition &jobDefinition, MatisseParameters *parameters);
+    virtual ~JobTask();
+    void cancel();
+    JobDefinition &jobDefinition() const;
+
+    QString resultFileName() const;
+
+    volatile bool isCancelled() const;
+
+
+signals:
+    void signal_jobIntermediateResult(QString jobName, Image *image);
+    void signal_jobStopped();
+
+public slots:
+    void slot_start();
+    void slot_stop();
+
+
+    void slot_intermediateResult(Image *image);
+
+private:
+    Context* _context;
+    ImageProvider* _imageProvider;
+    QList<Processor*> _processors;
+    RasterProvider* _rasterProvider;
+    JobDefinition &_jobDefinition;
+    MatisseParameters *_matParameters;
+    QString _resultFileName;
+    volatile bool _isCancelled;
+
+
+
+};
+
 class Server : public QObject
 {
     Q_OBJECT
@@ -34,24 +75,29 @@ public:
     QList<ImageProvider*> const getAvailableImageProviders();
     QList<RasterProvider*> const getAvailableRasterProviders();
 
-    bool processJob(JobDefinition&  job);
+    bool processJob(JobDefinition&  jobDefinition);
+    bool isProcessingJob();
+    bool cancelJob();
     bool errorFlag();
     QString messageStr();
-   // bool sendDatas(QString data);
-    //QString getUserParameters(QString processor, QString user);
-
     Xml& xmlTool();
 
 signals:
-    void signal_jobProcessed(QString jobName);
+    void signal_jobIntermediateResult(QString jobName, Image *image);
+    void signal_jobProcessed(QString jobName, bool isCancelled);
+
+private slots:
+    void slot_currentJobProcessed();
 
 private:
-    bool checkAssembly(MatisseParameters* mosaicParameters, AssemblyDefinition&  assembly);
-    MatisseParameters* buildMosaicParameters(JobDefinition &job);
+    MatisseParameters* buildMatisseParameters(JobDefinition &job);
+    bool buildJobTask( AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters);
     void setMessageStr(QString messageStr = "", bool error = true);
 
 private:
     JobServer *_jobServer;
+    JobTask* _currentJob;
+    QThread* _thread;
     Xml _xmlTool;
     QHash<QString, Processor*> _processors;
     QHash<QString, ImageProvider*> _imageProviders;

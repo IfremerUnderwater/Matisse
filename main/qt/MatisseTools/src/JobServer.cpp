@@ -41,10 +41,8 @@ void JobServer::slot_clientConnected()
     connect(_socket, SIGNAL(disconnected()), this, SLOT(slot_clientDisconnected()));
     connect(_socket, SIGNAL(readyRead()), this, SLOT(slot_readData()));
 
-    QFileInfo dataInfo(_xml->getDataPath());
-
-    QString dataPath=dataInfo.absoluteFilePath();
-    QString configCmd = "$CONFIG:"+dataPath;
+    // Pour un usage futur (auparavant, le chemin des data etait passe par la).
+    QString configCmd = "$CONFIG:";
     sendCmd(configCmd);
 
 }

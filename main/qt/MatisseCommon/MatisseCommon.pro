@@ -1,7 +1,6 @@
-QT += xml
+QT += xml network
 
 QMAKE_CXXFLAGS += /wd4100 /wd4996
-
 TARGET = MatisseCommon
 TEMPLATE = lib
 CONFIG += staticlib
@@ -41,10 +40,12 @@ HEADERS += \
     src/Dim2.h \
     src/MatisseParameters.h \
     src/RasterProvider.h \
-    src/MosaicContext.h
+    src/MosaicContext.h \
+    src/LifecycleComponent.h \
+    src/Sleeper.h \
+    src/Dim2UdpListener.h
 
 SOURCES += \
-    src/ImageListener.cpp \
     src/Processor.cpp \
     src/NavInfo.cpp \
     src/ImageProvider.cpp \
@@ -56,6 +57,8 @@ SOURCES += \
     src/Dim2.cpp \
     src/FileImage.cpp \
     src/MatisseParameters.cpp \
-    src/RasterProvider.cpp
+    src/RasterProvider.cpp \
+    src/LifecycleComponent.cpp \
+    src/Dim2UdpListener.cpp
 
 

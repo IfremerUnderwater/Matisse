@@ -37,7 +37,8 @@ public:
     ///
     ImageSet(int maxSize = -1, bool dropImages = true, QObject * parent = 0):QObject(parent),
         _maxSize(maxSize),
-        _dropImages(dropImages)
+        _dropImages(dropImages),
+        _outPort(NULL)
     {
 
     }

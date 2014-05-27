@@ -67,7 +67,7 @@ void *GeoTiffImageWriter::qt_metacast(const char *_clname)
     if (!_clname) return 0;
     if (!strcmp(_clname, qt_meta_stringdata_GeoTiffImageWriter))
         return static_cast<void*>(const_cast< GeoTiffImageWriter*>(this));
-    if (!strcmp(_clname, "Chrisar.RasterProvider/1.0"))
+    if (!strcmp(_clname, "Chrisar.RasterProvider/1.1"))
         return static_cast< MatisseCommon::RasterProvider*>(const_cast< GeoTiffImageWriter*>(this));
     return RasterProvider::qt_metacast(_clname);
 }

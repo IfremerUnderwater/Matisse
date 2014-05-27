@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="1srun" assembly="MorphMat" version="1">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="1srun"/>
+	<Execution executed="true" executionDate="28/04/2014 18:06" result="D:/Projects/MATISSE-SNAPSHOT-20140424/main/qt/MatisseServer/Geotiff_data/MosaicOut.tiff"/>
+</MatisseJob>

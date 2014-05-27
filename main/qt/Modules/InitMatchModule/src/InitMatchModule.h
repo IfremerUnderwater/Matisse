@@ -20,9 +20,9 @@ class InitMatchModule : public Processor
 public:
     InitMatchModule();
     ~InitMatchModule();
-    virtual void configure(Context * context, MatisseParameters * mosaicParameters);
-    virtual void start();
-    virtual void stop();
+    virtual bool configure();
+    virtual bool start();
+    virtual bool stop();
     virtual void onFlush(quint32 port);
     virtual void onNewImage(quint32 port, Image &image);
 };

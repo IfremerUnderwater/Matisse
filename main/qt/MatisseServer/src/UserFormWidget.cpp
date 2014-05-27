@@ -1,9 +1,15 @@
-﻿#include "UserFormWidget.h"
-#include "ui_UserFormWidget.h"
-#include "qgsmapcanvas.h"
-#include <qgsvectorlayer.h>
+﻿#include <qgsvectorlayer.h>
 #include <qgsrasterlayer.h>
 #include <qgsmaplayerregistry.h>
+
+
+#include "UserFormWidget.h"
+#include "ui_UserFormWidget.h"
+#include "qgsmapcanvas.h"
+
+#include <opencv2/opencv.hpp>
+
+using namespace cv;
 
 
 UserFormWidget::UserFormWidget(QWidget *parent) :
@@ -34,6 +40,17 @@ void UserFormWidget::showUserParameters(Tools * tools)
     } else {
         _ui->_SCA_parameters->setWidget(NULL);
     }
+}
+
+void UserFormWidget::showQGisCanvas(bool flag)
+{
+    if (flag) {
+        _ui->_stackedWidget->setCurrentIndex(0);
+    }
+    else {
+        _ui->_stackedWidget->setCurrentIndex(1);
+    }
+
 }
 
 void UserFormWidget::init() {
@@ -127,8 +144,8 @@ void UserFormWidget::loadVectorFile(QString filename) {
 }
 
 void UserFormWidget::loadRasterFile(QString filename) {
+    clear();
     if (filename.isEmpty()) {
-        clear();
         return;
     }
     QFileInfo fileInfo(filename);
@@ -194,5 +211,17 @@ void UserFormWidget::slot_parametersChanged(bool changed)
     // pour transmettre le signal vers la maun gui...
     qDebug() << "Emit param changed userForm...";
     emit signal_parametersChanged(changed);
+}
+
+void UserFormWidget::displayImage(Image *image ){
+
+    Mat dest;
+    cvtColor(*(image->imageData()), dest,CV_BGR2RGB);
+
+    QImage result((uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
+    const QPixmap pix = QPixmap::fromImage(result);
+    const QSize size = _ui->_label->size();
+    this->_ui->_label->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
+
 }
 

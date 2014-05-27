@@ -195,7 +195,7 @@
      <x>0</x>
      <y>0</y>
      <width>1303</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -237,6 +237,7 @@
    <addaction name="_ACT_saveAsJob"/>
    <addaction name="_ACT_deleteJob"/>
    <addaction name="_ACT_launchJob"/>
+   <addaction name="_ACT_stopJob"/>
    <addaction name="separator"/>
    <addaction name="_ACT_saveParameters"/>
    <addaction name="_ACT_newAssembly"/>
@@ -253,7 +254,7 @@
      <normaloff>:/png/deleteAssembly.png</normaloff>:/png/deleteAssembly.png</iconset>
    </property>
    <property name="text">
-    <string>Delete processing chain</string>
+    <string>Supprimer l'assemblage</string>
    </property>
   </action>
   <action name="_ACT_newAssembly">
@@ -262,7 +263,7 @@
      <normaloff>:/png/newAssembly.png</normaloff>:/png/newAssembly.png</iconset>
    </property>
    <property name="text">
-    <string>New processing chain</string>
+    <string>Nouvel assemblage</string>
    </property>
   </action>
   <action name="_ACT_saveJob">
@@ -271,10 +272,10 @@
      <normaloff>:/png/SaveJob.png</normaloff>:/png/SaveJob.png</iconset>
    </property>
    <property name="text">
-    <string>Save Job</string>
+    <string>Sauvegarder le travail</string>
    </property>
    <property name="toolTip">
-    <string>Save Job</string>
+    <string>Sauvegarder le travail</string>
    </property>
   </action>
   <action name="_ACT_saveAsJob">
@@ -283,10 +284,10 @@
      <normaloff>:/png/SaveAsJob.png</normaloff>:/png/SaveAsJob.png</iconset>
    </property>
    <property name="text">
-    <string>Save Job as...</string>
+    <string>Sauvegarder le travail sous...</string>
    </property>
    <property name="toolTip">
-    <string>Save Job as...</string>
+    <string>Sauvegarder le travail sous...</string>
    </property>
   </action>
   <action name="_ACT_userExpert">
@@ -299,10 +300,10 @@
      <normalon>:/png/user.png</normalon>:/png/expert.png</iconset>
    </property>
    <property name="text">
-    <string>Change user/expert mode</string>
+    <string>Mode user/expert</string>
    </property>
    <property name="toolTip">
-    <string>Change user/expert mode</string>
+    <string>Mode user ou expert</string>
    </property>
   </action>
   <action name="_ACT_launchJob">
@@ -311,10 +312,10 @@
      <normaloff>:/png/run-unknown.png</normaloff>:/png/run-unknown.png</iconset>
    </property>
    <property name="text">
-    <string>Process Job</string>
+    <string>Lancer un travail</string>
    </property>
    <property name="toolTip">
-    <string>Process Job</string>
+    <string>Lancer un travail </string>
    </property>
    <property name="menuRole">
     <enum>QAction::TextHeuristicRole</enum>
@@ -326,10 +327,10 @@
      <normaloff>:/png/view-refresh-3.png</normaloff>:/png/view-refresh-3.png</iconset>
    </property>
    <property name="text">
-    <string>Reload chains/jobs</string>
+    <string>Recharger les assemblages/travaux</string>
    </property>
    <property name="toolTip">
-    <string>Reload chains/jobs</string>
+    <string>Recharger les assemblages/travaux...</string>
    </property>
   </action>
   <action name="_ACT_saveParameters">
@@ -338,10 +339,10 @@
      <normaloff>:/png/documentation.png</normaloff>:/png/documentation.png</iconset>
    </property>
    <property name="text">
-    <string>Save parameters set</string>
+    <string>Sauvegarder les paramètres</string>
    </property>
    <property name="toolTip">
-    <string>Save parameters set</string>
+    <string>Sauvegarder les paramètres</string>
    </property>
   </action>
   <action name="_ACT_saveAssembly">
@@ -350,10 +351,10 @@
      <normaloff>:/png/SaveAssembly.png</normaloff>:/png/SaveAssembly.png</iconset>
    </property>
    <property name="text">
-    <string>Save processing chain</string>
+    <string>Sauvegarder l'assemblage</string>
    </property>
    <property name="toolTip">
-    <string>Save processing chain</string>
+    <string>Sauvegarder l'assemblage</string>
    </property>
   </action>
   <action name="_ACT_saveAsAssembly">
@@ -362,13 +363,10 @@
      <normaloff>:/png/SaveAsAssembly.png</normaloff>:/png/SaveAsAssembly.png</iconset>
    </property>
    <property name="text">
-    <string>Save processing chain as...</string>
-   </property>
-   <property name="iconText">
-    <string>Save processing chain as...</string>
+    <string>Sauvegarder l'assemblage sous...</string>
    </property>
    <property name="toolTip">
-    <string>Save processing chain as...</string>
+    <string>Sauvegarder l'assemblage sous...</string>
    </property>
   </action>
   <action name="_ACT_deleteJob">
@@ -377,10 +375,25 @@
      <normaloff>:/png/deleteJob.png</normaloff>:/png/deleteJob.png</iconset>
    </property>
    <property name="text">
-    <string>Delete Job</string>
+    <string>Supprimer le travail</string>
    </property>
    <property name="toolTip">
-    <string>Delete Job</string>
+    <string>Supprimer le travail</string>
+   </property>
+  </action>
+  <action name="_ACT_stopJob">
+   <property name="icon">
+    <iconset resource="resources/resources.qrc">
+     <normaloff>:/png/stop.png</normaloff>:/png/stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Stopper l'exécution travail</string>
+   </property>
+   <property name="toolTip">
+    <string>Stopper l'exécution travail</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::TextHeuristicRole</enum>
    </property>
   </action>
  </widget>

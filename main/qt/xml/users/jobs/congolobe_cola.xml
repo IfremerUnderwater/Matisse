@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="congolobe_cola" assembly="Std1Test" version="">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="congolobe_cola"/>
+	<Execution executed="true" executionDate="14/05/2014 16:04" result="C:/arunima/RobomossTestingDataset/Geotiff_data/MosaicOut.tiff"/>
+</MatisseJob>

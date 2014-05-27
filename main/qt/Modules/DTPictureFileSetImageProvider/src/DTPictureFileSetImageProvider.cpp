@@ -11,6 +11,9 @@ DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *parent):
     _imageSet = new ImageSet();
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("dataset_param", "navFile");
+    addExpectedParameter("algo_param", "First_processed_image");
+    addExpectedParameter("algo_param", "Last_processed_image");
+    addExpectedParameter("algo_param", "step_im");
 }
 
 DTPictureFileSetImageProvider::~DTPictureFileSetImageProvider()
@@ -25,32 +28,33 @@ ImageSet * DTPictureFileSetImageProvider::imageSet(quint16 port)
     return _imageSet;
 }
 
-bool DTPictureFileSetImageProvider::configure(Context *context, MatisseParameters *mosaicParameters)
+bool DTPictureFileSetImageProvider::configure()
 {
     qDebug() << logPrefix() << "DTPictureFileSetImageProvider configure";
-    QFileInfo* pXmlFileInfo=mosaicParameters->getXmlFileInfo();
-    QString rootDirnameStr = mosaicParameters->getStringParamValue("dataset_param", "dataset_dir");
+
+    QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
 
     bool isOk = false;
-    QString navFileStr = mosaicParameters->getStringParamValue("dataset_param", "navFile");
-    quint32 firstImageIndex = mosaicParameters->getIntParamValue("algo_param", "First_processed_image", isOk);
+    QString navFileStr = _matisseParameters->getStringParamValue("dataset_param", "navFile");
+    quint32 firstImageIndex = _matisseParameters->getIntParamValue("algo_param", "First_processed_image", isOk);
     if (!isOk) {
         firstImageIndex = 1;
     }
-    quint32 lastImageIndex = mosaicParameters->getIntParamValue("algo_param", "Last_processed_image", isOk);
+    quint32 lastImageIndex = _matisseParameters->getIntParamValue("algo_param", "Last_processed_image", isOk);
     if (!isOk) {
         lastImageIndex = InfInt;
     }
-    quint32 stepIndex = mosaicParameters->getIntParamValue("algo_param", "step_im", isOk);
+    quint32 stepIndex = _matisseParameters->getIntParamValue("algo_param", "step_im", isOk);
     if (!isOk) {
         stepIndex = 1;
     }
 
     // TODO Améliorer le check
-    if (rootDirnameStr.isEmpty() || navFileStr.isEmpty() || pXmlFileInfo==NULL)
+    if (rootDirnameStr.isEmpty() || navFileStr.isEmpty())
         return false;
 
 
+    qDebug()<< "lastImageIndex: "  << lastImageIndex;
     qDebug()<< "rootDirnameStr: "  << rootDirnameStr;
     qDebug()<< "navFileStr: "  << navFileStr;
 
@@ -84,7 +88,7 @@ bool DTPictureFileSetImageProvider::configure(Context *context, MatisseParameter
 
 }
 
-void DTPictureFileSetImageProvider::start()
+bool DTPictureFileSetImageProvider::start()
 {
     qDebug() << logPrefix() << " inside start";
 
@@ -104,14 +108,16 @@ void DTPictureFileSetImageProvider::start()
     _imageSet->flush();
 
     qDebug() << logPrefix() << " out start";
+    return true;
 }
 
-void DTPictureFileSetImageProvider::stop()
+bool DTPictureFileSetImageProvider::stop()
 {
 //    if (_pictureFileSet)
 //        delete _pictureFileSet;
 //    if (_dim2FileReader)
 //        delete _dim2FileReader;
     _imageSet->clear();
+    return true;
 }
 

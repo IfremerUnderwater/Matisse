@@ -41,7 +41,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Name:</string>
+        <string>Nom:</string>
        </property>
       </widget>
      </item>
@@ -119,7 +119,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Valid:</string>
+        <string>Valide</string>
        </property>
       </widget>
      </item>
@@ -165,7 +165,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Author</string>
+        <string>Auteur:</string>
        </property>
       </widget>
      </item>
@@ -192,7 +192,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Comments:</string>
+        <string>Commentaires:</string>
        </property>
       </widget>
      </item>
@@ -232,14 +232,14 @@
      <item>
       <widget class="QPushButton" name="_PB_save">
        <property name="text">
-        <string>Save</string>
+        <string>Enregistrer</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="_PB_cancel">
        <property name="text">
-        <string>Cancel</string>
+        <string>Annuler</string>
        </property>
       </widget>
      </item>

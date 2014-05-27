@@ -277,12 +277,12 @@ ParametersWidgetSkeleton * Tools::createDialog(QString structName, bool user) {
                 break;
             case FILE_SELECTOR_RELATIVE:
             case FILE_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(0, param._text, "File", param._show, param._value.toString());
+                widget = new EnrichedFileChooser(0, param._text, tr("Fichier"), param._show, param._value.toString());
             }
                 break;
             case DIR_SELECTOR_RELATIVE:
             case DIR_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(0, param._text, "Directory", param._show, param._value.toString());
+                widget = new EnrichedFileChooser(0, param._text, tr("Répertoire"), param._show, param._value.toString());
             }
                 break;
             case UNKNOWN_SHOW:
@@ -322,15 +322,18 @@ ParametersWidgetSkeleton * Tools::createDialog(QString structName, bool user) {
     return newDialog;
 }
 
-void Tools::generateParametersFile(QString filename, KeyValueList comments)
+void Tools::generateParametersFile(QString filename, QString modelVersion, KeyValueList comments)
 {
     QFile xmlOut(filename);
+    QDir parentFolder =  QFileInfo(filename).dir();
+    if (!parentFolder.exists()) {
+        parentFolder.mkpath(".");
+    }
+
+
     xmlOut.open(QIODevice::WriteOnly);
     QTextStream out(&xmlOut);
-    QString modelVersion = comments.getValue("modelVersion");
-    if (modelVersion.isEmpty()) {
-        modelVersion = "1.0";
-    }
+
     out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     out << "\n";
 

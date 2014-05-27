@@ -67,7 +67,7 @@ void *Flusher::qt_metacast(const char *_clname)
     if (!_clname) return 0;
     if (!strcmp(_clname, qt_meta_stringdata_Flusher))
         return static_cast<void*>(const_cast< Flusher*>(this));
-    if (!strcmp(_clname, "Chrisar.ImageProvider/1.0"))
+    if (!strcmp(_clname, "Chrisar.ImageProvider/1.1"))
         return static_cast< MatisseCommon::ImageProvider*>(const_cast< Flusher*>(this));
     return ImageProvider::qt_metacast(_clname);
 }

@@ -67,7 +67,7 @@ void *OptimizationModule::qt_metacast(const char *_clname)
     if (!_clname) return 0;
     if (!strcmp(_clname, qt_meta_stringdata_OptimizationModule))
         return static_cast<void*>(const_cast< OptimizationModule*>(this));
-    if (!strcmp(_clname, "Chrisar.Processor/1.0"))
+    if (!strcmp(_clname, "Chrisar.Processor/1.1"))
         return static_cast< MatisseCommon::Processor*>(const_cast< OptimizationModule*>(this));
     return Processor::qt_metacast(_clname);
 }

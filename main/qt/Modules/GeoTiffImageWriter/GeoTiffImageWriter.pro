@@ -5,9 +5,7 @@
 #-------------------------------------------------
 
 QT       += core xml
-
 QMAKE_CXXFLAGS += /wd4100 /wd4996
-
 TARGET = GeoTiffImageWriter
 CONFIG += plugin
 

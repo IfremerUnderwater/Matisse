@@ -110,7 +110,7 @@
         </sizepolicy>
        </property>
        <property name="title">
-        <string>Algorithm parameters</string>
+        <string>Paramètres courants</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -150,8 +150,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>417</width>
-             <height>470</height>
+             <width>418</width>
+             <height>455</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -249,11 +249,11 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="_TABW_parameters">
         <attribute name="title">
-         <string>Parameters sets</string>
+         <string>Paramètres</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_7">
          <property name="leftMargin">
@@ -382,7 +382,7 @@
        </widget>
        <widget class="QWidget" name="_TABW_processors">
         <attribute name="title">
-         <string>Processors</string>
+         <string>Processeurs</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_4">
          <property name="leftMargin">

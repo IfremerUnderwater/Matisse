@@ -4,11 +4,11 @@ using namespace MatisseCommon;
 
 ImageProvider::ImageProvider(QObject *parent, QString name, QString comment, quint16 outNumber) :
     QObject(parent),
-    _name(name),
+    LifecycleComponent(name, "[SOURCE " + name + "]: "),
     _comment(comment),
-    _outNumber(outNumber)
+    _outNumber(outNumber),
+    _isRealTime(false)
 {
-    _logPrefix = "[SOURCE " + _name + "]: ";
 }
 
 ImageProvider::~ImageProvider()
@@ -16,45 +16,21 @@ ImageProvider::~ImageProvider()
 
 }
 
-QString ImageProvider::name() const
-{
-    return _name;
-}
+
 QString ImageProvider::comment() const
 {
     return _comment;
 }
-
-void ImageProvider::addExpectedParameter(QString structure, QString param)
+bool ImageProvider::isRealTime() const
 {
-    MatisseParameter parameter;
-    parameter.structure = structure;
-    parameter.param = param;
-
-    _expectedParameters.append(parameter);
+    return _isRealTime;
 }
 
-QString const& ImageProvider::logPrefix() const
+void ImageProvider::setIsRealTime(bool isRealTime)
 {
-    return _logPrefix;
+    _isRealTime = isRealTime;
 }
 
-bool ImageProvider::callConfigure(Context * context, MatisseParameters * mosaicParameters)
-{
-    qDebug() << logPrefix() << "configure";
-    return configure(context, mosaicParameters);
-}
 
-void ImageProvider::callStart()
-{
-    qDebug() << logPrefix() << "start";
-    start();
-}
-
-void ImageProvider::callStop()
-{
-    qDebug() << logPrefix() << "stop";
-    stop();
-}
 
 

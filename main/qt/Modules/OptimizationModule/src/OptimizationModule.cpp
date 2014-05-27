@@ -42,9 +42,9 @@ OptimizationModule::~OptimizationModule(){
 
 }
 
-void OptimizationModule::configure(Context *context, MatisseParameters *mosaicParameters)
+bool OptimizationModule::configure()
 {
-
+    return true;
 }
 
 void OptimizationModule::onNewImage(quint32 port, Image &image)
@@ -54,14 +54,14 @@ void OptimizationModule::onNewImage(quint32 port, Image &image)
 
 }
 
-void OptimizationModule::start()
+bool OptimizationModule::start()
 {
-
+    return true;
 }
 
-void OptimizationModule::stop()
+bool OptimizationModule::stop()
 {
-
+    return true;
 }
 
 void OptimizationModule::onFlush(quint32 port)
@@ -91,7 +91,7 @@ void OptimizationModule::onFlush(quint32 port)
     int tempInt;
 
     // Generate algo_param
-    MatlabCppInterface::generate_algo_param(_mosaicParameters, algo_param);
+    MatlabCppInterface::generate_algo_param(_matisseParameters, algo_param);
 
     // Fill utm parameters from mosaicData
     tempString = pmosaicData->init.utmHemisphere;

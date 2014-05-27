@@ -17,10 +17,11 @@ public:
     explicit GeoTiffImageWriter(QObject *parent = 0);
     virtual ~GeoTiffImageWriter();
 
-    virtual bool configure(Context * context, MatisseParameters * mosaicParameters);
     virtual void onNewImage(quint32 port, Image &image);
-    virtual void start();
-    virtual void stop();
+    virtual void onFlush(quint32 port);
+    virtual bool configure();
+    virtual bool start();
+    virtual bool stop();
     virtual QFileInfo rasterInfo();
 
 private:

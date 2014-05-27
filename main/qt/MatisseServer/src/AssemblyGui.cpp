@@ -28,26 +28,25 @@ bool AssemblyGui::setSettingsFile(QString settings)
     }
     QFileInfo settingsFile(_settingsFile);
     if (!settingsFile.exists()) {
-        QMessageBox::critical(this, "Cannot find config file", "Cannot find the file:\n" + _settingsFile + "\nLaunch the application with a valid file as argument\n or a valid " + standardFile + " file !");
+        QString adviceMsg = tr("Impossible de trouver le fichier:\n%1\nRelancez l'application avec un nom de fichier valide en paramètre\nou un fichier %2 valide!").arg(_settingsFile).arg(standardFile);
+        QMessageBox::critical(this, tr("Fichier de configuration introuvable"), adviceMsg);
         return false;
     }
 
     if (!settingsFile.isReadable()) {
-        QMessageBox::critical(this, "Cannot read config file", "Cannot read the file:\n" + _settingsFile + "\nLaunch the application with a valid file as argument\n or a valid " + standardFile + " file !");
+        QString adviceMsg = tr("Impossible de lire le fichier:\n%1\nRelancez l'application avec un nom de fichier valide en paramètre\nou un fichier %2 valide!").arg(_settingsFile).arg(standardFile);
+        QMessageBox::critical(this, tr("Fichier de configuration illisible"), adviceMsg);
         return false;
     }
 
     Xml xmlProcessing;
     xmlProcessing.readMatisseGuiSettings(_settingsFile);
     if ((_rootXml = xmlProcessing.getBasePath()) == "") {
-        QMessageBox::critical(this, "Invalid config file", "The XmlRootDir value is unknown.\nRelaucnh with a valid XmlRootDir value");
+        QString adviceMsg = tr("La valeur de XmlRootDir ne peut être déterminée.\nRelancez l'application avec un paramètre XmlRootDir valide\ndans le fichier de configuration!");
+        QMessageBox::critical(this, tr("Fichier de configuration incorrect"), adviceMsg);
         return false;
     }
 
-    if ((_dataPath = xmlProcessing.getDataPath()) == "") {
-        QMessageBox::critical(this, "Invalid config file", "The DataPath value is unknown.\nRelaucnh with a valid DataPath value");
-        return false;
-    }
 
     _parameters = new Tools();
     return true;
@@ -81,6 +80,7 @@ void AssemblyGui::init()
     connect(_ui->_ACT_saveAsJob, SIGNAL(triggered()), this, SLOT(slot_saveAsJob()));
     connect(_ui->_ACT_deleteJob, SIGNAL(triggered()), this, SLOT(slot_deleteJob()));
     connect(_ui->_ACT_launchJob, SIGNAL(triggered()), this, SLOT(slot_launchJob()));
+    connect(_ui->_ACT_stopJob, SIGNAL(triggered()), this, SLOT(slot_stopJob()));
 
     connect(_ui->_ACT_userExpert, SIGNAL(triggered()), this, SLOT(slot_swapUserOrExpert()));
     connect(_ui->_ACT_reloadAssembliesAndJobs, SIGNAL(triggered()), this, SLOT(slot_assembliesReload()));
@@ -111,7 +111,8 @@ void AssemblyGui::init()
     _beforeSelect = true;
     _lastJobLaunchedItem = NULL;
 
-    connect(&_server, SIGNAL(signal_jobProcessed(QString)), this, SLOT(slot_jobProcessed(QString)));
+    connect(&_server, SIGNAL(signal_jobProcessed(QString, bool)), this, SLOT(slot_jobProcessed(QString, bool)));
+    connect(&_server, SIGNAL(signal_jobIntermediateResult(QString,Image *)), this, SLOT(slot_jobIntermediateResult(QString,Image *)));
 
     loadAssembliesAndJobsLists();
 
@@ -231,7 +232,7 @@ void AssemblyGui::loadAssembliesAndJobsLists()
     _ui->_TRW_assemblies->expandAll();
 }
 
-bool AssemblyGui::getAssemblyValues(QString fileWithPath, QString &name, bool &valid, KeyValueList &assemblyValues)
+bool AssemblyGui::getAssemblyValues(QString fileWithPath, QString name, bool &valid, KeyValueList &assemblyValues)
 {
     QFile assemblyFile(fileWithPath);
     QTextStream is(&assemblyFile);
@@ -271,7 +272,7 @@ bool AssemblyGui::getAssemblyValues(QString fileWithPath, QString &name, bool &v
         } else if (line == "<Author>") {
             line = is.readLine().trimmed();
             qDebug() << "Author=" << line;
-            assemblyValues.set("Author", line);
+            assemblyValues.set(tr("Auteur"), line);
         } else if (line == "<Comments>") {
             QString buffer;
             while ((line = is.readLine().trimmed()) != "</Comments>") {
@@ -279,7 +280,7 @@ bool AssemblyGui::getAssemblyValues(QString fileWithPath, QString &name, bool &v
             }
             buffer.chop(1);
             qDebug() << "Comments=" << buffer;
-            assemblyValues.set("Comments", buffer);
+            assemblyValues.set(tr("Commentaires"), buffer);
         } else if (line.startsWith("<Parameters ")) {
             posStart = line.indexOf("name=\"") + 6;
             posEnd = line.indexOf("\"", posStart);
@@ -295,7 +296,7 @@ bool AssemblyGui::getAssemblyValues(QString fileWithPath, QString &name, bool &v
             posStart = line.indexOf("name=\"") + 6;
             posEnd = line.indexOf("\"", posStart);
             eltName = line.mid(posStart, posEnd - posStart).trimmed();
-            assemblyValues.set(QString("Processor n°%1").arg(processorCount), eltName);
+            assemblyValues.set(tr("Processeur n°%1").arg(processorCount), eltName);
         } else if (line == "</Processors>") {
             break;
         }
@@ -314,9 +315,9 @@ void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int c
 
     if (!selectedItem->parent()) {
         // On a selectionné un assemblage
-        selectAssembly(name);
+        displayAssembly(name);
     } else {
-        selectJob(name);
+        displayJob(name);
     }
 }
 
@@ -402,13 +403,13 @@ void AssemblyGui::slot_saveAsAssembly()
         // on recharge
         slot_assembliesReload();
         // puis on selectionne...
-        selectAssembly(name);
+        displayAssembly(name);
 
     }
 }
 
 
-void AssemblyGui::selectAssembly(QString assemblyName) {
+void AssemblyGui::displayAssembly(QString assemblyName) {
 
     _ui->_TRW_assemblyInfo->clear();
     if(_userFormWidget) {
@@ -429,10 +430,10 @@ void AssemblyGui::selectAssembly(QString assemblyName) {
         }
         // chargement des infos
 
-        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Version:" << selectedAssembly->version());
-        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Creation date:" << selectedAssembly->date());
-        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Author:" << selectedAssembly->author());
-        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Comments:" << selectedAssembly->comment());
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Version:") << selectedAssembly->version());
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Date de création:") << selectedAssembly->date());
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Auteur:") << selectedAssembly->author());
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Commentaire:") << selectedAssembly->comment());
 
         if (!_userMode) {
             _expertFormWidget->loadAssembly(assemblyName);
@@ -443,7 +444,7 @@ void AssemblyGui::selectAssembly(QString assemblyName) {
     }
 }
 
-void AssemblyGui::selectJob(QString jobName)
+void AssemblyGui::displayJob(QString jobName)
 {
     _ui->_TRW_assemblyInfo->clear();
     if(_userFormWidget) {
@@ -453,12 +454,6 @@ void AssemblyGui::selectJob(QString jobName)
     JobDefinition * selectedJob = _server.xmlTool().getJob(jobName);
     if (selectedJob) {
         _currentJobName = selectedJob->name();
-        // chargement des parametres
-        // le modele est dans (rootXml)/models/parameters
-        // les parametres utilisateurs est dans (rootXml)/users/parameters
-        //            if (!_parameters) {
-        //                _parameters = new Tools();
-        //            }
 
         QString parametersVersion = selectedJob->parametersDefinition()->model();
         QString modelFile = _rootXml + QDir::separator() + "models" + QDir::separator() + "parameters" + QDir::separator() + "Parameters_" + parametersVersion + ".xml";
@@ -470,13 +465,13 @@ void AssemblyGui::selectJob(QString jobName)
         // chargement des infos
         QString comments = selectedJob->comment();
 
-        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Comments:" << comments);
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Commentaire:") << comments);
 
         if (selectedJob->executionDefinition()) {
             if (selectedJob->executionDefinition()->executed()) {
-                new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Execution date:" << selectedJob->executionDefinition()->executionDate().toString("dd/MM/yyyy at HH:mm"));
+                new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Date d'exécution:") << selectedJob->executionDefinition()->executionDate().toString(tr("le dd/MM/yyyy à HH:mm")));
 
-                QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << "Output image:" << selectedJob->executionDefinition()->resultFileName());
+                QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Image résultat:") << selectedJob->executionDefinition()->resultFileName());
                 item->setToolTip(1, selectedJob->executionDefinition()->resultFileName());
             }
         }
@@ -496,6 +491,24 @@ void AssemblyGui::selectJob(QString jobName)
     }
     else {
         _currentJobName = "";
+    }
+}
+
+void AssemblyGui::selectJob(QString jobName)
+{
+    // on parcourt l'arbre à  la recherche du job
+    for (int indexAssembly = 0; indexAssembly < _ui->_TRW_assemblies->topLevelItemCount(); indexAssembly++) {
+        QTreeWidgetItem * assemblyItem = _ui->_TRW_assemblies->topLevelItem(indexAssembly);
+        for (int indexJob = 0; indexJob < assemblyItem->childCount(); indexJob++) {
+            QTreeWidgetItem * jobItem = assemblyItem->child(indexJob);
+            if (jobItem->text(0) == jobName) {
+                // selection de l'item...
+                _ui->_TRW_assemblies->setCurrentItem(jobItem);
+                displayJob(jobName);
+                break;
+            }
+        }
+        break;
     }
 }
 
@@ -558,8 +571,8 @@ void AssemblyGui::slot_saveJob()
 
     // modif logique: on peut enregistrer un job deja executé: on enleve l'etat executed et on ecrase...
     if (job->executionDefinition()->executed()) {
-        if (QMessageBox::No == QMessageBox::question(this, "Job processed...",
-                                                     "The job is already processed.\nDo you want to erase it ?",
+        if (QMessageBox::No == QMessageBox::question(this, tr("Travail exécuté..."),
+                                                     tr("Le travail a déjà été exécuté.\nVoulez-vous l'écraser?"),
                                                      QMessageBox::Yes,
                                                      QMessageBox::No)) {
             return;
@@ -574,14 +587,14 @@ void AssemblyGui::slot_saveJob()
 
 
     if (!_server.xmlTool().writeJobFile(job, true)) {
-        showError("Job file...", "The file " + job->name() + ".xml\n cannot be written...");
+        showError(tr("Fichier de travail..."), tr("Le fichier %1 n'a pu être écrit...").arg(job->name() + ".xml"));
         return;
     }
     // enregistrement des parameters
     KeyValueList comments;
     QString parametersVersion = job->parametersDefinition()->model();
     QStringList pathParts(QStringList() << _server.xmlTool().getBasePath() << "users" << "parameters" << parametersVersion << job->name() + ".xml");
-    _parameters->generateParametersFile(pathParts.join(QDir::separator()), comments);
+    _parameters->generateParametersFile(pathParts.join(QDir::separator()), parametersVersion, comments);
     // on rechargement lees parameteres afin de valider l'ecriture...
     slot_selectAssemblyOrJob(item);
 }
@@ -615,7 +628,7 @@ void AssemblyGui::slot_saveAsJob()
     AssemblyDefinition * assembly = _server.xmlTool().getAssembly(assemblyName);
     if (!assembly) {
         if (!_server.xmlTool().readAssemblyFile(assemblyName + ".xml")) {
-            showError("processing chain file...", "The file " + assemblyName + ".xml\n cannot be read...");
+            showError(tr("Fichier d'assemblage..."), tr("Le fichier %1 n'est pas valide ou est illisible...").arg(assemblyName + ".xml") );
             return;
         }
     }
@@ -628,37 +641,19 @@ void AssemblyGui::slot_saveAsJob()
     ParameterDefinition parameters(parametersVersion, newJob.name());
     newJob.setParametersDefinition(&parameters);
     if (!_server.xmlTool().writeJobFile(&newJob)) {
-        showError("Job file...", "The file " + newJob.name() + ".xml\n cannot be read...");
+        showError(tr("Fichier de travail..."), tr("Le fichier %1 n'est pas pu être écrit...").arg(newJob.name() + ".xml"));
         return;
     }
     // enregistrement des parameters
     KeyValueList comments;
 
     QStringList pathParts(QStringList() << _server.xmlTool().getBasePath() << "users" << "parameters" << parametersVersion << newJob.name() + ".xml");
-    _parameters->generateParametersFile(pathParts.join(QDir::separator()), comments);
+    _parameters->generateParametersFile(pathParts.join(QDir::separator()), parametersVersion, comments);
     // ajout dans la liste: rechargement
     slot_assembliesReload();
-    // reselection...on parcourt l'arbre
-    for (int indexAssembly = 0; indexAssembly < _ui->_TRW_assemblies->topLevelItemCount(); indexAssembly++) {
-        QTreeWidgetItem * assemblyItem = _ui->_TRW_assemblies->topLevelItem(indexAssembly);
-        if (assemblyItem->text(0) == assemblyName) {
-            for (int indexJob = 0; indexJob < assemblyItem->childCount(); indexJob++) {
-                QTreeWidgetItem * jobItem = assemblyItem->child(indexJob);
-                if (jobItem->text(0) == newJob.name()) {
-                    // selection de l'item...
-                    _ui->_TRW_assemblies->setCurrentItem(jobItem);
-                    slot_selectAssemblyOrJob(jobItem);
-                    break;
-                }
-            }
-            break;
-        }
-    }
-        //    QTreeWidgetItem * jobItem = new QTreeWidgetItem(_ui->_TRW_assemblies->currentItem(), QStringList() << keysValues.getValue("name"));
-//    jobItem->setData(0, Qt::UserRole, assemblyName);
-//    jobItem->setIcon(0, QIcon(":/png/led-grey.png"));
-//    _ui->_TRW_assemblies->sortItems(0, Qt::AscendingOrder);
-//    _ui->_TRW_assemblies->setCurrentItem(jobItem);
+    selectJob(newJob.name());
+
+
 
 }
 
@@ -749,8 +744,8 @@ void AssemblyGui::initStatusBar()
 
     _messagesIndicators.insert(IDLE, ":/png/led-grey.png");
     _messagesIndicators.insert(OK, ":/png/led-green.png");
-    _messagesIndicators.insert(WARNING, ":/png/led_orange.png");
-    _messagesIndicators.insert(ERROR, ":/png/led_red.png");
+    _messagesIndicators.insert(WARNING, ":/png/led-orange.png");
+    _messagesIndicators.insert(ERROR, ":/png/led-red.png");
 
     // ProgressBar pour etat... a ajouter
     //statusBar()->addWidget(&_statusProgressBar);
@@ -790,7 +785,7 @@ void AssemblyGui::setActionsStates(QTreeWidgetItem *currentItem/*, bool modified
     bool saveAsStatus = false;
     bool deleteStatus = false;
     bool parametersStatus = false;
-    bool launchStatus = false;
+    bool isProcessingStatus = false;
 
     //on disable tout pour commencer...
     _ui->_ACT_newAssembly->setEnabled(false);
@@ -802,24 +797,16 @@ void AssemblyGui::setActionsStates(QTreeWidgetItem *currentItem/*, bool modified
     _ui->_ACT_saveAsJob->setEnabled(false);
     _ui->_ACT_deleteJob->setEnabled(false);
     _ui->_ACT_launchJob->setEnabled(false);
+    _ui->_ACT_stopJob->setEnabled(false);
 
     if (currentItem) {
         if (_userMode) {
             if (currentItem->parent()) {
                 // on a affaire à un job...
-                launchStatus = true;
-                QString jobName = currentItem->text(0);
-                JobDefinition * job = _server.xmlTool().getJob(jobName);
-                if (!job->executionDefinition()->executed()) {
-                    saveStatus = true;
-                    saveAsStatus = true;
-                    deleteStatus = true;
-                } else {
-                    // modif: dans tous les cas on peut ecraser ou supprimer
-                    saveStatus = true;
-                    saveAsStatus = true;
-                    deleteStatus = true;
-                }
+                isProcessingStatus = _server.isProcessingJob();
+                saveStatus = !isProcessingStatus;
+                saveAsStatus = !isProcessingStatus;
+                deleteStatus = !isProcessingStatus;
             } else {
                 // on a affaire à un assemblage
                 // on ne peut que creer un nouveau job
@@ -828,7 +815,8 @@ void AssemblyGui::setActionsStates(QTreeWidgetItem *currentItem/*, bool modified
             _ui->_ACT_saveJob->setEnabled(saveStatus);
             _ui->_ACT_saveAsJob->setEnabled(saveAsStatus);
             _ui->_ACT_deleteJob->setEnabled(deleteStatus);
-            _ui->_ACT_launchJob->setEnabled(launchStatus);
+            _ui->_ACT_launchJob->setEnabled(!isProcessingStatus);
+            _ui->_ACT_stopJob->setEnabled(isProcessingStatus);
 
         } else {
             // mode expert
@@ -881,7 +869,7 @@ void AssemblyGui::slot_swapUserOrExpert()
         slot_clearAssembly();
     } else {
         if (_expertValuesModified) {
-            if (QMessageBox::No == QMessageBox::question(this, "Chains/Parameters has changed...", "Go on without saving ?",
+            if (QMessageBox::No == QMessageBox::question(this, tr("Assemblages/paramètres modifiés..."), tr("Voulez-vous continuer sans sauvegarder?"),
                                       QMessageBox::Yes,
                                       QMessageBox::No)) {
                 _ui->_ACT_userExpert->setChecked(true);
@@ -904,6 +892,7 @@ void AssemblyGui::slot_swapUserOrExpert()
 
 void AssemblyGui::slot_launchJob()
 {
+
     // On test assemblage ou job
     // Le bouton est actif si le job est selectionnable
     // cad si l'image n'a pas été produite...
@@ -929,8 +918,8 @@ void AssemblyGui::slot_launchJob()
         // Modif: si le job a été lancé, on peut le reexecuter avec warning...
         JobDefinition * job = _server.xmlTool().getJob(jobName);
         if (job->executionDefinition()->executed()) {
-            if (QMessageBox::No == QMessageBox::question(this, "Job processed...",
-                                                         "The job has already been processed.\n Do you want to process again ?",
+            if (QMessageBox::No == QMessageBox::question(this, tr("Travail exécuté..."),
+                                                         tr("Le travail a déjà été exécuté.\nVoulez-vous le relancer?"),
                                                          QMessageBox::Yes,
                                                          QMessageBox::No)) {
                 return;
@@ -941,8 +930,8 @@ void AssemblyGui::slot_launchJob()
         // si un parametre est modifié, on demande si on sauvegarde sous un nouveau nom...
         // INFO: normalement on ne doit plus passer ici suite à la modification de logique des enregistrements...
         if (saveAs) {
-            if (QMessageBox::No == QMessageBox::question(this, "Parameters changed...",
-                                                         "At least one parameter has been changed. \n Do you want to save the job as a new job ?",
+            if (QMessageBox::No == QMessageBox::question(this, tr("Modification de paramètres..."),
+                                                         tr("Un ou plusieurs paramètres ont été modifiés.\nVoulez-vous enregistrer le travail sous un autre nom?"),
                                                          QMessageBox::Yes,
                                                          QMessageBox::No)) {
                 saveAs = false;
@@ -957,7 +946,7 @@ void AssemblyGui::slot_launchJob()
         // ou on sauvegarde l'assemblage sous un autre nom...
         jobName = JobDialog::newJobName(this, &jobDesc, _server.xmlTool().getJobsPath());
         if (jobName.isEmpty()) {
-            showStatusMessage("Travail annulé...");
+            showStatusMessage(tr("Travail annulé..."));
             // annulé...
             return;
         }
@@ -966,7 +955,7 @@ void AssemblyGui::slot_launchJob()
     AssemblyDefinition * assemblyDef = _server.xmlTool().getAssembly(assemblyName);
     if (!assemblyDef) {
         qDebug() << "Erreur recup assemblage" << assemblyName;
-        showStatusMessage("Processing chain error", ERROR);
+        showStatusMessage(tr("Erreur sur l'assemblage"), ERROR);
         return;
     }
 
@@ -975,12 +964,13 @@ void AssemblyGui::slot_launchJob()
 
     if (!job) {
         // ecriture du fichier de parametres
+        QString modelVersion = assemblyDef->parametersDefinition()->model();
         QStringList args= QStringList() << _server.xmlTool().getBasePath()
                                         << "users" << "parameters"
-                                        << assemblyDef->parametersDefinition()->model()
+                                        << modelVersion
                                         << jobDesc.getValue("filename");
 
-        _parameters->generateParametersFile(args.join(QDir::separator()));
+        _parameters->generateParametersFile(args.join(QDir::separator()), modelVersion);
 
         // nouveau job
         job = new JobDefinition(jobName, assemblyName, assemblyDef->version());
@@ -991,9 +981,10 @@ void AssemblyGui::slot_launchJob()
         job->setFilename(jobFilename);
         job->setExecutionDefinition(new ExecutionDefinition());
         if (!_server.xmlTool().writeJobFile(job, true)) {
-            // erreur ecriture
-            QMessageBox::information(this, "Writting error", "The job file " + jobName + " has not been written");
-            showStatusMessage("Writting error. The job file " + jobName + " has not been written", ERROR);
+            QString msg1 = tr("Erreur d'écriture.");
+            QString msg2 = tr("Le fichier de travail %1 n'a pu être écrit").arg(jobName);
+            QMessageBox::information(this, msg1, msg2);
+            showStatusMessage(msg1 + " " + msg2, ERROR);
             return;
         }
         // ajout du job dans la liste et selection
@@ -1008,6 +999,8 @@ void AssemblyGui::slot_launchJob()
         jobFilename = job->filename();
     }
 
+    _userFormWidget->showQGisCanvas(false);
+
     qDebug() << "Execute le job " << jobName;
     // on recharge le fichier...
     if (!jobName.isEmpty()) {
@@ -1016,13 +1009,19 @@ void AssemblyGui::slot_launchJob()
 
             if (job) {
                 _lastJobLaunchedItem = currentItem;
-                showStatusMessage("Job " + jobName + " processing...", IDLE, true);
+                _lastJobLaunchedItem->setIcon(0, QIcon(":/png/led-orange.png"));
+                QString msg = tr("Travail %1 en cours...").arg(jobName);
+                showStatusMessage(msg, IDLE, true);
                 if (!_server.processJob(*job)) {
-                    showStatusMessage("Erreur " + jobName + ": " + _server.messageStr(), ERROR, true);
+                    QString msg = tr("Erreur %1: %2").arg(jobName).arg(_server.messageStr());
+                    showStatusMessage(msg, ERROR, true);
                 }
+                setActionsStates(_lastJobLaunchedItem);
             } else {
-                QMessageBox::information(this, "Cannot find the file", "The job file " + jobName + " was not launched");
-                showStatusMessage("The job file " + jobName + " was not launched", ERROR);
+                QString msg1=tr("Fichier introuvable.");
+                QString msg2=tr("Le fichier de travail %1 n'a pu être lancé").arg(jobName);
+                QMessageBox::information(this, msg1, msg2);
+                showStatusMessage(msg1+ " " + msg2, ERROR);
 
             }
         }
@@ -1030,19 +1029,46 @@ void AssemblyGui::slot_launchJob()
 
 }
 
-void AssemblyGui::slot_jobProcessed(QString name) {
+void AssemblyGui::slot_stopJob()
+{
+    qDebug() << "Arrêt du job ";
+    _server.cancelJob();
+}
+
+void AssemblyGui::slot_jobIntermediateResult(QString name, Image *image)
+{
+    if (image) {
+        _userFormWidget->displayImage(image);
+        delete image;
+    }
+}
+
+void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
     qDebug() << "Job done : " << name;
+    _userFormWidget->showQGisCanvas(true);
+
     if (!_server.errorFlag()) {
         JobDefinition *jobDef = _server.xmlTool().getJob(name);
-        jobDef->executionDefinition()->setExecuted(true);
         QDateTime now = QDateTime::currentDateTime();
         jobDef->executionDefinition()->setExecutionDate(now);
         _server.xmlTool().writeJobFile(jobDef, true);
         if (_lastJobLaunchedItem) {
-            // mise a jour de la led...
-            _lastJobLaunchedItem->setIcon(0, QIcon(":/png/led-green.png"));
-            showStatusMessage("Job " + jobDef->name() + " done...", OK);
-            selectJob(jobDef->name());
+            if (isCancelled) {
+                _lastJobLaunchedItem->setIcon(0, QIcon(":/png/led-grey.png"));
+                setActionsStates(_lastJobLaunchedItem);
+                QString msg = tr("Travail %1 annulé...").arg(jobDef->name());
+                showStatusMessage(msg, OK);
+                // TODO Nettoyage image?
+            }
+            else  {
+                // mise a jour de la led...
+                _lastJobLaunchedItem->setIcon(0, QIcon(":/png/led-green.png"));
+                setActionsStates(_lastJobLaunchedItem);
+                QString msg = tr("Travail %1 terminé...").arg(jobDef->name());
+                showStatusMessage(msg, OK);
+
+                selectJob(jobDef->name());
+            }
         }
     }
 }
@@ -1059,7 +1085,6 @@ void AssemblyGui::slot_assembliesReload()
     }
 
     slot_swapUserOrExpert();
-
 }
 
 void AssemblyGui::slot_modifiedParameters(bool changed)

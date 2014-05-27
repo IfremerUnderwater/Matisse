@@ -54,7 +54,7 @@ bool Dim2FileReader::readDim2File(QString filename, quint32 firstLine, quint32 l
             if (lineCount > lastLine) {
                 break;
             }
-        _fileIsValid = addInfo(newLine) || _fileIsValid;
+            _fileIsValid = addInfo(newLine) && _fileIsValid;
         }
     }
 

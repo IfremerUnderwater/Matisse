@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="colacalibbigblocks" assembly="VictorCongolobe" version="">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="colacalibbigblocks"/>
+	<Execution executed="true" executionDate="23/05/2014 15:27" result="D:/DATA/MOSAIC_DATASETS/Congolobe/OTUS_ColA_482_LIGHT_CORR/Geotiff_data/MosaicOut.tiff"/>
+</MatisseJob>

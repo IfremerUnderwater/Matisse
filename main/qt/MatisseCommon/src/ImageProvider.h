@@ -2,10 +2,10 @@
 #define IMAGEPROVIDER_H
 
 #include <QObject>
-
+#include "ImageSet.h"
 #include "ImageSet.h"
 #include "Context.h"
-#include "MatisseParameters.h"
+#include "LifecycleComponent.h"
 
 namespace MatisseCommon {
 ///
@@ -15,19 +15,16 @@ namespace MatisseCommon {
 /// Les methodes de cycle de vie virtuelles pures \ref configure(Context * , MatisseParameters *)\ref start() \ref stop() doivent être implémentées par les classes dérivées.
 /// Elles sont appelées par le moteur à chaque exécution d'un assemblage.
 ///
-class ImageProvider : public QObject
+class ImageProvider : public QObject, public LifecycleComponent
 {
     Q_OBJECT
+    Q_INTERFACES(MatisseCommon::LifecycleComponent)
 public:
 
     explicit ImageProvider(QObject *parent, QString name, QString comment, quint16 outNumber);
     virtual ~ImageProvider();
 
-    ///
-    /// \brief Retourne le nom unique spécifié dans le constructeur.
-    /// \return
-    ///
-    QString name() const;
+
 
     ///
     /// \brief Retourne le commentaire associé au composant.
@@ -41,33 +38,7 @@ public:
     ///
     quint16 outNumber() {return _outNumber;}
 
-    ///
-    /// \brief Appelle configure de la classe dérivée
-    ///
-    /// Methode appelée par le moteur d'assemblage
-    /// \param context
-    /// \param mosaicParameters
-    ///
-    bool callConfigure(Context * context, MatisseParameters * mosaicParameters);
 
-    ///
-    /// \brief Appelle start de la classe dérivée
-    ///
-    /// Methode appelée par le moteur d'assemblage
-    void callStart();
-
-    ///
-    /// \brief Appelle stop de la classe dérivée
-    ///
-    /// Methode appelée par le moteur d'assemblage
-    void callStop();
-
-
-    ///
-    /// \brief Retourne les le couple (structure,parametre) attendus dans MatisseParameters. Utilisé par le moteur d'assemblage.
-    /// \return
-    ///
-    QList<MatisseParameter> expectedParameters() { return _expectedParameters; }
 
     //
     // Methodes à surcharger - DEBUT
@@ -82,61 +53,17 @@ public:
     // Methodes à surcharger - FIN
     //
 
-signals:
-    
-public slots:
 
+    bool isRealTime() const;
 protected:
-
-    //
-    // Methodes à surcharger - DEBUT
-    //
-
-    ///
-    /// \brief Configuration du processeur pour l'execution d'un assemblage
-    ///
-    /// \param context Le contexte permet de passer des objets entre les différents processeurs.
-    /// \param mosaicParameters Les paramètres sont les informations saisies par l'utilisateur en lecture seule.
-    /// \return
-    ///
-    virtual bool configure(Context * context, MatisseParameters * mosaicParameters) = 0;
-
-    ///
-    /// \brief La méthode start est appelée pour prevenir du commencement de l'execution d'un asssemblage.
-    ///
-    virtual void start() = 0;
-
-    ///
-    /// \brief La méthode stop est appelée pour prevenir de la fin de l'execution d'un asssemblage.
-    ///
-    virtual void stop() = 0;
-
-
-    //
-    // Methodes à surcharger - FIN
-    //
-
-    ///
-    /// \brief Ajoute un couple (structure,parametre) aux paramètres attendus. Doit être appelé dans le constructeur de la classe dérivée.
-    /// \param structure
-    /// \param param
-    ///
-    void addExpectedParameter(QString structure, QString param);
-
-    ///
-    /// \brief Retourne un chaine pour le déboggage
-    /// \return
-    ///
-    QString const & logPrefix() const;
+    void setIsRealTime(bool isRealTime);
 
 private:
-    QString _name;
     QString _comment;
     quint16 _outNumber;
+    bool _isRealTime;
 
-    QList<MatisseParameter> _expectedParameters;
-    QString _logPrefix;
 };
 }
-Q_DECLARE_INTERFACE(MatisseCommon::ImageProvider, "Chrisar.ImageProvider/1.0")
+Q_DECLARE_INTERFACE(MatisseCommon::ImageProvider, "Chrisar.ImageProvider/1.1")
 #endif // IMAGEPROVIDER_H

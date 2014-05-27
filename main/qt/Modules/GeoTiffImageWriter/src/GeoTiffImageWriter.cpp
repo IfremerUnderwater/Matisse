@@ -17,17 +17,19 @@ GeoTiffImageWriter::~GeoTiffImageWriter()
 
 }
 
-bool GeoTiffImageWriter::configure(Context *context, MatisseParameters *mosaicParameters)
+bool GeoTiffImageWriter::configure()
 {
     qDebug() << logPrefix() << "configure";
-    QString datasetDirnameStr = mosaicParameters->getStringParamValue("dataset_param", "dataset_dir");
-    QString outputDirnameStr = mosaicParameters->getStringParamValue("dataset_param", "output_dir");
-    QString outputFilename = mosaicParameters->getStringParamValue("dataset_param", "output_filename");
 
-    if (outputDirnameStr.isEmpty()
-     || datasetDirnameStr.isEmpty()
+    QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    QString outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+
+    if (datasetDirnameStr.isEmpty()
+     || outputDirnameStr.isEmpty()
      || outputFilename.isEmpty())
         return false;
+
 
     QFileInfo outputDirInfo(outputDirnameStr);
     QFileInfo datasetDirInfo(datasetDirnameStr);
@@ -37,7 +39,6 @@ bool GeoTiffImageWriter::configure(Context *context, MatisseParameters *mosaicPa
     if (isRelativeDir) {
         outputDirnameStr = QDir::cleanPath( datasetDirInfo.absoluteFilePath() + QDir::separator() + outputDirnameStr);
     }
-
     _outputFileInfo.setFile(QDir(outputDirnameStr), outputFilename);
 
     return true;
@@ -45,19 +46,25 @@ bool GeoTiffImageWriter::configure(Context *context, MatisseParameters *mosaicPa
 
 void GeoTiffImageWriter::onNewImage(quint32 port, Image &image)
 {
-
+    qDebug() << logPrefix() << "Receive image on port " << port;
 }
 
-void GeoTiffImageWriter::start()
+void GeoTiffImageWriter::onFlush(quint32 port)
+{
+    qDebug() << logPrefix() << "Flush on port " << port;
+}
+
+bool GeoTiffImageWriter::start()
 {
     qDebug() << logPrefix() << " inside start";
 
     qDebug() << logPrefix() << " out start";
+    return true;
 }
 
-void GeoTiffImageWriter::stop()
+bool GeoTiffImageWriter::stop()
 {
-
+    return true;
 }
 
 QFileInfo GeoTiffImageWriter::rasterInfo()
