@@ -28,7 +28,7 @@ win32:Release {
     LIBS += -lqgis_core -lqgis_gui
     LIBS += -lopencv_core248
     LIBS += -lopencv_highgui248
-    LIBS += -lopencv_imgproc248d
+    LIBS += -lopencv_imgproc248
     POST_TARGETDEPS += ../libs/release/MatisseCommon.lib ../libs/release/MatisseTools.lib
 }
 

@@ -2,8 +2,8 @@
 ; Inno Setup Configuration file for MatisseServer
 #define OSGeo4W64Dir "C:\OSGeo4W64"
 #define SevenZipDir "C:\Program Files\7-Zip"
-#define ToolsDir "..\..\..\..\50-Outils"
-#define OpenCVDir "D:\Applis\OpenCV\build\x64\vc10"
+#define ToolsDir "D:\Extern_libraries\50-Outils"
+#define OpenCVDir "D:\Extern_libraries\opencv248\opencv\build\x64\vc10"
 #define OpenCVVersion "248"
 
 
@@ -31,7 +31,8 @@ Name: "MatisseApplication"; Description: "Matisse Application"; Types: full comp
 Name: "MatisseQGisPlugin"; Description: "Matisse Qgis Plugin";Types: full compact 
 
 [Files]
-Source: "qt\MatisseServer\debug\MatisseServer.exe"; DestDir: "{app}"; Components: MatisseApplication
+Source: "qt\Modules\MatisseCppLib\distrib\*.dll"; DestDir: "{app}"; Components: MatisseApplication
+Source: "qt\MatisseServer\release\MatisseServer.exe"; DestDir: "{app}"; Components: MatisseApplication
 Source: "qt\xml\*"; DestDir: "{app}\xml"; Flags: recursesubdirs; Components: MatisseApplication
 Source: "qt\dll\*"; DestDir: "{app}\dll"; Flags: recursesubdirs; Components: MatisseApplication
 Source: "qt\Setup\MatisseSettings.xml"; DestDir: "{app}"; Components: MatisseApplication
@@ -41,6 +42,8 @@ Source: "{#OpenCVDir}\bin\opencv_core{#OpenCVVersion}.dll"; DestDir: "{app}"; Co
 Source: "{#OpenCVDir}\bin\opencv_core{#OpenCVVersion}d.dll"; DestDir: "{app}"; Components: MatisseApplication
 Source: "{#OpenCVDir}\bin\opencv_highgui{#OpenCVVersion}.dll"; DestDir: "{app}"; Components: MatisseApplication
 Source: "{#OpenCVDir}\bin\opencv_highgui{#OpenCVVersion}d.dll"; DestDir: "{app}"; Components: MatisseApplication
+Source: "{#OpenCVDir}\bin\opencv_imgproc{#OpenCVVersion}.dll"; DestDir: "{app}"; Components: MatisseApplication
+Source: "{#OpenCVDir}\bin\opencv_imgproc{#OpenCVVersion}d.dll"; DestDir: "{app}"; Components: MatisseApplication
 Source: "{#SevenZipDir}\*"; DestDir: "{tmp}"; Flags: deleteafterinstall; Components: MatisseApplication
 ; Pour bypasser la resolution automatique des DLL MSVC
 Source: "{#ToolsDir}\msvcrt.zip"; DestDir: "{tmp}"; Flags: deleteafterinstall; Components: MatisseApplication
