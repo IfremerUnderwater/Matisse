@@ -1,0 +1,32 @@
+#-------------------------------------------------
+#
+# Processor plugin:
+
+#   $PROCESSOR_NAME
+#   PLUGIN_$PROCESSOR_ID
+#   $DATE
+#
+#-------------------------------------------------
+
+QT       -= gui
+
+TARGET = PLUGIN_$PROCESSOR_ID
+TEMPLATE = lib
+
+DESTDIR = ../available
+
+CONFIG -= $NOT_RELEASE_OR_DEBUG
+CONFIG += $RELEASE_OR_DEBUG
+
+CONFIG += plugin \
+          shared
+
+INCLUDEPATH += . \
+              ../../templates
+
+SOURCES += PLUGIN_$PROCESSOR_ID.cpp
+SOURCES += $SOURCE_FILES_LIST
+
+HEADERS += ../../templates/PluginInterface.h \
+          PLUGIN_$PROCESSOR_ID.h
+HEADERS += $HEADER_FILES_LIST

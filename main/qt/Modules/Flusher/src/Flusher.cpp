@@ -24,7 +24,7 @@ ImageSet * Flusher::imageSet(quint16 port)
     return _imageSet;
 }
 
-bool Flusher::configure(Context *context, MatisseParameters *mosaicParameters)
+bool Flusher::configure()
 {
     qDebug() << logPrefix() << "Flusher configure";
 
@@ -32,17 +32,16 @@ bool Flusher::configure(Context *context, MatisseParameters *mosaicParameters)
 
 }
 
-void Flusher::start()
+bool Flusher::start()
 {
-
     _imageSet->flush();
-
     qDebug() << logPrefix() << " out start";
+    return true;
 }
 
-void Flusher::stop()
+bool Flusher::stop()
 {
-
     _imageSet->clear();
+    return true;
 }
 

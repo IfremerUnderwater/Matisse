@@ -1,6 +1,7 @@
 ﻿
 #include <QList>
 #include <QtDebug>
+#include <QTranslator>
 
 #include "Server.h"
 #include "FileImage.h"
@@ -30,12 +31,13 @@ int main(int argc, char *argv[])
     QgsApplication::initQgis();
     QgsApplication a(argc, argv, true);
 
-    // Pour messages en français...
-    QString locale = QLocale::system().name();
-    QTranslator translator;
-    QString libLocation = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
-    translator.load("qt_fr", ".", QString(), ".ts");
-    a.installTranslator(&translator);
+    QTranslator toolsTranslator;
+    toolsTranslator.load("MatisseTools_en");
+    a.installTranslator(&toolsTranslator);
+
+    QTranslator matisseTranslator;
+    matisseTranslator.load("MatisseServer_en");
+    a.installTranslator(&matisseTranslator);
 
 
     qDebug() << QgsApplication::showSettings();

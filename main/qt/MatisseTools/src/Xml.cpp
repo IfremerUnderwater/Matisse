@@ -2,18 +2,11 @@
 
 using namespace MatisseTools;
 
-Xml::Xml(QString basePath, QString dataPath)
+Xml::Xml()
 {
-    setPaths(basePath, dataPath);
 }
 
-void Xml::setPaths(QString basePath, QString dataPath)
-{
-    _basePath = basePath;
-    _dataPath = dataPath;
-    _jobsPath = _basePath + QDir::separator() + "users" + QDir::separator() + "jobs";
-    _assembliesPath = _basePath + QDir::separator() + "assemblies";
-}
+
 
 ///
 /// \brief Xml::readAssemblyFile
@@ -349,15 +342,13 @@ bool Xml::readMatisseGuiSettings(QString filename)
     foreach(QString settingsField, settingsFields) {
         QXmlStreamReader reader(settingsField);
         if (reader.readNextStartElement()) {
-            //qDebug() << "LLLL" << reader.name();
-            //qDebug() << "TTTT" << reader.readElementText();
             if (reader.name() == "XmlRootDir") {
                 _basePath = reader.readElementText();
                 //qDebug()<< "BasePath : " << _basePath;
             }
-            else if (reader.name() == "DataRootDir") {
-                _dataPath = reader.readElementText();
-                //qDebug()<< "DataPath : " << _dataPath;
+            else if (reader.name() == "DllRootDir") {
+                _dllPath = reader.readElementText();
+                //qDebug()<< "DllPath : " << _dllPath;
             }
             else if (reader.name() == "Port") {
                 bool isOk;
@@ -368,7 +359,8 @@ bool Xml::readMatisseGuiSettings(QString filename)
             }
         }
     }
-
+    _jobsPath = _basePath + QDir::separator() + "users" + QDir::separator() + "jobs";
+    _assembliesPath = _basePath + QDir::separator() + "assemblies";
     return true;
 }
 

@@ -16,8 +16,6 @@
         <file>run-ok.png</file>
         <file>run-unknown.png</file>
         <file>view-refresh-3.png</file>
-        <file>led_orange.png</file>
-        <file>led_red.png</file>
         <file>deleteAssembly.png</file>
         <file>newAssembly.png</file>
         <file>SaveAsAssembly.png</file>
@@ -25,6 +23,9 @@
         <file>deleteJob.png</file>
         <file>SaveAsJob.png</file>
         <file>SaveJob.png</file>
+        <file alias="stop.png">process-stop-9.png</file>
+        <file>led-orange.png</file>
+        <file>led-red.png</file>
     </qresource>
     <qresource prefix="/jpg">
         <file>ifremer-grand.jpg</file>

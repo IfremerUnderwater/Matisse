@@ -67,7 +67,7 @@ void *DTPictureFileSetImageProvider::qt_metacast(const char *_clname)
     if (!_clname) return 0;
     if (!strcmp(_clname, qt_meta_stringdata_DTPictureFileSetImageProvider))
         return static_cast<void*>(const_cast< DTPictureFileSetImageProvider*>(this));
-    if (!strcmp(_clname, "Chrisar.ImageProvider/1.0"))
+    if (!strcmp(_clname, "Chrisar.ImageProvider/1.1"))
         return static_cast< MatisseCommon::ImageProvider*>(const_cast< DTPictureFileSetImageProvider*>(this));
     return ImageProvider::qt_metacast(_clname);
 }

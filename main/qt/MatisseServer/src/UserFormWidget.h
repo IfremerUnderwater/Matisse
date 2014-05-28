@@ -2,11 +2,12 @@
 #define USERFORMWIDGET_H
 
 #include <QWidget>
+#include <QImage>
 #include <QGraphicsView>
-
+#include "Image.h"
 #include "Tools.h"
 using namespace MatisseTools;
-
+using namespace MatisseCommon;
 namespace Ui {
 class UserFormWidget;
 }
@@ -22,10 +23,11 @@ public:
 
     void init();
     void showUserParameters(Tools *tools = NULL);
-
+    void showQGisCanvas(bool flag);
 
     void createCanvas();
     void clear();
+    void displayImage(Image *image);
     void resetJobForm();
     void loadVectorFile(QString filename = "");
     void loadRasterFile(QString filename = "");

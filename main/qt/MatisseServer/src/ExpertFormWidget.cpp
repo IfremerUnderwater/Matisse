@@ -7,8 +7,6 @@ ExpertFormWidget::ExpertFormWidget(Server *  server, QWidget *parent) :
     QWidget(parent),
     _ui(new Ui::ExpertFormWidget),
     _server(server),
-    //_rootXml(rootXml),
-    //_xmlTool(rootXml),
     _currentParameters(NULL)
 {
     _ui->setupUi(this);
@@ -55,34 +53,16 @@ void ExpertFormWidget::init()
 
     _lastUsedParameter = NULL;
 
-    connect(_ui->_LW_inputs, SIGNAL(clicked(QModelIndex)), this, SLOT(slot_selectElement(QModelIndex)));
-    connect(_ui->_LW_processors, SIGNAL(clicked(QModelIndex)), this, SLOT(slot_selectElement(QModelIndex)));
-    connect(_ui->_LW_outputs, SIGNAL(clicked(QModelIndex)), this, SLOT(slot_selectElement(QModelIndex)));
-
     //connect(_ui->_TRW_parameters, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(slot_showParameters(QTreeWidgetItem*,int)));
     connect(_ui->_TRW_parameters, SIGNAL(itemPressed(QTreeWidgetItem*,int)), this, SLOT(slot_showParameters(QTreeWidgetItem*,int)));
     connect(_ui->_TAB_elements, SIGNAL(currentChanged(int)), this, SLOT(slot_changeTabPanel(int)));
-
-    connect(_ui->_LW_inputs, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(slot_showElement(QModelIndex)));
-    connect(_ui->_LW_processors, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(slot_showElement(QModelIndex)));
-    connect(_ui->_LW_outputs, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(slot_showElement(QModelIndex)));
-
-    // connect(_ui->_PB_saveParameters, SIGNAL(clicked()), this, SLOT(slot_saveParameters()));
 
     _ui->_GRW_assembly->setAcceptDrops(true);
     _scene = new AssemblyGraphicsScene(_server, _ui->_GRW_assembly->rect());
     _ui->_GRW_assembly->setScene(_scene);
     _ui->_GRW_assembly->centerOn(0, 0);
     _scene->setExpertGui(this);
-    // _parameters = new Tools();
-    //  if (!_parameters->readParametersFile(_rootXml + "/models/Parameters.xml")) {
-    //      QMessageBox::warning(this, "Erreur de fichier 2", "Le fichier n'est pas au format attendu " + _rootXml + "/models/Parameters.xml");
-    //      return;
-    //  }
 
-    //   _ui->_SCA_element->setWidget(_parameters->createFullParametersDialog());
-
-    // test();
     fillLists();
 }
 
@@ -98,18 +78,19 @@ void ExpertFormWidget::fillLists()
         return;
     }
     // creation de l'arborescence
-    QStringList parametersDir = rootParametersDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable);
+    QStringList parametersDirList = rootParametersDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable);
     QStringList versions;
     QRegExp versionExp("^V\\d(.\\d)+$");
     _availableParameters.clear();
-    foreach(QString dirname, parametersDir) {
+    foreach(QString dirname, parametersDirList) {
         if (!versionExp.exactMatch(dirname)) {
             continue;
         }
-        rootParametersDir.cd(dirname);
-        QStringList parametersFiles = rootParametersDir.entryList(QStringList() <<"*.xml", QDir::Files | QDir::Readable);
+        QDir parametersDir = rootParametersDir;
+        parametersDir.cd(dirname);
+        QStringList parametersFiles = parametersDir.entryList(QStringList() <<"*.xml", QDir::Files | QDir::Readable);
         foreach (QString filename, parametersFiles) {
-            filename = rootParametersDir.absoluteFilePath(filename);
+            filename = parametersDir.absoluteFilePath(filename);
             qDebug() << "Fichier parametres:" << filename;
             KeyValueList params = _server->xmlTool().readParametersFileDescriptor(filename);
             QString version = params.getValue("modelVersion");
@@ -151,6 +132,7 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
 {
     QString modelVersionStr;
     QString parametersNameStr;
+    QString badFormatMsg = tr("Le fichier %1 n'est pas au format attendu.");
     _lastUsedParameter = NULL;
     if (item) {
         _lastUsedParameter = item;
@@ -162,8 +144,10 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
              ParametersWidgetSkeleton * paramWidget  = qobject_cast<ParametersWidgetSkeleton *>(_ui->_SCA_element->widget());
              if (paramWidget) {
                  if (paramWidget->hasModifiedValues() && (noCol>-1)) {
-                     if (QMessageBox::Yes ==QMessageBox::question(this, "Parameters has changed...", "Go on without saving ?"
-                                                                  , QMessageBox::Yes, QMessageBox::No)) {
+                     if (QMessageBox::Yes ==QMessageBox::question(this,
+                                                                  tr("Paramètres modifiés..."),
+                                                                  tr("Voulez vous enregistrer les paramètres?")
+                                                                 , QMessageBox::Yes, QMessageBox::No)) {
                          emit signal_saveParameters();
                      }
                  }
@@ -181,7 +165,8 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
                     + QDir::separator() + "parameters"
                     + QDir::separator() + "Parameters_" + item->data(0, Qt::DisplayRole).toString().replace(" ", "_") + ".xml";
             if (!_currentParameters -> readParametersModelFile(modelName)) {
-                QMessageBox::warning(this, "Parameters model file", "The model file\n" + modelName + "\n is not in the good format ");
+
+                QMessageBox::warning(this, tr("Fichier modèle de paramètres"), badFormatMsg.arg(modelName));
                 return;
             }
 
@@ -200,7 +185,7 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
                     + QDir::separator() + modelVersion
                     + QDir::separator() + item->data(0, Qt::DisplayRole).toString().replace(" ", "_") + ".xml";
             if (!_currentParameters -> readUserParametersFile(filename, modelName)) {
-                QMessageBox::warning(this, "Parameters model file", "The model file\n" + modelName + "\n is not in the good format ");
+                QMessageBox::warning(this, tr("Fichier de paramètres"), badFormatMsg.arg(filename));
                 return;
             }
         }
@@ -215,7 +200,7 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
         }
         _ui->_SCA_element->setWidget(new QWidget());
     }
-    QString groupBoxTitle = "Algorithm parameters " + modelVersionStr;
+    QString groupBoxTitle = tr("Paramètres courants ") + modelVersionStr;
     if (!parametersNameStr.isEmpty()) {
         groupBoxTitle.append("/" + parametersNameStr);
     }
@@ -259,7 +244,7 @@ bool ExpertFormWidget::saveParameters()
         QString filename = parametersDialog->getFilename();
         fields = parametersDialog->getFields();
         qDebug() << "Ecriture" << filename;
-        _currentParameters->generateParametersFile(filename, fields);
+        _currentParameters->generateParametersFile(filename, version, fields);
         // ajout dans la liste des parametres...
         QString name = fields.getValue("name");
         ParametersWidget * newParametersWidget = new ParametersWidget();
@@ -370,13 +355,6 @@ void ExpertFormWidget::test() {
     QListWidgetItem * newDestItem = new QListWidgetItem(newDest->getIcon(), newDest->getName());
     _ui->_LW_outputs->addItem(newDestItem);
 
-    // test xml
-    //qDebug() << "Validation schema";
-    //Xml::validateXmlFile("../xml/models/parameters/Parameters_V1.0.xsd");
-    //qDebug() << "Validation Fichier";
-    //Xml::validateXmlFile("../xml/models/parameters/Parameters_V1.0.xsd", "../xml/parameters/Parametres_1.xml");
-    //MatisseXml matisseXml("../xml");
-    //matisseXml.readParametersFileDescriptor("test2.xml");
 }
 
 void ExpertFormWidget::showParameters(AssemblyDefinition *assembly)

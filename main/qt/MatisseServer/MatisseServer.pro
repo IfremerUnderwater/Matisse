@@ -5,9 +5,11 @@
 #-------------------------------------------------
 
 QT       += core gui network sql xml xmlpatterns script
-
-
-QMAKE_CXXFLAGS += /wd4100 /wd4996
+#CONFIG += console
+win32 {
+    RC_FILE = MatisseServer.rc
+    QMAKE_CXXFLAGS += /wd4100 /wd4996
+}
 
 TARGET = MatisseServer
 TEMPLATE = app
@@ -26,6 +28,7 @@ win32:Release {
     LIBS += -lqgis_core -lqgis_gui
     LIBS += -lopencv_core248
     LIBS += -lopencv_highgui248
+    LIBS += -lopencv_imgproc248
     POST_TARGETDEPS += ../libs/release/MatisseCommon.lib ../libs/release/MatisseTools.lib
 }
 
@@ -35,6 +38,7 @@ win32:Debug {
     LIBS += -lqgis_cored -lqgis_guid
     LIBS += -lopencv_core248d
     LIBS += -lopencv_highgui248d
+    LIBS += -lopencv_imgproc248d
     POST_TARGETDEPS += ../libs/debug/MatisseCommon.lib ../libs/debug/MatisseTools.lib
 }
 
@@ -98,6 +102,8 @@ OBJECTS_DIR = temp
 MOC_DIR = temp
 UI_DIR = temp
 RCC_DIR = temp
+
+TRANSLATIONS=MatisseServer_en.ts
 
 RESOURCES += \
     ui/resources/resources.qrc

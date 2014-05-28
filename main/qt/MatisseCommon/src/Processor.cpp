@@ -4,29 +4,16 @@
 using namespace MatisseCommon;
 
 Processor::Processor(QObject *parent, QString name, QString comment, quint16 inNumber, quint16 outNumber) :
-    ImageListener(parent),
-    _name(name),
+    QObject(parent),
+    LifecycleComponent(name, "[MODULE " + name + "]: "),
     _comment(comment),
     _inNumber(inNumber),
     _outNumber(outNumber),
-    _logPrefix("[MODULE " + _name + "]: "),
-    _expectedParameters(QList<MatisseParameter>()),
     _inputPortList(NULL),
-    _outputPortList(NULL),
-    _context(NULL),
-    _mosaicParameters(NULL)
+    _outputPortList(NULL)
 {
-
 }
 
-void Processor::addExpectedParameter(QString structure, QString param)
-{
-    MatisseParameter parameter;
-    parameter.structure = structure;
-    parameter.param = param;
-    _expectedParameters.append(parameter);
-
-}
 
 
 void Processor::postImage(quint32 port, Image &image)
@@ -65,14 +52,6 @@ void Processor::flush(quint32 port)
         qWarning() << logPrefix() << "Port " << port << " non connecté";
 }
 
-QString const &Processor::logPrefix() const
-{
-    return  _logPrefix;
-}
-
-QList<MatisseParameter> Processor::expectedParameters() {
-    return _expectedParameters;
-}
 
 
 bool Processor::setInputPortList(QList<ImageSetPort *> * inputPortList)
@@ -90,31 +69,4 @@ bool Processor::setOutputPortList(QList<ImageSetPort *> * outputPortList)
 }
 
 
-
-void Processor::callConfigure(Context * context, MatisseParameters * mosaicParameters)
-{
-    qDebug() << logPrefix() << "configure";
-    _context = context;
-    _mosaicParameters = mosaicParameters;
-    configure(context, mosaicParameters);
-}
-
-
-void Processor::callStart()
-{
-    qDebug() << logPrefix() << "start";
-    if (_outputPortList) {
-        foreach (ImageSetPort *port, *_outputPortList) {
-            qDebug() << logPrefix() << "  port de sortie connecte: " << port->portNumber;
-        }
-    }
-
-    start();
-}
-
-void Processor::callStop()
-{
-    qDebug() << logPrefix() << "stop";
-    stop();
-}
 

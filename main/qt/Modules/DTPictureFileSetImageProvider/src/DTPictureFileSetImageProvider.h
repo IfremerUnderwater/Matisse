@@ -19,9 +19,9 @@ public:
     virtual ~DTPictureFileSetImageProvider();
 
     virtual ImageSet * imageSet(quint16 port);
-    virtual bool configure(Context * context, MatisseParameters * mosaicParameters);
-    virtual void start();
-    virtual void stop();
+    virtual bool configure();
+    virtual bool start();
+    virtual bool stop();
 
 
 private:

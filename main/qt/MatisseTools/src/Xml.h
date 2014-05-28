@@ -26,13 +26,12 @@ namespace MatisseTools {
 class Xml
 {
 public:
-    Xml(QString basePath = "", QString dataPath = "");
+    Xml();
 
     int port() { return _port; }
     QString getBasePath() { return _basePath; }
-    QString getDataPath() { return _dataPath; }
+    QString getDllPath() { return _dllPath; }
 
-    void setPaths(QString basePath = "", QString dataPath = "");
 
     bool readAssemblyFile(QString filename);
     AssemblyDefinition *getAssembly(QString assemblyName);
@@ -61,7 +60,7 @@ private:
     bool xmlIsValid(QXmlSchema & schema, QFileInfo fileInfo);
 
     QString _basePath;
-    QString _dataPath;
+    QString _dllPath;
     int _port;
     QXmlSchema _assembliesSchema;
 

@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/ico">
+        <file>yellow-on.ico</file>
+        <file>amber-off.ico</file>
+        <file>amber-on.ico</file>
+        <file>blue-off.ico</file>
+        <file>blue-on.ico</file>
+        <file>green-off.ico</file>
+        <file>green-on.ico</file>
+        <file>red-off.ico</file>
+        <file>red-on.ico</file>
+        <file>uv-off.ico</file>
+        <file>uv-on.ico</file>
+        <file>white-off.ico</file>
+        <file>white-on.ico</file>
+        <file>yellow-off.ico</file>
+    </qresource>
+</RCC>

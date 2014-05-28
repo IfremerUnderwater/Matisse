@@ -33,6 +33,8 @@ InitMatchModule::InitMatchModule() :
     // Must declare all MATLAB data types after initializing the
     // application and the library, or their constructors will fail.
     //mwArray mosaicData;
+    addExpectedParameter("dataset_param", "utm_hemisphere");
+    addExpectedParameter("dataset_param", "utm_zone");
 }
 
 InitMatchModule::~InitMatchModule(){
@@ -42,9 +44,9 @@ InitMatchModule::~InitMatchModule(){
 
 }
 
-void InitMatchModule::configure(Context *context, MatisseParameters *mosaicParameters)
+bool InitMatchModule::configure()
 {
-
+    return true;
 }
 
 void InitMatchModule::onNewImage(quint32 port, Image &image)
@@ -57,14 +59,14 @@ void InitMatchModule::onNewImage(quint32 port, Image &image)
 
 }
 
-void InitMatchModule::start()
+bool InitMatchModule::start()
 {
-
+    return true;
 }
 
-void InitMatchModule::stop()
+bool InitMatchModule::stop()
 {
-
+    return true;
 }
 
 void InitMatchModule::onFlush(quint32 port)
@@ -79,12 +81,12 @@ void InitMatchModule::onFlush(quint32 port)
     bool Ok;
 
     // Generate algo_param from GUI parameters
-    MatlabCppInterface::generate_algo_param(_mosaicParameters, algo_param);
+    MatlabCppInterface::generate_algo_param(_matisseParameters, algo_param);
 
-    tempString = _mosaicParameters->getStringParamValue("dataset_param", "utm_hemisphere");
+    tempString = _matisseParameters->getStringParamValue("dataset_param", "utm_hemisphere");
     algo_param.Get("utm_hemisphere",1,1).Set(mwArray(tempString.toLocal8Bit().data()));
 
-    tempInt = _mosaicParameters->getIntParamValue("dataset_param", "utm_zone",Ok);
+    tempInt = _matisseParameters->getIntParamValue("dataset_param", "utm_zone",Ok);
     algo_param.Get("utm_zone",1,1).Set(mwArray(tempInt));
 
     // Call main function of the module (Init, Sift and Matching)

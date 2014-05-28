@@ -9,7 +9,7 @@
 #include "Image.h"
 #include "ImageSet.h"
 #include "MatisseParameters.h"
-
+#include "LifecycleComponent.h"
 
 
 namespace MatisseCommon {
@@ -17,53 +17,21 @@ namespace MatisseCommon {
 ///
 /// \brief Classe de base des modules chargeables dans MatisseServer
 ///
-class Processor : public ImageListener
+class Processor : public QObject, public ImageListener, public LifecycleComponent
 {
     Q_OBJECT
+    Q_INTERFACES(MatisseCommon::ImageListener)
+    Q_INTERFACES(MatisseCommon::LifecycleComponent)
 public:
 
     
     // Accesseurs
-    QString name(){return _name;}
     QString comment(){return _comment;}
     quint16 inNumber() {return _inNumber;}
     quint16 outNumber() {return _outNumber;}
 
-    ///
-    /// \brief Retourne les le couple (structure,parametre) attendus dans MatisseParameters. Utilisé par le moteur d'assemblage.
-    /// \return
-    ///
-    QList<MatisseParameter> expectedParameters();
-
     bool setInputPortList(QList<ImageSetPort *> * inputPortList);
     bool setOutputPortList(QList<ImageSetPort *> * outputPortList);
-
-    ///
-    /// \brief Appelle configure de la classe dérivée
-    ///
-    /// Methode appelée par le moteur d'assemblage
-    /// \param context
-    /// \param mosaicParameters
-    ///
-    void callConfigure(Context * context, MatisseParameters * mosaicParameters);
-
-    ///
-    /// \brief Appelle start de la classe dérivée
-    ///
-    /// Methode appelée par le moteur d'assemblage
-    void callStart();
-
-    ///
-    /// \brief Appelle stop de la classe dérivée
-    ///
-    /// Methode appelée par le moteur d'assemblage
-    void callStop();
-
-    //
-    // Methodes à surcharger - DEBUT
-    //
-
-
 
 
 protected:
@@ -79,42 +47,11 @@ protected:
     virtual ~Processor() {}
 
     ///
-    /// \brief Configuration du processeur pour l'execution d'un assemblage
-    ///
-    /// \param context Le contexte permet de passer des objets entre les différents processeurs.
-    /// \param mosaicParameters Les paramètres sont les informations saisies par l'utilisateur en lecture seule.
-    /// \return
-    ///
-    virtual void configure(Context * context, MatisseParameters * mosaicParameters)=0;
-
-    ///
-    /// \brief La méthode start est appelée pour prevenir du commencement de l'execution d'un asssemblage.
-    ///
-    virtual void start() = 0;
-
-    ///
-    /// \brief La méthode stop est appelée pour prevenir de la fin de l'execution d'un asssemblage.
-    ///
-    virtual void stop() = 0;
-
-
-    ///
     /// \brief Notifie l'arrivée d'une nouvelle image sur le port d'entrée
     /// \param port
     /// \param image
     ///
     virtual void onNewImage(quint32 port, Image &image) = 0;
-
-    //
-    // Methodes à surcharger - FIN
-    //
-
-    ///
-    /// \brief Ajoute un couple (structure,parametre) aux paramètres attendus. Doit être appelé dans le constructeur de la classe dérivée.
-    /// \param structure
-    /// \param param
-    ///
-    void addExpectedParameter(QString structure, QString param);
 
     ///
     /// \brief Emission d'une image sur un port de sortie.
@@ -131,36 +68,21 @@ protected:
     ///
     void flush(quint32 port);
 
-    ///
-    /// \brief Retourne un chaine pour le déboggage
-    /// \return
-    ///
-    QString const & logPrefix() const;
-
+signals:
+    void signal_intermediateResult(Image* image);
 
 private:
-    QString _name;
     QString _comment;
     quint16 _inNumber;
     quint16 _outNumber;
-    QString _logPrefix;
 
-
-    QList<MatisseParameter> _expectedParameters;
 
 protected:
-    // TODO Stocker les port par numéro?
     QList<ImageSetPort *> * _inputPortList;
     QList<ImageSetPort *> * _outputPortList;
-    Context * _context;
-    MatisseParameters * _mosaicParameters;
 
-signals:
-    
-public slots:
-    
 };
 }
-Q_DECLARE_INTERFACE(MatisseCommon::Processor, "Chrisar.Processor/1.0")
+Q_DECLARE_INTERFACE(MatisseCommon::Processor, "Chrisar.Processor/1.1")
 
 #endif // PROCESSOR_H

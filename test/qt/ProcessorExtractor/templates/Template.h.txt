@@ -1,0 +1,25 @@
+#ifndef H_$PROCESSOR_ID_H
+#define H_$PROCESSOR_ID_H
+
+#include <QList>
+#include <QVariant>
+#include <QtDebug>
+#include <QtPlugin>
+
+#include "PluginInterface.h"
+
+$INCLUDES
+
+class PLUGIN_$PROCESSOR_ID : public PluginInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(PluginInterface)
+
+public:
+    PLUGIN_$PROCESSOR_ID() {init();}
+    virtual void init();
+    virtual void run();
+    virtual PLUGIN_$PROCESSOR_ID * newInstance() {return new PLUGIN_$PROCESSOR_ID();}
+};
+
+#endif // H_$PROCESSOR_ID_H

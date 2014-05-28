@@ -61,14 +61,14 @@ void AssemblyGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         if (!(event->buttons() & Qt::LeftButton)) {
             // affichage popup suppression
             QMenu menu;
-            QAction * delItemAct = menu.addAction("Delete");
+            QAction * delItemAct = menu.addAction(tr("Supprimer"));
             QAction * delSrcAct = NULL;
             QAction * delDestAct =NULL;
             if ((eltType == ProcessorType) || (eltType == DestinationType)) {
-                delSrcAct = menu.addAction("Delete sources");
+                delSrcAct = menu.addAction(tr("Supprimer les sources"));
             }
             if (eltType != DestinationType) {
-                delDestAct = menu.addAction("Delete destinations");
+                delDestAct = menu.addAction(tr("Supprimer les destinations"));
             }
 
             QAction * cmd = menu.exec(event->screenPos());
@@ -526,7 +526,7 @@ bool AssemblyGraphicsScene::saveAssembly(QString filename, QString name, KeyValu
         os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg(key).arg(fields.getValue(key));
     }
     os << "\t</DescriptorFields>\n";
-    // On teste tout au cas ou l'assemblage ne seraait pas valide...
+    // On teste tout au cas ou l'assemblage ne serait pas valide...
     // ecriture des parameters
     QString parametersName = "";
     QString parametersVersion = "";
@@ -589,7 +589,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     AssemblyDefinition * assembly = _server->xmlTool().getAssembly(assemblyName);
     if (!assembly) {
-        QMessageBox::warning(_mainGui, "Invalid processing chain", "The processing chain cannot be loaded...");
+        QMessageBox::warning(_mainGui, tr("Assemblage invalide"), tr("L'assemblage ne peut être chargé..."));
         return false;
     }
 
@@ -597,6 +597,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     bool continueLoad = false;
     bool paramOk = false;
+    QString partialLoadStr = tr("L'assemblage sera partiellement chargé...\nContinuer?");
     // recherche parametres
     ParameterDefinition * parameters = assembly->parametersDefinition();
     if (parameters) {
@@ -617,8 +618,8 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
     if (!paramOk){
         qWarning() << "Parameters NOK";
         if (!continueLoad) {
-            continueLoad = (QMessageBox::question(_mainGui, "Invalid parameters",
-                                                  "The chain will be incomplete...\n Do you still want to load it ?",
+            continueLoad = (QMessageBox::question(_mainGui, tr("Paramètres invalides"),
+                                                  partialLoadStr,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)
                             == QMessageBox::No);
@@ -648,8 +649,8 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
     if (!srcOk){
         qWarning() << "Source NOK";
         if (!continueLoad) {
-            continueLoad = (QMessageBox::question(_mainGui, "Invalid source",
-                                                  "Do you still want to load the chain ?",
+            continueLoad = (QMessageBox::question(_mainGui, tr("Source invalide"),
+                                                  partialLoadStr,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)
                             == QMessageBox::Yes);
@@ -673,8 +674,8 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
                 addItem(newProc);
             } else {
                 if (!continueLoad) {
-                    continueLoad = (QMessageBox::question(_mainGui, "Invalid processor",
-                                                          "Do you still want to load the chain ?",
+                    continueLoad = (QMessageBox::question(_mainGui, "Processeur invalide",
+                                                          partialLoadStr,
                                                           QMessageBox::Yes,
                                                           QMessageBox::No)
                                     == QMessageBox::Yes);
@@ -686,8 +687,8 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
         } else {
             if (!continueLoad) {
-                continueLoad = (QMessageBox::question(_mainGui, "Invalid processor",
-                                                      "Do you still want to load the chain ?",
+                continueLoad = (QMessageBox::question(_mainGui, tr("Processeur invalide"),
+                                                      partialLoadStr,
                                                       QMessageBox::Yes,
                                                       QMessageBox::No)
                                 == QMessageBox::Yes);
@@ -717,8 +718,8 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     if (!destOk){
         if (!continueLoad) {
-            continueLoad = (QMessageBox::question(_mainGui, "Invalid destiation",
-                                                  "Do you still want to load the chain ?",
+            continueLoad = (QMessageBox::question(_mainGui, tr("Destination invalide"),
+                                                  partialLoadStr,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)
                             == QMessageBox::Yes);

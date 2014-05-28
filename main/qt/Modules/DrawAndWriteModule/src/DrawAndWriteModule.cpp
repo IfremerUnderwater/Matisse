@@ -33,6 +33,7 @@ DrawAndWriteModule::DrawAndWriteModule() :
     // Must declare all MATLAB data types after initializing the
     // application and the library, or their constructors will fail.
     //mwArray mosaicData;
+
 }
 
 DrawAndWriteModule::~DrawAndWriteModule(){
@@ -42,9 +43,9 @@ DrawAndWriteModule::~DrawAndWriteModule(){
 
 }
 
-void DrawAndWriteModule::configure(Context *context, MatisseParameters *mosaicParameters)
+bool DrawAndWriteModule::configure()
 {
-
+    return true;
 }
 
 void DrawAndWriteModule::onNewImage(quint32 port, Image &image)
@@ -54,14 +55,14 @@ void DrawAndWriteModule::onNewImage(quint32 port, Image &image)
 
 }
 
-void DrawAndWriteModule::start()
+bool DrawAndWriteModule::start()
 {
-
+    return true;
 }
 
-void DrawAndWriteModule::stop()
+bool DrawAndWriteModule::stop()
 {
-
+    return true;
 }
 
 void DrawAndWriteModule::onFlush(quint32 port)
@@ -82,7 +83,7 @@ void DrawAndWriteModule::onFlush(quint32 port)
     int tempInt;
 
     // Generate algo_param
-    MatlabCppInterface::generate_algo_param(_mosaicParameters, algo_param);
+    MatlabCppInterface::generate_algo_param(_matisseParameters, algo_param);
 
     // Fill utm parameters from mosaicData
     tempString = pmosaicData->init.utmHemisphere;

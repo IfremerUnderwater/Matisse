@@ -237,6 +237,7 @@
    <addaction name="_ACT_saveAsJob"/>
    <addaction name="_ACT_deleteJob"/>
    <addaction name="_ACT_launchJob"/>
+   <addaction name="_ACT_stopJob"/>
    <addaction name="separator"/>
    <addaction name="_ACT_saveParameters"/>
    <addaction name="_ACT_newAssembly"/>
@@ -381,6 +382,21 @@
    </property>
    <property name="toolTip">
     <string>Delete Job</string>
+   </property>
+  </action>
+  <action name="_ACT_stopJob">
+   <property name="icon">
+    <iconset resource="resources/resources.qrc">
+     <normaloff>:/png/stop.png</normaloff>:/png/stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Stopper l'exécution travail</string>
+   </property>
+   <property name="toolTip">
+    <string>Stopper l'exécution travail</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::TextHeuristicRole</enum>
    </property>
   </action>
  </widget>

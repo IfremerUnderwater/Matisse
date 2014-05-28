@@ -70,7 +70,7 @@ bool ImageSet::addImage(Image *image)
         ImageListener *listener = _outPort->imageListener;
         listener->onNewImage(_outPort->portNumber, *image);
     } else {
-        qDebug() << "pas de port attache";
+        qDebug() << "ADD IMAGE: pas de port attache";
     }
 
     return ret;
@@ -114,7 +114,7 @@ void ImageSet::flush()
         ImageListener *listener = _outPort->imageListener;
         listener->onFlush(_outPort->portNumber);
     } else {
-        qDebug() << "pas de port attache";
+        qDebug() << "FLUSH: pas de port attache";
     }
 }
 

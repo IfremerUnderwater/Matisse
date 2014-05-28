@@ -47,7 +47,7 @@ public:
 
     void eraseDialog();
     ParametersWidgetSkeleton *createDialog(QString structName = "", bool user = false);
-    void generateParametersFile(QString filename, KeyValueList comments = KeyValueList());
+    void generateParametersFile(QString filename, QString modelVersion, KeyValueList comments = KeyValueList());
     QStringList structureNames();
 
     ParametersWidgetSkeleton * createFullParametersDialog(bool user = false);

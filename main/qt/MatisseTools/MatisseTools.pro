@@ -7,7 +7,6 @@
 QT       += script xml xmlpatterns network gui
 
 QMAKE_CXXFLAGS += /wd4100 /wd4996
-
 TARGET = MatisseTools
 TEMPLATE = lib
 CONFIG += staticlib
@@ -74,3 +73,4 @@ HEADERS +=\
 FORMS    += ui/ChooseAndShow.ui \
             ui/ParametersWidgetSkeleton.ui
 
+TRANSLATIONS=MatisseTools_en.ts

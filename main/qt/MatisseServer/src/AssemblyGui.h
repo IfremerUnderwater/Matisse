@@ -77,10 +77,12 @@ private:
     QBrush _oldBrush;
     QHash<QString, QTreeWidgetItem*> _assembliesItems;
 
+private:
     void init();
     void test();
-    bool getAssemblyValues(QString filename, QString & name, bool &valid, KeyValueList & assemblyValues);
-    void selectAssembly(QString assemblyName);
+    bool getAssemblyValues(QString filename, QString  name, bool &valid, KeyValueList & assemblyValues);
+    void displayAssembly(QString assemblyName);
+    void displayJob(QString jobName);
     void selectJob(QString jobName);
     void showError(QString title, QString message);
     QTreeWidgetItem * addAssemblyInTree(AssemblyDefinition *assembly);
@@ -103,7 +105,6 @@ private:
     bool _expertValuesModified;
 
 protected slots:
-//    void slot_selectAssemblyOrJob(QModelIndex index);
     void slot_showAssembly(QModelIndex index);
     void slot_saveAssembly();
     void slot_saveAsAssembly();
@@ -116,11 +117,11 @@ protected slots:
     void slot_clearAssembly();
     void slot_swapUserOrExpert();
     void slot_launchJob();
-    void slot_jobProcessed(QString name);
+    void slot_stopJob();
+    void slot_jobIntermediateResult(QString name, Image *image);
+    void slot_jobProcessed(QString name, bool isCancelled);
     void slot_assembliesReload();
-   // void slot_deleteAssemblyOrJob();
     void slot_modifiedParameters(bool changed);
-//    void slot_firstAssemblySelect(QTreeWidgetItem * item, int column);
     void slot_selectAssemblyOrJob(QTreeWidgetItem *selectedItem, int column=0);
     void slot_assemblyElementsCount(int count);
     void slot_saveParameters();
