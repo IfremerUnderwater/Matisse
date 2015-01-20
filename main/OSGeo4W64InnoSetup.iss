@@ -2,7 +2,7 @@
 ; Inno Setup Configuration file for OSGeo4W64
 #define OSGeo4W64Dir "C:\OSGeo4W64"
 #define SevenZipDir "C:\Program Files\7-Zip"
-#define ToolsDir "..\..\..\..\50-Outils"
+#define ToolsDir "D:\Extern_libraries\50-Outils"
 
 
 

@@ -32,6 +32,7 @@ Name: "MatisseQGisPlugin"; Description: "Matisse Qgis Plugin";Types: full compac
 
 [Files]
 Source: "qt\Modules\MatisseCppLib\distrib\*.dll"; DestDir: "{app}"; Components: MatisseApplication
+Source: "qt\Setup\*.dll"; DestDir: "{app}"; Components: MatisseApplication
 Source: "qt\MatisseServer\release\MatisseServer.exe"; DestDir: "{app}"; Components: MatisseApplication
 Source: "qt\xml\*"; DestDir: "{app}\xml"; Flags: recursesubdirs; Components: MatisseApplication
 Source: "qt\dll\*"; DestDir: "{app}\dll"; Flags: recursesubdirs; Components: MatisseApplication
