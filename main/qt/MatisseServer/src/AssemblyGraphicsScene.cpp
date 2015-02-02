@@ -106,8 +106,8 @@ void AssemblyGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
                     _processorsWidgets.remove(_processorsWidgets.key((ProcessorWidget *)elt));
                 }
                 elt->deleteLater();
-                qDebug() << "Verif source = " << int(_sourceWidget.data());
-                qDebug() << "Verif destination = " << int(_destinationWidget.data());
+                // qDebug() << "Verif source = " << int(_sourceWidget.data());
+                // qDebug() << "Verif destination = " << int(_destinationWidget.data());
             }
 
             return;
@@ -589,7 +589,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     AssemblyDefinition * assembly = _server->xmlTool().getAssembly(assemblyName);
     if (!assembly) {
-        QMessageBox::warning(_mainGui, tr("Assemblage invalide"), tr("L'assemblage ne peut être chargé..."));
+        QMessageBox::warning(_mainGui, tr("Assemblage invalide"), tr("L'assemblage ne peut etre charge..."));
         return false;
     }
 
@@ -597,7 +597,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     bool continueLoad = false;
     bool paramOk = false;
-    QString partialLoadStr = tr("L'assemblage sera partiellement chargé...\nContinuer?");
+    QString partialLoadStr = tr("L'assemblage sera partiellement charge...\nContinuer?");
     // recherche parametres
     ParameterDefinition * parameters = assembly->parametersDefinition();
     if (parameters) {
@@ -618,7 +618,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
     if (!paramOk){
         qWarning() << "Parameters NOK";
         if (!continueLoad) {
-            continueLoad = (QMessageBox::question(_mainGui, tr("Paramètres invalides"),
+            continueLoad = (QMessageBox::question(_mainGui, tr("Parametres invalides"),
                                                   partialLoadStr,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)

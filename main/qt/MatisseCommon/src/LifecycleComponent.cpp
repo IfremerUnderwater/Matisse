@@ -53,10 +53,11 @@ bool LifecycleComponent::callStart()
     return start();
 }
 
-bool LifecycleComponent::askForStop()
+bool LifecycleComponent::askToStop(bool cancel)
 {
     qDebug() << logPrefix() << "askForStop";
     _isStarted = false;
+    _isCancelled = cancel;
     return true;
 }
 

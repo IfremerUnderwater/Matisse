@@ -20,6 +20,7 @@ RTPictureFileSetImageProvider::RTPictureFileSetImageProvider(QObject *parent)
     //_watcher=new QFileSystemWatcher();
     //connect(_watcher, SIGNAL(directoryChanged(QString)), this, SLOT(slot_directoryChanged(QString)));
     addExpectedParameter("dataset_param", "dataset_dir");
+    addExpectedParameter("dim2_param", "udp_port");
 }
 
 RTPictureFileSetImageProvider::~RTPictureFileSetImageProvider()
@@ -36,10 +37,16 @@ ImageSet *RTPictureFileSetImageProvider::imageSet(quint16 port)
 bool RTPictureFileSetImageProvider::configure()
 {
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    bool ok;
+    int udpPort = _matisseParameters->getIntParamValue("dim2_param", "udp_port", ok );
+    if (!ok) {
+        return false;
+    }
+    qDebug() << logPrefix()  << "Port: " << udpPort;
     _pictureFileSet = new PictureFileSet(rootDirnameStr,false);
 
     _udpListener = new Dim2UDPListener();
-    _udpListener->slot_configure(7777);
+    _udpListener->slot_configure(udpPort);
 
     _worker = new Worker(this);
     _worker->moveToThread(QThread::currentThread());
@@ -71,7 +78,6 @@ bool RTPictureFileSetImageProvider::stop()
 void RTPictureFileSetImageProvider::processLine(QString dim2String)
 {
     if (isStarted()) {
-        // qDebug() << QThread::currentThread()->objectName();
         qDebug() << "Receive: " << dim2String;
         Dim2 dim2(dim2String);
         NavInfo navInfo;
@@ -93,7 +99,6 @@ void RTPictureFileSetImageProvider::processLine(QString dim2String)
         FileImage * newImage = new FileImage(_pictureFileSet, filename, fileSource, fileFormat, _imageCount++, navInfo);
         _imageSet->addImage(newImage);
     }
-
 }
 /*
 //

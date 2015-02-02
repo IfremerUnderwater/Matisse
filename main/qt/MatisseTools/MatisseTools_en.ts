@@ -17,13 +17,14 @@
 <context>
     <name>MatisseTools::Tools</name>
     <message>
-        <location filename="src/Tools.cpp" line="280"/>
+        <location filename="src/Tools.cpp" line="274"/>
         <source>Fichier</source>
         <translation>File</translation>
     </message>
     <message>
-        <location filename="src/Tools.cpp" line="285"/>
-        <source>Répertoire</source>
+        <location filename="src/Tools.cpp" line="279"/>
+        <source>Repertoire</source>
+        <oldsource>Répertoire</oldsource>
         <translation>Folder</translation>
     </message>
 </context>
@@ -32,7 +33,7 @@
     <message>
         <location filename="ui/ParametersWidgetSkeleton.ui" line="20"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Form</translation>
     </message>
 </context>
 </TS>

@@ -49,6 +49,7 @@ public:
     void showParameters(AssemblyDefinition * assembly);
     void showParameters(QString parametersName);
     bool saveParameters();
+    bool deleteSelectedParameters();
     void selectLastUsedParameter();
     bool selectParametersItem(QString model, QString parameters);
 
@@ -56,6 +57,7 @@ private:
     Ui::ExpertFormWidget * _ui;
     AssemblyGraphicsScene * _scene;
     QHash<QString, ParametersWidget *> _availableParameters;
+    QHash<QString, QTreeWidgetItem *> _unusedParameters;
     QHash<QString, SourceWidget *> _availableSources;
     QHash<QString, ProcessorWidget *> _availableProcessors;
     QHash<QString, DestinationWidget *> _availableDestinations;
@@ -81,6 +83,8 @@ protected slots:
 signals:
     void signal_parametersValuesModified(bool modified);
     void signal_saveParameters();
+    void signal_selectParameters(bool);
+    void signal_usedParameters(bool);
 };
 }
 

@@ -15,10 +15,11 @@ using namespace cv;
 UserFormWidget::UserFormWidget(QWidget *parent) :
     QWidget(parent),
     _ui(new Ui::UserFormWidget),
-    _parametersWidget(NULL)
+    _parametersWidget(NULL),
+    _tools(NULL)
 {
     _ui->setupUi(this);
-    init();
+    _layers = new QList<QgsMapCanvasLayer>();
 }
 
 UserFormWidget::~UserFormWidget()
@@ -26,14 +27,18 @@ UserFormWidget::~UserFormWidget()
     delete _ui;
 }
 
-void UserFormWidget::showUserParameters(Tools * tools)
+void UserFormWidget::showUserParameters(bool flag)
 {
+    if (!_tools) {
+        return;
+    }
+    _tools->eraseDialog();
     if (_parametersWidget) {
         _parametersWidget->deleteLater();
         _parametersWidget = NULL;
     }
-    if (tools) {
-        _parametersWidget = tools->createFullParametersDialog(true);
+    if (flag) {
+        _parametersWidget = _tools->createFullParametersDialog(true);
         connect(_parametersWidget, SIGNAL(signal_valuesModified(bool)), this, SLOT(slot_parametersChanged(bool)));
         _ui->_SCA_parameters->setWidget(_parametersWidget);
 
@@ -51,9 +56,6 @@ void UserFormWidget::showQGisCanvas(bool flag)
         _ui->_stackedWidget->setCurrentIndex(1);
     }
 
-}
-
-void UserFormWidget::init() {
 }
 
 
@@ -94,80 +96,31 @@ void UserFormWidget::createCanvas() {
 
 void UserFormWidget::clear()
 {
+    _layers->clear();
     QgsMapLayerRegistry::instance()->removeAllMapLayers();
     _ui->_GRV_map->clearExtentHistory();
     _ui->_GRV_map->clear();
     _ui->_GRV_map->refresh();
+
 }
 
 void UserFormWidget::resetJobForm()
 {
     // reset parameters
-    showUserParameters();
+    qDebug() << "resetJobForm";
+    showUserParameters(false);
     clear();
 }
 
-void UserFormWidget::loadVectorFile(QString filename) {
-
-    if (filename.isEmpty()) {
-        clear();
-        return;
-    }
-
-    QFileInfo fileInfo(filename);
-    QgsVectorLayer * mypLayer = new QgsVectorLayer(filename, fileInfo.fileName(), "ogr");
-    if (mypLayer->isValid())
-    {
-        qDebug("Layer is valid");
-    }
-    else
-    {
-        qDebug("Layer is NOT valid");
-        return;
-    }
-
-    // Add the Vector Layer to the Layer Registry
-    QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE, TRUE);
-
-
-    // Add the layers to the Layer Set
-    QList<QgsMapCanvasLayer> myList;
-    myList.append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
-
-    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
-
-    // set the canvas to the extent of our layer
-    mapCanvas->setExtent(mypLayer->extent());
-    // Set the Map Canvas Layer Set
-    mapCanvas->setLayerSet(myList);
-    mapCanvas->refresh();
-}
 
 void UserFormWidget::loadRasterFile(QString filename) {
-    clear();
+
     if (filename.isEmpty()) {
         return;
     }
     QFileInfo fileInfo(filename);
-    QString csrString = "PROJCS[\"UTM Zone 31, Northern Hemisphere\", GEOGCS[\"WGS 84\",DATUM[\"unknown\",SPHEROID[\"WGS84\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]], PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0], PARAMETER[\"central_meridian\",3],  PARAMETER[\"scale_factor\",0.9996], PARAMETER[\"false_easting\",500000], PARAMETER[\"false_northing\",0],UNIT[\"metre\",1, AUTHORITY[\"EPSG\",\"9001\"]]]";
 
     QgsRasterLayer * mypLayer = new QgsRasterLayer(filename, fileInfo.fileName());
-
-    QgsCoordinateReferenceSystem csr;
-    //csr.createFromWkt(csrString);
-
-//   csr.createFromProj4("+proj=utm +zone=31 +units=m +datum=WGS84 +no_defs");
-//    if (csr.isValid())
-//    {
-//      qDebug("Proj is valid");
-//    }
-//    else
-//    {
-//      qDebug("Proj is NOT valid");
-//      return;
-//    }
-
-//    mypLayer->setCrs(csr);
 
     if (mypLayer->isValid())
     {
@@ -179,20 +132,31 @@ void UserFormWidget::loadRasterFile(QString filename) {
       return;
     }
 
-    // Add the Vector Layer to the Layer Registry
+    // Add the raster Layer to the Layer Registry
     QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE, TRUE);
 
+    // Add the layer to the Layer Set
+    _layers->append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
 
-    // Add the layers to the Layer Set
-    QList<QgsMapCanvasLayer> myList;
-    myList.append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
+    // Merge extents
+    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
+    QgsRectangle extent;
+    foreach (QgsMapLayer* layer, layers.values()) {
+        if (extent.width()==0) {
+            extent = layer->extent();
+        }
+        else {
+            extent.combineExtentWith(&layer->extent());
+        }
+    }
 
     QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
     // set the canvas to the extent of our layer
-    mapCanvas->setExtent(mypLayer->extent());
+    mapCanvas->setExtent(extent);
+
     // Set the Map Canvas Layer Set
-    mapCanvas->setLayerSet(myList);
+    mapCanvas->setLayerSet(*_layers);
     mapCanvas->refresh();
 }
 
@@ -216,6 +180,9 @@ void UserFormWidget::slot_parametersChanged(bool changed)
 void UserFormWidget::displayImage(Image *image ){
 
     Mat dest;
+
+    qDebug()<< "Channels " << image->imageData()->channels();
+
     cvtColor(*(image->imageData()), dest,CV_BGR2RGB);
 
     QImage result((uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);

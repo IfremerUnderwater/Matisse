@@ -93,18 +93,18 @@ void ParametersDialog::slot_save()
     if (info.exists()) {
         if (info.isWritable()) {
             QString msg1 = tr("Confirmation d'enregistrement");
-            QString msg2 = tr("Le fichier %1 existe déjà.\nVoulez vous le remplacer?").arg(_filename);
+            QString msg2 = tr("Le fichier %1 existe deja.\nVoulez vous le remplacer?").arg(_filename);
             if (QMessageBox::No == QMessageBox::question(this, msg1, msg2, QMessageBox::Yes, QMessageBox::No)) {
                 return;
             }
         } else {
 
-            QString msg2 = tr("Le fichier %1 existe déjà et ne peut être écrasé!").arg(_filename);
+            QString msg2 = tr("Le fichier %1 existe deja et ne peut etre ecrase!").arg(_filename);
             QMessageBox::warning(this, unableToSaveMsg, msg2);
             return;
         }
     } else if (!QFileInfo(_path,"").isWritable()) {
-        QMessageBox::warning(this, unableToSaveMsg, tr("Impossible d'écrire dans le répertoire de sauvegarde!"));
+        QMessageBox::warning(this, unableToSaveMsg, tr("Impossible d'ecrire dans le repertoire de sauvegarde!"));
         return;
     }
     accept();

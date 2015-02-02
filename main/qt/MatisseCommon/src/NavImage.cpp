@@ -21,6 +21,11 @@ void MatisseCommon::NavImage::setNavInfo(MatisseCommon::NavInfo navInfo)
     _navInfo = navInfo;
 }
 
+NavInfo NavImage::navInfo() const
+{
+    return _navInfo;
+}
+
 
 QString MatisseCommon::NavImage::dumpAttr()
 {

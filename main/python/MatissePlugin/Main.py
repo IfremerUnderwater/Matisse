@@ -11,13 +11,18 @@ class MainApplication(QApplication) :
         self._helloPythonWidget.signal_create_layer.connect(self.slot_create_layer)
         self._helloPythonWidget.show()
 
-    @pyqtSlot(str, str)
-    def slot_create_layer(self, job, fileName):
+    @pyqtSlot(str, str, str)
+    def slot_create_layer(self, job, shortFileName, fileName):
         print "MAIN: " + job + " Show image " + fileName
         
 if __name__ == '__main__':
     import sys
- 
+
+    
+    # To display french characters
+    reload(sys).setdefaultencoding("UTF-8")
+    print(sys.getdefaultencoding())
+    
     app = MainApplication(sys.argv)
  
  

@@ -75,25 +75,16 @@ const QList<RasterProvider *> Server::getAvailableRasterProviders()
 MatisseParameters* Server::buildMatisseParameters(JobDefinition &job) {
 
     QString model = job.parametersDefinition()->model();
-    QString paramName = job.parametersDefinition()->name().replace(" ", "_");
-    // TODO Centraliser dans
-    QString file =
-            QDir::cleanPath( _xmlTool.getBasePath()
-                             + QDir::separator()
-                             + "users"
-                             + QDir::separator()
-                             + "parameters"
-                             + QDir::separator()
-                             + model
-                             + QDir::separator()
-                             + paramName + ".xml");
+
+    QString file = _xmlTool.getJobsParametersPath(model, job.parametersDefinition()->name());
+
 
     qDebug() << "Chargement du fichier de paramètres : " << file;
     MatisseParameters* parameters = NULL;
     if (QFile::exists(file)) {
         parameters = new MatisseParameters(file);
     } else {
-        setMessageStr(tr("Fichier de paramètres introuvable: %1").arg(file));
+        setMessageStr(tr("Fichier de parametres introuvable: %1").arg(file));
     }
 
     return parameters;
@@ -129,7 +120,7 @@ void Server::slot_currentJobProcessed()
     QString jobName = jobDefinition.name();
     jobDefinition.executionDefinition()->setExecuted(!isCancelled);
     if (!isCancelled) {
-        jobDefinition.executionDefinition()->setResultFileName(_currentJob->resultFileName());
+        jobDefinition.executionDefinition()->setResultFileNames(_currentJob->resultFileNames());
         _jobServer->sendExecutionNotification(jobName);
     }
     _currentJob->deleteLater();
@@ -161,7 +152,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     QList<MatisseParameter> expectedParams = imageProvider->expectedParameters();
     foreach (MatisseParameter mp, expectedParams) {
         if (!matisseParameters->containsParam(mp.structure, mp.param)) {
-            setMessageStr(tr("Paramètre requis manquant dans l'assemblage: (%1, %2) pour %3").arg(mp.structure, mp.param, sourceName));
+            setMessageStr(tr("Parametre requis manquant dans l'assemblage: (%1, %2) pour %3").arg(mp.structure, mp.param, sourceName));
             return false;
         }
     }
@@ -176,7 +167,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
         QString processorName = procDef->name();
         qDebug() << "Processeur" << processorName;
         if (order=0) {
-            setMessageStr(tr("Processeur défini avec un ordre incorrect: %1").arg(processorName));
+            setMessageStr(tr("Processeur defini avec un ordre incorrect: %1").arg(processorName));
             // impossible :source
             return false;
         }
@@ -190,7 +181,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
             expectedParams = processor->expectedParameters();
             foreach (MatisseParameter mp, expectedParams) {
                 if (!matisseParameters->containsParam(mp.structure, mp.param)) {
-                    setMessageStr(tr("Paramètre requis manquant dans l'assemblage: (%1, %2) pour %3").arg(mp.structure, mp.param, processorName));
+                    setMessageStr(tr("Parametre requis manquant dans l'assemblage: (%1, %2) pour %3").arg(mp.structure, mp.param, processorName));
                     return false;
                 }
             }
@@ -202,13 +193,13 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     qDebug() << "Verification présence destination";
     DestinationDefinition * destinationDef= assembly.destinationDefinition();
     if (!destinationDef) {
-         setMessageStr(tr("Destination non définie"));
+         setMessageStr(tr("Destination non definie"));
         return false;
     }
     quint32 order = destinationDef->order();
     QString destinationName = destinationDef->name();
     if (order <= maxOrder) {
-        setMessageStr(tr("Destination définie avec un ordre incorrect: %1").arg(destinationName));
+        setMessageStr(tr("Destination definie avec un ordre incorrect: %1").arg(destinationName));
         return false;
     }
     else {
@@ -220,7 +211,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
         expectedParams = rasterProvider->expectedParameters();
         foreach (MatisseParameter mp, expectedParams) {
             if (!matisseParameters->containsParam(mp.structure, mp.param)) {
-                setMessageStr(tr("Paramètre requis manquant dans l'assemblage: (%1, %2) pour %3").arg(mp.structure, mp.param, destinationName));
+                setMessageStr(tr("Parametre requis manquant dans l'assemblage: (%1, %2) pour %3").arg(mp.structure, mp.param, destinationName));
                 return false;
             }
         }
@@ -350,7 +341,7 @@ bool Server::processJob(JobDefinition &jobDefinition)
 
 
     if (!parameters) {
-        setMessageStr(tr("Fichier de paramètres invalide"));
+        setMessageStr(tr("Fichier de parametres invalide"));
         return false;
     }
 
@@ -390,10 +381,10 @@ bool Server::isProcessingJob()
     return _currentJob!=NULL;
 }
 
-bool Server::cancelJob()
+bool Server::stopJob(bool cancel)
 {
    if (_currentJob) {
-       _currentJob->cancel();
+       _currentJob->stop(cancel);
        qDebug() << "Fin du Thread" ;
        _thread->quit();
    }
@@ -410,13 +401,21 @@ QString Server::messageStr()
     return _messageStr;
 }
 
+#ifdef WIN32
+#define SHARED_DLL_EXT "*.dll"
+#else
+#define SHARED_DLL_EXT "*.so"
+#endif
+
 void Server::init(){
 
     // Load processors
     QDir processorsDir = QDir(_xmlTool.getDllPath() + QDir::separator() +  "processors");
     setMessageStr();
 
-    foreach (QString fileName, processorsDir.entryList(QStringList() << "*.dll", QDir::Files)) {
+
+
+    foreach (QString fileName, processorsDir.entryList(QStringList() << SHARED_DLL_EXT , QDir::Files)) {
         qDebug() <<"Loading Processor DLL " << fileName;
         QPluginLoader loader(processorsDir.absoluteFilePath(fileName));
         if(QObject *pluginObject = loader.instance()) { // On prend l'instance de notre plugin sous forme de QObject. On vérifie en même temps s'il n'y a pas d'erreur.
@@ -430,7 +429,7 @@ void Server::init(){
 
     // Load imageProviders
     QDir imageProvidersDir = QDir(_xmlTool.getDllPath() + QDir::separator() + "imageProviders");
-    foreach (QString fileName, imageProvidersDir.entryList(QStringList() << "*.dll", QDir::Files)) {
+    foreach (QString fileName, imageProvidersDir.entryList(QStringList() << SHARED_DLL_EXT, QDir::Files)) {
         qDebug() <<"Loading ImageProvider DLL " << fileName;
         QPluginLoader loader(imageProvidersDir.absoluteFilePath(fileName));
         if(QObject *pluginObject = loader.instance()) { // On prend l'instance de notre plugin sous forme de QObject. On vérifie en même temps s'il n'y a pas d'erreur.
@@ -445,7 +444,7 @@ void Server::init(){
     // Load rasterProviders
     QDir rasterProvidersDir = QDir(_xmlTool.getDllPath() + QDir::separator() + "rasterProviders");
 
-    foreach (QString fileName, rasterProvidersDir.entryList(QStringList() << "*.dll", QDir::Files)) {
+    foreach (QString fileName, rasterProvidersDir.entryList(QStringList() << SHARED_DLL_EXT, QDir::Files)) {
         qDebug() <<"Loading RasterProvider DLL " << fileName;
         QPluginLoader loader(rasterProvidersDir.absoluteFilePath(fileName));
         if(QObject *pluginObject = loader.instance()) { // On prend l'instance de notre plugin sous forme de QObject. On vérifie en même temps s'il n'y a pas d'erreur.
@@ -480,20 +479,20 @@ JobTask::~JobTask()
     delete _matParameters;
 }
 
-void JobTask::cancel()
+void JobTask::stop(bool cancel)
 {
-    _isCancelled = true;
+    _isCancelled = cancel;
 
     qDebug() << "Demande d'arret du image provider";
-    _imageProvider->askForStop();
+    _imageProvider->askToStop(cancel);
 
     qDebug() << "Demande d'arret des processeurs";
     foreach (Processor *processor, _processors) {
-        processor->askForStop();
+        processor->askToStop(cancel);
     }
 
     qDebug() << "Demande d'arret du raster provider";
-    _rasterProvider -> askForStop();
+    _rasterProvider->askToStop(cancel);
 
 
 }
@@ -501,10 +500,16 @@ void JobTask::cancel()
 void JobTask::slot_start()
 {
     // TODO Ask for external creation of context!
+    bool ok;
     _context = new Context;
 
     qDebug() << "Configuration de la source";
-    _imageProvider->callConfigure(_context, _matParameters);
+    ok = _imageProvider->callConfigure(_context, _matParameters);
+    if (!ok) {
+        qDebug() << "Error on raster provider configuration";
+        return;
+    }
+
 
     qDebug() << "Configuration des Processeurs";
     foreach (Processor* processor, _processors) {
@@ -513,22 +518,36 @@ void JobTask::slot_start()
         processor->callConfigure(_context, _matParameters);
     }
 
-    // TODO: retourner un bool au lieu de void
     qDebug() << "Configuration de la destination";
-    _rasterProvider->callConfigure(_context, _matParameters);
+    ok = _rasterProvider->callConfigure(_context, _matParameters);
+    if (!ok) {
+        qDebug() << "Error on raster provider configuration";
+        return;
+    }
 
 
     qDebug() << "Démarrage du raster provider";
-
-    _rasterProvider->callStart();
+    ok = _rasterProvider->callStart();
+    if (!ok) {
+        qDebug() << "Error on raster provider start";
+        return;
+    }
 
     qDebug() << "Démarrage des processeurs";
     foreach (Processor *processor, _processors) {
-        processor->callStart();
+        ok = processor->callStart();
+        if (!ok) {
+            qDebug() << "Error on processor start: " << processor->name();
+            return;
+        }
     }
 
     qDebug() << "Démarrage du image provider";
-    _imageProvider->callStart();
+    ok = _imageProvider->callStart();
+    if (!ok) {
+        qDebug() << "Error on image provider start";
+        return;
+    }
 
     qDebug() << "Fin de slot_start";
 
@@ -551,14 +570,15 @@ void JobTask::slot_stop()
     disconnect(this, SLOT(slot_intermediateResult(Image*)));
 
     qDebug() << "Arret du raster provider";
-    _rasterProvider -> callStop();
+    _rasterProvider->callStop();
 
-    if (_isCancelled)
-        _resultFileName = "";
-    else {
+    _resultFileNames.clear();
+    if (!_isCancelled) {
         // recuperation du nom du fichier de sortie
-        _resultFileName = _rasterProvider->rasterInfo().absoluteFilePath();
-        qDebug()<<"Nom fichier résultat: " <<_resultFileName;
+
+        foreach (QFileInfo rasterInfo, _rasterProvider->rastersInfo()) {
+            _resultFileNames << rasterInfo.absoluteFilePath();
+        }
     }
     delete _context;
     emit signal_jobStopped();
@@ -577,9 +597,9 @@ void JobTask::slot_intermediateResult(Image *image)
 
 
 
-QString JobTask::resultFileName() const
+QStringList JobTask::resultFileNames() const
 {
-    return _resultFileName;
+    return _resultFileNames;
 }
 
 

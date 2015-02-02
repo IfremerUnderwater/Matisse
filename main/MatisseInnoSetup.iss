@@ -1,11 +1,4 @@
-
 ; Inno Setup Configuration file for MatisseServer
-#define OSGeo4W64Dir "C:\OSGeo4W64"
-#define SevenZipDir "C:\Program Files\7-Zip"
-#define ToolsDir "D:\Extern_libraries\50-Outils"
-#define OpenCVDir "D:\Extern_libraries\opencv248\opencv\build\x64\vc10"
-#define OpenCVVersion "248"
-
 
 [Setup]
 AppName=Matisse
@@ -31,22 +24,22 @@ Name: "MatisseApplication"; Description: "Matisse Application"; Types: full comp
 Name: "MatisseQGisPlugin"; Description: "Matisse Qgis Plugin";Types: full compact 
 
 [Files]
+Source: "qt\MatisseServer\MatisseServer.exe"; DestDir: "{app}"; Components: MatisseApplication
 Source: "qt\Modules\MatisseCppLib\distrib\*.dll"; DestDir: "{app}"; Components: MatisseApplication
-Source: "qt\MatisseServer\release\MatisseServer.exe"; DestDir: "{app}"; Components: MatisseApplication
 Source: "qt\xml\*"; DestDir: "{app}\xml"; Flags: recursesubdirs; Components: MatisseApplication
 Source: "qt\dll\*"; DestDir: "{app}\dll"; Flags: recursesubdirs; Components: MatisseApplication
 Source: "qt\Setup\MatisseSettings.xml"; DestDir: "{app}"; Components: MatisseApplication
 Source: "qt\Setup\Matisse.bat"; DestDir: "{app}"; Components: MatisseApplication
-Source: "python\*"; DestDir: "{#OSGeo4W64Dir}\apps\qgis\python\plugins"; Flags: recursesubdirs; Components: MatisseQGisPlugin
-Source: "{#OpenCVDir}\bin\opencv_core{#OpenCVVersion}.dll"; DestDir: "{app}"; Components: MatisseApplication
-Source: "{#OpenCVDir}\bin\opencv_core{#OpenCVVersion}d.dll"; DestDir: "{app}"; Components: MatisseApplication
-Source: "{#OpenCVDir}\bin\opencv_highgui{#OpenCVVersion}.dll"; DestDir: "{app}"; Components: MatisseApplication
-Source: "{#OpenCVDir}\bin\opencv_highgui{#OpenCVVersion}d.dll"; DestDir: "{app}"; Components: MatisseApplication
-Source: "{#OpenCVDir}\bin\opencv_imgproc{#OpenCVVersion}.dll"; DestDir: "{app}"; Components: MatisseApplication
-Source: "{#OpenCVDir}\bin\opencv_imgproc{#OpenCVVersion}d.dll"; DestDir: "{app}"; Components: MatisseApplication
-Source: "{#SevenZipDir}\*"; DestDir: "{tmp}"; Flags: deleteafterinstall; Components: MatisseApplication
+Source: "python\*"; DestDir: "{#GetEnv("OSGEO4W_ROOT")}\apps\qgis\python\plugins"; Flags: recursesubdirs; Components: MatisseQGisPlugin
+Source: "{#GetEnv("OPENCV_DIR")}\bin\opencv_core{#GetEnv("OPENCV_VERSION")}.dll"; DestDir: "{app}"; Components: MatisseApplication
+Source: "{#GetEnv("OPENCV_DIR")}\bin\opencv_core{#GetEnv("OPENCV_VERSION")}d.dll"; DestDir: "{app}"; Components: MatisseApplication
+Source: "{#GetEnv("OPENCV_DIR")}\bin\opencv_highgui{#GetEnv("OPENCV_VERSION")}.dll"; DestDir: "{app}"; Components: MatisseApplication
+Source: "{#GetEnv("OPENCV_DIR")}\bin\opencv_highgui{#GetEnv("OPENCV_VERSION")}d.dll"; DestDir: "{app}"; Components: MatisseApplication
+Source: "{#GetEnv("OPENCV_DIR")}\bin\opencv_imgproc{#GetEnv("OPENCV_VERSION")}.dll"; DestDir: "{app}"; Components: MatisseApplication
+Source: "{#GetEnv("OPENCV_DIR")}\bin\opencv_imgproc{#GetEnv("OPENCV_VERSION")}d.dll"; DestDir: "{app}"; Components: MatisseApplication
+Source: "{#GetEnv("SEVEN_ZIP_ROOT")}\*"; DestDir: "{tmp}"; Flags: deleteafterinstall; Components: MatisseApplication
 ; Pour bypasser la resolution automatique des DLL MSVC
-Source: "{#ToolsDir}\msvcrt.zip"; DestDir: "{tmp}"; Flags: deleteafterinstall; Components: MatisseApplication
+Source: "qt\Setup\msvcrt.zip"; DestDir: "{tmp}"; Flags: deleteafterinstall; Components: MatisseApplication
 
 [Run]
 Filename: "{tmp}\7z.exe"; Parameters: "x {tmp}\msvcrt.zip -o""{app}"" "; Components: MatisseApplication

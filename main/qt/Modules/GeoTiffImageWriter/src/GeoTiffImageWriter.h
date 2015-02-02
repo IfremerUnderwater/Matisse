@@ -22,10 +22,10 @@ public:
     virtual bool configure();
     virtual bool start();
     virtual bool stop();
-    virtual QFileInfo rasterInfo();
+    virtual QList<QFileInfo> rastersInfo();
 
 private:
-    QFileInfo _outputFileInfo;
+    QList<QFileInfo> _rastersInfo;
 
 signals:
     

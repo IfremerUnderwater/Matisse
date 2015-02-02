@@ -3,6 +3,10 @@
 
 #include <opencv2/opencv.hpp>
 #include <opencv/cv.h>
+#include <QVector>
+#include <QString>
+#include <QDateTime>
+#include <QVariant>
 
 using namespace cv;
 
@@ -20,13 +24,6 @@ struct Matching2Images {
 
 typedef QVector<Matching2Images> MatchingData;
 
-/*struct MatchingData {
-
-    QVector<Matching2Images> matching2Images;
-
-};*/
-
-//structure Mosaic
 
 struct MosaicInit {
 
@@ -90,7 +87,7 @@ struct MosaicData {
 
 };
 
-Q_DECLARE_METATYPE(MosaicData*);
-Q_DECLARE_METATYPE(MatchingData*);
+Q_DECLARE_METATYPE(MosaicData*)
+Q_DECLARE_METATYPE(MatchingData*)
 
 #endif // MOSAICCONTEXT_H

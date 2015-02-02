@@ -1,4 +1,11 @@
 ﻿#include "NavInfo.h"
+
+// NAN is not defined in math.h (as normally required by C99) by VSC++
+#ifdef WIN32
+      int isnan(double x) { return x != x; }
+      int isinf(double x) { return !isnan(x) && isnan(x - x); }
+#endif
+
 using namespace MatisseCommon;
 
 NavInfo::NavInfo(quint32 dive, QDateTime time, qreal longitude, qreal latitude, qreal depth, qreal altitude, qreal yaw, qreal roll, qreal pitch, qreal vx, qreal vy, qreal vz)
@@ -13,26 +20,27 @@ NavInfo::NavInfo(QString dive, QString time, QString longitude, QString latitude
 
 void NavInfo::setInfo(quint32 dive, QDateTime time, qreal longitude, qreal latitude, qreal depth, qreal altitude, qreal yaw, qreal roll, qreal pitch, qreal vx, qreal vy, qreal vz)
 {
-     _diveNumber = dive;
-     _timeInfo = time;
-     _longitude = longitude;
-     _latitude = latitude;
-     _depth = depth;
-     _altitude = altitude;
-     _yaw = yaw;
-     _roll = roll;
-     _pitch = pitch;
-     _vx = vx;
-     _vy = vy;
-     _vz = vz;
+    _diveNumber = dive;
+    _timeInfo = time;
+    _longitude = longitude;
+    _latitude = latitude;
+    _depth = depth;
+    _altitude = altitude;
+    _yaw = yaw;
+    _roll = roll;
+    _pitch = pitch;
+    _vx = vx;
+    _vy = vy;
+    _vz = vz;
 }
 
 void NavInfo::setInfo(QString dive, QString time, QString longitude, QString latitude, QString depth, QString altitude, QString yaw, QString roll, QString pitch, QString vx, QString vy, QString vz)
 {
     setDiveNumber(dive);
     setTimeInfo(time);
-    setLongitude(longitude);
-    setLatitude(latitude);
+    /*setLongitude(longitude);
+    setLatitude(latitude);*/
+    setLatLon(latitude, longitude);
     setDepth(depth);
     setAltitude(altitude);
     setYaw(yaw);
@@ -45,16 +53,17 @@ void NavInfo::setInfo(QString dive, QString time, QString longitude, QString lat
 
 void NavInfo::setInfo(QStringList args)
 {
-   // int delta = 13 - args.length();
-   // if (delta > 0) {
-   //     args.append(QStringList());
-   // }
+    // int delta = 13 - args.length();
+    // if (delta > 0) {
+    //     args.append(QStringList());
+    // }
     args.reserve(13);
 
     setDiveNumber(args[0]);
     setTimeInfo(args[1]);
-    setLongitude(args[2]);
-    setLatitude(args[3]);
+    /*setLongitude(args[2]);
+    setLatitude(args[3]);*/
+    setLatLon(args[3],args[2]);
     setDepth(args[4]);
     setAltitude(args[5]);
     setYaw(args[6]);
@@ -243,15 +252,17 @@ qreal NavInfo::latitude() const
     return _latitude;
 }
 
-void NavInfo::setLatitude(const qreal &latitude)
+void NavInfo::setLatLon(const qreal &latitude,const qreal &longitude)
 {
     _latitude = latitude;
+    _longitude = longitude;
 }
 
-void NavInfo::setLatitude(const QString &arg)
+void NavInfo::setLatLon(const QString &arg_lat, const QString &arg_lon)
 {
     bool ok;
-    _latitude = arg.toDouble(&ok);
+
+    _latitude = arg_lat.toDouble(&ok);
     if (!ok) {
         _latitude = InvalidValue;
     } else {
@@ -259,22 +270,8 @@ void NavInfo::setLatitude(const QString &arg)
             _latitude = InvalidValue;
         }
     }
-}
 
-qreal NavInfo::longitude() const
-{
-    return _longitude;
-}
-
-void NavInfo::setLongitude(const qreal &longitude)
-{
-    _longitude = longitude;
-}
-
-void NavInfo::setLongitude(const QString &arg)
-{
-    bool ok;
-    _longitude = arg.toDouble(&ok);
+    _longitude = arg_lon.toDouble(&ok);
     if (!ok) {
         _longitude = InvalidValue;
     } else {
@@ -282,6 +279,11 @@ void NavInfo::setLongitude(const QString &arg)
             _longitude = InvalidValue;
         }
     }
+}
+
+qreal NavInfo::longitude() const
+{
+    return _longitude;
 }
 
 QDateTime NavInfo::timeInfo() const
@@ -320,18 +322,19 @@ void NavInfo::setDiveNumber(const QString &arg)
 
 bool NavInfo::isValid(QString flags)
 {
-    return ((diveNumber() > 0) || (flags[0] == '0'))
+    return ((diveNumber() >= 0) || (flags[0] == '0'))
             && (timeInfo().isValid() || (flags[1] == '0'))
-            && ((longitude() != InvalidValue) || (flags[2] == '0'))
-            && ((latitude() != InvalidValue) || (flags[3] == '0'))
-            && ((depth() != InvalidValue) || (flags[4] == '0'))
-            && ((altitude() != InvalidValue) || (flags[5] == '0'))
-            && ((yaw() != InvalidValue) || (flags[6] == '0'))
-            && ((roll() != InvalidValue) || (flags[7] == '0'))
-            && ((pitch() != InvalidValue) || (flags[8] == '0'))
-            && ((vx() != InvalidValue) || (flags[9] == '0'))
-            && ((vy() != InvalidValue) || (flags[10] == '0'))
-            && ((vz() != InvalidValue) || (flags[11] == '0'));
+            && (!isnan(longitude()) || (flags[2] == '0'))
+            && (!isnan(latitude()) || (flags[3] == '0'))
+            && (!isnan(depth()) || (flags[4] == '0'))
+            && (!isnan(altitude()) || (flags[5] == '0'))
+            && (!isnan(yaw()) || (flags[6] == '0'))
+            && (!isnan(roll()) || (flags[7] == '0'))
+            && (!isnan(pitch()) || (flags[8] == '0'));
+            /* Mosaic can be done without vx, vy, vz
+            && (!isnan(vx()) || (flags[9] == '0'))
+            && (!isnan(vy()) || (flags[10] == '0'))
+            && (!isnan(vz()) || (flags[11] == '0'));*/
 }
 
 QString NavInfo::dump()

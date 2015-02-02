@@ -12,19 +12,19 @@ public:
     ExecutionDefinition() {}
     virtual ~ExecutionDefinition() {}
 
-    QString resultFileName() const;
-    void setResultFileName(const QString &resultFileName);
+    QStringList resultFileNames() const;
+    void setResultFileNames(QStringList resultFileNames);
 
     bool executed() const;
     void setExecuted(bool executed);
 
     QDateTime executionDate() const;
-    void setExecutionDate(const QDateTime &executionDate);
+    void setExecutionDate(QDateTime executionDate);
 
 private:
     QDateTime  _executionDate;
     bool _executed;
-    QString _resultFileName;
+    QStringList _resultFileNames;
 };
 
 class JobDefinition

@@ -27,7 +27,7 @@ public:
     void setImageSet(ImageSet *imageSet);
 
 public:
-    virtual QFileInfo rasterInfo() = 0;
+    virtual QList<QFileInfo> rastersInfo() = 0;
 
 
 private:

@@ -14,7 +14,7 @@ GeoTiffImageWriter::GeoTiffImageWriter(QObject *parent):
 
 GeoTiffImageWriter::~GeoTiffImageWriter()
 {
-
+    qDebug() << logPrefix() << "Destroy GeoTiffImageWriter";
 }
 
 bool GeoTiffImageWriter::configure()
@@ -33,13 +33,16 @@ bool GeoTiffImageWriter::configure()
 
     QFileInfo outputDirInfo(outputDirnameStr);
     QFileInfo datasetDirInfo(datasetDirnameStr);
+    QFileInfo outputFileInfo;
 
     bool isRelativeDir = outputDirInfo.isRelative();
 
     if (isRelativeDir) {
         outputDirnameStr = QDir::cleanPath( datasetDirInfo.absoluteFilePath() + QDir::separator() + outputDirnameStr);
     }
-    _outputFileInfo.setFile(QDir(outputDirnameStr), outputFilename);
+    outputFileInfo.setFile(QDir(outputDirnameStr), outputFilename);
+    _rastersInfo.clear();
+    _rastersInfo << outputFileInfo;
 
     return true;
 }
@@ -67,8 +70,8 @@ bool GeoTiffImageWriter::stop()
     return true;
 }
 
-QFileInfo GeoTiffImageWriter::rasterInfo()
+QList<QFileInfo> GeoTiffImageWriter::rastersInfo()
 {
-    return _outputFileInfo;
+    return _rastersInfo;
 }
 

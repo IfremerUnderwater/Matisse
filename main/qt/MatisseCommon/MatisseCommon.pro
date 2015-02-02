@@ -1,6 +1,12 @@
 QT += xml network
 
-QMAKE_CXXFLAGS += /wd4100 /wd4996
+win32 {
+    QMAKE_CXXFLAGS += /wd4100 /wd4996
+    INCLUDEPATH +=  $$(OPENCV_DIR)/../../include
+    LIBS +=  -L$$(OPENCV_DIR)/lib
+}
+
+
 TARGET = MatisseCommon
 TEMPLATE = lib
 CONFIG += staticlib
@@ -9,20 +15,19 @@ UI_DIR = tmp
 MOC_DIR = tmp
 OBJECTS_DIR = tmp
 
-INCLUDEPATH +=  $$(OPENCV_DIR)/../../include
-LIBS +=  -L$$(OPENCV_DIR)/lib
 
-win32:release {
+
+CONFIG(debug, debug|release) {
+    message ("Compil debug...")
+    DESTDIR = ../libs/debug
+    LIBS += -L../libs/debug
+}
+else {
     message ("Compil release...")
     DESTDIR = ../libs/release
     LIBS += -L../libs/release
 }
 
-win32:debug {
-    message ("Compil debug...")
-    DESTDIR = ../libs/debug
-    LIBS += -L../libs/debug
-}
 
 HEADERS += \
     src/Context.h \
@@ -43,7 +48,8 @@ HEADERS += \
     src/MosaicContext.h \
     src/LifecycleComponent.h \
     src/Sleeper.h \
-    src/Dim2UdpListener.h
+    src/Dim2UdpListener.h \
+    src/GeoTransform.h
 
 SOURCES += \
     src/Processor.cpp \
@@ -59,6 +65,7 @@ SOURCES += \
     src/MatisseParameters.cpp \
     src/RasterProvider.cpp \
     src/LifecycleComponent.cpp \
-    src/Dim2UdpListener.cpp
+    src/Dim2UdpListener.cpp \
+    src/GeoTransform.cpp
 
 

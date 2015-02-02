@@ -72,7 +72,8 @@ void JobServer::slot_readData()
              if(isExecuted) {
                  QDateTime time = def->executionDefinition()->executionDate();
                  QString comment = def->comment();
-                 QString result = def->executionDefinition()->resultFileName();
+                 QStringList results = def->executionDefinition()->resultFileNames();
+                 QString resultCount = QString::number(results.size());
                  QString assemblyName = def->assemblyName();
                  // Avoid special chars used as delimiters
                  comment.replace(QString(";"), QString(","));
@@ -82,7 +83,11 @@ void JobServer::slot_readData()
                          + assemblyName +";"
                          + time.toString("dd/MM/yyyy HH:mm") + ";"
                          + comment + ";"
-                         + result ;
+                         + resultCount ;
+                 foreach (QString result, results) {
+                     jobCmd.append(";");
+                     jobCmd.append(result);
+                 }
                  sendCmd(jobCmd);
             }
          }

@@ -1,7 +1,8 @@
 <RCC>
-    <qresource prefix="/images">
+    <qresource prefix="/">
         <file>images/ifremer-grand.jpg</file>
         <file>images/led-green.png</file>
         <file>images/led-grey.png</file>
+        <file>images/view-refresh-3.png</file>
     </qresource>
 </RCC>

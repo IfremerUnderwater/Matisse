@@ -240,6 +240,8 @@
    <addaction name="_ACT_stopJob"/>
    <addaction name="separator"/>
    <addaction name="_ACT_saveParameters"/>
+   <addaction name="_ACT_deleteParameters"/>
+   <addaction name="separator"/>
    <addaction name="_ACT_newAssembly"/>
    <addaction name="_ACT_saveAssembly"/>
    <addaction name="_ACT_saveAsAssembly"/>
@@ -396,12 +398,24 @@
     <enum>QAction::TextHeuristicRole</enum>
    </property>
   </action>
+  <action name="_ACT_deleteParameters">
+   <property name="icon">
+    <iconset resource="resources/resources.qrc">
+     <normaloff>:/png/deleteParameters.png</normaloff>:/png/deleteParameters.png</iconset>
+   </property>
+   <property name="text">
+    <string>Supprimer les Paramètres</string>
+   </property>
+   <property name="toolTip">
+    <string>Supprimer les Paramètres</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>UserFormWidget</class>
    <extends>QWidget</extends>
-   <header>userformwidget.h</header>
+   <header>UserFormWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -56,7 +56,7 @@ bool Xml::readAssemblyFile(QString filename)
         /* If token is StartElement, we'll see if we can read it.*/
         if(token == QXmlStreamReader::StartElement) {
             QString elementName = reader.name().toString();
-            qDebug() << "Find element " << elementName;
+            //qDebug() << "Find element " << elementName;
 
             if ("MatisseAssembly" ==  elementName) {
                 QXmlStreamAttributes attributes = reader.attributes();
@@ -187,7 +187,8 @@ bool Xml::readJobFile(QString filename)
 
     QXmlStreamReader reader(&jobFile);
 
-   JobDefinition *newJob = NULL;
+    JobDefinition *newJob = NULL;
+    ExecutionDefinition *executionDefinition = NULL;
 
     while(!reader.atEnd() &&
                !reader.hasError()) {
@@ -200,8 +201,6 @@ bool Xml::readJobFile(QString filename)
         /* If token is StartElement, we'll see if we can read it.*/
         if(token == QXmlStreamReader::StartElement) {
             QString elementName = reader.name().toString();
-            //qDebug() << "Find element " << elementName;
-
 
             if ("MatisseJob" ==  elementName) {
                 QXmlStreamAttributes attributes = reader.attributes();
@@ -233,13 +232,22 @@ bool Xml::readJobFile(QString filename)
                     bool executed = QVariant(attributes.value("executed").toString()).toBool();
                     QString dateStr = attributes.value("executionDate").toString();
                     QDateTime date = QDateTime::fromString(dateStr, "dd/MM/yyyy HH:mm");
-                    QString result = attributes.value("result").toString();
-                    ExecutionDefinition* executionDefinition = new ExecutionDefinition();
+                    executionDefinition = new ExecutionDefinition();
                     executionDefinition->setExecuted(executed);
                     executionDefinition->setExecutionDate(date);
-                    executionDefinition->setResultFileName(result);
                     newJob->setExecutionDefinition(executionDefinition);
                 }
+            }
+            else if ("Result" == elementName) {
+                QXmlStreamAttributes attributes = reader.attributes();
+                QString filename = attributes.value("filename").toString();
+                if (executionDefinition) {
+                   QStringList results = executionDefinition->resultFileNames();
+
+                   results << filename;
+                   executionDefinition->setResultFileNames(results);
+                }
+
             }
         }
     }
@@ -360,6 +368,7 @@ bool Xml::readMatisseGuiSettings(QString filename)
         }
     }
     _jobsPath = _basePath + QDir::separator() + "users" + QDir::separator() + "jobs";
+    _jobsParametersPath =  _basePath + QDir::separator() + "users" + QDir::separator() + "parameters";
     _assembliesPath = _basePath + QDir::separator() + "assemblies";
     return true;
 }
@@ -413,9 +422,45 @@ QStringList Xml::getJobsNames()
     return _jobs.keys();
 }
 
+QString Xml::getModelPath(QString parameterVersion)
+{
+    return  QDir::cleanPath( _basePath
+                             + QDir::separator()
+                             + "models"
+                             + QDir::separator()
+                             + "parameters"
+                             + QDir::separator()
+                             + "Parameters_"
+                             + parameterVersion
+                             + ".xml"
+                             );
+}
+
 QString Xml::getJobsPath()
 {
     return _jobsPath;
+}
+
+QString Xml::getJobsParametersPath(QString parameterVersion, QString parameterName)
+{
+    return QDir::cleanPath( _jobsParametersPath
+                            + QDir::separator()
+                            + parameterVersion
+                            + QDir::separator()
+                            + parameterName.replace(" ", "_") + ".xml"
+                            );
+}
+
+QString Xml::getAssembliesParametersPath(QString parameterVersion, QString parameterName)
+{
+    return QDir::cleanPath(_basePath
+                           + QDir::separator()
+                           + "parameters"
+                           + QDir::separator()
+                           + parameterVersion
+                           + QDir::separator()
+                           + parameterName.replace(" ", "_") + ".xml"
+                           );
 }
 
 bool Xml::loadModels()
@@ -511,7 +556,6 @@ KeyValueList Xml::readParametersFileDescriptor(QString filename)
             reader.readNext();
             QString value(reader.text().toUtf8());
             keyValueList.append(name, value);
-            qDebug() << "Ajout de" << name << value;
         }
     }
 }

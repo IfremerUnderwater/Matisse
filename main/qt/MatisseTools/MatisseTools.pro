@@ -6,7 +6,10 @@
 
 QT       += script xml xmlpatterns network gui
 
-QMAKE_CXXFLAGS += /wd4100 /wd4996
+win32 {
+    QMAKE_CXXFLAGS += /wd4100 /wd4996
+}
+
 TARGET = MatisseTools
 TEMPLATE = lib
 CONFIG += staticlib
@@ -17,15 +20,18 @@ OBJECTS_DIR = tmp
 
 INCLUDEPATH += ../MatisseCommon/src
 
-win32:release {
-DESTDIR = ../libs/release
-LIBS += -L../libs/release
+
+CONFIG(debug, debug|release) {
+    message ("Compil debug...")
+    DESTDIR = ../libs/debug
+    LIBS += -L../libs/debug
+}
+else {
+    message ("Compil release...")
+    DESTDIR = ../libs/release
+    LIBS += -L../libs/release
 }
 
-win32:debug {
-DESTDIR = ../libs/debug
-LIBS += -L../libs/debug
-}
 
 LIBS +=  -lMatisseCommon
 

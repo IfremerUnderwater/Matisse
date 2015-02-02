@@ -1,4 +1,4 @@
-﻿#include "assemblydefinition.h"
+﻿#include "AssemblyDefinition.h"
 
 using namespace MatisseTools;
 
