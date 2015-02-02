@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="MatisseAssembly">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DescriptorFields"/>
+        <xs:element ref="Parameters"/>
+        <xs:element ref="Source"/>
+        <xs:element ref="Processors"/>
+        <xs:element ref="Destination"/>
+        <xs:element ref="Connections"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="usable" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DescriptorFields">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Author"/>
+        <xs:element ref="Version"/>
+        <xs:element ref="Comments"/>
+        <xs:element ref="Date"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Author" type="xs:string"/>
+  <xs:element name="Version" type="xs:string"/>
+  <xs:element name="Comments" type="xs:string"/>
+  <xs:element name="Date" type="xs:string"/>
+  <xs:element name="Parameters">
+    <xs:complexType>
+      <xs:attribute name="id" use="required"/>
+      <xs:attribute name="model" use="required"/>
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Source">
+    <xs:complexType>
+      <xs:attribute name="id" use="required"/>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="order" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Processors">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Processor"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Processor">
+    <xs:complexType>
+      <xs:attribute name="id" use="required"/>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="order" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Destination">
+    <xs:complexType>
+      <xs:attribute name="id" use="required"/>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="order" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Connections">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Connection"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Connection">
+    <xs:complexType>
+      <xs:attribute name="color" use="required" type="xs:integer"/>
+      <xs:attribute name="endLine" use="required" type="xs:integer"/>
+      <xs:attribute name="endOrder" use="required" type="xs:integer"/>
+      <xs:attribute name="startLine" use="required" type="xs:integer"/>
+      <xs:attribute name="startOrder" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MatisseInit version = "1.1">
+  <FileDescriptor>
+	<Fields>
+		<Field name = "modelName" text = "Modèle" type = "string"/>
+		<Field name = "name" text = "Nom" type = "string"/>
+		<Field name = "date" text = "Date de création" type = "string"/>
+		<Field name = "author" text = "Auteur" type = "string"/>
+		<Field name = "comments" text = "Commentaires" type = "string"/>		
+	</Fields>
+  </FileDescriptor>
+  <Structures>
+    <Structure name = "algo_param">
+      <Parameters>
+        <ParametersGroup>
+          <Parameter name = "sift_code" text = "Code à executer pour le sift" type = "string" range= "{$SIFT_CODE}" show = "combo" default = "GPU_sift"/>
+          <Parameter name = "scale_factor" user = "true" text = "Réduction de la taille de l'image" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "1"/>
+          <Parameter name = "maxdist_centers" text = "Distance max de recherche" suffix = "pixels" type = "double" range = "]0,inf[" show = "spin" default = "10"/>
+          <Parameter name = "min_matches" text = "Nombre min de correspondances" type = "integer" range = "[4,inf[" show = "spin" default = "10"/>
+          <Parameter name = "max_matches" text = "Nombre max de correspondances" type = "integer" range = "[4,inf[" show = "spin" default = "inf"/>
+          <Parameter name = "First_processed_image" user = "true" text = "Index première image" type = "integer" range = "[1,inf[" show = "spin" default = "1"/>
+          <Parameter name = "Last_processed_image" user = "true" text = "Index dernière image" type = "integer" range = "[1,inf[" show = "spin" default = "inf"/>
+          <Parameter name = "step_im" user = "true" text = "Saut inter-images" type = "integer" range = "[1,inf[" show = "spin" default = "1"/>
+        </ParametersGroup>
+        <ParametersGroup name = "Filtering overlap parameters">
+          <Parameter name = "filter_overlap" text = "Flag de filtrage" type = "bool" show = "check" default = "0"/>
+          <Parameter name = "max_overlap" text = "Overlap max entre 2 images" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "0.9"/>
+          <Parameter name = "min_overlap" text = "Overlap min entre 2 images" suffix = "%" type = "double" range = "[0,1]" show = "spin" default = "0.7"/>
+        </ParametersGroup>
+        <ParametersGroup name = "Bundle adjustment parameters">
+          <Parameter name = "MaxIter" text = "Nombre max d'itérations dans l'optimisation" type = "integer" range = "]1,inf[" show = "spin" default = "300"/>
+          <Parameter name = "MaxRoll" text = "Roll maximum" type = "integer" range = "[0,inf[" show = "spin" default = "inf"/>
+          <Parameter name = "max_Pitch" text = "Pitch maximum" type = "integer" range = "[0,inf[" show = "spin" default = "inf"/>
+          <Parameter name = "ba_method" text = "Choix de la méthode de mosaique" type = "string" range="{$BA_METHOD}" show = "combo" default = "Ferrer_2008_with_nav"/>
+          <Parameter name = "cosmetic_strech" user = "true" text = "Stretching des couleurs" type = "bool" show = "check" default = "1"/>
+        </ParametersGroup>
+        <ParametersGroup name = "Blending and displaying parameters">
+          <Parameter name = "expo_comp_method" text = "Méthode de compensation d'exposition" type = "string" range = "{$EXPO_COMP_METHOD}" show = "combo" default = "gain"/>
+          <Parameter name = "seam_method" text = "Méthode de découpage des images" type = "string" range = "{$SEAM_METHOD}" show = "combo" default = "gc_color"/>
+          <Parameter name = "blending_method" text = "Méthode de blending" type = "string" range = "{$BLENDING_METHOD}" show = "combo" default = "multiband"/>
+          <Parameter name = "no_plot" user = "true" text = "Pas de tracé" type = "bool" show = "check" default = "0"/>
+          <Parameter name = "WriteGeoTiff" user = "true" text = "Ecriture du GeoTiff" type = "bool" show = "check" default = "1"/>
+        </ParametersGroup>
+      </Parameters>
+      <Conditions>
+        <Condition name ="min_max_matches" parameter1 = "max_matches" parameter2 = "min_matches" relation = ">="/>
+      </Conditions>
+      </Structure>
+    <Structure name = "vehic_param">
+      <Parameters>
+        <ParametersGroup>
+          <Parameter name = "reproj_std" text = "St. dev. de la localisation des sift dans les images" type = "double" range = "]0,inf[" show = "spin" default = "1"/>
+          <Parameter name = "X_std" text = "St. dev. du champ UTM X" type = "double" range = "]0,inf[" show = "spin" default = "2"/>
+          <Parameter name = "Y_std" text = "Stdev du champ UTM Y" type = "double" range = "]0,inf[" show = "spin" default = "2"/>
+          <Parameter name = "alt_std" text = "Stdev de l'altitude" type = "double" range = "]0,inf[" show = "spin" default = "2"/>
+          <Parameter name = "Roll_std" text = "Stdev du Roll" type = "double" range = "]0,inf[" show = "spin" default = "0.01"/>
+          <Parameter name = "Pitch_std" text = "Stdev du Pitch" type = "double" range = "]0,inf[" show = "spin" default = "0.01"/>
+          <Parameter name = "Yaw_std" text = "Stdev du Yaw" type = "double" range = "]0,inf[" show = "spin" default = "0.01"/>
+        </ParametersGroup>
+      </Parameters>
+      </Structure>
+    <Structure name = "cam_param">
+      <Parameters>
+        <ParametersGroup>
+          <Parameter name = "K" text = "Matrice de la caméra" type = "double" size = "(3,3)" range = "]-inf,inf[" show = "table" default = "540.677; 0; 199.9878; 0; 539.5830; 143.9180; 0; 0; 1"/>
+          <Parameter name = "V_Pose_C" text = "Position de la caméra / centre de nav" type = "double" size = "(6,1)" range = "]-inf,inf[" show = "table" default = "-1.1000; 0.2500; -0.1500; 0; 0; -1.5708"/>
+        </ParametersGroup>
+      </Parameters>
+      </Structure>
+	<Structure name="video_input_param">
+		<ParametersGroup>
+			<Parameter name="idCamera" text="N° Camera" type="integer" range = "[0,inf[" show = "spin" default = "0"/>
+			<Parameter name="udpDim2listenerPort" text="Port Udp dim2" type="integer" range = "[7777,7800]" show="spin" default="7777"/>
+		</ParametersGroup>		
+	</Structure>
+    <Structure name = "dataset_param">
+      <Parameters>
+        <ParametersGroup>
+          <Parameter name = "dataset_dir" user = "true" text = "Chemin du dataset" type = "string" show = "dir" default ="./"/>
+          <Parameter name = "output_dir" user = "true" text = "Chemin de sortie" type = "string" show = "dir" default = "./Geotiff_data"/>
+          <Parameter name = "output_filename" user = "true" text = "Fichier de sortie" type = "string" show = "line" default = "OutputImage.tif"/>
+          <Parameter name = "utm_zone" user = "true" text = "Zone UTM" type = "integer" range = "[1,60]" show = "spin" default = "31"/>
+          <Parameter name = "utm_hemisphere" user = "true" text = "Hémisphère UTM" type = "string" range = "{N,S}" show = "combo" default = "N"/>
+        </ParametersGroup>
+      </Parameters>
+      </Structure>
+    </Structures>
+    <Enums>
+      <Enum name = "SIFT_CODE">
+        <EnumValue name = "GPU_sift" text = "GPU_sift"/>
+        <EnumValue name = "Lowe_sift" text = "Lowe_sift"/>
+        <EnumValue name = "OpenCV_sift" text = "OpenCV_sift"/>
+      </Enum>
+      <Enum name = "BA_METHOD">
+        <EnumValue name = "Ferrer_2008_with_nav" text = "Ferrer_2008_with_nav"/>
+        <EnumValue name = "Ferrer_without_nav" text = "Ferrer_without_nav"/>
+        <EnumValue name = "Robust_2D_with_nav" text = "Robust_2D_with_nav"/>
+      </Enum>
+      <Enum name = "EXPO_COMP_METHOD">
+        <EnumValue name = "no" text = "no"/>
+        <EnumValue name = "gain" text = "gain"/>
+        <EnumValue name = "gain_blocks" text = "gain_blocks"/>
+      </Enum>
+      <Enum name = "SEAM_METHOD">
+        <EnumValue name = "no" text = "no"/>
+        <EnumValue name = "voronoi" text = "voronoi"/>
+        <EnumValue name = "gc_color" text = "gc_color"/>
+        <EnumValue name = "gc_colorgrad" text = "gc_colorgrad"/>
+      </Enum>
+      <Enum name = "BLENDING_METHOD">
+        <EnumValue name = "no" text = "no"/>
+        <EnumValue name = "feather" text = "feather"/>
+        <EnumValue name = "multiband" text = "multiband"/>
+      </Enum>
+    </Enums>
+</MatisseInit>
