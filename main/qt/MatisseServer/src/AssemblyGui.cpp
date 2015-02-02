@@ -16,6 +16,7 @@ AssemblyGui::AssemblyGui(QString settingsFile, QWidget *parent) :
 AssemblyGui::~AssemblyGui()
 {
     delete _ui;
+    qDebug() << "Delete Gui";
 }
 
 bool AssemblyGui::setSettingsFile(QString settings)
@@ -28,13 +29,13 @@ bool AssemblyGui::setSettingsFile(QString settings)
     }
     QFileInfo settingsFile(_settingsFile);
     if (!settingsFile.exists()) {
-        QString adviceMsg = tr("Impossible de trouver le fichier:\n%1\nRelancez l'application avec un nom de fichier valide en paramètre\nou un fichier %2 valide!").arg(_settingsFile).arg(standardFile);
+        QString adviceMsg = tr("Impossible de trouver le fichier:\n%1\nRelancez l'application avec un nom de fichier valide en parametre\nou un fichier %2 valide!").arg(_settingsFile).arg(standardFile);
         QMessageBox::critical(this, tr("Fichier de configuration introuvable"), adviceMsg);
         return false;
     }
 
     if (!settingsFile.isReadable()) {
-        QString adviceMsg = tr("Impossible de lire le fichier:\n%1\nRelancez l'application avec un nom de fichier valide en paramètre\nou un fichier %2 valide!").arg(_settingsFile).arg(standardFile);
+        QString adviceMsg = tr("Impossible de lire le fichier:\n%1\nRelancez l'application avec un nom de fichier valide en parametre\nou un fichier %2 valide!").arg(_settingsFile).arg(standardFile);
         QMessageBox::critical(this, tr("Fichier de configuration illisible"), adviceMsg);
         return false;
     }
@@ -42,7 +43,7 @@ bool AssemblyGui::setSettingsFile(QString settings)
     Xml xmlProcessing;
     xmlProcessing.readMatisseGuiSettings(_settingsFile);
     if ((_rootXml = xmlProcessing.getBasePath()) == "") {
-        QString adviceMsg = tr("La valeur de XmlRootDir ne peut être déterminée.\nRelancez l'application avec un paramètre XmlRootDir valide\ndans le fichier de configuration!");
+        QString adviceMsg = tr("La valeur de XmlRootDir ne peut etre determinee.\nRelancez l'application avec un parametre XmlRootDir valide\ndans le fichier de configuration!");
         QMessageBox::critical(this, tr("Fichier de configuration incorrect"), adviceMsg);
         return false;
     }
@@ -74,7 +75,9 @@ void AssemblyGui::init()
     connect(_ui->_ACT_newAssembly, SIGNAL(triggered()), this, SLOT(slot_clearAssembly()));
     connect(_ui->_ACT_saveAssembly, SIGNAL(triggered()), this, SLOT(slot_saveAssembly()));
     connect(_ui->_ACT_saveAsAssembly, SIGNAL(triggered()), this, SLOT(slot_saveAsAssembly()));
+
     connect(_ui->_ACT_saveParameters, SIGNAL(triggered()), this, SLOT(slot_saveParameters()));
+    connect(_ui->_ACT_deleteParameters, SIGNAL(triggered()), this, SLOT(slot_deleteParameters()));
 
     connect(_ui->_ACT_saveJob, SIGNAL(triggered()), this, SLOT(slot_saveJob()));
     connect(_ui->_ACT_saveAsJob, SIGNAL(triggered()), this, SLOT(slot_saveAsJob()));
@@ -123,6 +126,8 @@ void AssemblyGui::init()
     _expertFormWidget->getScene()->setMainGui(this);
     connect(_expertFormWidget, SIGNAL(signal_parametersValuesModified(bool)), this, SLOT(slot_modifiedParameters(bool)));
     connect(_expertFormWidget, SIGNAL(signal_saveParameters()), this, SLOT(slot_saveParameters()));
+    connect(_expertFormWidget, SIGNAL(signal_selectParameters(bool)), this, SLOT(slot_selectParameters(bool)));
+    connect(_expertFormWidget, SIGNAL(signal_usedParameters(bool)), this, SLOT(slot_usedParameters(bool)));
 
     // Loading processors
     qDebug() << "Available processors " << _server.getAvailableProcessors().size();
@@ -343,13 +348,44 @@ void AssemblyGui::slot_saveParameters()
     }
 
     if (_expertFormWidget->saveParameters()) {
-        // on recharge les
+        // on recharge les parametres
         _expertFormWidget->selectLastUsedParameter();
         _expertValuesModified = false;
         _ui->_ACT_saveAssembly->setEnabled(true);
         _ui->_ACT_saveAsAssembly->setEnabled(true);
     }
 }
+
+void AssemblyGui::slot_deleteParameters()
+{
+    qDebug() << "Delete parameters";
+    if (_userMode) {
+        return;
+    }
+
+    int ret = QMessageBox::question(this, tr("Suppression de jeu de parametres"), tr("Voulez vous supprimer le jeu de parametres selectionne?"), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+    if (ret==QMessageBox::Cancel) {
+        return;
+    }
+
+
+    if (_expertFormWidget->deleteSelectedParameters()) {
+        _expertFormWidget->selectLastUsedParameter();
+        _ui->_ACT_deleteParameters->setEnabled(false);
+
+    }
+}
+
+void AssemblyGui::slot_usedParameters(bool usedParameters)
+{
+    _ui->_ACT_deleteParameters->setEnabled(!usedParameters);
+}
+
+void AssemblyGui::slot_selectParameters(bool selectedParameters)
+{
+    _ui->_ACT_saveParameters->setEnabled(selectedParameters);
+}
+
 
 void AssemblyGui::slot_showAssembly(QModelIndex index)
 {
@@ -420,18 +456,15 @@ void AssemblyGui::displayAssembly(QString assemblyName) {
 
     if (selectedAssembly) {
         QString parametersVersion = selectedAssembly->parametersDefinition()->model();
-        QString modelFile = _rootXml + QDir::separator() + "models" + QDir::separator() + "parameters" + QDir::separator() + "Parameters_" + parametersVersion + ".xml";
-        QString parametersFile = _rootXml + QDir::separator() + "parameters" + QDir::separator() + parametersVersion + QDir::separator() + selectedAssembly->parametersDefinition()->name().replace(" ", "_") + ".xml";
-        //                if (!_parameters) {
-        //                    _parameters = new Tools();
-        //                }
+        QString modelFile = _server.xmlTool().getModelPath(parametersVersion);
+        QString parametersFile = _server.xmlTool().getAssembliesParametersPath(parametersVersion,selectedAssembly->parametersDefinition()->name());
         if (_parameters->readUserParametersFile(parametersFile, modelFile)) {
-            _userFormWidget->showUserParameters(_parameters);
+            _userFormWidget->showUserParameters(true);
         }
         // chargement des infos
 
         new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Version:") << selectedAssembly->version());
-        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Date de création:") << selectedAssembly->date());
+        new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Date de creation:") << selectedAssembly->date());
         new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Auteur:") << selectedAssembly->author());
         new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Commentaire:") << selectedAssembly->comment());
 
@@ -440,15 +473,12 @@ void AssemblyGui::displayAssembly(QString assemblyName) {
             _expertFormWidget->showParameters(selectedAssembly);
         }
     } else {
-        _userFormWidget->showUserParameters(NULL);
+        _userFormWidget->showUserParameters(false);
     }
 }
 
 void AssemblyGui::displayJob(QString jobName)
 {
-
-    qDebug() << "%%%%%%%%%%%%% displayJob " << jobName;
-
     _ui->_TRW_assemblyInfo->clear();
     if(_userFormWidget) {
         _userFormWidget->clear();
@@ -459,10 +489,11 @@ void AssemblyGui::displayJob(QString jobName)
         _currentJobName = selectedJob->name();
 
         QString parametersVersion = selectedJob->parametersDefinition()->model();
-        QString modelFile = _rootXml + QDir::separator() + "models" + QDir::separator() + "parameters" + QDir::separator() + "Parameters_" + parametersVersion + ".xml";
-        QString parametersFile = _rootXml + QDir::separator() + "users" + QDir::separator() + "parameters" + QDir::separator() + parametersVersion + QDir::separator() + selectedJob->parametersDefinition()->name().replace(" ", "_") + ".xml";
+        QString modelFile = _server.xmlTool().getModelPath(parametersVersion);
+
+        QString parametersFile = _server.xmlTool().getJobsParametersPath(parametersVersion, selectedJob->parametersDefinition()->name());
         if (_parameters->readUserParametersFile(parametersFile, modelFile)) {
-            _userFormWidget->showUserParameters(_parameters);
+            _userFormWidget->showUserParameters(true);
         }
 
         // chargement des infos
@@ -470,26 +501,30 @@ void AssemblyGui::displayJob(QString jobName)
 
         new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Commentaire:") << comments);
 
-        if (selectedJob->executionDefinition()) {
-            if (selectedJob->executionDefinition()->executed()) {
-                new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Date d'exécution:") << selectedJob->executionDefinition()->executionDate().toString(tr("le dd/MM/yyyy à HH:mm")));
+        if (selectedJob->executionDefinition() && selectedJob->executionDefinition()->executed()) {
+            new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Date d'execution:") << selectedJob->executionDefinition()->executionDate().toString(tr("le dd/MM/yyyy à HH:mm")));
 
-                QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Image résultat:") << selectedJob->executionDefinition()->resultFileName());
-                item->setToolTip(1, selectedJob->executionDefinition()->resultFileName());
+            _userFormWidget->clear();
+            foreach (QString resultFile, selectedJob->executionDefinition()->resultFileNames()) {
+
+                if (selectedJob->executionDefinition()->executed() && (!resultFile.isEmpty())) {
+                    QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Image resultat:") << resultFile);
+                    item->setToolTip(1, resultFile);
+                    // affichage de l'image
+                    QFileInfo infoImage(resultFile);
+                    if (infoImage.isRelative()) {
+                        infoImage.setFile(QDir(_dataPath), resultFile);
+                    }
+                    if (!infoImage.exists()) {
+                        qDebug() << "Erreur fichier image introuvable" << infoImage.absoluteFilePath();
+                    }
+                    _userFormWidget->loadRasterFile(infoImage.absoluteFilePath());
+                    //_userFormWidget->loadRasterFile("C:\\Users\\d.amar\\Desktop\\ImageCiotat_georef.tif");
+                    //_userFormWidget->loadRasterFile("C:\\Users\\d.amar\\Desktop\\ImageSicié_georef.tif");
+
+
+                }
             }
-        }
-        // si le job a été exécuté, chargement de l'image
-        QString resultFile = selectedJob->executionDefinition()->resultFileName();
-        if (selectedJob->executionDefinition()->executed() && (!resultFile.isEmpty())) {
-            // affichage de l'image
-            QFileInfo infoImage(resultFile);
-            if (infoImage.isRelative()) {
-                infoImage.setFile(QDir(_dataPath), resultFile);
-            }
-            if (!infoImage.exists()) {
-                qDebug() << "Erreur fichier image introuvable" << infoImage.absoluteFilePath();
-            }
-            _userFormWidget->loadRasterFile(infoImage.absoluteFilePath());
         }
     }
     else {
@@ -505,7 +540,6 @@ void AssemblyGui::selectJob(QString jobName)
         QTreeWidgetItem * assemblyItem = _ui->_TRW_assemblies->topLevelItem(indexAssembly);
         for (int indexJob = 0; indexJob < assemblyItem->childCount(); indexJob++) {
             QTreeWidgetItem * jobItem = assemblyItem->child(indexJob);
-             qDebug() << "%%%%%%%%%%%%% jobItem " << jobItem->text(0);
             if (jobItem->text(0) == jobName) {
                 // selection de l'item...
                 found = true;
@@ -538,6 +572,11 @@ void AssemblyGui::slot_deleteAssembly()
     }
 
     QString assemblyName = selectedItem->text(0);
+    int ret = QMessageBox::question(this, tr("Supprimer l'assemblage"), tr("Voulez vous supprimer l'assemblage %1 ?").arg(assemblyName), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+    if (ret==QMessageBox::Cancel) {
+        return;
+    }
+
     QString filename = _server.xmlTool().getAssembly(assemblyName)->filename();
     // suppression fichier assemblage
     filename = _server.xmlTool().getAssembliesPath() + QDir::separator() + filename;
@@ -578,15 +617,15 @@ void AssemblyGui::slot_saveJob()
 
     // modif logique: on peut enregistrer un job deja executé: on enleve l'etat executed et on ecrase...
     if (job->executionDefinition()->executed()) {
-        if (QMessageBox::No == QMessageBox::question(this, tr("Travail exécuté..."),
-                                                     tr("Le travail a déjà été exécuté.\nVoulez-vous l'écraser?"),
+        if (QMessageBox::No == QMessageBox::question(this, tr("Travail execute..."),
+                                                     tr("Le travail a déjà été execute.\nVoulez-vous l'ecraser?"),
                                                      QMessageBox::Yes,
                                                      QMessageBox::No)) {
             return;
         }
         job->executionDefinition()->setExecuted(false);
         job->executionDefinition()->setExecutionDate(QDateTime());
-        job->executionDefinition()->setResultFileName("");
+        job->executionDefinition()->setResultFileNames(QStringList() << "");
         // changement etat led + effacement image
         item->setIcon(0, QIcon(":/png/led-grey.png"));
         _userFormWidget->clear();
@@ -594,14 +633,14 @@ void AssemblyGui::slot_saveJob()
 
 
     if (!_server.xmlTool().writeJobFile(job, true)) {
-        showError(tr("Fichier de travail..."), tr("Le fichier %1 n'a pu être écrit...").arg(job->name() + ".xml"));
+        showError(tr("Fichier de travail..."), tr("Le fichier %1 n'a pu etre ecrit...").arg(job->name() + ".xml"));
         return;
     }
     // enregistrement des parameters
     KeyValueList comments;
     QString parametersVersion = job->parametersDefinition()->model();
-    QStringList pathParts(QStringList() << _server.xmlTool().getBasePath() << "users" << "parameters" << parametersVersion << job->name() + ".xml");
-    _parameters->generateParametersFile(pathParts.join(QDir::separator()), parametersVersion, comments);
+    QString parameterFile = _server.xmlTool().getJobsParametersPath(parametersVersion, job->name());
+    _parameters->generateParametersFile(parameterFile, parametersVersion, comments);
     // on rechargement lees parameteres afin de valider l'ecriture...
     slot_selectAssemblyOrJob(item);
 }
@@ -648,14 +687,14 @@ void AssemblyGui::slot_saveAsJob()
     ParameterDefinition parameters(parametersVersion, newJob.name());
     newJob.setParametersDefinition(&parameters);
     if (!_server.xmlTool().writeJobFile(&newJob)) {
-        showError(tr("Fichier de travail..."), tr("Le fichier %1 n'est pas pu être écrit...").arg(newJob.name() + ".xml"));
+        showError(tr("Fichier de travail..."), tr("Le fichier %1 n'est pas pu etre ecrit...").arg(newJob.name() + ".xml"));
         return;
     }
     // enregistrement des parameters
     KeyValueList comments;
 
-    QStringList pathParts(QStringList() << _server.xmlTool().getBasePath() << "users" << "parameters" << parametersVersion << newJob.name() + ".xml");
-    _parameters->generateParametersFile(pathParts.join(QDir::separator()), parametersVersion, comments);
+    QString parameterFile = _server.xmlTool().getJobsParametersPath(parametersVersion, newJob.name());
+    _parameters->generateParametersFile(parameterFile, parametersVersion, comments);
     // ajout dans la liste: rechargement
     slot_assembliesReload();
     selectJob(newJob.name());
@@ -682,11 +721,15 @@ void AssemblyGui::slot_deleteJob()
         return;
     }
 
+
     QString jobName = selectedItem->text(0);
+    int ret = QMessageBox::question(this, tr("Supprimer le travail"), tr("Voulez vous supprimer le travail %1?").arg(jobName), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+    if (ret==QMessageBox::Cancel) {
+        return;
+    }
     QString filename = _server.xmlTool().getJob(jobName)->filename();
     // suppression fichier job
-    // pour l'instant on n'efface pas le fichier de paramètres...
-    // TODO: unicité utilisation patramètres...
+
     filename = _server.xmlTool().getJobsPath() + QDir::separator() + filename;
     QFile file(filename);
     if (!file.exists()) {
@@ -698,6 +741,22 @@ void AssemblyGui::slot_deleteJob()
         // erreur
         return;
     }
+
+
+    QString modelVersion = _server.xmlTool().getJob(jobName)->parametersDefinition()->model();
+    QFile parameterFile(_server.xmlTool().getJobsParametersPath(modelVersion, jobName));
+
+    if (!parameterFile.exists()) {
+        // erreur...
+        return;
+    }
+
+    if (!parameterFile.remove()) {
+        // erreur
+        return;
+    }
+
+    _userFormWidget->resetJobForm();
     // message effacement OK
     // suppression liste: rechargement...
     slot_assembliesReload();
@@ -800,6 +859,7 @@ void AssemblyGui::setActionsStates(QTreeWidgetItem *currentItem/*, bool modified
     _ui->_ACT_saveAsAssembly->setEnabled(false);
     _ui->_ACT_deleteAssembly->setEnabled(false);
     _ui->_ACT_saveParameters->setEnabled(false);
+    _ui->_ACT_deleteParameters->setEnabled(false);
     _ui->_ACT_saveJob->setEnabled(false);
     _ui->_ACT_saveAsJob->setEnabled(false);
     _ui->_ACT_deleteJob->setEnabled(false);
@@ -839,11 +899,11 @@ void AssemblyGui::setActionsStates(QTreeWidgetItem *currentItem/*, bool modified
             _ui->_ACT_saveAsAssembly->setEnabled(saveAsStatus);
             _ui->_ACT_deleteAssembly->setEnabled(deleteStatus);
             _ui->_ACT_saveParameters->setEnabled(parametersStatus);
+            _ui->_ACT_deleteParameters->setEnabled(false);
         }
     } else {
-        // rustine...à modifier...
+
         if (!_userMode) {
-            _ui->_ACT_saveParameters->setEnabled(true);
          // nouvel assemblage...
             _ui->_ACT_newAssembly->setEnabled(true);
             _ui->_ACT_saveAsAssembly->setEnabled(true);
@@ -875,8 +935,9 @@ void AssemblyGui::slot_swapUserOrExpert()
         _ui->_TRW_assemblies->setItemsExpandable(false);
         slot_clearAssembly();
     } else {
+        setActionsStates(NULL);
         if (_expertValuesModified) {
-            if (QMessageBox::No == QMessageBox::question(this, tr("Assemblages/paramètres modifiés..."), tr("Voulez-vous continuer sans sauvegarder?"),
+            if (QMessageBox::No == QMessageBox::question(this, tr("Assemblages/parametres modifies..."), tr("Voulez-vous continuer sans sauvegarder?"),
                                       QMessageBox::Yes,
                                       QMessageBox::No)) {
                 _ui->_ACT_userExpert->setChecked(true);
@@ -925,8 +986,8 @@ void AssemblyGui::slot_launchJob()
         // Modif: si le job a été lancé, on peut le reexecuter avec warning...
         JobDefinition * job = _server.xmlTool().getJob(jobName);
         if (job->executionDefinition()->executed()) {
-            if (QMessageBox::No == QMessageBox::question(this, tr("Travail exécuté..."),
-                                                         tr("Le travail a déjà été exécuté.\nVoulez-vous le relancer?"),
+            if (QMessageBox::No == QMessageBox::question(this, tr("Travail execute..."),
+                                                         tr("Le travail a deja ete execute.\nVoulez-vous le relancer?"),
                                                          QMessageBox::Yes,
                                                          QMessageBox::No)) {
                 return;
@@ -937,8 +998,8 @@ void AssemblyGui::slot_launchJob()
         // si un parametre est modifié, on demande si on sauvegarde sous un nouveau nom...
         // INFO: normalement on ne doit plus passer ici suite à la modification de logique des enregistrements...
         if (saveAs) {
-            if (QMessageBox::No == QMessageBox::question(this, tr("Modification de paramètres..."),
-                                                         tr("Un ou plusieurs paramètres ont été modifiés.\nVoulez-vous enregistrer le travail sous un autre nom?"),
+            if (QMessageBox::No == QMessageBox::question(this, tr("Modification de parametres..."),
+                                                         tr("Un ou plusieurs parametres ont ete modifies.\nVoulez-vous enregistrer le travail sous un autre nom?"),
                                                          QMessageBox::Yes,
                                                          QMessageBox::No)) {
                 saveAs = false;
@@ -972,12 +1033,9 @@ void AssemblyGui::slot_launchJob()
     if (!job) {
         // ecriture du fichier de parametres
         QString modelVersion = assemblyDef->parametersDefinition()->model();
-        QStringList args= QStringList() << _server.xmlTool().getBasePath()
-                                        << "users" << "parameters"
-                                        << modelVersion
-                                        << jobDesc.getValue("filename");
+        QString parameterFile = _server.xmlTool().getJobsParametersPath(modelVersion, jobDesc.getValue("filename"));
 
-        _parameters->generateParametersFile(args.join(QDir::separator()), modelVersion);
+        _parameters->generateParametersFile(parameterFile, modelVersion);
 
         // nouveau job
         job = new JobDefinition(jobName, assemblyName, assemblyDef->version());
@@ -988,8 +1046,8 @@ void AssemblyGui::slot_launchJob()
         job->setFilename(jobFilename);
         job->setExecutionDefinition(new ExecutionDefinition());
         if (!_server.xmlTool().writeJobFile(job, true)) {
-            QString msg1 = tr("Erreur d'écriture.");
-            QString msg2 = tr("Le fichier de travail %1 n'a pu être écrit").arg(jobName);
+            QString msg1 = tr("Erreur d'ecriture.");
+            QString msg2 = tr("Le fichier de travail %1 n'a pu etre ecrit").arg(jobName);
             QMessageBox::information(this, msg1, msg2);
             showStatusMessage(msg1 + " " + msg2, ERROR);
             return;
@@ -1026,7 +1084,7 @@ void AssemblyGui::slot_launchJob()
                 setActionsStates(_lastJobLaunchedItem);
             } else {
                 QString msg1=tr("Fichier introuvable.");
-                QString msg2=tr("Le fichier de travail %1 n'a pu être lancé").arg(jobName);
+                QString msg2=tr("Le fichier de travail %1 n'a pu etre lance").arg(jobName);
                 QMessageBox::information(this, msg1, msg2);
                 showStatusMessage(msg1+ " " + msg2, ERROR);
 
@@ -1038,8 +1096,30 @@ void AssemblyGui::slot_launchJob()
 
 void AssemblyGui::slot_stopJob()
 {
-    qDebug() << "Arrêt du job ";
-    _server.cancelJob();
+    QString jobName = _lastJobLaunchedItem->data(0, Qt::UserRole).toString();
+    qDebug() << "Arrêt du job " << jobName.toAscii();
+
+
+    QString msg1=tr("Arret du travail en cours.");
+    QString msg2=tr("Voulez vous arreter ou annuler le travail?");
+    QMessageBox msgBox;
+    msgBox.setText(msg1);
+    msgBox.setInformativeText(msg2);
+    QPushButton *stopButton = msgBox.addButton(tr("Arret"), QMessageBox::AcceptRole);
+    QPushButton *discardButton = msgBox.addButton(QMessageBox::Discard);
+    msgBox.addButton(QMessageBox::Cancel);
+
+    msgBox.exec();
+    if (msgBox.clickedButton() == stopButton) {
+        _server.stopJob(false);
+    }
+    else if (msgBox.clickedButton() == discardButton) {
+        _server.stopJob(true);
+    }
+    else {
+        // cancel dialog => do nothing
+    }
+
 }
 
 void AssemblyGui::slot_jobIntermediateResult(QString name, Image *image)
@@ -1063,7 +1143,7 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
             if (isCancelled) {
                 _lastJobLaunchedItem->setIcon(0, QIcon(":/png/led-grey.png"));
                 setActionsStates(_lastJobLaunchedItem);
-                QString msg = tr("Travail %1 annulé...").arg(jobDef->name());
+                QString msg = tr("Travail %1 annule...").arg(jobDef->name());
                 showStatusMessage(msg, OK);
                 // TODO Nettoyage image?
             }
@@ -1071,8 +1151,9 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
                 // mise a jour de la led...
                 _lastJobLaunchedItem->setIcon(0, QIcon(":/png/led-green.png"));
                 setActionsStates(_lastJobLaunchedItem);
-                QString msg = tr("Travail %1 terminé...").arg(jobDef->name());
+                QString msg = tr("Travail %1 termine...").arg(jobDef->name());
                 showStatusMessage(msg, OK);
+
                 selectJob(jobDef->name());
             }
         }

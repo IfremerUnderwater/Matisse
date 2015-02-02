@@ -44,8 +44,11 @@ public:
 
     JobDefinition *getJob(QString jobName);
     QStringList getJobsNames();
+    QString getModelPath(QString parameterVersion);
     QString getJobsPath();
+    QString getJobsParametersPath(QString parameterVersion, QString parameterName);
 
+    QString getAssembliesParametersPath(QString parameterVersion, QString parameterName);
     QStringList getAssembliesList();
     QString getAssembliesPath();
     bool readMatisseGuiSettings(QString filename);
@@ -64,6 +67,7 @@ private:
     int _port;
     QXmlSchema _assembliesSchema;
 
+    QString _jobsParametersPath;
     QString _jobsPath;
     QString _assembliesPath;
 

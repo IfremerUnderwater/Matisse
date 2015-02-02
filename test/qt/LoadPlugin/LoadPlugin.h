@@ -15,9 +15,10 @@
 #include <QCheckBox>
 #include <QSpinBox>
 
-#include "PluginInterface.h"
-#include "ChooseAndShow.h"
+#include "LifeCycleComponent.h"
 
+
+using namespace MatisseCommon;
 namespace Ui {
 class LoadPlugin;
 }
@@ -34,16 +35,15 @@ public:
     void startProcess(QPluginLoader *loader);
 
 protected slots:
-    void slot_startProcess();
-    void slot_processorStarted();
-    void slot_processorEnded();
+
     void slot_selectProcess(int noRow, int noCol);
     void slot_showLibs();
-    void slot_customize();
+    void slot_unloadAll();
 
 private:
     Ui::LoadPlugin *ui;
-    QMap<QPluginLoader*, PluginInterface*> _plugins;
+    QMap<QString, LifecycleComponent*> _components;
+    QMap<QString, QPluginLoader*> _plugins;
     QIcon _redIcon;
     QIcon _greenIcon;
     QIcon _greenOffIcon;

@@ -65,7 +65,7 @@
     <Structure name = "cam_param">
       <Parameters>
         <ParametersGroup>
-          <Parameter name = "K" user = "true" text = "Camera matrix" type = "double" size = "(3,3)" range = "]-inf,inf[" show = "table" default = "(1035.26002; 0; 505.70854; 0; 1034.57204; 474.60786; 0; 0; 1)"/>
+          <Parameter name = "K" user = "true" text = "Camera matrix" type = "double" size = "(3,3)" range = "]-inf,inf[" show = "table" default = "(1035,26002; 0; 505,70854; 0; 1034,57204; 474,60786; 0; 0; 1)"/>
           <Parameter name = "V_Pose_C" user = "true" text = "Camera position / navigation center" type = "double" size = "(6,1)" range = "]-inf,inf[" show = "table" default = "(0; 0; 0; 0; 0; 1.5708)"/>
         </ParametersGroup>
       </Parameters>

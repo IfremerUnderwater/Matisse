@@ -125,6 +125,9 @@ protected slots:
     void slot_selectAssemblyOrJob(QTreeWidgetItem *selectedItem, int column=0);
     void slot_assemblyElementsCount(int count);
     void slot_saveParameters();
+    void slot_selectParameters(bool selectedParameters);
+    void slot_deleteParameters();
+    void slot_usedParameters(bool usedParameters);
 
 };
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>654</width>
-    <height>951</height>
+    <width>656</width>
+    <height>510</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,14 +23,21 @@
       <item>
        <widget class="QLineEdit" name="_LE_libs">
         <property name="readOnly">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="_PB_libs">
         <property name="text">
-         <string>Choisir</string>
+         <string>Charger</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="_PB_unload">
+        <property name="text">
+         <string>Decharger</string>
         </property>
        </widget>
       </item>
@@ -99,77 +106,10 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Commentaires:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="_LE_pluginComments">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QTableWidget" name="_TAW_Params"/>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_4">
-        <property name="title">
-         <string>Paramètres</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0">
-          <widget class="QTableWidget" name="_TAW_pluginParameters"/>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="_PB_customize">
-          <property name="text">
-           <string>Configurer</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="_PB_process">
-          <property name="text">
-           <string>Lancer</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Processeurs lancés</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QTableWidget" name="_TAW_launchedProcesses"/>
+       <layout class="QHBoxLayout" name="horizontalLayout_5"/>
       </item>
      </layout>
     </widget>

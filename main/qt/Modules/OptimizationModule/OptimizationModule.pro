@@ -17,8 +17,8 @@ UI_DIR = tmp
 MOC_DIR = tmp
 OBJECTS_DIR = tmp
 
-INCLUDEPATH += "$$(MATLAB_LIB_DIR)/include"
-LIBS +=  -L"$$(MATLAB_LIB_DIR)/lib/win64/microsoft"
+INCLUDEPATH += "$$(MATLAB_LIB_DIR)"/include
+LIBS +=  -L"$$(MATLAB_LIB_DIR)"/lib/win64/microsoft
 LIBS += -lmclmcrrt
 
 INCLUDEPATH += ../../MatisseCommon/src ../MatlabCppInterface  $$(OPENCV_DIR)/../../include

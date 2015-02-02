@@ -3,10 +3,21 @@
 
 #include <QDateTime>
 #include <QStringList>
+#include <cmath>
+
+// NAN is not defined in math.h (as normally required by C99) by VSC++
+#ifdef WIN32
+  #ifndef NAN
+      static const unsigned long __nan[2] = {0xffffffff, 0x7fffffff};
+      #define NAN (*(const float *) __nan)
+
+  #endif
+#endif
+
 
 namespace MatisseCommon {
 
-#define InvalidValue 999999
+#define InvalidValue NAN
 
 ///
 /// \brief Classe de stockage des informations de navigation
@@ -30,12 +41,9 @@ public:
     void setTimeInfo(const QString &arg);
 
     qreal longitude() const;
-    void setLongitude(const qreal &longitude);
-    void setLongitude(const QString &arg);
-
     qreal latitude() const;
-    void setLatitude(const qreal &latitude);
-    void setLatitude(const QString &arg);
+    void setLatLon(const qreal &latitude,const qreal &longitude);
+    void setLatLon(const QString &arg_lat, const QString &arg_lon);
 
     qreal depth() const;
     void setDepth(const qreal &depth);
@@ -69,7 +77,7 @@ public:
     void setVz(const qreal &vz);
     void setVz(const QString &arg);
 
-    bool isValid(QString flags = "111111111111");
+    bool isValid(QString flags = "111111111");
 
     QString dump();
 
@@ -77,6 +85,9 @@ public:
 private:
     quint32 _diveNumber;
     QDateTime _timeInfo;
+    qreal _utmX;
+    qreal _utmY;
+    QString _utmZone;
     qreal _longitude;
     qreal _latitude;
     qreal _depth;

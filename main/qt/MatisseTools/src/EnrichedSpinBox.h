@@ -6,7 +6,7 @@
 
 #include "EnrichedFormWidget.h"
 
-#define MIN_SINT32 -2147483648
+#define MIN_SINT32 -2147483647
 #define MAX_SINT32 2147483647
 
 namespace MatisseTools {

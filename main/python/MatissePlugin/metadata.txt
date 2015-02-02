@@ -8,6 +8,7 @@
 # Mandatory items:
 
 
+
 [general]
 name=MatissePlugin
 qgisMinimumVersion=2.0

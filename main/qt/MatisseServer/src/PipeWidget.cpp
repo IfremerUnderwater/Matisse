@@ -120,7 +120,7 @@ void PipeWidget::setColor(QColor color)
 }
 
 void  PipeWidget::setStart(bool temp, ElementWidget * src, int srcLine) {
-    qDebug() << "Set start..." << temp << int(src) << srcLine;
+    //qDebug() << "Set start..." << temp << int(src) << srcLine;
     if (temp) {
         _tempStartElt = src;
     } else {

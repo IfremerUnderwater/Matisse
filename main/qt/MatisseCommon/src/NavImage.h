@@ -34,6 +34,8 @@ public:
 
     void setNavInfo( NavInfo navInfo);
 
+    NavInfo navInfo() const;
+
     ///
     /// \brief Fonction de deboggage
     /// \return

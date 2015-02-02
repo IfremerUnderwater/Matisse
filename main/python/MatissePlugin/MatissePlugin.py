@@ -20,6 +20,10 @@ import os.path
 class MatissePlugin:
 
     def __init__(self, iface):
+        import sys
+    
+        # To display french characters
+        reload(sys).setdefaultencoding("UTF-8")
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -35,24 +39,27 @@ class MatissePlugin:
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
 '''
+       
 
         
         # Create the dialog (after translation) and keep reference
         self.dlg = MatisseDialog()
 
-    @pyqtSlot(str, str)
-    def slot_show_image(self, job, fileName):
+    @pyqtSlot(str, str, str)
+    def slot_show_image(self, job, shortFileName, fileName):
         print "MAIN: Show image " + fileName
-        self.iface.addRasterLayer(fileName, job)
+        layer = job+' - '+ shortFileName
+        self.iface.addRasterLayer(fileName, layer)
         
 
     def initGui(self):
         # Create action that will start plugin configuration
         self.action = QAction(
-            QIcon(":/images/images/ifremer-grand.jpg"),
+            QIcon(":/images/ifremer-grand.jpg"),
             u"Matisse", self.iface.mainWindow())
         # connect the action to the run method
         self.action.triggered.connect(self.run)
+        self.dlg.signal_create_layer.connect(self.slot_show_image)
         
 
         # Add toolbar button and menu item
@@ -69,7 +76,7 @@ class MatissePlugin:
     def run(self):
         # show the dialog
         self.dlg.show()
-        self.dlg.signal_create_layer.connect(self.slot_show_image)
+
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if OK was pressed

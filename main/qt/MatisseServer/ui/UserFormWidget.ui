@@ -139,7 +139,7 @@
      </widget>
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
-       <string>Paramètres</string>
+       <string>Parametres</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -217,7 +217,7 @@
   <customwidget>
    <class>QgsMapCanvas</class>
    <extends>QGraphicsView</extends>
-   <header>QgsMapCanvas.h</header>
+   <header>qgsmapcanvas.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

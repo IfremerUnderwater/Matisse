@@ -9,43 +9,72 @@ QT       += core gui network sql xml xmlpatterns script
 win32 {
     RC_FILE = MatisseServer.rc
     QMAKE_CXXFLAGS += /wd4100 /wd4996
+    INCLUDEPATH +=  $$(OPENCV_DIR)/../../include
+    INCLUDEPATH += $$(OSGEO4W_ROOT)/apps/qgis/include
+    LIBS +=  -L$$(OPENCV_DIR)/lib
+    LIBS += -L$$(OSGEO4W_ROOT)/apps/qgis/lib
+
+    DEFINES += GUI_EXPORT=__declspec(dllimport) CORE_EXPORT=__declspec(dllimport)
+}
+else {
+    message ("Set include...")
+    INCLUDEPATH += /usr/include/qgis
+    DEFINES += GUI_EXPORT= CORE_EXPORT=
+    QMAKE_CXXFLAGS = -fpermissive
+
 }
 
 TARGET = MatisseServer
 TEMPLATE = app
 
-INCLUDEPATH +=  $$(OPENCV_DIR)/../../include
-INCLUDEPATH += $$(OSGEO4W_ROOT)/apps/qgis/include
+DESTDIR=../MatisseServer
 
-LIBS +=  -L$$(OPENCV_DIR)/lib
-LIBS += -L$$(OSGEO4W_ROOT)/apps/qgis/lib
-
-message ("PATH" + $$INCLUDEPATH)
-win32:Release {
-    message ("Compil release...")
-
-    LIBS += -L../libs/release
-    LIBS += -lqgis_core -lqgis_gui
-    LIBS += -lopencv_core248
-    LIBS += -lopencv_highgui248
-    LIBS += -lopencv_imgproc248
-    POST_TARGETDEPS += ../libs/release/MatisseCommon.lib ../libs/release/MatisseTools.lib
+win32 {
+    CONFIG(debug, debug|release) {
+        message ("Compil debug...")
+        LIBS += -L../libs/debug
+        LIBS += -lqgis_cored -lqgis_guid
+        LIBS += -lopencv_core248d
+        LIBS += -lopencv_highgui248d
+        LIBS += -lopencv_imgproc248d
+        POST_TARGETDEPS += ../libs/debug/MatisseCommon.lib ../libs/debug/MatisseTools.lib
+    }
+    else {
+        message ("Compil release...")
+        LIBS += -L../libs/release
+        LIBS += -lqgis_core -lqgis_gui
+        LIBS += -lopencv_core248
+        LIBS += -lopencv_highgui248
+        LIBS += -lopencv_imgproc248
+        POST_TARGETDEPS += ../libs/release/MatisseCommon.lib ../libs/release/MatisseTools.lib
+    }
 }
+else {
+    CONFIG(debug, debug|release) {
+        message ("Compil debug...")
+        # Not tested: missing debug version of libraries
+        LIBS += -L../libs/debug
+        LIBS += -lqgis_cored -lqgis_guid
+        LIBS += -lopencv_cored
+        LIBS += -lopencv_highguid
+        LIBS += -lopencv_imgprocd
+        POST_TARGETDEPS += ../libs/debug/libMatisseCommon.a ../libs/debug/libMatisseTools.a
+    }
+    else {
+        message ("Compil release...")
 
-win32:Debug {
-    message ("Compil debug...")
-    LIBS += -L../libs/debug
-    LIBS += -lqgis_cored -lqgis_guid
-    LIBS += -lopencv_core248d
-    LIBS += -lopencv_highgui248d
-    LIBS += -lopencv_imgproc248d
-    POST_TARGETDEPS += ../libs/debug/MatisseCommon.lib ../libs/debug/MatisseTools.lib
+        LIBS += -L../libs/release
+        LIBS += -lqgis_core -lqgis_gui
+        LIBS += -lopencv_core
+        LIBS += -lopencv_highgui
+        LIBS += -lopencv_imgproc
+        POST_TARGETDEPS += ../libs/release/libMatisseCommon.a ../libs/release/libMatisseTools.a
+    }
 }
-
-DEFINES += GUI_EXPORT=__declspec(dllimport) CORE_EXPORT=__declspec(dllimport)
 
 
 LIBS += -lMatisseCommon -lMatisseTools
+
 
 INCLUDEPATH += src
 INCLUDEPATH += ../MatisseTools/src \

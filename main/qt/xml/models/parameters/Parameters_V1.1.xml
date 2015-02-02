@@ -69,8 +69,13 @@
       </Structure>
 	<Structure name="video_input_param">
 		<ParametersGroup>
-			<Parameter name="idCamera" text="N° Camera" type="integer" range = "[0,inf[" show = "spin" default = "0"/>
-			<Parameter name="udpDim2listenerPort" text="Port Udp dim2" type="integer" range = "[7777,7800]" show="spin" default="7777"/>
+			<Parameter name="idCamera" user="true" text="N° Camera" type="integer" range = "[0,inf[" show = "spin" default = "0"/>
+			<Parameter name="intervalCapture" user="true" text="Interval de capture (ms)" type="integer" range = "[100,10000[" show = "spin" default = "1000"/>
+		</ParametersGroup>		
+	</Structure>
+	<Structure name="dim2_param">
+		<ParametersGroup>
+			<Parameter name="udp_port" user="true" text="Port Udp dim2" type="integer" range = "[5000,9000]" show="spin" default = "7777"/>
 		</ParametersGroup>		
 	</Structure>
     <Structure name = "dataset_param">

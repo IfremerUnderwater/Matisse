@@ -93,9 +93,11 @@ bool DTPictureFileSetImageProvider::start()
     qDebug() << logPrefix() << " inside start";
 
     for(int i=0; i<_dim2FileReader->getNumberOfImages(); i++) {
+
          QString filename = _dim2FileReader->getImageFilename(i);
          qDebug() << logPrefix() << " load image " << filename;
          QFileInfo fileInfo(_pictureFileSet ->rootDirname(), filename);
+
          if (fileInfo.exists() && fileInfo.isReadable()) {
              QString fileFormat = _dim2FileReader->getImageFormat(i);
              QString fileSource = _dim2FileReader->getImageSource(i);

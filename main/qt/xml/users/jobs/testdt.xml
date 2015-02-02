@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="testdt" assembly="TestDTPictureFileset" version="">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="testdt"/>
+	<Execution executed="true" executionDate="29/01/2015 22:26">
+		<Result filename="D:/Chrisar/Services/IFREMER/AF-130150_MATISSE_3.0/30-Systeme/02-Logiciel/trunk/test/qt/IntegQGis/data/Blended_Mosaic_stretched.tif"/>
+	</Execution>
+</MatisseJob>

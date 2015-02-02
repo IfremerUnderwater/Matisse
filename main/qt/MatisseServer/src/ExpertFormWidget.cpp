@@ -3,6 +3,8 @@
 
 using namespace MatisseServer;
 
+#define USER_ROLE_IS_USED Qt::UserRole+1
+
 ExpertFormWidget::ExpertFormWidget(Server *  server, QWidget *parent) :
     QWidget(parent),
     _ui(new Ui::ExpertFormWidget),
@@ -53,7 +55,6 @@ void ExpertFormWidget::init()
 
     _lastUsedParameter = NULL;
 
-    //connect(_ui->_TRW_parameters, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(slot_showParameters(QTreeWidgetItem*,int)));
     connect(_ui->_TRW_parameters, SIGNAL(itemPressed(QTreeWidgetItem*,int)), this, SLOT(slot_showParameters(QTreeWidgetItem*,int)));
     connect(_ui->_TAB_elements, SIGNAL(currentChanged(int)), this, SLOT(slot_changeTabPanel(int)));
 
@@ -81,6 +82,10 @@ void ExpertFormWidget::fillLists()
     QStringList parametersDirList = rootParametersDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable);
     QStringList versions;
     QRegExp versionExp("^V\\d(.\\d)+$");
+
+    QStringList assemblies = _server->xmlTool().getAssembliesList();
+
+
     _availableParameters.clear();
     foreach(QString dirname, parametersDirList) {
         if (!versionExp.exactMatch(dirname)) {
@@ -89,6 +94,9 @@ void ExpertFormWidget::fillLists()
         QDir parametersDir = rootParametersDir;
         parametersDir.cd(dirname);
         QStringList parametersFiles = parametersDir.entryList(QStringList() <<"*.xml", QDir::Files | QDir::Readable);
+
+
+
         foreach (QString filename, parametersFiles) {
             filename = parametersDir.absoluteFilePath(filename);
             qDebug() << "Fichier parametres:" << filename;
@@ -98,28 +106,45 @@ void ExpertFormWidget::fillLists()
                 QString name = params.getValue("name");
                 ParametersWidget * newParameters = new ParametersWidget();
                 int versionIndex;
-                if ((versionIndex = versions.indexOf(version)) > -1) {
-                    newParameters->setName(version + "\n" + name);
-                    QTreeWidgetItem * newParamItem = new QTreeWidgetItem(_ui->_TRW_parameters->topLevelItem(versionIndex), QStringList() << name);
-                    newParamItem->setData(0, Qt::UserRole, version);
-                    newParamItem->setIcon(0, newParameters->getIcon());
-                    _availableParameters.insert(version + "/" + name, newParameters);
-                } else {
+
+                QTreeWidgetItem * versionItem;
+
+                if ((versionIndex = versions.indexOf(version)) == -1 ) {
+                    // Noeud de version inexistant. Il faut le créer d'abord.
                     newParameters->setName(version);
-                    QTreeWidgetItem * newParamVersion = new QTreeWidgetItem(QStringList() << version);
-                    newParamVersion -> setData(0, Qt::UserRole, version);
-                    newParamVersion -> setIcon(0, newParameters->getIcon());
-                    _ui->_TRW_parameters->addTopLevelItem(newParamVersion);
+                    versionItem = new QTreeWidgetItem(QStringList() << version);
+                    versionItem -> setData(0, Qt::UserRole, version);
+                    versionItem -> setIcon(0, newParameters->getIcon());
+                    _ui->_TRW_parameters->addTopLevelItem(versionItem);
                     _availableParameters.insert(version, newParameters);
                     versions << version;
-
-                    newParameters = new ParametersWidget();
-                    newParameters->setName(version + "\n" + name);
-                    QTreeWidgetItem * newParamItem = new QTreeWidgetItem(newParamVersion, QStringList() << name);
-                    newParamItem->setData(0, Qt::UserRole, version);
-                    newParamItem->setIcon(0, newParameters->getIcon());
-                    _availableParameters.insert(version + "/" + name, newParameters);
                 }
+                else {
+                    // Noeud de version deja existant
+                    versionIndex = versions.indexOf(version);
+                    versionItem = _ui->_TRW_parameters->topLevelItem(versionIndex);
+                }
+
+                newParameters->setName(version + "\n" + name);
+                QTreeWidgetItem * newParamItem = new QTreeWidgetItem(versionItem, QStringList() << name);
+                newParamItem->setData(0, Qt::UserRole, version);
+                newParamItem->setIcon(0, newParameters->getIcon());
+                _availableParameters.insert(version + "/" + name, newParameters);
+
+
+                //TODO check usage of parameters in an assembly
+                bool isUsed = false;
+                foreach (QString assembly, assemblies) {
+                    AssemblyDefinition* assemblyDef= _server->xmlTool().getAssembly(assembly);
+                    QString aVersion = assemblyDef->parametersDefinition()->model();
+                    QString aName = assemblyDef->parametersDefinition()->name();
+                    if (aVersion == version && aName == name) {
+                        isUsed = true;
+                        break;
+                    }
+                }
+
+                newParamItem->setData(0, USER_ROLE_IS_USED, QVariant(isUsed));
             }
 
         }
@@ -135,9 +160,9 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
     QString badFormatMsg = tr("Le fichier %1 n'est pas au format attendu.");
     _lastUsedParameter = NULL;
     if (item) {
+        emit signal_selectParameters(true);
         _lastUsedParameter = item;
         qDebug() << "Show parameters";
-        QString rootXml = _server->xmlTool().getBasePath();
 
         // on teste si des parameteres ont été modifiés
         if (_currentParameters) {
@@ -145,8 +170,8 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
              if (paramWidget) {
                  if (paramWidget->hasModifiedValues() && (noCol>-1)) {
                      if (QMessageBox::Yes ==QMessageBox::question(this,
-                                                                  tr("Paramètres modifiés..."),
-                                                                  tr("Voulez vous enregistrer les paramètres?")
+                                                                  tr("Parametres modifies..."),
+                                                                  tr("Voulez vous enregistrer les parametres?")
                                                                  , QMessageBox::Yes, QMessageBox::No)) {
                          emit signal_saveParameters();
                      }
@@ -160,13 +185,12 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
             // on a un modele...
             qDebug() << "Chargement modèle de paramètres...";
             modelVersionStr = item->data(0, Qt::DisplayRole).toString();
-            QString modelName = rootXml
-                    + QDir::separator() + "models"
-                    + QDir::separator() + "parameters"
-                    + QDir::separator() + "Parameters_" + item->data(0, Qt::DisplayRole).toString().replace(" ", "_") + ".xml";
-            if (!_currentParameters -> readParametersModelFile(modelName)) {
 
-                QMessageBox::warning(this, tr("Fichier modèle de paramètres"), badFormatMsg.arg(modelName));
+            QString modelFile = _server->xmlTool().getModelPath(modelVersionStr);
+
+            if (!_currentParameters -> readParametersModelFile(modelFile)) {
+
+                QMessageBox::warning(this, tr("Fichier modele de parametres"), badFormatMsg.arg(modelFile));
                 return;
             }
 
@@ -176,31 +200,31 @@ void ExpertFormWidget::slot_showParameters(QTreeWidgetItem*item, int noCol)
             modelVersionStr = item->parent()-> data(0, Qt::DisplayRole).toString();
             parametersNameStr =  item->data(0, Qt::DisplayRole).toString();
             QString modelVersion = item->parent()-> data(0, Qt::DisplayRole).toString().trimmed().replace(" ", "_");
-            QString modelName = rootXml
-                    + QDir::separator() + "models"
-                    + QDir::separator() + "parameters"
-                    + QDir::separator() + "Parameters_" + modelVersion + ".xml";
-            QString filename = rootXml
-                    + QDir::separator() + "parameters"
-                    + QDir::separator() + modelVersion
-                    + QDir::separator() + item->data(0, Qt::DisplayRole).toString().replace(" ", "_") + ".xml";
+            QString modelName = _server->xmlTool().getModelPath(modelVersionStr);
+            QString assemblyName = item->data(0, Qt::DisplayRole).toString();
+            QString filename = _server->xmlTool().getAssembliesParametersPath(modelVersion, assemblyName);
+
             if (!_currentParameters -> readUserParametersFile(filename, modelName)) {
-                QMessageBox::warning(this, tr("Fichier de paramètres"), badFormatMsg.arg(filename));
+                QMessageBox::warning(this, tr("Fichier de parametres"), badFormatMsg.arg(filename));
                 return;
             }
+            // Notify parameter usage
+            emit signal_usedParameters(item->data(0, USER_ROLE_IS_USED).toBool());
         }
 
         ParametersWidgetSkeleton * paramWidget = _currentParameters -> createFullParametersDialog();
         qDebug() << "Connect signal..." << connect(paramWidget, SIGNAL(signal_valuesModified(bool)), this, SLOT(slot_parametersValuesModified(bool)));
         _ui->_SCA_element->setWidget(paramWidget);
     } else {
+        emit signal_selectParameters(false);
         if (_currentParameters) {
             delete _currentParameters;
             _currentParameters = NULL;
         }
         _ui->_SCA_element->setWidget(new QWidget());
     }
-    QString groupBoxTitle = tr("Paramètres courants ") + modelVersionStr;
+
+    QString groupBoxTitle = tr("Parametres courants %1").arg(modelVersionStr);
     if (!parametersNameStr.isEmpty()) {
         groupBoxTitle.append("/" + parametersNameStr);
     }
@@ -269,6 +293,33 @@ bool ExpertFormWidget::saveParameters()
     parametersDialog->deleteLater();
 
     return ret;
+}
+
+bool ExpertFormWidget::deleteSelectedParameters()
+{
+    QTreeWidgetItem * currentParams = _ui->_TRW_parameters->currentItem();
+    if (!currentParams) {
+        return false;
+    }
+    QString version = currentParams->data(0,Qt::UserRole).toString();
+    QString name = currentParams->data(0,Qt::DisplayRole).toString();
+    QString fileName = _server->xmlTool().getAssembliesParametersPath(version, name);
+
+    QFile inputFile(fileName);
+    if (!inputFile.exists()) {
+        qDebug() << "Fichier non trouvé..." << fileName;
+        return false;
+    }
+
+    if (!inputFile.remove()) {
+        qDebug() << "Fichier non supprimé..." << fileName;
+        return false;
+    }
+    delete _lastUsedParameter;
+    _lastUsedParameter = NULL;
+    slot_showParameters(_lastUsedParameter, -1);
+    return true;
+
 }
 
 void ExpertFormWidget::selectLastUsedParameter()
@@ -383,7 +434,7 @@ void ExpertFormWidget::showParameters(QString parametersName)
 
 ParametersWidget *ExpertFormWidget::getParametersWidget(QString name)
 {
-    qDebug() << "Recuperation param" << name.replace("_", " ");
+    qDebug() << "Recuperation param" << name;
     ParametersWidget * wid = _availableParameters.value(name, 0);
 
 

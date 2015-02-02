@@ -26,8 +26,10 @@
         <file alias="stop.png">process-stop-9.png</file>
         <file>led-orange.png</file>
         <file>led-red.png</file>
+        <file>deleteParameters.png</file>
     </qresource>
     <qresource prefix="/jpg">
         <file>ifremer-grand.jpg</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

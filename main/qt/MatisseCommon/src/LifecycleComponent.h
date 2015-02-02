@@ -38,8 +38,9 @@ public:
 
     ///
     /// \brief Demande au processeur de s'arrêter
+    /// \param cancel demande l'annulation du travail
     ///
-    bool askForStop();
+    bool askToStop(bool cancel=false);
 
     ///
     /// \brief Appelle stop() de la classe dérivée
@@ -103,6 +104,14 @@ protected:
     ///
     bool isStarted() const;
 
+    ///
+    /// \brief Retourne l'état d'arret du processeur
+    ///
+    /// \return
+    ///
+    bool isCancelled() const;
+
+
 protected:
     Context * _context;
     MatisseParameters * _matisseParameters;
@@ -113,6 +122,7 @@ private:
     QString _logPrefix;
 
     volatile bool _isStarted;
+    volatile bool _isCancelled;
 };
 }
 Q_DECLARE_INTERFACE(MatisseCommon::LifecycleComponent, "Chrisar.LifecycleComponent/1.1")

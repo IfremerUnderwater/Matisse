@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
 {
 
     // Init QGIS
+#ifdef WIN32
     QProcessEnvironment env;
     QString oswgeo4w = env.systemEnvironment().value("OSGEO4W_ROOT");
     QgsApplication::setPrefixPath(oswgeo4w+"\\apps\\qgis", true);
@@ -27,17 +28,21 @@ int main(int argc, char *argv[])
     qDebug() << "Load Debug versions of plugins";
     QgsApplication::setPluginPath(oswgeo4w+"\\apps\\qgis\\pluginsd");
 #endif
+#else
+    QgsApplication::setPrefixPath("/usr", true);
+
+#endif
 
     QgsApplication::initQgis();
     QgsApplication a(argc, argv, true);
 
-    QTranslator toolsTranslator;
-    toolsTranslator.load("MatisseTools_en");
-    a.installTranslator(&toolsTranslator);
-
     QTranslator matisseTranslator;
     matisseTranslator.load("MatisseServer_en");
     a.installTranslator(&matisseTranslator);
+
+    QTranslator toolsTranslator;
+    toolsTranslator.load("MatisseTools_en");
+    a.installTranslator(&toolsTranslator);
 
 
     qDebug() << QgsApplication::showSettings();

@@ -1,5 +1,7 @@
 ﻿#include "Module1.h"
 #include "MosaicContext.h"
+#include "NavImage.h"
+#include "GeoTransform.h"
 
 // Exportation de la classe Module1 dans la bibliotheque de plugin TestModule1
 Q_EXPORT_PLUGIN2(Module1, Module1)
@@ -26,6 +28,18 @@ void Module1::onNewImage(quint32 port, Image &image)
         qDebug() << logPrefix() << "COUNT=" << count;
         count++;
     }
+
+    GeoTransform TGeo;
+    NavImage * ImageNav = (NavImage*)(&image);
+    qDebug()<< ImageNav->navInfo().dump();
+
+    qreal x,y,lat,lon;
+    QString utmZone;
+    TGeo.LatLongToUTM(ImageNav->navInfo().latitude(),ImageNav->navInfo().longitude(),x,y,utmZone);
+    qDebug()<< "X = " << x << " Y = " << y << " UTMzone = " << utmZone;
+
+    TGeo.UTMToLatLong(x,y,utmZone,lat,lon);
+    qDebug()<< "lat = " << lat << " lon = " << lon ;
 
     // Forward image
     postImage(1, image);

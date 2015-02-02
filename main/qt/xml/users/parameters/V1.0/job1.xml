@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mosaic_settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../models/parameters/Parameters_V1.0.xsd">
+<mosaic_settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../models/parameters/Parameters_VV1.0.xsd">
 
 <fileDescriptor>
 </fileDescriptor>
@@ -11,8 +11,8 @@
 <maxdist_centers>10,000</maxdist_centers>
 <min_matches>10</min_matches>
 <max_matches>inf</max_matches>
-<First_processed_image>5</First_processed_image>
-<Last_processed_image>100</Last_processed_image>
+<First_processed_image>2</First_processed_image>
+<Last_processed_image>inf</Last_processed_image>
 <step_im>2</step_im>
 
 <!--Filtering overlap parameters-->
@@ -22,10 +22,10 @@
 
 <!--Bundle adjustment parameters-->
 <MaxIter>300</MaxIter>
-<MaxRoll>inf</MaxRoll>
+<max_Roll></max_Roll>
 <max_Pitch>inf</max_Pitch>
 <ba_method>Ferrer_2008_with_nav</ba_method>
-<cosmetic_strech>true</cosmetic_strech>
+<cosmetic_stretch>false</cosmetic_stretch>
 
 <!--Blending and displaying parameters-->
 <expo_comp_method>gain</expo_comp_method>
@@ -33,20 +33,23 @@
 <blending_method>multiband</blending_method>
 <no_plot>false</no_plot>
 <WriteGeoTiff>true</WriteGeoTiff>
+<block_drawing>false</block_drawing>
+<block_width>inf</block_width>
+<block_height>inf</block_height>
 
 </algo_param>
 
 <cam_param>
-<K>1; 2; 3, 4; 5; 6, 7; 8; 9</K>
-<V_Pose_C>1; 2; 3; 4; 5; 6</V_Pose_C>
+<K>0;0;0;0;0;0;0;0;0</K>
+<V_Pose_C>1;2;3;4;5;6</V_Pose_C>
 
 </cam_param>
 
 <dataset_param>
-<dataset_dir>D:/Dev/Matisse/CanonG9Corr</dataset_dir>
-<output_dir>D:\Chrisar\Services\IFREMER\AF-130150_MATISSE_3.0\30-Systeme\02-Logiciel\trunk\test\qt\IntegQGis\data</output_dir>
-<output_filename>Blended_Mosaic_stretched.tif</output_filename>
-<navFile>iPhoto.dim2</navFile>
+<dataset_dir>./</dataset_dir>
+<output_dir>./Geotiff_data</output_dir>
+<output_filename></output_filename>
+<navFile>navFile_mv.txt</navFile>
 <utm_zone>31</utm_zone>
 <utm_hemisphere>N</utm_hemisphere>
 

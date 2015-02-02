@@ -1,4 +1,7 @@
 ﻿#include "Dim2FileReader.h"
+
+#define D2R (3.14159265358979323846 / 180.0)
+
 using namespace MatisseCommon;
 
 // on n'utilise pas la regexp car le modèle fourni ne correspond pas à la définition...
@@ -74,9 +77,9 @@ NavInfo Dim2FileReader::getNavInfo(quint32 imageId)
                         dim2.latitude(),
                         dim2.depth(),
                         dim2.altitude(),
-                        dim2.yaw(),
-                        dim2.roll(),
-                        dim2.pitch(),
+                        D2R*dim2.yaw(),
+                        D2R*dim2.roll(),
+                        D2R*dim2.pitch(),
                         dim2.vx(),
                         dim2.vy(),
                         dim2.vz());

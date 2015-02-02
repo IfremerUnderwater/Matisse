@@ -110,7 +110,7 @@
         </sizepolicy>
        </property>
        <property name="title">
-        <string>Paramètres courants</string>
+        <string>Parametres courants</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -253,7 +253,7 @@
        </property>
        <widget class="QWidget" name="_TABW_parameters">
         <attribute name="title">
-         <string>Paramètres</string>
+         <string>Parametres</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_7">
          <property name="leftMargin">

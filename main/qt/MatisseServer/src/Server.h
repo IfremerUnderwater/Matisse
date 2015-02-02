@@ -27,10 +27,10 @@ class JobTask : public QObject{
 public:
     explicit JobTask(ImageProvider *imageProvider, QList<Processor *> processors, RasterProvider *rasterProvider , JobDefinition &jobDefinition, MatisseParameters *parameters);
     virtual ~JobTask();
-    void cancel();
+    void stop(bool cancel=false);
     JobDefinition &jobDefinition() const;
 
-    QString resultFileName() const;
+    QStringList resultFileNames() const;
 
     volatile bool isCancelled() const;
 
@@ -53,7 +53,7 @@ private:
     RasterProvider* _rasterProvider;
     JobDefinition &_jobDefinition;
     MatisseParameters *_matParameters;
-    QString _resultFileName;
+    QStringList _resultFileNames;
     volatile bool _isCancelled;
 
 
@@ -77,7 +77,7 @@ public:
 
     bool processJob(JobDefinition&  jobDefinition);
     bool isProcessingJob();
-    bool cancelJob();
+    bool stopJob(bool cancel=false);
     bool errorFlag();
     QString messageStr();
     Xml& xmlTool();

@@ -131,8 +131,10 @@ bool Tools::readUserParametersFile(QString xmlFilename, QString xmlModelFilename
             ParametersGroup group = structure._parametersGroups.at(noGroup);
             for(int noParam = 0; noParam < group._parameters.length(); noParam++) {
                 QString parameterName = group._parametersNames.at(noParam);
-                QString value = mosaicParameters.getStringParamValue(structureName, parameterName);
-                _structures[structureName]._parametersGroups[noGroup]._parameters[noParam]._value = value;
+                if (mosaicParameters.containsParam(structureName, parameterName)) {
+                    QString value = mosaicParameters.getStringParamValue(structureName, parameterName);
+                    _structures[structureName]._parametersGroups[noGroup]._parameters[noParam]._value = value;
+                }
              }
         }
     }
@@ -140,16 +142,7 @@ bool Tools::readUserParametersFile(QString xmlFilename, QString xmlModelFilename
     return true;
 }
 
-//void Tools::slot_openFileDialog() {
-//    ChooseAndShow * sendWidget = qobject_cast<ChooseAndShow*>(sender());
-//    if (sendWidget->buttonText() == "File") {
-//        QString filename = QFileDialog::getOpenFileName(sendWidget, "Choose a file...");
-//        sendWidget->setVal(filename);
-//    } else if (sendWidget->buttonText() == "Dir") {
-//        QString dirname = QFileDialog::getExistingDirectory(sendWidget, "Choose a dir...");
-//        sendWidget->setText(dirname);
-//    }
-//}
+
 
 void Tools::slot_saveProcess()
 {
@@ -157,12 +150,14 @@ void Tools::slot_saveProcess()
 
 void Tools::eraseDialog()
 {
-    //_currentDialog = 0;
-    //foreach(QWidget * dialog, _dialogs.values()) {
-    //    if (dialog) {
-    //        dialog->deleteLater();
-    //    }
-    //}
+    foreach (QString groupKey, _valuesWidgets.keys()) {
+        QHash<QString, QWidget*> group = _valuesWidgets.take(groupKey);
+        foreach (QString key, group.keys()) {
+            group.take(key)->deleteLater();
+        }
+    }
+    _valuesWidgets.clear();
+
     _dialogs.clear();
 }
 
@@ -188,7 +183,6 @@ QString Tools::getModelVersion()
 }
 
 ParametersWidgetSkeleton * Tools::createDialog(QString structName, bool user) {
-
     QString structUserExpert = structName /*+ QString("%1").arg(user)*/;
     if (_dialogs.contains(structUserExpert)) {
         return _dialogs[structUserExpert];
@@ -282,7 +276,7 @@ ParametersWidgetSkeleton * Tools::createDialog(QString structName, bool user) {
                 break;
             case DIR_SELECTOR_RELATIVE:
             case DIR_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(0, param._text, tr("Répertoire"), param._show, param._value.toString());
+                widget = new EnrichedFileChooser(0, param._text, tr("Repertoire"), param._show, param._value.toString());
             }
                 break;
             case UNKNOWN_SHOW:
@@ -580,7 +574,7 @@ QString Tools::getValue(QString structName, QString parameterName)
     QWidget * widget = _valuesWidgets.value(structName).value(parameterName);
     QString value;
 
-    if (widget == 0) {
+    if (widget == NULL) {
         qDebug() << "Pas de widget pour" << structName << "->" << parameterName;
         // on est en user, on prend la valeur par defaut
         Structure currentStruct =  _structures.value(structName);
@@ -592,58 +586,10 @@ QString Tools::getValue(QString structName, QString parameterName)
         }
         return value;
     }
+    else {
+       value = (qobject_cast<EnrichedFormWidget *>(widget))->currentValue();
+    }
 
-//    value = widget->currentValue();
-
-    QString widgetType = widget->metaObject()->className();
-
-/*    if (widgetType == "QLineEdit") {
-        QLineEdit * wid = qobject_cast<QLineEdit *>(widget);
-        value = wid->text();
-    } else if (widgetType == "QSlider") {
-        QSlider * wid = qobject_cast<QSlider *>(widget);
-        value = wid->value();
-    } else if (widgetType == "QSpinBox") {
-        QSpinBox * wid = qobject_cast<QSpinBox *>(widget);
-        value = wid->cleanText();
-    } else if (widgetType == "QDoubleSpinBox") {
-        QDoubleSpinBox * wid = qobject_cast<QDoubleSpinBox *>(widget);
-        value = wid->cleanText();
-    } else if (widgetType == "QComboBox") {
-        QComboBox * wid = qobject_cast<QComboBox *>(widget);
-        value = wid->currentText();
-    } else if (widgetType == "QListWidget") {
-        QListWidget * wid = qobject_cast<QListWidget *>(widget);
-        value = wid->selectedItems().at(0)->text();
-    } else if (widgetType == "QCheckBox") {
-        QCheckBox * wid = qobject_cast<QCheckBox *>(widget);
-        value = wid->isChecked();
-    } else if (widgetType == "QTableWidget") {
-        QTableWidget * wid = qobject_cast<QTableWidget *>(widget);
-        // On retourne les valeurs séparées par des virgules...
-        // correction pour les matrices, on distribue sur plusieurs lignes
-        // avec le nom du parametre sur chaque ligne
-        int nbRows =  wid->rowCount() -1;
-        int nbCols = wid->columnCount() -1;
-        QString valStr;
-        for (int noRow = 0; noRow <= nbRows; noRow++) {
-            for (int noCol = 0; noCol <= nbCols; noCol++) {
-                valStr.append(wid->item(noRow, noCol)->text());
-                if (noCol != nbCols) {
-                    valStr.append(", ");
-                }
-            }
-            if ((nbRows > 0) && (noRow != nbRows)) {
-                valStr.append("</" + parameterName + ">\n<" + parameterName + ">");
-            }
-        }
-        value = valStr;
-    } else*/ /*if (widgetType.contains("ChooseAndShow"))  {
-        ChooseAndShow* wid = qobject_cast<ChooseAndShow *>(widget);
-        value = wid->text();
-    } else {*/
-        value = (qobject_cast<EnrichedFormWidget *>(widget))->currentValue();
-//}
 
     return value;
 }
@@ -700,7 +646,7 @@ qreal Tools::getDoubleValue(QVariant value)
 QStringList Tools::getNumList(Parameter param)
 {
     QString valuesStr = param._value.toString();
-    qDebug() << "GET NUM LIST" << valuesStr;
+
     valuesStr = valuesStr.simplified().replace(" ", "");
 //    valuesStr = valuesStr.mid(1, valuesStr.length()-2);
 

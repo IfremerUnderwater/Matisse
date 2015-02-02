@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QImage>
 #include <QGraphicsView>
+#include <qgsmapcanvas.h>
 #include "Image.h"
 #include "Tools.h"
 using namespace MatisseTools;
@@ -11,6 +12,7 @@ using namespace MatisseCommon;
 namespace Ui {
 class UserFormWidget;
 }
+
 
 
 class UserFormWidget : public QWidget
@@ -21,15 +23,13 @@ public:
     explicit UserFormWidget(QWidget *parent = NULL);
     ~UserFormWidget();
 
-    void init();
-    void showUserParameters(Tools *tools = NULL);
+    void showUserParameters(bool flag);
     void showQGisCanvas(bool flag);
 
     void createCanvas();
     void clear();
     void displayImage(Image *image);
     void resetJobForm();
-    void loadVectorFile(QString filename = "");
     void loadRasterFile(QString filename = "");
     void setTools(Tools * tools);
     ParametersWidgetSkeleton * parametersWidget();
@@ -38,6 +38,7 @@ private:
     Ui::UserFormWidget *_ui;
     Tools * _tools;
     ParametersWidgetSkeleton * _parametersWidget;
+    QList<QgsMapCanvasLayer> *_layers;
 
 protected slots:
     void slot_parametersChanged(bool changed);

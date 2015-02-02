@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mosaic_settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../models/parameters/Parameters_VV1.0.xsd">
+<mosaic_settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../models/parameters/Parameters_V1.0.xsd">
 
 <fileDescriptor>
 <modelVersion>V1.0</modelVersion>

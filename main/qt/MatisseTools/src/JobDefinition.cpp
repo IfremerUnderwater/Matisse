@@ -49,7 +49,6 @@ QString JobDefinition::serialized()
     QString text;
     QString dateStr;
     QString executedStr = "false";
-    QString resultFile = "";
     if (executionDefinition()) {
         QDateTime date(executionDefinition()->executionDate());
         if (date.isValid()) {
@@ -58,13 +57,18 @@ QString JobDefinition::serialized()
         if (executionDefinition()->executed()) {
             executedStr = "true";
         }
-        resultFile = executionDefinition()->resultFileName();
     }
 
     text.append(QString("<MatisseJob name=\"%1\" assembly=\"%2\" version=\"%3\">\n").arg(name()).arg(assemblyName()).arg(assemblyVersion()));
     text.append(QString("\t<Comments>%1</Comments>\n").arg(comment()));
     text.append(QString("\t<Parameters model=\"%1\" name=\"%2\"/>\n").arg(parametersDefinition()->model()).arg(parametersDefinition()->name()));
-    text.append(QString("\t<Execution executed=\"%1\" executionDate=\"%2\" result=\"%3\"/>\n").arg(executedStr).arg(dateStr).arg(resultFile));
+    text.append(QString("\t<Execution executed=\"%1\" executionDate=\"%2\">\n").arg(executedStr).arg(dateStr));
+    if (executionDefinition()) {
+        foreach (QString resultFile, executionDefinition()->resultFileNames()) {
+            text.append(QString("\t\t<Result filename=\"%1\"/>\n").arg(resultFile));
+        }
+    }
+    text.append(QString("\t</Execution>\n"));
     text.append(QString("</MatisseJob>\n"));
 
     return text;
@@ -103,14 +107,14 @@ QString JobDefinition::comment() const
 
 
 
-QString ExecutionDefinition::resultFileName() const
+QStringList ExecutionDefinition::resultFileNames() const
 {
-    return _resultFileName;
+    return _resultFileNames;
 }
 
-void ExecutionDefinition::setResultFileName(const QString &resultFileName)
+void ExecutionDefinition::setResultFileNames(QStringList resultFileNames)
 {
-    _resultFileName = resultFileName;
+    _resultFileNames = resultFileNames;
 }
 bool ExecutionDefinition::executed() const
 {
@@ -126,7 +130,7 @@ QDateTime ExecutionDefinition::executionDate() const
     return _executionDate;
 }
 
-void ExecutionDefinition::setExecutionDate(const QDateTime &executionDate)
+void ExecutionDefinition::setExecutionDate(QDateTime executionDate)
 {
     _executionDate = executionDate;
 }

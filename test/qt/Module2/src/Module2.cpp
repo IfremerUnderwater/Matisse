@@ -2,6 +2,7 @@
 #include "MosaicContext.h"
 #include "NavImage.h"
 #include "FileImage.h"
+#include "Sleeper.h"
 
 // Exportation de la classe Module2 dans la bibliotheque de plugin TestModule2
 Q_EXPORT_PLUGIN2(Module2, Module2)
@@ -23,7 +24,10 @@ void Module2::onNewImage(quint32 port, Image &image)
 {
     qDebug() << logPrefix() << "Receive image on port " << port;
     qDebug() << logPrefix() << "Process Module2";
-
+    image.imageData();
+    Image* toDisplay = new Image(image, false);
+    emit signal_intermediateResult(toDisplay);
+    image.releaseImageData();
 
 }
 
@@ -59,12 +63,9 @@ void Module2::onFlush(quint32 port)
             foreach (Image *image, images) {
                 if (!isStarted())
                     break;
-                NavImage* navImage = static_cast<NavImage*>(image);
-                qDebug() << logPrefix() << "Chargement de l'image" ;
-                navImage->imageData();
-                Image* toDisplay = new Image(*navImage, false);
-                emit signal_intermediateResult(toDisplay);
-                navImage->releaseImageData();
+
+                Sleeper::sleep(1);
+
             }
             break;
         }
