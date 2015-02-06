@@ -12,7 +12,7 @@ SUBDIRS = MatisseCommon \
           Modules/OptimizationModule \
           Modules/RTPictureFileSetImageProvider \
           Modules/RTVideoDirectShowProvider \
-    libOpticalMapping
+          libOpticalMapping
           
           
           

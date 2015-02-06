@@ -65,7 +65,7 @@ struct Pose {
 
 };
 
-struct MosaictNode {
+struct MosaicNode {
 
     quint32 imageIndex;
 
@@ -83,7 +83,7 @@ struct MosaicData {
 
     MosaicInit init;
 
-    QVector<MosaictNode> nodes;
+    QVector<MosaicNode> nodes;
 
 };
 

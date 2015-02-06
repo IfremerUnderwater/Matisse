@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <QDebug>
+#include <cmath>
+
+using namespace MatisseCommon;
 
 GeoTransform::GeoTransform()
 {
@@ -55,8 +58,7 @@ bool GeoTransform::LatLongToUTM(qreal lat_p, qreal lon_p, qreal & x_p, qreal & y
 
     // transform points
     int p = pj_transform(pj_latlong, pj_utm, 1, 1, &x_p, &y_p, NULL );
-    qDebug()<<"Error code: " << p <<"\nError message: "<<  pj_strerrno(p) << "\n";
-    printf("%.2fN\t%.2fE\n", x_p, y_p);
+    qDebug()<<"Error code: " << p <<" Error message: "<<  pj_strerrno(p) << "\n";
 
     return (p>=0);
 
@@ -102,4 +104,36 @@ bool GeoTransform::UTMToLatLong(qreal x_p, qreal y_p, QString utmZone_p, qreal &
 
     return (p>=0);
 
+}
+
+cv::Mat GeoTransform::RotX(qreal a)
+{
+
+    cv::Mat R = (cv::Mat_<qreal>(3,3) <<
+                 1,       0,       0,
+                 0,  cos(a), -sin(a),
+                 0,  sin(a),  cos(a));
+
+    return R;
+
+}
+
+cv::Mat GeoTransform::RotY(qreal a)
+{
+    cv::Mat R = (cv::Mat_<qreal>(3,3) <<
+                 cos(a),       0,  sin(a),
+                 0,       1,       0,
+                 -sin(a),       0,  cos(a));
+
+    return R;
+}
+
+cv::Mat GeoTransform::RotZ(qreal a)
+{
+    cv::Mat R = (cv::Mat_<qreal>(3,3) <<
+                 cos(a), -sin(a),       0,
+                 sin(a),  cos(a),       0,
+                 0,       0,       1 );
+
+    return R;
 }

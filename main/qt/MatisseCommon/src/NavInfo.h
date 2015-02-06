@@ -81,6 +81,14 @@ public:
 
     QString dump();
 
+    qreal utmX() const;
+    void setUtmX(const qreal &utmX);
+
+    qreal utmY() const;
+    void setUtmY(const qreal &utmY);
+
+    QString utmZone() const;
+    void setUtmZone(const QString &utmZone);
 
 private:
     quint32 _diveNumber;

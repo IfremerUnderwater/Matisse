@@ -1,10 +1,10 @@
-Makefile
+Makefile*
 
-Makefile.Debug
+Makefile.Debug*
 
-Makefile.Release
+Makefile.Release*
 
-*.user
+*.user*
 
 *.obj
 
@@ -24,3 +24,4 @@ Makefile.Release
 
 *.exp
 *.manifest
+*.autosave

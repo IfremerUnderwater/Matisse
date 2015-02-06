@@ -354,3 +354,33 @@ QString NavInfo::dump()
 
     return ret;
 }
+qreal NavInfo::utmX() const
+{
+    return _utmX;
+}
+
+void NavInfo::setUtmX(const qreal &utmX)
+{
+    _utmX = utmX;
+}
+qreal NavInfo::utmY() const
+{
+    return _utmY;
+}
+
+void NavInfo::setUtmY(const qreal &utmY)
+{
+    _utmY = utmY;
+}
+QString NavInfo::utmZone() const
+{
+    return _utmZone;
+}
+
+void NavInfo::setUtmZone(const QString &utmZone)
+{
+    _utmZone = utmZone;
+}
+
+
+

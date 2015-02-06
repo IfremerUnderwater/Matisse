@@ -3,9 +3,12 @@ QT += xml network
 win32 {
     QMAKE_CXXFLAGS += /wd4100 /wd4996
     INCLUDEPATH +=  $$(OPENCV_DIR)/../../include
+    INCLUDEPATH += $$(OSGEO4W_ROOT)/include
     LIBS +=  -L$$(OPENCV_DIR)/lib
+    LIBS += -L$$(OSGEO4W_ROOT)/lib
 }
 
+message($$LIBS)
 
 TARGET = MatisseCommon
 TEMPLATE = lib
@@ -21,11 +24,13 @@ CONFIG(debug, debug|release) {
     message ("Compil debug...")
     DESTDIR = ../libs/debug
     LIBS += -L../libs/debug
+    LIBS += -lqgis_cored -lqgis_guid
 }
 else {
     message ("Compil release...")
     DESTDIR = ../libs/release
     LIBS += -L../libs/release
+    LIBS += -lqgis_core -lqgis_gui
 }
 
 

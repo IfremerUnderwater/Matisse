@@ -33,7 +33,7 @@
     mwSize nodesNb;
 
     nodesNb = mosaicData.Get("nodes",1,1).NumberOfElements();
-    MosaictNode currentNode;
+    MosaicNode currentNode;
 
 
 
