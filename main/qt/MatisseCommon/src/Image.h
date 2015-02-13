@@ -51,6 +51,17 @@ public:
     void releaseImageData();
 
     ///
+    /// \brief Return width of _imageData
+    /// \return width or -1 if not available
+    ///
+    virtual int width();
+    ///
+    /// \brief Return height of _imageData
+    /// \return height or -1 if not available
+    ///
+    virtual int height();
+
+    ///
     /// \brief Fonction de deboggage
     /// \return
     ///

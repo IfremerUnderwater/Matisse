@@ -46,7 +46,7 @@ public:
     /// \param cameraNodes_p whole dataset Cameras
     /// \param camerasOwner true if ProjectiveCamera* belongs to this class (hence are deleted by this class)
     ///
-    void initCamerasAndFrames(QVector<ProjectiveCamera*> cameraNodes_p, bool camerasOwner = true);
+    void initCamerasAndFrames(QVector<ProjectiveCamera*> cameraNodes_p, bool camerasOwner_p = true);
 
     ///
     /// \brief computeCameraHomography compute camera homography from nav and MosaicDescriptor init

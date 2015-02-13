@@ -1,6 +1,8 @@
 #include "MosaicDescriptor.h"
 #include <QDebug>
 #include <float.h>
+#include <algorithm>
+#include <vector>
 
 MosaicDescriptor::MosaicDescriptor():_mosaicOrigin(0,0,0),
     _pixelSize(0,0),_mosaicSize(0,0), _utmHemisphere("UNDEF"),
@@ -83,9 +85,9 @@ void MosaicDescriptor::setMosaic_ullr(const Mat &mosaic_ullr)
     _mosaic_ullr = mosaic_ullr;
 }
 
-void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p, bool camerasOwner)
+void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p, bool camerasOwner_p)
 {
-    _camerasOwner = true;
+    _camerasOwner = camerasOwner_p;
 
     _cameraNodes = cameras_p;
     qreal meanLat=0;
@@ -250,53 +252,72 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
     // inbounds = [1 1; w h];
     //////////////////////////
     cv::Mat mosaicbounds = (cv::Mat_<qreal>(4,1) << FLT_MAX, FLT_MAX, 0, 0 );
+    int w,h =0;
 
-    cv::Mat *image;
+    cv::Mat pt1,pt2,pt3,pt4;
+    std::vector<qreal> xArray, yArray;
+    std::vector<qreal>::iterator min_x_it, min_y_it, max_x_it, max_y_it;
 
-    /*foreach (ProjectiveCamera* Cam, _cameraNodes) {
+    foreach (ProjectiveCamera* Cam, _cameraNodes) {
 
-        Cam->image()->
+        w = Cam->image()->width();
+        h = Cam->image()->height();
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-        //    tform = maketform('projective', M.nodes(no).homo.matrix');  //imtransform uses the transpose
-        //     outbounds = findbounds(tform, inbounds);
-        //     mosaicbounds(1, 1) = min(min(outbounds(1, 1)), mosaicbounds(1, 1));
-        //     mosaicbounds(1, 2) = min(min(outbounds(1, 2)), mosaicbounds(1, 2));
-        //     mosaicbounds(2, 1) = max(max(outbounds(2, 1)), mosaicbounds(2, 1));
-        //     mosaicbounds(2, 2) = max(max(outbounds(2, 2)), mosaicbounds(2, 2));
-        //////////////////////////////////////////////////////////////////////////////////////////////////
 
-        pt(:,1) =  M.nodes(no).homo.matrix *[0;0;1];
-        pt(:,2) =  M.nodes(no).homo.matrix *[w-1;0;1];
-        pt(:,3) =  M.nodes(no).homo.matrix *[w-1;h-1;1];
-        pt(:,4) =  M.nodes(no).homo.matrix *[0;h-1;1];
+        // Project corners on mosaic plane
+        Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   0,   1), pt1);
+        Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, 0,   1), pt2);
+        Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, h-1, 1), pt3);
+        Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   h-1, 1), pt4);
 
-        x = pt(1,:)./pt(3,:);
-        y = pt(2,:)./pt(3,:);
-        mosaicbounds(1,1) = min(min(x), mosaicbounds(1, 1));
-        mosaicbounds(2,1) = max(max(x),mosaicbounds(2, 1));
-        mosaicbounds(1,2) = min(min(y),mosaicbounds(1, 2));
-        mosaicbounds(2,2) = max(max(y),mosaicbounds(2, 2));
+        // Fill x & y array
+        xArray.clear();
+        yArray.clear();
+        xArray.push_back(pt1.at<qreal>(0,0)/pt1.at<qreal>(2,0));
+        yArray.push_back(pt1.at<qreal>(1,0)/pt1.at<qreal>(2,0));
+        xArray.push_back(pt2.at<qreal>(0,0)/pt2.at<qreal>(2,0));
+        yArray.push_back(pt2.at<qreal>(1,0)/pt2.at<qreal>(2,0));
+        xArray.push_back(pt3.at<qreal>(0,0)/pt3.at<qreal>(2,0));
+        yArray.push_back(pt3.at<qreal>(1,0)/pt3.at<qreal>(2,0));
+        xArray.push_back(pt4.at<qreal>(0,0)/pt4.at<qreal>(2,0));
+        yArray.push_back(pt4.at<qreal>(1,0)/pt4.at<qreal>(2,0));
+
+
+        // Compute min,max
+        min_x_it = std::min_element(std::begin(xArray), std::end(xArray));
+        min_y_it = std::min_element(std::begin(yArray), std::end(yArray));
+        max_x_it = std::max_element(std::begin(xArray), std::end(xArray));
+        max_y_it = std::max_element(std::begin(yArray), std::end(yArray));
+
+        mosaicbounds.at<qreal>(0,0) = std::min(*min_x_it, mosaicbounds.at<qreal>(0, 0));
+        mosaicbounds.at<qreal>(1,0) = std::max(*max_x_it,mosaicbounds.at<qreal>(1, 0));
+        mosaicbounds.at<qreal>(0,1) = std::min(*min_y_it,mosaicbounds.at<qreal>(0, 1));
+        mosaicbounds.at<qreal>(1,1) = std::max(*max_x_it,mosaicbounds.at<qreal>(1, 1));
 
     }
 
+    // Shift all homographies
+    cv::Mat H = (cv::Mat_<qreal>(3,1) << 1, 0, -mosaicbounds.at<qreal>(0,0),
+                                         0, 1, -mosaicbounds.at<qreal>(0,1),
+                                         0, 0, 1);
 
-    H=[1 0 -mosaicbounds(1,1);0 1 -mosaicbounds(1,2);0 0 1];
-    for i = 1 : length(M.nodes)
-        M.nodes(i).homo.matrix = H * M.nodes(i).homo.matrix;
-    end
+    foreach (ProjectiveCamera* Cam, _cameraNodes) {
+        Cam->set_m_H_i(H*Cam->m_H_i());
+    }
 
-    M.init.mosaic_origin.x = M.init.mosaic_origin.x - (-mosaicbounds(1,1))*M.init.pixel_size.x;
-    M.init.mosaic_origin.y = M.init.mosaic_origin.y + (-mosaicbounds(1,2))*M.init.pixel_size.y;
-    M.init.mosaic_size.x = ceil(mosaicbounds(2,1)-mosaicbounds(1,1))+2; //+2 due to the 0 and the round
-    M.init.mosaic_size.y = ceil(mosaicbounds(2,2)-mosaicbounds(1,2))+2;
+    // Shift origin
+    _mosaicOrigin.x = _mosaicOrigin.x - (-mosaicbounds.at<qreal>(0,0))*_pixelSize.x;
+    _mosaicOrigin.y = _mosaicOrigin.y + (-mosaicbounds.at<qreal>(0,1))*_pixelSize.y;
+    _mosaicSize.x = std::ceil(mosaicbounds.at<qreal>(1,0)-mosaicbounds.at<qreal>(0,0))+2; //+2 due to the 0 and the round
+    _mosaicSize.y = std::ceil(mosaicbounds.at<qreal>(1,1)-mosaicbounds.at<qreal>(0,1))+2;
 
 
     // Upper Left and Lower Right corner coordinates
-    x_shift = (mosaicbounds(2,1)-mosaicbounds(1,1));
-    y_shift = (mosaicbounds(2,2)-mosaicbounds(1,2));
-    M.init.mosaic_ullr = [M.init.mosaic_origin.x M.init.mosaic_origin.y...
-        M.init.mosaic_origin.x+x_shift*M.init.pixel_size.x M.init.mosaic_origin.y-y_shift*M.init.pixel_size.y];*/
+    qreal x_shift = (mosaicbounds.at<qreal>(1,0)-mosaicbounds.at<qreal>(0,0));
+    qreal y_shift = (mosaicbounds.at<qreal>(1,1)-mosaicbounds.at<qreal>(0,1));
+    _mosaic_ullr = (cv::Mat_<qreal>(4,1) << _mosaicOrigin.x, _mosaicOrigin.y,
+                                            _mosaicOrigin.x+x_shift*_pixelSize.x, _mosaicOrigin.y-y_shift*_pixelSize.y);
+
 
 }
 

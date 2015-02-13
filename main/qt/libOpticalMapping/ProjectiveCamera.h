@@ -34,6 +34,13 @@ public:
 
     // **************************************
 
+    ///
+    /// \brief projectPtOnMosaickingPlane project a camera plane point to mosaic plane point
+    /// \param camPlanePt_p camera plane point
+    /// \param mosaicPlanePt_p mosaic plane point
+    ///
+    void projectPtOnMosaickingPlane(const cv::Mat camPlanePt_p, cv::Mat & mosaicPlanePt_p);
+
 private:
 
     cv::Mat _K; // Camera calibration matrix (intrinsics) : each image can be taken with a different cam

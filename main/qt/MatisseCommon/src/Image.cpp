@@ -47,6 +47,24 @@ void Image::releaseImageData()
     }
 }
 
+int Image::width()
+{
+    if(_imageData != 0){
+        return _imageData->cols;
+    }else{
+        return -1;
+    }
+}
+
+int Image::height()
+{
+    if(_imageData != 0){
+        return _imageData->rows;
+    }else{
+        return -1;
+    }
+}
+
 
 QString Image::dumpAttr()
 {

@@ -10,6 +10,7 @@ FileImage::FileImage(const FileImage &other):NavImage(other),
     _sourceFormat(other._sourceFormat),
     _pictureFileSet(other._pictureFileSet)
 {
+    _imReader = new QImageReader(_pictureFileSet->rootDirname() + "/" +_fileName);
 }
 
 QString FileImage::dumpAttr()
@@ -37,6 +38,35 @@ Mat *FileImage::imageData() {
     return _imageData;
 }
 
+int FileImage::width()
+{
+    if(_imageData != 0){
+        // If image is loaded send info from memory
+        return _imageData->cols;
+    }else{
+        // If not send info from reader (no image loading)
+        if(_imReader){
+            return _imReader->size().width();
+        }else{
+            return -1;
+        }
+    }
+}
+
+int FileImage::height()
+{
+    if(_imageData != 0){
+        // If image is loaded send info from memory
+        return _imageData->rows;
+    }else{
+        // If not send info from reader (no image loading)
+        if(_imReader){
+            return _imReader->size().height();
+        }else{
+            return -1;
+        }
+    }
+}
 
 FileImage::FileImage(PictureFileSet *pictureFileSet, QString fileName, QString sourceName, QString sourceFormat, int id, NavInfo navInfo):NavImage(id, NULL, navInfo),
     _fileName(fileName),

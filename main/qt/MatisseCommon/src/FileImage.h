@@ -5,6 +5,7 @@
 
 #include "NavImage.h"
 #include "PictureFileSet.h"
+#include <QImageReader>
 
 using namespace cv;
 
@@ -48,6 +49,18 @@ public:
     virtual Mat * imageData();
 
     ///
+    /// \brief Return width of _imageData without loading image file
+    /// \return width or -1 if not available
+    ///
+    virtual int width();
+    ///
+    /// \brief Return height of _imageData without loading image file
+    /// \return height or -1 if not available
+    ///
+    virtual int height();
+
+
+    ///
     /// \brief Fonction de deboggage
     /// \return
     ///
@@ -58,6 +71,7 @@ protected:
     QString _sourceName;
     QString _sourceFormat;
     PictureFileSet * _pictureFileSet;
+    QImageReader *_imReader;
 
 };
 

@@ -70,6 +70,11 @@ void ProjectiveCamera::setScalingFactor(const qreal &scalingFactor)
 
 }
 
+void ProjectiveCamera::projectPtOnMosaickingPlane(const Mat camPlanePt_p, Mat &mosaicPlanePt_p)
+{
+    mosaicPlanePt_p = _m_H_i * camPlanePt_p;
+}
+
 
 
 
