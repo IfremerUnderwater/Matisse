@@ -37,6 +37,8 @@ win32:Release {
     LIBS += -L../libs/release
     LIBS += -lopencv_core248
     LIBS += -lopencv_highgui248
+    LIBS += -lopencv_stitching248
+    LIBS += -lopencv_imgproc248
     LIBS += -lproj
     LIBS += -lMatisseCommon
 message("Config Release")
@@ -47,6 +49,8 @@ win32:Debug {
     LIBS += -L../libs/debug
     LIBS += -lopencv_core248d
     LIBS += -lopencv_highgui248d
+    LIBS += -lopencv_stitching248d
+    LIBS += -lopencv_imgproc248d
     LIBS += -lproj
     LIBS += -lMatisseCommon
 message("Config Debug")

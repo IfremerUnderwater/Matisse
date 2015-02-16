@@ -296,7 +296,7 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
 
     }
 
-    // Shift all homographies
+    // Shift all homographies with H
     cv::Mat H = (cv::Mat_<qreal>(3,1) << 1, 0, -mosaicbounds.at<qreal>(0,0),
                                          0, 1, -mosaicbounds.at<qreal>(0,1),
                                          0, 0, 1);
