@@ -171,11 +171,11 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
     cv::transpose(_W_R_M, _M_R_W);
     _M_T_W = -_M_R_W * _W_T_M;
 
+    _isInitialized = true;
+
     foreach (ProjectiveCamera* Cam, _cameraNodes) {
         computeCameraHomography(Cam);
     }
-
-    _isInitialized = true;
 
 }
 
@@ -192,6 +192,7 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
     double Yaw = -navdata->yaw();
 
 
+
     // Vehicle Rotation w.r.t. 3D World Frame (Computed always in mobile axis: post-multiplication)
     //  Rotation in Z (pi/2): Point X axis of the vehicle to the north to use the Yaw.
     //  Rotation in Z (Yaw): Yaw of the vehicle in the world frame.
@@ -204,6 +205,7 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
 
     // Convert a Pose (V_T_C, V_R_C) w.r.t. 3D Vehicle Frame to the 3D World Frame
     // This new pose will also be the Transformation 3D Camera Frame -> 3D World Frame: W_X = W_R_C * C_X + W_T_C
+
     _W_R_C = _W_R_V * camera_p->V_R_C();
     _W_T_C = _W_R_V * camera_p->V_T_C() + _W_T_V;
 
@@ -224,7 +226,8 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
     // Set Z = 0 (Delete 3th Column) in the Projection Matrix: 3D world to 2D
     // Up-To-Scale Planar Projective Homography: 2D Mosaic Frame to 2D Image Frame
     //_i_H_m = _i_P_M(:, [1 2 4]);
-    cv::hconcat(_i_P_M.colRange(0,1),_i_P_M.colRange(3,3), _i_H_m);
+    cv::hconcat(_i_P_M.colRange(0,2),_i_P_M.colRange(3,4), _i_H_m);
+
     // Absolute Homography to be stored into the mosaic: 2D Image Plane to 2D Mosaic Frame
     // Add the scaling factor to have it in pixels.
     cv::invert( _i_H_m, _m_H_i);
@@ -232,25 +235,11 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
 
     // Store Normalized Homography into the mosaic structure ([3,3] element is one).
     camera_p->set_m_H_i( _m_H_i / _m_H_i.at<qreal>(2,2) );
-
 }
 
 void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
 {
 
-    // Width and Height assumed to be the same for all the images
-    /*
-    h = im_info.Height*algo_param.scale_factor;               // height scaled with scale factor
-    w = im_info.Width*algo_param.scale_factor;               // width scaled with scale factor
-    if isfield(im_info, 'NumberOfSamples')
-        d = im_info.NumberOfSamples;
-    else
-        d=1;
-    end*/
-
-    ///////////////////////////
-    // inbounds = [1 1; w h];
-    //////////////////////////
     cv::Mat mosaicbounds = (cv::Mat_<qreal>(4,1) << FLT_MAX, FLT_MAX, 0, 0 );
     int w,h =0;
 
@@ -263,8 +252,7 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
         w = Cam->image()->width();
         h = Cam->image()->height();
 
-
-        // Project corners on mosaic plane
+        // Project corners_p on mosaic plane
         Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   0,   1), pt1);
         Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, 0,   1), pt2);
         Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, h-1, 1), pt3);
@@ -297,9 +285,9 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
     }
 
     // Shift all homographies with H
-    cv::Mat H = (cv::Mat_<qreal>(3,1) << 1, 0, -mosaicbounds.at<qreal>(0,0),
-                                         0, 1, -mosaicbounds.at<qreal>(0,1),
-                                         0, 0, 1);
+    cv::Mat H = (cv::Mat_<qreal>(3,3) << 1, 0, -mosaicbounds.at<qreal>(0,0),
+                 0, 1, -mosaicbounds.at<qreal>(0,1),
+                 0, 0, 1);
 
     foreach (ProjectiveCamera* Cam, _cameraNodes) {
         Cam->set_m_H_i(H*Cam->m_H_i());
@@ -316,11 +304,14 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
     qreal x_shift = (mosaicbounds.at<qreal>(1,0)-mosaicbounds.at<qreal>(0,0));
     qreal y_shift = (mosaicbounds.at<qreal>(1,1)-mosaicbounds.at<qreal>(0,1));
     _mosaic_ullr = (cv::Mat_<qreal>(4,1) << _mosaicOrigin.x, _mosaicOrigin.y,
-                                            _mosaicOrigin.x+x_shift*_pixelSize.x, _mosaicOrigin.y-y_shift*_pixelSize.y);
+                    _mosaicOrigin.x+x_shift*_pixelSize.x, _mosaicOrigin.y-y_shift*_pixelSize.y);
 
 
 }
-
+QVector<ProjectiveCamera *> MosaicDescriptor::cameraNodes() const
+{
+    return _cameraNodes;
+}
 
 bool MosaicDescriptor::isInitialized() const
 {

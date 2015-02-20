@@ -34,6 +34,8 @@ public:
     ///
     FileImage(const FileImage & other);
 
+    ~FileImage();
+
     QString getFileName() {  return _fileName;  }
 
     QString getSourceName() { return _sourceName; }

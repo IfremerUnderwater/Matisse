@@ -1,9 +1,10 @@
 #ifndef MOSAICDRAWER_H
 #define MOSAICDRAWER_H
 
+#include "libopticalmapping_global.h"
 #include "MosaicDescriptor.h"
 
-class MosaicDrawer
+class LIBOPTICALMAPPINGSHARED_EXPORT MosaicDrawer
 {
 public:
 
@@ -34,11 +35,25 @@ public:
     MosaicDrawer(QString drawingOptions =
             QString("--try_gpu no --seam gc_color --expos_comp gain --blend multiband"));
 
+    ///
+    /// \brief drawAndBlend draw and blend mosaic in a single memory image using mosaic descriptor
+    /// \param mosaicD_p MosaicDescriptor for the mosaic to be blended
+    /// \param mosaicImage_p Blended mosaic image
+    /// \param mosaicImageMask_p Blended mosaic mask (0 for non mosaic areas)
+    ///
     void drawAndBlend(const MosaicDescriptor & mosaicD_p, cv::Mat & mosaicImage_p , cv::Mat & mosaicImageMask_p);
 
-    void drawAndBlend(std::vector<Mat> & images_warped,
-                      std::vector<Mat> & masks_warped,
-                      std::vector<Point> & corners,
+    ///
+    /// \brief drawAndBlend draw & blend mosaic in a single memory image using list of images, masks and corners_p
+    /// \param imagesWarped_p images that have been transformed (ready to mosaic and only need a translation)
+    /// \param masksWarped_p masks corresponding to imagesWarped_p (0 for non valid areas)
+    /// \param corners_p top left corner of each image (for images translation)
+    /// \param mosaicImage_p Blended mosaic image
+    /// \param mosaicImageMask_p Blended mosaic mask (0 for non mosaic areas)
+    ///
+    void drawAndBlend(std::vector<Mat> & imagesWarped_p,
+                      std::vector<Mat> & masksWarped_p,
+                      std::vector<Point> & corners_p,
                       cv::Mat & mosaicImage_p,
                       cv::Mat & mosaicImageMask_p);
 

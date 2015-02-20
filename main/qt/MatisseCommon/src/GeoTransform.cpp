@@ -39,8 +39,6 @@ bool GeoTransform::LatLongToUTM(qreal lat_p, qreal lon_p, qreal & x_p, qreal & y
     }
     utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0) + QString(" +ellps=WGS84");
 
-    qDebug() << "utmProjParam = " << utmProjParam;
-
     // Create projections
     if (!(pj_latlong = pj_init_plus("+proj=longlat +datum=WGS84")) ){
         std::cerr<<"pj_init_plus error: longlat\n";
@@ -51,6 +49,9 @@ bool GeoTransform::LatLongToUTM(qreal lat_p, qreal lon_p, qreal & x_p, qreal & y
         std::cerr<<"pj_init_plus error: utm\n";
         exit(1);
     }
+
+    qDebug() << "utmProjParam = " << utmProjParam;
+
 
     // Initialize x_p & y_p
     x_p = DEG_TO_RAD*lon_p;

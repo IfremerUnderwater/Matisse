@@ -3,6 +3,9 @@
 #include "NavImage.h"
 #include "GeoTransform.h"
 
+#include "MosaicDescriptor.h"
+#include "MosaicDrawer.h"
+
 // Exportation de la classe Module1 dans la bibliotheque de plugin TestModule1
 Q_EXPORT_PLUGIN2(Module1, Module1)
 
@@ -73,7 +76,98 @@ void Module1::onFlush(quint32 port)
 {
     qDebug() << logPrefix() << "flush port " << port;
     qDebug() << logPrefix() << "OPTIM" ;
+
+
+    MosaicDescriptor mosaicD;
+    QVector<ProjectiveCamera*> cams;
+    ImageSet * imageSet;
+
+    // Find imageSet corresponding to this port
+    foreach (ImageSetPort *ImSet,*_inputPortList){
+        if (ImSet->portNumber == port){
+            imageSet = ImSet->imageSet;
+            break;
+        }
+    }
+
+    // Get camera matrix
+    bool Ok;
+    QMatrix3x3 qK = _matisseParameters->getMatrix3x3ParamValue("cam_param",  "K",  Ok);
+    cv::Mat K(3,3,CV_64F);
+    if (Ok){
+        qDebug() << "K Ok =" << Ok;
+
+        for (int i=0; i<3; i++){
+            for(int j=0; j<3; j++){
+                K.at<qreal>(i,j) = qK(i,j);
+            }
+        }
+
+    }else{
+        qDebug() << "K Ok =" << Ok;
+        exit(1);
+    }
+
+    double scaleFactor = _matisseParameters->getDoubleParamValue("algo_param", "scale_factor", Ok);
+
+    if (!Ok){
+        qDebug() << "scale factor not provided Ok \n";
+        exit(1);
+    }
+
+    // Get camera lever arm
+    cv::Mat V_T_C(3,1,CV_64F), V_R_C(3,3,CV_64F);
+
+    Matrix6x1 V_Pose_C = _matisseParameters->getMatrix6x1ParamValue("cam_param",  "V_Pose_C",  Ok);
+    if (Ok){
+
+        for (int i=0; i<3; i++){
+            V_T_C.at<qreal>(i,0) = V_Pose_C(0,i);
+        }
+
+        GeoTransform T;
+
+        V_R_C = T.RotZ(V_Pose_C(0,5))*T.RotY(V_Pose_C(0,4))*T.RotX(V_Pose_C(0,3));
+
+    }
+
+
+    if (imageSet){
+
+        // Create cameras
+        QList<Image *> imageList = imageSet->getAllImages();
+        foreach (Image* image, imageList) {
+
+            NavImage *navImage = dynamic_cast<NavImage*>(image);
+            if (navImage){
+                cams.push_back(new ProjectiveCamera(navImage , K, V_T_C, V_R_C, (qreal)scaleFactor));
+            }else{
+                qDebug() << "cannot cast as navImage \n";
+                exit(1);
+            }
+        }
+
+        // Init cameras
+        mosaicD.initCamerasAndFrames(cams,true);
+        qDebug() << "Init done";
+
+        // Compute extents
+        mosaicD.computeMosaicExtentAndShiftFrames();
+        qDebug() << "Extent computation done";
+
+        //Draw mosaic
+        MosaicDrawer mosaicDrawer;
+        cv::Mat mosaicImage,mosaicMask;
+        mosaicDrawer.drawAndBlend(mosaicD, mosaicImage, mosaicMask);
+        cv::imshow(std::string("MosaicTest"),mosaicImage);
+
+    }else{
+        qDebug()<<"No ImageSet acquired !";
+        exit(1);
+    }
+
     flush(1);
+
 }
 
 

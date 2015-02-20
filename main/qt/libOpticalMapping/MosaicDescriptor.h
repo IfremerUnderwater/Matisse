@@ -36,6 +36,8 @@ public:
     Mat mosaic_ullr() const;
     void setMosaic_ullr(const Mat &mosaic_ullr);
 
+    QVector<ProjectiveCamera *> cameraNodes() const;
+
     bool isInitialized() const;
 
     // **********************************************
@@ -60,7 +62,6 @@ public:
     /// recompute mosaic origin such that no negative pixels coord fall into the mosaicking
     ///
     void computeMosaicExtentAndShiftFrames();
-
 
 
 protected:

@@ -11,8 +11,8 @@
 <maxdist_centers>8,000</maxdist_centers>
 <min_matches>12</min_matches>
 <max_matches>10000</max_matches>
-<First_processed_image>1</First_processed_image>
-<Last_processed_image>6</Last_processed_image>
+<First_processed_image>150</First_processed_image>
+<Last_processed_image>160</Last_processed_image>
 <step_im>1</step_im>
 
 <!--Filtering overlap parameters-->
@@ -24,7 +24,7 @@
 <MaxIter>50</MaxIter>
 <max_Roll>0,100</max_Roll>
 <max_Pitch>0,100</max_Pitch>
-<ba_method>Nav_only</ba_method>
+<ba_method>Calib_with_nav</ba_method>
 <cosmetic_stretch>false</cosmetic_stretch>
 
 <!--Blending and displaying parameters-->
@@ -33,7 +33,7 @@
 <blending_method>multiband</blending_method>
 <no_plot>false</no_plot>
 <WriteGeoTiff>true</WriteGeoTiff>
-<block_drawing>true</block_drawing>
+<block_drawing>false</block_drawing>
 <block_width>7000</block_width>
 <block_height>7000</block_height>
 
@@ -46,7 +46,7 @@
 </cam_param>
 
 <dataset_param>
-<dataset_dir>H:\matissetest\OTUS_CORR</dataset_dir>
+<dataset_dir>D:\DATA\MOSAIC_DATASETS\BICOSE\OTUS_CORR</dataset_dir>
 <output_dir>./Geotiff_data</output_dir>
 <output_filename>MosaicOut.tiff</output_filename>
 <navFile>otus.dim2</navFile>

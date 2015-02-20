@@ -13,8 +13,6 @@ using namespace std;
 using namespace cv;
 using namespace cv::detail;
 
-
-
 MosaicDrawer::MosaicDrawer(QString drawingOptions)
 {
 
@@ -80,11 +78,11 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
         else if (argv[i] == "--seam")
         {
             if (argv[i + 1] == "no" ||
-                argv[i + 1] == "voronoi" ||
-                argv[i + 1] == "gc_color" ||
-                argv[i + 1] == "gc_colorgrad" ||
-                argv[i + 1] == "dp_color" ||
-                argv[i + 1] == "dp_colorgrad")
+                    argv[i + 1] == "voronoi" ||
+                    argv[i + 1] == "gc_color" ||
+                    argv[i + 1] == "gc_colorgrad" ||
+                    argv[i + 1] == "dp_color" ||
+                    argv[i + 1] == "dp_colorgrad")
                 _seamFindType = argv[i + 1];
             else
             {
@@ -118,15 +116,42 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
     return 0;
 }
 
-void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat> &masks_warped, std::vector<Point> &corners, Mat &mosaicImage_p, Mat &mosaicImageMask_p)
+void MosaicDrawer::drawAndBlend(const MosaicDescriptor &mosaicD_p, Mat &mosaicImage_p, Mat &mosaicImageMask_p)
+{
+
+    std::vector<Mat> imagesWarped;
+    std::vector<Mat> masksWarped;
+    std::vector<Point> corners;
+
+    int camNum = mosaicD_p.cameraNodes().size();
+
+    imagesWarped.resize(camNum);
+    masksWarped.resize(camNum);
+    corners.resize(camNum);
+
+    int i=0;
+
+    // Project each image on the mosaicking plane
+    foreach (ProjectiveCamera* Cam, mosaicD_p.cameraNodes()) {
+
+        Cam->projectImageOnMosaickingPlane(imagesWarped[i], masksWarped[i], corners[i]);
+        Cam->image()->releaseImageData();
+        i++;
+    }
+
+    drawAndBlend(imagesWarped, masksWarped, corners, mosaicImage_p, mosaicImageMask_p);
+
+}
+
+void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Mat> &masksWarped_p, std::vector<Point> &corners_p, Mat &mosaicImage_p, Mat &mosaicImageMask_p)
 {
 
     bool colored_images = true;
 
-    int num_images = static_cast<int>(images_warped.size());
+    int num_images = static_cast<int>(imagesWarped_p.size());
     vector<Size> sizes(num_images);
 
-    if (images_warped[0].channels() == 3){
+    if (imagesWarped_p[0].channels() == 3){
         colored_images = true;
     }else{
         colored_images = false;
@@ -148,16 +173,16 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
 
         for (int i=0; i<num_images; i++){
 
-            sizes[i] = images_warped[i].size();
+            sizes[i] = imagesWarped_p[i].size();
 
             // Split channels
-            split(images_warped[i], TempRGB);
+            split(imagesWarped_p[i], TempRGB);
             red_images[i] = TempRGB[0].clone();
             green_images[i] = TempRGB[1].clone();
             blue_images[i] = TempRGB[2].clone();
 
-            mean_col_nb += images_warped[i].cols;
-            mean_row_nb += images_warped[i].rows;
+            mean_col_nb += imagesWarped_p[i].cols;
+            mean_row_nb += imagesWarped_p[i].rows;
 
         }
 
@@ -177,7 +202,7 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
 
         if (_gainBlock){
 
-            Bl_per_image = sqrt(10e9/(100*images_warped.size()*images_warped.size())); // 10e9 is for 1Giga and 100 is due to the number of allocations
+            Bl_per_image = sqrt(10e9/(100*imagesWarped_p.size()*imagesWarped_p.size())); // 10e9 is for 1Giga and 100 is due to the number of allocations
             Bl_num_col = ceil(sqrt(Bl_per_image*(double)mean_row_nb/(double)mean_col_nb));
             Bl_num_row = ceil(Bl_num_col*(double)mean_col_nb/(double)mean_row_nb);
 
@@ -208,7 +233,7 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
             cvtColor(red_images[i], red_images[i], CV_GRAY2BGR);
 
         }
-        red_compensator->feed(corners, red_images, masks_warped);
+        red_compensator->feed(corners_p, red_images, masksWarped_p);
         red_images.clear();
 
         // Process exposure compensation for the green channel
@@ -217,7 +242,7 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
             cvtColor(green_images[i], green_images[i], CV_GRAY2BGR);
 
         }
-        green_compensator->feed(corners, green_images, masks_warped);
+        green_compensator->feed(corners_p, green_images, masksWarped_p);
         green_images.clear();
 
         // Process exposure compensation for the blue channel
@@ -226,36 +251,36 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
             cvtColor(blue_images[i], blue_images[i], CV_GRAY2BGR);
 
         }
-        blue_compensator->feed(corners, blue_images, masks_warped);
+        blue_compensator->feed(corners_p, blue_images, masksWarped_p);
         blue_images.clear();
 
         // Compensate exposure
         for (int img_idx = 0; img_idx < num_images; ++img_idx){
-            split(images_warped[img_idx], TempRGB);
+            split(imagesWarped_p[img_idx], TempRGB);
             cvtColor(TempRGB[0], TempRGB[0], CV_GRAY2BGR);
             cvtColor(TempRGB[1], TempRGB[1], CV_GRAY2BGR);
             cvtColor(TempRGB[2], TempRGB[2], CV_GRAY2BGR);
 
-            red_compensator->apply(img_idx, corners[img_idx], TempRGB[0], masks_warped[img_idx]);
-            green_compensator->apply(img_idx, corners[img_idx], TempRGB[1], masks_warped[img_idx]);
-            blue_compensator->apply(img_idx, corners[img_idx], TempRGB[2], masks_warped[img_idx]);
+            red_compensator->apply(img_idx, corners_p[img_idx], TempRGB[0], masksWarped_p[img_idx]);
+            green_compensator->apply(img_idx, corners_p[img_idx], TempRGB[1], masksWarped_p[img_idx]);
+            blue_compensator->apply(img_idx, corners_p[img_idx], TempRGB[2], masksWarped_p[img_idx]);
 
             cvtColor(TempRGB[0], TempRGB[0], CV_BGR2GRAY);
             cvtColor(TempRGB[1], TempRGB[1], CV_BGR2GRAY);
             cvtColor(TempRGB[2], TempRGB[2], CV_BGR2GRAY);
 
-            merge(TempRGB,images_warped[img_idx]);
+            merge(TempRGB,imagesWarped_p[img_idx]);
         }
 
     }else{ // Process B&W Images (compensation)
 
         for (int i=0; i<num_images; i++){
 
-            sizes[i] = images_warped[i].size();
-            cvtColor(images_warped[i], images_warped[i], CV_GRAY2BGR);
+            sizes[i] = imagesWarped_p[i].size();
+            cvtColor(imagesWarped_p[i], imagesWarped_p[i], CV_GRAY2BGR);
 
-            mean_col_nb += images_warped[i].cols;
-            mean_row_nb += images_warped[i].rows;
+            mean_col_nb += imagesWarped_p[i].cols;
+            mean_row_nb += imagesWarped_p[i].rows;
 
         }
 
@@ -263,11 +288,11 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
         mean_row_nb /= num_images;
 
         // Convert images for seam and exposure processing
-        vector<Mat> images_warped_f(num_images);
+        vector<Mat> imagesWarped_p_f(num_images);
 
         for (int i = 0; i < num_images; ++i){
 
-            images_warped[i].convertTo(images_warped_f[i], CV_32F);
+            imagesWarped_p[i].convertTo(imagesWarped_p_f[i], CV_32F);
 
         }
 
@@ -278,7 +303,7 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
 
         if (_gainBlock){
 
-            Bl_per_image = sqrt(10e9/(100*images_warped.size()*images_warped.size())); // 10e9 is for 1Giga and 100 is due to the number of allocations
+            Bl_per_image = sqrt(10e9/(100*imagesWarped_p.size()*imagesWarped_p.size())); // 10e9 is for 1Giga and 100 is due to the number of allocations
             Bl_num_col = ceil(sqrt(Bl_per_image*(double)mean_row_nb/(double)mean_col_nb));
             Bl_num_row = ceil(Bl_num_col*(double)mean_col_nb/(double)mean_row_nb);
 
@@ -295,13 +320,13 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
             compensator = ExposureCompensator::createDefault(_exposCompType);
         }
 
-        compensator->feed(corners, images_warped, masks_warped);
+        compensator->feed(corners_p, imagesWarped_p, masksWarped_p);
     }
 
     // Convert images for seam processing *********************************************************************
-    vector<Mat> images_warped_f(num_images);
-    vector<Mat> masks_warped_seam(num_images);
-    vector<Point> corners_seam(num_images);
+    vector<Mat> imagesWarped_p_f(num_images);
+    vector<Mat> masksWarped_p_seam(num_images);
+    vector<Point> corners_p_seam(num_images);
     double seam_scale;
 
     seam_scale = min(1.0, sqrt(_seamMegapix * 1e6 / (double)(mean_row_nb*mean_col_nb)));
@@ -312,18 +337,18 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
         if (seam_scale < 1){
 
             // resize image to reduce seam finding computing time
-            resize(images_warped[i], images_warped_f[i], Size(), seam_scale, seam_scale);
-            images_warped_f[i].convertTo(images_warped_f[i], CV_32F);
+            resize(imagesWarped_p[i], imagesWarped_p_f[i], Size(), seam_scale, seam_scale);
+            imagesWarped_p_f[i].convertTo(imagesWarped_p_f[i], CV_32F);
 
             // same for the mask
-            resize(masks_warped[i],masks_warped_seam[i], Size(), seam_scale, seam_scale);
+            resize(masksWarped_p[i],masksWarped_p_seam[i], Size(), seam_scale, seam_scale);
 
-            // same for the corners
-            corners_seam[i] = seam_scale*corners[i];
+            // same for the corners_p
+            corners_p_seam[i] = seam_scale*corners_p[i];
 
         }else{
 
-            images_warped[i].convertTo(images_warped_f[i], CV_32F);
+            imagesWarped_p[i].convertTo(imagesWarped_p_f[i], CV_32F);
         }
 
     }
@@ -367,15 +392,15 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
 
     // Run the seam finder
     if (seam_scale < 1){
-        seam_finder->find(images_warped_f, corners_seam, masks_warped_seam);
+        seam_finder->find(imagesWarped_p_f, corners_p_seam, masksWarped_p_seam);
     }else{
-        seam_finder->find(images_warped_f, corners, masks_warped);
+        seam_finder->find(imagesWarped_p_f, corners_p, masksWarped_p);
     }
 
 
     // Release unused images
-    corners_seam.clear();
-    images_warped_f.clear();
+    corners_p_seam.clear();
+    imagesWarped_p_f.clear();
 
     qDebug()<< "Compositing...\n";
 
@@ -390,7 +415,7 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
 
     // Initialize the blender
     blender = Blender::createDefault(_blendType, _tryGpu);
-    Size dst_sz = resultRoi(corners, sizes).size();
+    Size dst_sz = resultRoi(corners_p, sizes).size();
     float blend_width = sqrt(static_cast<float>(dst_sz.area())) * _blendStrength / 100.f;
     if (blend_width < 1.f)
         blender = Blender::createDefault(Blender::NO, _tryGpu);
@@ -406,24 +431,24 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &images_warped, std::vector<Mat
         fb->setSharpness(1.f/blend_width);
         qDebug()<< "Feather blender, sharpness: "<< fb->sharpness();
     }
-    blender->prepare(corners, sizes);
+    blender->prepare(corners_p, sizes);
 
     for (int img_idx = 0; img_idx < num_images; ++img_idx)
     {
 
-        images_warped[img_idx].convertTo(img_warped_s, CV_16S);
+        imagesWarped_p[img_idx].convertTo(img_warped_s, CV_16S);
 
         if (seam_scale < 1){
             // Upscale the seaming mask
-            dilate(masks_warped_seam[img_idx], dilated_mask, Mat());
-            //dilate(masks_warped[img_idx], dilated_mask, Mat());
-            resize(dilated_mask, seam_mask, masks_warped[img_idx].size());
-            mask_warped = seam_mask & masks_warped[img_idx];
+            dilate(masksWarped_p_seam[img_idx], dilated_mask, Mat());
+            //dilate(masksWarped_p[img_idx], dilated_mask, Mat());
+            resize(dilated_mask, seam_mask, masksWarped_p[img_idx].size());
+            mask_warped = seam_mask & masksWarped_p[img_idx];
 
             // Blend the current image
-            blender->feed(img_warped_s, mask_warped, corners[img_idx]);
+            blender->feed(img_warped_s, mask_warped, corners_p[img_idx]);
         }else{
-            blender->feed(img_warped_s, masks_warped[img_idx], corners[img_idx]);
+            blender->feed(img_warped_s, masksWarped_p[img_idx], corners_p[img_idx]);
         }
 
 

@@ -1,8 +1,17 @@
 ﻿#include "FileImage.h"
+#include <QDebug>
 
 using namespace MatisseCommon;
 
 
+FileImage::FileImage(PictureFileSet *pictureFileSet, QString fileName, QString sourceName, QString sourceFormat, int id, NavInfo navInfo):NavImage(id, NULL, navInfo),
+    _fileName(fileName),
+    _sourceName(sourceName),
+    _sourceFormat(sourceFormat),
+    _pictureFileSet(pictureFileSet)
+{
+    _imReader = new QImageReader(_pictureFileSet->rootDirname() + "/" +_fileName);
+}
 
 FileImage::FileImage(const FileImage &other):NavImage(other),
     _fileName(other._fileName),
@@ -11,6 +20,11 @@ FileImage::FileImage(const FileImage &other):NavImage(other),
     _pictureFileSet(other._pictureFileSet)
 {
     _imReader = new QImageReader(_pictureFileSet->rootDirname() + "/" +_fileName);
+}
+
+FileImage::~FileImage()
+{
+    delete _imReader;
 }
 
 QString FileImage::dumpAttr()
@@ -35,6 +49,7 @@ Mat *FileImage::imageData() {
             _imageData = new Mat(imread(filePath));
         }
     }
+
     return _imageData;
 }
 
@@ -48,7 +63,8 @@ int FileImage::width()
         if(_imReader){
             return _imReader->size().width();
         }else{
-            return -1;
+            qDebug() << "Image Size cannot be read";
+            exit(1);
         }
     }
 }
@@ -63,16 +79,9 @@ int FileImage::height()
         if(_imReader){
             return _imReader->size().height();
         }else{
-            return -1;
+            qDebug() << "Image Size cannot be read";
+            exit(1);
         }
     }
-}
-
-FileImage::FileImage(PictureFileSet *pictureFileSet, QString fileName, QString sourceName, QString sourceFormat, int id, NavInfo navInfo):NavImage(id, NULL, navInfo),
-    _fileName(fileName),
-    _sourceName(sourceName),
-    _sourceFormat(sourceFormat),
-    _pictureFileSet(pictureFileSet)
-{
 }
 

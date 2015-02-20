@@ -1,16 +1,18 @@
 #ifndef PROJECTIVECAMERA_H
 #define PROJECTIVECAMERA_H
 
+#include "libopticalmapping_global.h"
+
 #include <opencv2/opencv.hpp>
 #include <NavImage.h>
 
 using namespace MatisseCommon;
 
-class ProjectiveCamera
+class LIBOPTICALMAPPINGSHARED_EXPORT ProjectiveCamera
 {
 public:
     ProjectiveCamera();
-
+    ProjectiveCamera(NavImage *image_p, cv::Mat cameraMatrixK_p, cv::Mat V_T_C, cv::Mat V_R_C, qreal scaleFactor_p);
 
     // **** Attributes setters & getters ****
 
@@ -40,6 +42,13 @@ public:
     /// \param mosaicPlanePt_p mosaic plane point
     ///
     void projectPtOnMosaickingPlane(const cv::Mat camPlanePt_p, cv::Mat & mosaicPlanePt_p);
+
+    ///
+    /// \brief projectImageOnMosaickingPlane project camera plane image to mosaic plane point
+    /// \param camPlanePt_p camera plane point
+    /// \param mosaicPlanePt_p mosaic plane point
+    ///
+    void projectImageOnMosaickingPlane(cv::Mat & mosaicPlaneImage_p, cv::Mat & mosaicPlaneMask_p, cv::Point & corner_p);
 
 private:
 

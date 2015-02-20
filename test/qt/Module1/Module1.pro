@@ -24,24 +24,28 @@ win32 {
 }
 
 INCLUDEPATH += ../../../main/qt/MatisseCommon/src
-
+INCLUDEPATH += ../../../main/qt/libOpticalMapping
 
 win32 {
     CONFIG(debug, debug|release) {
         message ("Compil debug...")
         LIBS += -L../../../main/qt/libs/debug
+        LIBS += -L../../../main/qt/libOpticalMapping/debug
         LIBS += -lopencv_core248d
         LIBS += -lopencv_highgui248d
         LIBS += -lproj
-        POST_TARGETDEPS += ../../../main/qt/libs/debug/MatisseCommon.lib
+        LIBS += -lMatisseCommon
+        LIBS += -llibOpticalMapping
     }
     else {
         message ("Compil release...")
         LIBS += -L../../../main/qt/libs/release
+        LIBS += -L../../../main/qt/libOpticalMapping/release
         LIBS += -lopencv_core248
         LIBS += -lopencv_highgui248
         LIBS += -lproj
-        POST_TARGETDEPS += ../../../main/qt/libs/release/MatisseCommon.lib
+        LIBS += -lMatisseCommon
+        LIBS += -llibOpticalMapping
     }
     DLLDESTDIR = ../../../main/qt/dll/processors
 }
