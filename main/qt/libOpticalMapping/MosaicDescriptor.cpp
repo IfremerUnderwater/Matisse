@@ -44,9 +44,9 @@ void MosaicDescriptor::setPixelSize(const Point2d &pixelSize)
     _pixelSize = pixelSize;
 
     _Hs = (cv::Mat_<qreal>(3,3) <<
-           _pixelSize.x,             0,       0,
-           0,             _pixelSize.y,       0,
-           0,                         0,       0);
+           1.0/_pixelSize.x,               0,       0,
+           0,               1.0/_pixelSize.y,       0,
+           0,                              0,       1);
 }
 Point2d MosaicDescriptor::mosaicSize() const
 {
@@ -130,7 +130,7 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
 
             // Affect UTM values
             Cam->image()->navInfo().setUtmX(X);
-            Cam->image()->navInfo().setUtmX(Y);
+            Cam->image()->navInfo().setUtmY(Y);
             Cam->image()->navInfo().setUtmZone(utmZone);
 
             // Compute min max mean
@@ -205,9 +205,9 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
 
     // Convert a Pose (V_T_C, V_R_C) w.r.t. 3D Vehicle Frame to the 3D World Frame
     // This new pose will also be the Transformation 3D Camera Frame -> 3D World Frame: W_X = W_R_C * C_X + W_T_C
-
     _W_R_C = _W_R_V * camera_p->V_R_C();
     _W_T_C = _W_R_V * camera_p->V_T_C() + _W_T_V;
+
 
     // Convert a Pose (W_T_C, W_R_C) w.r.t. 3D Camera Frame to the 3D Mosaic Frame
     // This new pose will also be the Transformation 3D Camera Frame -> 3D Mosaic Frame: M_X = M_R_C * C_X + M_T_C
@@ -226,12 +226,18 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
     // Set Z = 0 (Delete 3th Column) in the Projection Matrix: 3D world to 2D
     // Up-To-Scale Planar Projective Homography: 2D Mosaic Frame to 2D Image Frame
     //_i_H_m = _i_P_M(:, [1 2 4]);
+    std::cerr << "_i_P_M = " << _i_P_M << std::endl;
     cv::hconcat(_i_P_M.colRange(0,2),_i_P_M.colRange(3,4), _i_H_m);
 
     // Absolute Homography to be stored into the mosaic: 2D Image Plane to 2D Mosaic Frame
     // Add the scaling factor to have it in pixels.
+    std::cerr << "_i_H_m = " << _i_H_m << std::endl;
     cv::invert( _i_H_m, _m_H_i);
     _m_H_i = _Hs * _m_H_i;
+
+        std::cerr << "_m_H_i 1 = " << _m_H_i << std::endl;
+
+    std::cerr << "_m_H_i norm = " << _m_H_i / _m_H_i.at<qreal>(2,2) << std::endl;
 
     // Store Normalized Homography into the mosaic structure ([3,3] element is one).
     camera_p->set_m_H_i( _m_H_i / _m_H_i.at<qreal>(2,2) );
@@ -240,7 +246,7 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
 void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
 {
 
-    cv::Mat mosaicbounds = (cv::Mat_<qreal>(4,1) << FLT_MAX, FLT_MAX, 0, 0 );
+    cv::Mat mosaicbounds = (cv::Mat_<qreal>(2,2) << FLT_MAX, FLT_MAX, 0, 0 );
     int w,h =0;
 
     cv::Mat pt1,pt2,pt3,pt4;

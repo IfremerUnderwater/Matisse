@@ -32,6 +32,7 @@ unix {
 
 INCLUDEPATH += ../MatisseCommon/src $$(OPENCV_DIR)/../../include
 LIBS +=  -L$$(OPENCV_DIR)/lib
+LIBS += -L$$(OSGEO4W_ROOT)/apps/qgis/lib
 
 win32:Release {
     LIBS += -L../libs/release
@@ -39,7 +40,7 @@ win32:Release {
     LIBS += -lopencv_highgui248
     LIBS += -lopencv_stitching248
     LIBS += -lopencv_imgproc248
-    LIBS += -lproj
+    LIBS += -lproj_i
     LIBS += -lMatisseCommon
 message("Config Release")
 
@@ -51,7 +52,7 @@ win32:Debug {
     LIBS += -lopencv_highgui248d
     LIBS += -lopencv_stitching248d
     LIBS += -lopencv_imgproc248d
-    LIBS += -lproj
+    LIBS += -lproj_i
     LIBS += -lMatisseCommon
 message("Config Debug")
 }

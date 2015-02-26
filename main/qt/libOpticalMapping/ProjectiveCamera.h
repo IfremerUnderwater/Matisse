@@ -62,6 +62,9 @@ private:
 
     qreal _scalingFactor; // Images can be reduced to improve performances ( 0 < scalingFactor <= 1 )
 
+    bool _scalingFactorIsSet;
+    bool _KIsSet;
+
     // Image taken in the camera plane with the vehicule navigation
     MatisseCommon::NavImage *_image;
 

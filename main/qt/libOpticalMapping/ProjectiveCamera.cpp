@@ -1,7 +1,8 @@
 #include "ProjectiveCamera.h"
 
 
-ProjectiveCamera::ProjectiveCamera()
+ProjectiveCamera::ProjectiveCamera():_scalingFactor(1),_scalingFactorIsSet(false),
+    _KIsSet(false)
 {
 
 }
@@ -10,8 +11,8 @@ ProjectiveCamera::ProjectiveCamera(NavImage *image_p, Mat cameraMatrixK_p, Mat V
 {
 
     this->setImage(image_p);
-    this->setK(cameraMatrixK_p);
     this->setScalingFactor(scaleFactor_p);
+    this->setK(cameraMatrixK_p);
     this->setV_T_C(V_T_C);
     this->setV_R_C(V_R_C);
 
@@ -23,7 +24,9 @@ cv::Mat ProjectiveCamera::K() const
 
 void ProjectiveCamera::setK(const cv::Mat &K)
 {
+    Q_ASSERT(_scalingFactorIsSet);
     _K = _scalingFactor*K;
+    _KIsSet = true;
 }
 cv::Mat ProjectiveCamera::m_H_i() const
 {
@@ -75,6 +78,7 @@ void ProjectiveCamera::setScalingFactor(const qreal &scalingFactor)
     }else{
         _scalingFactor = scalingFactor;
     }
+    _scalingFactorIsSet = true;
 
 }
 

@@ -108,6 +108,8 @@ void Module1::onFlush(quint32 port)
         exit(1);
     }
 
+    std::cerr <<"K = " << K;
+
     double scaleFactor = _matisseParameters->getDoubleParamValue("algo_param", "scale_factor", Ok);
 
     if (!Ok){
@@ -160,6 +162,7 @@ void Module1::onFlush(quint32 port)
         cv::Mat mosaicImage,mosaicMask;
         mosaicDrawer.drawAndBlend(mosaicD, mosaicImage, mosaicMask);
         cv::imshow(std::string("MosaicTest"),mosaicImage);
+        cv::waitKey();
 
     }else{
         qDebug()<<"No ImageSet acquired !";

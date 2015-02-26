@@ -33,7 +33,7 @@ win32 {
         LIBS += -L../../../main/qt/libOpticalMapping/debug
         LIBS += -lopencv_core248d
         LIBS += -lopencv_highgui248d
-        LIBS += -lproj
+        LIBS += -lproj_i
         LIBS += -lMatisseCommon
         LIBS += -llibOpticalMapping
     }
@@ -43,7 +43,7 @@ win32 {
         LIBS += -L../../../main/qt/libOpticalMapping/release
         LIBS += -lopencv_core248
         LIBS += -lopencv_highgui248
-        LIBS += -lproj
+        LIBS += -lproj_i
         LIBS += -lMatisseCommon
         LIBS += -llibOpticalMapping
     }

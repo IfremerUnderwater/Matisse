@@ -464,6 +464,6 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
 
 
     // Convert result (still needed ?)
-    //mosaicImage_p.convertTo(mosaicImage_p,CV_8U);
+    mosaicImage_p.convertTo(mosaicImage_p,CV_8U);
 
 }

@@ -21,7 +21,7 @@ void MatisseCommon::NavImage::setNavInfo(MatisseCommon::NavInfo navInfo)
     _navInfo = navInfo;
 }
 
-NavInfo NavImage::navInfo() const
+NavInfo &NavImage::navInfo()
 {
     return _navInfo;
 }

@@ -24,13 +24,13 @@ CONFIG(debug, debug|release) {
     message ("Compil debug...")
     DESTDIR = ../libs/debug
     LIBS += -L../libs/debug
-    LIBS += -lqgis_cored -lqgis_guid
+    LIBS += -lqgis_cored -lqgis_guid -lproj_i
 }
 else {
     message ("Compil release...")
     DESTDIR = ../libs/release
     LIBS += -L../libs/release
-    LIBS += -lqgis_core -lqgis_gui
+    LIBS += -lqgis_core -lqgis_gui -lproj_i
 }
 
 
