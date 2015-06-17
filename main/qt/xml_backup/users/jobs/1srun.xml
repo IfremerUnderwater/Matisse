@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<MatisseJob name="1srun" assembly="MorphMat" version="1">
-	<Comments></Comments>
-	<Parameters model="V1.0" name="1srun"/>
-	<Execution executed="false" executionDate="" result=""/>
-</MatisseJob>

@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mosaic_settings>
+
+<!--Method parameters-->
+ <algo_param>
+ 
+	<sift_code>GPUsift</sift_code>
+	<scale_factor>1</scale_factor>
+	<maxdist_centers>10</maxdist_centers>
+	<min_matches>10</min_matches>
+  <max_matches>inf</max_matches>
+	<First_processed_image>60</First_processed_image>
+	<Last_processed_image>70</Last_processed_image>
+	<step_im>1</step_im>
+	
+	<!--Filtering overlap parameters-->
+	<filter_overlap>0</filter_overlap>
+	<max_overlap>0.9</max_overlap>
+	<min_overlap>0.7</min_overlap>
+	
+	<!--Bundle adjustment parameters-->
+	<MaxIter>300</MaxIter>
+	<max_Roll>inf</max_Roll>
+	<max_Pitch>inf</max_Pitch>
+	<ba_method>Ferrer_2008_with_nav</ba_method>
+	<cosmetic_stretch>1</cosmetic_stretch>
+	
+	<!--Blending and displaying parameters-->
+	<expo_comp_method>gain</expo_comp_method>
+	<seam_method>gc_color</seam_method>
+	<blending_method>multiband</blending_method>
+  <no_plot>0</no_plot>
+  <WriteGeoTiff>1</WriteGeoTiff>
+	
+ </algo_param>
+ 
+ <!--Vehicule parameters-->
+ <vehic_param>
+  <reproj_std>1</reproj_std>
+  <X_std>2</X_std>
+  <Y_std>2</Y_std>
+  <alt_std>2</alt_std>
+  <Roll_std>0.01</Roll_std>
+  <Pitch_std>0.01</Pitch_std>
+  <Yaw_std>0.01</Yaw_std>
+</vehic_param> 
+
+<!--Camera parameters-->
+ <cam_param>
+  <K>540.677, 0, 199.9878</K>
+  <K>0, 539.5830, 143.9180</K>
+  <K>0, 0, 1</K>
+
+  <V_Pose_C>-1.1000, 0.2500, -0.1500, 0, 0, -1.5708</V_Pose_C>
+</cam_param> 
+
+<!--Dataset parameters-->
+ <dataset_param>
+  <dataset_dir>.\</dataset_dir>
+  <output_dir>.\Geotiff_data</output_dir>
+  <navFile>navFile_mv.txt</navFile>
+  <utm_zone>31</utm_zone>
+  <utm_hemisphere>N</utm_hemisphere>
+</dataset_param> 
+ 
+</mosaic_settings>

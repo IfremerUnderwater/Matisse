@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MatisseAssembly name="DebugOpticalMapping" usable="0">
+	<DescriptorFields>
+		<Author>
+			
+		</Author>
+		<Version>
+			
+		</Version>
+		<Comments>
+			
+		</Comments>
+		<Date>
+			19/02/2015
+		</Date>
+	</DescriptorFields>
+	<Parameters id="99" model="V1.0" name="VictorVerticalPrelPHINS"/>
+
+	<Source id="99" name="DTPictureFileSetImageProvider" order="0"/>
+
+	<Processors>
+		<Processor id="99" name="Module1" order="1"/>
+	</Processors>
+
+	<Destination id="99" name="GeoTiffImageWriter" order="2"/>
+
+	<Connections>
+		<Connection startOrder="0" startLine="0" endOrder="1" endLine="0" color="4286611584"/>
+		<Connection startOrder="1" startLine="0" endOrder="2" endLine="0" color="4288716964"/>
+	</Connections>
+</MatisseAssembly>

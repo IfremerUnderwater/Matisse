@@ -25,3 +25,6 @@ Makefile.Release*
 *.exp
 *.manifest
 *.autosave
+/Build/
+/BuildWin/
+/Run/

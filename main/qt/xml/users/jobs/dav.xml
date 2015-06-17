@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<MatisseJob name="dav" assembly="RobomossLabFix" version="">
-	<Comments></Comments>
-	<Parameters model="V1.0" name="dav"/>
-	<Execution executed="true" executionDate="27/05/2014 17:06">
-		<Result filename="D:/Dev/Matisse/CanonG9Corr/Geotiff_data/MosaicOutColorCorr.tiff"/>
-	</Execution>
-</MatisseJob>

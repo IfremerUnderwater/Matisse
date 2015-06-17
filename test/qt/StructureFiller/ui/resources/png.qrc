@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/png">
-        <file>session_logout.png</file>
-        <file>open_parameters.png</file>
-        <file>open_xml.png</file>
-        <file>save_parameters.png</file>
-    </qresource>
-</RCC>
