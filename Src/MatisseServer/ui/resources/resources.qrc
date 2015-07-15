@@ -27,6 +27,7 @@
         <file>led-orange.png</file>
         <file>led-red.png</file>
         <file>deleteParameters.png</file>
+        <file>separator.png</file>
     </qresource>
     <qresource prefix="/jpg">
         <file>ifremer-grand.jpg</file>

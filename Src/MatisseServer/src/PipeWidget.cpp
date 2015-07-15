@@ -79,21 +79,29 @@ void PipeWidget::drawSymbol(QPainter *painter, bool forIcon)
     // vertical pipe
     // horizontal pipe inf
     // pipe inf
-    QPolygon openedPolygon;
-    openedPolygon << QPoint(_x, _y + 6) << QPoint( _x, _y + _deltaYt)
+
+    /*QPolygon openedPolygon;
+    openedPolygon << QPoint(_x, _y +6 ) << QPoint( _x, _y + _deltaYt)
                   << QPoint(_x + _deltaXt, _y + _deltaYt)
                   << QPoint(_x + _deltaXt, _y + _deltaYt + _deltaY)
                   << QPoint(_x + _deltaXt + _deltaXb, _y + _deltaYt + _deltaY)
                   << QPoint(_x + _deltaXt + _deltaXb, _y + _deltaYt + _deltaY + _deltaYb);
 
-    painter->drawPolyline(openedPolygon);
+    painter->drawPolyline(openedPolygon);*/
+
+    // Connect modules with bezier curve
+    QPainterPath myPath;
+    int verticalDist = _deltaYt + _deltaY + _deltaYb -6;
+    myPath.moveTo(_x, _y +6);
+    myPath.cubicTo(_x, _y + verticalDist/2.0 ,
+                   _x + _deltaXt + _deltaXb, _y + _deltaYt + _deltaY + _deltaYb -verticalDist/2.0,
+                   _x + _deltaXt + _deltaXb , _y + _deltaYt + _deltaY + _deltaYb -6);
+    painter->brush().setColor(Qt::transparent);
+    painter->drawPath(myPath);
 
     // connecteur inf
     painter->drawEllipse(dst);
 
-//    _boundingRect = src;
-//    _boundingRect = _boundingRect.united(openedPolygon.boundingRect());
-//    _boundingRect = _boundingRect.united(dst);
 }
 
 void PipeWidget::setGeometry(int x, int y, int deltaYt, int deltaXt, int deltaY, int deltaXb, int deltaYb, QColor color)
@@ -107,6 +115,7 @@ void PipeWidget::setGeometry(int x, int y, int deltaYt, int deltaXt, int deltaY,
     _deltaYb = deltaYb;
 
     setColor(color);
+
 }
 
 void PipeWidget::setColor(QColor color)

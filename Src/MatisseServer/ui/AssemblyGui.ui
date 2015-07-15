@@ -17,6 +17,338 @@
    <iconset resource="resources/resources.qrc">
     <normaloff>:/jpg/ifremer-grand.jpg</normaloff>:/jpg/ifremer-grand.jpg</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true"> /* background color: #434a54 rgb(67, 74, 84);
+*  default text color: #f5f7fa    rgb(245, 247, 250)
+*
+* Code Couleur
+* Bleu            : #4a89dc rgb(74, 137, - 220);   
+* Marine clair: #434a54  rgb(  67,   74,  84);    // Marine Clairs
+* Vert            : #37bc9b  rgb(  55, 188, 155);   // Vert
+* Marine        : #252a31   rgb(  37,   42,   49);   // Marine
+* Gris Clair    : #f5f7fa      rgb(245, 247, 250);  // Gris Clair
+* Gris moyen: #7c828c rgb(124, 130, 140); //Gris moyen
+* Gris fonce  : #5c646e rgb(92,100, 110); // Gris fonce
+* Rouge        : #da4453; 
+* Orange       : #e9563f;
+* Jaune          : #f6bb42; 
+*/
+
+
+
+/************************/
+/*** Generic Widgets ***/
+/************************/
+QWidget{
+   background-color: #434a54;  /* Marine Clair */
+}
+
+/*Not matching HROV value but generating ugly results with QToolBar*/
+QWidget:disabled {
+   background-color: #434a54;  /* Marine */
+}
+
+QLabel
+{
+  background-color: none;
+  border: none;
+  font-family: &quot;Montserrat&quot;;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f5f7fa;  /* Gris Clair  */
+}
+
+/** QProgressBar **/
+QProgressBar {
+  border: none;
+  background-color: #5c646e; /* Gris fonce  */
+}
+
+QProgressBar::chunk {
+  background-color: #37bc9b; /* Vert  */
+}  
+
+QProgressBar:disabled {
+  background-color: #18212E; 
+
+}
+QProgressBar::chunk:disabled {
+  background-color: #5c646e; 
+}
+
+/** QPushButton **/
+QPushButton {
+  background-color: #434a54;    /*Marine Clair  */
+  border: 2px solid #7c828c; /*Gris moyen  */
+  font-family: &quot;Montserrat&quot;;
+  color: #f5f7fa;  /* Gris Clair  */
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  min-height: 26px;
+}
+
+QPushButton:pressed {
+  background-color: #4a89dc; /* Bleu */
+  border: none;
+}
+
+QPushButton:checked {
+  background-color: #4a89dc;  /* Bleu */
+  border: none;
+}
+
+QPushButton:hover {
+   border: 2px solid #4a89dc;  /* Bleu */
+}
+
+QPushButton:flat {
+     border: 2px solid #4a89dc;  /* Bleu */
+}
+
+/** GroupBox **/
+QGroupBox {
+     background-color: #5c646e; /* Gris fonce  */
+     border: none;
+    text-transform: uppercase;
+    font-family: &quot;Montserrat&quot;;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding-top: 15;
+ }
+
+/*QToolBar {
+     background-color: #5c646e; 
+     border: 1px solid #5c646e;
+ }*/
+
+QToolBar {
+    border: 1px solid #5c646e;
+    background: 1px solid #434a54;
+    font-weight: bold;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center; /* position at the top center */
+    padding-top: 2;
+    color: rgb(124, 130, 140); /* Gris moyen */
+ }
+
+Line {
+  color: #7c828c;
+  border: none;
+}
+
+
+QMenu
+{
+    border: 1px solid #252a31;
+    color: silver;
+    margin: 2px;
+}
+
+QMenu::icon
+{
+    margin: 5px;
+}
+
+QComboBox
+{
+    font-family: &quot;Montserrat&quot;;
+    selection-background-color: #4a89dc;
+    background-color: #252a31;
+    border-style: solid;
+    border: 1px solid #5c646e;
+    border-radius: 2px;
+    padding: 2px;
+    min-width: 75px;
+    color: #f5f7fa;
+}
+
+QComboBox:hover,QPushButton:hover,QAbstractSpinBox:hover,QLineEdit:hover,QTextEdit:hover,QPlainTextEdit:hover,QAbstractView:hover,QTreeView:hover
+{
+    border: 1px solid #7c828c;
+    color: #f5f7fa;
+}
+
+QComboBox:on
+{
+    background-color: #5c646e;
+    padding-top: 3px;
+    padding-left: 4px;
+    selection-background-color: #434a54;
+}
+
+QComboBox QAbstractItemView
+{
+    background-color: #252a31;
+    border-radius: 2px;
+    border: 1px solid #444;
+    selection-background-color: #4a89dc;
+    color: #f5f7fa;
+}
+
+QComboBox::drop-down
+{
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+
+    border-left-width: 0px;
+    border-left-color: darkgray;
+    border-left-style: solid;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow
+{
+    image: url(:/qss_icons/rc/down_arrow_disabled.png);
+}
+
+QComboBox::down-arrow:on, QComboBox::down-arrow:hover,
+QComboBox::down-arrow:focus
+{
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+
+QAbstractSpinBox {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border: 1px solid #4a89dc;
+    background-color: #252a31;
+    color: silver;
+    border-radius: 2px;
+    min-width: 75px;
+}
+
+QAbstractSpinBox:up-button
+{
+    background-color: transparent;
+    subcontrol-origin: border;
+    subcontrol-position: center right;
+}
+
+QAbstractSpinBox:down-button
+{
+    background-color: transparent;
+    subcontrol-origin: border;
+    subcontrol-position: center left;
+}
+
+QAbstractSpinBox::up-arrow,QAbstractSpinBox::up-arrow:disabled,QAbstractSpinBox::up-arrow:off {
+    image: url(:/qss_icons/rc/up_arrow_disabled.png);
+    width: 10px;
+    height: 10px;
+}
+QAbstractSpinBox::up-arrow:hover
+{
+    image: url(:/qss_icons/rc/up_arrow.png);
+}
+
+
+QAbstractSpinBox::down-arrow,QAbstractSpinBox::down-arrow:disabled,QAbstractSpinBox::down-arrow:off
+{
+    image: url(:/qss_icons/rc/down_arrow_disabled.png);
+    width: 10px;
+    height: 10px;
+}
+QAbstractSpinBox::down-arrow:hover
+{
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+QCheckBox:disabled
+{
+    color: #404040;
+}
+
+QCheckBox, QRadioButton
+{
+    padding: 3px;
+    outline: none;
+}
+
+QCheckBox::indicator, QGroupBox::indicator, QMenu::indicator:non-exclusive{
+    color: #7c828c;
+    background-color: #252a31;
+    border: 1px solid silver;
+}
+
+QCheckBox::indicator, QMenu::indicator:non-exclusive{
+    width: 12px;
+    height: 12px;
+    background-color: #434a54;
+}
+
+QRadioButton::indicator
+{
+    border-radius: 5px;
+    width: 12px;
+    height: 12px;
+}
+
+QCheckBox::indicator:pressed
+{
+    border: 1px solid #7c828c;
+}
+
+QRadioButton::indicator:hover, QCheckBox::indicator:hover
+{
+    border: 1px solid #7c828c;
+}
+
+QCheckBox::indicator:checked, QGroupBox::indicator:checked, QMenu::indicator:non-exclusive:checked
+{
+    image:url(:/qss_icons/rc/checkbox.png);
+}
+
+QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
+{
+    border: 1px solid #444;
+}
+
+QCheckBox::indicator:indeterminate {
+    image: url(:/qss_icons/rc/checkbox_indeterminate.png);
+}
+
+QTreeView {
+   alternate-background-color: #3c424b;
+   color: #f5f7fa
+}
+
+QGraphicsView{
+     background-color: #f5f7fa; 
+}
+
+
+QTabWidget{
+    border: 2 px #C4C4C3;
+}
+
+QTabWidget::pane {
+    border: 2 px solid #444;
+    border-radius: 3px;
+    padding: 3px;
+}
+
+QTabBar::tab {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #5c646e, stop: 1.0 #7c828c);
+    font-family: &quot;Montserrat&quot;;
+    font-size: 13px;
+    border: 2px solid #C4C4C3;
+    border-bottom-color: #C2C7CB; /* same as the pane color */
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    min-width: 10ex;
+    padding: 2px;
+}
+</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <property name="leftMargin">
@@ -201,7 +533,7 @@
      <x>0</x>
      <y>0</y>
      <width>1303</width>
-     <height>25</height>
+     <height>29</height>
     </rect>
    </property>
   </widget>
@@ -238,23 +570,21 @@
     <bool>false</bool>
    </attribute>
    <addaction name="_ACT_reloadAssembliesAndJobs"/>
-   <addaction name="separator"/>
    <addaction name="_ACT_saveJob"/>
    <addaction name="_ACT_saveAsJob"/>
    <addaction name="_ACT_deleteJob"/>
+   <addaction name="actionSeparator_2"/>
    <addaction name="_ACT_launchJob"/>
    <addaction name="_ACT_stopJob"/>
-   <addaction name="separator"/>
+   <addaction name="actionSeparator_3"/>
    <addaction name="_ACT_saveParameters"/>
    <addaction name="_ACT_deleteParameters"/>
-   <addaction name="separator"/>
    <addaction name="_ACT_newAssembly"/>
    <addaction name="_ACT_saveAssembly"/>
    <addaction name="_ACT_saveAsAssembly"/>
    <addaction name="_ACT_deleteAssembly"/>
-   <addaction name="separator"/>
+   <addaction name="actionSeparator"/>
    <addaction name="_ACT_userExpert"/>
-   <addaction name="separator"/>
   </widget>
   <action name="_ACT_deleteAssembly">
    <property name="icon">
@@ -417,6 +747,39 @@
    </property>
    <property name="toolTip">
     <string>Supprimer les Paramètres</string>
+   </property>
+  </action>
+  <action name="actionSeparator">
+   <property name="icon">
+    <iconset resource="resources/resources.qrc">
+     <normaloff>:/png/separator.png</normaloff>:/png/separator.png</iconset>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="actionSeparator_2">
+   <property name="icon">
+    <iconset resource="resources/resources.qrc">
+     <normaloff>:/png/separator.png</normaloff>:/png/separator.png</iconset>
+   </property>
+   <property name="text">
+    <string>separator</string>
+   </property>
+   <property name="iconText">
+    <string>separator</string>
+   </property>
+   <property name="toolTip">
+    <string>separator</string>
+   </property>
+  </action>
+  <action name="actionSeparator_3">
+   <property name="icon">
+    <iconset resource="resources/resources.qrc">
+     <normaloff>:/png/separator.png</normaloff>:/png/separator.png</iconset>
+   </property>
+   <property name="text">
+    <string>separator</string>
    </property>
   </action>
  </widget>

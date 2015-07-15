@@ -2,6 +2,7 @@
 #include "MosaicContext.h"
 #include "NavImage.h"
 #include "GeoTransform.h"
+#include "RasterGeoreferencer.h"
 
 #include "MosaicDescriptor.h"
 #include "MosaicDrawer.h"
@@ -163,6 +164,10 @@ void Module1::onFlush(quint32 port)
         mosaicDrawer.drawAndBlend(mosaicD, mosaicImage, mosaicMask);
         cv::imshow(std::string("MosaicTest"),mosaicImage);
         //cv::waitKey();
+
+        //Write Geofile
+        RasterGeoreferencer rasterGeoref;
+        rasterGeoref.WriteGeoFile(mosaicImage,mosaicMask,QString("./output.tiff"),QString("-a_srs \"+proj=utm +zone=31 +south\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr 742181 4776909 742183 4776911"));
 
     }else{
         qDebug()<<"No ImageSet acquired !";

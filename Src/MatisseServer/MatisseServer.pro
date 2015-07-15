@@ -93,4 +93,5 @@ FORMS    += \
 TRANSLATIONS=MatisseServer_en.ts
 
 RESOURCES += \
-    ui/resources/resources.qrc
+    ui/resources/resources.qrc \
+    ui/style.qrc

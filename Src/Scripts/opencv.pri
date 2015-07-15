@@ -5,12 +5,16 @@ win32 {
 	LIBEXT=248
 }
 
-CONFIG(debug, debug|release) {
-	LIBEXT=$${LIBEXT}d
+unix {
+        LIBEXT=""
 }
-else {
-	LIBEXT=""
-}
+
+#CONFIG(debug, debug|release) {
+#	LIBEXT=$${LIBEXT}d
+#}
+#else {
+#	LIBEXT=$${LIBEXT}""
+#}
 
 LibsAddLibrary(highgui$$LIBEXT)
 LibsAddLibrary(core$$LIBEXT)

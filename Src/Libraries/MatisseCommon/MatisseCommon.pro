@@ -32,7 +32,8 @@ HEADERS += \
     src/LifecycleComponent.h \
     src/Sleeper.h \
     src/Dim2UdpListener.h \
-    src/GeoTransform.h
+    src/GeoTransform.h \
+    src/RasterGeoreferencer.h
 
 SOURCES += \
     src/Processor.cpp \
@@ -49,6 +50,7 @@ SOURCES += \
     src/RasterProvider.cpp \
     src/LifecycleComponent.cpp \
     src/Dim2UdpListener.cpp \
-    src/GeoTransform.cpp
+    src/GeoTransform.cpp \
+    src/RasterGeoreferencer.cpp
 
 

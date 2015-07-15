@@ -12,7 +12,7 @@
 #include "MatisseParameters.h"
 #include "AssemblyGui.h"
 #include <qgsapplication.h>
-
+#include <QStyleFactory>
 using namespace MatisseServer;
 using namespace MatisseTools;
 
@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
     toolsTranslator.load("MatisseTools_en");
     a.installTranslator(&toolsTranslator);
 
+    a.setStyle(QStyleFactory::create("Fusion"));
 
     qDebug() << QgsApplication::showSettings();
     QString testLaunch("testLaunch");

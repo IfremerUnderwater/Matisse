@@ -183,7 +183,7 @@ QIcon ElementWidget::getIcon()
     QRectF eltRect(_boundingRect);
     eltRect.adjust(0, 0, 1, 0);
     QPixmap image(eltRect.width(), eltRect.height());
-    image.fill();
+    image.fill(Qt::transparent);
     QPainter painter(&image);
     drawSymbol(&painter, true);
 

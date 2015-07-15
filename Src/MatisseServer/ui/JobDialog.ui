@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>285</width>
-    <height>297</height>
+    <width>296</width>
+    <height>308</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,8 +20,203 @@
    <string>Sauvegarde du travail</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../ui/resources/resources.qrc">
+   <iconset resource="resources/resources.qrc">
     <normaloff>:/jpg/ifremer-grand.jpg</normaloff>:/jpg/ifremer-grand.jpg</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/* background color: #434a54 rgb(67, 74, 84);
+*  default text color: #f5f7fa    rgb(245, 247, 250)
+*
+* Code Couleur
+* Bleu            : #4a89dc rgb(74, 137, - 220);   
+* Marine clair: #434a54  rgb(  67,   74,  84);    // Marine Clairs
+* Vert            : #37bc9b  rgb(  55, 188, 155);   // Vert
+* Marine        : #252a31   rgb(  37,   42,   49);   // Marine
+* Gris Clair    : #f5f7fa      rgb(245, 247, 250);  // Gris Clair
+* Gris moyen: #7c828c rgb(124, 130, 140); //Gris moyen
+* Gris fonce  : #5c646e rgb(92,100, 110); // Gris fonce
+* Rouge        : #da4453; 
+* Orange       : #e9563f;
+* Jaune          : #f6bb42; 
+*/
+
+
+
+/************************/
+/*** Generic Widgets ***/
+/************************/
+QWidget{
+   background-color: #434a54;  /* Marine Clair */
+}
+
+QWidget:disabled {
+   background-color: #252a31;  /* Marine */
+}
+
+QLabel
+{
+  background-color: none;
+  border: none;
+  font-family: &quot;Montserrat&quot;;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f5f7fa;  /* Gris Clair  */
+}
+
+/** QProgressBar **/
+QProgressBar {
+  border: none;
+  background-color: #5c646e; /* Gris fonce  */
+}
+
+QProgressBar::chunk {
+  background-color: #37bc9b; /* Vert  */
+}  
+
+QProgressBar:disabled {
+  background-color: #18212E; 
+
+}
+QProgressBar::chunk:disabled {
+  background-color: #5c646e; 
+}
+
+/** QPushButton **/
+QPushButton {
+  background-color: #434a54;    /*Marine Clair  */
+  border: 2px solid #7c828c; /*Gris moyen  */
+  font-family: &quot;Montserrat&quot;;
+  color: #f5f7fa;  /* Gris Clair  */
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  min-height: 26px;
+}
+
+QPushButton:pressed {
+  background-color: #4a89dc; /* Bleu */
+  border: none;
+}
+
+QPushButton:checked {
+  background-color: #4a89dc;  /* Bleu */
+  border: none;
+}
+
+QPushButton:hover {
+   border: 2px solid #4a89dc;  /* Bleu */
+}
+
+QPushButton:flat {
+     border: 2px solid #4a89dc;  /* Bleu */
+}
+
+/** GroupBox **/
+QGroupBox {
+     background-color: #5c646e; /* Gris fonce  */
+     border: none;
+    text-transform: uppercase;
+    font-family: &quot;Montserrat&quot;;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding-top: 15;
+ }
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center; /* position at the top center */
+    padding-top: 2;
+    color: rgb(124, 130, 140); /* Gris moyen */
+ }
+
+Line {
+  color: #7c828c;
+  border: none;
+}
+
+
+/************************/
+/*** Object Name       ***/
+/************************/
+/* Main Dashboard Date */
+QLabel#label_date
+{
+  font-family: &quot;Montserrat&quot;;
+  color: rgb(124, 130, 140); /* Gris moyen */
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+/* Main Dashboard Time */
+QLabel#label_time
+{
+  font-family: &quot;Montserrat&quot;;
+  color: rgb(245, 247, 250);  /* Gris Clair  */
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  width: 73px;
+  height: 31px;
+}
+
+QLabel#page_title
+{
+  font-family: &quot;Montserrat&quot;;
+  color: rgb(124, 130, 140); /* Gris moyen */
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+/************************/
+/*** Main Dashboard  ***/
+/************************/
+#dashboard_top {
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: #252a31; 
+}
+#dashboard_top &gt; QFrame {
+  border-right-width: 2px;
+  border-right-style: solid;
+  border-right-color: #252a31; 
+}
+
+#dashboard_center {
+  border-right-width: 2px;
+  border-right-style: solid;
+  border-right-color: #252a31; 
+  border-left-width: 2px;
+  border-left-style: solid;
+  border-left-color: #252a31; 
+}
+
+QFrame#panel_controls {
+  border-right-width: 0px;
+}
+
+
+#dashboard_left &gt; QFrame {
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: #252a31; 
+}
+
+QFrame#panel_thrusters {
+  border-bottom-width: 0px;
+}
+
+QFrame#panel_telemetry{
+   border-left-width: 2px;
+   border-left-style: solid;
+   border-left-color: #252a31; 
+}
+
+#headings_display {
+     background-color: #5c646e; /* Gris fonce  */
+}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -143,7 +338,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../ui/resources/resources.qrc"/>
+  <include location="resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
