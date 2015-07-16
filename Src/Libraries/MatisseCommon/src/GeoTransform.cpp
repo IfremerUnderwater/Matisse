@@ -100,7 +100,7 @@ bool GeoTransform::UTMToLatLong(qreal x_p, qreal y_p, QString utmZone_p, qreal &
     int p = pj_transform(pj_utm, pj_latlong, 1, 1, &lon_p, &lat_p, NULL );
     lat_p *= RAD_TO_DEG;
     lon_p *= RAD_TO_DEG;
-    std::cout<<"Error code: %d\nError message: %s\n", p, pj_strerrno(p);
+    qDebug()<<"Error code: " << p <<" Error message: "<<  pj_strerrno(p) << "\n";
     printf("%f°\t%f°\n", lat_p, lon_p);
 
     return (p>=0);

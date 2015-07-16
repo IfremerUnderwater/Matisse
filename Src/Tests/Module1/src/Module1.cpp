@@ -162,12 +162,30 @@ void Module1::onFlush(quint32 port)
         MosaicDrawer mosaicDrawer;
         cv::Mat mosaicImage,mosaicMask;
         mosaicDrawer.drawAndBlend(mosaicD, mosaicImage, mosaicMask);
-        cv::imshow(std::string("MosaicTest"),mosaicImage);
+        //cv::imshow(std::string("MosaicTest"),mosaicImage);
         //cv::waitKey();
 
-        //Write Geofile
+        //Write Geofile *****************************************************
+        QString utmProjParam, utmHemisphereOption,utmZoneString;
+
+        // Construct utm proj param options
+        utmZoneString = QString("%1 ").arg(mosaicD.utmZone())+ mosaicD.utmHemisphere();
+        QStringList utmParams = utmZoneString.split(" ");
+
+        if ( utmParams.at(1) == "S" ){
+            utmHemisphereOption = QString(" +south");
+        }else{
+            utmHemisphereOption = QString("");
+        }
+        utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
+
+        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+                .arg(mosaicD.mosaic_ullr().at<qreal>(0,0),0,'f',2)
+                .arg(mosaicD.mosaic_ullr().at<qreal>(1,0),0,'f',2)
+                .arg(mosaicD.mosaic_ullr().at<qreal>(2,0),0,'f',2)
+                .arg(mosaicD.mosaic_ullr().at<qreal>(3,0),0,'f',2);
         RasterGeoreferencer rasterGeoref;
-        rasterGeoref.WriteGeoFile(mosaicImage,mosaicMask,QString("./output.tiff"),QString("-a_srs \"+proj=utm +zone=31 +south\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr 742181 4776909 742183 4776911"));
+        rasterGeoref.WriteGeoFile(mosaicImage,mosaicMask,QString("./output.tiff"),gdalOptions);
 
     }else{
         qDebug()<<"No ImageSet acquired !";

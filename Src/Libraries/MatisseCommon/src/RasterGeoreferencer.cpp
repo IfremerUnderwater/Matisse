@@ -4,6 +4,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
+#include <string.h>
+#include <stdio.h>
 
 using namespace cv;
 using namespace std;
@@ -451,12 +453,19 @@ RasterGeoreferencer::RasterGeoreferencer():pszFormat("GTiff")
 
 }
 
+RasterGeoreferencer::~RasterGeoreferencer()
+{
+    free(adfGeoTransform);
+    free(anSrcWin);
+    free(adfULLR);
+}
+
 int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outputFile, QString cmdLineOptions)
 {
 
-    int i=0;
 
-    // Complete arguments for gdal
+
+    // Complete arguments for exe name and mask
     QString localArgv;
     if(raster.channels()>1){
         localArgv= QString("WriteGeoFile ") + cmdLineOptions + QString(" -mask 4 --config GDAL_TIFF_INTERNAL_MASK YES ") + outputFile;
@@ -466,17 +475,38 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
 
     fprintf(stderr,"%s\n", localArgv.toStdString().c_str());
 
-    QStringList argvList = localArgv.split(" ");
+    // recreate argc and argv for options parsing **************************************
+
+    QStringList cmdQuoteSplitList = localArgv.split("\"");
+    QStringList argvList;
+
+    int i=1;
+
+    // isolate quote separated argument as a unique argument and split others on space
+    foreach(QString arguments, cmdQuoteSplitList){
+
+        if (i%2 == 0){
+            argvList += arguments;
+        }else{
+            argvList += arguments.split(" ",QString::SkipEmptyParts);
+        }
+        i++;
+    }
+    argvList.removeAll(" ");
+
     int argc = argvList.length();
     char **argv;
     argv = (char **)malloc(argc*sizeof(char*));
 
+    i=0;
     foreach(QString argument, argvList){
 
-        argv[i] = (char*) argvList[i].toAscii().constData();
+        argv[i] = (char*) malloc(sizeof(char)*argument.size());
+        strcpy ( argv[i], argument.toStdString().c_str() );
         i++;
     }
 
+    // *********************************************************************************
 
     anSrcWin[0] = 0;
     anSrcWin[1] = 0;

@@ -291,7 +291,7 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
         mosaicbounds.at<qreal>(0,0) = std::min(*min_x_it, mosaicbounds.at<qreal>(0, 0));
         mosaicbounds.at<qreal>(1,0) = std::max(*max_x_it,mosaicbounds.at<qreal>(1, 0));
         mosaicbounds.at<qreal>(0,1) = std::min(*min_y_it,mosaicbounds.at<qreal>(0, 1));
-        mosaicbounds.at<qreal>(1,1) = std::max(*max_x_it,mosaicbounds.at<qreal>(1, 1));
+        mosaicbounds.at<qreal>(1,1) = std::max(*max_y_it,mosaicbounds.at<qreal>(1, 1));
 
     }
 

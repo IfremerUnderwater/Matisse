@@ -22,6 +22,7 @@ class RasterGeoreferencer
 {
 public:
     RasterGeoreferencer();
+    ~RasterGeoreferencer();
 
     ///
     /// \brief WriteGeoFile write a georeferenced file using memory raster

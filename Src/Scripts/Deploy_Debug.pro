@@ -2,13 +2,9 @@
 SOURCE_DIR=$$PWD/../
 CONFIG_DIR=$${SOURCE_DIR}../Config
 message("CONFIG_DIR = $$CONFIG_DIR")
-CONFIG(debug, debug|release) {
-    BUILD_DIR=$${SOURCE_DIR}../Build/Debug
-    RUN_DIR=$${SOURCE_DIR}../Run/Debug
-}else {
-    BUILD_DIR=$${SOURCE_DIR}../Build/Release
-    RUN_DIR=$${SOURCE_DIR}../Run/Release
-}
+BUILD_DIR=$${SOURCE_DIR}../Build/Debug
+RUN_DIR=$${SOURCE_DIR}../Run/Debug
+
 # ------------------------------------------------------------------------
 
 message("RUN_DIR = $$RUN_DIR")
@@ -59,7 +55,7 @@ system("$$COPY_DIR $$BUILD_DIR/Modules/processors $$RUN_DIR/Modules")
 system("$$COPY_DIR $$BUILD_DIR/Modules/rasterProviders $$RUN_DIR/Modules")
 
 # Copy config files and dynamic libraries
-system("$$COPY_DIR $$CONFIG_DIR/Setup/* $$RUN_DIR/")
-system("$$COPY_DIR $$CONFIG_DIR/xml $$RUN_DIR")
+#system("$$COPY_DIR $$CONFIG_DIR/Setup/* $$RUN_DIR/")
+#system("$$COPY_DIR $$CONFIG_DIR/xml $$RUN_DIR")
 system("$$COPY_DIR $$BUILD_DIR/Libraries/dll/* $$RUN_DIR")
 }

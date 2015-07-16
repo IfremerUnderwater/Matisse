@@ -6,4 +6,5 @@ SUBDIRS = MatisseServer/MatisseServer.pro \
 		  
 
 OTHER_FILES += .qmake.conf
-OTHER_FILES += ./Scripts/Deploy.pro
+OTHER_FILES += ./Scripts/Deploy.pro \
+               ./Scripts/Deploy_Debug.pro
