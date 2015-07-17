@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <iterator>
+#include "RasterGeoreferencer.h"
 
 MosaicDescriptor::MosaicDescriptor():_mosaicOrigin(0,0,0),
     _pixelSize(0,0),_mosaicSize(0,0), _utmHemisphere("UNDEF"),
@@ -317,6 +318,32 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
     _mosaic_ullr = (cv::Mat_<qreal>(4,1) << _mosaicOrigin.x, _mosaicOrigin.y,
                     _mosaicOrigin.x+x_shift*_pixelSize.x, _mosaicOrigin.y-y_shift*_pixelSize.y);
 
+
+}
+
+void MosaicDescriptor::writeToGeoTiff(Mat &raster_p, Mat &rasterMask_p, QString filePath_p)
+{
+
+    QString utmProjParam, utmHemisphereOption,utmZoneString;
+
+    // Construct utm proj param options
+    utmZoneString = QString("%1 ").arg(utmZone())+ utmHemisphere();
+    QStringList utmParams = utmZoneString.split(" ");
+
+    if ( utmParams.at(1) == "S" ){
+        utmHemisphereOption = QString(" +south");
+    }else{
+        utmHemisphereOption = QString("");
+    }
+    utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
+
+    QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+            .arg(mosaic_ullr().at<qreal>(0,0),0,'f',2)
+            .arg(mosaic_ullr().at<qreal>(1,0),0,'f',2)
+            .arg(mosaic_ullr().at<qreal>(2,0),0,'f',2)
+            .arg(mosaic_ullr().at<qreal>(3,0),0,'f',2);
+    RasterGeoreferencer rasterGeoref;
+    rasterGeoref.WriteGeoFile(raster_p,rasterMask_p,filePath_p,gdalOptions);
 
 }
 QVector<ProjectiveCamera *> MosaicDescriptor::cameraNodes() const

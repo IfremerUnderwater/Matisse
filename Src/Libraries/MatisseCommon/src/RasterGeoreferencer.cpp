@@ -450,6 +450,7 @@ RasterGeoreferencer::RasterGeoreferencer():pszFormat("GTiff")
     bStats = FALSE, bApproxStats = FALSE;
     bErrorOnPartiallyOutside = FALSE;
     bErrorOnCompletelyOutside = FALSE;
+    pszDest = NULL;
 
 }
 

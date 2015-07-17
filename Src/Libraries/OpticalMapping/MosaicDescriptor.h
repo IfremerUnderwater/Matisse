@@ -6,6 +6,7 @@
 #include "ProjectiveCamera.h"
 #include "GeoTransform.h"
 #include <QVector>
+#include <QString>
 
 using namespace MatisseCommon;
 
@@ -62,6 +63,14 @@ public:
     /// recompute mosaic origin such that no negative pixels coord fall into the mosaicking
     ///
     void computeMosaicExtentAndShiftFrames();
+
+    ///
+    /// \brief writeToGeoTiff writes a geotiff file from its description
+    /// \param raster_p raster image obtained from mosaicDrawer
+    /// \param rasterMask_p raster mask image obtained from mosaicDrawer
+    /// \param filePath_p output file path
+    ///
+    void writeToGeoTiff(Mat &raster_p, Mat &rasterMask_p, QString filePath_p);
 
 
 protected:

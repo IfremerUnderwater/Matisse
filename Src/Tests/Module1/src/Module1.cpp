@@ -162,30 +162,30 @@ void Module1::onFlush(quint32 port)
         MosaicDrawer mosaicDrawer;
         cv::Mat mosaicImage,mosaicMask;
         mosaicDrawer.drawAndBlend(mosaicD, mosaicImage, mosaicMask);
-        //cv::imshow(std::string("MosaicTest"),mosaicImage);
-        //cv::waitKey();
 
-        //Write Geofile *****************************************************
-        QString utmProjParam, utmHemisphereOption,utmZoneString;
+        // Write geofile
+        QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+        QString outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+        QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
-        // Construct utm proj param options
-        utmZoneString = QString("%1 ").arg(mosaicD.utmZone())+ mosaicD.utmHemisphere();
-        QStringList utmParams = utmZoneString.split(" ");
+        if (outputDirnameStr.isEmpty()
+                || datasetDirnameStr.isEmpty()
+                || outputFilename.isEmpty())
+            return;
 
-        if ( utmParams.at(1) == "S" ){
-            utmHemisphereOption = QString(" +south");
-        }else{
-            utmHemisphereOption = QString("");
+        QFileInfo outputDirInfo(outputDirnameStr);
+        QFileInfo datasetDirInfo(datasetDirnameStr);
+
+        bool isRelativeDir = outputDirInfo.isRelative();
+
+        if (isRelativeDir) {
+            outputDirnameStr = QDir::cleanPath( datasetDirInfo.absoluteFilePath() + QDir::separator() + outputDirnameStr);
         }
-        utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
 
-        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
-                .arg(mosaicD.mosaic_ullr().at<qreal>(0,0),0,'f',2)
-                .arg(mosaicD.mosaic_ullr().at<qreal>(1,0),0,'f',2)
-                .arg(mosaicD.mosaic_ullr().at<qreal>(2,0),0,'f',2)
-                .arg(mosaicD.mosaic_ullr().at<qreal>(3,0),0,'f',2);
-        RasterGeoreferencer rasterGeoref;
-        rasterGeoref.WriteGeoFile(mosaicImage,mosaicMask,QString("./output.tiff"),gdalOptions);
+        qDebug() << "output_dir = " << outputDirnameStr;
+        qDebug() << "output_filename = " << outputFilename;
+
+        mosaicD.writeToGeoTiff(mosaicImage,mosaicMask,outputDirnameStr + QDir::separator() + outputFilename);
 
     }else{
         qDebug()<<"No ImageSet acquired !";
