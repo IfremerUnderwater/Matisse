@@ -622,7 +622,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
                                                   partialLoadStr,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)
-                            == QMessageBox::No);
+                            == QMessageBox::Yes);
             if (!continueLoad) {
                 return false;
             }

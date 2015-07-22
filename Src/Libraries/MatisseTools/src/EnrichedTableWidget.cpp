@@ -13,8 +13,8 @@ EnrichedTableWidget::EnrichedTableWidget(QWidget *parent, QString label, quint8 
     EnrichedFormWidget(parent)
 {
     _table = new QTableWidget(this);
-    _table -> horizontalHeader() -> setVisible(false);
-    _table -> verticalHeader() -> setVisible(false);
+    _table -> horizontalHeader() -> hide();
+    _table -> verticalHeader() -> hide();
     _table->setColumnCount(cols);
     _table->setRowCount(rows);
     _table->horizontalScrollBar()->hide();
@@ -22,7 +22,7 @@ EnrichedTableWidget::EnrichedTableWidget(QWidget *parent, QString label, quint8 
     _table->setFrameStyle(QFrame::NoFrame);
 
     for (int noCol=0; noCol < cols; noCol++) {
-        _table->setColumnWidth(noCol, 45);
+        _table->setColumnWidth(noCol, 70);
     }
     for (int noRow=0; noRow < rows; noRow++) {
         _table->setRowHeight(noRow, 20);
@@ -36,8 +36,8 @@ EnrichedTableWidget::EnrichedTableWidget(QWidget *parent, QString label, quint8 
         }
     }
 
-    _table->setMinimumSize(cols*45, rows*20);
-    _table->setMaximumSize(cols*45, rows*20);
+    _table->setMinimumSize(cols*70, rows*20);
+    _table->setMaximumSize(cols*70, rows*20);
 
     _defaultValue = defaultValues.join(";");
 

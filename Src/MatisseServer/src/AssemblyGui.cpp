@@ -409,14 +409,10 @@ void AssemblyGui::slot_saveAssembly()
         QString name = _ui->_TRW_assemblies->currentItem()->text(0);
         KeyValueList fields;
 
-        //        AssemblyDialog dialog(this, name, fields);
-        //        if (dialog.exec() != QDialog::Accepted) {
-        //            return;
-        //        }
-
-        // test modification parameteres...
-        //if ()
         _expertFormWidget -> saveAssembly(name, fields);
+        slot_assembliesReload();
+        // puis on selectionne...
+        displayAssembly(name);
     }
 }
 
