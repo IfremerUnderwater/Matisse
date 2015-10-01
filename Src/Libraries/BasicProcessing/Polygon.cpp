@@ -5,6 +5,8 @@ using namespace basicproc;
 
 Polygon::Polygon():_modifSinceUpdate(true)
 {
+    _gpcPolygon.contour = NULL;
+    _gpcPolygon.hole = NULL;
 }
 
 Polygon::~Polygon()
@@ -126,17 +128,17 @@ gpc_polygon* Polygon::gpcPolygon()
     return &_gpcPolygon;
 }
 
-void Polygon::clip(Polygon &poly2_p, Polygon &result_p, QString operation)
+void Polygon::clip(Polygon &poly2_p, Polygon &result_p, poly_op operation)
 {
     gpc_op GPC_ARG;
 
-    if (operation == QString("DIFF")){
+    if (operation == DIFF){
         GPC_ARG = GPC_DIFF;
-    }else if (operation == QString("INT")){
+    }else if (operation == INT){
         GPC_ARG = GPC_INT;
-    }else if (operation == QString("XOR")){
+    }else if (operation == XOR){
         GPC_ARG = GPC_XOR;
-    }else if (operation == QString("UNION")){
+    }else if (operation == UNION){
         GPC_ARG = GPC_UNION;
     }
 

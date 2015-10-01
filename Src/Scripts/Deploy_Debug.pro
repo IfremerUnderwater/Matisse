@@ -57,5 +57,5 @@ system("$$COPY_DIR $$BUILD_DIR/Modules/rasterProviders $$RUN_DIR/Modules")
 # Copy config files and dynamic libraries
 #system("$$COPY_DIR $$CONFIG_DIR/Setup/* $$RUN_DIR/")
 #system("$$COPY_DIR $$CONFIG_DIR/xml $$RUN_DIR")
-system("$$COPY_DIR $$BUILD_DIR/Libraries/dll/* $$RUN_DIR")
+#system("$$COPY_DIR $$BUILD_DIR/Libraries/dll/* $$RUN_DIR")
 }

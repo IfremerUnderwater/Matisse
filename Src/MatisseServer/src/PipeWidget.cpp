@@ -96,7 +96,8 @@ void PipeWidget::drawSymbol(QPainter *painter, bool forIcon)
     myPath.cubicTo(_x, _y + verticalDist/2.0 ,
                    _x + _deltaXt + _deltaXb, _y + _deltaYt + _deltaY + _deltaYb -verticalDist/2.0,
                    _x + _deltaXt + _deltaXb , _y + _deltaYt + _deltaY + _deltaYb -6);
-    painter->brush().setColor(Qt::transparent);
+    painter->setBrush(QBrush(Qt::transparent));
+    //painter->brush().setColor(Qt::transparent);
     painter->drawPath(myPath);
 
     // connecteur inf

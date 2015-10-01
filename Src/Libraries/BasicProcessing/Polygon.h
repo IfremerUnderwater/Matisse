@@ -15,6 +15,15 @@ typedef struct                      /* Vertex list structure             */
 } vertexList;
 
 
+typedef enum                        /* Set operation type                */
+{
+  DIFF,                         /* Difference                        */
+  INT,                          /* Intersection                      */
+  XOR,                          /* Exclusive or                      */
+  UNION                         /* Union                             */
+} poly_op;
+
+
 ///
 /// \brief The Polygon class implements polygon description and boolean operations
 ///
@@ -31,7 +40,7 @@ public:
     /// \param y_p : y coordinate list of vertices
     /// \param hole_p
     ///
-    bool addContour(std::vector<double> x_p, std::vector<double> y_p, bool hole_p);
+    bool addContour(std::vector<double> x_p, std::vector<double> y_p, bool hole_p=false);
 
     std::vector<vertexList> contours() const;
 
@@ -59,7 +68,7 @@ public:
     /// \param result_p clipping result
     /// \param operation : values "DIFF", "INT", "XOR" and "UNION" for corresponding boolean operation Difference, Intersection, Exclusive or, Union
     ///
-    void clip(Polygon &poly2_p, Polygon & result_p, QString operation);
+    void clip(Polygon &poly2_p, Polygon & result_p, poly_op operation);
 
 private:
     gpc_polygon _gpcPolygon;
