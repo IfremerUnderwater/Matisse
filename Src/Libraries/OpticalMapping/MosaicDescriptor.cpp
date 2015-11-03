@@ -237,7 +237,7 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
     cv::invert( _i_H_m, _m_H_i);
     _m_H_i = _Hs * _m_H_i;
 
-        std::cerr << "_m_H_i 1 = " << _m_H_i << std::endl;
+    std::cerr << "_m_H_i 1 = " << _m_H_i << std::endl;
 
     std::cerr << "_m_H_i norm = " << _m_H_i / _m_H_i.at<qreal>(2,2) << std::endl;
 

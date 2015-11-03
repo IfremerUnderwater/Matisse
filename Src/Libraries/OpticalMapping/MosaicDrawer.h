@@ -57,6 +57,16 @@ public:
                       cv::Mat & mosaicImage_p,
                       cv::Mat & mosaicImageMask_p);
 
+    ///
+    /// \brief blockDrawBlendAndWrite This function draw a mosaic by block in order to optimize the memory used for drawing
+    /// \param mosaicD_p MosaicDescriptor for the mosaic to be blended
+    /// \param blockSize_p x and y size in pixel of a single block
+    /// \param writingFolderPath_p path to write mosic files
+    ///
+    void blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p,
+                                Point2d blockSize_p,
+                                QString & writingFolderPath_p);
+
     int parseAndAffectOptions(QString drawingOptions);
 
 private:
