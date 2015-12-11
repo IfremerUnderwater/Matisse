@@ -8,6 +8,7 @@ Flusher::Flusher(QObject *parent):
     _pictureFileSet(NULL),
     _dim2FileReader(NULL)
 {
+    Q_UNUSED(parent);
     _imageSet = new ImageSet();
 
 }
@@ -21,6 +22,7 @@ Flusher::~Flusher()
 
 ImageSet * Flusher::imageSet(quint16 port)
 {
+    Q_UNUSED(port);
     return _imageSet;
 }
 
