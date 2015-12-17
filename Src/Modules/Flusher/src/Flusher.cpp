@@ -4,7 +4,7 @@
 Q_EXPORT_PLUGIN2(Flusher, Flusher)
 
 Flusher::Flusher(QObject *parent):
-    ImageProvider(NULL, "Flusher", "", 1),
+    ImageProvider(NULL, "Flusher", "Flusher", 1),
     _pictureFileSet(NULL),
     _dim2FileReader(NULL)
 {

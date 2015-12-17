@@ -2,11 +2,7 @@
 #include "MosaicContext.h"
 #include "NavImage.h"
 
-#include "GeoTransform.h"
-#include "RasterGeoreferencer.h"
-
 #include "MosaicDescriptor.h"
-#include "MosaicDrawer.h"
 
 #include "Polygon.h"
 
@@ -135,38 +131,6 @@ void Init2DMosaic::onFlush(quint32 port)
         pMosaicD->computeMosaicExtentAndShiftFrames();
         qDebug() << "Extent computation done";
 
-        //Draw mosaic
-        MosaicDrawer mosaicDrawer;
-        cv::Mat mosaicImage,mosaicMask;
-        mosaicDrawer.drawAndBlend(*pMosaicD, mosaicImage, mosaicMask);
-
-        // Write geofile
-        QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-        QString outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
-        QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
-
-        if (outputDirnameStr.isEmpty()
-                || datasetDirnameStr.isEmpty()
-                || outputFilename.isEmpty())
-            return;
-
-        QFileInfo outputDirInfo(outputDirnameStr);
-        QFileInfo datasetDirInfo(datasetDirnameStr);
-
-        bool isRelativeDir = outputDirInfo.isRelative();
-
-        if (isRelativeDir) {
-            outputDirnameStr = QDir::cleanPath( datasetDirInfo.absoluteFilePath() + QDir::separator() + outputDirnameStr);
-        }
-
-        qDebug() << "output_dir = " << outputDirnameStr;
-        qDebug() << "output_filename = " << outputFilename;
-
-        pMosaicD->writeToGeoTiff(mosaicImage,mosaicMask,outputDirnameStr + QDir::separator() + outputFilename);
-
-    }else{
-        qDebug()<<"No ImageSet acquired !";
-        exit(1);
     }
 
     // Add pCams to mosaic _context

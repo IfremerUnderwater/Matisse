@@ -2,10 +2,11 @@ TEMPLATE = subdirs
 
 SUBDIRS = DTPictureFileSetImageProvider \
           RTVideoDirectShowProvider \
+          RTPictureFileSetImageProvider \
           Flusher \
-          GeoTiffImageWriter \
           Init2DMosaic \
-          RTPictureFileSetImageProvider
+          DrawBlend2DMosaic \
+          GeoTiffImageWriter
 
 # Following modules are deprecated and windows + MATLAB lib only
           #DrawAndWriteModule \
