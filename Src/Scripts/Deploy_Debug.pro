@@ -73,4 +73,9 @@ system("$$COPY_DIR $$BUILD_DIR/Modules/rasterProviders $$RUN_DIR/Modules")
 system("$$COPY_DIR $$CONFIG_DIR/lnf $$RUN_DIR")
 system("$$COPY_DIR $$CONFIG_DIR/config $$RUN_DIR")
 system("$$COPY_DIR $$BUILD_DIR/Libraries/dll/* $$RUN_DIR")
+
+# Copy linguist files
+#system("echo $$CHDIR \"$$SERVER_SOURCE_DIR\"")
+#system("$$CHDIR \"$$SERVER_SOURCE_DIR\"")
+system("$$COPY_DIR $$SERVER_SOURCE_DIR/*.qm $$RUN_DIR/i18n")
 }

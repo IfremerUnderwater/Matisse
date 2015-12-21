@@ -13,8 +13,12 @@ else {
         LIBEXT=""
 }
 
+win32{
 LIBS*= -lqgis_core$${LIBEXT} -lqgis_gui$${LIBEXT}
-#LIBS*= -lqgis_cored -lqgis_guid
+}
+else{
+LIBS*= -lqgis_core -lqgis_gui
+}
 
 win32{
     LIBS*=-lproj_i -lgdal_i

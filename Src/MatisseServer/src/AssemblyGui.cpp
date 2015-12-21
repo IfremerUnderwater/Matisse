@@ -1797,7 +1797,7 @@ void AssemblyGui::slot_swapMapOrCreationView()
         qDebug() << "Swapping to creation view";
         _isMapView = false;
         if (_activeApplicationMode == PROGRAMMING) {
-            _activeViewOrModeLabel->setText(tr("Vue : Création"));
+            _activeViewOrModeLabel->setText(trUtf8("Vue : Création"));
         }
         _visuModeButton->setIcon(_creationVisuModeIcon);
         _userFormWidget->hide();

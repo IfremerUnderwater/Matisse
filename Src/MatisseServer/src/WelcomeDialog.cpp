@@ -39,25 +39,25 @@ void WelcomeDialog::createOverlayLabel()
 void WelcomeDialog::on_progModeLauncherButton_clicked()
 {
     hide();
-    emit signal_launchApplication(ApplicationMode::PROGRAMMING);
+    emit signal_launchApplication(PROGRAMMING);
 }
 
 void WelcomeDialog::on_realTimeModeLauncherButton_clicked()
 {
     hide();
-    emit signal_launchApplication(ApplicationMode::REAL_TIME);
+    emit signal_launchApplication(REAL_TIME);
 }
 
 void WelcomeDialog::on_configModeLauncherButton_clicked()
 {
     hide();
-    emit signal_launchApplication(ApplicationMode::APP_CONFIG);
+    emit signal_launchApplication(APP_CONFIG);
 }
 
 void WelcomeDialog::on_deferredTimeModeLauncherButton_clicked()
 {
     hide();
-    emit signal_launchApplication(ApplicationMode::DEFERRED_TIME);
+    emit signal_launchApplication(DEFERRED_TIME);
 }
 
 void WelcomeDialog::slot_showWelcome()

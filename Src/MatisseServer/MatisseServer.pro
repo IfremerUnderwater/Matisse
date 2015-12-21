@@ -23,6 +23,10 @@ else {
 
 }
 
+unix{
+INCLUDEPATH *= $$PWD/src
+}
+
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../
 CONFIG(debug, debug|release) {

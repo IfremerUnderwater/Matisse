@@ -1,19 +1,11 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2014-03-13T19:10:30
-#
-#-------------------------------------------------
 
 QT       += core xml
 
-win32 {
-QMAKE_CXXFLAGS += /wd4100 /wd4996
-}
-
-TARGET = Flusher
+TARGET = Init2DMosaic
 CONFIG += plugin
 
 TEMPLATE = lib
+
 
 win32 {
     QMAKE_CXXFLAGS += /wd4100 /wd4996
@@ -31,26 +23,18 @@ CONFIG(release, debug|release) {
 # ------------------------------------------------------------------------
 
 include(../../Scripts/MatisseCommon.pri)
+include(../../Scripts/BasicProcessing.pri)
+include(../../Scripts/OpticalMapping.pri)
 include(../../Scripts/opencv.pri)
 include(../../Scripts/qgis.pri)
 
 win32 {
-    DLLDESTDIR = $${BUILD_DIR}/Modules/imageProviders
+    DLLDESTDIR = $${BUILD_DIR}/Modules/processors
 }
 unix {
-    DESTDIR = $${BUILD_DIR}/Modules/imageProviders
+    DESTDIR = $${BUILD_DIR}/Modules/processors
 }
 
+SOURCES += src/Init2DMosaic.cpp
 
-LIBS +=  -lMatisseCommon
-
-
-#DLLDESTDIR = ../../dll/imageProviders
-
-SOURCES += \
-    src/Flusher.cpp
-
-HEADERS += \
-    src/Flusher.h
-
-
+HEADERS += src/Init2DMosaic.h
