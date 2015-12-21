@@ -30,7 +30,7 @@ AssemblyDialog::AssemblyDialog(QWidget *parent, QString &name, KeyValueList &key
     }
 
     if (isNewAssembly) {
-        setWindowTitle(tr("Nouvelle chaîne de traitement..."));
+        setWindowTitle(trUtf8("Nouvelle chaîne de traitement..."));
         //_ui->_WID_properties->hide();
 //        _ui->_LA_author->hide();
 //        _ui->_LE_author->hide();
@@ -39,10 +39,10 @@ AssemblyDialog::AssemblyDialog(QWidget *parent, QString &name, KeyValueList &key
 //        _ui->_LA_valid->hide();
 //        _ui->_LA_comments->hide();
 //        _ui->_TXT_comments->hide();
-        _ui->_PB_save->setText((tr("Créer")));
+        _ui->_PB_save->setText((trUtf8("Créer")));
 
     } else {
-        setWindowTitle(tr("Enregistrer la chaîne de traitement..."));
+        setWindowTitle(trUtf8("Enregistrer la chaîne de traitement..."));
 
         _ui->_RB_deferredTime->setEnabled(false);
         _ui->_RB_realTime->setEnabled(false);
@@ -50,7 +50,7 @@ AssemblyDialog::AssemblyDialog(QWidget *parent, QString &name, KeyValueList &key
         if (!isFirstTimeSave) {
             _ui->_LE_name->setEnabled(false);
             _ui->_LE_author->setEnabled(false);
-            _ui->_PB_save->setText((tr("Enregistrer")));
+            _ui->_PB_save->setText((trUtf8("Enregistrer")));
         }
     }
 }

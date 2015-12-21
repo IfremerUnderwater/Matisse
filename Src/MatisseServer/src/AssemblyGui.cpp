@@ -994,13 +994,13 @@ void AssemblyGui::displayJob(QString jobName)
         new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Commentaire:") << comments);
 
         if (selectedJob->executionDefinition() && selectedJob->executionDefinition()->executed()) {
-            new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Date d'execution:") << selectedJob->executionDefinition()->executionDate().toString(tr("le dd/MM/yyyy à HH:mm")));
+            new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << trUtf8("Date d'execution:") << selectedJob->executionDefinition()->executionDate().toString(trUtf8("le dd/MM/yyyy à HH:mm")));
 
             _userFormWidget->clear();
             foreach (QString resultFile, selectedJob->executionDefinition()->resultFileNames()) {
 
                 if (selectedJob->executionDefinition()->executed() && (!resultFile.isEmpty())) {
-                    QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Image resultat:") << resultFile);
+                    QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << trUtf8("Image resultat:") << resultFile);
                     item->setToolTip(1, resultFile);
                     // affichage de l'image
                     QFileInfo infoImage(resultFile);
@@ -1565,56 +1565,56 @@ void AssemblyGui::retranslate()
     qDebug() << "Translating static and contextual menu items...";
 
     /* MENU FICHIER */
-    _fileMenu->setTitle(tr("FICHIER"));
-    _exportMapViewAct->setText(tr("Exporter la vue carto en image"));
-    _exportProjectQGisAct->setText(tr("Exporter le projet en fichier QGIS"));
-    _closeAct->setText(tr("Fermer"));
+    _fileMenu->setTitle(trUtf8("FICHIER"));
+    _exportMapViewAct->setText(trUtf8("Exporter la vue carto en image"));
+    _exportProjectQGisAct->setText(trUtf8("Exporter le projet en fichier QGIS"));
+    _closeAct->setText(trUtf8("Fermer"));
 
     /* MENU AFFICHAGE */
-    _displayMenu->setTitle(tr("AFFICHAGE"));
-    _dayNightModeAct->setText(tr("Mode jour/nuit"));
-    _mapToolbarAct->setText(tr("Barres d'outils"));
+    _displayMenu->setTitle(trUtf8("AFFICHAGE"));
+    _dayNightModeAct->setText(trUtf8("Mode jour/nuit"));
+    _mapToolbarAct->setText(trUtf8("Barres d'outils"));
 
     /* MENU TRAITEMENTS */
-    _processMenu->setTitle(tr("TRAITEMENTS"));
-    _createAssemblyAct->setText(tr("Créer"));
-    _saveAssemblyAct->setText(tr("Enregistrer"));
-    _importAssemblyAct->setText(tr("Importer"));
-    _exportAssemblyAct->setText(tr("Exporter"));
+    _processMenu->setTitle(trUtf8("TRAITEMENTS"));
+    _createAssemblyAct->setText(trUtf8("Créer"));
+    _saveAssemblyAct->setText(trUtf8("Enregistrer"));
+    _importAssemblyAct->setText(trUtf8("Importer"));
+    _exportAssemblyAct->setText(trUtf8("Exporter"));
 
     /* MENU OUTILS */
-    _toolMenu->setTitle(tr("OUTILS"));
-    _appConfigAct->setText(tr("Configurer les paramètres de l'application"));
-    _exposureToolAct->setText(tr("Lancer outil rognage et correction d'illumination"));
-    _videoToImageToolAct->setText(tr("Lancer outil transformation de vidéos en jeux d'image"));
-    _checkNetworkRxAct->setText(tr("Vérifier réception réseau"));
+    _toolMenu->setTitle(trUtf8("OUTILS"));
+    _appConfigAct->setText(trUtf8("Configurer les paramètres de l'application"));
+    _exposureToolAct->setText(trUtf8("Lancer outil rognage et correction d'illumination"));
+    _videoToImageToolAct->setText(trUtf8("Lancer outil transformation de vidéos en jeux d'image"));
+    _checkNetworkRxAct->setText(trUtf8("Vérifier réception réseau"));
 
     /* Sous-menu Cartographie */
-    _mapMenu->setTitle(tr("Cartographie"));
-    _loadShapefileAct->setText(tr("Charger un shapefile"));
-    _loadRasterAct->setText(tr("Charger un raster"));
+    _mapMenu->setTitle(trUtf8("Cartographie"));
+    _loadShapefileAct->setText(trUtf8("Charger un shapefile"));
+    _loadRasterAct->setText(trUtf8("Charger un raster"));
 
     /* MENU AIDE */
-    _helpMenu->setTitle(tr("AIDE"));
-    _userManualAct->setText(tr("Manuel utilisateur"));
-    _aboutAct->setText(tr("A propos"));
+    _helpMenu->setTitle(trUtf8("AIDE"));
+    _userManualAct->setText(trUtf8("Manuel utilisateur"));
+    _aboutAct->setText(trUtf8("A propos"));
 
 
     /* Menu contextuel Traitement */
-    _createJobAct->setText(tr("Créer une nouvelle tâche"));
-    _importJobAct->setText(tr("Importer une nouvelle tâche"));
-    _cloneAssemblyAct->setText(tr("Dupliquer"));
-    _deleteAssemblyAct->setText(tr("Supprimer la chaîne de traitement"));
+    _createJobAct->setText(trUtf8("Créer une nouvelle tâche"));
+    _importJobAct->setText(trUtf8("Importer une nouvelle tâche"));
+    _cloneAssemblyAct->setText(trUtf8("Dupliquer"));
+    _deleteAssemblyAct->setText(trUtf8("Supprimer la chaîne de traitement"));
     _restoreJobAct->setText(tr("Restaurer"));
-    _updateAssemblyPropertiesAct->setText(tr("Mettre à jour les propriétés"));
+    _updateAssemblyPropertiesAct->setText(trUtf8("Mettre à jour les propriétés"));
 
     /* Menu contextuel Tâche */
-    _executeJobAct->setText(tr("Exécuter"));
-    _cloneJobAct->setText(tr("Dupliquer"));
-    _exportJobAct->setText(tr("Exporter"));
-    _deleteJobAct->setText(tr("Supprimer"));
-    _archiveJobAct->setText(tr("Archiver"));
-    _goToResultsAct->setText(tr("Ouvrir emplacement du résultat"));
+    _executeJobAct->setText(trUtf8("Exécuter"));
+    _cloneJobAct->setText(trUtf8("Dupliquer"));
+    _exportJobAct->setText(trUtf8("Exporter"));
+    _deleteJobAct->setText(trUtf8("Supprimer"));
+    _archiveJobAct->setText(trUtf8("Archiver"));
+    _goToResultsAct->setText(trUtf8("Ouvrir emplacement du résultat"));
 }
 
 // Dynamic translation

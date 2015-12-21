@@ -90,19 +90,42 @@ void ProjectiveCamera::projectPtOnMosaickingPlane(const Mat camPlanePt_p, Mat &m
 void ProjectiveCamera::projectImageOnMosaickingPlane(Mat &mosaicPlaneImage_p, Mat &mosaicPlaneMask_p, cv::Point & corner_p)
 {
 
+
+    cv::Size dstSize;
+
+    computeImageExtent(corner_p, dstSize);
+
+    // Project image on mosaic
+    cv::Mat H = (cv::Mat_<qreal>(3,3) <<1, 0, -corner_p.x,0, 1, -corner_p.y,0, 0, 1)*_m_H_i;
+
+    cv::warpPerspective(*(image()->imageData()), mosaicPlaneImage_p, H, dstSize, INTER_LINEAR, BORDER_REFLECT);
+
+    std::cerr << "_m_H_i =" << _m_H_i ;
+
+    // Project mask corresponding to images
+    cv::Mat imageMask;
+    imageMask.create(image()->imageData()->size(), CV_8U);
+    imageMask.setTo(Scalar::all(255));
+
+    cv::warpPerspective(imageMask, mosaicPlaneMask_p, H, dstSize);
+
+}
+
+void ProjectiveCamera::computeImageExtent(Point &corner_p, Size &dstSize_p)
+{
     cv::Mat pt1,pt2,pt3,pt4;
     std::vector<qreal> xArray, yArray;
     std::vector<qreal>::iterator min_x_it, min_y_it, max_x_it, max_y_it;
 
-    int w = image()->width();
-    int h = image()->height();
+    int width = image()->width();
+    int height = image()->height();
 
 
     // Project corners_p on mosaic plane
     projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   0,   1), pt1);
-    projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, 0,   1), pt2);
-    projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, h-1, 1), pt3);
-    projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   h-1, 1), pt4);
+    projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << width-1, 0,   1), pt2);
+    projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << width-1, height-1, 1), pt3);
+    projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   height-1, 1), pt4);
 
     // Fill x & y array
     xArray.clear();
@@ -118,10 +141,6 @@ void ProjectiveCamera::projectImageOnMosaickingPlane(Mat &mosaicPlaneImage_p, Ma
 
 
     // Compute min,max
-    /*min_x_it = std::min_element(std::begin(xArray), std::end(xArray));
-    min_y_it = std::min_element(std::begin(yArray), std::end(yArray));
-    max_x_it = std::max_element(std::begin(xArray), std::end(xArray));
-    max_y_it = std::max_element(std::begin(yArray), std::end(yArray));*/
     min_x_it = std::min_element(xArray.begin(), xArray.end());
     min_y_it = std::min_element(yArray.begin(), yArray.end());
     max_x_it = std::max_element(xArray.begin(), xArray.end());
@@ -132,23 +151,10 @@ void ProjectiveCamera::projectImageOnMosaickingPlane(Mat &mosaicPlaneImage_p, Ma
     int dstHeight = ceil(*max_y_it)-floor(*min_y_it) + 1;
 
     cv::Size dstSize(dstWidth,dstHeight);
+    dstSize_p = dstSize;
 
     corner_p.x = floor(*min_x_it);
     corner_p.y = floor(*min_y_it);
-
-    // Project image on mosaic
-    cv::Mat H = (cv::Mat_<qreal>(3,3) <<1, 0, -corner_p.x,0, 1, -corner_p.y,0, 0, 1)*_m_H_i;
-
-    cv::warpPerspective(*(image()->imageData()), mosaicPlaneImage_p, H, dstSize, INTER_LINEAR, BORDER_REFLECT);
-
-    std::cerr << "_m_H_i =" << _m_H_i ;
-
-    // Project mask corresponding to images
-    cv::Mat imageMask;
-    imageMask.create(image()->imageData()->size(), CV_8U);
-    imageMask.setTo(Scalar::all(255));
-
-    cv::warpPerspective(imageMask, mosaicPlaneMask_p, H, dstSize);
 
 }
 

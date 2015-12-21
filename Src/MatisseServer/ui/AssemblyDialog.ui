@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>352</width>
-    <height>409</height>
+    <width>400</width>
+    <height>441</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -58,19 +58,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="_HSP_name">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
     </layout>
    </item>
    <item>
@@ -116,9 +103,15 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>101</width>
+          <width>500</width>
           <height>17</height>
          </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>500</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="text">
          <string>Dépouillement</string>
@@ -130,9 +123,9 @@
        <widget class="QRadioButton" name="_RB_realTime">
         <property name="geometry">
          <rect>
-          <x>110</x>
+          <x>150</x>
           <y>0</y>
-          <width>82</width>
+          <width>161</width>
           <height>17</height>
          </rect>
         </property>
@@ -141,19 +134,6 @@
         </property>
        </widget>
       </widget>
-     </item>
-     <item>
-      <spacer name="_HSP_userMode">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
@@ -187,19 +167,6 @@
         </size>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="_HSP_version">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
@@ -279,19 +246,6 @@
         </size>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="_HSP_author">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>

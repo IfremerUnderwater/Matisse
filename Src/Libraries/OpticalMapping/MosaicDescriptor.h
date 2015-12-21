@@ -10,6 +10,18 @@
 
 using namespace MatisseCommon;
 
+
+// Positionning and scaling parameters
+struct MosaicSizesAndExtent {
+    Point3d _mosaicOrigin;
+    Point2d _pixelSize;
+    Point2d _mosaicSize;
+    Mat _mosaic_ullr;
+    QString _utmHemisphere;
+    int _utmZone;
+};
+
+
 class LIBOPTICALMAPPINGSHARED_EXPORT MosaicDescriptor
 {
 

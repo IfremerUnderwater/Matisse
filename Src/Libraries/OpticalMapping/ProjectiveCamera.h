@@ -50,10 +50,17 @@ public:
     ///
     void projectImageOnMosaickingPlane(cv::Mat & mosaicPlaneImage_p, cv::Mat & mosaicPlaneMask_p, cv::Point & corner_p);
 
+    ///
+    /// \brief computeImageExtent compute image origin and size
+    /// \param corner_p origin of the image in the mosaicking frame
+    /// \param dstSize size of the image projected on the mosaicking plane
+    ///
+    void computeImageExtent(cv::Point &corner_p, cv::Size &dstSize_p);
+
 private:
 
     cv::Mat _K; // Camera calibration matrix (intrinsics) : each image can be taken with a different cam
-    cv::Mat _m_H_i; // Homography : 2D Image Plane to 2D Mosaic Frame
+    cv::Mat _m_H_i; // Homography : 2D Image Plane to 2D Mosaic Frame (only for 2D mosaicking model)
 
     // Those lever arm parameters belongs to the camera as it can be changed using pan & tilt
     // during the acquisition

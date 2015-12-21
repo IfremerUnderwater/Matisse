@@ -25,6 +25,7 @@ CONFIG(release, debug|release) {
 include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/opencv.pri)
 include(../../Scripts/qgis.pri)
+include(../../Scripts/BasicProcessing.pri)
 
 
 #win32 {

@@ -7,6 +7,8 @@
 #include "MosaicDescriptor.h"
 #include "MosaicDrawer.h"
 
+#include "Polygon.h"
+
 // Exportation de la classe Module1 dans la bibliotheque de plugin TestModule1
 Q_EXPORT_PLUGIN2(Module1, Module1)
 
@@ -78,8 +80,25 @@ void Module1::onFlush(quint32 port)
     qDebug() << logPrefix() << "flush port " << port;
     qDebug() << logPrefix() << "OPTIM" ;
 
+    basicproc::Polygon P1,P2,P3;
 
-    MosaicDescriptor mosaicD;
+    std::vector<double> x,y;
+
+    // Construct P1
+    x.push_back(0); x.push_back(0); x.push_back(1); x.push_back(1);
+    y.push_back(0); y.push_back(1); y.push_back(1); y.push_back(0);
+    P1.addContour(x,y);
+    x.clear(); y.clear();
+
+    // Construct P2
+    x.push_back(0.5); x.push_back(0.5); x.push_back(1.5); x.push_back(1.5);
+    y.push_back(0); y.push_back(1); y.push_back(1); y.push_back(0);
+    P2.addContour(x,y);
+    x.clear(); y.clear();
+
+    P1.clip(P2, P3, basicproc::UNION);
+
+    /*    MosaicDescriptor mosaicD;
     QVector<ProjectiveCamera*> cams;
     ImageSet * imageSet;
 
@@ -190,7 +209,7 @@ void Module1::onFlush(quint32 port)
     }else{
         qDebug()<<"No ImageSet acquired !";
         exit(1);
-    }
+    }*/
 
     flush(1);
 

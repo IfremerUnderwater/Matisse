@@ -72,7 +72,7 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>1288</width>
+         <width>1287</width>
          <height>710</height>
         </size>
        </property>
@@ -114,9 +114,6 @@
           </property>
           <item>
            <widget class="QTreeWidget" name="_TRW_assemblies">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -273,7 +270,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <property name="elideMode">
             <enum>Qt::ElideNone</enum>
@@ -650,7 +647,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
