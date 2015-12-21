@@ -1,0 +1,67 @@
+/*
+*
+* Feuille de style spécifique au mode TEMPS REEL
+*
+/
+
+/* MAIN CONTROLL BAR */
+QWidget#homeWidget QWidget {
+   background-color: #4a8adc;
+   border: none;
+}
+
+
+QWidget#matisseVersionWidget QWidget {
+    background-color: #2972cf;
+    border: none;
+}
+
+QWidget#mainMenuWidget {
+    background-color: #2972cf;    
+}
+
+/* Customisation des menus et menus contextuels */
+QMenuBar {
+    background-color: #2972cf;
+    color: #f5f7fa;
+    font-family: "Montserrat";
+    font-size: 12px;
+    font-weight: 600;
+}
+
+QMenuBar::item {
+    background: #2972cf;
+}
+
+QMenu::item:selected {
+    border: 2px solid #2972cf;
+}
+
+/* COULEURS DE SELECTION : ARBRES ET LISTES */
+QTreeView::item:selected, QTreeView::item:hover, QListWidget::item:selected, QListWidget::item:hover {
+    border: 1px solid rgb(74,138,220);
+    padding-left: -1px;
+    color: #f5f7fa;
+}
+
+QTreeView::item:selected:active, QListWidget::item:selected:active {
+    background: rgba(74,138,220,60%);
+}
+
+QTreeView::item:selected:!active, QListWidget::item:selected:!active {
+    background: rgba(74,138,220,45%);
+}
+
+QTreeView::item:hover, QListWidget::item:hover {
+    background: rgba(74,138,220,20%);
+}
+
+
+
+/* ONGLETS */
+QTabBar::tab:selected {
+    margin: 0;
+    background: #2972cf;
+    color: #f5f7fa;
+}
+

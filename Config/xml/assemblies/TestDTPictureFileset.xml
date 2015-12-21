@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MatisseAssembly name="TestDTPictureFileset" isRealTime="false" usable="0">
+	<DescriptorFields>
+		<Author>
+			
+		</Author>
+		<Version>
+			
+		</Version>
+		<Comments>
+			
+		</Comments>
+		<Date>
+			02/07/2014
+		</Date>
+	</DescriptorFields>
+	<Parameters id="99" model="V1.0" name="MorphFinal"/>
+
+	<Source id="99" name="DTPictureFileSetImageProvider" order="0"/>
+
+	<Processors>
+		<Processor id="99" name="Module1" order="1"/>
+		<Processor id="99" name="Module2" order="2"/>
+	</Processors>
+
+	<Destination id="99" name="GeoTiffImageWriter" order="3"/>
+
+	<Connections>
+		<Connection startOrder="0" startLine="0" endOrder="1" endLine="0" color="4278255360"/>
+		<Connection startOrder="1" startLine="1" endOrder="2" endLine="1" color="4286578688"/>
+		<Connection startOrder="2" startLine="0" endOrder="3" endLine="0" color="4278222848"/>
+	</Connections>
+</MatisseAssembly>

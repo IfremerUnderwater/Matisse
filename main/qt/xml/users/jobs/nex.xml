@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<MatisseJob name="nex" assembly="RobomossLabFix" version="">
-	<Comments></Comments>
-	<Parameters model="V1.0" name="nex"/>
-	<Execution executed="true" executionDate="27/05/2014 17:05" result="D:/DATA/MOSAIC_DATASETS/ROBOMOS/27_10_2010-AGA/Resize_01/Geotiff_data/MosaicOutColorCorr.tiff"/>
-</MatisseJob>

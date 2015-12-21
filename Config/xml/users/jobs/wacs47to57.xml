@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="wacs47to57" assembly="VictorOtusOCTANS" version="">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="wacs47to57"/>
+	<Execution executed="true" executionDate="20/02/2015 10:32">
+		<Result filename="D:/DATA/MOSAIC_DATASETS/BICOSE/OTUS_CORR/Geotiff_data/MosaicOut.tiff"/>
+	</Execution>
+</MatisseJob>

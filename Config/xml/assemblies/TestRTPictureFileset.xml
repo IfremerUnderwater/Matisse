@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MatisseAssembly name="TestRTPictureFileset" isRealTime="true" usable="0">
+	<DescriptorFields>
+		<Author>
+			
+		</Author>
+		<Version>
+			
+		</Version>
+		<Comments>
+			
+		</Comments>
+		<Date>
+			
+		</Date>
+	</DescriptorFields>
+	<Parameters id="99" model="V1.1" name="RTPicture"/>
+
+	<Source id="99" name="RTPictureFileSetImageProvider" order="0"/>
+
+	<Processors>
+		<Processor id="99" name="Module2" order="1"/>
+	</Processors>
+
+	<Destination id="99" name="GeoTiffImageWriter" order="2"/>
+
+	<Connections>
+		<Connection startOrder="0" startLine="0" endOrder="1" endLine="1" color="4278255360"/>
+		<Connection startOrder="1" startLine="0" endOrder="2" endLine="0" color="4278190335"/>
+	</Connections>
+</MatisseAssembly>

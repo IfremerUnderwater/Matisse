@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="testrtvideo" assembly="TestRTVideo" version="">
+	<Comments></Comments>
+	<Parameters model="V1.1" name="testrtvideo"/>
+	<Execution executed="true" executionDate="21/01/2015 11:35">
+		<Result filename="D:/Projects/MATISSE-SNAPSHOT-20140904/main/qt/MatisseServer/Geotiff_data/OutputImage.tif"/>
+	</Execution>
+</MatisseJob>

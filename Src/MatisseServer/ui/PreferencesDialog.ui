@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PreferencesDialog</class>
+ <widget class="QDialog" name="PreferencesDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>500</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Fenêtre configuration de l'application</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources/resources.qrc">
+    <normaloff>:/jpg/ifremer-grand.jpg</normaloff>:/jpg/ifremer-grand.jpg</iconset>
+  </property>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>501</width>
+     <height>301</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>10</number>
+    </property>
+    <property name="topMargin">
+     <number>10</number>
+    </property>
+    <property name="rightMargin">
+     <number>10</number>
+    </property>
+    <property name="bottomMargin">
+     <number>10</number>
+    </property>
+    <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="horizontalSpacing">
+       <number>2</number>
+      </property>
+      <item row="6" column="2" colspan="2">
+       <widget class="QComboBox" name="_CB_languageSelect">
+        <property name="insertPolicy">
+         <enum>QComboBox::InsertAtBottom</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="9">
+       <widget class="QPushButton" name="_PB_importExportPathSelect">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="9">
+       <widget class="QPushButton" name="_PB_defaultResultPathSelect">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLabel" name="_LA_language">
+        <property name="text">
+         <string>Langue (EN/FR) :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="6">
+       <widget class="QLabel" name="_LA_DefaultMosaicPrefix">
+        <property name="text">
+         <string>Préfixe nom du fichier mosaïque par défaut :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="4">
+       <widget class="QCheckBox" name="_CK_enableProgrammingMode">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="9">
+       <widget class="QPushButton" name="_PB_archivePathSelect">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="7">
+       <widget class="QLineEdit" name="_LE_defaultMosaicPrefix"/>
+      </item>
+      <item row="5" column="1" colspan="3">
+       <widget class="QLabel" name="_LA_enableProgrammingMode">
+        <property name="text">
+         <string>Activation mode programmation :  </string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" colspan="5">
+       <widget class="QLineEdit" name="_LE_importExportPath"/>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLabel" name="_LA_importExport">
+        <property name="text">
+         <string>Chemin import/export :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3" colspan="5">
+       <widget class="QLineEdit" name="_LE_archivePath"/>
+      </item>
+      <item row="3" column="1">
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QLabel" name="_LA_archivePath">
+        <property name="text">
+         <string>Chemin d'archivage :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="8">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>5</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="1" colspan="3">
+       <widget class="QLabel" name="_LA_defaultResultPath">
+        <property name="text">
+         <string>Chemin des résultats par défaut :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4" colspan="4">
+       <widget class="QLineEdit" name="_LE_defaultResultPath"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="_PB_save">
+        <property name="text">
+         <string>Enregistrer</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="_PB_cancel">
+        <property name="text">
+         <string>Annuler</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="resources/resources.qrc"/>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
