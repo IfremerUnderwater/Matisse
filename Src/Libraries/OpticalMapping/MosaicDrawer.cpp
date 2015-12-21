@@ -469,7 +469,7 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
 
 }
 
-void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Point2d blockSize_p, QString &writingFolderPath_p)
+void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Point2d blockSize_p, QString writingPathAndPrefix_p)
 {
 
     int xBlockNumber, yBlockNumber, xOverlapSize, yOverlapSize;
@@ -511,7 +511,7 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         cv::Point imgCorner;
         cv::Size imgSize;
 
-        mosaicD_p.cameraNodes().at(0)->computeImageExtent(imgCorner, imgSize);
+        mosaicD_p.cameraNodes().at(k)->computeImageExtent(imgCorner, imgSize);
 
         // Compute extents
         xBegin = imgCorner.x;
@@ -571,12 +571,14 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
             x.clear(); y.clear();
 
             // Find images which intersect with this block
-            Polygon imgBlockIntersection;
             for (int k=0; k < mosaicD_p.cameraNodes().size(); k++){
-                vpImagesPoly[k]->clip(*currentPolygon,imgBlockIntersection,basicproc::INT);
+                Polygon *imgBlockIntersection = new Polygon;
+                vpImagesPoly[k]->clip(*currentPolygon,*imgBlockIntersection,basicproc::INT);
 
-                if (!imgBlockIntersection.isEmpty())
+                if (!imgBlockIntersection->isEmpty())
                     currentImgIndexes->push_back(k);
+
+                delete imgBlockIntersection;
             }
 
             if (currentImgIndexes->size() > 0){
@@ -590,7 +592,7 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
     }
 
     // Blend separated modules
-    for (int k=0; k < vpBlocksPoly.size(); k++){
+    for (unsigned int k=0; k < vpBlocksPoly.size(); k++){
         std::vector<Mat> imagesWarped;
         std::vector<Mat> masksWarped;
         std::vector<Point> corners;
@@ -602,19 +604,17 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         masksWarped.resize(camNum);
         corners.resize(camNum);
 
-        int i=0;
-
         // Project each image on the mosaicking plane (TODO : make it generic for orthophoto 3D/2D mosaicking)
-        for (int l; l < camNum; l++) {
+        for (int l=0; l < camNum; l++) {
 
-            ProjectiveCamera* Cam = mosaicD_p.cameraNodes().at(l);
-            Cam->projectImageOnMosaickingPlane(imagesWarped[i], masksWarped[i], corners[i]);
+            ProjectiveCamera* Cam = mosaicD_p.cameraNodes().at(vvBlocksImgIndexes[k]->at(l));
+            Cam->projectImageOnMosaickingPlane(imagesWarped[l], masksWarped[l], corners[l]);
             Cam->image()->releaseImageData();
-            i++;
         }
 
         drawAndBlend(imagesWarped, masksWarped, corners, mosaicImage, mosaicImageMask);
-        imwrite("./test.tiff",mosaicImage);
+        QString filePath = writingPathAndPrefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+        imwrite(filePath.toStdString().c_str(), mosaicImage);
     }
 
     //    for m=1:x_bl_nb*y_bl_nb

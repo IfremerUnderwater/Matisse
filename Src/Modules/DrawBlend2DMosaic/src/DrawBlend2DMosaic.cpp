@@ -20,6 +20,10 @@ DrawBlend2DMosaic::DrawBlend2DMosaic() :
     addExpectedParameter("dataset_param", "output_dir");
     addExpectedParameter("dataset_param",  "output_filename");
 
+    addExpectedParameter("algo_param", "block_drawing");
+    addExpectedParameter("algo_param", "block_width");
+    addExpectedParameter("algo_param", "block_height");
+
 }
 
 DrawBlend2DMosaic::~DrawBlend2DMosaic(){
@@ -71,13 +75,18 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
         qDebug()<< logPrefix() << "No data to retreive on port : " << port;
     }
 
+    // Get drawing parameters
+    bool Ok;
+    bool blockDraw = _matisseParameters->getBoolParamValue("algo_param", "block_drawing", Ok);
+    qDebug() << logPrefix() << "block_drawing = " << blockDraw;
 
-    //Draw mosaic
-    MosaicDrawer mosaicDrawer;
-    cv::Mat mosaicImage,mosaicMask;
-    mosaicDrawer.drawAndBlend(*pMosaicD, mosaicImage, mosaicMask);
+    int blockWidth = _matisseParameters->getIntParamValue("algo_param", "block_width", Ok);
+    qDebug() << logPrefix() << "block_width = " << blockWidth;
 
-    // Write geofile
+    int blockHeight = _matisseParameters->getIntParamValue("algo_param", "block_height", Ok);
+    qDebug() << logPrefix() << "block_height = " << blockHeight;
+
+    // Get drawing path
     QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
     QString outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
     QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
@@ -99,7 +108,25 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     qDebug() << "output_dir = " << outputDirnameStr;
     qDebug() << "output_filename = " << outputFilename;
 
-    pMosaicD->writeToGeoTiff(mosaicImage,mosaicMask,outputDirnameStr + QDir::separator() + outputFilename);
+    //Draw mosaic
+    MosaicDrawer mosaicDrawer;
+
+    if (!blockDraw){
+
+        cv::Mat mosaicImage,mosaicMask;
+        mosaicDrawer.drawAndBlend(*pMosaicD, mosaicImage, mosaicMask);
+
+        // Write geofile
+        pMosaicD->writeToGeoTiff(mosaicImage,mosaicMask,outputDirnameStr + QDir::separator() + outputFilename);
+
+    }else{
+        qDebug()<< logPrefix() << "entered block drawing part...";
+
+        mosaicDrawer.blockDrawBlendAndWrite(*pMosaicD,
+                               Point2d(blockWidth, blockHeight),
+                               outputDirnameStr + QDir::separator() + QString("MosaicOut"));
+
+    }
 
 }
 
