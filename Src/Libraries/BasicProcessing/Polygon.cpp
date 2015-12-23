@@ -1,5 +1,5 @@
 #include "Polygon.h"
-
+#include <cfloat>
 
 using namespace basicproc;
 
@@ -107,20 +107,20 @@ void Polygon::updatePolygonFromGpc()
     int c, v;
 
     for (c=0; c < _gpcPolygon.num_contours; c++)
+    {
+        vertexList vList;
+
+        for (v= 0; v < _gpcPolygon.contour[c].num_vertices; v++)
         {
-            vertexList vList;
-
-            for (v= 0; v < _gpcPolygon.contour[c].num_vertices; v++)
-            {
-                vList.x.push_back(_gpcPolygon.contour[c].vertex[v].x);
-                vList.y.push_back(_gpcPolygon.contour[c].vertex[v].y);
-            }
-            _contours.push_back( vList );
-            vList.x.clear();
-            vList.y.clear();
-
-            _contoursHole.push_back(_gpcPolygon.hole[c]);
+            vList.x.push_back(_gpcPolygon.contour[c].vertex[v].x);
+            vList.y.push_back(_gpcPolygon.contour[c].vertex[v].y);
         }
+        _contours.push_back( vList );
+        vList.x.clear();
+        vList.y.clear();
+
+        _contoursHole.push_back(_gpcPolygon.hole[c]);
+    }
 }
 
 gpc_polygon* Polygon::gpcPolygon()
@@ -152,6 +152,84 @@ void Polygon::clip(Polygon &poly2_p, Polygon &result_p, poly_op operation)
     // Update result description from its gpc polygon
     result_p.updatePolygonFromGpc();
 
+}
+
+void Polygon::getBoundingBox(double &tlx_p, double &tly_p, double &brx_p, double &bry_p)
+{
+
+    //Init
+    tlx_p=DBL_MAX;
+    tly_p=DBL_MAX;
+    brx_p=-DBL_MAX;
+    bry_p=-DBL_MAX;
+
+    std::vector<qreal> xArray, yArray;
+    std::vector<qreal>::iterator min_x_it, min_y_it, max_x_it, max_y_it;
+
+
+
+    for (unsigned int i=0; i<_contours.size(); i++){
+        xArray.clear();
+        yArray.clear();
+
+        for (unsigned int j=0; j<_contours[i].x.size(); j++){
+            // Fill x & y array
+            xArray.push_back(_contours[i].x[j]);
+            yArray.push_back(_contours[i].y[j]);
+
+        }
+        // Compute min,max
+        min_x_it = std::min_element(xArray.begin(), xArray.end());
+        min_y_it = std::min_element(yArray.begin(), yArray.end());
+        max_x_it = std::max_element(xArray.begin(), xArray.end());
+        max_y_it = std::max_element(yArray.begin(), yArray.end());
+
+        if (*min_x_it < tlx_p)
+            tlx_p = *min_x_it;
+
+        if (*min_y_it < tly_p)
+            tly_p = *min_y_it;
+
+        if (*max_x_it > brx_p)
+            brx_p = *max_x_it;
+
+        if (*max_y_it > bry_p)
+            bry_p = *max_y_it;
+
+    }
+
+}
+
+bool Polygon::operator ==(Polygon polyB_p)
+{
+    if (_contours.size() == polyB_p.contours().size()){
+
+        for (unsigned int i=0; i<_contours.size(); i++){
+
+            if(_contours[i].x.size() != polyB_p.contours().at(i).x.size())
+                return false;
+        }
+
+        for (unsigned int i=0; i<_contours.size(); i++){
+            for (unsigned int j=0; j<_contours[i].x.size(); j++){
+                if(_contours[i].x[j]!=polyB_p.contours().at(i).x[j])
+                    return false;
+                if(_contours[i].y[j]!=polyB_p.contours().at(i).y[j])
+                    return false;
+            }
+        }
+
+    }else{
+        return false;
+    }
+
+    return true;
+
+}
+
+bool Polygon::operator !=(Polygon polyB_p)
+{
+    return !(this->operator ==(polyB_p));
 }
 
 

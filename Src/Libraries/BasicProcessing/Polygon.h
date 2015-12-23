@@ -10,17 +10,17 @@ namespace basicproc {
 
 typedef struct                      /* Vertex list structure             */
 {
-  std::vector<double> x;       /* Vertex array pointer              */
-  std::vector<double> y;
+    std::vector<double> x;       /* Vertex array pointer              */
+    std::vector<double> y;
 } vertexList;
 
 
 typedef enum                        /* Set operation type                */
 {
-  DIFF,                         /* Difference                        */
-  INT,                          /* Intersection                      */
-  XOR,                          /* Exclusive or                      */
-  UNION                         /* Union                             */
+    DIFF,                         /* Difference                        */
+    INT,                          /* Intersection                      */
+    XOR,                          /* Exclusive or                      */
+    UNION                         /* Union                             */
 } poly_op;
 
 
@@ -69,6 +69,18 @@ public:
     /// \param operation : values "DIFF", "INT", "XOR" and "UNION" for corresponding boolean operation Difference, Intersection, Exclusive or, Union
     ///
     void clip(Polygon &poly2_p, Polygon & result_p, poly_op operation);
+
+    ///
+    /// \brief getBoundingBox return the polygon bounding box
+    /// \param tlx_p Top left x coordinate
+    /// \param tly_p Top left y coordinate
+    /// \param brx_p Bottom right x coordinate
+    /// \param bry_p Bottom right y coordinate
+    ///
+    void getBoundingBox(double &tlx_p, double &tly_p, double &brx_p, double &bry_p);
+
+    bool operator ==(Polygon polyB_p);
+    bool operator !=(Polygon polyB_p);
 
 private:
     gpc_polygon _gpcPolygon;

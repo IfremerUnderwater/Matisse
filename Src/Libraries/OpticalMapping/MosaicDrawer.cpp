@@ -533,12 +533,14 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
 
     // Construct polygons corresponding to blocks areas
     vector<Polygon*> vpBlocksPoly;
+    vector<Polygon*> vpEffBlocksPoly;
     vector<vector<int>*> vvBlocksImgIndexes;
 
     for (int j=0; j<xBlockNumber; j++){
         for (int i=0; i<yBlockNumber; i++){
 
-            Polygon *currentPolygon = new Polygon();
+            Polygon *currentBlockPolygon = new Polygon();
+            Polygon *currentEffBlockPolygon = new Polygon();
             vector<int> *currentImgIndexes = new vector<int>;
             std::vector<double> x,y;
             int xBegin, yBegin, xEnd, yEnd;
@@ -567,32 +569,69 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
             // Construct currentPolygon
             x.push_back(xBegin); x.push_back(xEnd); x.push_back(xEnd); x.push_back(xBegin);
             y.push_back(yBegin); y.push_back(yBegin); y.push_back(yEnd); y.push_back(yEnd);
-            currentPolygon->addContour(x,y);
+            currentBlockPolygon->addContour(x,y);
             x.clear(); y.clear();
 
-            // Find images which intersect with this block
-            for (int k=0; k < mosaicD_p.cameraNodes().size(); k++){
-                Polygon *imgBlockIntersection = new Polygon;
-                vpImagesPoly[k]->clip(*currentPolygon,*imgBlockIntersection,basicproc::INT);
+            // Find which images intersect with this block
+            // and compute effective block (ie. remove non occupied space)
 
-                if (!imgBlockIntersection->isEmpty())
+            double img_tlx, img_tly, img_brx, img_bry;
+            double block_tlx, block_tly, block_brx, block_bry;
+
+            block_tlx=DBL_MAX;
+            block_tly=DBL_MAX;
+            block_brx=-DBL_MAX;
+            block_bry=-DBL_MAX;
+
+            for (int k=0; k < mosaicD_p.cameraNodes().size(); k++){
+
+                Polygon *imgBlockIntersection = new Polygon;
+                vpImagesPoly[k]->clip(*currentBlockPolygon,*imgBlockIntersection,basicproc::INT);
+
+                if (!imgBlockIntersection->isEmpty()){
+
                     currentImgIndexes->push_back(k);
+                    imgBlockIntersection->getBoundingBox(img_tlx, img_tly, img_brx, img_bry);
+
+                    if (img_tlx < block_tlx)
+                        block_tlx = img_tlx;
+
+                    if (img_tly < block_tly)
+                        block_tly = img_tly;
+
+                    if (img_brx > block_brx)
+                        block_brx = img_brx;
+
+                    if (img_bry > block_bry)
+                        block_bry = img_bry;
+
+                }
 
                 delete imgBlockIntersection;
             }
 
             if (currentImgIndexes->size() > 0){
-                vpBlocksPoly.push_back(currentPolygon);
+                vpBlocksPoly.push_back(currentBlockPolygon);
                 vvBlocksImgIndexes.push_back(currentImgIndexes);
+
+                // Construct currentEffPolygon
+                x.push_back(block_tlx); x.push_back(block_brx); x.push_back(block_brx); x.push_back(block_tlx);
+                y.push_back(block_tly); y.push_back(block_tly); y.push_back(block_bry); y.push_back(block_bry);
+                currentEffBlockPolygon->addContour(x,y);
+                x.clear(); y.clear();
+                vpEffBlocksPoly.push_back(currentEffBlockPolygon);
             }
-            else
+            else{
                 delete currentImgIndexes;
+                delete currentBlockPolygon;
+                delete currentEffBlockPolygon;
+            }
 
         }
     }
 
     // Blend separated modules
-    for (unsigned int k=0; k < vpBlocksPoly.size(); k++){
+    for (unsigned int k=0; k < vpEffBlocksPoly.size(); k++){
         std::vector<Mat> imagesWarped;
         std::vector<Mat> masksWarped;
         std::vector<Point> corners;
@@ -1128,6 +1167,10 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
     // Free memory
     for (unsigned int i=0; i<vpBlocksPoly.size(); i++){
         delete vpBlocksPoly.at(i);
+    }
+
+    for (unsigned int i=0; i<vpEffBlocksPoly.size(); i++){
+        delete vpEffBlocksPoly.at(i);
     }
 
     for (unsigned int i=0; i<vpImagesPoly.size(); i++){
