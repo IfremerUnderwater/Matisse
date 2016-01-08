@@ -24,6 +24,7 @@ Polygon::~Polygon()
     }
     if (_gpcPolygon.hole)
         delete[] _gpcPolygon.hole;
+    //gpc_free_polygon(&_gpcPolygon);
 }
 
 bool Polygon::addContour(std::vector<double> x_p, std::vector<double> y_p, bool hole_p)
@@ -200,7 +201,7 @@ void Polygon::getBoundingBox(double &tlx_p, double &tly_p, double &brx_p, double
 
 }
 
-bool Polygon::operator ==(Polygon polyB_p)
+bool Polygon::operator ==(const Polygon &polyB_p)
 {
     if (_contours.size() == polyB_p.contours().size()){
 
@@ -210,11 +211,29 @@ bool Polygon::operator ==(Polygon polyB_p)
                 return false;
         }
 
+        bool x_areEquals = false;
+        bool y_areEquals = false;
+        bool xy_areEquals = false;
+        bool contours_areEquals = true;
+
         for (unsigned int i=0; i<_contours.size(); i++){
+
             for (unsigned int j=0; j<_contours[i].x.size(); j++){
-                if(_contours[i].x[j]!=polyB_p.contours().at(i).x[j])
-                    return false;
-                if(_contours[i].y[j]!=polyB_p.contours().at(i).y[j])
+
+                xy_areEquals = false;
+
+                for (unsigned int k=0; k<_contours[i].x.size(); k++){
+
+                    x_areEquals = (_contours[i].x[j]==polyB_p.contours().at(i).x[k]);
+                    y_areEquals = (_contours[i].y[j]==polyB_p.contours().at(i).y[k]);
+
+                    xy_areEquals = xy_areEquals || (x_areEquals && y_areEquals);
+
+                }
+
+                contours_areEquals = contours_areEquals && xy_areEquals;
+
+                if(!contours_areEquals)
                     return false;
             }
         }
@@ -227,7 +246,7 @@ bool Polygon::operator ==(Polygon polyB_p)
 
 }
 
-bool Polygon::operator !=(Polygon polyB_p)
+bool Polygon::operator !=(const Polygon &polyB_p)
 {
     return !(this->operator ==(polyB_p));
 }

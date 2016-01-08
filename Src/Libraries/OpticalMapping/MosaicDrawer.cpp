@@ -9,6 +9,7 @@
 #include "opencv2/core/core.hpp"
 #include <QDebug>
 #include "Polygon.h"
+#include "RasterGeoreferencer.h"
 
 using namespace std;
 using namespace cv;
@@ -646,14 +647,74 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         // Project each image on the mosaicking plane (TODO : make it generic for orthophoto 3D/2D mosaicking)
         for (int l=0; l < camNum; l++) {
 
+            Polygon *imgBlockInter = new Polygon();
+            vpImagesPoly[vvBlocksImgIndexes[k]->at(l)]->clip(*(vpEffBlocksPoly[k]),*imgBlockInter,basicproc::INT);
+
             ProjectiveCamera* Cam = mosaicD_p.cameraNodes().at(vvBlocksImgIndexes[k]->at(l));
-            Cam->projectImageOnMosaickingPlane(imagesWarped[l], masksWarped[l], corners[l]);
+
+            if (*(vpImagesPoly[vvBlocksImgIndexes[k]->at(l)]) == *imgBlockInter){
+                Cam->projectImageOnMosaickingPlane(imagesWarped[l], masksWarped[l], corners[l]);
+
+            }else{
+                Mat tempImgWarped,tempMaskWarped;
+                Cam->projectImageOnMosaickingPlane(tempImgWarped, tempMaskWarped, corners[l]);
+
+                // Get useful image part
+                double tl_x,tl_y,br_x,br_y;
+                imgBlockInter->getBoundingBox(tl_x,tl_y,br_x,br_y);
+
+                // Crop images and masks with the bounding box
+                tempImgWarped(cv::Rect(tl_x-corners[l].x,tl_y-corners[l].y,br_x-tl_x+1,br_y-tl_y+1)).copyTo(imagesWarped[l]);
+                tempMaskWarped(cv::Rect(tl_x-corners[l].x,tl_y-corners[l].y,br_x-tl_x+1,br_y-tl_y+1)).copyTo(masksWarped[l]);
+                corners[l].x = tl_x;
+                corners[l].y = tl_y;
+            }
+
             Cam->image()->releaseImageData();
+            delete imgBlockInter;
+
         }
 
+        // Draw block
         drawAndBlend(imagesWarped, masksWarped, corners, mosaicImage, mosaicImageMask);
         QString filePath = writingPathAndPrefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-        imwrite(filePath.toStdString().c_str(), mosaicImage);
+        //imwrite(filePath.toStdString().c_str(), mosaicImage);
+
+        QString utmProjParam, utmHemisphereOption,utmZoneString;
+
+        // Construct utm proj param options
+        utmZoneString = QString("%1 ").arg(mosaicD_p.utmZone())+ mosaicD_p.utmHemisphere();
+        QStringList utmParams = utmZoneString.split(" ");
+
+        if ( utmParams.at(1) == "S" ){
+            utmHemisphereOption = QString(" +south");
+        }else{
+            utmHemisphereOption = QString("");
+        }
+        utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
+
+//        _mosaicOrigin.x, _mosaicOrigin.y,
+//                            _mosaicOrigin.x+x_shift*_pixelSize.x, _mosaicOrigin.y-y_shift*_pixelSize.y
+
+        // Get block corners in pixels
+        double blockTL_x,blockTL_y,blockBR_x,blockBR_y;
+        vpEffBlocksPoly[k]->getBoundingBox(blockTL_x,blockTL_y,blockBR_x,blockBR_y);
+
+
+        double blockUtmTL_x = mosaicD_p.mosaicOrigin().x + blockTL_x*mosaicD_p.pixelSize().x;
+        double blockUtmTL_y = mosaicD_p.mosaicOrigin().y - blockTL_y*mosaicD_p.pixelSize().y;
+
+        double blockUtmBR_x = mosaicD_p.mosaicOrigin().x + blockBR_x*mosaicD_p.pixelSize().x;
+        double blockUtmBR_y = mosaicD_p.mosaicOrigin().y - blockBR_y*mosaicD_p.pixelSize().y;
+
+        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+                .arg(blockUtmTL_x,0,'f',2)
+                .arg(blockUtmTL_y,0,'f',2)
+                .arg(blockUtmBR_x,0,'f',2)
+                .arg(blockUtmBR_y,0,'f',2);
+        RasterGeoreferencer rasterGeoref;
+        rasterGeoref.WriteGeoFile(mosaicImage, mosaicImageMask, filePath,gdalOptions);
+
     }
 
     //    for m=1:x_bl_nb*y_bl_nb

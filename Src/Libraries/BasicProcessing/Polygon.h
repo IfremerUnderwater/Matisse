@@ -79,8 +79,8 @@ public:
     ///
     void getBoundingBox(double &tlx_p, double &tly_p, double &brx_p, double &bry_p);
 
-    bool operator ==(Polygon polyB_p);
-    bool operator !=(Polygon polyB_p);
+    bool operator ==(const Polygon &polyB_p);
+    bool operator !=(const Polygon &polyB_p);
 
 private:
     gpc_polygon _gpcPolygon;
