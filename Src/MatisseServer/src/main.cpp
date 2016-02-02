@@ -11,13 +11,38 @@
 #include "Context.h"
 #include "MatisseParameters.h"
 #include "AssemblyGui.h"
+#include "WelcomeDialog.h"
 #include <qgsapplication.h>
 #include <QStyleFactory>
 using namespace MatisseServer;
 using namespace MatisseTools;
 
+void myMessageOutput(QtMsgType type, const char *msg)
+{
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stdout, "INFO: %s\n", msg);
+        fflush(stdout);
+        break;
+    case QtWarningMsg:
+        fprintf(stdout, "WARN: %s\n", msg);
+        fflush(stdout);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "ERROR: %s\n", msg);
+        fflush(stderr);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "FATAL: %s\n", msg);
+        fflush(stderr);
+        abort();
+    }
+}
+
 int main(int argc, char *argv[])
 {
+    // Define log handler
+    qInstallMsgHandler(myMessageOutput);
 
     // Init QGIS
 #ifdef WIN32
@@ -29,22 +54,16 @@ int main(int argc, char *argv[])
     QgsApplication::setPluginPath(oswgeo4w+"\\apps\\qgis\\pluginsd");
 #endif
 #else
+    qDebug() << "else";
     QgsApplication::setPrefixPath("/usr", true);
 
 #endif
 
+
     QgsApplication::initQgis();
     QgsApplication a(argc, argv, true);
 
-    QTranslator matisseTranslator;
-    matisseTranslator.load("MatisseServer_en");
-    a.installTranslator(&matisseTranslator);
-
-    QTranslator toolsTranslator;
-    toolsTranslator.load("MatisseTools_en");
-    a.installTranslator(&toolsTranslator);
-
-    a.setStyle(QStyleFactory::create("Fusion"));
+    //a.setStyle(QStyleFactory::create("Fusion"));
 
     qDebug() << QgsApplication::showSettings();
     QString testLaunch("testLaunch");
@@ -75,15 +94,23 @@ int main(int argc, char *argv[])
     if (argc > 1) {
         settingsFile = argv[1];
     }
+
+
     AssemblyGui w(settingsFile);
+    w.setObjectName("_MW_assemblyGui");
 
     if (!w.isShowable()) {
         return -1;
     }
 
-    w.show();
+    // Afficher en premier l'écran d'accueil
+    WelcomeDialog wd(&w);
+    wd.setObjectName("_D_welcomeDialog");
+    wd.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+    wd.show();
+
+    w.loadDefaultStyleSheet();
+    w.setWindowFlags(Qt::FramelessWindowHint);//| Qt::WindowMinimizeButtonHint);
 
     return a.exec();
-
-
 }

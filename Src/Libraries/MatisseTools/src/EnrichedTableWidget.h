@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 #include <QTableWidget>
+#include <QtDebug>
 
 #include "EnrichedFormWidget.h"
 
@@ -16,6 +17,8 @@ public:
     explicit EnrichedTableWidget(QWidget *parent, QString label, quint8 cols, quint8 rows, QStringList defaultValues);
     bool currentValueChanged();
     virtual QString currentValue();
+    virtual void restoreDefaultValue();
+    virtual void setValue(QString newValue);
 
 signals:
 

@@ -9,10 +9,11 @@ namespace Ui {
 class ParametersWidgetSkeleton;
 }
 
+namespace MatisseTools {
+
 class ParametersWidgetSkeleton : public QWidget
 {
     Q_OBJECT
-
 public:
     explicit ParametersWidgetSkeleton(QWidget *parent = 0);
     ~ParametersWidgetSkeleton();
@@ -32,5 +33,7 @@ private:
     QList<QWidget*> _widgets;
     QList<QObject*>_modifiedValues;
 };
+
+}
 
 #endif // PARAMETERSWIDGETSKELETON_H

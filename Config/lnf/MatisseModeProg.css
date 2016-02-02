@@ -1,0 +1,67 @@
+/*
+*
+* Feuille de style spécifique au mode PROGRAMMATION
+*
+/
+
+/* MAIN CONTROLL BAR */
+QWidget#homeWidget QWidget {
+   background-color: #f6bb42;
+   border: none;
+}
+
+
+QWidget#matisseVersionWidget QWidget {
+    background-color: #e7a213;
+    border: none;
+}
+
+
+QWidget#mainMenuWidget {
+    background-color: #e7a213;    
+}
+
+/* Customisation des menus et menus contextuels */
+QMenuBar {
+    background-color: #e7a213;
+    color: #f5f7fa;
+    font-family: "Montserrat";
+    font-size: 12px;
+    font-weight: 600;
+}
+
+QMenuBar::item {
+    background: #e7a213;
+}
+
+QMenu::item:selected {
+    border: 2px solid #e7a213;
+}
+
+/* COULEURS DE SELECTION : ARBRES ET LISTES */
+QTreeView::item:selected, QTreeView::item:hover, QListWidget::item:selected, QListWidget::item:hover {
+    border: 1px solid rgb(246,187,66);
+    padding-left: -1px;
+    color: #f5f7fa;
+}
+
+QTreeView::item:selected:active, QListWidget::item:selected:active {
+    background: rgba(246,187,66,60%);
+}
+
+QTreeView::item:selected:!active, QListWidget::item:selected:!active {
+    background: rgba(246,187,66,45%);
+}
+
+QTreeView::item:hover, QListWidget::item:hover {
+    background: rgba(246,187,66,20%);
+}
+
+
+
+/* ONGLETS */
+QTabBar::tab:selected {
+    margin: 0;
+    background: #e7a213;
+    color: #f5f7fa;
+}

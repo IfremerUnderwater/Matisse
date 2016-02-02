@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<MatisseSettings>
-	<ProgramVersion>0.1</ProgramVersion>
+<MatisseSettings>	
 	<Date>13/05/2015</Date>
 	<DllRootDir>./Modules</DllRootDir>
 	<XmlRootDir>./xml</XmlRootDir>
 	<Port>8888</Port>
-  <DataRootDir>.</DataRootDir>
+	<DataRootDir>.</DataRootDir>
 </MatisseSettings>

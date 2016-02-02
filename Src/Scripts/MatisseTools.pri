@@ -5,6 +5,7 @@ message("INCLUDEPATH in MatisseTools pri = $$INCLUDEPATH")
 CONFIG(debug, debug|release) {
     win32{
         LIBS *= -L$${BUILD_DIR}/Libraries/MatisseTools/debug
+        PRE_TARGETDEPS += $${BUILD_DIR}/Libraries/MatisseTools/debug
     }
     else{
         LIBS *= -L$${BUILD_DIR}/Libraries/MatisseTools
@@ -20,3 +21,4 @@ else {
 }
 
 LIBS*= -lMatisseTools
+

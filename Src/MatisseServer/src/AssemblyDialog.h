@@ -18,9 +18,11 @@ class AssemblyDialog : public QDialog
     Q_OBJECT
     
 public:
-    explicit AssemblyDialog(QWidget *parent, QString & name, KeyValueList & keyValue);
+    explicit AssemblyDialog(QWidget *parent, QString & name, KeyValueList & keyValue, bool isNewAssembly, bool isFirstTimeSave = false);
     ~AssemblyDialog();
 
+protected:
+    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 
 private:
     Ui::AssemblyDialog *_ui;
@@ -29,6 +31,9 @@ private:
 
 public slots:
     void slot_close();
+
+signals:
+    void signal_showWelcome();
 };
 }
 #endif // ASSEMBLYDIALOG_H

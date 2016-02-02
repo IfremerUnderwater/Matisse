@@ -11,6 +11,12 @@ struct EnumValue {
     QString _text;
 };
 
+enum ParameterLevel {
+    USER,
+    ADVANCED,
+    EXPERT
+};
+
 enum ParameterType {
     UNKNOWN_TYPE,
     PAR_INT,
@@ -40,6 +46,7 @@ enum ParameterShow {
 struct Parameter {
     QString _name;
     QString _text;
+    ParameterLevel _level;
     bool _userModify;
     QString _suffix;
     ParameterType _type;
@@ -61,6 +68,7 @@ struct Condition {
 
 struct ParametersGroup {
     QString _name;
+    QString _text;
     QStringList _parametersNames;
     bool _hasUserValues;
     QList<Parameter> _parameters;

@@ -11,81 +11,82 @@
 #include "SourceWidget.h"
 #include "ProcessorWidget.h"
 #include "DestinationWidget.h"
-#include "ParametersWidget.h"
 #include "PipeWidget.h"
 #include "AssemblyGraphicsScene.h"
 #include "KeyValueList.h"
 #include "Xml.h"
-#include "Tools.h"
 #include "ParametersDialog.h"
 #include "Server.h"
+#include "MatisseParametersManager.h"
+#include "ParametersWidgetSkeleton.h"
+
 
 namespace Ui {
 class ExpertFormWidget;
 }
 
 namespace MatisseServer {
+
+
 class ExpertFormWidget : public QWidget
 {
     Q_OBJECT
     
 public:
-    explicit ExpertFormWidget(Server *server, QWidget *parent = 0);
+    explicit ExpertFormWidget(QWidget *parent = 0);
     ~ExpertFormWidget();
 
-    void addProcessorWidget(ProcessorWidget * procWidget);
-    void addSourceWidget(SourceWidget * sourceWidget);
-    void addDestinationWidget(DestinationWidget * destinationWidget);
+    // TODO provisoire à supprimer
+    void setServer(Server *server);
 
-    ParametersWidget * getParametersWidget(QString name);
-    SourceWidget * getSourceWidget(QString name);
-    ProcessorWidget * getProcessorWidget(QString name);
-    DestinationWidget * getDestinationWidget(QString name);
+//    void addProcessorWidget(ProcessorWidget * procWidget);
+//    void addSourceWidget(SourceWidget * sourceWidget);
+//    void addDestinationWidget(DestinationWidget * destinationWidget);
+
+    //ParametersWidget * getParametersWidget(QString name);
     bool loadAssembly(QString assemblyName);
     bool saveAssembly(QString filename, KeyValueList fields);
     void resetAssemblyForm();
-    void test();
+    //void test();
     AssemblyGraphicsScene * getScene() { return _scene;}
-    void showParameters(AssemblyDefinition * assembly);
-    void showParameters(QString parametersName);
-    bool saveParameters();
-    bool deleteSelectedParameters();
-    void selectLastUsedParameter();
-    bool selectParametersItem(QString model, QString parameters);
+    QGraphicsView * getGraphicsView();
+    //void showParameters(AssemblyDefinition * assembly);
+//    bool saveParameters();
+//    bool deleteSelectedParameters();
+//    void selectLastUsedParameter();
+//    bool selectParametersItem(QString model, QString parameters);
 
 private:
     Ui::ExpertFormWidget * _ui;
     AssemblyGraphicsScene * _scene;
-    QHash<QString, ParametersWidget *> _availableParameters;
-    QHash<QString, QTreeWidgetItem *> _unusedParameters;
-    QHash<QString, SourceWidget *> _availableSources;
-    QHash<QString, ProcessorWidget *> _availableProcessors;
-    QHash<QString, DestinationWidget *> _availableDestinations;
+//    QHash<QString, SourceWidget *> _availableSources;
+//    QHash<QString, ProcessorWidget *> _availableProcessors;
+//    QHash<QString, DestinationWidget *> _availableDestinations;
 
-    QString _currentAssemblyName;
-    QTreeWidgetItem * _lastUsedParameter;
-    QString _settingsFile;
+    //QString _currentAssemblyName;
+    //QTreeWidgetItem * _lastUsedParameter;
+    //QString _settingsFile;
     //QString _rootXml;
     QHash<QString, KeyValueList> _assembliesValues;
-    QList<Tools> * _parametersFiles;
     Server * _server;
     //Xml _xmlTool;
-    Tools * _currentParameters;
+    //Tools * _currentParameters;
 
     void init();
-    void fillLists();
+    //void fillLists();
 
 protected slots:
-    void slot_showParameters(QTreeWidgetItem *item = NULL, int noCol = 0);
-    void slot_parametersValuesModified(bool modified);
-    void slot_changeTabPanel(int panel);
+//    void slot_showParameters(QTreeWidgetItem *item = NULL, int noCol = 0);
+    //void slot_parametersValuesModified(bool modified);
+    //void slot_changeTabPanel(int panel);
 
 signals:
-    void signal_parametersValuesModified(bool modified);
-    void signal_saveParameters();
-    void signal_selectParameters(bool);
-    void signal_usedParameters(bool);
+    //void signal_parametersValuesModified(bool modified);
+    //void signal_saveParameters();
+    //void signal_selectParameters(bool);
+    //void signal_usedParameters(bool);
 };
+
 }
 
 #endif // EXPERTFORMWIDGET_H

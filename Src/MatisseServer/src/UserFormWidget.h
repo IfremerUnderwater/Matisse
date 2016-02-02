@@ -31,8 +31,10 @@ public:
     void displayImage(Image *image);
     void resetJobForm();
     void loadRasterFile(QString filename = "");
+    void loadShapefile(QString filename = "");
     void setTools(Tools * tools);
-    ParametersWidgetSkeleton * parametersWidget();
+    void saveQgisProject(QString filename);
+    void loadTestVectorLayer();
     
 private:
     Ui::UserFormWidget *_ui;

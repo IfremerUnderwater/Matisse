@@ -3,6 +3,7 @@
 
 #include <QListWidget>
 #include <QStringList>
+#include <QtDebug>
 
 #include "EnrichedFormWidget.h"
 
@@ -15,6 +16,8 @@ public:
     explicit EnrichedListBox(QWidget *parent, QString label, QStringList values, QString defaultValue);
     bool currentValueChanged();
     virtual QString currentValue();
+    virtual void restoreDefaultValue();
+    virtual void setValue(QString newValue);
 
 signals:
 
@@ -22,6 +25,7 @@ public slots:
 
 private:
     QListWidget * _list;
+    int _defaultValueIndex;
 };
 }
 #endif // ENRICHEDLISTBOX_H

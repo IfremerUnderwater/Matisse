@@ -2,6 +2,13 @@
 #include <qgsrasterlayer.h>
 #include <qgsmaplayerregistry.h>
 
+#include <qgsvectordataprovider.h>
+#include <qgsgeometry.h>
+#include <qgsmarkersymbollayerv2.h>
+#include <qgssinglesymbolrendererv2.h>
+#include <qgsrendererv2.h>
+#include <qgsproject.h>
+
 
 #include "UserFormWidget.h"
 #include "ui_UserFormWidget.h"
@@ -40,10 +47,10 @@ void UserFormWidget::showUserParameters(bool flag)
     if (flag) {
         _parametersWidget = _tools->createFullParametersDialog(true);
         connect(_parametersWidget, SIGNAL(signal_valuesModified(bool)), this, SLOT(slot_parametersChanged(bool)));
-        _ui->_SCA_parameters->setWidget(_parametersWidget);
+        //_ui->_SCA_parameters->setWidget(_parametersWidget);
 
     } else {
-        _ui->_SCA_parameters->setWidget(NULL);
+        //_ui->_SCA_parameters->setWidget(NULL);
     }
 }
 
@@ -73,6 +80,8 @@ void UserFormWidget::createCanvas() {
     mapCanvas->freeze(false);
     mapCanvas->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mapCanvas->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    mapCanvas->refresh();
+    mapCanvas->show();
 
     //_ui->_SPL_user->insertWidget(0, mapCanvas);
    // QList<int> heights;
@@ -89,8 +98,8 @@ void UserFormWidget::createCanvas() {
 
     //_ui->_GRV_map=mapCanvas;
 
-    _ui->_SPL_user->setStretchFactor(0, 1);
-    _ui->_SPL_user->setStretchFactor(1, 1);
+    //_ui->_SPL_user->setStretchFactor(0, 1);
+    //_ui->_SPL_user->setStretchFactor(1, 1);
 
 }
 
@@ -108,7 +117,7 @@ void UserFormWidget::resetJobForm()
 {
     // reset parameters
     qDebug() << "resetJobForm";
-    showUserParameters(false);
+    //showUserParameters(false);
     clear();
 }
 
@@ -160,14 +169,114 @@ void UserFormWidget::loadRasterFile(QString filename) {
     mapCanvas->refresh();
 }
 
+void UserFormWidget::loadShapefile(QString filename)
+{
+    QFileInfo fileInfo(filename);
+    QgsVectorLayer * mypLayer = new QgsVectorLayer(filename, fileInfo.fileName(), "ogr");
+    if (mypLayer->isValid())
+    {
+        qDebug("Layer is valid");
+    }
+    else
+    {
+        qDebug("Layer is NOT valid");
+        return;
+    }
+
+    // Add the Vector Layer to the Layer Registry
+    QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE);
+
+    // Add the layer to the Layer Set
+    _layers->append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
+
+    // Merge extents
+    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
+    QgsRectangle extent;
+    foreach (QgsMapLayer* layer, layers.values()) {
+      if (extent.width()==0) {
+          extent = layer->extent();
+      }
+      else {
+          extent.combineExtentWith(&layer->extent());
+      }
+    }
+
+
+    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
+
+    // set the canvas to the extent of our layer
+    mapCanvas->setExtent(extent);
+
+    // Set the Map Canvas Layer Set
+    mapCanvas->setLayerSet(*_layers);
+    mapCanvas->refresh();
+}
+
+
 void UserFormWidget::setTools(Tools *tools)
 {
     _tools = tools;
 }
 
-ParametersWidgetSkeleton *UserFormWidget::parametersWidget()
+void UserFormWidget::saveQgisProject(QString filename)
 {
-    return _parametersWidget;
+    QgsProject * project = QgsProject::instance();
+    project->setFileName(filename);
+    project->write();
+}
+
+void UserFormWidget::loadTestVectorLayer()
+{
+    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
+
+    //QList<QgsMapCanvasLayer> layers;
+    QgsVectorLayer *v1 = new QgsVectorLayer("Point", "temporary_points", "memory");
+
+    QgsVectorDataProvider* v1p = v1->dataProvider();
+
+    QList<QgsField> fields;
+    fields.append(QgsField("name", QVariant::String));
+    fields.append(QgsField("age", QVariant::Int));
+    fields.append(QgsField("size", QVariant::Double));
+
+    v1p->addAttributes(fields);
+    v1->updateFields();
+
+    QgsFeature feat;
+    feat.setGeometry(QgsGeometry::fromPoint(QgsPoint(10,10)));
+    QgsAttributes attrs;
+    attrs.append("Johny");
+    attrs.append(2);
+    attrs.append(0.3);
+    feat.setAttributes(attrs);
+    QgsFeatureList feats;
+    feats.append(feat);
+    v1p->addFeatures(feats);
+    v1->updateExtents();
+
+    //QgsFeatureRendererV2 *v1r = v1->rendererV2();
+
+
+    QgsStringMap props;
+    props.insert("name", "square");
+    props.insert("color", "red");
+    QgsMarkerSymbolV2 *symbol = QgsMarkerSymbolV2::createSimple(props);
+
+    QgsFeatureRendererV2 *v1r = new QgsSingleSymbolRendererV2(symbol);
+    //v1r->setSymbol(symbol);
+
+    v1->setRendererV2(v1r);
+
+    QgsMapLayerRegistry::instance()->addMapLayer(v1, TRUE);
+
+    QgsMapCanvasLayer v1Wrap(v1);
+    _layers->append(v1Wrap);
+    mapCanvas->setLayerSet(*_layers);
+//    mapCanvas->setCurrentLayer(v1);
+    mapCanvas->refresh();
+
+    qDebug() << "RENDER VECTOR LAYER !";
+
 }
 
 void UserFormWidget::slot_parametersChanged(bool changed)
@@ -187,8 +296,8 @@ void UserFormWidget::displayImage(Image *image ){
 
     QImage result((uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
     const QPixmap pix = QPixmap::fromImage(result);
-    const QSize size = _ui->_label->size();
-    this->_ui->_label->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
+    const QSize size = _ui->_LA_resultImage->size();
+    this->_ui->_LA_resultImage->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
 
 }
 

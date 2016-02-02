@@ -16,6 +16,9 @@ public:
     ~StatusMessageWidget();
     void addMessage(QString message, QIcon icon);
 
+protected:
+    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+
 private:
     Ui::StatusMessageWidget *_ui;
 

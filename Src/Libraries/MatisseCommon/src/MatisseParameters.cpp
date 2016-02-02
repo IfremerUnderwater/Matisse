@@ -27,6 +27,7 @@ bool MatisseParameters::loadFile(QString xmlFilename)
     xmlFilename = xmlFilename.simplified().trimmed();
     if (xmlFilename == "") {
         _lastErrorStr = "Xml file not defined";
+        qCritical() << "Empty file name";
         return false;
     }
 
@@ -34,11 +35,13 @@ bool MatisseParameters::loadFile(QString xmlFilename)
     pFileInfo = new QFileInfo(inputFile);
     if (!inputFile.exists()) {
         _lastErrorStr = "File " + xmlFilename + " not found.";
+        qCritical() << QString("Parameters file '%1' not found").arg(xmlFilename);
         return false;
     }
 
     if (!inputFile.open(QIODevice::ReadOnly)) {
         _lastErrorStr = "Cannot open file " + xmlFilename + ".";
+        qCritical() << QString("Parameters file '%1' could not be opened").arg(xmlFilename);
         return false;
     }
 
@@ -49,27 +52,29 @@ bool MatisseParameters::loadFile(QString xmlFilename)
     QString structName;
     QString paramName;
     bool ok = true;
-    while ((!reader.atEnd()) && ok) {
+    while (!reader.atEnd()) {
         QXmlStreamReader::TokenType type = reader.readNext();
         QString name = reader.name().toString().trimmed();
 
         switch(type) {
         case QXmlStreamReader::StartElement:
         {
-            if (name == "mosaic_settings") {
+            if (name == "JobParameters") {
                 level = 1;
             } else {
                 switch (level) {
                 case 1: {
                     // on ajoute une structure...
-                    structName = name;
+                    QXmlStreamAttributes attributes = reader.attributes();
+                    structName = attributes.value("name").toString();
                     _hashValues.insert(structName,QHash<QString, QString>());
                     level = 2;
                 }
                     break;
                 case 2: {
                     // on defini un parametre
-                    paramName = name;
+                    QXmlStreamAttributes attributes = reader.attributes();
+                    paramName = attributes.value("name").toString();
                     level = 3;
                 }
                     break;
@@ -111,46 +116,46 @@ bool MatisseParameters::loadFile(QString xmlFilename)
             break;
         case QXmlStreamReader::EndElement:
         {
-            switch (level) {
-            case 3: {
-                if (name != paramName) {
-                    _lastErrorStr = "XML file not compliant: parameter begin without end";
-                    ok = false;
-                } else {
-                    level--;
-                }
-            }
-                break;
-            case 2: {
-                if (name != structName) {
-                    _lastErrorStr = "XML file not compliant: struct begin without end";
-                    ok = false;
-                } else {
-                    level--;
-                }
-            }
-                break;
-            case 1: {
-                if (name != "mosaic_settings") {
-                    _lastErrorStr = "XML file not compliant: mosaic_settings begin without end";
-                    ok = false;
-                } else {
-                    level--;
-                }
+            level--;
+
+//            switch (level) {
+//            case 3: {
+//                if (name != paramName) {
+//                    _lastErrorStr = "XML file not compliant: parameter begin without end";
+//                    ok = false;
+//                } else {
+//                    level--;
+//                }
+//            }
+//                break;
+//            case 2: {
+//                if (name != structName) {
+//                    _lastErrorStr = "XML file not compliant: struct begin without end";
+//                    ok = false;
+//                } else {
+//                    level--;
+//                }
+//            }
+//                break;
+//            case 1: {
+//                if (name != "mosaic_settings") {
+//                    _lastErrorStr = "XML file not compliant: mosaic_settings begin without end";
+//                    ok = false;
+//                } else {
+//                    level--;
+//                }
             }
                 break;
 
+            case QXmlStreamReader::StartDocument:
+            break;
+
             default: {
+                qWarning() << QString("Unknown tag type '%1' found while parsing parameters value").arg(type);
                 _lastErrorStr = "XML file not compliant: format error";
                 ok = false;
             }
                 break;
-            }
-        }
-            break;
-
-        default:
-            break;
         }
 
     }
@@ -186,10 +191,10 @@ QString MatisseParameters::dumpStructures()
     return dump;
 }
 
-bool MatisseParameters::containsParam(QString paramGroupName, QString paramName)
+bool MatisseParameters::containsParam(QString paramStructName, QString paramName)
 {
-    if (_hashValues.find(paramGroupName) != _hashValues.end()) {
-        QHash<QString, QString> params = _hashValues.value(paramGroupName);
+    if (_hashValues.find(paramStructName) != _hashValues.end()) {
+        QHash<QString, QString> params = _hashValues.value(paramStructName);
         if (params.find(paramName) != params.end()) {
             return true;
         }
@@ -198,10 +203,10 @@ bool MatisseParameters::containsParam(QString paramGroupName, QString paramName)
 
 }
 
-qint64 MatisseParameters::getIntParamValue(QString paramGroupName, QString paramName, bool &ok)
+qint64 MatisseParameters::getIntParamValue(QString paramStructName, QString paramName, bool &ok)
 {
     ok=true;
-    QString valueStr = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"").trimmed();
+    QString valueStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"").trimmed();
 
     qint64 value;
     ok = true;
@@ -216,9 +221,9 @@ qint64 MatisseParameters::getIntParamValue(QString paramGroupName, QString param
 
 }
 
-bool MatisseParameters::getBoolParamValue(QString paramGroupName, QString paramName, bool &ok)
+bool MatisseParameters::getBoolParamValue(QString paramStructName, QString paramName, bool &ok)
 {
-    QString valueStr = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"").trimmed().toLower();
+    QString valueStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"").trimmed().toLower();
 
     bool retValue = false;
 
@@ -234,10 +239,10 @@ bool MatisseParameters::getBoolParamValue(QString paramGroupName, QString paramN
     return retValue;
 }
 
-qreal MatisseParameters::getDoubleParamValue(QString paramGroupName, QString paramName, bool &ok)
+qreal MatisseParameters::getDoubleParamValue(QString paramStructName, QString paramName, bool &ok)
 {
     ok=true;
-    QString valueStr = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"").trimmed();
+    QString valueStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"").trimmed();
     double value;
     ok = true;
     if (valueStr == "-inf") {
@@ -250,18 +255,18 @@ qreal MatisseParameters::getDoubleParamValue(QString paramGroupName, QString par
     return value;
 }
 
-QString MatisseParameters::getStringParamValue(QString paramGroupName, QString paramName)
+QString MatisseParameters::getStringParamValue(QString paramStructName, QString paramName)
 {
-    QString value = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"");
+    QString value = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"");
 
     return value;
 }
 
-QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString paramGroupName, QString paramName, bool &ok)
+QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString paramStructName, QString paramName, bool &ok)
 {
     QMatrix3x3 values;
 
-    QString valuesStr = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"");
+    QString valuesStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"");
 
     QStringList args = valuesStr.split(";");
     if (args.size() != 9) {
@@ -295,10 +300,10 @@ QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString paramGroupName, QSt
     return values;
 }
 
-Matrix6x1 MatisseParameters::getMatrix6x1ParamValue(QString paramGroupName, QString paramName, bool &ok)
+Matrix6x1 MatisseParameters::getMatrix6x1ParamValue(QString paramStructName, QString paramName, bool &ok)
 {
     Matrix6x1 values;
-    QString valuesStr = _hashValues.value(paramGroupName,QHash<QString,QString>()).value(paramName,"");
+    QString valuesStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"");
 
     QStringList args = valuesStr.split(";");
     if (args.size() != 6) {

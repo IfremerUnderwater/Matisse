@@ -3,6 +3,7 @@
 
 #include <QDoubleSpinBox>
 #include <QString>
+#include <QtDebug>
 
 #include "EnrichedFormWidget.h"
 
@@ -18,6 +19,8 @@ public:
     explicit EnrichedDoubleSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue);
     bool currentValueChanged();
     virtual QString currentValue();
+    virtual void restoreDefaultValue();
+    virtual void setValue(QString newValue);
 
 signals:
 
@@ -26,6 +29,8 @@ public slots:
 private:
     QDoubleSpinBox * _spin;
 
+    qreal _minValueReal;
+    qreal _maxValueReal;
 };
 }
 

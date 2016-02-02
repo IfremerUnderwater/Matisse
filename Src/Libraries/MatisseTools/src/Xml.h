@@ -19,6 +19,7 @@
 #include "KeyValueList.h"
 #include "AssemblyDefinition.h"
 #include "JobDefinition.h"
+#include "MatissePreferences.h"
 
 namespace MatisseTools {
 
@@ -41,17 +42,21 @@ public:
     bool updateJobFile(QString jobName);
     bool writeJobFile(QString jobName, bool overWrite = false);
     bool writeJobFile(JobDefinition *job, bool overWrite = false);
+    bool readMatisseGuiSettings(QString filename);
+    bool readMatissePreferences(QString filename, MatissePreferences &prefs);
+    bool writeMatissePreferences(QString filename, MatissePreferences &prefs);
+    bool saveAssembly(QString filename, AssemblyDefinition *assembly);
 
     JobDefinition *getJob(QString jobName);
     QStringList getJobsNames();
     QString getModelPath(QString parameterVersion);
     QString getJobsPath();
-    QString getJobsParametersPath(QString parameterVersion, QString parameterName);
+    QString getJobsParametersPath(QString jobName);
 
     QString getAssembliesParametersPath(QString parameterVersion, QString parameterName);
     QStringList getAssembliesList();
     QString getAssembliesPath();
-    bool readMatisseGuiSettings(QString filename);
+    QString getAssembliesParametersPathNew() { return _assembliesParametersPath; }
     static bool validateXmlFile(QString xmlSchema, QString xmlFile = "");
 
     KeyValueList readParametersFileDescriptor(QString filename);
@@ -70,6 +75,7 @@ private:
     QString _jobsParametersPath;
     QString _jobsPath;
     QString _assembliesPath;
+    QString _assembliesParametersPath;
 
     QHash<QString, AssemblyDefinition*> _assemblies;
     QHash<QString, JobDefinition*> _jobs;

@@ -18,6 +18,8 @@ public:
     explicit EnrichedSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue);
     bool currentValueChanged();
     virtual QString currentValue();
+    virtual void restoreDefaultValue();
+    virtual void setValue(QString newValue);
 
 signals:
 
@@ -25,6 +27,8 @@ public slots:
 
 private:
     QSpinBox * _spin;
+    qint32 _minValueInt;
+    qint32 _maxValueInt;
 };
 }
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>420</height>
+    <width>400</width>
+    <height>441</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -17,212 +17,20 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Sauvegarde de l'assemblage...</string>
+   <string>Nouvelle chaine de traitement...</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources/resources.qrc">
     <normaloff>:/jpg/ifremer-grand.jpg</normaloff>:/jpg/ifremer-grand.jpg</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">/* background color: #434a54 rgb(67, 74, 84);
-*  default text color: #f5f7fa    rgb(245, 247, 250)
-*
-* Code Couleur
-* Bleu            : #4a89dc rgb(74, 137, - 220);   
-* Marine clair: #434a54  rgb(  67,   74,  84);    // Marine Clairs
-* Vert            : #37bc9b  rgb(  55, 188, 155);   // Vert
-* Marine        : #252a31   rgb(  37,   42,   49);   // Marine
-* Gris Clair    : #f5f7fa      rgb(245, 247, 250);  // Gris Clair
-* Gris moyen: #7c828c rgb(124, 130, 140); //Gris moyen
-* Gris fonce  : #5c646e rgb(92,100, 110); // Gris fonce
-* Rouge        : #da4453; 
-* Orange       : #e9563f;
-* Jaune          : #f6bb42; 
-*/
-
-
-
-/************************/
-/*** Generic Widgets ***/
-/************************/
-QWidget{
-   background-color: #434a54;  /* Marine Clair */
-}
-
-QWidget:disabled {
-   background-color: #252a31;  /* Marine */
-}
-
-QLabel
-{
-  background-color: none;
-  border: none;
-  font-family: &quot;Montserrat&quot;;
-  font-size: 12px;
-  font-weight: 700;
-  color: #f5f7fa;  /* Gris Clair  */
-}
-
-/** QProgressBar **/
-QProgressBar {
-  border: none;
-  background-color: #5c646e; /* Gris fonce  */
-}
-
-QProgressBar::chunk {
-  background-color: #37bc9b; /* Vert  */
-}  
-
-QProgressBar:disabled {
-  background-color: #18212E; 
-
-}
-QProgressBar::chunk:disabled {
-  background-color: #5c646e; 
-}
-
-/** QPushButton **/
-QPushButton {
-  background-color: #434a54;    /*Marine Clair  */
-  border: 2px solid #7c828c; /*Gris moyen  */
-  font-family: &quot;Montserrat&quot;;
-  color: #f5f7fa;  /* Gris Clair  */
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  min-height: 26px;
-}
-
-QPushButton:pressed {
-  background-color: #4a89dc; /* Bleu */
-  border: none;
-}
-
-QPushButton:checked {
-  background-color: #4a89dc;  /* Bleu */
-  border: none;
-}
-
-QPushButton:hover {
-   border: 2px solid #4a89dc;  /* Bleu */
-}
-
-QPushButton:flat {
-     border: 2px solid #4a89dc;  /* Bleu */
-}
-
-/** GroupBox **/
-QGroupBox {
-     background-color: #5c646e; /* Gris fonce  */
-     border: none;
-    text-transform: uppercase;
-    font-family: &quot;Montserrat&quot;;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
-    padding-top: 15;
- }
-
-QGroupBox::title {
-    subcontrol-origin: margin;
-    subcontrol-position: top center; /* position at the top center */
-    padding-top: 2;
-    color: rgb(124, 130, 140); /* Gris moyen */
- }
-
-Line {
-  color: #7c828c;
-  border: none;
-}
-
-
-/************************/
-/*** Object Name       ***/
-/************************/
-/* Main Dashboard Date */
-QLabel#label_date
-{
-  font-family: &quot;Montserrat&quot;;
-  color: rgb(124, 130, 140); /* Gris moyen */
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 20px;
-}
-
-/* Main Dashboard Time */
-QLabel#label_time
-{
-  font-family: &quot;Montserrat&quot;;
-  color: rgb(245, 247, 250);  /* Gris Clair  */
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 20px;
-  width: 73px;
-  height: 31px;
-}
-
-QLabel#page_title
-{
-  font-family: &quot;Montserrat&quot;;
-  color: rgb(124, 130, 140); /* Gris moyen */
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 20px;
-}
-
-/************************/
-/*** Main Dashboard  ***/
-/************************/
-#dashboard_top {
-  border-bottom-width: 2px;
-  border-bottom-style: solid;
-  border-bottom-color: #252a31; 
-}
-#dashboard_top &gt; QFrame {
-  border-right-width: 2px;
-  border-right-style: solid;
-  border-right-color: #252a31; 
-}
-
-#dashboard_center {
-  border-right-width: 2px;
-  border-right-style: solid;
-  border-right-color: #252a31; 
-  border-left-width: 2px;
-  border-left-style: solid;
-  border-left-color: #252a31; 
-}
-
-QFrame#panel_controls {
-  border-right-width: 0px;
-}
-
-
-#dashboard_left &gt; QFrame {
-  border-bottom-width: 2px;
-  border-bottom-style: solid;
-  border-bottom-color: #252a31; 
-}
-
-QFrame#panel_thrusters {
-  border-bottom-width: 0px;
-}
-
-QFrame#panel_telemetry{
-   border-left-width: 2px;
-   border-left-style: solid;
-   border-left-color: #252a31; 
-}
-
-#headings_display {
-     background-color: #5c646e; /* Gris fonce  */
-}</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="_HBL_name">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="_LA_name">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -236,32 +44,32 @@ QFrame#panel_telemetry{
         </size>
        </property>
        <property name="text">
-        <string>Name:</string>
+        <string>Nom :</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="_LE_name"/>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
+      <widget class="QLineEdit" name="_LE_name">
+       <property name="minimumSize">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>200</width>
+         <height>0</height>
         </size>
        </property>
-      </spacer>
+      </widget>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="_HBL_userMode">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="_LA_userMode">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -275,32 +83,64 @@ QFrame#panel_telemetry{
         </size>
        </property>
        <property name="text">
-        <string>Version:</string>
+        <string>Utilisation :</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="_LE_version"/>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
+      <widget class="QGroupBox" name="_GB_userModeSelection">
+       <property name="minimumSize">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>200</width>
+         <height>0</height>
         </size>
        </property>
-      </spacer>
+       <property name="title">
+        <string/>
+       </property>
+       <widget class="QRadioButton" name="_RB_deferredTime">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>500</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>500</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Depouillement</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="_RB_realTime">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>0</y>
+          <width>161</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Temps reel</string>
+        </property>
+       </widget>
+      </widget>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QHBoxLayout" name="_HBL_version">
      <item>
-      <widget class="QLabel" name="label_5">
+      <widget class="QLabel" name="_LA_version">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -314,7 +154,40 @@ QFrame#panel_telemetry{
         </size>
        </property>
        <property name="text">
-        <string>Valid:</string>
+        <string>Version :</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="_LE_version">
+       <property name="minimumSize">
+        <size>
+         <width>200</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="_HBL_valid">
+     <item>
+      <widget class="QLabel" name="_LA_valid">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Valide :</string>
        </property>
       </widget>
      </item>
@@ -329,7 +202,7 @@ QFrame#panel_telemetry{
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_2">
+      <spacer name="_HSP_valid">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -344,9 +217,9 @@ QFrame#panel_telemetry{
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <layout class="QHBoxLayout" name="_HBL_author">
      <item>
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="_LA_author">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -360,39 +233,33 @@ QFrame#panel_telemetry{
         </size>
        </property>
        <property name="text">
-        <string>Author</string>
+        <string>Auteur :</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="_LE_author"/>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
+      <widget class="QLineEdit" name="_LE_author">
+       <property name="minimumSize">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>200</width>
+         <height>0</height>
         </size>
        </property>
-      </spacer>
+      </widget>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <layout class="QHBoxLayout" name="_HBL_comments">
      <item>
-      <widget class="QLabel" name="label_4">
+      <widget class="QLabel" name="_LA_comments">
        <property name="text">
-        <string>Comments:</string>
+        <string>Commentaires :</string>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_3">
+      <spacer name="_HSP_comments">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -410,9 +277,16 @@ QFrame#panel_telemetry{
     <widget class="QTextEdit" name="_TXT_comments"/>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
+    <layout class="QHBoxLayout" name="_HBL_actions">
      <item>
-      <spacer name="horizontalSpacer_6">
+      <widget class="QPushButton" name="_PB_save">
+       <property name="text">
+        <string>Creer</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -423,33 +297,13 @@ QFrame#panel_telemetry{
         </size>
        </property>
       </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="_PB_save">
-       <property name="text">
-        <string>Save</string>
-       </property>
-      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="_PB_cancel">
        <property name="text">
-        <string>Cancel</string>
+        <string>Annuler</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_7">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>

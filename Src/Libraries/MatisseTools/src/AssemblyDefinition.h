@@ -172,9 +172,13 @@ public:
     QDate creationDate() const;
     void setCreationDate(const QDate &creationDate);
 
+    bool isRealTime() const;
+    void setIsRealTime(bool isRealTime);
+
     QString serialized();
 
     QList<AssemblyDefinitionValidity> checkDefinition();
+
 
 signals:
 
@@ -189,6 +193,7 @@ private:
     QString _comment;
     QDate _creationDate;
     bool _usable;
+    bool _isRealTime;
 
     SourceDefinition *_sourceDefinition;
     ParameterDefinition *_parametersDefinition;

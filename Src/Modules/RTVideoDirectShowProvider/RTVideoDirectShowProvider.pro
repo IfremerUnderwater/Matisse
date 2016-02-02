@@ -37,9 +37,11 @@ QMAKE_CXXFLAGS += /wd4100 /wd4996
 INCLUDEPATH += "$$(WINDOWS_SDK_ROOT)/Samples/multimedia/directshow/baseclasses" \
 INCLUDEPATH += "$$(WINDOWS_SDK_ROOT)/Samples/multimedia/directshow/dmo/dmodemo"
 
-LIBS += -L"C:/Program Files (x86)/Microsoft SDKs/Windows/v7.1/Samples/multimedia/directshow/baseclasses/Release"
-LIBS += -L"C:/Program Files (x86)/Microsoft SDKs/Windows/v7.1/Lib/x64"
+#LIBS += -L"C:/Program Files (x86)/Microsoft SDKs/Windows/v7.1/Samples/multimedia/directshow/baseclasses/Release"
+#LIBS += -L"C:/Program Files (x86)/Microsoft SDKs/Windows/v7.1/Lib/x64"
 
+LIBS += -L"$$(WINDOWS_SDK_ROOT)/Samples/multimedia/directshow/baseclasses/Release"
+LIBS += -L"$$(WINDOWS_SDK_ROOT)/Lib/x64"
 
 
 CONFIG(debug, debug|release) {

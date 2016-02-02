@@ -1,31 +1,263 @@
 /*
-* Bleu		#4a8adc
+* Bleu          #4a8adc 74,138,220
 * Bleu foncé	#2972cf
 * Vert foncé	#19ab86
-* Vert		#37bc9b
-* Gris clair	#f5f7fa
+* Vert          #37bc9b
+* Gris clair	#f5f7fa 245,247,250
 * Gris moyen	#7c828c
 * Gris foncé	#5c646e
 * Gris foncé +	#434a54
-* Noir		#252a31
-* Rouge		#c2202f
-* Orange	#ce3119
-* Jaune		#f6bb42
+* Gris foncé++  #424c58
+* Noir          #252a31
+* Rouge         #c2202f
+* Orange        #ce3119
+* Jaune         #f6bb42 246,187,66
 * Jaune foncé	#e7a213
-* Mauve		#b089e0
+* Mauve         #967adc 150,122,220
+* Mauve foncé   #7a61b9
 */
 
 /************************/
 /*** Generic Widgets ***/
 /************************/
 QWidget{
-   background-color: #434a54;  
+   background-color: #434a54;
+   font-family: "Montserrat";
+   font-size: 12px;
+}
+/*Not matching HROV value but generating ugly results with QToolBar*/
+
+
+/* Debug layout
+
+/*QMainWindow#_MW_assemblyGui {
+    margin: 0;
+    padding: 0;
+}*/
+
+
+QWidget#_MCB_controllBar {
+    margin: 0;
+    padding: 0;
+    border: none;
+    /*border: 1px solid yellow;*/
 }
 
-/*Not matching HROV value but generating ugly results with QToolBar*/
-QWidget:disabled {
-   background-color: #434a54;
+QWidget#centralwidget {
+    border: none;
+    /*border: 1px solid red;*/
 }
+
+
+/* WELCOME DIALOG */
+QWidget#progModeLauncherButton {
+    background-color: #e7a213;
+    color: black;
+    border: none;
+}
+
+QWidget#realTimeModeLauncherButton {
+    background-color: #4a8adc;
+    color: black;
+    border: none;
+}
+
+QWidget#configModeLauncherButton {
+    background-color: #5c646e;
+    color: black;
+    border: none;
+}
+
+QWidget#deferredTimeModeLauncherButton {
+    background-color: #7a61b9;
+    color: black;
+    border: none;
+}
+
+QWidget#_TBU_welcomeCloseButton {
+    border: none;
+}
+
+QWidget#_LA_matisseWelcomeLabel {
+    background-color: #434a54;
+    color: #f5f7fa;
+    font-family: "Arial";
+    font-weight: normal;
+    font-size: 28px;
+}
+
+
+/* MAIN CONTROLL BAR */
+QWidget#_LAB_matisseVersion {
+    color: #f5f7fa;
+    font-family: "Montserrat";
+    font-size: 16px;
+    font-weight: 700;
+}
+
+QWidget#visuModeWidget QWidget {
+    background-color: #252a31;
+}
+
+QWidget#ongoingProcessWidget {
+    background-color: #252a31;
+}
+
+QWidget#ongoingProcessWidget QWidget {
+    background-color: #252a31;
+}
+
+/* L&F des popup de menu statiques et contextuels */
+QMenu {
+    /*background: #252a31;*/ /* noir pour marquer le tour de la popup (margin) */
+    background-color: #424c58;
+    margin: 5px; /* impossible de régler individuellement les marges */
+    font-family: "Montserrat";
+    font-size: 12px;
+    font-weight: normal;
+}
+
+QMenu::item {
+    background-color: #424c58;
+    padding: 1px 20px 1px 20px;
+    color: #f5f7fa;
+    border: 2px solid #424c58; /* bordure confondue avec le fond pour éviter le
+                                 décalage de 2px à la sélection */
+}
+
+QMenu::separator {
+    height: 2px;
+    background: #f5f7fa;
+    margin-left: 20px;
+    margin-right: 0px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+QMenu::item:disabled {
+    color: #7c828c; /* gris foncé+ pour contraster avec le fond bleu et violet des modes RT/DT */
+}
+
+QMenu::item:disabled:selected {
+    border: 2px solid #424c58; /* bordure masquée car confondue avec le fond */
+}
+
+/* STOP button */
+QWidget#_TBU_stopButton {
+    border: none;
+}
+
+/* ARBRE DES ASSEMBLAGES ET TACHES */
+QTreeView {
+   alternate-background-color: #434a54;
+   color: #f5f7fa;
+   font-family: "Montserrat";
+   font-size: 12px;
+   font-weight: normal;
+}
+
+QWidget#_TRW_assemblies{
+    margin: 0;
+}
+/*
+QSplitter#splitter {
+    background: red;
+}
+
+QSplitter#splitter::handle:horizontal {
+    height: 0px;
+}
+*/
+
+/* VUE CARTO */
+/* couleur de fond */
+/* Provisoire : gérer la transparence pour le fond de carte */
+QWidget#_LA_resultImage {
+    background: #f5f7fa;
+}
+
+/* VUE CREATION */
+/* couleur de fond */
+QGraphicsView{
+    /*background: #f5f7fa;*/
+    background: #252A31;
+}
+
+QGraphicsView:disabled {
+    background: #7c828c;
+}
+
+
+/* ONGLETS */
+QTabWidget{
+    /*border: 2px solid #7c828c;*/
+    /*border: 2px solid blue;*/
+}
+
+QWidget#_SW_helperTabSets {
+    border: none;
+    /*border: 1px solid blue;*/
+    margin: 0;
+}
+
+QTabWidget::pane {
+    /* border: 1px solid red;*/
+    padding: 0;
+}
+
+QTabWidget::tab-bar {
+    width: 280px; /* étend au max la tabbar et les boîtes d'onglets */
+}
+
+/*
+QTabBar {
+    border: 1px solid red;
+    padding: 0px;
+    margin: 0;
+}*/
+
+
+QTabBar::tab {
+    background: transparent;
+    color: #7c828c;
+    font-family: "Montserrat";
+    font-size: 11px;
+    font-weight:bold;
+    border: none;
+    /*border: 1px solid blue;*/
+    width: 79px; /* taille max pour 3 onglets */
+    margin: 0;
+    padding: 7px 7px 7px 7px;
+}
+
+QTabBar::tab:hover {
+    color: #f5f7fa;
+    /* color: white; */
+}
+
+/* Alternance de couleur pour les listes d'éléments */
+QListWidget {
+    alternate-background-color: #7c828c;
+    color: #f5f7fa;  /* Gris Clair  */
+}
+
+/* STATUS BAR */
+QStatusBar {
+    border: none;
+    /*border: 1px solid green;*/
+}
+
+QStatusBar::item {
+    border: none; /* permet de supprimer le séparateur après le widget (StatusMessageWidget) */
+}
+
+QWidget#_PB_resetMessages {
+    border: none;
+}
+
+
+/* STYLES GENERIQUES */
+
 
 QLabel
 {
@@ -36,6 +268,7 @@ QLabel
   font-weight: 700;
   color: #f5f7fa;  /* Gris Clair  */
 }
+
 
 /** QProgressBar **/
 QProgressBar {
@@ -97,16 +330,12 @@ QGroupBox {
     padding-top: 15;
  }
 
-/*QToolBar {
-     background-color: #5c646e; 
-     border: 1px solid #5c646e;
- }*/
-
-QToolBar {
-    border: 1px solid #5c646e;
-    background: 1px solid #434a54;
-    font-weight: bold;
+QGroupBox#_GB_userModeSelection {
+    background: transparent; /* Gris moyen */
+    padding: 0;
 }
+
+
 
 QGroupBox::title {
     subcontrol-origin: margin;
@@ -115,23 +344,12 @@ QGroupBox::title {
     color: rgb(124, 130, 140); /* Gris moyen */
  }
 
+/* A quoi ça sert ? */
 Line {
   color: #7c828c;
   border: none;
 }
 
-
-QMenu
-{
-    border: 1px solid #252a31;
-    color: #f5f7fa;
-    margin: 2px;
-}
-
-QMenu::icon
-{
-    margin: 5px;
-}
 
 QComboBox
 {
@@ -272,6 +490,14 @@ QCheckBox, QRadioButton
     outline: none;
 }
 
+QRadioButton {
+    color: #f5f7fa;
+}
+
+/*QRadioButton::indicator {
+    color: #f5f7fa;
+}*/
+
 QCheckBox::indicator, QGroupBox::indicator, QMenu::indicator:non-exclusive{
     color: #7c828c;
     background-color: #252a31;
@@ -284,11 +510,19 @@ QCheckBox::indicator, QMenu::indicator:non-exclusive{
     background-color: #434a54;
 }
 
+
+
 QRadioButton::indicator
 {
     border-radius: 5px;
     width: 12px;
     height: 12px;
+    background-color: #252a31;
+    border: 1px solid #f5f7fa;
+}
+
+QRadioButton::indicator:checked {
+    image:url(:/qss_icons/rc/radio_checked.svg);
 }
 
 QCheckBox::indicator:pressed
@@ -315,36 +549,10 @@ QCheckBox::indicator:indeterminate {
     image: url(:/qss_icons/rc/checkbox_indeterminate.png);
 }
 
-QTreeView {
-   alternate-background-color: #434a54;
-   color: #f5f7fa
+
+QTextEdit {
+    color: white;
+    background: #252a31;
 }
 
-QGraphicsView{
-     background-color: #f5f7fa; 
-}
-
-
-QTabWidget{
-    border: 2 px #7c828c;
-}
-
-QTabWidget::pane {
-    border: 2 px solid #454a54;
-    border-radius: 3px;
-    padding: 3px;
-}
-
-QTabBar::tab {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #5c646e, stop: 1.0 #7c828c);
-    font-family: "Montserrat";
-    font-size: 13px;
-    border: 2px solid #7c828c;
-    border-bottom-color: #7c828c;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    min-width: 10ex;
-    padding: 2px;
-}
 

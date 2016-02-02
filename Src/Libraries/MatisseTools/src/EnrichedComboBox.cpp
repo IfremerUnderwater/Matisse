@@ -31,3 +31,21 @@ qint32 EnrichedComboBox::currentIndex()
 {
     return _combo->currentIndex();
 }
+
+void EnrichedComboBox::setValue(QString newValue)
+{
+    int index = _combo->findText(newValue, Qt::MatchExactly);
+
+    if (index == -1) {
+        qWarning() << QString("Could not assign value '%1' : not found in combo box").arg(newValue);
+        return;
+    }
+
+    _combo->setCurrentIndex(index);
+
+}
+
+void EnrichedComboBox::restoreDefaultValue()
+{
+    _combo->setCurrentIndex(_defaultIndex);
+}

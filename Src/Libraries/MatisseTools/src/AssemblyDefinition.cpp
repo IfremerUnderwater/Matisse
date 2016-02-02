@@ -330,4 +330,14 @@ QList<AssemblyDefinitionValidity> AssemblyDefinition::checkDefinition()
     return retList;
 
 }
+bool AssemblyDefinition::isRealTime() const
+{
+    return _isRealTime;
+}
+
+void AssemblyDefinition::setIsRealTime(bool isRealTime)
+{
+    _isRealTime = isRealTime;
+}
+
 

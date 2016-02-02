@@ -6,18 +6,22 @@ win32 {
     message("OSGEO4W_ROOT/lib = $$(OSGEO4W_ROOT)/lib")
 }
 
-#CONFIG(debug, debug|release) {
-#        LIBEXT=d
-#}
-#else {
-#	LIBEXT=""
-#}
-
-#LIBS*= -lqgis_core$${LIBEXT} -lqgis_gui$${LIBEXT}
-LIBS*= -lqgis_core -lqgis_gui
+CONFIG(debug, debug|release) {
+        LIBEXT=d
+}
+else {
+        LIBEXT=""
+}
 
 win32{
-    LIBS*=-lproj_i
+    LIBS*= -lqgis_core$${LIBEXT} -lqgis_gui$${LIBEXT}
+}
+else{
+    LIBS*= -lqgis_core -lqgis_gui
+}
+
+win32{
+    LIBS*=-lproj_i -lgdal_i
 }
 else{
     LIBS*=-lproj

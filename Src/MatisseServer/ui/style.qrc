@@ -27,5 +27,6 @@
         <file>rc/Vsepartoolbar.png</file>
         <file>rc/down_arrow_disabled.png</file>
         <file>rc/undock.png</file>
+        <file>rc/radio_checked.svg</file>
     </qresource>
 </RCC>

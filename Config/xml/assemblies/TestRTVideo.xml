@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<MatisseAssembly name="TestRTVideo" usable="0">
+<MatisseAssembly name="TestRTVideo" isRealTime="true" usable="0">
 	<DescriptorFields>
 		<Author>
 			

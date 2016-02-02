@@ -3,6 +3,8 @@
 
 #include <QtDebug>
 
+using namespace MatisseTools;
+
 ParametersWidgetSkeleton::ParametersWidgetSkeleton(QWidget *parent) :
     QWidget(parent),
     _ui(new Ui::ParametersWidgetSkeleton)

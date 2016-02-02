@@ -4,7 +4,8 @@ message("INCLUDEPATH in BasicProcessing pri = $$INCLUDEPATH")
 
 CONFIG(debug, debug|release) {
     win32{
-        LIBS *= -L$${BUILD_DIR}/Libraries/BasicProcessing/debug
+        LIBS += -L$${BUILD_DIR}/Libraries/BasicProcessing/debug
+        message("BasicProcessing LIBS completion = $$LIBS")
     }
     else{
         LIBS *= -L$${BUILD_DIR}/Libraries/BasicProcessing

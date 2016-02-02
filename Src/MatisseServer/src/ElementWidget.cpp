@@ -9,7 +9,8 @@ ElementWidget::ElementWidget(QGraphicsItem *parent) :
 {
     _bodyRect = QRect(-70, -30, 140, 60);
     _brush.setColor(Qt::white);
-    _pen.setColor(Qt::black);
+    //_pen.setColor(Qt::black);
+    _pen.setColor(QColor::fromRgb(245, 247, 250)); // gris clair de la charte graphique (Matisse.css)
     setInputsNumber();
     setOutputsNumber();
     setAcceptHoverEvents(true);
@@ -185,6 +186,7 @@ QIcon ElementWidget::getIcon()
     QPixmap image(eltRect.width(), eltRect.height());
     image.fill(Qt::transparent);
     QPainter painter(&image);
+    painter.setPen(_pen);
     drawSymbol(&painter, true);
 
     return QIcon(image);

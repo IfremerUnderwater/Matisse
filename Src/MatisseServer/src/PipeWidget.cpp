@@ -96,8 +96,8 @@ void PipeWidget::drawSymbol(QPainter *painter, bool forIcon)
     myPath.cubicTo(_x, _y + verticalDist/2.0 ,
                    _x + _deltaXt + _deltaXb, _y + _deltaYt + _deltaY + _deltaYb -verticalDist/2.0,
                    _x + _deltaXt + _deltaXb , _y + _deltaYt + _deltaY + _deltaYb -6);
-    painter->setBrush(QBrush(Qt::transparent));
     //painter->brush().setColor(Qt::transparent);
+    painter->setBrush(QColor(Qt::transparent));
     painter->drawPath(myPath);
 
     // connecteur inf
@@ -122,7 +122,8 @@ void PipeWidget::setGeometry(int x, int y, int deltaYt, int deltaXt, int deltaY,
 void PipeWidget::setColor(QColor color)
 {
     if (!color.isValid()) {
-        _color = QColor(Qt::black);
+        //_color = QColor(Qt::black);
+        _color = QColor::fromRgb(245, 247, 250); // gris clair de la charte graphique (Matisse.css)
     } else {
         _color = color;
     }

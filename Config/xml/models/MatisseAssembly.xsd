@@ -12,6 +12,7 @@
       </xs:sequence>
       <xs:attribute name="name" use="required"/>
       <xs:attribute name="usable" use="required" type="xs:string"/>
+      <xs:attribute name="isRealTime" use="required" type="xs:boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="DescriptorFields">

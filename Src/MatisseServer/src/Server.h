@@ -14,11 +14,21 @@
 #include "RasterProvider.h"
 #include "JobServer.h"
 #include "Xml.h"
+#include "Tools.h"
+#include "MatisseParametersManager.h"
 
 using namespace MatisseCommon;
 using namespace MatisseTools;
 
 namespace MatisseServer {
+
+enum ApplicationMode {
+    PROGRAMMING,
+    REAL_TIME,
+    DEFERRED_TIME,
+    APP_CONFIG
+};
+
 
 class Server;
 class JobTask : public QObject{
@@ -53,6 +63,7 @@ private:
     RasterProvider* _rasterProvider;
     JobDefinition &_jobDefinition;
     MatisseParameters *_matParameters;
+    MatisseParameters *_assemblyParameters;
     QStringList _resultFileNames;
     volatile bool _isCancelled;
 
@@ -75,12 +86,19 @@ public:
     QList<ImageProvider*> const getAvailableImageProviders();
     QList<RasterProvider*> const getAvailableRasterProviders();
 
+    void addParametersForImageProvider(QString name);
+    void addParametersForProcessor(QString name);
+    void addParametersForRasterProvider(QString name);
+
+    bool removeModuleAndExpectedParameters(QString name);
+
     bool processJob(JobDefinition&  jobDefinition);
     bool isProcessingJob();
     bool stopJob(bool cancel=false);
     bool errorFlag();
     QString messageStr();
     Xml& xmlTool();
+    MatisseParametersManager * parametersManager() { return _dicoParamMgr; }
 
 signals:
     void signal_jobIntermediateResult(QString jobName, Image *image);
@@ -93,15 +111,19 @@ private:
     MatisseParameters* buildMatisseParameters(JobDefinition &job);
     bool buildJobTask( AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters);
     void setMessageStr(QString messageStr = "", bool error = true);
+    bool loadParametersDictionnary();
+    bool checkModuleDefinition(QString filepath);
 
 private:
     JobServer *_jobServer;
     JobTask* _currentJob;
     QThread* _thread;
     Xml _xmlTool;
+    MatisseParametersManager* _dicoParamMgr;
     QHash<QString, Processor*> _processors;
     QHash<QString, ImageProvider*> _imageProviders;
     QHash<QString, RasterProvider*> _rasterProviders;
+    QHash<QString, QList<MatisseParameter> > _expectedParametersByModule;
     QString _messageStr;
     bool _errorFlag;
 

@@ -17,396 +17,122 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <property name="styleSheet">
-   <string notr="true">/* background color: #434a54 rgb(67, 74, 84);
-*  default text color: #f5f7fa    rgb(245, 247, 250)
-*
-* Code Couleur
-* Bleu            : #4a89dc rgb(74, 137, - 220);   
-* Marine clair: #434a54  rgb(  67,   74,  84);    // Marine Clairs
-* Vert            : #37bc9b  rgb(  55, 188, 155);   // Vert
-* Marine        : #252a31   rgb(  37,   42,   49);   // Marine
-* Gris Clair    : #f5f7fa      rgb(245, 247, 250);  // Gris Clair
-* Gris moyen: #7c828c rgb(124, 130, 140); //Gris moyen
-* Gris fonce  : #5c646e rgb(92,100, 110); // Gris fonce
-* Rouge        : #da4453; 
-* Orange       : #e9563f;
-* Jaune          : #f6bb42; 
-*/
-
-
-
-/************************/
-/*** Generic Widgets ***/
-/************************/
-QWidget{
-   background-color: #434a54;  /* Marine Clair */
-}
-
-QWidget:disabled {
-   background-color: #252a31;  /* Marine */
-}
-
-QLabel
-{
-  background-color: none;
-  border: none;
-  font-family: &quot;Montserrat&quot;;
-  font-size: 12px;
-  font-weight: 700;
-  color: #f5f7fa;  /* Gris Clair  */
-}
-
-/** QProgressBar **/
-QProgressBar {
-  border: none;
-  background-color: #5c646e; /* Gris fonce  */
-}
-
-QProgressBar::chunk {
-  background-color: #37bc9b; /* Vert  */
-}  
-
-QProgressBar:disabled {
-  background-color: #18212E; 
-
-}
-QProgressBar::chunk:disabled {
-  background-color: #5c646e; 
-}
-
-/** QPushButton **/
-QPushButton {
-  background-color: #434a54;    /*Marine Clair  */
-  border: 2px solid #7c828c; /*Gris moyen  */
-  font-family: &quot;Montserrat&quot;;
-  color: #f5f7fa;  /* Gris Clair  */
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  min-height: 26px;
-}
-
-QPushButton:pressed {
-  background-color: #4a89dc; /* Bleu */
-  border: none;
-}
-
-QPushButton:checked {
-  background-color: #4a89dc;  /* Bleu */
-  border: none;
-}
-
-QPushButton:hover {
-   border: 2px solid #4a89dc;  /* Bleu */
-}
-
-QPushButton:flat {
-     border: 2px solid #4a89dc;  /* Bleu */
-}
-
-/** GroupBox **/
-QGroupBox {
-     background-color: #5c646e; /* Gris fonce  */
-     border: none;
-    text-transform: uppercase;
-    font-family: &quot;Montserrat&quot;;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
-    padding-top: 15;
- }
-
-QGroupBox::title {
-    subcontrol-origin: margin;
-    subcontrol-position: top center; /* position at the top center */
-    padding-top: 2;
-    color: rgb(124, 130, 140); /* Gris moyen */
- }
-
-Line {
-  color: #7c828c;
-  border: none;
-}
-
-
-/************************/
-/*** Object Name       ***/
-/************************/
-/* Main Dashboard Date */
-QLabel#label_date
-{
-  font-family: &quot;Montserrat&quot;;
-  color: rgb(124, 130, 140); /* Gris moyen */
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 20px;
-}
-
-/* Main Dashboard Time */
-QLabel#label_time
-{
-  font-family: &quot;Montserrat&quot;;
-  color: rgb(245, 247, 250);  /* Gris Clair  */
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 20px;
-  width: 73px;
-  height: 31px;
-}
-
-QLabel#page_title
-{
-  font-family: &quot;Montserrat&quot;;
-  color: rgb(124, 130, 140); /* Gris moyen */
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 20px;
-}
-
-/************************/
-/*** Main Dashboard  ***/
-/************************/
-#dashboard_top {
-  border-bottom-width: 2px;
-  border-bottom-style: solid;
-  border-bottom-color: #252a31; 
-}
-#dashboard_top &gt; QFrame {
-  border-right-width: 2px;
-  border-right-style: solid;
-  border-right-color: #252a31; 
-}
-
-#dashboard_center {
-  border-right-width: 2px;
-  border-right-style: solid;
-  border-right-color: #252a31; 
-  border-left-width: 2px;
-  border-left-style: solid;
-  border-left-color: #252a31; 
-}
-
-QFrame#panel_controls {
-  border-right-width: 0px;
-}
-
-
-#dashboard_left &gt; QFrame {
-  border-bottom-width: 2px;
-  border-bottom-style: solid;
-  border-bottom-color: #252a31; 
-}
-
-QFrame#panel_thrusters {
-  border-bottom-width: 0px;
-}
-
-QFrame#panel_telemetry{
-   border-left-width: 2px;
-   border-left-style: solid;
-   border-left-color: #252a31; 
-}
-
-#headings_display {
-     background-color: #5c646e; /* Gris fonce  */
-}</string>
+   <string notr="true"/>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <property name="leftMargin">
-    <number>0</number>
+  <widget class="QStackedWidget" name="_stackedWidget">
+   <property name="geometry">
+    <rect>
+     <x>1</x>
+     <y>1</y>
+     <width>1000</width>
+     <height>710</height>
+    </rect>
    </property>
-   <property name="topMargin">
-    <number>0</number>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>1</horstretch>
+     <verstretch>1</verstretch>
+    </sizepolicy>
    </property>
-   <property name="rightMargin">
-    <number>0</number>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
    </property>
-   <property name="bottomMargin">
-    <number>0</number>
+   <property name="currentIndex">
+    <number>1</number>
    </property>
-   <item row="0" column="0">
-    <widget class="QSplitter" name="_SPL_user">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <widget class="QWidget" name="_WID_pageQGis">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>1</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>400</width>
+      <height>400</height>
+     </size>
+    </property>
+    <widget class="QgsMapCanvas" name="_GRV_map">
+     <property name="geometry">
+      <rect>
+       <x>-20</x>
+       <y>-10</y>
+       <width>691</width>
+       <height>701</height>
+      </rect>
      </property>
-     <widget class="QWidget" name="layoutWidget">
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QStackedWidget" name="_stackedWidget">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>1</horstretch>
-           <verstretch>1</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <widget class="QWidget" name="pageQGis">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>400</width>
-            <height>400</height>
-           </size>
-          </property>
-          <widget class="QgsMapCanvas" name="_GRV_map">
-           <property name="geometry">
-            <rect>
-             <x>-20</x>
-             <y>-10</y>
-             <width>691</width>
-             <height>701</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>400</width>
-             <height>400</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="pageImage">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>1</horstretch>
-            <verstretch>1</verstretch>
-           </sizepolicy>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_3">
-           <item row="0" column="0">
-            <widget class="QLabel" name="_label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>1</horstretch>
-               <verstretch>1</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>400</width>
-               <height>400</height>
-              </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="scaledContents">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QGroupBox" name="groupBox">
-      <property name="title">
-       <string>Parametres</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <property name="leftMargin">
-        <number>3</number>
-       </property>
-       <property name="topMargin">
-        <number>3</number>
-       </property>
-       <property name="rightMargin">
-        <number>3</number>
-       </property>
-       <property name="bottomMargin">
-        <number>3</number>
-       </property>
-       <property name="horizontalSpacing">
-        <number>0</number>
-       </property>
-       <property name="verticalSpacing">
-        <number>3</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QScrollArea" name="_SCA_parameters">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>1</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>250</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>405</width>
-            <height>649</height>
-           </rect>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="baseSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
-        </widget>
-       </item>
-      </layout>
-     </widget>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>400</width>
+       <height>400</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
     </widget>
-   </item>
-  </layout>
+   </widget>
+   <widget class="QWidget" name="_WID_pageImage">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>1</horstretch>
+      <verstretch>1</verstretch>
+     </sizepolicy>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_3">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="_LA_resultImage">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>400</width>
+         <height>400</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>

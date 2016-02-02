@@ -38,7 +38,7 @@ class AssemblyGraphicsScene : public QGraphicsScene
     Q_OBJECT
 public:
 //    explicit AssemblyGraphicsScene(QObject *parent = 0);
-    explicit AssemblyGraphicsScene(Server * server, const QRectF & sceneRect, QObject * parent = 0 );
+    explicit AssemblyGraphicsScene(const QRectF & sceneRect, QObject * parent = 0 );
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
@@ -49,10 +49,11 @@ public:
     virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
     virtual bool event(QEvent *event);
     void setExpertGui(ExpertFormWidget * gui);
+    void setServer(Server* server) { _server = server; }
     void setMainGui(AssemblyGui * gui);
     void reset();
 
-    bool saveAssembly(QString filename, QString name, KeyValueList fields);
+    bool saveAssembly(QString filename, AssemblyDefinition *assembly);
     bool loadAssembly(QString assemblyName);
 
 private:

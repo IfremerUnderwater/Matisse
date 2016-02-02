@@ -26,3 +26,11 @@ void StatusMessageWidget::addMessage(QString message, QIcon icon)
     }
     _ui->_CB_messages->setCurrentIndex(0);
 }
+
+void StatusMessageWidget::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::LanguageChange)
+    {
+        _ui->retranslateUi(this);
+    }
+}

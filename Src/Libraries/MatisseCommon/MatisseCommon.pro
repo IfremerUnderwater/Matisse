@@ -2,7 +2,7 @@ TARGET = MatisseCommon
 TEMPLATE = lib
 CONFIG += staticlib
 
-QT += xml network
+QT += core xml network
 
 win32 {
     QMAKE_CXXFLAGS += /wd4100 /wd4996
@@ -52,5 +52,12 @@ SOURCES += \
     src/Dim2UdpListener.cpp \
     src/GeoTransform.cpp \
     src/RasterGeoreferencer.cpp
+
+OTHER_FILES +=
+
+DISTFILES += \
+    ../../../Config/schemas/MatisseParametersDictionnary.xsd \
+    ../../../Config/schemas/JobParameters.xsd \
+    ../../../Config/config/MatisseParametersDictionnary.xml
 
 

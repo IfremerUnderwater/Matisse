@@ -23,6 +23,10 @@ else {
 
 }
 
+unix{
+INCLUDEPATH *= $$PWD/src
+}
+
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../
 CONFIG(debug, debug|release) {
@@ -58,7 +62,17 @@ SOURCES += src/main.cpp\
     src/ParametersDialog.cpp \
     src/Server.cpp \
     src/JobDialog.cpp \
-    src/StatusMessageWidget.cpp
+    src/StatusMessageWidget.cpp \
+    src/WelcomeDialog.cpp \
+    src/HomeWidget.cpp \
+    src/VisuModeWidget.cpp \
+    src/MainMenuWidget.cpp \
+    src/OngoingProcessWidget.cpp \
+    src/MainControllBar.cpp \
+    src/MatisseVersionWidget.cpp \
+    src/MatisseTabWidget.cpp \
+    src/MatisseMenu.cpp \
+    src/PreferencesDialog.cpp
 
 HEADERS  += \
     src/AssemblyGui.h \
@@ -76,7 +90,17 @@ HEADERS  += \
     src/ParametersDialog.h \
     src/Server.h \
     src/JobDialog.h \
-    src/StatusMessageWidget.h
+    src/StatusMessageWidget.h \
+    src/WelcomeDialog.h \
+    src/HomeWidget.h \
+    src/VisuModeWidget.h \
+    src/MainMenuWidget.h \
+    src/OngoingProcessWidget.h \
+    src/MainControllBar.h \
+    src/MatisseVersionWidget.h \
+    src/MatisseTabWidget.h \
+    src/MatisseMenu.h \
+    src/PreferencesDialog.h
 
 FORMS    += \
     ui/AssemblyGui.ui \
@@ -87,11 +111,33 @@ FORMS    += \
     ui/ServerDialog.ui \
     ui/JobDialog.ui \
     ui/JobDialog.ui \
-    ui/StatusMessageWidget.ui
+    ui/StatusMessageWidget.ui \
+    ui/WelcomeDialog.ui \
+    ui/HomeWidget.ui \
+    ui/VisuModeWidget.ui \
+    ui/MainMenuWidget.ui \
+    ui/OngoingProcessWidget.ui \
+    ui/MainControllBar.ui \
+    ui/MatisseVersionWidget.ui \
+    ui/PreferencesDialog.ui
 
 
-TRANSLATIONS=MatisseServer_en.ts
+TRANSLATIONS=MatisseServer_fr.ts \
+    MatisseServer_en.ts
 
 RESOURCES += \
     ui/resources/resources.qrc \
-    ui/style.qrc
+    ui/style.qrc \
+    ui/icons.qrc
+
+OTHER_FILES += \
+    ../../Config/lnf/Matisse.css \
+    ../../Config/lnf/MatisseModeProg.css \
+    ../../Config/lnf/MatisseModeRt.css \
+    ../../Config/lnf/MatisseModeDt.css \
+    ../../Config/xml/models/MatisseAssembly.xsd \
+    MatisseServer_fr.ts \
+    MatisseServer_en.ts
+
+DISTFILES += \
+    ../../Config/schemas/ParametersDictionnary.xsd
