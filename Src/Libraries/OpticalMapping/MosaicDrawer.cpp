@@ -725,6 +725,14 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
     // We first backup drawing options as we will change them to blend junctions
     drawingOptions dOptionsBackup = dOptions;
 
+    // Adapt settings to junction blending
+    dOptions.seamMegapix = 0.1;
+    dOptions.exposCompType = ExposureCompensator::NO;
+    dOptions.gainBlock = false;
+    dOptions.seamFindType = "gc_color";
+    dOptions.blendType = Blender::FEATHER;
+    dOptions.blendStrength = 1;
+
     for (unsigned int k=0; k < vpEffBlocksPoly.size()-1; k++){
 
         std::vector<Mat> blocksToBeBlended;
@@ -732,44 +740,82 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         std::vector<Point> corners;
         Mat blendedBlocksImg, blendedBlocksImgMask;
 
-        blendedBlocksImg.resize(2);
-        blendedBlocksImgMask.resize(2);
+        blocksToBeBlended.resize(2);
+        blocksToBeBlendedMasks.resize(2);
         corners.resize(2);
+
+        QString imgFilePath1,imgFilePath2;
+        QString mosaicMaskFilePath1,mosaicMaskFilePath2;
 
         for (unsigned int l=k+1; l<vpEffBlocksPoly.size(); l++){
 
             Polygon *blocksPairInter = new Polygon();
             vpEffBlocksPoly[k]->clip(*(vpEffBlocksPoly[l]),*blocksPairInter,basicproc::INT);
-            double tl_x,tl_y,br_x,br_y;
+            double tl_x1,tl_y1,br_x1,br_y1;
+            double tl_x2,tl_y2,br_x2,br_y2;
 
             if( !(blocksPairInter->isEmpty()) ){
 
                 // Open first block and mask & get corner
-                QString imgFilePath = writingPathAndPrefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-                blocksToBeBlended[0] = imread(imgFilePath.toStdString().c_str());
+                imgFilePath1 = writingPathAndPrefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+                blocksToBeBlended[0] = imread(imgFilePath1.toStdString().c_str());
 
-                QString mosaicMaskFilePath = writingPathAndPrefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-                blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath.toStdString().c_str());
+                mosaicMaskFilePath1 = writingPathAndPrefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+                blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath1.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
 
-                vpEffBlocksPoly[k]->getBoundingBox(tl_x,tl_y,br_x,br_y);
-                corners[0].x = (int) tl_x;
-                corners[0].y = (int) tl_y;
+                vpEffBlocksPoly[k]->getBoundingBox(tl_x1,tl_y1,br_x1,br_y1);
+                corners[0].x = (int) tl_x1;
+                corners[0].y = (int) tl_y1;
 
                 // Open second block and mask
-                imgFilePath = writingPathAndPrefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
-                blocksToBeBlended[1] = imread(imgFilePath.toStdString().c_str());
+                imgFilePath2 = writingPathAndPrefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
+                blocksToBeBlended[1] = imread(imgFilePath2.toStdString().c_str());
 
-                mosaicMaskFilePath = writingPathAndPrefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
-                blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath.toStdString().c_str());
+                mosaicMaskFilePath2 = writingPathAndPrefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
+                blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath2.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
 
-                vpEffBlocksPoly[l]->getBoundingBox(tl_x,tl_y,br_x,br_y);
-                corners[1].x = (int) tl_x;
-                corners[1].y = (int) tl_y;
+                vpEffBlocksPoly[l]->getBoundingBox(tl_x2,tl_y2,br_x2,br_y2);
+                corners[1].x = (int) tl_x2;
+                corners[1].y = (int) tl_y2;
+
+                // Blend blocks
+                drawAndBlend(blocksToBeBlended, blocksToBeBlendedMasks, corners, blendedBlocksImg, blendedBlocksImgMask);
+
+                // Extract and write block 1
+                int roi_x1,roi_x2,roi_y1,roi_y2;
+
+                roi_x1 = tl_x1 - std::min(tl_x1, tl_x2);
+                roi_x2 = br_x1 - std::min(tl_x1, tl_x2);
+                roi_y1 = tl_y1 - std::min(tl_y1, tl_y2);
+                roi_y2 = br_y1 - std::min(tl_y1, tl_y2);
+
+                imwrite(imgFilePath1.toStdString().c_str(),blendedBlocksImg(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
+                imwrite(mosaicMaskFilePath1.toStdString().c_str(),blendedBlocksImgMask(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
+
+                // Extract and write block 2
+
+                roi_x1 = tl_x2 - std::min(tl_x1, tl_x2);
+                roi_x2 = br_x2 - std::min(tl_x1, tl_x2);
+                roi_y1 = tl_y2 - std::min(tl_y1, tl_y2);
+                roi_y2 = br_y2 - std::min(tl_y1, tl_y2);
+
+                imwrite(imgFilePath2.toStdString().c_str(),blendedBlocksImg(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
+                imwrite(mosaicMaskFilePath2.toStdString().c_str(),blendedBlocksImgMask(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
+
+                // release images
+                /*blocksToBeBlended[0].release();
+                blocksToBeBlended[1].release();
+                blocksToBeBlendedMasks[0].release();
+                blocksToBeBlendedMasks[1].release();
+                blendedBlocksImg.release();
+                blendedBlocksImgMask.release();*/
+
+                vpBlocksPairIntersectPoly.push_back(blocksPairInter);
+
 
             }else{
                 delete blocksPairInter;
             }
-
 
 
 

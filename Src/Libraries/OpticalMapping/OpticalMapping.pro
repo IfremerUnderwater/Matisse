@@ -39,14 +39,17 @@ SOURCES += \
     MosaicDrawer.cpp \
     MosaicOptimizer.cpp \
     MosaicDescriptor.cpp \
-    ProjectiveCamera.cpp
+    ProjectiveCamera.cpp \
+    fileimage_exposure_compensate.cpp
 
 HEADERS +=\
         libopticalmapping_global.h \
     MosaicDrawer.h \
     MosaicOptimizer.h \
     MosaicDescriptor.h \
-    ProjectiveCamera.h
+    ProjectiveCamera.h \
+    fileimage_exposure_compensate.h \
+    fileimage_precomp.hpp
 
 unix {
     target.path = /usr/lib
