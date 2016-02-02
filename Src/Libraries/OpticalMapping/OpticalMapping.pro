@@ -31,9 +31,6 @@ include(../../Scripts/BasicProcessing.pri)
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Libraries/dll
 }
-unix {
-    DESTDIR = $${BUILD_DIR}/Libraries/dll
-}
 
 SOURCES += \
     MosaicDrawer.cpp \

@@ -382,7 +382,7 @@ bool Xml::saveAssembly(QString filename, AssemblyDefinition *assembly)
 
     // ecriture de la destination
     QString destinationName = assembly->destinationDefinition()->name();
-    QString destinationOrder = assembly->destinationDefinition()->order();
+    QString destinationOrder = QString::number(assembly->destinationDefinition()->order());
 //    if (_destinationWidget) {
 //        destinationName = QString("%1").arg(_destinationWidget->getName());
 //        destinationOrder = QString("%1").arg(_destinationWidget->getOrder());

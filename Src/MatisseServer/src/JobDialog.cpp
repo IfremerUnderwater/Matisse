@@ -176,7 +176,7 @@ void JobDialog::slot_selectFile()
         }
     }
 
-    selFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Selectionner fichier de navigation"), currentPath, "*.dim2;*.txt");
+    selFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Selectionner fichier de navigation"), currentPath, "Nav files (*.dim2 *.txt)");
 
     if (selFile.isEmpty()) {
         return;

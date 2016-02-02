@@ -123,7 +123,7 @@ private:
     QHash<QString, Processor*> _processors;
     QHash<QString, ImageProvider*> _imageProviders;
     QHash<QString, RasterProvider*> _rasterProviders;
-    QHash<QString, QList<MatisseParameter>> _expectedParametersByModule;
+    QHash<QString, QList<MatisseParameter> > _expectedParametersByModule;
     QString _messageStr;
     bool _errorFlag;
 
