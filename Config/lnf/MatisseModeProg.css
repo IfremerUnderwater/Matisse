@@ -21,6 +21,11 @@ QWidget#mainMenuWidget {
     background-color: #e7a213;    
 }
 
+QWidget#_PB_parameterFold {
+    background-color: #e7a213;
+}
+
+
 /* Customisation des menus et menus contextuels */
 QMenuBar {
     background-color: #e7a213;

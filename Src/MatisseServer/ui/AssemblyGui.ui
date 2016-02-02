@@ -607,7 +607,7 @@
         <widget class="QGroupBox" name="_GB_parameters">
          <property name="minimumSize">
           <size>
-           <width>350</width>
+           <width>400</width>
            <height>0</height>
           </size>
          </property>
@@ -619,13 +619,13 @@
            <rect>
             <x>0</x>
             <y>20</y>
-            <width>350</width>
+            <width>400</width>
             <height>628</height>
            </rect>
           </property>
           <property name="minimumSize">
            <size>
-            <width>350</width>
+            <width>400</width>
             <height>0</height>
            </size>
           </property>
@@ -637,12 +637,41 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>348</width>
+             <width>398</width>
              <height>626</height>
             </rect>
            </property>
           </widget>
          </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="_PB_parameterFold">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="icons.qrc">
+           <normaloff>:/qss_icons/icons/Roue.svg</normaloff>:/qss_icons/icons/Roue.svg</iconset>
+         </property>
         </widget>
        </item>
       </layout>
@@ -656,7 +685,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>
@@ -942,6 +971,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="icons.qrc"/>
   <include location="resources/resources.qrc"/>
  </resources>
  <connections/>
