@@ -24,6 +24,8 @@ public:
     explicit EnrichedFileChooser(QWidget *parent, QString label, QString buttonLabel, ParameterShow type, QString defaultValue);
     bool currentValueChanged();
     virtual QString currentValue();
+    virtual void restoreDefaultValue();
+    virtual void setValue(QString newValue);
 
 private:
     QLineEdit * _lineEdit;

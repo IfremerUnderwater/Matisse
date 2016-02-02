@@ -17,8 +17,32 @@
 using namespace MatisseServer;
 using namespace MatisseTools;
 
+void myMessageOutput(QtMsgType type, const char *msg)
+{
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stdout, "INFO: %s\n", msg);
+        fflush(stdout);
+        break;
+    case QtWarningMsg:
+        fprintf(stdout, "WARN: %s\n", msg);
+        fflush(stdout);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "ERROR: %s\n", msg);
+        fflush(stderr);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "FATAL: %s\n", msg);
+        fflush(stderr);
+        abort();
+    }
+}
+
 int main(int argc, char *argv[])
 {
+    // Define log handler
+    qInstallMsgHandler(myMessageOutput);
 
     // Init QGIS
 #ifdef WIN32

@@ -26,6 +26,9 @@
 #include "EnrichedCheckBox.h"
 #include "EnrichedTableWidget.h"
 #include "EnrichedFileChooser.h"
+
+#include <QtXml>
+#include <QtXmlPatterns>
 /*
 namespace Ui {
 class Wrapper;
@@ -44,6 +47,8 @@ public:
 
     bool readParametersModelFile(QString xmlFilename, bool append = false);
     bool readUserParametersFile(QString xmlFilename, QString xmlModelFilename = "");
+    bool readDictionnaryFile(QString xmlFilename);
+    bool addExpectedParameter(QString structureName, QString paramName);
 
     void eraseDialog();
     ParametersWidgetSkeleton *createDialog(QString structName = "", bool user = false);
@@ -53,6 +58,7 @@ public:
     ParametersWidgetSkeleton * createFullParametersDialog(bool user = false);
 
     QString getModelVersion();
+
 
 protected slots:
 //    void slot_openFileDialog();
@@ -90,6 +96,8 @@ private:
 
     static QString _infStr;
     static double _epsilon;
+
+    QDateTime _dicoPublicationTimestamp;
 
     QString _version;
 //    QMap<QString, QMap<QString, QWidget*> > _widgetsMap;

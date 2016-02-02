@@ -9,8 +9,6 @@ EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QSt
     minValue = minValue.trimmed().toLower();
     maxValue = maxValue.trimmed().toLower();
     QString specialValue;
-    qreal minValueReal;
-    qreal maxValueReal;
 
     qreal epsilon = 0.001;
 
@@ -18,23 +16,23 @@ EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QSt
 
     if (minValue.startsWith("-inf")) {
         specialValue = "-inf";
-        minValueReal = MIN_REAL;
+        _minValueReal = MIN_REAL;
     } else {
-        minValueReal = minValue.toDouble();
+        _minValueReal = minValue.toDouble();
     }
 
     if (maxValue.startsWith("inf")) {
         specialValue = "inf";
-        maxValueReal = MAX_REAL;
-        if (qAbs(minValueReal - MIN_REAL) > epsilon) {
-            minValueReal -= epsilon;
+        _maxValueReal = MAX_REAL;
+        if (qAbs(_minValueReal - MIN_REAL) > epsilon) {
+            _minValueReal -= epsilon;
         }
     } else {
-        maxValueReal = maxValue.toInt();
+        _maxValueReal = maxValue.toInt();
     }
 
 
-    _spin->setRange(minValueReal, maxValueReal);
+    _spin->setRange(_minValueReal, _maxValueReal);
     _spin->setWrapping(true);
     _spin->setSingleStep(epsilon);
     _spin->setDecimals(3);
@@ -45,7 +43,10 @@ EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QSt
     _defaultValue = defaultValue;
     qreal defaultValueReal = defaultValue.toDouble(&ok);
     if (!ok) {
-        _spin->setValue(minValueReal);
+        qWarning() << QString("Could not convert default value '%1' to real, using min value as default").arg(_defaultValue);
+
+        _spin->setValue(_minValueReal);
+        _defaultValue = QString::number(_minValueReal);
     } else {
         _spin->setValue(defaultValueReal);
     }
@@ -64,4 +65,41 @@ bool EnrichedDoubleSpinBox::currentValueChanged()
 QString EnrichedDoubleSpinBox::currentValue()
 {
     return _spin->text();
+}
+
+void EnrichedDoubleSpinBox::setValue(QString newValue)
+{
+    bool ok;
+
+    qreal valueReal = newValue.toDouble(&ok);
+    if (!ok) {
+        qWarning() << QString("Error converting '%1' to qreal for double spin box value assignment, skipping...").arg(newValue);
+        return;
+    }
+
+    if (valueReal > _maxValueReal) {
+        qWarning() << QString("Value '%1' greater than max value '%2', skipping...").arg(valueReal).arg(_maxValueReal);
+        return;
+    }
+
+    if (valueReal < _minValueReal) {
+        qWarning() << QString("Value '%1' lower than min value '%2', skipping...").arg(valueReal).arg(_minValueReal);
+        return;
+    }
+
+    _spin->setValue(valueReal);
+
+}
+
+void EnrichedDoubleSpinBox::restoreDefaultValue()
+{
+    bool ok;
+    qint32 defaultValueReal = _defaultValue.toDouble(&ok);
+
+    if (!ok) {
+        qCritical() << "Error restoring default value for double spin box";
+        return;
+    }
+
+    _spin->setValue(defaultValueReal);
 }

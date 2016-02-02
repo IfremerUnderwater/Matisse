@@ -3,6 +3,7 @@
 
 #include <QComboBox>
 #include <QStringList>
+#include <QtDebug>
 
 #include "EnrichedFormWidget.h"
 
@@ -17,6 +18,8 @@ public:
     bool currentValueChanged();
     virtual QString currentValue();
     qint32 currentIndex();
+    virtual void restoreDefaultValue();
+    virtual void setValue(QString newValue);
 
 signals:
 

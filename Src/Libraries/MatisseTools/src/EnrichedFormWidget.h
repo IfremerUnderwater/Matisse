@@ -21,6 +21,8 @@ public:
     quint32 getLabelColumnWidth();
     void setWidth(quint32 labelWidth, quint32 widgetWidth);
     virtual QString currentValue() =0;
+    virtual void restoreDefaultValue() = 0;
+    virtual void setValue(QString newValue) = 0;
 
 protected:
     void setWidget(QString label, QWidget * widget);

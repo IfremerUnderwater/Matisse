@@ -32,6 +32,16 @@ QString EnrichedFileChooser::currentValue()
     return _lineEdit->text().trimmed();
 }
 
+void EnrichedFileChooser::setValue(QString newValue)
+{
+    _lineEdit->setText(newValue);
+}
+
+void EnrichedFileChooser::restoreDefaultValue()
+{
+    _lineEdit->setText(_defaultValue);
+}
+
 void EnrichedFileChooser::slot_clicked() {
     QString retFile;
     if ((_type == FILE_SELECTOR_RELATIVE) || (_type == FILE_SELECTOR_ABSOLUTE)) {

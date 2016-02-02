@@ -7,7 +7,8 @@ JobDialog::JobDialog(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
     QDialog(parent),
     _ui(new Ui::JobDialog),
     _keyValues(keyValues),
-    _jobsPath(jobsPath)
+    _jobsPath(jobsPath),
+    _isRealTime(false)
 {
     _ui->setupUi(this);
 
@@ -15,6 +16,7 @@ JobDialog::JobDialog(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
 
     if (!keyValues->getKeys().contains("dataPath")) {
         // Traitement TR : on désactive le chemin des données et fichier de nav
+        _isRealTime = true;
         _ui->_LA_dataPath->setEnabled(false);
         _ui->_LE_dataPath->setEnabled(false);
         _ui->_PB_dataPath->setEnabled(false);
@@ -27,7 +29,6 @@ JobDialog::JobDialog(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
 
     _ui->_LE_dataPath->setReadOnly(true);
     _ui->_LE_resultPath->setReadOnly(true);
-    _ui->_LE_outputFile->setReadOnly(true);
     _ui->_LE_navigationFile->setReadOnly(true);
 
     connect(_ui->_LE_name, SIGNAL(textEdited(QString)), this, SLOT(slot_formatName(QString)));
@@ -35,7 +36,6 @@ JobDialog::JobDialog(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
     connect(_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(slot_close()));
     connect(_ui->_PB_dataPath, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
     connect(_ui->_PB_resultPath, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
-    connect(_ui->_PB_outputFile, SIGNAL(clicked()), this, SLOT(slot_selectFile()));
     connect(_ui->_PB_navigationFile, SIGNAL(clicked()), this, SLOT(slot_selectFile()));
 }
 
@@ -43,6 +43,15 @@ JobDialog::~JobDialog()
 {
     delete _ui;
 }
+
+void JobDialog::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::LanguageChange)
+    {
+        _ui->retranslateUi(this);
+    }
+}
+
 
 QString JobDialog::newJobName(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
 {
@@ -66,18 +75,33 @@ void JobDialog::slot_close()
     if (sender() == _ui->_PB_cancel) {
         reject();
     } else {
+        // normalisation du nom de job
         QString name = _ui->_LE_name->text().trimmed().toLower();
+        name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
+
+        if (name.isEmpty()) {
+            QMessageBox::warning(this, tr("Enregistrement impossible..."), tr("Un nom doit obligatoirement etre fourni pour la tache"));
+            return;
+        }
+
         QString filename(name);
         filename.replace(" ", "_").append(".xml");
         QFileInfo info(_jobsPath + QDir::separator() + filename);
         if (info.exists()) {
             // Le nom est déjà utilisé
-            QMessageBox::warning(this, "Enregistrement impossible...", "Un travail sous ce nom existe déjà...");
+            QMessageBox::warning(this, tr("Enregistrement impossible..."), tr("Un travail sous ce nom existe deja..."));
             return;
         }
+        _keyValues->set("filename", info.absoluteFilePath());
         _keyValues->set("name", name);
         _keyValues->set("comment", _ui->_TXT_comments->toPlainText().trimmed());
-        _keyValues->set("filename", filename);
+
+        if (!_isRealTime) {
+            _keyValues->set("dataPath", _ui->_LE_dataPath->text());
+            _keyValues->set("navigationFile", _ui->_LE_navigationFile->text());
+        }
+        _keyValues->set("resultPath", _ui->_LE_resultPath->text());
+        _keyValues->set("outputFile", _ui->_LE_outputFile->text());
 
         accept();
     }
@@ -93,11 +117,11 @@ void JobDialog::slot_selectDir()
     bool isDataPath = (sender() == _ui->_PB_dataPath);
 
     if (isDataPath) {
-        caption = trUtf8("Sélectionner chemin des données");
+        caption = tr("Selectionner chemin des donnees");
         fieldText = _ui->_LE_dataPath->text();
 
     } else {
-        caption = trUtf8("Sélectionner chemin du résultat");
+        caption = tr("Selectionner chemin du resultat");
         fieldText = _ui->_LE_resultPath->text();
     }
 
@@ -141,13 +165,8 @@ void JobDialog::slot_selectFile()
     QDir dataRoot(".");
     QString currentPath = dataRoot.path();
     QString fieldText;
-    bool isNavFile = (sender() == _ui->_PB_navigationFile);
 
-    if (isNavFile) {
-        fieldText = _ui->_LE_navigationFile->text();
-    } else {
-        fieldText = _ui->_LE_outputFile->text();
-    }
+    fieldText = _ui->_LE_navigationFile->text();
 
     // Dossier parent du fichier courant
     if (!fieldText.isEmpty()) {
@@ -157,11 +176,7 @@ void JobDialog::slot_selectFile()
         }
     }
 
-    if (isNavFile) {
-        selFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), trUtf8("Sélectionner fichier de navigation"), currentPath);
-    } else {
-        selFile = QFileDialog::getSaveFileName(qobject_cast<QWidget *>(sender()), trUtf8("Créer fichier de sortie"), currentPath, trUtf8("Fichier sortie mosaïque (*.xml)"));
-    }
+    selFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Selectionner fichier de navigation"), currentPath, "*.dim2;*.txt");
 
     if (selFile.isEmpty()) {
         return;
@@ -173,10 +188,5 @@ void JobDialog::slot_selectFile()
         selFile = dataRoot.relativeFilePath(selFile);
     }
 
-    if (isNavFile) {
-        _ui->_LE_navigationFile->setText(selFile);
-    } else {
-        _ui->_LE_outputFile->setText(selFile);
-    }
-
+    _ui->_LE_navigationFile->setText(selFile);
 }

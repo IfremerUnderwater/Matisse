@@ -47,10 +47,10 @@ void UserFormWidget::showUserParameters(bool flag)
     if (flag) {
         _parametersWidget = _tools->createFullParametersDialog(true);
         connect(_parametersWidget, SIGNAL(signal_valuesModified(bool)), this, SLOT(slot_parametersChanged(bool)));
-        _ui->_SCA_parameters->setWidget(_parametersWidget);
+        //_ui->_SCA_parameters->setWidget(_parametersWidget);
 
     } else {
-        _ui->_SCA_parameters->setWidget(NULL);
+        //_ui->_SCA_parameters->setWidget(NULL);
     }
 }
 
@@ -98,8 +98,8 @@ void UserFormWidget::createCanvas() {
 
     //_ui->_GRV_map=mapCanvas;
 
-    _ui->_SPL_user->setStretchFactor(0, 1);
-    _ui->_SPL_user->setStretchFactor(1, 1);
+    //_ui->_SPL_user->setStretchFactor(0, 1);
+    //_ui->_SPL_user->setStretchFactor(1, 1);
 
 }
 
@@ -117,7 +117,7 @@ void UserFormWidget::resetJobForm()
 {
     // reset parameters
     qDebug() << "resetJobForm";
-    showUserParameters(false);
+    //showUserParameters(false);
     clear();
 }
 
@@ -171,45 +171,45 @@ void UserFormWidget::loadRasterFile(QString filename) {
 
 void UserFormWidget::loadShapefile(QString filename)
 {
-  QFileInfo fileInfo(filename);
-  QgsVectorLayer * mypLayer = new QgsVectorLayer(filename, fileInfo.fileName(), "ogr");
-  if (mypLayer->isValid())
-  {
-    qDebug("Layer is valid");
-  }
-  else
-  {
-    qDebug("Layer is NOT valid");
-    return;
-  }
+    QFileInfo fileInfo(filename);
+    QgsVectorLayer * mypLayer = new QgsVectorLayer(filename, fileInfo.fileName(), "ogr");
+    if (mypLayer->isValid())
+    {
+        qDebug("Layer is valid");
+    }
+    else
+    {
+        qDebug("Layer is NOT valid");
+        return;
+    }
 
-  // Add the Vector Layer to the Layer Registry
-  QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE);
+    // Add the Vector Layer to the Layer Registry
+    QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE);
 
-  // Add the layer to the Layer Set
-  _layers->append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
+    // Add the layer to the Layer Set
+    _layers->append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
 
-  // Merge extents
-  QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
-  QgsRectangle extent;
-  foreach (QgsMapLayer* layer, layers.values()) {
+    // Merge extents
+    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
+    QgsRectangle extent;
+    foreach (QgsMapLayer* layer, layers.values()) {
       if (extent.width()==0) {
           extent = layer->extent();
       }
       else {
           extent.combineExtentWith(&layer->extent());
       }
-  }
+    }
 
 
-  QgsMapCanvas* mapCanvas = _ui->_GRV_map;
+    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
-  // set the canvas to the extent of our layer
-  mapCanvas->setExtent(extent);
+    // set the canvas to the extent of our layer
+    mapCanvas->setExtent(extent);
 
-  // Set the Map Canvas Layer Set
-  mapCanvas->setLayerSet(*_layers);
-  mapCanvas->refresh();
+    // Set the Map Canvas Layer Set
+    mapCanvas->setLayerSet(*_layers);
+    mapCanvas->refresh();
 }
 
 
@@ -277,11 +277,6 @@ void UserFormWidget::loadTestVectorLayer()
 
     qDebug() << "RENDER VECTOR LAYER !";
 
-}
-
-ParametersWidgetSkeleton *UserFormWidget::parametersWidget()
-{
-    return _parametersWidget;
 }
 
 void UserFormWidget::slot_parametersChanged(bool changed)

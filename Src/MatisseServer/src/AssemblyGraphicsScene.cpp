@@ -4,9 +4,9 @@
 
 using namespace MatisseServer;
 
-AssemblyGraphicsScene::AssemblyGraphicsScene(Server * server, const QRectF &sceneRect, QObject *parent) :
+AssemblyGraphicsScene::AssemblyGraphicsScene(const QRectF &sceneRect, QObject *parent) :
     QGraphicsScene(sceneRect, parent),
-    _server(server)
+    _server(NULL)
 {
     //    _startPos = QPointF();
     //    _endPos = QPointF();
@@ -102,6 +102,9 @@ void AssemblyGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
             }
             if (delMode == 3) {
                 removeItem(elt);
+                // removing user for expected parameters
+                _server->removeModuleAndExpectedParameters(elt->getName());
+
                 if ((_sourceWidget != elt) && (_destinationWidget != elt)) {
                     _processorsWidgets.remove(_processorsWidgets.key((ProcessorWidget *)elt));
                 }
@@ -299,45 +302,43 @@ void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
         QTreeWidgetItem * item = treeWid->currentItem();
         QString assemblyName = item->text(0);
         loadAssembly(assemblyName);
-    } else if (sourceName == "_TRW_parameters") {
-        QTreeWidget * treeWid = qobject_cast<QTreeWidget *>(source);
-        QTreeWidgetItem * item = treeWid->currentItem();
-        QTreeWidgetItem * parentItem = item->parent();
+//    } else if (sourceName == "_TRW_parameters") {
+//        QTreeWidget * treeWid = qobject_cast<QTreeWidget *>(source);
+//        QTreeWidgetItem * item = treeWid->currentItem();
+//        QTreeWidgetItem * parentItem = item->parent();
 
-        // Modif: on n'instancie qu'une instance, pas le modèle...
-        // déjà traité dans le dragEnter...
-        if (!parentItem) {
-            event->ignore();
-            return;
-        }
-        QString paramName = item->data(0, Qt::DisplayRole).toString();
-        if (parentItem) {
-            QString modelName = parentItem->data(0, Qt::DisplayRole).toString();
-            paramName.prepend(modelName+ "/");
-        }
+//        // Modif: on n'instancie qu'une instance, pas le modèle...
+//        // déjà traité dans le dragEnter...
+//        if (!parentItem) {
+//            event->ignore();
+//            return;
+//        }
+//        QString paramName = item->data(0, Qt::DisplayRole).toString();
+//        if (parentItem) {
+//            QString modelName = parentItem->data(0, Qt::DisplayRole).toString();
+//            paramName.prepend(modelName+ "/");
+//        }
 
-        QPointer<ParametersWidget> param = _expertGui -> getParametersWidget(paramName);
+//        QPointer<ParametersWidget> param = _expertGui -> getParametersWidget(paramName);
 
-        if (_parametersWidget != 0) {
-            removeItem(_parametersWidget);
-            delete _parametersWidget;
-        }
-        _parametersWidget = param;
+//        if (_parametersWidget != 0) {
+//            removeItem(_parametersWidget);
+//            delete _parametersWidget;
+//        }
+//        _parametersWidget = param;
 
-        if (param) {
-            addItem(param);
-            qDebug() << "PARAM rec=" << param->boundingRect();
-            param->setPos(200, 40);
-            qDebug() << "Déposé en" << param->scenePos();
-        }
+//        if (param) {
+//            addItem(param);
+//            qDebug() << "PARAM rec=" << param->boundingRect();
+//            param->setPos(200, 40);
+//            qDebug() << "Déposé en" << param->scenePos();
+//        }
 
     } else if (sourceName == "_LW_inputs") {
-        QListWidget * listWid = qobject_cast<QListWidget *>(source);
-        QListWidgetItem * item = listWid->currentItem();
-        QString srcName = item->data(Qt::DisplayRole).toString();
-        SourceWidget * src = _mainGui -> getSourceWidget(srcName);
+        if (_sourceWidget != 0) {            
+            // remove parameters expected by the module
+            _server->removeModuleAndExpectedParameters(_sourceWidget->getName());
 
-        if (_sourceWidget != 0) {
             removeItem(_sourceWidget);
             // modification des connexions
             foreach(PipeWidget * pipe, _connectors) {
@@ -348,7 +349,19 @@ void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
             }
 
             delete _sourceWidget;
+
         }
+
+        QListWidget * listWid = qobject_cast<QListWidget *>(source);
+        QListWidgetItem * item = listWid->currentItem();
+        QString srcName = item->data(Qt::DisplayRole).toString();
+        SourceWidget * src = _mainGui -> getSourceWidget(srcName);
+
+        if (!src) {
+            qCritical() << QString("Source not found in repository for item '%1'").arg(item->text());
+            event->ignore();
+        }
+
         _sourceWidget = src;
 
         if (src) {
@@ -364,6 +377,11 @@ void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
         QListWidgetItem * item = listWid->currentItem();
         QString procName = item->data(Qt::DisplayRole).toString();
         ProcessorWidget * proc = _mainGui -> getProcessorWidget(procName);
+
+        if (!proc) {
+            qCritical() << QString("Processor not found in repository for item '%1'").arg(item->text());
+            event->ignore();
+        }
 
         qDebug() << "PROC rec=" << proc->boundingRect();
         qDebug() << "Avant arrondi:" << event->scenePos().y();
@@ -400,35 +418,44 @@ void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
         }
 
     } else if (sourceName == "_LW_outputs") {
+
+        quint32 posIndex = 1;
+
+        if (_destinationWidget != NULL) {
+            // remove expected parameters for destination module
+            _server->removeModuleAndExpectedParameters(_destinationWidget->getName());
+
+            removeItem(_destinationWidget);
+            // modification des connexions
+            foreach(PipeWidget * pipe, _connectors) {
+                if (pipe->getStartElement() == _destinationWidget.data()) {
+                    _connectors.removeOne(pipe);
+                    pipe->deleteLater();
+                }
+            }
+
+            delete _destinationWidget;
+        }
+
         QListWidget * listWid = qobject_cast<QListWidget *>(source);
+
         QListWidgetItem * item = listWid->currentItem();
         QString dstName = item->data(Qt::DisplayRole).toString();
         DestinationWidget * dst = _mainGui -> getDestinationWidget(dstName);
 
-        if (dst) {
-            quint32 posIndex = 1;
-
-            if (_destinationWidget != NULL) {
-                removeItem(_destinationWidget);
-                // modification des connexions
-                foreach(PipeWidget * pipe, _connectors) {
-                    if (pipe->getStartElement() == _destinationWidget.data()) {
-                        _connectors.removeOne(pipe);
-                        pipe->deleteLater();
-                    }
-                }
-
-                delete _destinationWidget;
-            }
-            _destinationWidget = dst;
-
-            if (_processorsWidgets.size() > 0) {
-                posIndex = _processorsWidgets.keys().last()+1;
-            }
-            addItem(dst);
-            dst->setOrder(posIndex);
-            dst->setPos(0, 195 * (posIndex-1) + 215);
+        if (!dst) {
+            qCritical() << QString("Destination not found in repository for item '%1'").arg(item->text());
+            event->ignore();
         }
+
+        _destinationWidget = dst;
+        if (_processorsWidgets.size() > 0) {
+            posIndex = _processorsWidgets.keys().last()+1;
+        }
+
+        addItem(dst);
+        dst->setOrder(posIndex);
+        dst->setPos(0, 195 * (posIndex-1) + 215);
     }
 
 //    _mainGui->enableDeleteAssemby();
@@ -462,8 +489,10 @@ void AssemblyGraphicsScene::setMainGui(AssemblyGui *gui)
 
 void AssemblyGraphicsScene::reset()
 {
-//    clear();
+    // clear parameters view
+    _server->parametersManager()->clearExpectedParameters();
 
+    // clear scene
     if ( items().contains(_pipeItem.data())) {
         removeItem(_pipeItem);
     }
@@ -609,39 +638,39 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     reset();
 
-    bool continueLoad = false;
-    bool paramOk = false;
-    QString partialLoadStr = tr("L'assemblage sera partiellement charge...\nContinuer?");
+    bool continueLoad = true;
+//    bool paramOk = true;
+    QString partialLoadMessage = tr("L'assemblage sera partiellement charge...\nContinuer ?");
     // recherche parametres
-    ParameterDefinition * parameters = assembly->parametersDefinition();
-    if (parameters) {
+//    ParameterDefinition * parameters = assembly->parametersDefinition();
+//    if (parameters) {
 
-        QString parametersName = parameters->name();
-        QString paramatersModel = parameters->model();
+//        QString parametersName = parameters->name();
+//        QString paramatersModel = parameters->model();
 
-        qDebug() << "Model et name parameter:" << parametersName << paramatersModel;
+//        qDebug() << "Model et name parameter:" << parametersName << paramatersModel;
 
-        _parametersWidget = _expertGui -> getParametersWidget(paramatersModel + "/" + parametersName);
-        if (_parametersWidget) {
-            _parametersWidget->setPos(200, 40);
-            addItem(_parametersWidget);
-            paramOk = true;
-        }
-    }
+//        _parametersWidget = _expertGui -> getParametersWidget(paramatersModel + "/" + parametersName);
+//        if (_parametersWidget) {
+//            _parametersWidget->setPos(200, 40);
+//            addItem(_parametersWidget);
+//            paramOk = true;
+//        }
+//    }
 
-    if (!paramOk){
-        qWarning() << "Parameters NOK";
-        if (!continueLoad) {
-            continueLoad = (QMessageBox::question(_mainGui, tr("Parametres invalides"),
-                                                  partialLoadStr,
-                                                  QMessageBox::Yes,
-                                                  QMessageBox::No)
-                            == QMessageBox::Yes);
-            if (!continueLoad) {
-                return false;
-            }
-        }
-    }
+//    if (!paramOk){
+//        qWarning() << "Parameters NOK";
+//        if (!continueLoad) {
+//            continueLoad = (QMessageBox::question(_mainGui, tr("Parametres invalides"),
+//                                                  partialLoadStr,
+//                                                  QMessageBox::Yes,
+//                                                  QMessageBox::No)
+//                            == QMessageBox::Yes);
+//            if (!continueLoad) {
+//                return false;
+//            }
+//        }
+//    }
 
     // recherche source
     bool srcOk = false;
@@ -664,7 +693,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
         qWarning() << "Source NOK";
         if (!continueLoad) {
             continueLoad = (QMessageBox::question(_mainGui, tr("Source invalide"),
-                                                  partialLoadStr,
+                                                  partialLoadMessage,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)
                             == QMessageBox::Yes);
@@ -689,7 +718,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
             } else {
                 if (!continueLoad) {
                     continueLoad = (QMessageBox::question(_mainGui, "Processeur invalide",
-                                                          partialLoadStr,
+                                                          partialLoadMessage,
                                                           QMessageBox::Yes,
                                                           QMessageBox::No)
                                     == QMessageBox::Yes);
@@ -702,7 +731,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
         } else {
             if (!continueLoad) {
                 continueLoad = (QMessageBox::question(_mainGui, tr("Processeur invalide"),
-                                                      partialLoadStr,
+                                                      partialLoadMessage,
                                                       QMessageBox::Yes,
                                                       QMessageBox::No)
                                 == QMessageBox::Yes);
@@ -733,7 +762,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
     if (!destOk){
         if (!continueLoad) {
             continueLoad = (QMessageBox::question(_mainGui, tr("Destination invalide"),
-                                                  partialLoadStr,
+                                                  partialLoadMessage,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)
                             == QMessageBox::Yes);

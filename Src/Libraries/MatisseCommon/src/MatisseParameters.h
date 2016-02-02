@@ -73,67 +73,67 @@ public:
     QString dumpStructures();
 
     ///
-    /// \brief Retourne vrai si le couple (paramGroupName,paramName) a été chargé
-    /// \param paramGroupName Le groupe du paramètre
+    /// \brief Retourne vrai si le couple (paramStructName,paramName) a été chargé
+    /// \param paramStructName Le groupe du paramètre
     /// \param paramName Le Nom du paramètre
     /// \return false si le paramètre n'existe pas
     ///
-    bool containsParam(QString paramGroupName, QString paramName);
+    bool containsParam(QString paramStructName, QString paramName);
 
     // Methodes d'acces aux parametres
 
     ///
-    /// \brief Retourne en qint64 la valeur du couple (paramGroupName,paramName)
-    /// \param paramGroupName
+    /// \brief Retourne en qint64 la valeur du couple (paramStructName,paramName)
+    /// \param paramStructName
     /// \param paramName
     /// \param ok true si la valeur est convertible
     /// \return 2^31-1 si valeur="inf"
     ///
-    qint64 getIntParamValue(QString paramGroupName, QString paramName, bool &ok);
+    qint64 getIntParamValue(QString paramStructName, QString paramName, bool &ok);
 
     ///
-    /// \brief Retourne en bool la valeur du couple (paramGroupName,paramName)
-    /// \param paramGroupName
+    /// \brief Retourne en bool la valeur du couple (paramStructName,paramName)
+    /// \param paramStructName
     /// \param paramName
     /// \param ok true si la valeur est convertible
     /// \return true ou false
     ///
-    bool getBoolParamValue(QString paramGroupName, QString paramName, bool &ok);
+    bool getBoolParamValue(QString paramStructName, QString paramName, bool &ok);
 
     ///
-    /// \brief Retourne en double la valeur du couple (paramGroupName,paramName)
-    /// \param paramGroupName
+    /// \brief Retourne en double la valeur du couple (paramStructName,paramName)
+    /// \param paramStructName
     /// \param paramName
     /// \param ok true si la valeur est convertible
     /// \return 2^31-1 si valeur="inf"
     ///
-    qreal getDoubleParamValue(QString paramGroupName, QString paramName, bool &ok);
+    qreal getDoubleParamValue(QString paramStructName, QString paramName, bool &ok);
 
     ///
-    /// \brief Retourne en QString la valeur du couple (paramGroupName,paramName)
-    /// \param paramGroupName
+    /// \brief Retourne en QString la valeur du couple (paramStructName,paramName)
+    /// \param paramStructName
     /// \param paramName
     /// \return
     ///
-    QString getStringParamValue(QString paramGroupName, QString paramName);
+    QString getStringParamValue(QString paramStructName, QString paramName);
 
     ///
-    /// \brief Retourne en QMatrix3x3 la valeur du couple (paramGroupName,paramName)
-    /// \param paramGroupName
-    /// \param paramName
-    /// \param ok true si la valeur est convertible
-    /// \return
-    ///
-    QMatrix3x3 getMatrix3x3ParamValue(QString paramGroupName, QString paramName, bool &ok);
-
-    ///
-    /// \brief Retourne en Matrix6x1 la valeur du couple (paramGroupName,paramName)
-    /// \param paramGroupName
+    /// \brief Retourne en QMatrix3x3 la valeur du couple (paramStructName,paramName)
+    /// \param paramStructName
     /// \param paramName
     /// \param ok true si la valeur est convertible
     /// \return
     ///
-    Matrix6x1 getMatrix6x1ParamValue(QString paramGroupName, QString paramName, bool &ok);
+    QMatrix3x3 getMatrix3x3ParamValue(QString paramStructName, QString paramName, bool &ok);
+
+    ///
+    /// \brief Retourne en Matrix6x1 la valeur du couple (paramStructName,paramName)
+    /// \param paramStructName
+    /// \param paramName
+    /// \param ok true si la valeur est convertible
+    /// \return
+    ///
+    Matrix6x1 getMatrix6x1ParamValue(QString paramStructName, QString paramName, bool &ok);
 
 private:
     QString _lastErrorStr;

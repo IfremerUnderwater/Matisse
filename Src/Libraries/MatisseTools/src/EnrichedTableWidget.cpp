@@ -63,3 +63,35 @@ QString EnrichedTableWidget::currentValue()
     return currentValues.join(";");
 }
 
+void EnrichedTableWidget::setValue(QString newValue)
+{
+    QStringList newValues = newValue.split(";");
+    QStringList defaultValues = _defaultValue.split(";");
+
+    if (newValues.size() != defaultValues.size()) {
+        qWarning() << QString("New table values '%1' not matching initial size '%2', skipping...").arg(newValue).arg(_defaultValue);
+        return;
+    }
+
+    int index = 0;
+    for(int noRow = 0; noRow < _table->rowCount(); noRow++) {
+        for (int noCol = 0; noCol < _table->columnCount(); noCol++) {
+            _table->setItem(noRow, noCol, new QTableWidgetItem(newValues.at(index)));
+            index++;
+        }
+    }
+}
+
+void EnrichedTableWidget::restoreDefaultValue()
+{
+    QStringList defaultValues = _defaultValue.split(";");
+
+    int index = 0;
+    for(int noRow = 0; noRow < _table->rowCount(); noRow++) {
+        for (int noCol = 0; noCol < _table->columnCount(); noCol++) {
+            _table->setItem(noRow, noCol, new QTableWidgetItem(defaultValues.at(index)));
+            index++;
+        }
+    }
+}
+

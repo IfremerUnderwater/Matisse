@@ -75,13 +75,13 @@ public:
 
     void initDateTimeDisplay();
     void initPreferences();
+    void loadAssemblyParameters(AssemblyDefinition *selectedAssembly);
 private:
     Ui::AssemblyGui *_ui;
     bool _isMapView;
     Server _server;
     bool _canShow;
 
-    QString _currentJobName;
     QString _settingsFile;
     QString _rootXml;
     QString _dataPath;
@@ -90,6 +90,7 @@ private:
     MatissePreferences* _preferences;
     QTranslator* _toolsTranslator_en;
     QTranslator* _serverTranslator_en;
+    QTranslator* _serverTranslator_fr;
     QString _currentLanguage;
 
     bool _userParameterModified;
@@ -99,13 +100,15 @@ private:
 
     QTreeWidgetItem * _lastJobLaunchedItem;
     AssemblyDefinition *_newAssembly;
+    JobDefinition *_currentJob;
     UserFormWidget * _userFormWidget;
     ExpertFormWidget * _expertFormWidget;
+    ParametersWidgetSkeleton * _parametersWidget;
     QLabel* _messagesPicto;
 
     ApplicationMode _activeApplicationMode;
     QHash<QString, QTreeWidgetItem*> _assembliesItems;
-    QHash<QString, KeyValueList> _assembliesProperties;
+    QHash<QString, KeyValueList*> _assembliesProperties;
     QMap<ApplicationMode, QString> _stylesheetByAppMode;
     QMap<ApplicationMode, QIcon> _stopButtonIconByAppMode;
     QMap<ApplicationMode, QPixmap> _messagePictoByAppMode;
@@ -171,6 +174,7 @@ private:
 
     /* job context menu */
     QAction* _executeJobAct;
+    QAction* _saveJobAct;
     QAction* _cloneJobAct;
     QAction* _exportJobAct;
     QAction* _deleteJobAct;
@@ -207,13 +211,13 @@ protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 
 protected slots:
-    void slot_showAssembly(QModelIndex index);
+    //void slot_showAssembly(QModelIndex index);
     void slot_saveAssembly();
-    void slot_saveAsAssembly();
+    //void slot_saveAsAssembly();
     void slot_deleteAssembly();
     void slot_newJob();
     void slot_saveJob();
-    void slot_saveAsJob();
+    //void slot_saveAsJob();
     void slot_deleteJob();
     void slot_assemblyContextMenuRequested(const QPoint &pos);
 
@@ -230,11 +234,6 @@ protected slots:
     void slot_assembliesReload();
     void slot_modifiedParameters(bool changed);
     void slot_selectAssemblyOrJob(QTreeWidgetItem *selectedItem, int column=0);
-    void slot_assemblyElementsCount(int count);
-    void slot_saveParameters();
-    void slot_selectParameters(bool selectedParameters);
-    void slot_deleteParameters();
-    void slot_usedParameters(bool usedParameters);
     void slot_updateTimeDisplay();
     void slot_updatePreferences();
 

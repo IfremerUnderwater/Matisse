@@ -37,9 +37,11 @@ system("$$MKDIR \"$$RUN_DIR/Modules\"")
 system("$$MKDIR \"$$RUN_DIR/Modules/imageProviders\"")
 system("$$MKDIR \"$$RUN_DIR/Modules/processors\"")
 system("$$MKDIR \"$$RUN_DIR/Modules/rasterProviders\"")
+system("$$MKDIR \"$$RUN_DIR/Libraries\"")
 system("$$MKDIR \"$$RUN_DIR/lnf\"")
 system("$$MKDIR \"$$RUN_DIR/xml\"")
 system("$$MKDIR \"$$RUN_DIR/i18n\"")
+system("$$MKDIR \"$$RUN_DIR/schemas\"")
 
 win32{
 # Copy Modules in Run directory
@@ -51,8 +53,9 @@ system("$$COPY_DIR \"$$BUILD_DIR/Modules/rasterProviders\" \"$$RUN_DIR/Modules/r
 system("$$COPY_DIR \"$$CONFIG_DIR/Setup\" \"$$RUN_DIR\"")
 system("$$COPY_DIR \"$$CONFIG_DIR/lnf\" \"$$RUN_DIR/lnf\"")
 system("$$COPY_DIR \"$$CONFIG_DIR/config\" \"$$RUN_DIR/config\"")
+system("$$COPY_DIR \"$$CONFIG_DIR/schemas\" \"$$RUN_DIR/schemas\"")
 system("$$COPY_DIR \"$$CONFIG_DIR/xml\" \"$$RUN_DIR/xml\"")
-system("$$COPY_DIR \"$$BUILD_DIR/Libraries/dll\" \"$$RUN_DIR\"")
+system("$$COPY_DIR \"$$BUILD_DIR/Libraries/dll\" \"$$RUN_DIR/Libraries\"")
 
 # Copy linguist files
 #system("echo $$CHDIR \"$$SERVER_SOURCE_DIR\"")
@@ -72,7 +75,7 @@ system("$$COPY_DIR $$BUILD_DIR/Modules/rasterProviders $$RUN_DIR/Modules")
 #system("$$COPY_DIR $$CONFIG_DIR/xml $$RUN_DIR")
 system("$$COPY_DIR $$CONFIG_DIR/lnf $$RUN_DIR")
 system("$$COPY_DIR $$CONFIG_DIR/config $$RUN_DIR")
-system("$$COPY_DIR $$BUILD_DIR/Libraries/dll/* $$RUN_DIR")
+system("$$COPY_DIR $$BUILD_DIR/Libraries/dll/* $$RUN_DIR/Libraries")
 
 # Copy linguist files
 #system("echo $$CHDIR \"$$SERVER_SOURCE_DIR\"")

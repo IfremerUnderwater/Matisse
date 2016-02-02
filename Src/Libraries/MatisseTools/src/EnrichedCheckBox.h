@@ -1,6 +1,7 @@
 #ifndef ENRICHEDCHECKBOX_H
 #define ENRICHEDCHECKBOX_H
 
+#include <QtCore>
 #include <QCheckBox>
 #include <QString>
 
@@ -15,6 +16,8 @@ public:
     explicit EnrichedCheckBox(QWidget *parent, QString label, bool checked);
     bool currentValueChanged();
     virtual QString currentValue();
+    virtual void restoreDefaultValue();
+    virtual void setValue(QString newValue);
 
 signals:
 

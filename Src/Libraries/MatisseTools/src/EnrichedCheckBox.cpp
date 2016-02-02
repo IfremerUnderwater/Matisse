@@ -29,3 +29,18 @@ QString EnrichedCheckBox::currentValue()
 
     return ret;
 }
+
+void EnrichedCheckBox::restoreDefaultValue()
+{
+    bool checked = QVariant(_defaultValue).toBool();
+
+    _check->setChecked(checked);
+}
+
+void EnrichedCheckBox::setValue(QString newValue)
+{
+    bool checked = QVariant(newValue).toBool();
+    qDebug() << QString("Converted '%1' as '%2' for checkbox assignment").arg(newValue).arg(checked);
+
+    _check->setChecked(checked);
+}

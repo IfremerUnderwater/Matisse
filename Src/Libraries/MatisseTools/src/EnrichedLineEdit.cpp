@@ -22,6 +22,16 @@ QString EnrichedLineEdit::currentValue()
     return _lineEdit->text().trimmed();
 }
 
+void EnrichedLineEdit::restoreDefaultValue()
+{
+    _lineEdit->setText(_defaultValue);
+}
+
+void EnrichedLineEdit::setValue(QString newValue)
+{
+    _lineEdit->setText(newValue);
+}
+
 //void EnrichedLineEdit::slot_valueChanged()
 //{
 //    swapColor(currentValueChanged());

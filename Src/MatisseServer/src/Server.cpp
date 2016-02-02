@@ -72,12 +72,72 @@ const QList<RasterProvider *> Server::getAvailableRasterProviders()
     return _rasterProviders.values();
 }
 
+void Server::addParametersForImageProvider(QString name)
+{
+    qDebug() << "Loading parameters for image provider " << name;
+
+    ImageProvider* source = _imageProviders.value(name);
+    QList<MatisseParameter> expectedParams = source->expectedParameters();
+    _expectedParametersByModule.insert(name, expectedParams);
+
+    foreach(MatisseParameter expectedParam, expectedParams) {
+        qDebug() << "Source expects param " << expectedParam.structure << expectedParam.param;
+        _dicoParamMgr->addUserModuleForParameter(name, expectedParam.structure, expectedParam.param);
+    }
+
+}
+
+void Server::addParametersForProcessor(QString name)
+{
+    qDebug() << "Loading parameters for Processor " << name;
+
+    Processor* processor = _processors.value(name);
+    QList<MatisseParameter> expectedParams = processor->expectedParameters();
+    _expectedParametersByModule.insert(name, expectedParams);
+
+    foreach(MatisseParameter expectedParam, expectedParams) {
+        qDebug() << "Processor expects param " << expectedParam.structure << expectedParam.param;
+        _dicoParamMgr->addUserModuleForParameter(name, expectedParam.structure, expectedParam.param);
+    }
+
+}
+
+void Server::addParametersForRasterProvider(QString name)
+{
+    qDebug() << "Loading parameters for raster provider " << name;
+
+    RasterProvider* destination = _rasterProviders.value(name);
+    QList<MatisseParameter> expectedParams = destination->expectedParameters();
+    _expectedParametersByModule.insert(name, expectedParams);
+
+    foreach(MatisseParameter expectedParam, expectedParams) {
+        qDebug() << "Destination expects param " << expectedParam.structure << expectedParam.param;
+        _dicoParamMgr->addUserModuleForParameter(name, expectedParam.structure, expectedParam.param);
+    }
+
+}
+
+bool Server::removeModuleAndExpectedParameters(QString name)
+{
+    qDebug() << QString("Remove module '%1' from expected parameters list").arg(name);
+
+    if (!_expectedParametersByModule.contains(name)) {
+        qCritical() << "Unknown module" << name;
+        return false;
+    }
+
+    QList<MatisseParameter> expectedParameters = _expectedParametersByModule.value(name);
+    foreach(MatisseParameter param, expectedParameters) {
+        _dicoParamMgr->removeUserModuleForParameter(name, param.structure, param.param);
+    }
+
+    return true;
+}
+
 MatisseParameters* Server::buildMatisseParameters(JobDefinition &job) {
 
-    QString model = job.parametersDefinition()->model();
 
-    QString file = _xmlTool.getJobsParametersPath(model, job.parametersDefinition()->name());
-
+    QString file = _xmlTool.getJobsParametersPath(job.name());
 
     qDebug() << "Chargement du fichier de paramètres : " << file;
     MatisseParameters* parameters = NULL;
@@ -409,6 +469,8 @@ QString Server::messageStr()
 
 void Server::init(){
 
+    loadParametersDictionnary();
+
     // Load processors
     QDir processorsDir = QDir(_xmlTool.getDllPath() + QDir::separator() +  "processors");
     setMessageStr();
@@ -423,6 +485,8 @@ void Server::init(){
             qDebug() << "Processor DLL " << newInstance->name() << " loaded.";
             _processors.insert(newInstance->name(), newInstance);
 
+        } else {
+            qCritical() << "Could not load DLL " << fileName;
         }
 
     }
@@ -610,3 +674,59 @@ JobDefinition &JobTask::jobDefinition() const
 }
 
 
+bool Server::loadParametersDictionnary()
+{
+    QXmlSchema dictionnarySchema;
+
+    qDebug() << "Loading MatisseParametersDictionnary.xsd schema...";
+
+    QFile dicoXsdFile("schemas/MatisseParametersDictionnary.xsd");
+
+    if (!dicoXsdFile.exists()) {
+        qFatal(QString("Error finding ").append(dicoXsdFile.fileName()).toLatin1());
+    }
+
+    if (!dicoXsdFile.open(QIODevice::ReadOnly)) {
+        qFatal("Error opening MatisseParametersDictionnary.xsd");
+    }
+
+    if (!dictionnarySchema.load(&dicoXsdFile, QUrl::fromLocalFile(dicoXsdFile.fileName()))) {
+        qFatal("Error loading ParametersDictionnary.xsd");
+    }
+
+    if (!dictionnarySchema.isValid()) {
+        qFatal("Error ParametersDictionnary.xsd is not valid");
+    }
+
+    qDebug() << "MatisseParametersDictionnary.xsd is a valid schema";
+    dicoXsdFile.close();
+
+    qDebug() << "Loading dictionnary file...";
+
+    QFile dicoXmlFile("config/MatisseParametersDictionnary.xml");
+
+    if (!dicoXmlFile.exists()) {
+        qFatal(QString("Error finding").append(dicoXmlFile.fileName()).toLatin1());
+    }
+
+    if (!dicoXmlFile.open(QIODevice::ReadOnly)) {
+        qFatal("Error opening MatisseParametersDictionnary.xml");
+    }
+
+    QXmlSchemaValidator validator(dictionnarySchema);
+    if (!validator.validate(&dicoXmlFile, QUrl::fromLocalFile(dicoXmlFile.fileName()))) {
+        qFatal("Dictionnary XML file does not conform to schema");
+    }
+
+    qDebug() << "XML dictionnary file is consistent with schema";
+
+    _dicoParamMgr = new MatisseParametersManager();
+    _dicoParamMgr->readDictionnaryFile("config/MatisseParametersDictionnary.xml");
+
+    return true;
+}
+
+bool Server::checkModuleDefinition(QString filepath)
+{
+    return false;
+}

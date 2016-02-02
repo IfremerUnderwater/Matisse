@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
-    <height>311</height>
+    <width>400</width>
+    <height>327</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Nouvelle tâche</string>
+   <string>Nouvelle tache</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources/resources.qrc">
@@ -126,14 +126,14 @@
      <item row="1" column="0">
       <widget class="QLabel" name="_LA_resultPath">
        <property name="text">
-        <string>Chemin du résultat :</string>
+        <string>Chemin du resultat :</string>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="_LA_outputFile">
        <property name="text">
-        <string>Fichier de sortie :</string>
+        <string>Prefixe du fichier de sortie :</string>
        </property>
       </widget>
      </item>
@@ -150,12 +150,9 @@
      <item row="0" column="0">
       <widget class="QLabel" name="_LA_dataPath">
        <property name="text">
-        <string>Chemin des données :</string>
+        <string>Chemin des donnees :</string>
        </property>
       </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="_LE_outputFile"/>
      </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="_LE_dataPath"/>
@@ -185,17 +182,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="_PB_outputFile">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="icons.qrc">
-         <normaloff>:/qss_icons/icons/File.svg</normaloff>:/qss_icons/icons/File.svg</iconset>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="2">
       <widget class="QPushButton" name="_PB_navigationFile">
        <property name="text">
@@ -206,6 +192,9 @@
          <normaloff>:/qss_icons/icons/File.svg</normaloff>:/qss_icons/icons/File.svg</iconset>
        </property>
       </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="_LE_outputFile"/>
      </item>
     </layout>
    </item>
@@ -259,8 +248,8 @@
   </layout>
  </widget>
  <resources>
-  <include location="icons.qrc"/>
   <include location="resources/resources.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>

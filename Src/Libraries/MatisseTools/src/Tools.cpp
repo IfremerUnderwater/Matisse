@@ -142,6 +142,88 @@ bool Tools::readUserParametersFile(QString xmlFilename, QString xmlModelFilename
     return true;
 }
 
+bool Tools::readDictionnaryFile(QString xmlFilename)
+{
+    //if (!append) {
+        _structures.clear();
+        _structuresNames.clear();
+        _enums.clear();
+        _fileInfo.clear();
+    //}
+
+    QFile inputFile(xmlFilename);
+    if (!inputFile.exists()) {
+        qDebug() << "Fichier non trouvé..." << xmlFilename;
+        return false;
+    }
+
+    if (!inputFile.open(QIODevice::ReadOnly)) {
+        qDebug() << "Fichier non ouvert...";
+        return false;
+    }
+
+    QXmlStreamReader reader(&inputFile);
+    QXmlStreamAttributes attributes;
+
+    QString structureName;
+    QString groupName = "";
+    QString enumsName;
+    while (!reader.atEnd()) {
+        if (reader.readNextStartElement()) {
+            QString name = reader.name().toString();
+            // qDebug() << "START ELEMENT:" << name;
+            attributes = reader.attributes();
+
+            if (name == "Structures") {
+                _dicoPublicationTimestamp = QDateTime::fromString(attributes.value("publicationTimestamp").toString(), "yyyy-MM-dd'T'hh:mm:ss");
+            } else if (name == "Structure") {
+                structureName = attributes.value("name" ).toString();
+                // qDebug() << "Trouvé structure" << structureName;
+                Structure newStruct;
+                newStruct._name = structureName;
+                newStruct._hasUserValues = false;
+                _structures.insert(structureName, newStruct);
+                _structuresNames << structureName;
+            } else if (name == "ParametersGroup") {
+                groupName = attributes.value("text" ).toString();
+            } else if (name == "Parameter") {
+                // qDebug() << "Add Parameter:" << structureName << groupName << attributes.value("name");
+                addParameter(structureName, groupName, attributes);
+            } else if (name == "Enum") {
+                enumsName = attributes.value("name" ).toString();
+                // qDebug() << "Trouvé enum" << enumsName;
+                Enums newEnums;
+                newEnums._name = enumsName;
+                _enums.insert(enumsName, newEnums);
+            } else if (name == "EnumValue") {
+                addEnum(enumsName, attributes);
+            }
+//            } else if (name == "Field") {
+//            _fileInfo << attributes.value("name").toString();
+//        }
+        }
+    }
+    // qDebug() << "Fermeture fichier...";
+    inputFile.close();
+
+    return (_structures.size() > 0);
+}
+
+bool Tools::addExpectedParameter(QString structureName, QString paramName)
+{
+    qDebug() << "Add expected parameter " << structureName << paramName;
+    if (!_structures.contains(structureName)) {
+        qCritical() << "Structure not found in parameters dictionnary : " << structureName;
+        return false;
+    }
+
+    Structure structure = _structures.value(structureName);
+    //structure.
+
+
+    return true;
+}
+
 
 
 void Tools::slot_saveProcess()
@@ -181,6 +263,8 @@ QString Tools::getModelVersion()
 {
     return _version;
 }
+
+
 
 ParametersWidgetSkeleton * Tools::createDialog(QString structName, bool user) {
     QString structUserExpert = structName /*+ QString("%1").arg(user)*/;

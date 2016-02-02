@@ -171,10 +171,12 @@ bool Xml::readAssemblyFile(QString filename)
 ///
 bool Xml::readJobFile(QString filename)
 {
-    qDebug()<< "readJobFile "  << filename;
+    QString jobFilePath = _jobsPath + QDir::separator() + filename;
+
+    qDebug()<< "Reading job file "  << jobFilePath;
 
 
-    QFileInfo fileInfo(_jobsPath + QDir::separator() + filename);
+    QFileInfo fileInfo(jobFilePath);
 
 
 //    if (!xmlIsValid(_assembliesSchema, fileInfo)) {
@@ -191,8 +193,7 @@ bool Xml::readJobFile(QString filename)
     JobDefinition *newJob = NULL;
     ExecutionDefinition *executionDefinition = NULL;
 
-    while(!reader.atEnd() &&
-               !reader.hasError()) {
+    while(!reader.atEnd()) {
         /* Read next element.*/
         QXmlStreamReader::TokenType token = reader.readNext();
         /* If token is just StartDocument, we'll go to next.*/
@@ -251,17 +252,24 @@ bool Xml::readJobFile(QString filename)
 
             }
         }
+
+        if (reader.hasError()) {
+            qWarning() << QString("Parsing error for job definition file").arg(jobFilePath);
+        }
     }
+
     /* Removes any device() or data from the reader
          * and resets its internal state to the initial state. */
     reader.clear();
+    jobFile.close();
 
-    if (newJob) {
-        _jobs.insert(newJob->name(), newJob);
-        return true;
+    if (!newJob) {
+        qCritical() << QString("Job file '%1' could not be resolved to job definition").arg(jobFilePath);
+        return false;
     }
-    return false;
 
+    _jobs.insert(newJob->name(), newJob);
+    return true;
 }
 
 bool Xml::updateJobFile(QString jobName)
@@ -292,6 +300,121 @@ bool Xml::writeJobFile(QString jobName, bool overWrite)
     os.flush();
 
     jobFile.close();
+
+    return true;
+}
+
+// TODO Ne marche pas encore
+// La structure AssemblyDefinition en cours de création n'est pas complète
+// La structure à jour est défini par les collections de widgets dans
+// AssemblyGraphicsScene
+bool Xml::saveAssembly(QString filename, AssemblyDefinition *assembly)
+{
+    if (!assembly) {
+        qWarning() << "Assembly is null : could not be saved";
+        return false;
+    }
+
+    // TODO: vérification, de la présence des paramètres
+    // TODO: vérification de la liste des entrées
+    QFile assemblyFile(filename);
+    QTextStream os(&assemblyFile);
+    os.setCodec("UTF-8"); // forcer l'encodage en UTF-8, sinon les caractères accentués
+                          // mal encodés empêchent de relire l'assemblage
+    if (!assemblyFile.open(QIODevice::WriteOnly)) {
+        qDebug() << "Erreur ouverture ecriture";
+        return false;
+    }
+
+    bool valid = false;
+
+    QString name = assembly->name();
+
+    os << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+    os << QString("<MatisseAssembly name=\"%1\" isRealTime=\"%2\" usable=\"%3\">\n").arg(name).arg(assembly->isRealTime()).arg(valid);
+    os << "\t<DescriptorFields>\n";
+
+    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Author").arg(assembly->author());
+    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Version").arg(assembly->version());
+    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Comments").arg(assembly->comment());
+    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Date").arg(assembly->date());
+
+//    QStringList fieldsKeys = QStringList() << "Author" << "Version" << "Comments" << "Date";
+//    foreach(QString key, fieldsKeys) {
+//        // test manuel pour l'instant...
+//        os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg(key).arg(fields.getValue(key));
+//    }
+    os << "\t</DescriptorFields>\n";
+    // On teste tout au cas ou l'assemblage ne serait pas valide...
+    // ecriture des parameters
+//    QString parametersName = "";
+//    QString parametersVersion = "";
+//    if (_parametersWidget) {
+//        QStringList args = _parametersWidget ->getName().split("\n");
+//        if (args.size() > 1) {
+//            parametersVersion = args[0];
+//            parametersName = args[1];
+//        }
+//    }
+    os << QString("\t<Parameters id=\"99\" model=\"V1.0\" name=\"VictorOTUSCongo\"/>\n");
+    os << "\n";
+    // ecriture de la source
+    QString sourceName = assembly->sourceDefinition()->name();
+//    if (_sourceWidget) {
+//        sourceName = _sourceWidget->getName();
+//    }
+
+    os << QString("\t<Source id=\"99\" name=\"%1\" order=\"0\"/>\n").arg(sourceName);
+    os << "\n";
+    // ecriture des processeurs
+    os << "\t<Processors>\n";
+//    foreach(quint8 procPos, _processorsWidgets.keys()) {
+//        ProcessorWidget * curProc = _processorsWidgets.value(procPos);
+//        os << QString("\t\t<Processor id=\"%1\" name=\"%2\" order=\"%3\"/>\n").arg(99).arg(curProc->getName()).arg(procPos);
+//    }
+
+    foreach(ProcessorDefinition* processorDef, assembly->processorDefs()) {
+        os << QString("\t\t<Processor id=\"99\" name=\"%1\" order=\"%2\"/>\n").arg(processorDef->name()).arg(processorDef->order());
+    }
+
+    os << "\t</Processors>\n";
+    os << "\n";
+
+    // ecriture de la destination
+    QString destinationName = assembly->destinationDefinition()->name();
+    QString destinationOrder = assembly->destinationDefinition()->order();
+//    if (_destinationWidget) {
+//        destinationName = QString("%1").arg(_destinationWidget->getName());
+//        destinationOrder = QString("%1").arg(_destinationWidget->getOrder());
+//    }
+    os << QString("\t<Destination id=\"99\" name=\"%1\" order=\"%2\"/>\n").arg(99).arg(destinationName).arg(destinationOrder);
+    os << "\n";
+    // ecriture des relations
+    os << "\t<Connections>\n";
+//    foreach(PipeWidget * pipe, _connectors) {
+//        qint8 order1 = pipe->getStartElement()->getOrder();
+//        qint8 line1 = pipe->getStartElementLine();
+//        qint8 order2 = pipe->getEndElement()->getOrder();
+//        qint8 line2 = pipe->getEndElementLine();
+//        QColor color = pipe->getColor();
+//        os << QString("\t\t<Connection startOrder=\"%1\" startLine=\"%2\" endOrder=\"%3\" endLine=\"%4\" color=\"%5\"/>\n").arg(order1).arg(line1).arg(order2).arg(line2).arg(color.rgba());
+//    }
+
+    foreach(ConnectionDefinition *connectionDef, assembly->connectionDefs()) {
+        qint32 order1 = connectionDef->startOrder();
+        qint32 line1 = connectionDef->startLine();
+        qint32 order2 = connectionDef->endOrder();
+        qint32 line2 = connectionDef->endLine();
+        QRgb color = connectionDef->color();
+
+        //QColor color = pipe->getColor();
+        os << QString("\t\t<Connection startOrder=\"%1\" startLine=\"%2\" endOrder=\"%3\" endLine=\"%4\" color=\"%5\"/>\n").arg(order1).arg(line1).arg(order2).arg(line2).arg(color);
+    }
+
+    os << "\t</Connections>\n";
+    os << "</MatisseAssembly>";
+    os.flush();
+    assemblyFile.close();
 
     return true;
 }
@@ -368,9 +491,10 @@ bool Xml::readMatisseGuiSettings(QString filename)
             }
         }
     }
-    _jobsPath = _basePath + QDir::separator() + "users" + QDir::separator() + "jobs";
-    _jobsParametersPath =  _basePath + QDir::separator() + "users" + QDir::separator() + "parameters";
+    _jobsPath = _basePath + QDir::separator() + "jobs";
+    _jobsParametersPath =  _basePath + QDir::separator() + "jobs" + QDir::separator() + "parameters";
     _assembliesPath = _basePath + QDir::separator() + "assemblies";
+    _assembliesParametersPath = _assembliesPath + QDir::separator() + "parameters";
     return true;
 }
 
@@ -558,13 +682,11 @@ QString Xml::getJobsPath()
     return _jobsPath;
 }
 
-QString Xml::getJobsParametersPath(QString parameterVersion, QString parameterName)
+QString Xml::getJobsParametersPath(QString jobName)
 {
     return QDir::cleanPath( _jobsParametersPath
                             + QDir::separator()
-                            + parameterVersion
-                            + QDir::separator()
-                            + parameterName.replace(" ", "_") + ".xml"
+                            + jobName + ".xml"
                             );
 }
 

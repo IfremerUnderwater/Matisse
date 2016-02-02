@@ -122,7 +122,8 @@ FORMS    += \
     ui/PreferencesDialog.ui
 
 
-TRANSLATIONS=MatisseServer_en.ts
+TRANSLATIONS=MatisseServer_fr.ts \
+    MatisseServer_en.ts
 
 RESOURCES += \
     ui/resources/resources.qrc \
@@ -135,4 +136,8 @@ OTHER_FILES += \
     ../../Config/lnf/MatisseModeRt.css \
     ../../Config/lnf/MatisseModeDt.css \
     ../../Config/xml/models/MatisseAssembly.xsd \
+    MatisseServer_fr.ts \
     MatisseServer_en.ts
+
+DISTFILES += \
+    ../../Config/schemas/ParametersDictionnary.xsd

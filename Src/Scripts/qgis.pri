@@ -14,10 +14,10 @@ else {
 }
 
 win32{
-LIBS*= -lqgis_core$${LIBEXT} -lqgis_gui$${LIBEXT}
+    LIBS*= -lqgis_core$${LIBEXT} -lqgis_gui$${LIBEXT}
 }
 else{
-LIBS*= -lqgis_core -lqgis_gui
+    LIBS*= -lqgis_core -lqgis_gui
 }
 
 win32{

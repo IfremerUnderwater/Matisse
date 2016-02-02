@@ -24,13 +24,13 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>1287</width>
-      <height>778</height>
+      <x>1</x>
+      <y>1</y>
+      <width>1282</width>
+      <height>780</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="_VLAY_mainView">
      <property name="spacing">
       <number>0</number>
      </property>
@@ -63,145 +63,12 @@
       </widget>
      </item>
      <item>
-      <widget class="QSplitter" name="_SPL_userExpert">
-       <property name="minimumSize">
-        <size>
-         <width>1280</width>
-         <height>710</height>
-        </size>
+      <layout class="QHBoxLayout" name="_HLAY_mapCreationView">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>1287</width>
-         <height>710</height>
-        </size>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <widget class="QSplitter" name="splitter">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>280</width>
-          <height>710</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>282</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="handleWidth">
-         <number>1</number>
-        </property>
-        <widget class="QWidget" name="verticalLayoutWidget">
-         <layout class="QVBoxLayout" name="verticalLayout_4">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QTreeWidget" name="_TRW_assemblies">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>280</width>
-              <height>352</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>280</width>
-              <height>352</height>
-             </size>
-            </property>
-            <property name="autoFillBackground">
-             <bool>true</bool>
-            </property>
-            <property name="lineWidth">
-             <number>1</number>
-            </property>
-            <property name="horizontalScrollBarPolicy">
-             <enum>Qt::ScrollBarAlwaysOff</enum>
-            </property>
-            <property name="autoScroll">
-             <bool>true</bool>
-            </property>
-            <property name="dragEnabled">
-             <bool>true</bool>
-            </property>
-            <property name="dragDropMode">
-             <enum>QAbstractItemView::DragOnly</enum>
-            </property>
-            <property name="defaultDropAction">
-             <enum>Qt::LinkAction</enum>
-            </property>
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-            <property name="selectionMode">
-             <enum>QAbstractItemView::SingleSelection</enum>
-            </property>
-            <property name="selectionBehavior">
-             <enum>QAbstractItemView::SelectRows</enum>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>16</width>
-              <height>16</height>
-             </size>
-            </property>
-            <property name="horizontalScrollMode">
-             <enum>QAbstractItemView::ScrollPerPixel</enum>
-            </property>
-            <property name="indentation">
-             <number>20</number>
-            </property>
-            <property name="uniformRowHeights">
-             <bool>true</bool>
-            </property>
-            <property name="itemsExpandable">
-             <bool>true</bool>
-            </property>
-            <property name="headerHidden">
-             <bool>true</bool>
-            </property>
-            <property name="columnCount">
-             <number>1</number>
-            </property>
-            <attribute name="headerVisible">
-             <bool>false</bool>
-            </attribute>
-            <attribute name="headerMinimumSectionSize">
-             <number>100</number>
-            </attribute>
-            <column>
-             <property name="text">
-              <string notr="true">1</string>
-             </property>
-            </column>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QStackedWidget" name="_SW_helperTabSets">
+       <item>
+        <widget class="QSplitter" name="splitter">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -211,19 +78,119 @@
          <property name="minimumSize">
           <size>
            <width>280</width>
-           <height>355</height>
+           <height>710</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>280</width>
-           <height>355</height>
+           <width>282</width>
+           <height>16777215</height>
           </size>
          </property>
-         <property name="currentIndex">
-          <number>0</number>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <widget class="QWidget" name="_WID_mapViewTabSet">
+         <property name="handleWidth">
+          <number>1</number>
+         </property>
+         <widget class="QWidget" name="verticalLayoutWidget">
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QTreeWidget" name="_TRW_assemblies">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>352</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>280</width>
+               <height>352</height>
+              </size>
+             </property>
+             <property name="autoFillBackground">
+              <bool>true</bool>
+             </property>
+             <property name="lineWidth">
+              <number>1</number>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="autoScroll">
+              <bool>true</bool>
+             </property>
+             <property name="dragEnabled">
+              <bool>true</bool>
+             </property>
+             <property name="dragDropMode">
+              <enum>QAbstractItemView::DragOnly</enum>
+             </property>
+             <property name="defaultDropAction">
+              <enum>Qt::LinkAction</enum>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="indentation">
+              <number>20</number>
+             </property>
+             <property name="uniformRowHeights">
+              <bool>true</bool>
+             </property>
+             <property name="itemsExpandable">
+              <bool>true</bool>
+             </property>
+             <property name="headerHidden">
+              <bool>true</bool>
+             </property>
+             <property name="columnCount">
+              <number>1</number>
+             </property>
+             <attribute name="headerVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="headerMinimumSectionSize">
+              <number>100</number>
+             </attribute>
+             <column>
+              <property name="text">
+               <string notr="true">1</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QStackedWidget" name="_SW_helperTabSets">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -242,15 +209,10 @@
             <height>355</height>
            </size>
           </property>
-          <widget class="MatisseTabWidget" name="_TW_mapViewTabs">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>280</width>
-             <height>355</height>
-            </rect>
-           </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="_WID_mapViewTabSet">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -269,13 +231,15 @@
              <height>355</height>
             </size>
            </property>
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
-           <property name="elideMode">
-            <enum>Qt::ElideNone</enum>
-           </property>
-           <widget class="QWidget" name="_TABW_properties">
+           <widget class="MatisseTabWidget" name="_TW_mapViewTabs">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>280</width>
+              <height>355</height>
+             </rect>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -285,186 +249,24 @@
             <property name="minimumSize">
              <size>
               <width>280</width>
-              <height>328</height>
+              <height>355</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
               <width>280</width>
-              <height>328</height>
+              <height>355</height>
              </size>
             </property>
-            <attribute name="title">
-             <string>Commentaire</string>
-            </attribute>
-            <widget class="QTreeWidget" name="_TRW_assemblyInfo">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>280</width>
-               <height>355</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>280</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>280</width>
-               <height>355</height>
-              </size>
-             </property>
-             <property name="horizontalScrollBarPolicy">
-              <enum>Qt::ScrollBarAlwaysOff</enum>
-             </property>
-             <property name="autoScroll">
-              <bool>false</bool>
-             </property>
-             <property name="autoScrollMargin">
-              <number>0</number>
-             </property>
-             <property name="alternatingRowColors">
-              <bool>true</bool>
-             </property>
-             <property name="selectionMode">
-              <enum>QAbstractItemView::NoSelection</enum>
-             </property>
-             <property name="indentation">
-              <number>0</number>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-             <property name="columnCount">
-              <number>2</number>
-             </property>
-             <attribute name="headerVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="headerDefaultSectionSize">
-              <number>100</number>
-             </attribute>
-             <attribute name="headerMinimumSectionSize">
-              <number>100</number>
-             </attribute>
-             <column>
-              <property name="text">
-               <string notr="true">Champ</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Valeur</string>
-              </property>
-             </column>
-            </widget>
-           </widget>
-           <widget class="QWidget" name="_TABW_mapLayers">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+            <property name="currentIndex">
+             <number>0</number>
             </property>
-            <property name="minimumSize">
-             <size>
-              <width>280</width>
-              <height>328</height>
-             </size>
+            <property name="elideMode">
+             <enum>Qt::ElideNone</enum>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>280</width>
-              <height>328</height>
-             </size>
-            </property>
-            <attribute name="title">
-             <string>Cartographie</string>
-            </attribute>
-            <widget class="QListWidget" name="_LW_mapLayers">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>280</width>
-               <height>328</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>280</width>
-               <height>328</height>
-              </size>
-             </property>
-            </widget>
-           </widget>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="_WID_creationViewTabSet">
-          <widget class="MatisseTabWidget" name="_TW_creationViewTabs">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>280</width>
-             <height>355</height>
-            </rect>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>280</width>
-             <height>355</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>280</width>
-             <height>355</height>
-            </size>
-           </property>
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
-           <property name="elideMode">
-            <enum>Qt::ElideNone</enum>
-           </property>
-           <widget class="QWidget" name="_TABW_inputs">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>280</width>
-              <height>328</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>280</width>
-              <height>328</height>
-             </size>
-            </property>
-            <attribute name="title">
-             <string>Sources</string>
-            </attribute>
-            <widget class="QListWidget" name="_LW_inputs">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>280</width>
-               <height>305</height>
-              </rect>
-             </property>
+            <widget class="QWidget" name="_TABW_properties">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -472,171 +274,378 @@
              <property name="minimumSize">
               <size>
                <width>280</width>
-               <height>305</height>
+               <height>328</height>
               </size>
              </property>
-             <property name="dragDropMode">
-              <enum>QAbstractItemView::DragOnly</enum>
-             </property>
-             <property name="defaultDropAction">
-              <enum>Qt::CopyAction</enum>
-             </property>
-             <property name="alternatingRowColors">
-              <bool>true</bool>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-             <property name="iconSize">
+             <property name="maximumSize">
               <size>
-               <width>50</width>
-               <height>60</height>
-              </size>
-             </property>
-             <property name="gridSize">
-              <size>
-               <width>0</width>
-               <height>60</height>
-              </size>
-             </property>
-             <property name="uniformItemSizes">
-              <bool>true</bool>
-             </property>
-             <property name="selectionRectVisible">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </widget>
-           <widget class="QWidget" name="_TABW_processors">
-            <attribute name="title">
-             <string>Processeurs</string>
-            </attribute>
-            <widget class="QListWidget" name="_LW_processors">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
                <width>280</width>
-               <height>305</height>
-              </rect>
-             </property>
-             <property name="dragDropMode">
-              <enum>QAbstractItemView::DragOnly</enum>
-             </property>
-             <property name="defaultDropAction">
-              <enum>Qt::CopyAction</enum>
-             </property>
-             <property name="alternatingRowColors">
-              <bool>true</bool>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>50</width>
-               <height>60</height>
+               <height>328</height>
               </size>
              </property>
-             <property name="gridSize">
-              <size>
-               <width>0</width>
-               <height>60</height>
-              </size>
-             </property>
-             <property name="uniformItemSizes">
-              <bool>true</bool>
-             </property>
-             <property name="selectionRectVisible">
-              <bool>true</bool>
-             </property>
+             <attribute name="title">
+              <string>Commentaire</string>
+             </attribute>
+             <widget class="QTreeWidget" name="_TRW_assemblyInfo">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>280</width>
+                <height>355</height>
+               </rect>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>280</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>280</width>
+                <height>355</height>
+               </size>
+              </property>
+              <property name="horizontalScrollBarPolicy">
+               <enum>Qt::ScrollBarAlwaysOff</enum>
+              </property>
+              <property name="autoScroll">
+               <bool>false</bool>
+              </property>
+              <property name="autoScrollMargin">
+               <number>0</number>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::NoSelection</enum>
+              </property>
+              <property name="indentation">
+               <number>0</number>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+              <property name="columnCount">
+               <number>2</number>
+              </property>
+              <attribute name="headerVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="headerDefaultSectionSize">
+               <number>100</number>
+              </attribute>
+              <attribute name="headerMinimumSectionSize">
+               <number>100</number>
+              </attribute>
+              <column>
+               <property name="text">
+                <string notr="true">Champ</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Valeur</string>
+               </property>
+              </column>
+             </widget>
             </widget>
-           </widget>
-           <widget class="QWidget" name="_TABW_outputs">
-            <attribute name="title">
-             <string>Destination</string>
-            </attribute>
-            <widget class="QListWidget" name="_LW_outputs">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>280</width>
-               <height>305</height>
-              </rect>
+            <widget class="QWidget" name="_TABW_mapLayers">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
              <property name="minimumSize">
               <size>
                <width>280</width>
-               <height>305</height>
+               <height>328</height>
               </size>
              </property>
-             <property name="dragDropMode">
-              <enum>QAbstractItemView::DragOnly</enum>
-             </property>
-             <property name="defaultDropAction">
-              <enum>Qt::CopyAction</enum>
-             </property>
-             <property name="alternatingRowColors">
-              <bool>true</bool>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-             <property name="iconSize">
+             <property name="maximumSize">
               <size>
-               <width>50</width>
-               <height>60</height>
+               <width>280</width>
+               <height>328</height>
               </size>
              </property>
-             <property name="gridSize">
+             <attribute name="title">
+              <string>Cartographie</string>
+             </attribute>
+             <widget class="QListWidget" name="_LW_mapLayers">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>280</width>
+                <height>328</height>
+               </rect>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>280</width>
+                <height>328</height>
+               </size>
+              </property>
+             </widget>
+            </widget>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="_WID_creationViewTabSet">
+           <widget class="MatisseTabWidget" name="_TW_creationViewTabs">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>280</width>
+              <height>355</height>
+             </rect>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>280</width>
+              <height>355</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>280</width>
+              <height>355</height>
+             </size>
+            </property>
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <property name="elideMode">
+             <enum>Qt::ElideNone</enum>
+            </property>
+            <widget class="QWidget" name="_TABW_inputs">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
               <size>
-               <width>0</width>
-               <height>60</height>
+               <width>280</width>
+               <height>328</height>
               </size>
              </property>
-             <property name="uniformItemSizes">
-              <bool>true</bool>
+             <property name="maximumSize">
+              <size>
+               <width>280</width>
+               <height>328</height>
+              </size>
              </property>
-             <property name="selectionRectVisible">
-              <bool>true</bool>
-             </property>
+             <attribute name="title">
+              <string>Sources</string>
+             </attribute>
+             <widget class="QListWidget" name="_LW_inputs">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>280</width>
+                <height>305</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>280</width>
+                <height>305</height>
+               </size>
+              </property>
+              <property name="dragDropMode">
+               <enum>QAbstractItemView::DragOnly</enum>
+              </property>
+              <property name="defaultDropAction">
+               <enum>Qt::CopyAction</enum>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>50</width>
+                <height>60</height>
+               </size>
+              </property>
+              <property name="gridSize">
+               <size>
+                <width>0</width>
+                <height>60</height>
+               </size>
+              </property>
+              <property name="uniformItemSizes">
+               <bool>true</bool>
+              </property>
+              <property name="selectionRectVisible">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="_TABW_processors">
+             <attribute name="title">
+              <string>Processeurs</string>
+             </attribute>
+             <widget class="QListWidget" name="_LW_processors">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>280</width>
+                <height>305</height>
+               </rect>
+              </property>
+              <property name="dragDropMode">
+               <enum>QAbstractItemView::DragOnly</enum>
+              </property>
+              <property name="defaultDropAction">
+               <enum>Qt::CopyAction</enum>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>50</width>
+                <height>60</height>
+               </size>
+              </property>
+              <property name="gridSize">
+               <size>
+                <width>0</width>
+                <height>60</height>
+               </size>
+              </property>
+              <property name="uniformItemSizes">
+               <bool>true</bool>
+              </property>
+              <property name="selectionRectVisible">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="_TABW_outputs">
+             <attribute name="title">
+              <string>Destination</string>
+             </attribute>
+             <widget class="QListWidget" name="_LW_outputs">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>280</width>
+                <height>305</height>
+               </rect>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>280</width>
+                <height>305</height>
+               </size>
+              </property>
+              <property name="dragDropMode">
+               <enum>QAbstractItemView::DragOnly</enum>
+              </property>
+              <property name="defaultDropAction">
+               <enum>Qt::CopyAction</enum>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>50</width>
+                <height>60</height>
+               </size>
+              </property>
+              <property name="gridSize">
+               <size>
+                <width>0</width>
+                <height>60</height>
+               </size>
+              </property>
+              <property name="uniformItemSizes">
+               <bool>true</bool>
+              </property>
+              <property name="selectionRectVisible">
+               <bool>true</bool>
+              </property>
+             </widget>
             </widget>
            </widget>
           </widget>
          </widget>
         </widget>
-       </widget>
-       <widget class="UserFormWidget" name="_WID_userFrom" native="true">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>4</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>1000</width>
-          <height>710</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>1000</width>
-          <height>710</height>
-         </size>
-        </property>
-        <property name="sizeIncrement">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-       </widget>
-      </widget>
+       </item>
+       <item>
+        <widget class="QStackedWidget" name="_SW_viewStack">
+         <widget class="UserFormWidget" name="_WID_mapViewSceneContainer"/>
+         <widget class="MatisseServer::ExpertFormWidget" name="_WID_creationSceneContainer"/>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="_GB_parameters">
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Parametres</string>
+         </property>
+         <widget class="QScrollArea" name="_SCA_parameters">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>20</y>
+            <width>350</width>
+            <height>628</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>350</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>348</width>
+             <height>626</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>
@@ -911,7 +920,7 @@
   <customwidget>
    <class>UserFormWidget</class>
    <extends>QWidget</extends>
-   <header>ui_UserFormWidget.h</header>
+   <header>UserFormWidget.h</header>
   </customwidget>
   <customwidget>
    <class>MainControllBar</class>
@@ -923,6 +932,12 @@
    <class>MatisseTabWidget</class>
    <extends>QTabWidget</extends>
    <header>MatisseTabWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MatisseServer::ExpertFormWidget</class>
+   <extends>QWidget</extends>
+   <header>ExpertFormWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

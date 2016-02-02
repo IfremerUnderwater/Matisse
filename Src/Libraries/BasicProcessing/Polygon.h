@@ -1,7 +1,9 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
+extern "C" {
 #include "gpc.h"
+}
 #include <vector>
 #include <QString>
 

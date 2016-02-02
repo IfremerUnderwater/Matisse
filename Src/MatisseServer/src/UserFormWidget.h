@@ -35,7 +35,6 @@ public:
     void setTools(Tools * tools);
     void saveQgisProject(QString filename);
     void loadTestVectorLayer();
-    ParametersWidgetSkeleton * parametersWidget();
     
 private:
     Ui::UserFormWidget *_ui;

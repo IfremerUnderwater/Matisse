@@ -47,7 +47,8 @@ SOURCES +=\
     src/JobDefinition.cpp \
     src/JobServer.cpp \
     src/EnrichedFileChooser.cpp \
-    src/MatissePreferences.cpp
+    src/MatissePreferences.cpp \
+    src/MatisseParametersManager.cpp
 
 HEADERS +=\
           src/ChooseAndShow.h \
@@ -68,7 +69,8 @@ HEADERS +=\
     src/JobServer.h \
     src/EnrichedFileChooser.h \
     src/ToolsCommon.h \
-    src/MatissePreferences.h
+    src/MatissePreferences.h \
+    src/MatisseParametersManager.h
 
 FORMS    += ui/ChooseAndShow.ui \
             ui/ParametersWidgetSkeleton.ui

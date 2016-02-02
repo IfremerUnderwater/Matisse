@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS = MatisseCommon \
           MatisseTools \
-          OpticalMapping \
-    BasicProcessing
+          BasicProcessing \
+          OpticalMapping
+
 

@@ -31,10 +31,14 @@ public:
 
     static QString newJobName(QWidget * parent = NULL, KeyValueList * keyValues = NULL, QString jobsPath = QString());
 
+protected:
+    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+
 private:
     Ui::JobDialog *_ui;
     KeyValueList * _keyValues;
     QString _jobsPath;
+    bool _isRealTime;
 
 public slots:
     void slot_formatName(QString text);

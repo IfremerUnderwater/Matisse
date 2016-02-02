@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Fenêtre configuration de l'application</string>
+   <string>Fenetre configuration de l'application</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources/resources.qrc">
     <normaloff>:/jpg/ifremer-grand.jpg</normaloff>:/jpg/ifremer-grand.jpg</iconset>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -83,7 +83,7 @@
       <item row="4" column="1" colspan="6">
        <widget class="QLabel" name="_LA_DefaultMosaicPrefix">
         <property name="text">
-         <string>Préfixe nom du fichier mosaïque par défaut :</string>
+         <string>Prefixe nom du fichier mosaique par defaut :</string>
         </property>
        </widget>
       </item>
@@ -170,7 +170,7 @@
       <item row="2" column="1" colspan="3">
        <widget class="QLabel" name="_LA_defaultResultPath">
         <property name="text">
-         <string>Chemin des résultats par défaut :</string>
+         <string>Chemin des resultats par defaut :</string>
         </property>
        </widget>
       </item>
@@ -227,8 +227,8 @@
   </widget>
  </widget>
  <resources>
-  <include location="resources/resources.qrc"/>
   <include location="icons.qrc"/>
+  <include location="resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
