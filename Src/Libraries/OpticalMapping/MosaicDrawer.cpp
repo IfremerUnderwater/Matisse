@@ -8,6 +8,8 @@
 #include "opencv2/stitching/detail/util.hpp"
 #include "opencv2/core/core.hpp"
 #include <QDebug>
+#include <QFile>
+#include <QDir>
 #include "Polygon.h"
 #include "RasterGeoreferencer.h"
 
@@ -469,11 +471,20 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
 
 }
 
-void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Point2d blockSize_p, QString writingPathAndPrefix_p)
+void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Point2d blockSize_p, QString writingPath_p, QString prefix_p)
 {
 
     int xBlockNumber, yBlockNumber, xOverlapSize, yOverlapSize;
     int xLastColumnSize, yLastRowSize;
+
+    bool gainCompRequired = ( dOptions.exposCompType != ExposureCompensator::NO );
+
+    // Create tmp folder to contain temporary files
+    QDir dir(writingPath_p + QDir::separator() + QString("tmp"));
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+
 
     // 5% overlap hard coded for the moment
     xOverlapSize = (int)(0.05*blockSize_p.x);
@@ -630,6 +641,50 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         }
     }
 
+    // Compensate all images gain at the same time if need
+    if(gainCompRequired){
+
+        int camNum = mosaicD_p.cameraNodes().size();
+
+        QString infoFileName = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + "proj_img.info";
+        QString imageFilename;
+        QString imageMaskFilename;
+        QFile infoFile( infoFileName );
+
+        Mat warpedImage;
+        Mat warpedMask;
+        Point corner;
+
+        if ( !infoFile.open(QIODevice::ReadWrite) )
+        {
+            qFatal("You must specify a valid path for output info file...\n");
+        }
+
+        QTextStream stream( &infoFile );
+
+        for (int l=0; l < camNum; l++) {
+
+            ProjectiveCamera* Cam = mosaicD_p.cameraNodes().at(l);
+            Cam->projectImageOnMosaickingPlane(warpedImage, warpedMask, corner);
+
+            imageFilename = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + QString("projimg_%1.tiff").arg(l, 5, 'g', -1, '0');
+            imageMaskFilename = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + QString("projimg_mask_%1.tiff").arg(l, 5, 'g', -1, '0');
+
+            imwrite(imageFilename.toStdString().c_str(), warpedImage);
+            imwrite(imageMaskFilename.toStdString().c_str(), warpedMask);
+
+            stream << QString("projimg_%1.tiff").arg(l, 5, 'g', -1, '0')
+                   << "; " << QString("projimg_mask_%1.tiff").arg(l, 5, 'g', -1, '0')
+                   << "; " << corner.x << "; " << corner.y
+                   << "; " << warpedImage.cols << "; " << warpedImage.rows << endl;
+
+            Cam->image()->releaseImageData();
+
+        }
+
+    }
+
+
     // Blend blocks independantly
     for (unsigned int k=0; k < vpEffBlocksPoly.size(); k++){
         std::vector<Mat> imagesWarped;
@@ -676,10 +731,12 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
 
         // Draw block
         drawAndBlend(imagesWarped, masksWarped, corners, mosaicImage, mosaicImageMask);
-        QString mosaicFilePath = writingPathAndPrefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+        QString mosaicFilePath = writingPath_p + QDir::separator() + QString("tmp")
+                + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
         imwrite(mosaicFilePath.toStdString().c_str(), mosaicImage);
 
-        QString mosaicMaskFilePath = writingPathAndPrefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+        QString mosaicMaskFilePath = writingPath_p + QDir::separator() + QString("tmp")
+                + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
         imwrite(mosaicMaskFilePath.toStdString().c_str(), mosaicImageMask);
 
         /*QString utmProjParam, utmHemisphereOption,utmZoneString;
@@ -715,8 +772,6 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         rasterGeoref.WriteGeoFile(mosaicImage, mosaicImageMask, filePath,gdalOptions);*/
 
     }
-
-    // TODO : Implement color correction for all images at the same time.
 
 
     // Blend junction between pairs of blocks
@@ -757,10 +812,10 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
             if( !(blocksPairInter->isEmpty()) ){
 
                 // Open first block and mask & get corner
-                imgFilePath1 = writingPathAndPrefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+                imgFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
                 blocksToBeBlended[0] = imread(imgFilePath1.toStdString().c_str());
 
-                mosaicMaskFilePath1 = writingPathAndPrefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+                mosaicMaskFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
                 blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath1.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
 
                 vpEffBlocksPoly[k]->getBoundingBox(tl_x1,tl_y1,br_x1,br_y1);
@@ -768,10 +823,10 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
                 corners[0].y = (int) tl_y1;
 
                 // Open second block and mask
-                imgFilePath2 = writingPathAndPrefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
+                imgFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
                 blocksToBeBlended[1] = imread(imgFilePath2.toStdString().c_str());
 
-                mosaicMaskFilePath2 = writingPathAndPrefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
+                mosaicMaskFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
                 blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath2.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
 
                 vpEffBlocksPoly[l]->getBoundingBox(tl_x2,tl_y2,br_x2,br_y2);

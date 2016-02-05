@@ -124,7 +124,7 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
 
         mosaicDrawer.blockDrawBlendAndWrite(*pMosaicD,
                                Point2d(blockWidth, blockHeight),
-                               outputDirnameStr + QDir::separator() + QString("MosaicOut"));
+                               outputDirnameStr, QString("MosaicOut"));
 
     }
 

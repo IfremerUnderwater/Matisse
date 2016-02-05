@@ -76,7 +76,8 @@ public:
     ///
     void blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p,
                                 Point2d blockSize_p,
-                                QString writingPathAndPrefix_p);
+                                QString writingPath_p,
+                                QString prefix_p);
 
     int parseAndAffectOptions(QString drawingOptions);
 
