@@ -67,10 +67,7 @@ public:
     enum { NO, GAIN };
     static Ptr<ExposureCompensator> createDefault(int type);
 
-    void feed(const std::vector<Point> &corners, const std::vector<Mat> &images,
-              const std::vector<Mat> &masks);
-    virtual void feed(const std::vector<Point> &corners, const std::vector<Mat> &images,
-                      const std::vector<std::pair<Mat,uchar> > &masks) = 0;
+    virtual void feed(const QString & imagesPath_p, const QString & infoFilename_p) = 0;
     virtual void apply(int index, Point corner, Mat &image, const Mat &mask) = 0;
 };
 
@@ -78,8 +75,7 @@ public:
 class LIBOPTICALMAPPINGSHARED_EXPORT NoExposureCompensator : public ExposureCompensator
 {
 public:
-    void feed(const std::vector<Point> &/*corners*/, const std::vector<Mat> &/*images*/,
-              const std::vector<std::pair<Mat,uchar> > &/*masks*/) {}
+    void feed(const QString & imagesPath_p, const QString & infoFilename_p) {}
     void apply(int /*index*/, Point /*corner*/, Mat &/*image*/, const Mat &/*mask*/) {}
 };
 
@@ -87,8 +83,7 @@ public:
 class LIBOPTICALMAPPINGSHARED_EXPORT GainCompensator : public ExposureCompensator
 {
 public:
-    void feed(const std::vector<Point> &corners, const std::vector<Mat> &images,
-              const std::vector<std::pair<Mat,uchar> > &masks);
+    void feed(const QString & imagesPath_p, const QString & infoFilename_p);
     void apply(int index, Point corner, Mat &image, const Mat &mask);
     std::vector<double> gains() const;
 

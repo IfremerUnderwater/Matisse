@@ -42,6 +42,11 @@
 
 #include "fileimage_precomp.hpp"
 #include "fileimage_exposure_compensate.h"
+#include "opencv2/highgui/highgui.hpp"
+
+#include <QFile>
+#include <QDir>
+#include <QTextStream>
 
 using namespace std;
 
@@ -56,49 +61,87 @@ Ptr<ExposureCompensator> ExposureCompensator::createDefault(int type)
     CV_Error(CV_StsBadArg, "unsupported exposure compensation method");
     return NULL;
 }
+/*(const vector<Point> &corners, const std::vector<Mat> &images,
+                           const std::vector<std::pair<Mat, uchar> > &masks)*/
 
-
-void ExposureCompensator::feed(const vector<Point> &corners, const std::vector<Mat> &images,
-                               const std::vector<Mat> &masks)
-{
-    vector<pair<Mat,uchar> > level_masks;
-    for (size_t i = 0; i < masks.size(); ++i)
-        level_masks.push_back(make_pair(masks[i], 255));
-    feed(corners, images, level_masks);
-}
-
-
-void GainCompensator::feed(const vector<Point> &corners, const std::vector<Mat> &images,
-                           const std::vector<std::pair<Mat, uchar> > &masks)
+void GainCompensator::feed(const QString & imagesPath_p, const QString & infoFilename_p)
 {
     LOGLN("Exposure compensation...");
 #if ENABLE_LOG
     int64 t = getTickCount();
 #endif
 
-    CV_Assert(corners.size() == images.size() && images.size() == masks.size());
+    // Read info file to get images infos
+    vector<Point> corners;
+    vector<Size> imgsizes;
+    vector<QString> imagesName;
+    vector<QString> imagesMaskName;
 
-    const int num_images = static_cast<int>(images.size());
+    QFile infoFile(imagesPath_p + QDir::separator() + infoFilename_p);
+    if(!infoFile.open(QIODevice::ReadOnly)) {
+        qFatal("Invalid info file path provided ...");
+    }
+
+    QTextStream infoFileStream(&infoFile);
+
+    while(!infoFileStream.atEnd()) {
+        QString line = infoFileStream.readLine();
+        QStringList infoFields = line.split(",");
+
+        imagesName.push_back(infoFields[0]);
+        imagesMaskName.push_back(infoFields[1]);
+        corners.push_back(Point(infoFields[2].toInt(), infoFields[3].toInt()));
+        imgsizes.push_back(Size(infoFields[4].toInt(),infoFields[5].toInt()));
+
+    }
+
+    infoFile.close();
+
+    // Then compute
+    CV_Assert(corners.size() == imgsizes.size());
+
+    const int num_images = static_cast<int>(imgsizes.size());
     Mat_<int> N(num_images, num_images); N.setTo(0);
     Mat_<double> I(num_images, num_images); I.setTo(0);
 
     //Rect dst_roi = resultRoi(corners, images);
     Mat subimg1, subimg2;
+    Mat image_i, image_j;
+    Mat imagemask_i, imagemask_j;
     Mat_<uchar> submask1, submask2, intersect;
 
     for (int i = 0; i < num_images; ++i)
     {
+
+
+
         for (int j = i; j < num_images; ++j)
         {
-            Rect roi;
-            if (overlapRoi(corners[i], corners[j], images[i].size(), images[j].size(), roi))
-            {
-                subimg1 = images[i](Rect(roi.tl() - corners[i], roi.br() - corners[i]));
-                subimg2 = images[j](Rect(roi.tl() - corners[j], roi.br() - corners[j]));
 
-                submask1 = masks[i].first(Rect(roi.tl() - corners[i], roi.br() - corners[i]));
-                submask2 = masks[j].first(Rect(roi.tl() - corners[j], roi.br() - corners[j]));
-                intersect = (submask1 == masks[i].second) & (submask2 == masks[j].second);
+            QString image_i_path = imagesPath_p + QDir::separator() + imagesName[i];
+            QString imagemask_i_path = imagesPath_p + QDir::separator() + imagesMaskName[i];
+
+            image_i = imread(image_i_path.toStdString().c_str());
+            imagemask_i = imread(imagemask_i_path.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+
+            Rect roi;
+            if (overlapRoi(corners[i], corners[j], imgsizes[i], imgsizes[j], roi))
+            {
+
+
+                QString image_j_path = imagesPath_p + QDir::separator() + imagesName[j];
+                QString imagemask_j_path = imagesPath_p + QDir::separator() + imagesMaskName[j];
+
+                image_j = imread(image_j_path.toStdString().c_str());
+                imagemask_j = imread(imagemask_j_path.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+
+
+                subimg1 = image_i(Rect(roi.tl() - corners[i], roi.br() - corners[i]));
+                subimg2 = image_j(Rect(roi.tl() - corners[j], roi.br() - corners[j]));
+
+                submask1 = imagemask_i(Rect(roi.tl() - corners[i], roi.br() - corners[i]));
+                submask2 = imagemask_j(Rect(roi.tl() - corners[j], roi.br() - corners[j]));
+                intersect = (submask1 == 255) & (submask2 == 255);
 
                 N(i, j) = N(j, i) = max(1, countNonZero(intersect));
 

@@ -485,6 +485,8 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         dir.mkpath(".");
     }
 
+    // We first backup drawing options as we will change them on blocks blending iterations
+    drawingOptions dOptionsBackup = dOptions;
 
     // 5% overlap hard coded for the moment
     xOverlapSize = (int)(0.05*blockSize_p.x);
@@ -537,7 +539,6 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         y.push_back(yBegin); y.push_back(yBegin); y.push_back(yEnd); y.push_back(yEnd);
         currentPolygon->addContour(x,y);
         x.clear(); y.clear();
-
         vpImagesPoly.push_back(currentPolygon);
 
     }
@@ -682,6 +683,8 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
 
         }
 
+        infoFile.close();
+
     }
 
 
@@ -776,9 +779,6 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
 
     // Blend junction between pairs of blocks
     vector<Polygon*> vpBlocksPairIntersectPoly;
-
-    // We first backup drawing options as we will change them to blend junctions
-    drawingOptions dOptionsBackup = dOptions;
 
     // Adapt settings to junction blending
     dOptions.seamMegapix = 0.1;
