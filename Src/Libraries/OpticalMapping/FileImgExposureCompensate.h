@@ -57,22 +57,21 @@
 using namespace cv;
 using namespace detail;
 
-namespace fimgexpcomp {
 
-class LIBOPTICALMAPPINGSHARED_EXPORT ExposureCompensator
+class LIBOPTICALMAPPINGSHARED_EXPORT FileImgExposureCompensator
 {
 public:
-    virtual ~ExposureCompensator() {}
+    virtual ~FileImgExposureCompensator() {}
 
     enum { NO, GAIN };
-    static Ptr<ExposureCompensator> createDefault(int type);
+    static Ptr<FileImgExposureCompensator> createDefault(int type);
 
     virtual void feed(const QString & imagesPath_p, const QString & infoFilename_p) = 0;
     virtual void apply(int index, Point corner, Mat &image, const Mat &mask) = 0;
 };
 
 
-class LIBOPTICALMAPPINGSHARED_EXPORT NoExposureCompensator : public ExposureCompensator
+class LIBOPTICALMAPPINGSHARED_EXPORT FileImgNoExposureCompensator : public FileImgExposureCompensator
 {
 public:
     void feed(const QString & imagesPath_p, const QString & infoFilename_p) {}
@@ -80,7 +79,7 @@ public:
 };
 
 
-class LIBOPTICALMAPPINGSHARED_EXPORT GainCompensator : public ExposureCompensator
+class LIBOPTICALMAPPINGSHARED_EXPORT FileImgGainCompensator : public FileImgExposureCompensator
 {
 public:
     void feed(const QString & imagesPath_p, const QString & infoFilename_p);
@@ -91,7 +90,5 @@ private:
     Mat_<double> gains_;
 };
 
-
-} // namespace fimgexpcomp
 
 #endif // __FILEIMAGE_EXPOSURE_COMPENSATE_HPP__

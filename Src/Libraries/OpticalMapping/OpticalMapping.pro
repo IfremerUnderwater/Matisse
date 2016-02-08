@@ -37,7 +37,7 @@ SOURCES += \
     MosaicOptimizer.cpp \
     MosaicDescriptor.cpp \
     ProjectiveCamera.cpp \
-    fileimage_exposure_compensate.cpp
+    FileImgExposureCompensate.cpp
 
 HEADERS +=\
         libopticalmapping_global.h \
@@ -45,8 +45,8 @@ HEADERS +=\
     MosaicOptimizer.h \
     MosaicDescriptor.h \
     ProjectiveCamera.h \
-    fileimage_exposure_compensate.h \
-    fileimage_precomp.hpp
+    FileImgExposureCompensate.h \
+    FileImgPrecomp.hpp
 
 unix {
     target.path = /usr/lib

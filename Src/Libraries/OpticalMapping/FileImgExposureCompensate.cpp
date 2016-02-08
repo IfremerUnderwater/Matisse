@@ -40,31 +40,31 @@
 //
 //M*/
 
-#include "fileimage_precomp.hpp"
-#include "fileimage_exposure_compensate.h"
+#include "FileImgPrecomp.hpp"
+#include "FileImgExposureCompensate.h"
 #include "opencv2/highgui/highgui.hpp"
 
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
+#include <QDebug>
 
 using namespace std;
 
-namespace fimgexpcomp {
 
-Ptr<ExposureCompensator> ExposureCompensator::createDefault(int type)
+Ptr<FileImgExposureCompensator> FileImgExposureCompensator::createDefault(int type)
 {
     if (type == NO)
-        return new NoExposureCompensator();
+        return new FileImgNoExposureCompensator();
     if (type == GAIN)
-        return new GainCompensator();
+        return new FileImgGainCompensator();
     CV_Error(CV_StsBadArg, "unsupported exposure compensation method");
     return NULL;
 }
 /*(const vector<Point> &corners, const std::vector<Mat> &images,
                            const std::vector<std::pair<Mat, uchar> > &masks)*/
 
-void GainCompensator::feed(const QString & imagesPath_p, const QString & infoFilename_p)
+void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & infoFilename_p)
 {
     LOGLN("Exposure compensation...");
 #if ENABLE_LOG
@@ -86,7 +86,7 @@ void GainCompensator::feed(const QString & imagesPath_p, const QString & infoFil
 
     while(!infoFileStream.atEnd()) {
         QString line = infoFileStream.readLine();
-        QStringList infoFields = line.split(",");
+        QStringList infoFields = line.split(";");
 
         imagesName.push_back(infoFields[0]);
         imagesMaskName.push_back(infoFields[1]);
@@ -119,7 +119,8 @@ void GainCompensator::feed(const QString & imagesPath_p, const QString & infoFil
         {
 
             QString image_i_path = imagesPath_p + QDir::separator() + imagesName[i];
-            QString imagemask_i_path = imagesPath_p + QDir::separator() + imagesMaskName[i];
+            QString imagemask_i_path = imagesPath_p + QDir::separator();
+            imagemask_i_path += imagesMaskName[i];
 
             image_i = imread(image_i_path.toStdString().c_str());
             imagemask_i = imread(imagemask_i_path.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
@@ -130,11 +131,17 @@ void GainCompensator::feed(const QString & imagesPath_p, const QString & infoFil
 
 
                 QString image_j_path = imagesPath_p + QDir::separator() + imagesName[j];
-                QString imagemask_j_path = imagesPath_p + QDir::separator() + imagesMaskName[j];
+                QString imagemask_j_path = imagesPath_p + QDir::separator();
+                imagemask_j_path += imagesMaskName[j];
 
                 image_j = imread(image_j_path.toStdString().c_str());
                 imagemask_j = imread(imagemask_j_path.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
 
+//qDebug() << "sub1 x, y = " << (roi.tl() - corners[i]).x << ", " << (roi.tl() - corners[i]).y << ", " << (roi.br() - corners[i]).x << ", " << (roi.br() - corners[i]).y;
+//qDebug() << "sub2 x, y = " << (roi.tl() - corners[j]).x << ", " << (roi.tl() - corners[j]).y << ", " << (roi.br() - corners[j]).x << ", " << (roi.br() - corners[j]).y;
+
+//qDebug() << "image1 size = " << image_i.cols << ", " << image_i.rows;
+//qDebug() << "image2 size = " << image_j.cols << ", " << image_j.rows;
 
                 subimg1 = image_i(Rect(roi.tl() - corners[i], roi.br() - corners[i]));
                 subimg2 = image_j(Rect(roi.tl() - corners[j], roi.br() - corners[j]));
@@ -188,13 +195,13 @@ void GainCompensator::feed(const QString & imagesPath_p, const QString & infoFil
 }
 
 
-void GainCompensator::apply(int index, Point /*corner*/, Mat &image, const Mat &/*mask*/)
+void FileImgGainCompensator::apply(int index, Point /*corner*/, Mat &image, const Mat &/*mask*/)
 {
     image *= gains_(index, 0);
 }
 
 
-vector<double> GainCompensator::gains() const
+vector<double> FileImgGainCompensator::gains() const
 {
     vector<double> gains_vec(gains_.rows);
     for (int i = 0; i < gains_.rows; ++i)
@@ -202,4 +209,3 @@ vector<double> GainCompensator::gains() const
     return gains_vec;
 }
 
-} // namespace fimgexpcomp

@@ -106,6 +106,8 @@ void Polygon::updateGpcPolygon()
 void Polygon::updatePolygonFromGpc()
 {
     int c, v;
+    _contours.clear();
+    _contoursHole.clear();
 
     for (c=0; c < _gpcPolygon.num_contours; c++)
     {
@@ -249,6 +251,50 @@ bool Polygon::operator ==(const Polygon &polyB_p)
 bool Polygon::operator !=(const Polygon &polyB_p)
 {
     return !(this->operator ==(polyB_p));
+}
+
+bool Polygon::operator =(Polygon &polyB_p)
+{
+
+
+    // Remove previously defined polygon
+
+    int c,v;
+
+    if(_gpcPolygon.contour){
+
+        for (c=0; c < _gpcPolygon.num_contours; c++) {
+
+            delete[] _gpcPolygon.contour[c].vertex;
+
+        }
+        delete[] _gpcPolygon.contour;
+    }
+    if (_gpcPolygon.hole)
+        delete[] _gpcPolygon.hole;
+
+    // Complete Gpc polygon from polyB
+    _gpcPolygon.num_contours = polyB_p.gpcPolygon()->num_contours;
+
+    _gpcPolygon.hole = new int[_gpcPolygon.num_contours];
+    _gpcPolygon.contour = new gpc_vertex_list[_gpcPolygon.num_contours];
+
+    for (c=0; c < _gpcPolygon.num_contours; c++) {
+
+        _gpcPolygon.contour[c].num_vertices = polyB_p.gpcPolygon()->contour[c].num_vertices;
+        _gpcPolygon.contour[c].vertex = new gpc_vertex[_gpcPolygon.contour[c].num_vertices];
+
+
+        for (v= 0; v < _gpcPolygon.contour[c].num_vertices; v++) {
+            _gpcPolygon.contour[c].vertex[v].x = polyB_p.gpcPolygon()->contour[c].vertex[v].x;
+            _gpcPolygon.contour[c].vertex[v].y = polyB_p.gpcPolygon()->contour[c].vertex[v].y;
+        }
+
+        _gpcPolygon.hole[c] = polyB_p.gpcPolygon()->hole[c];
+    }
+
+    this->updatePolygonFromGpc();
+
 }
 
 

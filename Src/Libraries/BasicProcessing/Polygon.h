@@ -89,6 +89,8 @@ public:
     bool operator ==(const Polygon &polyB_p);
     bool operator !=(const Polygon &polyB_p);
 
+    bool operator =(Polygon &polyB_p);
+
 private:
     gpc_polygon _gpcPolygon;
 
