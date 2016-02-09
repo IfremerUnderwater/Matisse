@@ -18,12 +18,16 @@ Polygon::~Polygon()
         for (c=0; c < _gpcPolygon.num_contours; c++) {
 
             delete[] _gpcPolygon.contour[c].vertex;
+            _gpcPolygon.contour[c].vertex = NULL;
 
         }
         delete[] _gpcPolygon.contour;
+        _gpcPolygon.contour = NULL;
     }
-    if (_gpcPolygon.hole)
+    if (_gpcPolygon.hole){
         delete[] _gpcPolygon.hole;
+        _gpcPolygon.hole = NULL;
+    }
     //gpc_free_polygon(&_gpcPolygon);
 }
 
@@ -65,12 +69,16 @@ void Polygon::updateGpcPolygon()
             for (c=0; c < _gpcPolygon.num_contours; c++) {
 
                 delete[] _gpcPolygon.contour[c].vertex;
+                _gpcPolygon.contour[c].vertex = NULL;
 
             }
             delete[] _gpcPolygon.contour;
+            _gpcPolygon.contour = NULL;
         }
-        if (_gpcPolygon.hole)
+        if (_gpcPolygon.hole){
             delete[] _gpcPolygon.hole;
+            _gpcPolygon.hole = NULL;
+        }
 
         if (this->isEmpty()){
             _gpcPolygon.num_contours=0;
@@ -266,12 +274,16 @@ bool Polygon::operator =(Polygon &polyB_p)
         for (c=0; c < _gpcPolygon.num_contours; c++) {
 
             delete[] _gpcPolygon.contour[c].vertex;
+            _gpcPolygon.contour[c].vertex = NULL;
 
         }
         delete[] _gpcPolygon.contour;
+        _gpcPolygon.contour = NULL;
     }
-    if (_gpcPolygon.hole)
+    if (_gpcPolygon.hole){
         delete[] _gpcPolygon.hole;
+        _gpcPolygon.hole = NULL;
+    }
 
     // Complete Gpc polygon from polyB
     _gpcPolygon.num_contours = polyB_p.gpcPolygon()->num_contours;
