@@ -1,7 +1,10 @@
 #include "Polygon.h"
+#include "stdvectoperations.h"
 #include <cfloat>
 
 using namespace basicproc;
+using namespace std;
+
 
 Polygon::Polygon():_modifSinceUpdate(true)
 {
@@ -208,6 +211,14 @@ void Polygon::getBoundingBox(double &tlx_p, double &tly_p, double &brx_p, double
             bry_p = *max_y_it;
 
     }
+
+}
+
+void Polygon::getContourCenter(double &cx_p, double &cy_p, int contourIndex_p)
+{
+
+    cx_p = doubleVectorMean(_contours[contourIndex_p].x);
+    cy_p = doubleVectorMean(_contours[contourIndex_p].y);
 
 }
 

@@ -86,6 +86,14 @@ public:
     ///
     void getBoundingBox(double &tlx_p, double &tly_p, double &brx_p, double &bry_p);
 
+    ///
+    /// \brief getContourCenter get the polygon center
+    /// \param cx_p x coord
+    /// \param cy_p y coord
+    /// \param contourIndex contour for which you want the center
+    ///
+    void getContourCenter(double &cx_p, double &cy_p, int contourIndex_p=0);
+
     bool operator ==(const Polygon &polyB_p);
     bool operator !=(const Polygon &polyB_p);
 

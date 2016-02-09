@@ -877,7 +877,7 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
     }
 
 
-    // Blend intersection between junctions
+    // Find intersections between junctions
     Polygon tempPoly1, tempPoly2, junctionInterPoly;
 
     if (vpBlocksPairIntersectPoly.size()!=0){
@@ -898,6 +898,23 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
             }
 
         }
+
+    }
+
+    // Blend intersections between junctions
+    if (!junctionInterPoly.isEmpty()){
+
+        for(int c=0; c<junctionInterPoly.contours().size(); c++){
+
+            Polygon *currentJunction = new Polygon;
+
+
+
+
+            delete currentJunction;
+
+        }
+
 
     }
 
