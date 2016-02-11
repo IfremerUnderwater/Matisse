@@ -13,6 +13,7 @@
 #include "Polygon.h"
 #include "RasterGeoreferencer.h"
 #include "FileImgExposureCompensate.h"
+#include "stdvectoperations.h"
 
 using namespace std;
 using namespace cv;
@@ -884,7 +885,7 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
 
         for (unsigned int i=0; i<vpBlocksPairIntersectPoly.size()-1; i++){
 
-            for (unsigned int j=i+1; i<vpBlocksPairIntersectPoly.size(); i++){
+            for (unsigned int j=i+1; j<vpBlocksPairIntersectPoly.size(); j++){
 
                 // Intersect junctions
                 vpBlocksPairIntersectPoly[i]->clip(*(vpBlocksPairIntersectPoly[j]),tempPoly1,basicproc::INT);
@@ -904,17 +905,143 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
     // Blend intersections between junctions
     if (!junctionInterPoly.isEmpty()){
 
-        for(int c=0; c<junctionInterPoly.contours().size(); c++){
+        QString imgBlockFilePath;
+        QString imgBlockMaskFilePath;
+
+        for(unsigned int c=0; c<junctionInterPoly.contours().size(); c++){
 
             Polygon *currentJunction = new Polygon;
+            double cc_x,cc_y, ncc_x, ncc_y;
+            vector<double> x, y;
+
+            junctionInterPoly.getContourCenter(cc_x, cc_y, c);
+
+            // Get contour coords
+            x = junctionInterPoly.contours()[c].x;
+            y = junctionInterPoly.contours()[c].y;
+
+            // Multiply coords to magnify poly
+            doubleVectorScalarMult(x, 1.05);
+            doubleVectorScalarMult(y, 1.05);
+
+            // Compute new center
+            ncc_x = doubleVectorMean(x);
+            ncc_y = doubleVectorMean(y);
+
+            // Recenter polygon and round the coord to have integers
+            for (unsigned int i=0; i<x.size(); i++){
+                x[i] = round( x[i] - ncc_x + cc_x );
+                y[i] = round( y[i] - ncc_y + cc_y );
+            }
+
+            // Fill polygon with this contour
+            currentJunction->addContour(x, y);
+            currentJunction->updateGpcPolygon();
+
+
+            // Fill blocks to be blended *****************************************
+            std::vector<Mat> blocksToBeBlended;
+            std::vector<Mat> blocksToBeBlendedMasks;
+            std::vector<Point> tlCorners, brCorners, tlBlocksCorners;
+            std::vector<int> blocksToBeBlendedIndexes;
+            Mat blendedBlocksImg, blendedBlocksImgMask;
+
+            double tl_x_min,tl_y_min;
+
+            for (unsigned int l=0; l<vpEffBlocksPoly.size(); l++){
+
+                Polygon *blockJunctionInter = new Polygon();
+                currentJunction->clip(*(vpEffBlocksPoly[l]),*blockJunctionInter,basicproc::INT);
+                double tl_x,tl_y,br_x,br_y;
+                double tlBlock_x,tlBlock_y,brBlock_x,brBlock_y;
+
+                if( !(blockJunctionInter->isEmpty()) ){
+
+
+                    // Open block and mask & get corner
+                    Mat imgTemp;
+
+                    vpEffBlocksPoly[l]->getBoundingBox(tlBlock_x, tlBlock_y, brBlock_x, brBlock_y);
+                    blockJunctionInter->getBoundingBox( tl_x,tl_y,br_x,br_y );
+
+                    imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
+                    imgTemp = imread(imgBlockFilePath.toStdString().c_str());
+                    blocksToBeBlended.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1)) );
+
+                    imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
+                    imgTemp = imread(imgBlockMaskFilePath.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+                    blocksToBeBlendedMasks.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1))  );
+
+                    // Store corners values
+                    tlBlocksCorners.push_back( Point( (int) tlBlock_x, (int) tlBlock_y ) );
+                    tlCorners.push_back( Point( (int) tl_x, (int) tl_y ) );
+                    brCorners.push_back( Point( (int) br_x, (int) br_y ) );
+
+                    blocksToBeBlendedIndexes.push_back(l);
+
+                    if (blocksToBeBlendedIndexes.size()==1){
+                        tl_x_min = tl_x;
+                        tl_y_min = tl_y;
+                    }else{
+                        tl_x_min = std::min(tl_x_min, tl_x);
+                        tl_y_min = std::min(tl_y_min, tl_y);
+                    }
+
+
+                }else{
+                    delete blockJunctionInter;
+                }
+
+            }
+
+
+            // Blend blocks
+            drawAndBlend(blocksToBeBlended, blocksToBeBlendedMasks, tlCorners, blendedBlocksImg, blendedBlocksImgMask);
+
+            for ( unsigned int i=0; i<blocksToBeBlendedIndexes.size(); i++ ){
+
+                int l = blocksToBeBlendedIndexes[i];
+                imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
+                imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
+
+                Mat blockImg = imread(imgBlockFilePath.toStdString().c_str());
+                Mat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str());
+
+
+                // Part of the matrix we are interested in
+                Mat blockImgRoi(blockImg, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
+                                     brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
+                // This submatrix will be a REFERENCE to PART of full matrix, NOT a copy
+                Mat blockImgMaskRoi(blockImgMask, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
+                                     brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
+
+                blockImgRoi = blendedBlocksImg( Rect(tlCorners[i].x-tl_x_min, tlCorners[i].y-tl_y_min, brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1 ) );
+                blockImgMaskRoi = blendedBlocksImgMask( Rect(tlCorners[i].x-tl_x_min, tlCorners[i].y-tl_y_min, brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1 ) );
+
+                // Save image
+                imwrite(imgBlockFilePath.toStdString().c_str(),blockImg);
+                imwrite(imgBlockMaskFilePath.toStdString().c_str(),blockImg);
+
+
+            }
 
 
 
+            // *******************************************************************
 
+
+            blocksToBeBlended.clear();
+            blocksToBeBlendedMasks.clear();
+            tlCorners.clear();
+            brCorners.clear();
+            tlBlocksCorners.clear();
+            blocksToBeBlendedIndexes.clear();
+
+            x.clear();
+            y.clear();
             delete currentJunction;
 
         }
-
 
     }
 

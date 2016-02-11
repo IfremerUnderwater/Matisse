@@ -74,7 +74,7 @@ public:
 class LIBOPTICALMAPPINGSHARED_EXPORT FileImgNoExposureCompensator : public FileImgExposureCompensator
 {
 public:
-    void feed(const QString & imagesPath_p, const QString & infoFilename_p) {}
+    void feed(const QString & /*imagesPath_p*/, const QString & /*infoFilename_p*/) {}
     void apply(int /*index*/, Point /*corner*/, Mat &/*image*/, const Mat &/*mask*/) {}
 };
 

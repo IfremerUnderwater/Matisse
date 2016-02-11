@@ -110,7 +110,6 @@ FORMS    += \
     ui/ParametersDialog.ui \
     ui/ServerDialog.ui \
     ui/JobDialog.ui \
-    ui/JobDialog.ui \
     ui/StatusMessageWidget.ui \
     ui/WelcomeDialog.ui \
     ui/HomeWidget.ui \
@@ -123,7 +122,7 @@ FORMS    += \
 
 
 TRANSLATIONS=MatisseServer_fr.ts \
-    MatisseServer_en.ts
+             MatisseServer_en.ts
 
 RESOURCES += \
     ui/resources/resources.qrc \

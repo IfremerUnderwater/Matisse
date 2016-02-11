@@ -15,14 +15,27 @@
     </message>
 </context>
 <context>
+    <name>MatisseTools::MatisseParametersManager</name>
+    <message>
+        <location filename="src/MatisseParametersManager.cpp" line="938"/>
+        <source>Fichier</source>
+        <translation type="unfinished">File</translation>
+    </message>
+    <message>
+        <location filename="src/MatisseParametersManager.cpp" line="943"/>
+        <source>Repertoire</source>
+        <translation type="unfinished">Folder</translation>
+    </message>
+</context>
+<context>
     <name>MatisseTools::Tools</name>
     <message>
-        <location filename="src/Tools.cpp" line="274"/>
+        <location filename="src/Tools.cpp" line="358"/>
         <source>Fichier</source>
         <translation>File</translation>
     </message>
     <message>
-        <location filename="src/Tools.cpp" line="279"/>
+        <location filename="src/Tools.cpp" line="363"/>
         <source>Repertoire</source>
         <oldsource>Répertoire</oldsource>
         <translation>Folder</translation>
