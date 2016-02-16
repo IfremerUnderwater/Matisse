@@ -748,38 +748,6 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
                 + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
         imwrite(mosaicMaskFilePath.toStdString().c_str(), mosaicImageMask);
 
-        /*QString utmProjParam, utmHemisphereOption,utmZoneString;
-
-        // Construct utm proj param options
-        utmZoneString = QString("%1 ").arg(mosaicD_p.utmZone())+ mosaicD_p.utmHemisphere();
-        QStringList utmParams = utmZoneString.split(" ");
-
-        if ( utmParams.at(1) == "S" ){
-            utmHemisphereOption = QString(" +south");
-        }else{
-            utmHemisphereOption = QString("");
-        }
-        utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
-
-        // Get block corners in pixels
-        double blockTL_x,blockTL_y,blockBR_x,blockBR_y;
-        vpEffBlocksPoly[k]->getBoundingBox(blockTL_x,blockTL_y,blockBR_x,blockBR_y);
-
-
-        double blockUtmTL_x = mosaicD_p.mosaicOrigin().x + blockTL_x*mosaicD_p.pixelSize().x;
-        double blockUtmTL_y = mosaicD_p.mosaicOrigin().y - blockTL_y*mosaicD_p.pixelSize().y;
-
-        double blockUtmBR_x = mosaicD_p.mosaicOrigin().x + blockBR_x*mosaicD_p.pixelSize().x;
-        double blockUtmBR_y = mosaicD_p.mosaicOrigin().y - blockBR_y*mosaicD_p.pixelSize().y;
-
-        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
-                .arg(blockUtmTL_x,0,'f',2)
-                .arg(blockUtmTL_y,0,'f',2)
-                .arg(blockUtmBR_x,0,'f',2)
-                .arg(blockUtmBR_y,0,'f',2);
-        RasterGeoreferencer rasterGeoref;
-        rasterGeoref.WriteGeoFile(mosaicImage, mosaicImageMask, filePath,gdalOptions);*/
-
     }
 
 
@@ -1010,18 +978,17 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
 
                 // Part of the matrix we are interested in
                 Mat blockImgRoi(blockImg, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
-                                     brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
+                                               brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
                 // This submatrix will be a REFERENCE to PART of full matrix, NOT a copy
                 Mat blockImgMaskRoi(blockImgMask, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
-                                     brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
+                                                       brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
 
                 blockImgRoi = blendedBlocksImg( Rect(tlCorners[i].x-tl_x_min, tlCorners[i].y-tl_y_min, brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1 ) );
                 blockImgMaskRoi = blendedBlocksImgMask( Rect(tlCorners[i].x-tl_x_min, tlCorners[i].y-tl_y_min, brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1 ) );
 
                 // Save image
                 imwrite(imgBlockFilePath.toStdString().c_str(),blockImg);
-                imwrite(imgBlockMaskFilePath.toStdString().c_str(),blockImg);
-
+                imwrite(imgBlockMaskFilePath.toStdString().c_str(),blockImgMask);
 
             }
 
@@ -1044,6 +1011,55 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         }
 
     }
+
+    // Write all geotiff files from temp files
+    for (unsigned int k=0; k<vpEffBlocksPoly.size(); k++){
+
+
+        QString blockImgFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+        Mat blockImg = imread(blockImgFilePath.toStdString().c_str());
+
+        QString blockImgMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+
+        QString utmProjParam, utmHemisphereOption,utmZoneString;
+
+        // Construct utm proj param options
+        utmZoneString = QString("%1 ").arg(mosaicD_p.utmZone())+ mosaicD_p.utmHemisphere();
+        QStringList utmParams = utmZoneString.split(" ");
+
+        if ( utmParams.at(1) == "S" ){
+            utmHemisphereOption = QString(" +south");
+        }else{
+            utmHemisphereOption = QString("");
+        }
+        utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
+
+        // Get block corners in pixels
+        double blockTL_x,blockTL_y,blockBR_x,blockBR_y;
+        vpEffBlocksPoly[k]->getBoundingBox(blockTL_x,blockTL_y,blockBR_x,blockBR_y);
+
+
+        double blockUtmTL_x = mosaicD_p.mosaicOrigin().x + blockTL_x*mosaicD_p.pixelSize().x;
+        double blockUtmTL_y = mosaicD_p.mosaicOrigin().y - blockTL_y*mosaicD_p.pixelSize().y;
+
+        double blockUtmBR_x = mosaicD_p.mosaicOrigin().x + blockBR_x*mosaicD_p.pixelSize().x;
+        double blockUtmBR_y = mosaicD_p.mosaicOrigin().y - blockBR_y*mosaicD_p.pixelSize().y;
+
+        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+                .arg(blockUtmTL_x,0,'f',2)
+                .arg(blockUtmTL_y,0,'f',2)
+                .arg(blockUtmBR_x,0,'f',2)
+                .arg(blockUtmBR_y,0,'f',2);
+
+        QString geoRefBlockImgFilePath = writingPath_p + QDir::separator() + prefix_p + QString("_%1.tiff").arg(k, 4, 'g', -1, '0');
+
+        RasterGeoreferencer rasterGeoref;
+        rasterGeoref.WriteGeoFile(blockImg, blockImgMask, geoRefBlockImgFilePath,gdalOptions);
+
+    }
+
+
 
     // Restore drawing options
     dOptions = dOptionsBackup;

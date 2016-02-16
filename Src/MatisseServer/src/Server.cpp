@@ -197,8 +197,6 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
 
     qDebug() << "Verification de l'assemblage";
 
-
-
     // Verifier si les paramètres attendus sont présents pour la source
     QString sourceName = assembly.sourceDefinition()->name();
     qDebug() << "Verification présence de la source" << sourceName;
@@ -657,8 +655,6 @@ void JobTask::slot_intermediateResult(Image *image)
 {
     emit signal_jobIntermediateResult(_jobDefinition.name(), image);
 }
-
-
 
 
 QStringList JobTask::resultFileNames() const
