@@ -43,7 +43,6 @@ class Tools : public QObject
 public:
     explicit Tools(/*QWidget *parent = 0*/);
     ~Tools();
-//    bool generateDialogClass(QString xmlFilename, QString processorId, QString outputFilename);
 
     bool readParametersModelFile(QString xmlFilename, bool append = false);
     bool readUserParametersFile(QString xmlFilename, QString xmlModelFilename = "");
@@ -59,6 +58,7 @@ public:
 
     QString getModelVersion();
 
+    static bool removeDir(const QString &dirName);
 
 protected slots:
 //    void slot_openFileDialog();

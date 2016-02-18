@@ -14,6 +14,7 @@
 #include "RasterGeoreferencer.h"
 #include "FileImgExposureCompensate.h"
 #include "stdvectoperations.h"
+#include "Tools.h"
 
 using namespace std;
 using namespace cv;
@@ -482,9 +483,9 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
     //bool gainCompRequired = ( dOptions.exposCompType != ExposureCompensator::NO );
 
     // Create tmp folder to contain temporary files
-    QDir dir(writingPath_p + QDir::separator() + QString("tmp"));
-    if (!dir.exists()) {
-        dir.mkpath(".");
+    QDir tempDir(writingPath_p + QDir::separator() + QString("tmp"));
+    if (!tempDir.exists()) {
+        tempDir.mkpath(".");
     }
 
     // We first backup drawing options as we will change them on blocks blending iterations
@@ -993,10 +994,6 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
             }
 
 
-
-            // *******************************************************************
-
-
             blocksToBeBlended.clear();
             blocksToBeBlendedMasks.clear();
             tlCorners.clear();
@@ -1059,8 +1056,6 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
 
     }
 
-
-
     // Restore drawing options
     dOptions = dOptionsBackup;
 
@@ -1080,5 +1075,7 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
     for (unsigned int i=0; i<vpBlocksPairIntersectPoly.size(); i++){
         delete vpBlocksPairIntersectPoly.at(i);
     }
+
+    MatisseTools::Tools::removeDir(tempDir.absolutePath());
 
 }

@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 #QT       -= gui
-QT       += core xml
+QT       += core xml script xmlpatterns network
 
 TARGET = OpticalMapping
 TEMPLATE = lib
@@ -23,6 +23,7 @@ CONFIG(release, debug|release) {
 # ------------------------------------------------------------------------
 
 include(../../Scripts/MatisseCommon.pri)
+include(../../Scripts/MatisseTools.pri)
 include(../../Scripts/opencv.pri)
 include(../../Scripts/qgis.pri)
 include(../../Scripts/BasicProcessing.pri)

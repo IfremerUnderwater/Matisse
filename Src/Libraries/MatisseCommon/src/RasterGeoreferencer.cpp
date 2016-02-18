@@ -893,11 +893,49 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
         poDataset = inputDriver->Create ("", raster.cols, raster.rows, 4, GDT_Byte, NULL);
     }else{
         poDataset = inputDriver->Create ("", raster.cols, raster.rows, 2, GDT_Byte, NULL);
-        pBand = poDataset->GetRasterBand(1);
     }
 
-    //Copy raster data
-    for(int i=0;i<raster.cols;i++){
+    //Copy raster data & mask
+    if (raster.channels()>1){
+
+        vector<Mat> rasterChannels(3);
+        split(raster, rasterChannels);
+
+        for(int k=0;k<3;k++){
+            pBand = poDataset->GetRasterBand(3-k);
+            for(int i=0;i<raster.cols;i++){
+                for(int j=0;j<raster.rows;j++){
+                    pBand->RasterIO(GF_Write,i,j,1,1,&(rasterChannels[k].at<unsigned char>(j,i)),1,1,GDT_Byte,0,0);
+                }
+            }
+        }
+
+        pBand = poDataset->GetRasterBand(4);
+        for(int i=0;i<raster.cols;i++){
+            for(int j=0;j<raster.rows;j++){
+
+                pBand->RasterIO(GF_Write,i,j,1,1,&(rasterMask.at<unsigned char>(j,i)),1,1,GDT_Byte,0,0);
+            }
+        }
+
+    }else{
+        pBand = poDataset->GetRasterBand(1);
+        for(int i=0;i<raster.cols;i++){
+            for(int j=0;j<raster.rows;j++){
+                pBand->RasterIO(GF_Write,i,j,1,1,&(raster.at<unsigned char>(j,i)),1,1,GDT_Byte,0,0);
+            }
+        }
+        pBand = poDataset->GetRasterBand(2);
+        for(int i=0;i<raster.cols;i++){
+            for(int j=0;j<raster.rows;j++){
+
+                pBand->RasterIO(GF_Write,i,j,1,1,&(rasterMask.at<unsigned char>(j,i)),1,1,GDT_Byte,0,0);
+            }
+        }
+    }
+
+
+    /*for(int i=0;i<raster.cols;i++){
         for(int j=0;j<raster.rows;j++){
 
             if (raster.channels()>1){
@@ -929,7 +967,7 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
             pBand->RasterIO(GF_Write,i,j,1,1,&v,1,1,GDT_Byte,0,0);
         }
 
-    }
+    }*/
 
 
 
