@@ -27,10 +27,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, MatissePreferences *prefs)
     // saving mosaic file prefix buffer
     _prefixBuffer = _prefs->defaultMosaicFilenamePrefix();
 
-    _ui->_LE_importExportPath->setReadOnly(true);
-    _ui->_LE_archivePath->setReadOnly(true);
-    _ui->_LE_defaultResultPath->setReadOnly(true);
-
     // on limite la saisie aux caractères alphanumériques + '-' et '_'
     QRegExpValidator *prefixVal = new QRegExpValidator(QRegExp("[a-zA-Z\\d_\\-]{2,}"), this);
     _ui->_LE_defaultMosaicPrefix->setValidator(prefixVal);

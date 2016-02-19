@@ -183,11 +183,16 @@ void Server::slot_currentJobProcessed()
         jobDefinition.executionDefinition()->setResultFileNames(_currentJob->resultFileNames());
         _jobServer->sendExecutionNotification(jobName);
     }
+
+    disconnect(this, SLOT(slot_currentJobProcessed()));
+    disconnect(this, SIGNAL(signal_jobIntermediateResult(QString,Image *)));
+    disconnect(this, SIGNAL(signal_userInformation(QString)));
+    disconnect(this, SIGNAL(signal_processCompletion(quint8)));
+
     _currentJob->deleteLater();
     _currentJob = NULL;
     emit signal_jobProcessed(jobName, isCancelled);
 }
-
 
 bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters)
 {
@@ -196,6 +201,8 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     RasterProvider* rasterProvider = NULL;
 
     qDebug() << "Verification de l'assemblage";
+
+
 
     // Verifier si les paramètres attendus sont présents pour la source
     QString sourceName = assembly.sourceDefinition()->name();
@@ -420,12 +427,15 @@ bool Server::processJob(JobDefinition &jobDefinition)
 
     QThread::currentThread()->setObjectName("GUI");
 
+    // TODO : penser a deleter le pointeur
     _thread = new QThread;
     _thread->setObjectName("JobTask");
     connect(_thread, SIGNAL(started()), _currentJob, SLOT(slot_start()));
     connect(_thread, SIGNAL(finished()), _currentJob, SLOT(slot_stop()));
     connect(_currentJob, SIGNAL(signal_jobStopped()), this, SLOT(slot_currentJobProcessed()));
     connect(_currentJob, SIGNAL(signal_jobIntermediateResult(QString,Image *)), this, SIGNAL(signal_jobIntermediateResult(QString,Image *)));
+    connect(_currentJob, SIGNAL(signal_userInformation(QString)), this, SIGNAL(signal_userInformation(QString)));
+    connect(_currentJob, SIGNAL(signal_processCompletion(quint8)), this, SIGNAL(signal_processCompletion(quint8)));
     _currentJob->moveToThread(_thread);
     qDebug() << "Démarrage de la tache";
     _thread->start();
@@ -443,6 +453,12 @@ bool Server::stopJob(bool cancel)
 {
    if (_currentJob) {
        _currentJob->stop(cancel);
+
+       disconnect(this, SLOT(slot_currentJobProcessed()));
+       disconnect(this, SIGNAL(signal_jobIntermediateResult(QString,Image *)));
+       disconnect(this, SIGNAL(signal_userInformation(QString)));
+       disconnect(this, SIGNAL(signal_processCompletion(quint8)));
+
        qDebug() << "Fin du Thread" ;
        _thread->quit();
    }
@@ -566,6 +582,8 @@ void JobTask::slot_start()
     _context = new Context;
 
     qDebug() << "Configuration de la source";
+    connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
+    connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
     ok = _imageProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -577,10 +595,14 @@ void JobTask::slot_start()
     foreach (Processor* processor, _processors) {
         qDebug() << "Configuration du processeur " << processor->name();
         connect(processor, SIGNAL(signal_intermediateResult(Image*)), this, SLOT(slot_intermediateResult(Image*)));
+        connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
+        connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
         processor->callConfigure(_context, _matParameters);
     }
 
     qDebug() << "Configuration de la destination";
+    connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
+    connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
     ok = _rasterProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -622,6 +644,7 @@ void JobTask::slot_start()
 
 void JobTask::slot_stop()
 {
+
     qDebug() << "Arret du image provider";
     _imageProvider->callStop();
 
@@ -633,6 +656,10 @@ void JobTask::slot_stop()
 
     qDebug() << "Arret du raster provider";
     _rasterProvider->callStop();
+
+    /* Disconnecting user information signals */
+    disconnect(this, SLOT(slot_userInformation(QString)));
+    disconnect(this, SLOT(slot_processCompletion(quint8)));
 
     _resultFileNames.clear();
     if (!_isCancelled) {
@@ -654,6 +681,16 @@ volatile bool JobTask::isCancelled() const
 void JobTask::slot_intermediateResult(Image *image)
 {
     emit signal_jobIntermediateResult(_jobDefinition.name(), image);
+}
+
+void JobTask::slot_userInformation(QString userText)
+{
+    emit signal_userInformation(userText);
+}
+
+void JobTask::slot_processCompletion(quint8 percentComplete)
+{
+    emit signal_processCompletion(percentComplete);
 }
 
 

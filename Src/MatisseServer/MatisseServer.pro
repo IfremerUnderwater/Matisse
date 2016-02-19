@@ -72,7 +72,8 @@ SOURCES += src/main.cpp\
     src/MatisseVersionWidget.cpp \
     src/MatisseTabWidget.cpp \
     src/MatisseMenu.cpp \
-    src/PreferencesDialog.cpp
+    src/PreferencesDialog.cpp \
+    src/LiveProcessWheel.cpp
 
 HEADERS  += \
     src/AssemblyGui.h \
@@ -100,7 +101,9 @@ HEADERS  += \
     src/MatisseVersionWidget.h \
     src/MatisseTabWidget.h \
     src/MatisseMenu.h \
-    src/PreferencesDialog.h
+    src/PreferencesDialog.h \
+    src/LiveProcessWheel.h \
+    src/GraphicalCharter.h
 
 FORMS    += \
     ui/AssemblyGui.ui \
@@ -134,9 +137,10 @@ OTHER_FILES += \
     ../../Config/lnf/MatisseModeProg.css \
     ../../Config/lnf/MatisseModeRt.css \
     ../../Config/lnf/MatisseModeDt.css \
-    ../../Config/xml/models/MatisseAssembly.xsd \
     MatisseServer_fr.ts \
-    MatisseServer_en.ts
+    MatisseServer_en.ts \
+    ../../Config/config/MatisseSettings.xml
 
 DISTFILES += \
+    ../../Config/xml/models/MatisseAssembly.xsd \
     ../../Config/schemas/ParametersDictionnary.xsd

@@ -488,7 +488,10 @@ bool Xml::readMatisseGuiSettings(QString filename)
                 if (!isOk)
                     _port=6666;
                 //qDebug()<< "Port : " << _port;
+            } else if (reader.name() == "Version") {
+                _version = reader.readElementText();
             }
+
         }
     }
     _jobsPath = _basePath + QDir::separator() + "jobs";
@@ -762,6 +765,11 @@ bool Xml::xmlIsValid(QXmlSchema &schema, QFileInfo fileInfo)
     file.close();
     return true;
 }
+QString Xml::getVersion() const
+{
+    return _version;
+}
+
 
 // lecture des descripteurs
 // on suppose que le fichier est valide...

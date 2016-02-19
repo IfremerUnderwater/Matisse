@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<MatisseSettings>	
-	<Date>13/05/2015</Date>
-	<DllRootDir>./Modules</DllRootDir>
-	<XmlRootDir>./xml</XmlRootDir>
-	<Port>8888</Port>
-	<DataRootDir>.</DataRootDir>
+<MatisseSettings>
+
+    <!-- Application version : must conform to the 'X.Y.Z' pattern  -->
+    <!-- X : product serie ; Y : major version ; Z : minor version  -->
+    <!-- To be incremented for each product release                 -->
+    <Version>3.2.3</Version>
+
+    <!-- Application version date -->
+    <Date>17/02/2016</Date>
+
+    <DllRootDir>./Modules</DllRootDir>
+    <XmlRootDir>./xml</XmlRootDir>
+    <Port>8888</Port>
+    <DataRootDir>.</DataRootDir>
 </MatisseSettings>

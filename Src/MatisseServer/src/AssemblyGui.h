@@ -13,6 +13,9 @@
 #include <QStandardItemModel>
 #include <QProgressBar>
 #include <QToolButton>
+#include <QMenuBar>
+#include <QScrollArea>
+#include <QScrollBar>
 
 #include <QtDebug>
 
@@ -25,6 +28,7 @@
 #include "KeyValueList.h"
 #include "Xml.h"
 #include "Server.h"
+#include "GraphicalCharter.h"
 #include "AssemblyDialog.h"
 #include "JobDialog.h"
 #include "PreferencesDialog.h"
@@ -36,6 +40,7 @@
 #include "MatissePreferences.h"
 #include "HomeWidget.h"
 #include "MatisseMenu.h"
+#include "LiveProcessWheel.h"
 
 
 namespace Ui {
@@ -67,7 +72,7 @@ public:
     void initMainMenu();
     void initStylesheetSelection();
     void initContextMenus();
-    void setActionStatesNew();
+    void enableActions();
 
     SourceWidget * getSourceWidget(QString name);
     ProcessorWidget * getProcessorWidget(QString name);
@@ -76,6 +81,8 @@ public:
     void initDateTimeDisplay();
     void initPreferences();
     void loadAssemblyParameters(AssemblyDefinition *selectedAssembly);
+    void initParametersWidget();
+    void resizeAndRepositionParametersWidget();
 private:
     Ui::AssemblyGui *_ui;
     bool _isMapView;
@@ -85,10 +92,13 @@ private:
     QString _settingsFile;
     QString _rootXml;
     QString _dataPath;
+    QString _appVersion;
+
     Tools * _parameters;
     bool _beforeSelect;
     MatissePreferences* _preferences;
     QTranslator* _toolsTranslator_en;
+    QTranslator* _toolsTranslator_fr;
     QTranslator* _serverTranslator_en;
     QTranslator* _serverTranslator_fr;
     QString _currentLanguage;
@@ -103,6 +113,8 @@ private:
     JobDefinition *_currentJob;
     UserFormWidget * _userFormWidget;
     ExpertFormWidget * _expertFormWidget;
+    QScrollArea * _jobParametersDock;
+    QScrollArea * _assemblyParametersDock;
     ParametersWidgetSkeleton * _parametersWidget;
     QLabel* _messagesPicto;
 
@@ -112,6 +124,7 @@ private:
     QMap<ApplicationMode, QString> _stylesheetByAppMode;
     QMap<ApplicationMode, QIcon> _stopButtonIconByAppMode;
     QMap<ApplicationMode, QPixmap> _messagePictoByAppMode;
+    QMap<ApplicationMode, QString> _wheelColorsByMode;
     QMap<MessageIndicatorLevel, QPixmap> _messagePictoByLevel;
     QMap<MessageIndicatorLevel, QIcon> _messagesLevelIcons;
     QIcon _mapVisuModeIcon;
@@ -125,6 +138,10 @@ private:
     QLabel *_activeViewOrModeLabel;
     QLabel *_currentDateTimeLabel;
     QTimer *_dateTimeTimer;
+    QLabel *_ongoingProcessInfolabel;
+    QLabel *_matisseVersionlabel;
+    QProgressBar *_ongoingProcessCompletion;
+    LiveProcessWheel *_liveProcessWheel;
 
     // status bar
     //QProgressBar _statusProgressBar;
@@ -207,8 +224,10 @@ private:
     void updateLanguage(QString language, bool forceRetranslation = FALSE);
     void retranslate();
 
+    void initVersionDisplay();
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void resizeEvent(QResizeEvent* event); // overriding resize event
 
 protected slots:
     //void slot_showAssembly(QModelIndex index);
@@ -230,6 +249,8 @@ protected slots:
     void slot_launchJob();
     void slot_stopJob();
     void slot_jobIntermediateResult(QString name, Image *image);
+    void slot_userInformation(QString userText);
+    void slot_processCompletion(quint8 percentComplete);
     void slot_jobProcessed(QString name, bool isCancelled);
     void slot_assembliesReload();
     void slot_modifiedParameters(bool changed);
@@ -243,6 +264,10 @@ public slots:
 
 signals:
     void signal_showWelcome();
+    void signal_processRunning();
+    void signal_processStopped();
+    void signal_processFrozen();
+    void signal_updateWheelColors(QString colors);
 };
 }
 

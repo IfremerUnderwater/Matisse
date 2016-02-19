@@ -7,6 +7,8 @@
 #include <qgsmapcanvas.h>
 #include "Image.h"
 #include "Tools.h"
+#include "GraphicalCharter.h"
+
 using namespace MatisseTools;
 using namespace MatisseCommon;
 namespace Ui {
@@ -47,6 +49,7 @@ protected slots:
 
 signals:
     void signal_parametersChanged(bool changed);
+
 };
 
 

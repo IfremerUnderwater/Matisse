@@ -54,6 +54,9 @@ bool DrawBlend2DMosaic::stop()
 void DrawBlend2DMosaic::onFlush(quint32 port)
 {
 
+    emit signal_processCompletion(0);
+    emit signal_userInformation("Drawing and blending 2D mosaic...");
+
     MosaicDescriptor *pMosaicD = NULL;
     //QVector<ProjectiveCamera*> *pCams = NULL;
 
@@ -108,13 +111,17 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     qDebug() << "output_dir = " << outputDirnameStr;
     qDebug() << "output_filename = " << outputFilename;
 
+    emit signal_processCompletion(10);
+
     //Draw mosaic
-    MosaicDrawer mosaicDrawer;
+    MosaicDrawer mosaicDrawer;    
 
     if (!blockDraw){
 
         cv::Mat mosaicImage,mosaicMask;
         mosaicDrawer.drawAndBlend(*pMosaicD, mosaicImage, mosaicMask);
+
+        emit signal_processCompletion(50);
 
         // Write geofile
         pMosaicD->writeToGeoTiff(mosaicImage,mosaicMask,outputDirnameStr + QDir::separator() + outputFilename);
@@ -128,6 +135,7 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
 
     }
 
+    emit signal_processCompletion(100);
 }
 
 

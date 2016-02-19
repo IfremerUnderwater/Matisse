@@ -70,6 +70,11 @@ private:
     QPointer<SourceWidget> _sourceWidget;
     QMap<quint8, ProcessorWidget *> _processorsWidgets;
     QPointer<DestinationWidget> _destinationWidget;
+    static const quint16 ACTIVE_SCENE_WIDTH = 200;
+    static const quint16 ACTIVE_SCENE_HEIGHT = 1200;
+    static const quint16 INACTIVE_SCENE_WIDTH = 200;
+    static const quint16 INACTIVE_SCENE_HEIGHT = 500;
+    bool isSceneActive;
 
     void init();
 

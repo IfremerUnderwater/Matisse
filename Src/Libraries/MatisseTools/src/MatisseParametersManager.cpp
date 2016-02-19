@@ -859,7 +859,7 @@ ParametersWidgetSkeleton * MatisseParametersManager::createDialog(QWidget* owner
     }
 
     QList<QLabel*> textsForAlignment;
-    QList <QGroupBox *> groupsForAlignement;
+    QList<QGroupBox *> groupsForAlignement;
     // on cree l'interface...
     ParametersWidgetSkeleton * newDialog = new ParametersWidgetSkeleton(owner);
 
@@ -869,7 +869,7 @@ ParametersWidgetSkeleton * MatisseParametersManager::createDialog(QWidget* owner
         if ((!parameterGroup._hasUserValues) && user) {
             continue;
         }
-        QString groupLabel = parameterGroup._text;
+        QString groupLabel = tr(parameterGroup._text.toLatin1());
         QGroupBox * groupBox = new QGroupBox(groupLabel, newDialog);
         groupBox->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
         groupsForAlignement << groupBox;
@@ -880,10 +880,12 @@ ParametersWidgetSkeleton * MatisseParametersManager::createDialog(QWidget* owner
                 continue;
             }
             QHBoxLayout * parameterLayout = new QHBoxLayout(newDialog);
-            EnrichedFormWidget * widget = 0;
+            EnrichedFormWidget * widget = NULL;
+            QString paramLabel = tr(param._text.toLatin1());
+
             switch(param._show) {
             case LINE_EDIT: {
-                widget = new EnrichedLineEdit(newDialog, param._text, param._value.toString());
+                widget = new EnrichedLineEdit(newDialog, paramLabel, param._value.toString());
              }
                 break;
             case SLIDER: {
@@ -914,7 +916,7 @@ ParametersWidgetSkeleton * MatisseParametersManager::createDialog(QWidget* owner
                 break;
             case COMBO_BOX: {
                 QStringList items = getEnums(param);
-                widget = new EnrichedComboBox(newDialog, param._text, items, param._value.toString());
+                widget = new EnrichedComboBox(newDialog, paramLabel, items, param._value.toString());
             }
                 break;
             case LIST_BOX: {
@@ -935,12 +937,12 @@ ParametersWidgetSkeleton * MatisseParametersManager::createDialog(QWidget* owner
                 break;
             case FILE_SELECTOR_RELATIVE:
             case FILE_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(newDialog, param._text, tr("Fichier"), param._show, param._value.toString());
+                widget = new EnrichedFileChooser(newDialog, param._text, param._show, param._value.toString());
             }
                 break;
             case DIR_SELECTOR_RELATIVE:
             case DIR_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(newDialog, param._text, tr("Repertoire"), param._show, param._value.toString());
+                widget = new EnrichedFileChooser(newDialog, param._text, param._show, param._value.toString());
             }
                 break;
             case UNKNOWN_SHOW:
@@ -970,6 +972,7 @@ ParametersWidgetSkeleton * MatisseParametersManager::createDialog(QWidget* owner
                 //parameterLayout->addWidget(widLabel);
                 parameterLayout->addWidget(widget);
                 parameterLayout->addStretch();
+                qDebug() << "Add parameter layout";
                 groupBoxLayout->addLayout(parameterLayout);
                 textsForAlignment << widLabel;
             } else {
@@ -977,6 +980,7 @@ ParametersWidgetSkeleton * MatisseParametersManager::createDialog(QWidget* owner
             }
         }
 
+        qDebug() << "Set group box layout";
         groupBox->setLayout(groupBoxLayout);
         groupBox->hide();
 

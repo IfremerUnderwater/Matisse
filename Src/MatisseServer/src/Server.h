@@ -47,14 +47,16 @@ public:
 
 signals:
     void signal_jobIntermediateResult(QString jobName, Image *image);
+    void signal_userInformation(QString userText);
+    void signal_processCompletion(quint8 percentComplete);
     void signal_jobStopped();
 
 public slots:
     void slot_start();
     void slot_stop();
-
-
     void slot_intermediateResult(Image *image);
+    void slot_userInformation(QString userText);
+    void slot_processCompletion(quint8 percentComplete);
 
 private:
     Context* _context;
@@ -102,6 +104,8 @@ public:
 
 signals:
     void signal_jobIntermediateResult(QString jobName, Image *image);
+    void signal_userInformation(QString userText);
+    void signal_processCompletion(quint8 percentComplete);
     void signal_jobProcessed(QString jobName, bool isCancelled);
 
 private slots:

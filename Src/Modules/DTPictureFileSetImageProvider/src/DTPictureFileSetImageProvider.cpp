@@ -92,6 +92,9 @@ bool DTPictureFileSetImageProvider::start()
 {
     qDebug() << logPrefix() << " inside start";
 
+    emit signal_processCompletion(0);
+    emit signal_userInformation("Building image set...");
+
     for(int i=0; i<_dim2FileReader->getNumberOfImages(); i++) {
 
          QString filename = _dim2FileReader->getImageFilename(i);
@@ -106,7 +109,12 @@ bool DTPictureFileSetImageProvider::start()
              _imageSet->addImage(newImage);
          }
 
+         qreal progressRatio = i/_dim2FileReader->getNumberOfImages();
+         quint8 progress = progressRatio * 100;
+         emit signal_processCompletion(progress);
     }
+    emit signal_processCompletion(100);
+
     _imageSet->flush();
 
     qDebug() << logPrefix() << " out start";

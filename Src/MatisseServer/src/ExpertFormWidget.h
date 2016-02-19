@@ -5,6 +5,9 @@
 #include <QModelIndex>
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include <QScrollArea>
+#include <QAbstractScrollArea>
+#include <QResizeEvent>
 
 #include "AssemblyGraphicsScene.h"
 
@@ -26,7 +29,6 @@ class ExpertFormWidget;
 }
 
 namespace MatisseServer {
-
 
 class ExpertFormWidget : public QWidget
 {
@@ -50,6 +52,7 @@ public:
     //void test();
     AssemblyGraphicsScene * getScene() { return _scene;}
     QGraphicsView * getGraphicsView();
+    QScrollArea * getParametersDock();
     //void showParameters(AssemblyDefinition * assembly);
 //    bool saveParameters();
 //    bool deleteSelectedParameters();
@@ -74,6 +77,9 @@ private:
 
     void init();
     //void fillLists();
+
+protected:
+    void resizeEvent(QResizeEvent *event);
 
 protected slots:
 //    void slot_showParameters(QTreeWidgetItem *item = NULL, int noCol = 0);

@@ -27,10 +27,6 @@ JobDialog::JobDialog(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
     _ui->_LE_resultPath->setText(keyValues->getValue("resultPath"));
     _ui->_LE_outputFile->setText(keyValues->getValue("outputFile"));
 
-    _ui->_LE_dataPath->setReadOnly(true);
-    _ui->_LE_resultPath->setReadOnly(true);
-    _ui->_LE_navigationFile->setReadOnly(true);
-
     connect(_ui->_LE_name, SIGNAL(textEdited(QString)), this, SLOT(slot_formatName(QString)));
     connect(_ui->_PB_save, SIGNAL(clicked()), this, SLOT(slot_close()));
     connect(_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(slot_close()));

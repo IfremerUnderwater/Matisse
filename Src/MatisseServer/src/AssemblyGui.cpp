@@ -20,9 +20,6 @@ AssemblyGui::AssemblyGui(QString settingsFile, QWidget *parent) :
     _canShow = setSettingsFile(settingsFile);
     init();
     test();
-
-    // TODO : Provisoire, à supprimer une fois la barre d'outils supprimée (actions recablées)
-    this->_ui->_TOO_actions->hide();
 }
 
 AssemblyGui::~AssemblyGui()
@@ -60,6 +57,7 @@ bool AssemblyGui::setSettingsFile(QString settings)
         return false;
     }
 
+    _appVersion = xmlProcessing.getVersion();
 
     _parameters = new Tools();
 
@@ -107,6 +105,49 @@ void AssemblyGui::initPreferences()
     updateLanguage(_preferences->language(), true);
 }
 
+void AssemblyGui::resizeAndRepositionParametersWidget()
+{
+    quint16 scaWidth = _assemblyParametersDock->minimumWidth();
+    quint16 scaHeight = _userFormWidget->size().height();
+    quint16 posX = _userFormWidget->size().width() - scaWidth;
+    quint16 posY = 0;
+    //quint16 height = _parametersWidget->parent()->size().height();
+
+    _jobParametersDock->resize(scaWidth, scaHeight);
+
+    // renvoie 100 !!???
+    //quint16 vScrollerWidth = _jobParametersDock->verticalScrollBar()->size().width();
+
+    // reducing widget dimensions to avoid default scrollbars
+    quint16 widgetWidth = scaWidth - 20;
+    quint16 widgetHeight = scaHeight - 3;
+
+    _parametersWidget->resize(widgetWidth, widgetHeight);
+
+    _jobParametersDock->move(posX, posY);
+}
+
+void AssemblyGui::initParametersWidget()
+{
+    // Init parameters widget through parameters manager
+    _jobParametersDock = new QScrollArea(_ui->_WID_workViewContainer);
+    _jobParametersDock->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    _jobParametersDock->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    _jobParametersDock->setFrameStyle(QFrame::NoFrame);
+    _jobParametersDock->setLineWidth(0);
+
+    _assemblyParametersDock = _expertFormWidget->getParametersDock();
+
+    _server.parametersManager()->generateParametersWidget(_jobParametersDock);
+    _parametersWidget = _server.parametersManager()->parametersWidget();
+
+    _jobParametersDock->setWidget(_parametersWidget);
+
+    resizeAndRepositionParametersWidget();
+
+    _jobParametersDock->raise();
+}
+
 void AssemblyGui::init()
 
 
@@ -125,9 +166,23 @@ void AssemblyGui::init()
     QToolButton* minimizeButton = findChild<QToolButton*>(QString("_TBU_minimizeButton"));
     _stopButton = findChild<QToolButton*>(QString("_TBU_stopButton"));   
 
-    // Recherche des libellés ou pictogrammes
+    // Recherche des libellés, pictogrammes ou indicateurs
     _activeViewOrModeLabel = findChild<QLabel*>(QString("_LA_activeView"));
     _currentDateTimeLabel = findChild<QLabel*>(QString("_LA_currentDateTime"));
+    _ongoingProcessInfolabel = findChild<QLabel*>(QString("_LA_ongoingProcessInfoLabel"));
+    _matisseVersionlabel = findChild<QLabel*>(QString("_LAB_matisseVersion"));
+    _ongoingProcessCompletion = findChild<QProgressBar*>(QString("_PB_ongoingProcessCompletion"));
+    _liveProcessWheel = findChild<LiveProcessWheel*>(QString("_WID_liveProcessWheel"));
+
+    // Tabs : object name is set anew explicitely to enable stylesheet ( setObjectName overriden)
+    QTabWidget *mapViewTabs = findChild<QTabWidget*>(QString("_TW_mapViewTabs"));
+    mapViewTabs->setObjectName("_TW_mapViewTabs");
+    QTabWidget *creationViewTabs = findChild<QTabWidget*>(QString("_TW_creationViewTabs"));
+    creationViewTabs->setObjectName("_TW_creationViewTabs");
+
+
+    _ongoingProcessInfolabel->hide();
+    _ongoingProcessCompletion->hide();
 
     // Initialisation du menu principal
     initMainMenu();
@@ -148,27 +203,16 @@ void AssemblyGui::init()
 
     _expertFormWidget = _ui->_WID_creationSceneContainer;
 
+    connect(this, SIGNAL(signal_processRunning()), _liveProcessWheel, SLOT(slot_processRunning()));
+    connect(this, SIGNAL(signal_processStopped()), _liveProcessWheel, SLOT(slot_processStopped()));
+    connect(this, SIGNAL(signal_processFrozen()), _liveProcessWheel, SLOT(slot_processFrozen()));
+    connect(this, SIGNAL(signal_updateWheelColors(QString)), _liveProcessWheel, SLOT(slot_updateWheelColors(QString)));
+
     //connect(_ui->_TRW_assemblies, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(slot_showAssembly(QModelIndex)));
     connect(_ui->_TRW_assemblies, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(slot_selectAssemblyOrJob(QTreeWidgetItem*,int)));
     connect(_ui->_TRW_assemblies, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slot_assemblyContextMenuRequested(QPoint)));
 
-    //connect(_ui->_ACT_deleteAssembly, SIGNAL(triggered()), this, SLOT(slot_deleteAssembly()));
-    //OK connect(_ui->_ACT_newAssembly, SIGNAL(triggered()), this, SLOT(slot_clearAssembly()));
-    //OK connect(_ui->_ACT_saveAssembly, SIGNAL(triggered()), this, SLOT(slot_saveAssembly()));
-    //REM connect(_ui->_ACT_saveAsAssembly, SIGNAL(triggered()), this, SLOT(slot_saveAsAssembly()));
-
-    //??? connect(_ui->_ACT_saveParameters, SIGNAL(triggered()), this, SLOT(slot_saveParameters()));
-    //??? connect(_ui->_ACT_deleteParameters, SIGNAL(triggered()), this, SLOT(slot_deleteParameters()));
-
-    //KO connect(_ui->_ACT_saveJob, SIGNAL(triggered()), this, SLOT(slot_saveJob()));
-    //KO connect(_ui->_ACT_saveAsJob, SIGNAL(triggered()), this, SLOT(slot_saveAsJob()));
-    //KO connect(_ui->_ACT_deleteJob, SIGNAL(triggered()), this, SLOT(slot_deleteJob()));
-    //OK connect(_ui->_ACT_launchJob, SIGNAL(triggered()), this, SLOT(slot_launchJob()));
-    //OK connect(_ui->_ACT_stopJob, SIGNAL(triggered()), this, SLOT(slot_stopJob()));
-
-    //connect(_ui->_ACT_userExpert, SIGNAL(triggered()), this, SLOT(slot_swapUserOrExpert()));
     connect(_visuModeButton, SIGNAL(clicked()), this, SLOT(slot_swapMapOrCreationView()));
-    //SUPPR connect(_ui->_ACT_reloadAssembliesAndJobs, SIGNAL(triggered()), this, SLOT(slot_assembliesReload()));
 
     // Home action
     connect(homeWidget, SIGNAL(signal_goHome()), this, SLOT(slot_goHome()));
@@ -206,15 +250,17 @@ void AssemblyGui::init()
 
     connect(&_server, SIGNAL(signal_jobProcessed(QString, bool)), this, SLOT(slot_jobProcessed(QString, bool)));
     connect(&_server, SIGNAL(signal_jobIntermediateResult(QString,Image *)), this, SLOT(slot_jobIntermediateResult(QString,Image *)));
+    connect(&_server, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
+    connect(&_server, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+
+    initVersionDisplay();
 
     initPreferences();
 
-    //loadAssembliesAndJobsLists();
-
-    // Init parameters widget through parameters manager
-    _server.parametersManager()->generateParametersWidget(this);
-    _parametersWidget = _server.parametersManager()->parametersWidget();
-    this->_ui->_SCA_parameters->setWidget(_parametersWidget);
+    initParametersWidget();
+    //_parametersWidget->activateWindow();
+    //_parametersWidget->show();
+    //this->_ui->_SCA_parameters->setWidget(_parametersWidget);
 
     _expertFormWidget->setServer(&_server);    
 
@@ -312,6 +358,13 @@ void AssemblyGui::initStylesheetSelection()
     _messagePictoByAppMode.insert(REAL_TIME, QPixmap(":/qss_icons/icons/Message_mode-rt.svg"));
     _messagePictoByAppMode.insert(DEFERRED_TIME, QPixmap(":/qss_icons/icons/Message_mode-dt.svg"));
     _messagePictoByAppMode.insert(APP_CONFIG, QPixmap(":/qss_icons/icons/Message_mode-prog.svg"));
+
+    _wheelColorsByMode.clear();
+    _wheelColorsByMode.insert(PROGRAMMING, QString("%1-%2-%3").arg(MATISSE_GREY).arg(MATISSE_YELLOW_DARK).arg(MATISSE_YELLOW));
+    _wheelColorsByMode.insert(REAL_TIME, QString("%1-%2-%3").arg(MATISSE_GREY).arg(MATISSE_BLUE_DARK).arg(MATISSE_BLUE));
+    _wheelColorsByMode.insert(DEFERRED_TIME, QString("%1-%2-%3").arg(MATISSE_GREY).arg(MATISSE_MAUVE_DARK).arg(MATISSE_MAUVE));
+    _wheelColorsByMode.insert(APP_CONFIG, QString("%1-%2-%3").arg(MATISSE_GREY).arg(MATISSE_YELLOW_DARK).arg(MATISSE_YELLOW));
+
 }
 
 void AssemblyGui::initMainMenu()
@@ -420,6 +473,26 @@ void AssemblyGui::initContextMenus()
     _goToResultsAct = new QAction(this);
 
     _ui->_TRW_assemblies->setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+void AssemblyGui::initVersionDisplay()
+{
+    QString templateLabel = "MATISSE %1\nV%1.%2.%3";
+
+    QStringList versionItems = _appVersion.split(".");
+
+    if (versionItems.size() < 3) {
+        qCritical() << QString("Version '%1' defined in XML settings does not conform to the 'X.Y.Z' pattern, default version will be displayed").arg(_appVersion);
+        return;
+    }
+
+    QString productSerie = versionItems.at(0);
+    QString major = versionItems.at(1);
+    QString minor = versionItems.at(2);
+
+    QString fullVersionLabel = templateLabel.arg(productSerie).arg(major).arg(minor);
+
+    _matisseVersionlabel->setText(fullVersionLabel);
 }
 
 void AssemblyGui::test()
@@ -559,7 +632,11 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
     QPixmap messagesPictoIcon = _messagePictoByAppMode.value(mode);
     _messagesPicto->setPixmap(messagesPictoIcon);
 
-    /* activation du bouton de sélection de vue selon mode applicatif */
+    /* Live process wheel */
+    QString wheelColors = _wheelColorsByMode.value(mode);
+    emit signal_updateWheelColors(wheelColors);
+
+    /* activation des actions selon mode applicatif */
     bool hasExpertFeatures = (mode == PROGRAMMING);
     bool hasRealTimeFeatures = (mode == PROGRAMMING || mode == REAL_TIME);
 
@@ -681,7 +758,16 @@ void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int c
     QString name = selectedItem->text(column);
 
 
-    setActionsStates(selectedItem);
+    if (_isMapView) {
+        // Reset and hide ongoing process indicator on selection of another assembly / job
+        _ongoingProcessInfolabel->setText("");
+        _ongoingProcessCompletion->setValue(0);
+        _ongoingProcessInfolabel->hide();
+        _ongoingProcessCompletion->hide();
+        emit signal_processStopped(); // to reset wheel if previous job was frozen
+    }
+
+    //setActionsStates(selectedItem);
 
     if (!selectedItem->parent()) {
         // On a selectionné un assemblage
@@ -708,6 +794,7 @@ void AssemblyGui::slot_updateTimeDisplay()
 void AssemblyGui::slot_updatePreferences()
 {
     PreferencesDialog dialog(this, _preferences);
+    dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
 
     /* Si modifications, on enregistre les nouvelles préférences */
     if (dialog.exec() == QDialog::Accepted) {
@@ -724,6 +811,7 @@ void AssemblyGui::slot_showApplicationMode(ApplicationMode mode)
 
     if (mode == APP_CONFIG) {
         PreferencesDialog dialog(this, _preferences);
+        dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
         hide();
         /* Si modifications, on enregistre les nouvelles préférences */
         if (dialog.exec() == QDialog::Accepted) {
@@ -739,7 +827,17 @@ void AssemblyGui::slot_showApplicationMode(ApplicationMode mode)
         _ui->_TRW_assemblyInfo->clear();
         // On recharge pour n'afficher que les traitements utilisables pour le mode
         slot_assembliesReload();
+
+        // Reset and hide ongoing process indicator
+        _ongoingProcessInfolabel->setText("");
+        _ongoingProcessCompletion->setValue(0);
+        _ongoingProcessInfolabel->hide();
+        _ongoingProcessCompletion->hide();
+        emit signal_processStopped(); // to reset wheel if previous job was frozen
+
         show();
+        QMenuBar* mainMenuBar = findChild<QMenuBar*>(QString("_MBA_mainMenuBar"));
+        qDebug() << "Taille menu bar :" << mainMenuBar->size();
 
         // TODO : à supprimer test GGIS
         //_userFormWidget->loadTestVectorLayer();
@@ -826,6 +924,7 @@ void AssemblyGui::slot_saveAssembly()
         //_newAssembly->setName(assemblyName);
 
         AssemblyDialog dialog(this, assemblyName, *props, false, true);
+        dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
         if (dialog.exec() != QDialog::Accepted) {
             return;
         }
@@ -845,6 +944,7 @@ void AssemblyGui::slot_saveAssembly()
             KeyValueList *props = _assembliesProperties.value(name);
 
             AssemblyDialog dialog(this, name, *props, false, false);
+            dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
             if (dialog.exec() != QDialog::Accepted) {
                 return;
             }
@@ -1038,6 +1138,7 @@ void AssemblyGui::displayJob(QString jobName)
                     qCritical() << "Erreur fichier image introuvable" << infoImage.absoluteFilePath();
                 }
                 _userFormWidget->loadRasterFile(infoImage.absoluteFilePath());
+                _userFormWidget->showQGisCanvas(true);
             }
         }
     }
@@ -1189,6 +1290,7 @@ void AssemblyGui::slot_newJob()
     kvl.append("outputFile", _preferences->defaultMosaicFilenamePrefix());
 
     JobDialog dialog(this, &kvl, _server.xmlTool().getJobsPath());
+    dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     if (dialog.exec() != QDialog::Accepted) {
         return;
     }
@@ -1506,7 +1608,9 @@ void AssemblyGui::initStatusBar()
 //    _messagesResetButton.setIcon(QIcon(":/png/edit-delete-3.png"));
 //    _messagesResetButton.setIconSize(QSize(20,20));
     _statusMessageWidget = new StatusMessageWidget(this);
-    statusBar()->addWidget(_statusMessageWidget);
+    _statusMessageWidget->setObjectName("_WID_statusMessage");
+    statusBar()->addPermanentWidget(_statusMessageWidget, 10);
+    //statusBar()->setAlignment(Qt::AlignVCenter)
     //statusBar()->addPermanentWidget(_statusLed);
 
     // Recherche du pictogramme de message
@@ -1538,68 +1642,68 @@ void AssemblyGui::showStatusMessage(QString message, MessageIndicatorLevel level
 
 void AssemblyGui::setActionsStates(QTreeWidgetItem *currentItem/*, bool modifiedConfiguration*/)
 {
-    bool saveStatus = false;
-    bool saveAsStatus = false;
-    bool deleteStatus = false;
-    bool parametersStatus = false;
-    bool isProcessingStatus = false;
+//    bool saveStatus = false;
+//    bool saveAsStatus = false;
+//    bool deleteStatus = false;
+//    bool parametersStatus = false;
+//    bool isProcessingStatus = false;
 
-    //on disable tout pour commencer...
-    _ui->_ACT_newAssembly->setEnabled(false);
-    _ui->_ACT_saveAssembly->setEnabled(false);
-    _ui->_ACT_saveAsAssembly->setEnabled(false);
-    _ui->_ACT_deleteAssembly->setEnabled(false);
-    _ui->_ACT_saveParameters->setEnabled(false);
-    _ui->_ACT_deleteParameters->setEnabled(false);
-    _ui->_ACT_saveJob->setEnabled(false);
-    _ui->_ACT_saveAsJob->setEnabled(false);
-    _ui->_ACT_deleteJob->setEnabled(false);
-    _ui->_ACT_launchJob->setEnabled(false);
-    _ui->_ACT_stopJob->setEnabled(false);
+//    //on disable tout pour commencer...
+//    _ui->_ACT_newAssembly->setEnabled(false);
+//    _ui->_ACT_saveAssembly->setEnabled(false);
+//    _ui->_ACT_saveAsAssembly->setEnabled(false);
+//    _ui->_ACT_deleteAssembly->setEnabled(false);
+//    _ui->_ACT_saveParameters->setEnabled(false);
+//    _ui->_ACT_deleteParameters->setEnabled(false);
+//    _ui->_ACT_saveJob->setEnabled(false);
+//    _ui->_ACT_saveAsJob->setEnabled(false);
+//    _ui->_ACT_deleteJob->setEnabled(false);
+//    _ui->_ACT_launchJob->setEnabled(false);
+//    _ui->_ACT_stopJob->setEnabled(false);
 
-    if (currentItem) {
-        if (_isMapView) {
-            if (currentItem->parent()) {
-                // on a affaire à un job...
-                isProcessingStatus = _server.isProcessingJob();
-                saveStatus = !isProcessingStatus;
-                saveAsStatus = !isProcessingStatus;
-                deleteStatus = !isProcessingStatus;
-            } else {
-                // on a affaire à un assemblage
-                // on ne peut que creer un nouveau job
-                saveAsStatus = true;
-            }
-            _ui->_ACT_saveJob->setEnabled(saveStatus);
-            _ui->_ACT_saveAsJob->setEnabled(saveAsStatus);
-            _ui->_ACT_deleteJob->setEnabled(deleteStatus);
-            _ui->_ACT_launchJob->setEnabled(!isProcessingStatus);
-            _ui->_ACT_stopJob->setEnabled(isProcessingStatus);
+//    if (currentItem) {
+//        if (_isMapView) {
+//            if (currentItem->parent()) {
+//                // on a affaire à un job...
+//                isProcessingStatus = _server.isProcessingJob();
+//                saveStatus = !isProcessingStatus;
+//                saveAsStatus = !isProcessingStatus;
+//                deleteStatus = !isProcessingStatus;
+//            } else {
+//                // on a affaire à un assemblage
+//                // on ne peut que creer un nouveau job
+//                saveAsStatus = true;
+//            }
+//            _ui->_ACT_saveJob->setEnabled(saveStatus);
+//            _ui->_ACT_saveAsJob->setEnabled(saveAsStatus);
+//            _ui->_ACT_deleteJob->setEnabled(deleteStatus);
+//            _ui->_ACT_launchJob->setEnabled(!isProcessingStatus);
+//            _ui->_ACT_stopJob->setEnabled(isProcessingStatus);
 
-        } else {
-            // mode expert
-            saveAsStatus = true;
-            parametersStatus = true;
-            if (currentItem->childCount() == 0) {
-                saveStatus = true;
-                deleteStatus = true;
-            }
+//        } else {
+//            // mode expert
+//            saveAsStatus = true;
+//            parametersStatus = true;
+//            if (currentItem->childCount() == 0) {
+//                saveStatus = true;
+//                deleteStatus = true;
+//            }
 
-            _ui->_ACT_newAssembly->setEnabled(true);
-            _ui->_ACT_saveAssembly->setEnabled(saveStatus);
-            _ui->_ACT_saveAsAssembly->setEnabled(saveAsStatus);
-            _ui->_ACT_deleteAssembly->setEnabled(deleteStatus);
-            _ui->_ACT_saveParameters->setEnabled(parametersStatus);
-            _ui->_ACT_deleteParameters->setEnabled(false);
-        }
-    } else {
+//            _ui->_ACT_newAssembly->setEnabled(true);
+//            _ui->_ACT_saveAssembly->setEnabled(saveStatus);
+//            _ui->_ACT_saveAsAssembly->setEnabled(saveAsStatus);
+//            _ui->_ACT_deleteAssembly->setEnabled(deleteStatus);
+//            _ui->_ACT_saveParameters->setEnabled(parametersStatus);
+//            _ui->_ACT_deleteParameters->setEnabled(false);
+//        }
+//    } else {
 
-        if (!_isMapView) {
-         // nouvel assemblage...
-            _ui->_ACT_newAssembly->setEnabled(true);
-            _ui->_ACT_saveAsAssembly->setEnabled(true);
-        }
-    }
+//        if (!_isMapView) {
+//         // nouvel assemblage...
+//            _ui->_ACT_newAssembly->setEnabled(true);
+//            _ui->_ACT_saveAsAssembly->setEnabled(true);
+//        }
+//    }
 }
 
 void AssemblyGui::initLanguages()
@@ -1612,6 +1716,9 @@ void AssemblyGui::initLanguages()
 
     _toolsTranslator_en = new QTranslator();
     _toolsTranslator_en->load("i18n/MatisseTools_en");
+
+    _toolsTranslator_fr = new QTranslator();
+    _toolsTranslator_fr->load("i18n/MatisseTools_fr");
 
     // Langue par défaut : Français
     _currentLanguage = "FR";
@@ -1635,14 +1742,16 @@ void AssemblyGui::updateLanguage(QString language, bool forceRetranslation)
         qDebug() << "Translating UI to English";
 
         qApp->removeTranslator(_serverTranslator_fr);
+        qApp->removeTranslator(_toolsTranslator_fr);
         qApp->installTranslator(_serverTranslator_en);
         qApp->installTranslator(_toolsTranslator_en);
     } else {
         qDebug() << "Restoring UI to French";
 
         qApp->removeTranslator(_serverTranslator_en);
-        qApp->installTranslator(_serverTranslator_fr);
         qApp->removeTranslator(_toolsTranslator_en);
+        qApp->installTranslator(_serverTranslator_fr);
+        qApp->installTranslator(_toolsTranslator_fr);
     }
 }
 
@@ -1716,6 +1825,15 @@ void AssemblyGui::changeEvent(QEvent *event)
     }
 }
 
+void AssemblyGui::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+
+    if (_parametersWidget) {
+        resizeAndRepositionParametersWidget();
+    }
+}
+
 void AssemblyGui::slot_maximizeOrRestore()
 {
     if (isMaximized()) {
@@ -1753,6 +1871,7 @@ void AssemblyGui::slot_newAssembly()
     KeyValueList fields;
 
     AssemblyDialog dialog(this, name, fields, true);
+    dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     if (dialog.exec() != QDialog::Accepted) {
         return;
     }
@@ -1801,7 +1920,7 @@ void AssemblyGui::slot_newAssembly()
     _updateAssemblyPropertiesAct->setVisible(false);
 }
 
-void AssemblyGui::setActionStatesNew()
+void AssemblyGui::enableActions()
 {
     /* activer/désactiver les items du menu principal */
     _exportMapViewAct->setEnabled(_isMapView);
@@ -1882,7 +2001,6 @@ void AssemblyGui::slot_swapMapOrCreationView()
 {
     qDebug() << "Current view displayed : " << ((_isMapView) ? "map" : "creation");
 
-    //if (_ui->_ACT_userExpert->isChecked()) {
     if (_isMapView) {
         qDebug() << "Swapping to creation view";
         _isMapView = false;
@@ -1890,8 +2008,15 @@ void AssemblyGui::slot_swapMapOrCreationView()
             _activeViewOrModeLabel->setText(tr("Vue : Creation"));
         }
         _visuModeButton->setIcon(_creationVisuModeIcon);
-        _userFormWidget->hide();
-        _expertFormWidget->show();
+
+        /* Change ownership of parameters widget */
+        QWidget* paramWidget = _jobParametersDock->takeWidget();
+        _assemblyParametersDock->setWidget(paramWidget);
+        _jobParametersDock->lower(); // hide the job parameters overlay
+
+        // swap view (1: creation view)
+        _ui->_SW_viewStack->setCurrentIndex(1);
+
         _ui->_TRW_assemblies->collapseAll();
         _ui->_TRW_assemblies->setItemsExpandable(false);
         slot_clearAssembly();
@@ -1905,7 +2030,7 @@ void AssemblyGui::slot_swapMapOrCreationView()
             if (QMessageBox::No == QMessageBox::question(this, tr("Assemblages/parametres modifies..."), tr("Voulez-vous continuer sans sauvegarder ?"),
                                       QMessageBox::Yes,
                                       QMessageBox::No)) {
-                _ui->_ACT_userExpert->setChecked(true);
+                //_ui->_ACT_userExpert->setChecked(true);
                 return;
             }
             _expertValuesModified = false;
@@ -1916,8 +2041,19 @@ void AssemblyGui::slot_swapMapOrCreationView()
             _activeViewOrModeLabel->setText(tr("Vue : Cartographie"));
         }
         _visuModeButton->setIcon(_mapVisuModeIcon);
-        _expertFormWidget->hide();
-        _userFormWidget->show();
+
+        /* Change ownership of parameters widget */
+        QWidget* paramWidget = _assemblyParametersDock->takeWidget();
+        if (paramWidget == _parametersWidget) { // at init, parameters widget is already owned by the job parameters dock
+            _jobParametersDock->setWidget(paramWidget);
+            _jobParametersDock->raise(); // show the job parameters overlay
+            _server.parametersManager()->clearExpectedParameters(); // hide job parameters
+        }
+
+        // swap view (0: map view)
+        _ui->_SW_viewStack->setCurrentIndex(0);
+        resizeAndRepositionParametersWidget();
+
         // Changement des info bulles
         _ui->_TRW_assemblies->setItemsExpandable(true);
         _ui->_TRW_assemblies->expandAll();
@@ -1930,7 +2066,7 @@ void AssemblyGui::slot_swapMapOrCreationView()
     /* select tab set */
     _ui->_SW_helperTabSets->setCurrentIndex(!_isMapView);
 
-    setActionStatesNew();
+    enableActions();
 
 }
 
@@ -2051,6 +2187,9 @@ void AssemblyGui::slot_launchJob()
     QString msg = tr("Travail %1 en cours...").arg(jobName);
     showStatusMessage(msg, IDLE, true);
     _stopButton->setEnabled(true);
+    _ongoingProcessInfolabel->show();
+    _ongoingProcessCompletion->show();
+    emit signal_processRunning();
 
     bool runSuccess = _server.processJob(*_currentJob);
 
@@ -2060,7 +2199,7 @@ void AssemblyGui::slot_launchJob()
         _stopButton->setEnabled(false);
     }
 
-    setActionsStates(_lastJobLaunchedItem);
+    //setActionsStates(_lastJobLaunchedItem);
 }
 
 void AssemblyGui::slot_stopJob()
@@ -2081,9 +2220,19 @@ void AssemblyGui::slot_stopJob()
     msgBox.exec();
     if (msgBox.clickedButton() == stopButton) {
         _server.stopJob(false);
+
+        _ongoingProcessInfolabel->hide();
+        _ongoingProcessCompletion->hide();
+        emit signal_processStopped();
+        _stopButton->setEnabled(false);
     }
     else if (msgBox.clickedButton() == discardButton) {
         _server.stopJob(true);
+
+        _ongoingProcessInfolabel->hide();
+        _ongoingProcessCompletion->hide();
+        emit signal_processStopped();
+        _stopButton->setEnabled(false);
     }
     else {
         // cancel dialog => do nothing
@@ -2098,6 +2247,25 @@ void AssemblyGui::slot_jobIntermediateResult(QString name, Image *image)
         delete image;
     }
 }
+
+void AssemblyGui::slot_userInformation(QString userText)
+{
+    qDebug() << "Received user information : " << userText;
+    _ongoingProcessInfolabel->setText(userText);
+}
+
+void AssemblyGui::slot_processCompletion(quint8 percentComplete)
+{
+    qDebug() << "Received process completion signal : " << percentComplete;
+
+    if (percentComplete > 100) {
+        qWarning() << QString("Invalid process completion percentage value : %1").arg(percentComplete);
+        return;
+    }
+
+    _ongoingProcessCompletion->setValue(percentComplete);
+}
+
 
 void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
     qDebug() << "Job done : " << name;
@@ -2127,7 +2295,27 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
             }
         }
 
+        foreach (QString resultFile, jobDef->executionDefinition()->resultFileNames()) {
+
+            if (jobDef->executionDefinition()->executed() && (!resultFile.isEmpty())) {
+//                QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Image resultat:") << resultFile);
+//                item->setToolTip(1, resultFile);
+                // affichage de l'image
+                QFileInfo infoImage(resultFile);
+                if (infoImage.isRelative()) {
+                    infoImage.setFile(QDir(_dataPath), resultFile);
+                }
+                if (!infoImage.exists()) {
+                    qCritical() << "Erreur fichier image introuvable" << infoImage.absoluteFilePath();
+                }
+                _userFormWidget->loadRasterFile(infoImage.absoluteFilePath());
+                //_userFormWidget->showQGisCanvas(true);
+            }
+        }
+
+
         // Désactiver le bouton STOP
+        emit signal_processStopped();
         _stopButton->setEnabled(false);
     }
 }
@@ -2155,7 +2343,7 @@ void AssemblyGui::slot_modifiedParameters(bool changed)
         if (currentItem && (currentItem->parent() == NULL)) {
             changed = true;
         }
-        _ui->_ACT_launchJob->setDisabled(changed);
+        //_ui->_ACT_launchJob->setDisabled(changed);
         qDebug() << "Disable bouton slot_modifiedParameters" << changed;
         _userParameterModified = changed;
     } else {

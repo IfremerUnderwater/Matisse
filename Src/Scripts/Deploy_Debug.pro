@@ -1,6 +1,7 @@
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/..
 SERVER_SOURCE_DIR=$${SOURCE_DIR}/MatisseServer
+MATISSE_TOOLS_SOURCE_DIR=$${SOURCE_DIR}/Libraries/MatisseTools
 CONFIG_DIR=$${SOURCE_DIR}/../Config
 message("CONFIG_DIR = $$CONFIG_DIR")
 BUILD_DIR=$${SOURCE_DIR}/../Build/Debug
@@ -62,6 +63,7 @@ system("$$COPY_DIR \"$$BUILD_DIR/Libraries/dll\" \"$$RUN_DIR/Libraries\"")
 #system("$$CHDIR \"$$SERVER_SOURCE_DIR\"")
 system("echo $$COPY \"..\\MatisseServer\\*.qm\" \"$$RUN_DIR/i18n\"")
 system("$$COPY \"..\\MatisseServer\\*.qm\" \"$$RUN_DIR/i18n\"")
+system("$$COPY \"..\\Libraries\\MatisseTools\\*.qm\" \"$$RUN_DIR/i18n\"")
 }
 
 unix{
@@ -82,4 +84,5 @@ system("$$COPY_DIR $$CONFIG_DIR/schemas $$RUN_DIR")
 #system("echo $$CHDIR \"$$SERVER_SOURCE_DIR\"")
 #system("$$CHDIR \"$$SERVER_SOURCE_DIR\"")
 system("$$COPY_DIR $$SERVER_SOURCE_DIR/*.qm $$RUN_DIR/i18n")
+system("$$COPY_DIR $$MATISSE_TOOLS_SOURCE_DIR/*.qm $$RUN_DIR/i18n")
 }

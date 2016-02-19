@@ -76,7 +76,7 @@ void UserFormWidget::createCanvas() {
     //QgsMapCanvas* mapCanvas= new QgsMapCanvas(NULL, "mapCanvas");
     mapCanvas->enableAntiAliasing(true);
     mapCanvas->useImageToRender(false);
-    mapCanvas->setCanvasColor(Qt::white);
+    mapCanvas->setCanvasColor(QColor(MATISSE_BLACK));
     mapCanvas->freeze(false);
     mapCanvas->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mapCanvas->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);

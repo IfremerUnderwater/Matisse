@@ -2,15 +2,23 @@
 
 using namespace MatisseTools;
 
-EnrichedFileChooser::EnrichedFileChooser(QWidget *parent, QString label, QString buttonLabel, ParameterShow type, QString defaultValue) :
+EnrichedFileChooser::EnrichedFileChooser(QWidget *parent, QString label, ParameterShow type, QString defaultValue) :
     EnrichedFormWidget(parent)
 {
     QWidget * comboWidget = new QWidget(this);
     QHBoxLayout * layout = new QHBoxLayout(comboWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     _lineEdit = new QLineEdit(defaultValue);
-    QPushButton * button = new QPushButton(buttonLabel);
+    QPushButton * button = new QPushButton();
+    button->setObjectName("_PB_paramFileSelect");
+
     _type = type;
+
+    if (_type == FILE_SELECTOR_RELATIVE || _type == FILE_SELECTOR_ABSOLUTE) {
+        button->setIcon(QIcon(":/qss_icons/icons/File.svg"));
+    } else {
+        button->setIcon(QIcon(":/qss_icons/icons/Dossier.svg"));
+    }
 
     layout->addWidget(_lineEdit);
     layout->addWidget(button);
