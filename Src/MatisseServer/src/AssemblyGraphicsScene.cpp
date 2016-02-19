@@ -6,7 +6,7 @@ using namespace MatisseServer;
 
 AssemblyGraphicsScene::AssemblyGraphicsScene(const QRectF &sceneRect, QObject *parent) :
     QGraphicsScene(sceneRect, parent),
-    _server(NULL)
+    _server(NULL), isSceneActive(false)
 {
     //    _startPos = QPointF();
     //    _endPos = QPointF();
@@ -15,7 +15,7 @@ AssemblyGraphicsScene::AssemblyGraphicsScene(const QRectF &sceneRect, QObject *p
 }
 
 void AssemblyGraphicsScene::init() {
-    setSceneRect(0, 0, 200, 1000);
+    setSceneRect(0, 0, INACTIVE_SCENE_WIDTH, INACTIVE_SCENE_HEIGHT);
     _pipeItem = new PipeWidget();
     //    _pipeItem->setVisible(false);
     //    addItem(_pipeItem);
@@ -293,46 +293,22 @@ void AssemblyGraphicsScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event){
 
 void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
+    if (!isSceneActive) {
+        /* resize scene so that scrollbar is available */
+        setSceneRect(0, 0, ACTIVE_SCENE_WIDTH, ACTIVE_SCENE_HEIGHT);
+        isSceneActive;
+    }
+
     //    qDebug() << "DROP SCENE";
     QWidget * source = event->source();
     QString sourceName = source->objectName();
+
     if (sourceName == "_TRW_assemblies") {
         qDebug() << "Assembly...";
         QTreeWidget * treeWid = qobject_cast<QTreeWidget *>(source);
         QTreeWidgetItem * item = treeWid->currentItem();
         QString assemblyName = item->text(0);
         loadAssembly(assemblyName);
-//    } else if (sourceName == "_TRW_parameters") {
-//        QTreeWidget * treeWid = qobject_cast<QTreeWidget *>(source);
-//        QTreeWidgetItem * item = treeWid->currentItem();
-//        QTreeWidgetItem * parentItem = item->parent();
-
-//        // Modif: on n'instancie qu'une instance, pas le modèle...
-//        // déjà traité dans le dragEnter...
-//        if (!parentItem) {
-//            event->ignore();
-//            return;
-//        }
-//        QString paramName = item->data(0, Qt::DisplayRole).toString();
-//        if (parentItem) {
-//            QString modelName = parentItem->data(0, Qt::DisplayRole).toString();
-//            paramName.prepend(modelName+ "/");
-//        }
-
-//        QPointer<ParametersWidget> param = _expertGui -> getParametersWidget(paramName);
-
-//        if (_parametersWidget != 0) {
-//            removeItem(_parametersWidget);
-//            delete _parametersWidget;
-//        }
-//        _parametersWidget = param;
-
-//        if (param) {
-//            addItem(param);
-//            qDebug() << "PARAM rec=" << param->boundingRect();
-//            param->setPos(200, 40);
-//            qDebug() << "Déposé en" << param->scenePos();
-//        }
 
     } else if (sourceName == "_LW_inputs") {
         if (_sourceWidget != 0) {            
@@ -529,7 +505,9 @@ void AssemblyGraphicsScene::reset()
     }
     _processorsWidgets.clear();
 
-
+    /* resize scene to hide scrollbar */
+    setSceneRect(0, 0, INACTIVE_SCENE_WIDTH, INACTIVE_SCENE_HEIGHT);
+    isSceneActive = false;
 }
 
 bool AssemblyGraphicsScene::saveAssembly(QString filename, AssemblyDefinition *assembly)
@@ -630,6 +608,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 {
     qDebug() << "AssemblyGraphicsScene::loadAssembly" << assemblyName;
 
+
     AssemblyDefinition * assembly = _server->xmlTool().getAssembly(assemblyName);
     if (!assembly) {
         QMessageBox::warning(_mainGui, tr("Assemblage invalide"), tr("L'assemblage ne peut etre charge..."));
@@ -637,6 +616,10 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
     }
 
     reset();
+
+    /* resize scene so that scrollbar is available */
+    setSceneRect(0, 0, ACTIVE_SCENE_WIDTH, ACTIVE_SCENE_HEIGHT);
+    isSceneActive = true;
 
     bool continueLoad = true;
 //    bool paramOk = true;

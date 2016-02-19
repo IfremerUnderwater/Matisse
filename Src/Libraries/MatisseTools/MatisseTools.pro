@@ -70,9 +70,16 @@ HEADERS +=\
     src/EnrichedFileChooser.h \
     src/ToolsCommon.h \
     src/MatissePreferences.h \
-    src/MatisseParametersManager.h
+    src/MatisseParametersManager.h \
+    src/MatisseDictionnaryLabels.h
 
 FORMS    += ui/ChooseAndShow.ui \
             ui/ParametersWidgetSkeleton.ui
 
-TRANSLATIONS=MatisseTools_en.ts
+TRANSLATIONS=MatisseTools_fr.ts \
+        MatisseTools_en.ts
+
+DISTFILES += \
+    ../../../Config/schemas/MatisseParametersDictionnary.xsd \
+    ../../../Config/schemas/JobParameters.xsd \
+    ../../../Config/config/MatisseParametersDictionnary.xml

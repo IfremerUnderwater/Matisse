@@ -14,8 +14,12 @@ MainMenuWidget::MainMenuWidget(QWidget *parent) :
 
     QVBoxLayout *boxLayout = new QVBoxLayout(this); // Main layout of widget
     boxLayout->setAlignment(Qt::AlignCenter);
+    boxLayout->setContentsMargins(0,0,0,0);
 
     QMenuBar* menuBar = new QMenuBar();
+    menuBar->setMinimumHeight(60);
+    menuBar->setMaximumHeight(60);
+    menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     menuBar->setObjectName("_MBA_mainMenuBar");
     this->layout()->addWidget(menuBar);
 }

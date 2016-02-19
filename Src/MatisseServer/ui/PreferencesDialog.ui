@@ -60,6 +60,12 @@
          <iconset resource="icons.qrc">
           <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
         </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
        </widget>
       </item>
       <item row="2" column="9">
@@ -70,6 +76,12 @@
         <property name="icon">
          <iconset resource="icons.qrc">
           <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -102,6 +114,12 @@
         <property name="icon">
          <iconset resource="icons.qrc">
           <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
         </property>
        </widget>
       </item>

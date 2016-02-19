@@ -58,6 +58,10 @@ public:
 protected:
     void setIsRealTime(bool isRealTime);
 
+signals:
+    void signal_userInformation(QString userText);
+    void signal_processCompletion(quint8 percentComplete);
+
 private:
     QString _comment;
     quint16 _outNumber;

@@ -10,6 +10,7 @@ public:
     MatisseTabWidget(QWidget* parent);
     ~MatisseTabWidget();
 
+    void setObjectName(const QString &name);
 private:
 //    QStackedLayout* _stackedLayout;
 //    QTabBar* _tabBar;

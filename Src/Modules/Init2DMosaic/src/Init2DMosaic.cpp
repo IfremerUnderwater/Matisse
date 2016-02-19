@@ -52,6 +52,9 @@ void Init2DMosaic::onFlush(quint32 port)
 {
     qDebug() << logPrefix() << "flush port " << port;
 
+    emit signal_processCompletion(0);
+    emit signal_userInformation("Initializing 2D Mosaic...");
+
     MosaicDescriptor *pMosaicD = new MosaicDescriptor;
     QVector<ProjectiveCamera*> *pCams = new QVector<ProjectiveCamera*>;
     ImageSet * imageSet;
@@ -63,6 +66,8 @@ void Init2DMosaic::onFlush(quint32 port)
             break;
         }
     }
+
+    emit signal_processCompletion(10);
 
     // Get camera matrix
     bool Ok;
@@ -83,6 +88,8 @@ void Init2DMosaic::onFlush(quint32 port)
     }
 
     std::cerr <<"K = " << K;
+
+    emit signal_processCompletion(30);
 
     double scaleFactor = _matisseParameters->getDoubleParamValue("algo_param", "scale_factor", Ok);
 
@@ -107,6 +114,7 @@ void Init2DMosaic::onFlush(quint32 port)
 
     }
 
+    emit signal_processCompletion(60);
 
     if (imageSet){
 
@@ -133,6 +141,8 @@ void Init2DMosaic::onFlush(quint32 port)
 
     }
 
+    emit signal_processCompletion(90);
+
     // Add pCams to mosaic _context
     QVariant * pCamsStocker = new QVariant();
     pCamsStocker->setValue(pCams);
@@ -142,6 +152,8 @@ void Init2DMosaic::onFlush(quint32 port)
     QVariant * pMosaicDStocker = new QVariant();
     pMosaicDStocker->setValue(pMosaicD);
     _context->addObject("MosaicDescriptor", pMosaicDStocker);
+
+    emit signal_processCompletion(100);
 
     // Flush next module port
     flush(0);

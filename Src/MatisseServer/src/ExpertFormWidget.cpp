@@ -60,11 +60,22 @@ void ExpertFormWidget::init()
 //    connect(_ui->_TAB_elements, SIGNAL(currentChanged(int)), this, SLOT(slot_changeTabPanel(int)));
 
     _ui->_GRW_assembly->setAcceptDrops(true);
-    _scene = new AssemblyGraphicsScene(_ui->_GRW_assembly->rect());
+
+    QRect containerRect = _ui->_GRW_assembly->rect();
+    //QRect sceneRect = containerRect.adjusted(50,50,-50,-50);
+
+    _scene = new AssemblyGraphicsScene(containerRect);
     _ui->_GRW_assembly->setScene(_scene);
     _ui->_GRW_assembly->centerOn(0, 0);
     _scene->setExpertGui(this);
     //fillLists();
+}
+
+void ExpertFormWidget::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+
+    qDebug() << "ExpertFormWidget Resize event : " << event->oldSize() << event->size();
 }
 
 void ExpertFormWidget::setServer(Server *server) {
@@ -421,6 +432,11 @@ void ExpertFormWidget::setServer(Server *server) {
 QGraphicsView *ExpertFormWidget::getGraphicsView()
 {
     return _ui->_GRW_assembly;
+}
+
+QScrollArea *ExpertFormWidget::getParametersDock()
+{
+    return _ui->_SCA_assemblyParametersDock;
 }
 
 //void ExpertFormWidget::showParameters(AssemblyDefinition *assembly)

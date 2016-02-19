@@ -55,9 +55,6 @@ SOURCES += \
 
 OTHER_FILES +=
 
-DISTFILES += \
-    ../../../Config/schemas/MatisseParametersDictionnary.xsd \
-    ../../../Config/schemas/JobParameters.xsd \
-    ../../../Config/config/MatisseParametersDictionnary.xml
+
 
 

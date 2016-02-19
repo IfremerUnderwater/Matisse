@@ -10,6 +10,18 @@
     <height>800</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1280</width>
+    <height>800</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Matisse 3</string>
   </property>
@@ -21,56 +33,193 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>1</x>
-      <y>1</y>
-      <width>1282</width>
-      <height>780</height>
-     </rect>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
     </property>
-    <layout class="QVBoxLayout" name="_VLAY_mainView">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="MainControllBar" name="_MCB_controllBar">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>1280</width>
-         <height>60</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>1280</width>
-         <height>60</height>
-        </size>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="_HLAY_mapCreationView">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QSplitter" name="splitter">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="MainControllBar" name="_MCB_controllBar">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>300</width>
+        <height>60</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>60</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="_HLAY_mapCreationView">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QSplitter" name="splitter">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>280</width>
+          <height>678</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>280</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="lineWidth">
+         <number>0</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="handleWidth">
+         <number>0</number>
+        </property>
+        <property name="childrenCollapsible">
+         <bool>false</bool>
+        </property>
+        <widget class="QWidget" name="verticalLayoutWidget">
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QTreeWidget" name="_TRW_assemblies">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>278</width>
+              <height>200</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>280</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="lineWidth">
+             <number>0</number>
+            </property>
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="autoScroll">
+             <bool>true</bool>
+            </property>
+            <property name="dragEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="dragDropMode">
+             <enum>QAbstractItemView::DragOnly</enum>
+            </property>
+            <property name="defaultDropAction">
+             <enum>Qt::LinkAction</enum>
+            </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>10</width>
+              <height>10</height>
+             </size>
+            </property>
+            <property name="horizontalScrollMode">
+             <enum>QAbstractItemView::ScrollPerPixel</enum>
+            </property>
+            <property name="indentation">
+             <number>20</number>
+            </property>
+            <property name="uniformRowHeights">
+             <bool>true</bool>
+            </property>
+            <property name="itemsExpandable">
+             <bool>true</bool>
+            </property>
+            <property name="headerHidden">
+             <bool>true</bool>
+            </property>
+            <property name="columnCount">
+             <number>1</number>
+            </property>
+            <attribute name="headerVisible">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="headerMinimumSectionSize">
+             <number>100</number>
+            </attribute>
+            <column>
+             <property name="text">
+              <string notr="true">1</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QStackedWidget" name="_SW_helperTabSets">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -78,121 +227,24 @@
          <property name="minimumSize">
           <size>
            <width>280</width>
-           <height>710</height>
+           <height>200</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>282</width>
+           <width>280</width>
            <height>16777215</height>
           </size>
          </property>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+         <property name="lineWidth">
+          <number>0</number>
          </property>
-         <property name="handleWidth">
-          <number>1</number>
+         <property name="currentIndex">
+          <number>0</number>
          </property>
-         <widget class="QWidget" name="verticalLayoutWidget">
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QTreeWidget" name="_TRW_assemblies">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>280</width>
-               <height>352</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>280</width>
-               <height>352</height>
-              </size>
-             </property>
-             <property name="autoFillBackground">
-              <bool>true</bool>
-             </property>
-             <property name="lineWidth">
-              <number>1</number>
-             </property>
-             <property name="horizontalScrollBarPolicy">
-              <enum>Qt::ScrollBarAlwaysOff</enum>
-             </property>
-             <property name="autoScroll">
-              <bool>true</bool>
-             </property>
-             <property name="dragEnabled">
-              <bool>true</bool>
-             </property>
-             <property name="dragDropMode">
-              <enum>QAbstractItemView::DragOnly</enum>
-             </property>
-             <property name="defaultDropAction">
-              <enum>Qt::LinkAction</enum>
-             </property>
-             <property name="alternatingRowColors">
-              <bool>true</bool>
-             </property>
-             <property name="selectionMode">
-              <enum>QAbstractItemView::SingleSelection</enum>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>16</width>
-               <height>16</height>
-              </size>
-             </property>
-             <property name="horizontalScrollMode">
-              <enum>QAbstractItemView::ScrollPerPixel</enum>
-             </property>
-             <property name="indentation">
-              <number>20</number>
-             </property>
-             <property name="uniformRowHeights">
-              <bool>true</bool>
-             </property>
-             <property name="itemsExpandable">
-              <bool>true</bool>
-             </property>
-             <property name="headerHidden">
-              <bool>true</bool>
-             </property>
-             <property name="columnCount">
-              <number>1</number>
-             </property>
-             <attribute name="headerVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="headerMinimumSectionSize">
-              <number>100</number>
-             </attribute>
-             <column>
-              <property name="text">
-               <string notr="true">1</string>
-              </property>
-             </column>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QStackedWidget" name="_SW_helperTabSets">
+         <widget class="QWidget" name="_WID_mapViewTabSet">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -200,73 +252,35 @@
           <property name="minimumSize">
            <size>
             <width>280</width>
-            <height>355</height>
+            <height>200</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>280</width>
-            <height>355</height>
+            <height>16777215</height>
            </size>
           </property>
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="_WID_mapViewTabSet">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+          <layout class="QGridLayout" name="gridLayout_9">
+           <property name="leftMargin">
+            <number>0</number>
            </property>
-           <property name="minimumSize">
-            <size>
-             <width>280</width>
-             <height>355</height>
-            </size>
+           <property name="topMargin">
+            <number>0</number>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>280</width>
-             <height>355</height>
-            </size>
+           <property name="rightMargin">
+            <number>0</number>
            </property>
-           <widget class="MatisseTabWidget" name="_TW_mapViewTabs">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>280</width>
-              <height>355</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>280</width>
-              <height>355</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>280</width>
-              <height>355</height>
-             </size>
-            </property>
-            <property name="currentIndex">
-             <number>0</number>
-            </property>
-            <property name="elideMode">
-             <enum>Qt::ElideNone</enum>
-            </property>
-            <widget class="QWidget" name="_TABW_properties">
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="MatisseTabWidget" name="_TW_mapViewTabs">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -274,186 +288,24 @@
              <property name="minimumSize">
               <size>
                <width>280</width>
-               <height>328</height>
+               <height>200</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>280</width>
-               <height>328</height>
+               <height>16777215</height>
               </size>
              </property>
-             <attribute name="title">
-              <string>Commentaire</string>
-             </attribute>
-             <widget class="QTreeWidget" name="_TRW_assemblyInfo">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>280</width>
-                <height>355</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>280</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>280</width>
-                <height>355</height>
-               </size>
-              </property>
-              <property name="horizontalScrollBarPolicy">
-               <enum>Qt::ScrollBarAlwaysOff</enum>
-              </property>
-              <property name="autoScroll">
-               <bool>false</bool>
-              </property>
-              <property name="autoScrollMargin">
-               <number>0</number>
-              </property>
-              <property name="alternatingRowColors">
-               <bool>true</bool>
-              </property>
-              <property name="selectionMode">
-               <enum>QAbstractItemView::NoSelection</enum>
-              </property>
-              <property name="indentation">
-               <number>0</number>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
-              </property>
-              <property name="columnCount">
-               <number>2</number>
-              </property>
-              <attribute name="headerVisible">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="headerDefaultSectionSize">
-               <number>100</number>
-              </attribute>
-              <attribute name="headerMinimumSectionSize">
-               <number>100</number>
-              </attribute>
-              <column>
-               <property name="text">
-                <string notr="true">Champ</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Valeur</string>
-               </property>
-              </column>
-             </widget>
-            </widget>
-            <widget class="QWidget" name="_TABW_mapLayers">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+             <property name="currentIndex">
+              <number>0</number>
              </property>
-             <property name="minimumSize">
-              <size>
-               <width>280</width>
-               <height>328</height>
-              </size>
+             <property name="elideMode">
+              <enum>Qt::ElideNone</enum>
              </property>
-             <property name="maximumSize">
-              <size>
-               <width>280</width>
-               <height>328</height>
-              </size>
-             </property>
-             <attribute name="title">
-              <string>Cartographie</string>
-             </attribute>
-             <widget class="QListWidget" name="_LW_mapLayers">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>280</width>
-                <height>328</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>280</width>
-                <height>328</height>
-               </size>
-              </property>
-             </widget>
-            </widget>
-           </widget>
-          </widget>
-          <widget class="QWidget" name="_WID_creationViewTabSet">
-           <widget class="MatisseTabWidget" name="_TW_creationViewTabs">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>280</width>
-              <height>355</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>280</width>
-              <height>355</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>280</width>
-              <height>355</height>
-             </size>
-            </property>
-            <property name="currentIndex">
-             <number>0</number>
-            </property>
-            <property name="elideMode">
-             <enum>Qt::ElideNone</enum>
-            </property>
-            <widget class="QWidget" name="_TABW_inputs">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>280</width>
-               <height>328</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>280</width>
-               <height>328</height>
-              </size>
-             </property>
-             <attribute name="title">
-              <string>Sources</string>
-             </attribute>
-             <widget class="QListWidget" name="_LW_inputs">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>280</width>
-                <height>305</height>
-               </rect>
-              </property>
+             <widget class="QWidget" name="_TABW_properties">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -461,489 +313,680 @@
               <property name="minimumSize">
                <size>
                 <width>280</width>
-                <height>305</height>
+                <height>150</height>
                </size>
               </property>
-              <property name="dragDropMode">
-               <enum>QAbstractItemView::DragOnly</enum>
-              </property>
-              <property name="defaultDropAction">
-               <enum>Qt::CopyAction</enum>
-              </property>
-              <property name="alternatingRowColors">
-               <bool>true</bool>
-              </property>
-              <property name="selectionBehavior">
-               <enum>QAbstractItemView::SelectRows</enum>
-              </property>
-              <property name="iconSize">
+              <property name="maximumSize">
                <size>
-                <width>50</width>
-                <height>60</height>
-               </size>
-              </property>
-              <property name="gridSize">
-               <size>
-                <width>0</width>
-                <height>60</height>
-               </size>
-              </property>
-              <property name="uniformItemSizes">
-               <bool>true</bool>
-              </property>
-              <property name="selectionRectVisible">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </widget>
-            <widget class="QWidget" name="_TABW_processors">
-             <attribute name="title">
-              <string>Processeurs</string>
-             </attribute>
-             <widget class="QListWidget" name="_LW_processors">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
                 <width>280</width>
-                <height>305</height>
-               </rect>
-              </property>
-              <property name="dragDropMode">
-               <enum>QAbstractItemView::DragOnly</enum>
-              </property>
-              <property name="defaultDropAction">
-               <enum>Qt::CopyAction</enum>
-              </property>
-              <property name="alternatingRowColors">
-               <bool>true</bool>
-              </property>
-              <property name="selectionBehavior">
-               <enum>QAbstractItemView::SelectRows</enum>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>50</width>
-                <height>60</height>
+                <height>16777215</height>
                </size>
               </property>
-              <property name="gridSize">
-               <size>
-                <width>0</width>
-                <height>60</height>
-               </size>
-              </property>
-              <property name="uniformItemSizes">
-               <bool>true</bool>
-              </property>
-              <property name="selectionRectVisible">
-               <bool>true</bool>
-              </property>
+              <attribute name="title">
+               <string>Commentaire</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QTreeWidget" name="_TRW_assemblyInfo">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>280</width>
+                   <height>150</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>280</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="lineWidth">
+                  <number>0</number>
+                 </property>
+                 <property name="horizontalScrollBarPolicy">
+                  <enum>Qt::ScrollBarAlwaysOff</enum>
+                 </property>
+                 <property name="autoScroll">
+                  <bool>false</bool>
+                 </property>
+                 <property name="autoScrollMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="alternatingRowColors">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::NoSelection</enum>
+                 </property>
+                 <property name="indentation">
+                  <number>0</number>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="columnCount">
+                  <number>2</number>
+                 </property>
+                 <attribute name="headerVisible">
+                  <bool>false</bool>
+                 </attribute>
+                 <attribute name="headerDefaultSectionSize">
+                  <number>100</number>
+                 </attribute>
+                 <attribute name="headerMinimumSectionSize">
+                  <number>100</number>
+                 </attribute>
+                 <column>
+                  <property name="text">
+                   <string notr="true">Champ</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Valeur</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+              </layout>
              </widget>
-            </widget>
-            <widget class="QWidget" name="_TABW_outputs">
-             <attribute name="title">
-              <string>Destination</string>
-             </attribute>
-             <widget class="QListWidget" name="_LW_outputs">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>280</width>
-                <height>305</height>
-               </rect>
+             <widget class="QWidget" name="_TABW_mapLayers">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
                 <width>280</width>
-                <height>305</height>
+                <height>150</height>
                </size>
               </property>
-              <property name="dragDropMode">
-               <enum>QAbstractItemView::DragOnly</enum>
-              </property>
-              <property name="defaultDropAction">
-               <enum>Qt::CopyAction</enum>
-              </property>
-              <property name="alternatingRowColors">
-               <bool>true</bool>
-              </property>
-              <property name="selectionBehavior">
-               <enum>QAbstractItemView::SelectRows</enum>
-              </property>
-              <property name="iconSize">
+              <property name="maximumSize">
                <size>
-                <width>50</width>
-                <height>60</height>
+                <width>280</width>
+                <height>16777215</height>
                </size>
               </property>
-              <property name="gridSize">
-               <size>
-                <width>0</width>
-                <height>60</height>
-               </size>
-              </property>
-              <property name="uniformItemSizes">
-               <bool>true</bool>
-              </property>
-              <property name="selectionRectVisible">
-               <bool>true</bool>
-              </property>
+              <attribute name="title">
+               <string>Cartographie</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_7">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QListWidget" name="_LW_mapLayers">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>280</width>
+                   <height>150</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>280</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="lineWidth">
+                  <number>0</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
             </widget>
-           </widget>
-          </widget>
+           </item>
+          </layout>
          </widget>
-        </widget>
-       </item>
-       <item>
-        <widget class="QStackedWidget" name="_SW_viewStack">
-         <widget class="UserFormWidget" name="_WID_mapViewSceneContainer"/>
-         <widget class="MatisseServer::ExpertFormWidget" name="_WID_creationSceneContainer"/>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="_GB_parameters">
-         <property name="minimumSize">
-          <size>
-           <width>400</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="title">
-          <string>Parametres</string>
-         </property>
-         <widget class="QScrollArea" name="_SCA_parameters">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>20</y>
-            <width>400</width>
-            <height>628</height>
-           </rect>
+         <widget class="QWidget" name="_WID_creationViewTabSet">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>400</width>
-            <height>0</height>
+            <width>280</width>
+            <height>200</height>
            </size>
           </property>
-          <property name="widgetResizable">
-           <bool>true</bool>
+          <property name="maximumSize">
+           <size>
+            <width>280</width>
+            <height>16777215</height>
+           </size>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>398</width>
-             <height>626</height>
-            </rect>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <property name="leftMargin">
+            <number>0</number>
            </property>
-          </widget>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="MatisseTabWidget" name="_TW_creationViewTabs">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>200</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>280</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <property name="elideMode">
+              <enum>Qt::ElideNone</enum>
+             </property>
+             <widget class="QWidget" name="_TABW_inputs">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>280</width>
+                <height>150</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>280</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <attribute name="title">
+               <string>Sources</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_4">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>5</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QListWidget" name="_LW_inputs">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>280</width>
+                   <height>150</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>280</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="lineWidth">
+                  <number>0</number>
+                 </property>
+                 <property name="dragDropMode">
+                  <enum>QAbstractItemView::DragOnly</enum>
+                 </property>
+                 <property name="defaultDropAction">
+                  <enum>Qt::CopyAction</enum>
+                 </property>
+                 <property name="alternatingRowColors">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionBehavior">
+                  <enum>QAbstractItemView::SelectRows</enum>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>50</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="gridSize">
+                  <size>
+                   <width>0</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="uniformItemSizes">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionRectVisible">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="_TABW_processors">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>280</width>
+                <height>150</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>280</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <attribute name="title">
+               <string>Processeurs</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_5">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>5</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QListWidget" name="_LW_processors">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>280</width>
+                   <height>150</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>280</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="lineWidth">
+                  <number>0</number>
+                 </property>
+                 <property name="dragDropMode">
+                  <enum>QAbstractItemView::DragOnly</enum>
+                 </property>
+                 <property name="defaultDropAction">
+                  <enum>Qt::CopyAction</enum>
+                 </property>
+                 <property name="alternatingRowColors">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionBehavior">
+                  <enum>QAbstractItemView::SelectRows</enum>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>50</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="gridSize">
+                  <size>
+                   <width>0</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="uniformItemSizes">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionRectVisible">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="_TABW_outputs">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>280</width>
+                <height>150</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>280</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <attribute name="title">
+               <string>Destination</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_6">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>5</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QListWidget" name="_LW_outputs">
+                 <property name="minimumSize">
+                  <size>
+                   <width>280</width>
+                   <height>150</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>280</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="lineWidth">
+                  <number>0</number>
+                 </property>
+                 <property name="dragDropMode">
+                  <enum>QAbstractItemView::DragOnly</enum>
+                 </property>
+                 <property name="defaultDropAction">
+                  <enum>Qt::CopyAction</enum>
+                 </property>
+                 <property name="alternatingRowColors">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionBehavior">
+                  <enum>QAbstractItemView::SelectRows</enum>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>50</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="gridSize">
+                  <size>
+                   <width>0</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="uniformItemSizes">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionRectVisible">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="_PB_parameterFold">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="_WID_workViewContainer" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <property name="leftMargin">
+          <number>0</number>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>20</width>
-           <height>0</height>
-          </size>
+         <property name="topMargin">
+          <number>0</number>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>20</width>
-           <height>16777215</height>
-          </size>
+         <property name="rightMargin">
+          <number>0</number>
          </property>
-         <property name="text">
-          <string/>
+         <property name="bottomMargin">
+          <number>0</number>
          </property>
-         <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/qss_icons/icons/Roue.svg</normaloff>:/qss_icons/icons/Roue.svg</iconset>
+         <property name="spacing">
+          <number>0</number>
          </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1280</width>
-     <height>23</height>
-    </rect>
-   </property>
+         <item row="0" column="0">
+          <widget class="QStackedWidget" name="_SW_viewStack">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>100</horstretch>
+             <verstretch>100</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>980</width>
+             <height>710</height>
+            </size>
+           </property>
+           <property name="sizeIncrement">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="UserFormWidget" name="_WID_mapViewSceneContainer">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>980</width>
+              <height>710</height>
+             </size>
+            </property>
+           </widget>
+           <widget class="MatisseServer::ExpertFormWidget" name="_WID_creationSceneContainer">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>980</width>
+              <height>710</height>
+             </size>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="_PB_parameterFold">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>20</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/qss_icons/icons/Roue.svg</normaloff>:/qss_icons/icons/Roue.svg</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-  </widget>
-  <widget class="QToolBar" name="_TOO_actions">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <property name="movable">
-    <bool>true</bool>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftToolBarArea</set>
-   </property>
-   <property name="iconSize">
+   <property name="minimumSize">
     <size>
-     <width>36</width>
-     <height>36</height>
+     <width>1280</width>
+     <height>30</height>
     </size>
    </property>
-   <property name="floatable">
-    <bool>false</bool>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>30</height>
+    </size>
    </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="_ACT_reloadAssembliesAndJobs"/>
-   <addaction name="_ACT_saveJob"/>
-   <addaction name="_ACT_saveAsJob"/>
-   <addaction name="_ACT_deleteJob"/>
-   <addaction name="actionSeparator_2"/>
-   <addaction name="_ACT_launchJob"/>
-   <addaction name="_ACT_stopJob"/>
-   <addaction name="actionSeparator_3"/>
-   <addaction name="_ACT_saveParameters"/>
-   <addaction name="_ACT_deleteParameters"/>
-   <addaction name="_ACT_newAssembly"/>
-   <addaction name="_ACT_saveAssembly"/>
-   <addaction name="_ACT_saveAsAssembly"/>
-   <addaction name="_ACT_deleteAssembly"/>
-   <addaction name="actionSeparator"/>
-   <addaction name="_ACT_userExpert"/>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
   </widget>
-  <action name="_ACT_deleteAssembly">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/deleteAssembly.png</normaloff>:/png/deleteAssembly.png</iconset>
-   </property>
-   <property name="text">
-    <string>Delete processing chain</string>
-   </property>
-  </action>
-  <action name="_ACT_newAssembly">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/newAssembly.png</normaloff>:/png/newAssembly.png</iconset>
-   </property>
-   <property name="text">
-    <string>New processing chain</string>
-   </property>
-  </action>
-  <action name="_ACT_saveJob">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/SaveJob.png</normaloff>:/png/SaveJob.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save Job</string>
-   </property>
-   <property name="toolTip">
-    <string>Save Job</string>
-   </property>
-  </action>
-  <action name="_ACT_saveAsJob">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/SaveAsJob.png</normaloff>:/png/SaveAsJob.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save Job as...</string>
-   </property>
-   <property name="toolTip">
-    <string>Save Job as...</string>
-   </property>
-  </action>
-  <action name="_ACT_userExpert">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/expert.png</normaloff>
-     <normalon>:/png/user.png</normalon>:/png/expert.png</iconset>
-   </property>
-   <property name="text">
-    <string>Change user/expert mode</string>
-   </property>
-   <property name="toolTip">
-    <string>Change user/expert mode</string>
-   </property>
-  </action>
-  <action name="_ACT_launchJob">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/run-unknown.png</normaloff>:/png/run-unknown.png</iconset>
-   </property>
-   <property name="text">
-    <string>Process Job</string>
-   </property>
-   <property name="toolTip">
-    <string>Process Job</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::TextHeuristicRole</enum>
-   </property>
-  </action>
-  <action name="_ACT_reloadAssembliesAndJobs">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/view-refresh-3.png</normaloff>:/png/view-refresh-3.png</iconset>
-   </property>
-   <property name="text">
-    <string>Reload chains/jobs</string>
-   </property>
-   <property name="toolTip">
-    <string>Reload chains/jobs</string>
-   </property>
-  </action>
-  <action name="_ACT_saveParameters">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/documentation.png</normaloff>:/png/documentation.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save parameters set</string>
-   </property>
-   <property name="toolTip">
-    <string>Save parameters set</string>
-   </property>
-  </action>
-  <action name="_ACT_saveAssembly">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/SaveAssembly.png</normaloff>:/png/SaveAssembly.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save processing chain</string>
-   </property>
-   <property name="toolTip">
-    <string>Save processing chain</string>
-   </property>
-  </action>
-  <action name="_ACT_saveAsAssembly">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/SaveAsAssembly.png</normaloff>:/png/SaveAsAssembly.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save processing chain as...</string>
-   </property>
-   <property name="iconText">
-    <string>Save processing chain as...</string>
-   </property>
-   <property name="toolTip">
-    <string>Save processing chain as...</string>
-   </property>
-  </action>
-  <action name="_ACT_deleteJob">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/deleteJob.png</normaloff>:/png/deleteJob.png</iconset>
-   </property>
-   <property name="text">
-    <string>Delete Job</string>
-   </property>
-   <property name="toolTip">
-    <string>Delete Job</string>
-   </property>
-  </action>
-  <action name="_ACT_stopJob">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/stop.png</normaloff>:/png/stop.png</iconset>
-   </property>
-   <property name="text">
-    <string>Stopper l'exécution travail</string>
-   </property>
-   <property name="toolTip">
-    <string>Stopper l'exécution travail</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::TextHeuristicRole</enum>
-   </property>
-  </action>
-  <action name="_ACT_deleteParameters">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/deleteParameters.png</normaloff>:/png/deleteParameters.png</iconset>
-   </property>
-   <property name="text">
-    <string>Supprimer les Paramètres</string>
-   </property>
-   <property name="toolTip">
-    <string>Supprimer les Paramètres</string>
-   </property>
-  </action>
-  <action name="actionSeparator">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/separator.png</normaloff>:/png/separator.png</iconset>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-  </action>
-  <action name="actionSeparator_2">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/separator.png</normaloff>:/png/separator.png</iconset>
-   </property>
-   <property name="text">
-    <string>separator</string>
-   </property>
-   <property name="iconText">
-    <string>separator</string>
-   </property>
-   <property name="toolTip">
-    <string>separator</string>
-   </property>
-  </action>
-  <action name="actionSeparator_3">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/png/separator.png</normaloff>:/png/separator.png</iconset>
-   </property>
-   <property name="text">
-    <string>separator</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>

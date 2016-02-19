@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1280</width>
-    <height>32</height>
+    <height>30</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,14 +18,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
+    <width>1280</width>
     <height>30</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>3000</width>
-    <height>32</height>
+    <width>16777215</width>
+    <height>30</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -51,7 +51,7 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1,100,1,1">
      <property name="leftMargin">
       <number>5</number>
      </property>
@@ -60,6 +60,27 @@
      </property>
      <item>
       <widget class="QLabel" name="_LA_messagesPicto">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -94,14 +115,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>600</width>
-         <height>20</height>
+         <width>1200</width>
+         <height>24</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>3000</width>
-         <height>20</height>
+         <width>16777215</width>
+         <height>24</height>
         </size>
        </property>
        <property name="maxVisibleItems">
@@ -134,7 +155,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>10</width>
+         <width>5</width>
          <height>20</height>
         </size>
        </property>
@@ -151,7 +172,7 @@
        <property name="minimumSize">
         <size>
          <width>24</width>
-         <height>30</height>
+         <height>24</height>
         </size>
        </property>
        <property name="maximumSize">

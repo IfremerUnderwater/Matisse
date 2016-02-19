@@ -10,6 +10,9 @@ QWidget#homeWidget QWidget {
    border: none;
 }
 
+QWidget#matisseVersionWidget {
+    background-color: #e7a213;
+}
 
 QWidget#matisseVersionWidget QWidget {
     background-color: #e7a213;
@@ -21,8 +24,17 @@ QWidget#mainMenuWidget {
     background-color: #e7a213;    
 }
 
+QProgressBar::chunk {
+    background-color: #e7a213;
+    width: 10px;
+    border-radius: 2px;
+    margin: 0.5px;
+}
+
+/* Parameters fold/unfold widget */
 QWidget#_PB_parameterFold {
     background-color: #e7a213;
+    border: none;
 }
 
 

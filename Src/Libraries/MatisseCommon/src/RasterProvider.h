@@ -29,6 +29,9 @@ public:
 public:
     virtual QList<QFileInfo> rastersInfo() = 0;
 
+signals:
+    void signal_userInformation(QString userText);
+    void signal_processCompletion(quint8 percentComplete);
 
 private:
     QString _comment;

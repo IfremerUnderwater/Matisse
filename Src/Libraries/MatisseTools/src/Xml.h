@@ -63,6 +63,8 @@ public:
     void clearAssembliesDatas();
     void clearJobsDatas();
 
+    QString getVersion() const;
+
 private:
     bool loadModels();
     bool xmlIsValid(QXmlSchema & schema, QFileInfo fileInfo);
@@ -70,6 +72,8 @@ private:
     QString _basePath;
     QString _dllPath;
     int _port;
+    QString _version;
+
     QXmlSchema _assembliesSchema;
 
     QString _jobsParametersPath;

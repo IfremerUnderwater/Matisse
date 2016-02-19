@@ -70,6 +70,8 @@ protected:
 
 signals:
     void signal_intermediateResult(Image* image);
+    void signal_userInformation(QString userText);
+    void signal_processCompletion(quint8 percentComplete);
 
 private:
     QString _comment;

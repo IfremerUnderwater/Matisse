@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.0" language="fr_FR">
 <context>
     <name>ChooseAndShow</name>
     <message>
@@ -18,14 +18,14 @@
     <name>MatisseParametersManager</name>
     <message>
         <source>Code a executer pour le sift</source>
-        <translation type="obsolete">Sift execution code</translation>
+        <translation type="obsolete">Code à exécuter pour le sift</translation>
     </message>
 </context>
 <context>
     <name>MatisseTools::MatisseDictionnaryLabels</name>
     <message>
         <source>Code a executer pour le sift</source>
-        <translation type="obsolete">Sift execution code</translation>
+        <translation type="obsolete">Code à exécuter pour le sift</translation>
     </message>
 </context>
 <context>
@@ -43,7 +43,7 @@
     <message>
         <location filename="src/MatisseDictionnaryLabels.h" line="33"/>
         <source>Code a executer pour le sift</source>
-        <translation>Sift execution code</translation>
+        <translation>Code à exécuter pour le sift</translation>
     </message>
     <message>
         <location filename="src/MatisseDictionnaryLabels.h" line="34"/>
