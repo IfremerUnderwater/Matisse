@@ -446,6 +446,10 @@ void AssemblyGui::initMainMenu()
 
     QMenuBar* mainMenuBar = findChild<QMenuBar*>(QString("_MBA_mainMenuBar"));
 
+    mainMenuBar->setMinimumHeight(_helpMenu->height());
+    mainMenuBar->setMaximumHeight(_helpMenu->height());
+    mainMenuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
     mainMenuBar->addMenu(_fileMenu);
     mainMenuBar->addMenu(_displayMenu);
     mainMenuBar->addMenu(_processMenu);
