@@ -16,6 +16,7 @@ class UserFormWidget;
 }
 
 
+enum CartoViewType { QGisMapLayer, QImageView, OpenSceneGraphView };
 
 class UserFormWidget : public QWidget
 {
@@ -26,7 +27,7 @@ public:
     ~UserFormWidget();
 
     void showUserParameters(bool flag);
-    void showQGisCanvas(bool flag);
+    void switchCartoViewTo(CartoViewType cartoViewType_p);
 
     void createCanvas();
     void clear();

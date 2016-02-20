@@ -54,13 +54,18 @@ void UserFormWidget::showUserParameters(bool flag)
     }
 }
 
-void UserFormWidget::showQGisCanvas(bool flag)
+void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
 {
-    if (flag) {
+    switch(cartoViewType_p)
+    {
+
+    case QGisMapLayer:
         _ui->_stackedWidget->setCurrentIndex(0);
-    }
-    else {
+        break;
+    case QImageView:
         _ui->_stackedWidget->setCurrentIndex(1);
+        break;
+
     }
 
 }
@@ -70,7 +75,7 @@ void UserFormWidget::createCanvas() {
 
     qDebug() << "Create QGIS Canvas";
 
-   // _ui->_GRV_map->deleteLater();
+    // _ui->_GRV_map->deleteLater();
 
     QgsMapCanvas* mapCanvas = _ui->_GRV_map;
     //QgsMapCanvas* mapCanvas= new QgsMapCanvas(NULL, "mapCanvas");
@@ -84,17 +89,17 @@ void UserFormWidget::createCanvas() {
     mapCanvas->show();
 
     //_ui->_SPL_user->insertWidget(0, mapCanvas);
-   // QList<int> heights;
-   // heights.push_back(550);
-   // heights.push_back(550);
-   // heights.push_back(430);
-   // _ui->_SPL_user->setSizes(heights);
+    // QList<int> heights;
+    // heights.push_back(550);
+    // heights.push_back(550);
+    // heights.push_back(430);
+    // _ui->_SPL_user->setSizes(heights);
 
-//    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-//    sizePolicy.setHorizontalStretch(0);
-//    sizePolicy.setVerticalStretch(0);
-//    sizePolicy.setHeightForWidth(mapCanvas->sizePolicy().hasHeightForWidth());
-//    _ui->_GRV_map->setSizePolicy(sizePolicy);
+    //    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    //    sizePolicy.setHorizontalStretch(0);
+    //    sizePolicy.setVerticalStretch(0);
+    //    sizePolicy.setHeightForWidth(mapCanvas->sizePolicy().hasHeightForWidth());
+    //    _ui->_GRV_map->setSizePolicy(sizePolicy);
 
     //_ui->_GRV_map=mapCanvas;
 
@@ -133,12 +138,12 @@ void UserFormWidget::loadRasterFile(QString filename) {
 
     if (mypLayer->isValid())
     {
-      qDebug("Layer is valid");
+        qDebug("Layer is valid");
     }
     else
     {
-      qDebug("Layer is NOT valid");
-      return;
+        qDebug("Layer is NOT valid");
+        return;
     }
 
     // Add the raster Layer to the Layer Registry
@@ -193,12 +198,12 @@ void UserFormWidget::loadShapefile(QString filename)
     QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
     QgsRectangle extent;
     foreach (QgsMapLayer* layer, layers.values()) {
-      if (extent.width()==0) {
-          extent = layer->extent();
-      }
-      else {
-          extent.combineExtentWith(&layer->extent());
-      }
+        if (extent.width()==0) {
+            extent = layer->extent();
+        }
+        else {
+            extent.combineExtentWith(&layer->extent());
+        }
     }
 
 
@@ -272,7 +277,7 @@ void UserFormWidget::loadTestVectorLayer()
     QgsMapCanvasLayer v1Wrap(v1);
     _layers->append(v1Wrap);
     mapCanvas->setLayerSet(*_layers);
-//    mapCanvas->setCurrentLayer(v1);
+    //    mapCanvas->setCurrentLayer(v1);
     mapCanvas->refresh();
 
     qDebug() << "RENDER VECTOR LAYER !";

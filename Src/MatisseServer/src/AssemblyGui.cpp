@@ -840,15 +840,7 @@ void AssemblyGui::slot_showApplicationMode(ApplicationMode mode)
         emit signal_processStopped(); // to reset wheel if previous job was frozen
 
         show();
-        QMenuBar* mainMenuBar = findChild<QMenuBar*>(QString("_MBA_mainMenuBar"));
-        qDebug() << "Taille menu bar :" << mainMenuBar->size();
 
-        // TODO : à supprimer test GGIS
-        //_userFormWidget->loadTestVectorLayer();
-        //_userFormWidget->loadShapefile("world_borders.shp");
-        //_userFormWidget->loadRasterFile("Blended_Mosaic_stretched.tif");
-        //_userFormWidget->showQGisCanvas(true);
-    //    _userFormWidget->saveQgisProject("matisse.qgs");
     }
 
 }
@@ -1142,7 +1134,7 @@ void AssemblyGui::displayJob(QString jobName)
                     qCritical() << "Erreur fichier image introuvable" << infoImage.absoluteFilePath();
                 }
                 _userFormWidget->loadRasterFile(infoImage.absoluteFilePath());
-                _userFormWidget->showQGisCanvas(true);
+                _userFormWidget->switchCartoViewTo(QGisMapLayer);
             }
         }
     }
@@ -2160,7 +2152,7 @@ void AssemblyGui::slot_launchJob()
 
     QString jobFilename = _currentJob->filename();
 
-    _userFormWidget->showQGisCanvas(false);
+    _userFormWidget->switchCartoViewTo(QImageView);
 
     qDebug() << "Execute le job " << jobName;
 
@@ -2273,7 +2265,7 @@ void AssemblyGui::slot_processCompletion(quint8 percentComplete)
 
 void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
     qDebug() << "Job done : " << name;
-    _userFormWidget->showQGisCanvas(true);
+    _userFormWidget->switchCartoViewTo(QGisMapLayer);
 
     if (!_server.errorFlag()) {
         JobDefinition *jobDef = _server.xmlTool().getJob(name);
