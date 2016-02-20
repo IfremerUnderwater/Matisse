@@ -114,7 +114,7 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     emit signal_processCompletion(10);
 
     //Draw mosaic
-    MosaicDrawer mosaicDrawer;    
+    MosaicDrawer mosaicDrawer;
 
     if (!blockDraw){
 
@@ -123,15 +123,20 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
 
         emit signal_processCompletion(50);
 
+        // copy mask to force data pointer allocation in the right order
+        Mat maskCopy;
+        mosaicMask.copyTo(maskCopy);
+        mosaicMask.release();
+
         // Write geofile
-        pMosaicD->writeToGeoTiff(mosaicImage,mosaicMask,outputDirnameStr + QDir::separator() + outputFilename);
+        pMosaicD->writeToGeoTiff(mosaicImage,maskCopy,outputDirnameStr + QDir::separator() + outputFilename);
 
     }else{
         qDebug()<< logPrefix() << "entered block drawing part...";
 
         mosaicDrawer.blockDrawBlendAndWrite(*pMosaicD,
-                               Point2d(blockWidth, blockHeight),
-                               outputDirnameStr, QString("MosaicOut"));
+                                            Point2d(blockWidth, blockHeight),
+                                            outputDirnameStr, QString("MosaicOut"));
 
     }
 
