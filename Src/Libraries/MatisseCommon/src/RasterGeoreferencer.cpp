@@ -906,9 +906,8 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
             pBand->RasterIO(GF_Write,0,0,raster.cols,raster.rows,rasterChannels[k].data,raster.cols,raster.rows,GDT_Byte,0,0);
         }
 
-
         pBand = poDataset->GetRasterBand(4);
-        pBand->RasterIO(GF_Write,0,0,raster.cols,raster.rows,rasterMask.data,raster.cols,raster.rows,GDT_Byte,0,0);
+        pBand->RasterIO(GF_Write,0,0,rasterMask.cols,rasterMask.rows,rasterMask.data,raster.cols,raster.rows,GDT_Byte,0,0);
 
     }else{
         pBand = poDataset->GetRasterBand(1);
