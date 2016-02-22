@@ -200,6 +200,7 @@ void AssemblyGui::init()
     _userFormWidget = _ui->_WID_mapViewSceneContainer;
     connect(_userFormWidget, SIGNAL(signal_parametersChanged(bool)), this, SLOT(slot_modifiedParameters(bool)));
     _userFormWidget->setTools(_parameters);
+    _userFormWidget->switchCartoViewTo(OpenSceneGraphView);
 
     _expertFormWidget = _ui->_WID_creationSceneContainer;
 

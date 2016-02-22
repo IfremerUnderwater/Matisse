@@ -65,6 +65,10 @@ void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
     case QImageView:
         _ui->_stackedWidget->setCurrentIndex(1);
         break;
+    case OpenSceneGraphView:
+        _ui->_stackedWidget->setCurrentIndex(2);
+        _ui->_OSG_viewer->setSceneFromFile("./3DTestData/mesh.ply");
+        break;
 
     }
 
