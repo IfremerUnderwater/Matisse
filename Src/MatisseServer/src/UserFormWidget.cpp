@@ -67,7 +67,7 @@ void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
         break;
     case OpenSceneGraphView:
         _ui->_stackedWidget->setCurrentIndex(2);
-        _ui->_OSG_viewer->setSceneFromFile("./3DTestData/mesh.ply");
+        _ui->_OSG_viewer->setSceneFromFile("./3DTestData/wallMeshTex.obj");
         break;
 
     }
