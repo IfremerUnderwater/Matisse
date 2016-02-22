@@ -119,7 +119,7 @@ void AssemblyGui::resizeAndRepositionParametersWidget()
     //quint16 vScrollerWidth = _jobParametersDock->verticalScrollBar()->size().width();
 
     // reducing widget dimensions to avoid default scrollbars
-    quint16 widgetWidth = scaWidth - 20;
+    quint16 widgetWidth = scaWidth + 20;
     quint16 widgetHeight = scaHeight - 3;
 
     _parametersWidget->resize(widgetWidth, widgetHeight);
