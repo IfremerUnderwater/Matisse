@@ -69,7 +69,7 @@ protected:
     void flush(quint32 port);
 
 signals:
-    void signal_intermediateResult(Image* image);
+    void signal_showImageOnMainView(Image* image);
     void signal_userInformation(QString userText);
     void signal_processCompletion(quint8 percentComplete);
 

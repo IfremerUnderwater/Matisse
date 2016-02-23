@@ -18,8 +18,9 @@ AssemblyGui::AssemblyGui(QString settingsFile, QWidget *parent) :
 {
     _ui->setupUi(this);
     _canShow = setSettingsFile(settingsFile);
+    _server.setAssemblyGui(this);
+
     init();
-    test();
 }
 
 AssemblyGui::~AssemblyGui()
@@ -250,7 +251,7 @@ void AssemblyGui::init()
     _lastJobLaunchedItem = NULL;
 
     connect(&_server, SIGNAL(signal_jobProcessed(QString, bool)), this, SLOT(slot_jobProcessed(QString, bool)));
-    connect(&_server, SIGNAL(signal_jobIntermediateResult(QString,Image *)), this, SLOT(slot_jobIntermediateResult(QString,Image *)));
+    connect(&_server, SIGNAL(signal_jobShowImageOnMainView(QString,Image *)), this, SLOT(slot_jobShowImageOnMainView(QString,Image *)));
     connect(&_server, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(&_server, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
 
@@ -500,13 +501,6 @@ void AssemblyGui::initVersionDisplay()
     _matisseVersionlabel->setText(fullVersionLabel);
 }
 
-void AssemblyGui::test()
-{
-    // Pour test
-    // Lecture fichier dim2
-    // Dim2FileReader reader("C:/WorkspaceMatisse/Test_dataset/otus.dim2");
-
-}
 
 // TODO Chargement des jobs à déplacer dans Server ou Xml
 void AssemblyGui::loadAssembliesAndJobsLists(bool doExpand)
@@ -2237,7 +2231,7 @@ void AssemblyGui::slot_stopJob()
 
 }
 
-void AssemblyGui::slot_jobIntermediateResult(QString name, Image *image)
+void AssemblyGui::slot_jobShowImageOnMainView(QString name, Image *image)
 {
     if (image) {
         _userFormWidget->displayImage(image);

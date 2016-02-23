@@ -26,7 +26,7 @@ void Module2::onNewImage(quint32 port, Image &image)
     qDebug() << logPrefix() << "Process Module2";
     image.imageData();
     Image* toDisplay = new Image(image, false);
-    emit signal_intermediateResult(toDisplay);
+    emit signal_showImageOnMainView(toDisplay);
     image.releaseImageData();
 
 }
