@@ -27,6 +27,10 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
 {
     _ui->setupUi(this);
     _layers = new QList<QgsMapCanvasLayer>();
+
+    // Default view is QImageView
+    switchCartoViewTo(QImageView);
+    _currentViewType = QImageView;
 }
 
 UserFormWidget::~UserFormWidget()
@@ -61,13 +65,15 @@ void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
 
     case QGisMapLayer:
         _ui->_stackedWidget->setCurrentIndex(0);
+        _currentViewType = QGisMapLayer;
         break;
     case QImageView:
         _ui->_stackedWidget->setCurrentIndex(1);
+        _currentViewType = QImageView;
         break;
     case OpenSceneGraphView:
         _ui->_stackedWidget->setCurrentIndex(2);
-        _ui->_OSG_viewer->setSceneFromFile("./3DTestData/wallMeshTex.obj");
+        _currentViewType = OpenSceneGraphView;
         break;
 
     }
@@ -77,12 +83,12 @@ void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
 
 void UserFormWidget::createCanvas() {
 
-    qDebug() << "Create QGIS Canvas";
+    qDebug() << "Set QGIS Canvas properties";
 
     // _ui->_GRV_map->deleteLater();
 
     QgsMapCanvas* mapCanvas = _ui->_GRV_map;
-    //QgsMapCanvas* mapCanvas= new QgsMapCanvas(NULL, "mapCanvas");
+
     mapCanvas->enableAntiAliasing(true);
     mapCanvas->useImageToRender(false);
     mapCanvas->setCanvasColor(QColor(MATISSE_BLACK));
@@ -92,33 +98,19 @@ void UserFormWidget::createCanvas() {
     mapCanvas->refresh();
     mapCanvas->show();
 
-    //_ui->_SPL_user->insertWidget(0, mapCanvas);
-    // QList<int> heights;
-    // heights.push_back(550);
-    // heights.push_back(550);
-    // heights.push_back(430);
-    // _ui->_SPL_user->setSizes(heights);
-
-    //    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    //    sizePolicy.setHorizontalStretch(0);
-    //    sizePolicy.setVerticalStretch(0);
-    //    sizePolicy.setHeightForWidth(mapCanvas->sizePolicy().hasHeightForWidth());
-    //    _ui->_GRV_map->setSizePolicy(sizePolicy);
-
-    //_ui->_GRV_map=mapCanvas;
-
-    //_ui->_SPL_user->setStretchFactor(0, 1);
-    //_ui->_SPL_user->setStretchFactor(1, 1);
-
 }
 
 void UserFormWidget::clear()
 {
+    // Clear QGis Widget
     _layers->clear();
     QgsMapLayerRegistry::instance()->removeAllMapLayers();
     _ui->_GRV_map->clearExtentHistory();
     _ui->_GRV_map->clear();
     _ui->_GRV_map->refresh();
+
+    // Clear OSG Widget
+    _ui->_OSG_viewer->clearSceneData();
 
 }
 
@@ -219,6 +211,11 @@ void UserFormWidget::loadShapefile(QString filename)
     // Set the Map Canvas Layer Set
     mapCanvas->setLayerSet(*_layers);
     mapCanvas->refresh();
+}
+
+void UserFormWidget::load3DFile(QString filename)
+{
+    _ui->_OSG_viewer->setSceneFromFile(filename.toStdString());
 }
 
 

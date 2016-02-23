@@ -135,7 +135,7 @@ OSGWidget::~OSGWidget()
 {
 }
 
-bool OSGWidget::setSceneFromFile(char *sceneFile_p)
+bool OSGWidget::setSceneFromFile(std::string sceneFile_p)
 {
     // load the data
     //_loadedModel = osgDB::readRefNodeFile(sceneFile_p, new osgDB::Options("noTriStripPolygons"));

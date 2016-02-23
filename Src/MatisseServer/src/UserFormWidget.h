@@ -24,7 +24,7 @@ class UserFormWidget : public QWidget
     
 public:
     explicit UserFormWidget(QWidget *parent = NULL);
-    ~UserFormWidget();
+    virtual ~UserFormWidget();
 
     void showUserParameters(bool flag);
     void switchCartoViewTo(CartoViewType cartoViewType_p);
@@ -35,6 +35,7 @@ public:
     void resetJobForm();
     void loadRasterFile(QString filename = "");
     void loadShapefile(QString filename = "");
+    void load3DFile(QString filename = "");
     void setTools(Tools * tools);
     void saveQgisProject(QString filename);
     void loadTestVectorLayer();
@@ -44,6 +45,8 @@ private:
     Tools * _tools;
     ParametersWidgetSkeleton * _parametersWidget;
     QList<QgsMapCanvasLayer> *_layers;
+
+    CartoViewType _currentViewType;
 
 protected slots:
     void slot_parametersChanged(bool changed);

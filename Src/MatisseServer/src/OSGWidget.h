@@ -27,7 +27,7 @@ public:
     /// \param sceneFile_p path to any 3D file supported by osg
     /// \return true if loading succeded
     ///
-    bool setSceneFromFile(char* sceneFile_p);
+    bool setSceneFromFile(std::string sceneFile_p);
 
     ///
     /// \brief setClearColor set the clear color for all cameras
