@@ -40,6 +40,8 @@ public:
     void saveQgisProject(QString filename);
     void loadTestVectorLayer();
     
+    CartoViewType currentViewType() const;
+
 private:
     Ui::UserFormWidget *_ui;
     Tools * _tools;

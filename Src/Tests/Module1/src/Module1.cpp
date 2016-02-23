@@ -98,6 +98,11 @@ void Module1::onFlush(quint32 port)
 
     P1.clip(P2, P3, basicproc::UNION);
 
+    //Test 3D file reading
+    emit signal_show3DFileOnMainView("./3DTestData/wallMeshTex.obj");
+
+    sleep(60);
+
     /*    MosaicDescriptor mosaicD;
     QVector<ProjectiveCamera*> cams;
     ImageSet * imageSet;

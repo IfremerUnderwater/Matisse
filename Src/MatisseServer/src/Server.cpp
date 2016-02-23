@@ -9,7 +9,8 @@ Server::Server(QObject *parent) :
     QObject(parent),
     _xmlTool(),
     _jobServer(NULL),
-    _currentJob(NULL)
+    _currentJob(NULL),
+    _mainGui(NULL)
 {
 
 }
@@ -382,6 +383,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
 
 
     _currentJob = new JobTask(imageProvider, processorList, rasterProvider, jobDefinition, matisseParameters);
+    _currentJob->setMainGui(_mainGui);
 
     return true;
 
@@ -585,6 +587,7 @@ void JobTask::slot_start()
     qDebug() << "Configuration de la source";
     connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     ok = _imageProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -598,12 +601,14 @@ void JobTask::slot_start()
         connect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
         connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+        connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
         processor->callConfigure(_context, _matParameters);
     }
 
     qDebug() << "Configuration de la destination";
     connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     ok = _rasterProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -693,6 +698,11 @@ void JobTask::slot_processCompletion(quint8 percentComplete)
 {
     emit signal_processCompletion(percentComplete);
 }
+void JobTask::setMainGui(AssemblyGui *mainGui)
+{
+    _mainGui = mainGui;
+}
+
 
 
 QStringList JobTask::resultFileNames() const
@@ -766,7 +776,7 @@ bool Server::checkModuleDefinition(QString filepath)
 }
 
 
-void Server::setAssemblyGui(AssemblyGui *mainGui_p)
+void Server::setMainGui(AssemblyGui *mainGui_p)
 {
     _mainGui = mainGui_p;
 }

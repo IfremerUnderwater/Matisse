@@ -61,6 +61,7 @@ protected:
 signals:
     void signal_userInformation(QString userText);
     void signal_processCompletion(quint8 percentComplete);
+    void signal_show3DFileOnMainView(QString filepath_p);
 
 private:
     QString _comment;

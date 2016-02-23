@@ -261,6 +261,7 @@ protected slots:
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);
     void slot_goHome();
+    void slot_show3DFileOnMainView(QString filepath_p);
 
 signals:
     void signal_showWelcome();

@@ -77,7 +77,6 @@ void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
         break;
 
     }
-
 }
 
 
@@ -172,6 +171,10 @@ void UserFormWidget::loadRasterFile(QString filename) {
 
 void UserFormWidget::loadShapefile(QString filename)
 {
+
+    if (_currentViewType!=QGisMapLayer)
+        switchCartoViewTo(QGisMapLayer);
+
     QFileInfo fileInfo(filename);
     QgsVectorLayer * mypLayer = new QgsVectorLayer(filename, fileInfo.fileName(), "ogr");
     if (mypLayer->isValid())
@@ -215,6 +218,8 @@ void UserFormWidget::loadShapefile(QString filename)
 
 void UserFormWidget::load3DFile(QString filename)
 {
+    if (_currentViewType!=OpenSceneGraphView)
+        switchCartoViewTo(OpenSceneGraphView);
     _ui->_OSG_viewer->setSceneFromFile(filename.toStdString());
 }
 
@@ -284,6 +289,11 @@ void UserFormWidget::loadTestVectorLayer()
     qDebug() << "RENDER VECTOR LAYER !";
 
 }
+CartoViewType UserFormWidget::currentViewType() const
+{
+    return _currentViewType;
+}
+
 
 void UserFormWidget::slot_parametersChanged(bool changed)
 {
@@ -293,6 +303,9 @@ void UserFormWidget::slot_parametersChanged(bool changed)
 }
 
 void UserFormWidget::displayImage(Image *image ){
+
+    if (_currentViewType!=QImageView)
+        switchCartoViewTo(QImageView);
 
     Mat dest;
 

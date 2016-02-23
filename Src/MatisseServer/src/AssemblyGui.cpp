@@ -18,7 +18,7 @@ AssemblyGui::AssemblyGui(QString settingsFile, QWidget *parent) :
 {
     _ui->setupUi(this);
     _canShow = setSettingsFile(settingsFile);
-    _server.setAssemblyGui(this);
+    _server.setMainGui(this);
 
     init();
 }
@@ -844,6 +844,11 @@ void AssemblyGui::slot_goHome()
 {
     hide();
     emit signal_showWelcome();
+}
+
+void AssemblyGui::slot_show3DFileOnMainView(QString filepath_p)
+{
+    _userFormWidget->load3DFile(filepath_p);
 }
 
 //void AssemblyGui::slot_selectParameters(bool selectedParameters)

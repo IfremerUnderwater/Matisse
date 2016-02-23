@@ -138,6 +138,7 @@ OSGWidget::~OSGWidget()
 bool OSGWidget::setSceneFromFile(std::string sceneFile_p)
 {
     // load the data
+    setlocale(LC_ALL, "C");
     //_loadedModel = osgDB::readRefNodeFile(sceneFile_p, new osgDB::Options("noTriStripPolygons"));
     _loadedModel = osgDB::readRefNodeFile(sceneFile_p);
     if (!_loadedModel)

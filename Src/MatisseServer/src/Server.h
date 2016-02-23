@@ -45,6 +45,7 @@ public:
 
     volatile bool isCancelled() const;
 
+    void setMainGui(AssemblyGui *mainGui);
 
 signals:
     void signal_jobShowImageOnMainView(QString jobName, Image *image);
@@ -60,6 +61,7 @@ public slots:
     void slot_processCompletion(quint8 percentComplete);
 
 private:
+    AssemblyGui* _mainGui;
     Context* _context;
     ImageProvider* _imageProvider;
     QList<Processor*> _processors;
@@ -84,7 +86,7 @@ public:
 
     bool setSettingsFile(QString settings = "");
     void init();
-    void setAssemblyGui(AssemblyGui* mainGui_p);
+    void setMainGui(AssemblyGui* mainGui_p);
 
     QList<Processor*> const getAvailableProcessors();
     QList<ImageProvider*> const getAvailableImageProviders();
