@@ -66,14 +66,14 @@ private:
 
     osgGA::EventQueue* getEventQueue() const;
 
-    osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow_;
-    osg::ref_ptr<osgViewer::CompositeViewer> viewer_;
+    osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> _graphicsWindow;
+    osg::ref_ptr<osgViewer::CompositeViewer> _viewer;
 
-    QPoint selectionStart_;
-    QPoint selectionEnd_;
+    QPoint _selectionStart;
+    QPoint _selectionEnd;
 
-    bool selectionActive_;
-    bool selectionFinished_;
+    bool _selectionActive;
+    bool _selectionFinished;
     bool _stereoActive;
 
     osg::ref_ptr<osg::Node> _loadedModel;

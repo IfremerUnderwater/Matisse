@@ -60,6 +60,9 @@ void UserFormWidget::showUserParameters(bool flag)
 
 void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
 {
+
+    this->clear();
+
     switch(cartoViewType_p)
     {
 

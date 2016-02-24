@@ -74,13 +74,13 @@ OSGWidget::OSGWidget( QWidget* parent,
     : QGLWidget( parent,
                  shareWidget,
                  f )
-    , graphicsWindow_( new osgViewer::GraphicsWindowEmbedded( this->x(),
+    , _graphicsWindow( new osgViewer::GraphicsWindowEmbedded( this->x(),
                                                               this->y(),
                                                               this->width(),
                                                               this->height() ) )
-    , viewer_( new osgViewer::CompositeViewer )
-    , selectionActive_( false )
-    , selectionFinished_( true )
+    , _viewer( new osgViewer::CompositeViewer )
+    , _selectionActive( false )
+    , _selectionFinished( true )
     , _stereoActive(false)
 {
 
@@ -95,7 +95,7 @@ OSGWidget::OSGWidget( QWidget* parent,
     camera->setClearColor( osg::Vec4( clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF() ) );
 
     camera->setProjectionMatrixAsPerspective( 30.f, aspectRatio, 1.f, 1000.f );
-    camera->setGraphicsContext( graphicsWindow_ );
+    camera->setGraphicsContext( _graphicsWindow );
 
     osgViewer::View* view = new osgViewer::View;
     view->setCamera( camera );
@@ -106,13 +106,13 @@ OSGWidget::OSGWidget( QWidget* parent,
 #endif
 
     osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
-    manipulator->setAllowThrow( false );
+    //manipulator->setAllowThrow( false );
 
     view->setCameraManipulator( manipulator );
 
-    viewer_->addView( view );
-    viewer_->setThreadingModel( osgViewer::CompositeViewer::SingleThreaded );
-    viewer_->realize();
+    _viewer->addView( view );
+    _viewer->setThreadingModel( osgViewer::CompositeViewer::SingleThreaded );
+    _viewer->realize();
 
     this->setAutoBufferSwap( false );
 
@@ -151,7 +151,7 @@ bool OSGWidget::setSceneFromFile(std::string sceneFile_p)
     osgUtil::Optimizer optimizer;
     optimizer.optimize(_loadedModel.get());
 
-    osgViewer::View *view = viewer_->getView(0);
+    osgViewer::View *view = _viewer->getView(0);
 
     view->setSceneData( _loadedModel.get() );
 
@@ -162,7 +162,7 @@ bool OSGWidget::setSceneFromFile(std::string sceneFile_p)
 void OSGWidget::setClearColor(double r_p, double g_p, double b_p, double alpha_p)
 {
     std::vector<osg::Camera*> cameras;
-    viewer_->getCameras( cameras );
+    _viewer->getCameras( cameras );
 
     for (unsigned int i=0; i<cameras.size(); i++){
         cameras[i]->setClearColor( osg::Vec4( r_p, g_p, b_p, alpha_p ));
@@ -172,7 +172,7 @@ void OSGWidget::setClearColor(double r_p, double g_p, double b_p, double alpha_p
 
 void OSGWidget::clearSceneData()
 {
-    osgViewer::View *view = viewer_->getView(0);
+    osgViewer::View *view = _viewer->getView(0);
     view->setSceneData( 0 );
 
     _loadedModel.release();
@@ -206,13 +206,13 @@ void OSGWidget::paintEvent( QPaintEvent* /* paintEvent */ )
 
 void OSGWidget::paintGL()
 {
-    viewer_->frame();
+    _viewer->frame();
 }
 
 void OSGWidget::resizeGL( int width, int height )
 {
     this->getEventQueue()->windowResize( this->x(), this->y(), width, height );
-    graphicsWindow_->resized( this->x(), this->y(), width, height );
+    _graphicsWindow->resized( this->x(), this->y(), width, height );
 
     this->onResize( width, height );
 }
@@ -241,7 +241,7 @@ void OSGWidget::keyPressEvent( QKeyEvent* event )
     }
     else if( event->key() == Qt::Key_D )
     {
-        osgDB::writeNodeFile( *viewer_->getView(0)->getSceneData(),
+        osgDB::writeNodeFile( *_viewer->getView(0)->getSceneData(),
                               "/tmp/sceneGraph.osg" );
 
         return;
@@ -268,9 +268,9 @@ void OSGWidget::mouseMoveEvent( QMouseEvent* event )
     // Note that we have to check the buttons mask in order to see whether the
     // left button has been pressed. A call to `button()` will only result in
     // `Qt::NoButton` for mouse move events.
-    if( selectionActive_ && event->buttons() & Qt::LeftButton )
+    if( _selectionActive && event->buttons() & Qt::LeftButton )
     {
-        selectionEnd_ = event->pos();
+        _selectionEnd = event->pos();
 
         // Ensures that new paint events are created while the user moves the
         // mouse.
@@ -286,11 +286,11 @@ void OSGWidget::mouseMoveEvent( QMouseEvent* event )
 void OSGWidget::mousePressEvent( QMouseEvent* event )
 {
     // Selection processing
-    if( selectionActive_ && event->button() == Qt::LeftButton )
+    if( _selectionActive && event->button() == Qt::LeftButton )
     {
-        selectionStart_    = event->pos();
-        selectionEnd_      = selectionStart_; // Deletes the old selection
-        selectionFinished_ = false;           // As long as this is set, the rectangle will be drawn
+        _selectionStart    = event->pos();
+        _selectionEnd      = _selectionStart; // Deletes the old selection
+        _selectionFinished = false;           // As long as this is set, the rectangle will be drawn
     }
 
     // Normal processing
@@ -330,10 +330,10 @@ void OSGWidget::mouseReleaseEvent(QMouseEvent* event)
 {
     // Selection processing: Store end position and obtain selected objects
     // through polytope intersection.
-    if( selectionActive_ && event->button() == Qt::LeftButton )
+    if( _selectionActive && event->button() == Qt::LeftButton )
     {
-        selectionEnd_      = event->pos();
-        selectionFinished_ = true; // Will force the painter to stop drawing the
+        _selectionEnd      = event->pos();
+        _selectionFinished = true; // Will force the painter to stop drawing the
         // selection rectangle
 
         this->processSelection();
@@ -375,7 +375,7 @@ void OSGWidget::mouseReleaseEvent(QMouseEvent* event)
 void OSGWidget::wheelEvent( QWheelEvent* event )
 {
     // Ignore wheel events as long as the selection is active.
-    if( selectionActive_ )
+    if( _selectionActive )
         return;
 
     event->accept();
@@ -416,7 +416,7 @@ bool OSGWidget::event( QEvent* event )
 void OSGWidget::onHome()
 {
     osgViewer::ViewerBase::Views views;
-    viewer_->getViews( views );
+    _viewer->getViews( views );
 
     for( std::size_t i = 0; i < views.size(); i++ )
     {
@@ -428,15 +428,15 @@ void OSGWidget::onHome()
 void OSGWidget::onResize( int width, int height )
 {
     std::vector<osg::Camera*> cameras;
-    viewer_->getCameras( cameras );
+    _viewer->getCameras( cameras );
 
-    cameras[0]->setViewport( 0, 0, this->width(), this->height() );
+    cameras[0]->setViewport( 0, 0, width, height );
     //cameras[1]->setViewport( this->width() / 2, 0, this->width() / 2, this->height() );
 }
 
 osgGA::EventQueue* OSGWidget::getEventQueue() const
 {
-    osgGA::EventQueue* eventQueue = graphicsWindow_->getEventQueue();
+    osgGA::EventQueue* eventQueue = _graphicsWindow->getEventQueue();
 
     if( eventQueue )
         return eventQueue;
