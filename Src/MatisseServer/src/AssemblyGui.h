@@ -91,7 +91,6 @@ private:
 
     QString _settingsFile;
     QString _rootXml;
-    QString _dataPath;
     QString _appVersion;
 
     Tools * _parameters;
@@ -225,6 +224,9 @@ private:
     void retranslate();
 
     void initVersionDisplay();
+
+    bool loadResultToCartoView(QString resultFile_p);
+
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
     void resizeEvent(QResizeEvent* event); // overriding resize event

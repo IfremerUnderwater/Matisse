@@ -501,6 +501,28 @@ void AssemblyGui::initVersionDisplay()
     _matisseVersionlabel->setText(fullVersionLabel);
 }
 
+bool AssemblyGui::loadResultToCartoView(QString resultFile_p)
+{
+    QFileInfo infoResult(resultFile_p);
+
+    if (!infoResult.exists()) {
+        qCritical() << "Erreur fichier image introuvable" << infoResult.absoluteFilePath();
+    }
+
+    if (_userFormWidget->supportedRasterFormat().contains(infoResult.suffix())){
+        _userFormWidget->loadRasterFile(infoResult.absoluteFilePath());
+
+    }else if (_userFormWidget->supportedVectorFormat().contains(infoResult.suffix())){
+        _userFormWidget->loadShapefile(infoResult.absoluteFilePath());
+
+    }else if (_userFormWidget->supported3DFileFormat().contains(infoResult.suffix())){
+        _userFormWidget->load3DFile(infoResult.absoluteFilePath());
+
+    }else{
+        qDebug() << "Output file format not supported";
+    }
+}
+
 
 // TODO Chargement des jobs à déplacer dans Server ou Xml
 void AssemblyGui::loadAssembliesAndJobsLists(bool doExpand)
@@ -1106,8 +1128,8 @@ void AssemblyGui::displayJob(QString jobName)
 
     // chargement des infos
     new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList()
-                                                      << tr("Commentaire:") << _currentJob->comment());
-        _ui->_TRW_assemblyInfo->adjustSize();
+                        << tr("Commentaire:") << _currentJob->comment());
+    _ui->_TRW_assemblyInfo->adjustSize();
 
     if (_currentJob->executionDefinition() && _currentJob->executionDefinition()->executed()) {
         new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Date d'execution:") << _currentJob->executionDefinition()->executionDate().toString(tr("le dd/MM/yyyy a HH:mm")));
@@ -1118,14 +1140,7 @@ void AssemblyGui::displayJob(QString jobName)
             if (_currentJob->executionDefinition()->executed() && (!resultFile.isEmpty())) {
 
                 // affichage de l'image
-                QFileInfo infoImage(resultFile);
-                if (infoImage.isRelative()) {
-                    infoImage.setFile(QDir(_dataPath), resultFile);
-                }
-                if (!infoImage.exists()) {
-                    qCritical() << "Erreur fichier image introuvable" << infoImage.absoluteFilePath();
-                }
-                _userFormWidget->loadRasterFile(infoImage.absoluteFilePath());
+                loadResultToCartoView(resultFile);
 
             }
         }
@@ -2289,15 +2304,8 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
                 //                QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Image resultat:") << resultFile);
                 //                item->setToolTip(1, resultFile);
                 // affichage de l'image
-                QFileInfo infoImage(resultFile);
-                if (infoImage.isRelative()) {
-                    infoImage.setFile(QDir(_dataPath), resultFile);
-                }
-                if (!infoImage.exists()) {
-                    qCritical() << "Erreur fichier image introuvable" << infoImage.absoluteFilePath();
-                }
-                _userFormWidget->loadRasterFile(infoImage.absoluteFilePath());
-                //_userFormWidget->showQGisCanvas(true);
+                loadResultToCartoView(resultFile);
+
             }
         }
 

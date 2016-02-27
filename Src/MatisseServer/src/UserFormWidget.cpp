@@ -31,6 +31,11 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     // Default view is QImageView
     switchCartoViewTo(QImageView);
     _currentViewType = QImageView;
+
+    _supportedRasterFormat << "tif" << "tiff";
+    _supportedVectorFormat << "shp";
+    _supported3DFileFormat << "obj" << "osg" << "ply" << "osgt";
+    _supportedImageFormat << "jpg" << "jpeg" << "png";
 }
 
 UserFormWidget::~UserFormWidget()
@@ -241,6 +246,10 @@ void UserFormWidget::saveQgisProject(QString filename)
 
 void UserFormWidget::loadTestVectorLayer()
 {
+
+    if (_currentViewType!=QGisMapLayer)
+        switchCartoViewTo(QImageView);
+
     QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
     //QList<QgsMapCanvasLayer> layers;
@@ -296,6 +305,26 @@ CartoViewType UserFormWidget::currentViewType() const
 {
     return _currentViewType;
 }
+QStringList UserFormWidget::supportedRasterFormat() const
+{
+    return _supportedRasterFormat;
+}
+QStringList UserFormWidget::supportedVectorFormat() const
+{
+    return _supportedVectorFormat;
+}
+QStringList UserFormWidget::supported3DFileFormat() const
+{
+    return _supported3DFileFormat;
+}
+QStringList UserFormWidget::supportedImageFormat() const
+{
+    return _supportedImageFormat;
+}
+
+
+
+
 
 
 void UserFormWidget::slot_parametersChanged(bool changed)

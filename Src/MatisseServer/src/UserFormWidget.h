@@ -42,6 +42,11 @@ public:
     
     CartoViewType currentViewType() const;
 
+    QStringList supportedRasterFormat() const;
+    QStringList supportedVectorFormat() const;
+    QStringList supported3DFileFormat() const;
+    QStringList supportedImageFormat() const;
+
 private:
     Ui::UserFormWidget *_ui;
     Tools * _tools;
@@ -49,6 +54,11 @@ private:
     QList<QgsMapCanvasLayer> *_layers;
 
     CartoViewType _currentViewType;
+
+    QStringList _supportedRasterFormat;
+    QStringList _supportedVectorFormat;
+    QStringList _supported3DFileFormat;
+    QStringList _supportedImageFormat;
 
 protected slots:
     void slot_parametersChanged(bool changed);
