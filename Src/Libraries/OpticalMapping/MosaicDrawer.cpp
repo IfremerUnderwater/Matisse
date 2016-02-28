@@ -474,12 +474,13 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
 
 }
 
-void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Point2d blockSize_p, QString writingPath_p, QString prefix_p)
+QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Point2d blockSize_p, QString writingPath_p, QString prefix_p)
 {
 
     int xBlockNumber, yBlockNumber, xOverlapSize, yOverlapSize;
     int xLastColumnSize, yLastRowSize;
 
+    QStringList outputFiles;
     //bool gainCompRequired = ( dOptions.exposCompType != ExposureCompensator::NO );
 
     // Create tmp folder to contain temporary files
@@ -1049,7 +1050,8 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
                 .arg(blockUtmBR_x,0,'f',2)
                 .arg(blockUtmBR_y,0,'f',2);
 
-        QString geoRefBlockImgFilePath = writingPath_p + QDir::separator() + prefix_p + QString("_%1.tiff").arg(k, 4, 'g', -1, '0');
+        outputFiles << prefix_p + QString("_%1.tiff").arg(k, 4, 'g', -1, '0');
+        QString geoRefBlockImgFilePath = writingPath_p + QDir::separator() + outputFiles.at(outputFiles.size()-1);
 
         RasterGeoreferencer rasterGeoref;
         rasterGeoref.WriteGeoFile(blockImg, blockImgMask, geoRefBlockImgFilePath,gdalOptions);
@@ -1077,5 +1079,7 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
     }
 
     MatisseTools::Tools::removeDir(tempDir.absolutePath());
+
+    return outputFiles;
 
 }

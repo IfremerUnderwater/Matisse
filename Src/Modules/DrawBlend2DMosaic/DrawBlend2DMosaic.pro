@@ -29,10 +29,10 @@ include(../../Scripts/opencv.pri)
 include(../../Scripts/qgis.pri)
 
 win32 {
-    DLLDESTDIR = $${BUILD_DIR}/Modules/processors
+    DLLDESTDIR = $${BUILD_DIR}/Modules/rasterProviders
 }
 unix {
-    DESTDIR = $${BUILD_DIR}/Modules/processors
+    DESTDIR = $${BUILD_DIR}/Modules/rasterProviders
 }
 
 SOURCES += src/DrawBlend2DMosaic.cpp
