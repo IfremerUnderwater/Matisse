@@ -175,7 +175,6 @@ void OSGWidget::clearSceneData()
     osgViewer::View *view = _viewer->getView(0);
     view->setSceneData( 0 );
 
-    _loadedModel.release();
     _loadedModel = NULL;
 
 }
