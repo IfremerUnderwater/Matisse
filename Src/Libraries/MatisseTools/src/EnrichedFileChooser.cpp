@@ -8,6 +8,7 @@ EnrichedFileChooser::EnrichedFileChooser(QWidget *parent, QString label, Paramet
     QWidget * comboWidget = new QWidget(this);
     QHBoxLayout * layout = new QHBoxLayout(comboWidget);
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(3);
     _lineEdit = new QLineEdit(defaultValue);
     QPushButton * button = new QPushButton();
     button->setObjectName("_PB_paramFileSelect");

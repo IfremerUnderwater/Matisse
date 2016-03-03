@@ -272,7 +272,7 @@ bool Polygon::operator !=(const Polygon &polyB_p)
     return !(this->operator ==(polyB_p));
 }
 
-bool Polygon::operator =(Polygon &polyB_p)
+void Polygon::operator =(Polygon &polyB_p)
 {
 
 

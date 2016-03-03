@@ -8,6 +8,7 @@ EnrichedSpinBox::EnrichedSpinBox(QWidget *parent, QString label, QString minValu
     EnrichedFormWidget(parent)
 {
     _spin = new QSpinBox(this);
+    _spin->setFixedWidth(PARAM_SPINBOX_WIDTH);
     minValue = minValue.trimmed().toLower();
     maxValue = maxValue.trimmed().toLower();
     QString specialValue;

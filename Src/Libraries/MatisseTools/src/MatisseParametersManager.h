@@ -44,7 +44,8 @@ public:
 
     bool addParameter(QString structName, QString groupName, QString groupText, QXmlStreamAttributes attributes);
     bool addEnum(QString enumsName, QXmlStreamAttributes attributes);
-    ParametersWidgetSkeleton * generateParametersWidget(QWidget *owner);
+//    ParametersWidgetSkeleton * generateParametersWidget(QWidget *owner);
+    ParametersWidgetSkeleton *generateParametersWidget(QWidget *owner);
     ParametersWidgetSkeleton * parametersWidget() { return _fullParametersWidget; }
 
     bool saveParametersValues(QString entityName, bool isAssemblyTemplate);
@@ -61,7 +62,7 @@ public slots:
 
 private:
     void loadStaticCollections();
-    ParametersWidgetSkeleton *createDialog(QWidget *owner, QString structName, bool user);
+//    ParametersWidgetSkeleton *createDialog(QWidget *owner, QString structName, bool user);
     bool getRange(Parameter param, QVariant &minValue, QVariant &maxValue);
     QString getValue(QString structName, QString parameterName);
     qint32 getIntValue(QVariant value);
@@ -72,13 +73,17 @@ private:
     //bool generateParametersFile(QString filename);
     bool readParametersFile(QString filename, bool isAssemblyTemplate);
     bool writeParametersFile(QString parametersFilename, bool overwrite=false);
+    void generateLevelParametersWidget(ParameterLevel level, QString levelHeader);
 
     QMap<QString, Structure> _structures;
+    QMap<QString, ParametersGroup> _groups;
+    QMap<QString, Parameter> _parameters;
     QStringList _structuresNames;
     QMap<QString, Enums> _enums;
     QMap<QString, QString> _structureByParameter;
     QMap<QString, QSet<QString>*> _expectedParameters;
     QMap<QString, QString> _groupByParameter;
+    QMap<ParameterLevel, QList<QString>*> _parametersByLevel;
     QMap<QString, QSet<QString>*> _expectedGroups;
     QSet<QString> _jobExtraParameters;
     QDateTime _dicoPublicationTimestamp;
@@ -88,6 +93,9 @@ private:
     QMap<QString, ParametersWidgetSkeleton*> _dialogs;
     QMap<QString, QMap<QString, EnrichedFormWidget*> > _valuesWidgets;
     QMap<QString, QMap<QString, QWidget*> > _groupsWidgets;
+
+    QMap<ParameterLevel, QPushButton*> _headerByLevel;
+    QMap<ParameterLevel, QWidget*> _ParamContainerByLevel;
 
     static QMap<QString, ParameterType> _enumTypes;
     static QMap<QString, ParameterLevel> _enumLevels;

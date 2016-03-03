@@ -267,137 +267,138 @@ QString Tools::getModelVersion()
 
 
 ParametersWidgetSkeleton * Tools::createDialog(QString structName, bool user) {
-    QString structUserExpert = structName /*+ QString("%1").arg(user)*/;
-    if (_dialogs.contains(structUserExpert)) {
-        return _dialogs[structUserExpert];
-    }
+//    QString structUserExpert = structName /*+ QString("%1").arg(user)*/;
+//    if (_dialogs.contains(structUserExpert)) {
+//        return _dialogs[structUserExpert];
+//    }
 
-    if (!_structures.contains(structName)) {
-        return NULL;
-    }
+//    if (!_structures.contains(structName)) {
+//        return NULL;
+//    }
 
-    if ((!_structures[structName]._hasUserValues) && user) {
-        return NULL;
-    }
+//    if ((!_structures[structName]._hasUserValues) && user) {
+//        return NULL;
+//    }
 
-    QList<QLabel*> textsForAlignment;
-    QList <QGroupBox *> groupsForAlignement;
-    // on cree l'interface...
-    ParametersWidgetSkeleton * newDialog = new ParametersWidgetSkeleton();
+//    QList<QLabel*> textsForAlignment;
+//    QList <QGroupBox *> groupsForAlignement;
+//    // on cree l'interface...
+//    ParametersWidgetSkeleton * newDialog = new ParametersWidgetSkeleton();
 
-    quint32 maxWidth = 0;
-    QFontMetrics metrics(QLabel().font());
-    foreach(ParametersGroup parameterGroup, _structures[structName]._parametersGroups) {
-        if ((!parameterGroup._hasUserValues) && user) {
-            continue;
-        }
-        QString groupName = parameterGroup._name;
-        QGroupBox * groupBox = new QGroupBox(groupName);
-        groupBox->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-        groupsForAlignement << groupBox;
-        QVBoxLayout * groupBoxLayout = new QVBoxLayout();
-        foreach(Parameter param, parameterGroup._parameters) {
-            if ((!param._userModify) && user) {
-                continue;
-            }
-            QHBoxLayout * parameterLayout = new QHBoxLayout();
-            EnrichedFormWidget * widget = 0;
-            switch(param._show) {
-            case LINE_EDIT: {
-                widget = new EnrichedLineEdit(0, param._text, param._value.toString());
-             }
-                break;
-            case SLIDER: {
-                // A faire en enriched....
-//                QSlider * curWid = new QSlider(Qt::Horizontal);
+//    quint32 maxWidth = 0;
+//    QFontMetrics metrics(QLabel().font());
+//    foreach(ParametersGroup parameterGroup, _structures[structName]._parametersGroups) {
+//        if ((!parameterGroup._hasUserValues) && user) {
+//            continue;
+//        }
+//        QString groupName = parameterGroup._name;
+//        QGroupBox * groupBox = new QGroupBox(groupName);
+//        groupBox->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+//        groupsForAlignement << groupBox;
+//        QVBoxLayout * groupBoxLayout = new QVBoxLayout();
+//        foreach(Parameter param, parameterGroup._parameters) {
+//            if ((!param._userModify) && user) {
+//                continue;
+//            }
+//            QHBoxLayout * parameterLayout = new QHBoxLayout();
+//            EnrichedFormWidget * widget = 0;
+//            switch(param._show) {
+//            case LINE_EDIT: {
+//                widget = new EnrichedLineEdit(0, param._text, param._value.toString());
+//             }
+//                break;
+//            case SLIDER: {
+//                // A faire en enriched....
+////                QSlider * curWid = new QSlider(Qt::Horizontal);
+////                QVariant minValue;
+////                QVariant maxValue;
+////                getRange(param, minValue, maxValue);
+////                curWid->setRange(minValue.toInt(), maxValue.toInt());
+////                curWid->setValue(getIntValue(param._value));
+////                widget = curWid;
+//            }
+//                break;
+//            case SPIN_BOX: {
 //                QVariant minValue;
 //                QVariant maxValue;
 //                getRange(param, minValue, maxValue);
-//                curWid->setRange(minValue.toInt(), maxValue.toInt());
-//                curWid->setValue(getIntValue(param._value));
-//                widget = curWid;
-            }
-                break;
-            case SPIN_BOX: {
-                QVariant minValue;
-                QVariant maxValue;
-                getRange(param, minValue, maxValue);
-                widget = new EnrichedSpinBox(0, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
-            }
-                break;
-            case DOUBLE_SPIN_BOX: {
-                QVariant minValue;
-                QVariant maxValue;
-                getRange(param, minValue, maxValue);
-                widget = new EnrichedDoubleSpinBox(0, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
-            }
-                break;
-            case COMBO_BOX: {
-                QStringList items = getEnums(param);
-                widget = new EnrichedComboBox(0, param._text, items, param._value.toString());
-            }
-                break;
-            case LIST_BOX: {
-                QStringList items = getEnums(param);
-                widget = new EnrichedListBox(0, param._text, items, param._value.toString());
-            }
-                break;
-            case CHECK_BOX: {
-                widget = new EnrichedCheckBox(0, param._text, getBoolValue(param._value));
-            }
-                break;
-            case TABLE: {
-                int nbCols = param._parameterSize.width();
-                int nbRows = param._parameterSize.height();
-                QStringList values = getNumList(param);
-                widget = new EnrichedTableWidget(0, param._text, nbCols, nbRows, values);
-            }
-                break;
-            case FILE_SELECTOR_RELATIVE:
-            case FILE_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(0, param._text, param._show, param._value.toString());
-            }
-                break;
-            case DIR_SELECTOR_RELATIVE:
-            case DIR_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(0, param._text, param._show, param._value.toString());
-            }
-                break;
-            case UNKNOWN_SHOW:
-            default:
-                break;
-            }
-            if (widget) {
-                connect(widget, SIGNAL(signal_valueChanged(bool)), newDialog, SLOT(slot_valueModified(bool)));
-                _valuesWidgets[structName].insert(param._name, widget);
-                QLabel * widLabel = new QLabel(param._text + ":");
-                quint32 currentWidth = metrics.width(param._text + ":");
+//                widget = new EnrichedSpinBox(0, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
+//            }
+//                break;
+//            case DOUBLE_SPIN_BOX: {
+//                QVariant minValue;
+//                QVariant maxValue;
+//                getRange(param, minValue, maxValue);
+//                widget = new EnrichedDoubleSpinBox(0, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
+//            }
+//                break;
+//            case COMBO_BOX: {
+//                QStringList items = getEnums(param);
+//                widget = new EnrichedComboBox(0, param._text, items, param._value.toString());
+//            }
+//                break;
+//            case LIST_BOX: {
+//                QStringList items = getEnums(param);
+//                widget = new EnrichedListBox(0, param._text, items, param._value.toString());
+//            }
+//                break;
+//            case CHECK_BOX: {
+//                widget = new EnrichedCheckBox(0, param._text, getBoolValue(param._value));
+//            }
+//                break;
+//            case TABLE: {
+//                int nbCols = param._parameterSize.width();
+//                int nbRows = param._parameterSize.height();
+//                QStringList values = getNumList(param);
+//                widget = new EnrichedTableWidget(0, param._text, nbCols, nbRows, values);
+//            }
+//                break;
+//            case FILE_SELECTOR_RELATIVE:
+//            case FILE_SELECTOR_ABSOLUTE: {
+//                widget = new EnrichedFileChooser(0, param._text, param._show, param._value.toString());
+//            }
+//                break;
+//            case DIR_SELECTOR_RELATIVE:
+//            case DIR_SELECTOR_ABSOLUTE: {
+//                widget = new EnrichedFileChooser(0, param._text, param._show, param._value.toString());
+//            }
+//                break;
+//            case UNKNOWN_SHOW:
+//            default:
+//                break;
+//            }
+//            if (widget) {
+//                connect(widget, SIGNAL(signal_valueChanged(bool)), newDialog, SLOT(slot_valueModified(bool)));
+//                _valuesWidgets[structName].insert(param._name, widget);
+//                QLabel * widLabel = new QLabel(param._text + ":");
+//                quint32 currentWidth = metrics.width(param._text + ":");
 
-                maxWidth = qMax(maxWidth, currentWidth);
-                //parameterLayout->addWidget(widLabel);
-                parameterLayout->addWidget(widget);
-                parameterLayout->addStretch();
-                groupBoxLayout->addLayout(parameterLayout);
-                textsForAlignment << widLabel;
-            } else {
-                parameterLayout->deleteLater();
-            }
-        }
+//                maxWidth = qMax(maxWidth, currentWidth);
+//                //parameterLayout->addWidget(widLabel);
+//                parameterLayout->addWidget(widget);
+//                parameterLayout->addStretch();
+//                groupBoxLayout->addLayout(parameterLayout);
+//                textsForAlignment << widLabel;
+//            } else {
+//                parameterLayout->deleteLater();
+//            }
+//        }
 
-        groupBox->setLayout(groupBoxLayout);
+//        groupBox->setLayout(groupBoxLayout);
 
-    newDialog->addWidget(groupBox);
+//    newDialog->addWidget(groupBox);
 
-    }
-    // realignement textes...
-    // recalcul...
-    foreach(QLabel * label, textsForAlignment) {
-        label->setMinimumWidth(maxWidth);
-    }
+//    }
+//    // realignement textes...
+//    // recalcul...
+//    foreach(QLabel * label, textsForAlignment) {
+//        label->setMinimumWidth(maxWidth);
+//    }
 
-    _dialogs[structUserExpert] = newDialog;
+//    _dialogs[structUserExpert] = newDialog;
 
-    return newDialog;
+//    return newDialog;
+    return NULL;
 }
 
 void Tools::generateParametersFile(QString filename, QString modelVersion, KeyValueList comments)
@@ -469,75 +470,75 @@ QStringList Tools::structureNames()
 
 bool Tools::addParameter(QString structName, QString groupName, QXmlStreamAttributes attributes)
 {
-    if (!_structures.contains(structName)) {
-        return false;
-    }
-    // recherche du groupe s'il n'existe pas, on le crée. Si pas de nom de groupe
-    int noGroup = _structures[structName]._groupsNames.indexOf(groupName);
-    if (noGroup == -1) {
-        _structures[structName]._groupsNames.append(groupName);
-        ParametersGroup newGroup;
-        newGroup._name = groupName;
-        newGroup._hasUserValues = false;
-        _structures[structName]._parametersGroups.append(newGroup);
-        noGroup = _structures[structName]._groupsNames.size()-1;
-    }
+//    if (!_structures.contains(structName)) {
+//        return false;
+//    }
+//    // recherche du groupe s'il n'existe pas, on le crée. Si pas de nom de groupe
+//    int noGroup = _structures[structName]._groupsNames.indexOf(groupName);
+//    if (noGroup == -1) {
+//        _structures[structName]._groupsNames.append(groupName);
+//        ParametersGroup newGroup;
+//        newGroup._name = groupName;
+//        newGroup._hasUserValues = false;
+//        _structures[structName]._parametersGroups.append(newGroup);
+//        noGroup = _structures[structName]._groupsNames.size()-1;
+//    }
 
-    Parameter parameter;
-    QString dummy;
-    QScriptEngine scriptEngine;
-    QScriptValue scriptValue;
+//    Parameter parameter;
+//    QString dummy;
+//    QScriptEngine scriptEngine;
+//    QScriptValue scriptValue;
 
-    parameter._name = attributes.value("name").toString();
-    scriptValue = scriptEngine.evaluate(attributes.value("user").toString().toLower());
-    parameter._userModify = false;
-    if (scriptValue.isBool()) {
-        parameter._userModify = scriptValue.toBool();
-        if (parameter._userModify) {
-            _structures[structName]._hasUserValues = true;
-            _structures[structName]._parametersGroups[noGroup]._hasUserValues = true;
-        }
-    }
-    parameter._text = attributes.value("text").toString();
-    parameter._suffix = attributes.value("suffix").toString();
-    dummy = attributes.value("type").toString().toLower();
-    if (!_enumTypes.contains(dummy)) {
-        dummy = "unknown";
-    }
-    parameter._type = _enumTypes.value(dummy);
+//    parameter._name = attributes.value("name").toString();
+//    scriptValue = scriptEngine.evaluate(attributes.value("user").toString().toLower());
+//    parameter._userModify = false;
+//    if (scriptValue.isBool()) {
+//        parameter._userModify = scriptValue.toBool();
+//        if (parameter._userModify) {
+//            _structures[structName]._hasUserValues = true;
+//            _structures[structName]._parametersGroups[noGroup]._hasUserValues = true;
+//        }
+//    }
+//    parameter._text = attributes.value("text").toString();
+//    parameter._suffix = attributes.value("suffix").toString();
+//    dummy = attributes.value("type").toString().toLower();
+//    if (!_enumTypes.contains(dummy)) {
+//        dummy = "unknown";
+//    }
+//    parameter._type = _enumTypes.value(dummy);
 
-    dummy = attributes.value("show").toString().toLower();
-    if (!_enumShows.contains(dummy)) {
-        dummy = "unknown";
-    }
+//    dummy = attributes.value("show").toString().toLower();
+//    if (!_enumShows.contains(dummy)) {
+//        dummy = "unknown";
+//    }
 
-    parameter._show = _enumShows.value(dummy);
+//    parameter._show = _enumShows.value(dummy);
 
-    // double spin...
-    if (((parameter._type == PAR_DOUBLE) || (parameter._type == PAR_FLOAT)) && (parameter._show == SPIN_BOX)) {
-        parameter._show = _enumShows.value("spinDouble");
-    }
+//    // double spin...
+//    if (((parameter._type == PAR_DOUBLE) || (parameter._type == PAR_FLOAT)) && (parameter._show == SPIN_BOX)) {
+//        parameter._show = _enumShows.value("spinDouble");
+//    }
 
-    parameter._parameterSize = QSize(1,1);
-    dummy = attributes.value("size").toString().simplified().replace(" ","");
-    if (_matrixExpr.exactMatch(dummy)) {
-        dummy = dummy.mid(1, dummy.size()-2);
-        parameter._parameterSize.setWidth(dummy.split(",").at(0).toInt());
-        parameter._parameterSize.setHeight(dummy.split(",").at(1).toInt());
-    }
+//    parameter._parameterSize = QSize(1,1);
+//    dummy = attributes.value("size").toString().simplified().replace(" ","");
+//    if (_matrixExpr.exactMatch(dummy)) {
+//        dummy = dummy.mid(1, dummy.size()-2);
+//        parameter._parameterSize.setWidth(dummy.split(",").at(0).toInt());
+//        parameter._parameterSize.setHeight(dummy.split(",").at(1).toInt());
+//    }
 
-    parameter._range = attributes.value("range").toString().simplified().replace(" ","");
+//    parameter._range = attributes.value("range").toString().simplified().replace(" ","");
 
-    parameter._value = attributes.value("default").toString();
+//    parameter._value = attributes.value("default").toString();
 
-    scriptValue = scriptEngine.evaluate(attributes.value("mandatory").toString().toLower());
-    parameter._required = true;
-    if (scriptValue.isBool()) {
-        parameter._required = scriptValue.toBool();
-    }
+//    scriptValue = scriptEngine.evaluate(attributes.value("mandatory").toString().toLower());
+//    parameter._required = true;
+//    if (scriptValue.isBool()) {
+//        parameter._required = scriptValue.toBool();
+//    }
 
-    _structures[structName]._parametersGroups[noGroup]._parametersNames << parameter._name;
-    _structures[structName]._parametersGroups[noGroup]._parameters.append(parameter);
+//    _structures[structName]._parametersGroups[noGroup]._parametersNames << parameter._name;
+//    _structures[structName]._parametersGroups[noGroup]._parameters.append(parameter);
 
     return true;
 

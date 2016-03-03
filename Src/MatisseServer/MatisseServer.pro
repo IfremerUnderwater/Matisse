@@ -102,8 +102,7 @@ HEADERS  += \
     src/MatisseTabWidget.h \
     src/MatisseMenu.h \
     src/PreferencesDialog.h \
-    src/LiveProcessWheel.h \
-    src/GraphicalCharter.h
+    src/LiveProcessWheel.h
 
 FORMS    += \
     ui/AssemblyGui.ui \
@@ -143,4 +142,4 @@ OTHER_FILES += \
 
 DISTFILES += \
     ../../Config/xml/models/MatisseAssembly.xsd \
-    ../../Config/schemas/ParametersDictionnary.xsd
+    ../../Config/schemas/MatisseParametersDictionnary.xsd

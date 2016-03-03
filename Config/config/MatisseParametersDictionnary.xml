@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MatisseParametersDictionnary xmlns="Matisse" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="Matisse ../schemas/MatisseParametersDictionnary.xsd ">
-    <Structures publicationTimestamp="2016-02-11T17:25:01">
+    <Structures publicationTimestamp="2016-03-03T12:12:33">
         <Structure name="algo_param">
             <ParametersGroup name="general_algo_params">
                 <Parameter name="sift_code" level="expert" text="Code a executer pour le sift" type="string" range= "{$SIFT_CODE}" show="combo" default="GPU_sift"/>
-                <Parameter name="scale_factor" level="user" text="Reduction de la taille de l'image" suffix="%" type="double" range="[0,1]" show="spin" default="1"/>
-                <Parameter name="maxdist_centers" level="expert" text="Distance max de recherche" suffix="pixels" type="double" range="]0,inf[" show="spin" default="10"/>
+                <Parameter name="scale_factor" level="user" text="Reduction de la taille de l'image" suffix="%" type="double" range="[0,1]" precision="3" show="spin" default="1"/>
+                <Parameter name="maxdist_centers" level="expert" text="Distance max de recherche" suffix="pixels" type="double" range="]0,inf[" precision="3" show="spin" default="10"/>
                 <Parameter name="min_matches" level="advanced" text="Nombre min de correspondances" type="integer" range="[4,inf[" show="spin" default="10"/>
                 <Parameter name="max_matches" level="advanced" text="Nombre max de correspondances" type="integer" range="[4,inf[" show="spin" default="inf"/>
                 <Parameter name="First_processed_image" level="user" text="Index premiere image" type="integer" range="[1,inf[" show="spin" default="1"/>
@@ -14,13 +14,13 @@
             </ParametersGroup>
             <ParametersGroup name="overlap_filtering_params" text="Parametres de filtrage">
                 <Parameter name="filter_overlap" level="expert" text="Flag de filtrage" type="bool" show="check" default="0"/>
-                <Parameter name="max_overlap" level="expert" text="Overlap max entre 2 images" type="double" range="[0,1]" show="spin" default="0.9"/>
-                <Parameter name="min_overlap" level="expert" text="Overlap min entre 2 images" type="double" range="[0,1]" show="spin" default="0.7"/>
+                <Parameter name="max_overlap" level="expert" text="Overlap max entre 2 images" type="double" range="[0,1]" precision="3" show="spin" default="0.9"/>
+                <Parameter name="min_overlap" level="expert" text="Overlap min entre 2 images" type="double" range="[0,1]" precision="3" show="spin" default="0.7"/>
             </ParametersGroup>
             <ParametersGroup name="bundle_adjustment_params" text="Ajustement de bundle">
                 <Parameter name="MaxIter" level="expert" text="Max number of iteration in the optimization" type="integer" range="]1,inf[" show="spin" default="50"/>
-                <Parameter name="max_Roll" level="expert" text="Maximum Roll" type="double" range="[0,inf[" show="spin" default="0.1"/>
-                <Parameter name="max_Pitch" level="expert" text="Maximum Pitch" type="double" range="[0,inf[" show="spin" default="0.1"/>
+                <Parameter name="max_Roll" level="expert" text="Maximum Roll" type="double" range="[0,inf[" precision="3" show="spin" default="0.1"/>
+                <Parameter name="max_Pitch" level="expert" text="Maximum Pitch" type="double" range="[0,inf[" precision="3" show="spin" default="0.1"/>
                 <Parameter name="ba_method" level="user" text="Mosaicking method" type="string" range="{$BA_METHOD}" show="combo" default="Nav_only"/>
                 <Parameter name="cosmetic_stretch" level="user" text="Color/Constrast Stretching" type="bool" show="check" default="0"/>
             </ParametersGroup>
@@ -37,19 +37,19 @@
         </Structure>
         <Structure name="vehic_param">
             <ParametersGroup name="vehicle_params">
-                <Parameter name="reproj_std" level="advanced" text="Sift matching precision (in pixels)" type="double" range="]0,inf[" show="spin" default="10"/>
-                <Parameter name="X_std" level="advanced" text="UTM X precision (std dev in m)" type="double" range="]0,inf[" show="spin" default="5"/>
-                <Parameter name="Y_std" level="advanced" text="UTM Y precision (m)" type="double" range="]0,inf[" show="spin" default="5"/>
-                <Parameter name="alt_std" level="advanced" text="Altitude precision (m)" type="double" range="]0,inf[" show="spin" default="0.8"/>
-                <Parameter name="Roll_std" level="advanced" text="Roll precision (rad)" type="double" range="]0,inf[" show="spin" default="0.01"/>
-                <Parameter name="Pitch_std" level="advanced" text="Pitch precision (rad)" type="double" range="]0,inf[" show="spin" default="0.01"/>
-                <Parameter name="Yaw_std" level="advanced" text="Yaw precision (rad)" type="double" range="]0,inf[" show="spin" default="0.1"/>
+                <Parameter name="reproj_std" level="advanced" text="Sift matching precision (in pixels)" type="double" range="]0,inf[" precision="3" show="spin" default="10"/>
+                <Parameter name="X_std" level="advanced" text="UTM X precision (std dev in m)" type="double" range="]0,inf[" precision="3" show="spin" default="5"/>
+                <Parameter name="Y_std" level="advanced" text="UTM Y precision (m)" type="double" range="]0,inf[" precision="3" show="spin" default="5"/>
+                <Parameter name="alt_std" level="advanced" text="Altitude precision (m)" type="double" range="]0,inf[" precision="3" show="spin" default="0.8"/>
+                <Parameter name="Roll_std" level="advanced" text="Roll precision (rad)" type="double" range="]0,inf[" precision="3" show="spin" default="0.01"/>
+                <Parameter name="Pitch_std" level="advanced" text="Pitch precision (rad)" type="double" range="]0,inf[" precision="3" show="spin" default="0.01"/>
+                <Parameter name="Yaw_std" level="advanced" text="Yaw precision (rad)" type="double" range="]0,inf[" precision="3" show="spin" default="0.1"/>
             </ParametersGroup>
         </Structure>
         <Structure name="cam_param">
             <ParametersGroup name="advanced_camera_params" text="Parametres reglages camera">
-                <Parameter name="K" level="advanced" text="Matrice de la camera" type="double" size="(3,3)" range="]-inf,inf[" show="table" default="540.677; 0; 199.9878; 0; 539.5830; 143.9180; 0; 0; 1"/>
-                <Parameter name="V_Pose_C" level="advanced" text="Position de la camera / centre de nav" type="double" size="(6,1)" range="]-inf,inf[" show="table" default="-1.1000; 0.2500; -0.1500; 0; 0; -1.5708"/>
+                <Parameter name="K" level="advanced" text="Matrice de la camera" type="double" size="(3,3)" range="]-inf,inf[" precision="2" formatTemplate="9999.99" show="table" default="540.677; 0; 199.9878; 0; 539.5830; 143.9180; 0; 0; 1"/>
+                <Parameter name="V_Pose_C" level="advanced" text="Position de la camera / centre de nav" type="double" size="(6,1)" range="]-inf,inf[" precision="3" formatTemplate="-9.999" show="table" default="-1.1000; 0.2500; -0.1500; 0; 0; -1.5708"/>
             </ParametersGroup>
         </Structure>
         <Structure name="video_input_param">
