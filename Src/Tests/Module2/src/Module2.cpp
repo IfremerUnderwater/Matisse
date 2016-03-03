@@ -11,6 +11,14 @@ Q_EXPORT_PLUGIN2(Module2, Module2)
 Module2::Module2() :
     Processor(NULL, "Module2", "Module d'essai", 2, 1)
 {
+    addExpectedParameter("algo_param", "scale_factor");
+    addExpectedParameter("algo_param", "maxdist_centers");
+    addExpectedParameter("algo_param", "min_matches");
+    addExpectedParameter("algo_param", "filter_overlap");
+    addExpectedParameter("algo_param", "max_overlap");
+    addExpectedParameter("algo_param", "min_overlap");
+    addExpectedParameter("algo_param", "max_Roll");
+    addExpectedParameter("algo_param", "max_Pitch");
 
     qDebug()<< logPrefix() << " crée!";
 }

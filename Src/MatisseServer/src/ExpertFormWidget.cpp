@@ -434,10 +434,6 @@ QGraphicsView *ExpertFormWidget::getGraphicsView()
     return _ui->_GRW_assembly;
 }
 
-QScrollArea *ExpertFormWidget::getParametersDock()
-{
-    return _ui->_SCA_assemblyParametersDock;
-}
 
 //void ExpertFormWidget::showParameters(AssemblyDefinition *assembly)
 //{

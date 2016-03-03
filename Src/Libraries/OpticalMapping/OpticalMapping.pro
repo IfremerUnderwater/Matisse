@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 #QT       -= gui
-QT       += core xml
+QT       += core xml script xmlpatterns network
 
 TARGET = OpticalMapping
 TEMPLATE = lib
@@ -23,6 +23,7 @@ CONFIG(release, debug|release) {
 # ------------------------------------------------------------------------
 
 include(../../Scripts/MatisseCommon.pri)
+include(../../Scripts/MatisseTools.pri)
 include(../../Scripts/opencv.pri)
 include(../../Scripts/qgis.pri)
 include(../../Scripts/BasicProcessing.pri)
@@ -36,14 +37,17 @@ SOURCES += \
     MosaicDrawer.cpp \
     MosaicOptimizer.cpp \
     MosaicDescriptor.cpp \
-    ProjectiveCamera.cpp
+    ProjectiveCamera.cpp \
+    FileImgExposureCompensate.cpp
 
 HEADERS +=\
         libopticalmapping_global.h \
     MosaicDrawer.h \
     MosaicOptimizer.h \
     MosaicDescriptor.h \
-    ProjectiveCamera.h
+    ProjectiveCamera.h \
+    FileImgExposureCompensate.h \
+    FileImgPrecomp.hpp
 
 unix {
     target.path = /usr/lib

@@ -8,25 +8,30 @@
 #include "opencv2/stitching/detail/util.hpp"
 #include "opencv2/core/core.hpp"
 #include <QDebug>
+#include <QFile>
+#include <QDir>
 #include "Polygon.h"
+#include "RasterGeoreferencer.h"
+#include "FileImgExposureCompensate.h"
+#include "stdvectoperations.h"
+#include "Tools.h"
 
 using namespace std;
 using namespace cv;
 using namespace cv::detail;
 using namespace basicproc;
 
-
 MosaicDrawer::MosaicDrawer(QString drawingOptions)
 {
 
     // Default command line args
-    _tryGpu = false;
-    _seamMegapix = 0.1;
-    _exposCompType = ExposureCompensator::GAIN;
-    _gainBlock = true;
-    _seamFindType = "gc_color";
-    _blendType = Blender::MULTI_BAND;
-    _blendStrength = 1;
+    dOptions.tryGpu = false;
+    dOptions.seamMegapix = 0.1;
+    dOptions.exposCompType = ExposureCompensator::GAIN;
+    dOptions.gainBlock = true;
+    dOptions.seamFindType = "gc_color";
+    dOptions.blendType = Blender::MULTI_BAND;
+    dOptions.blendStrength = 1;
 
     this->parseAndAffectOptions( drawingOptions );
 }
@@ -43,9 +48,9 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
         if (argv[i] == "--try_gpu")
         {
             if (argv[i + 1] == "no")
-                _tryGpu = false;
+                dOptions.tryGpu = false;
             else if (argv[i + 1] == "yes")
-                _tryGpu = true;
+                dOptions.tryGpu = true;
             else
             {
                 qDebug()<< "Bad --try_gpu flag value\n";
@@ -55,21 +60,21 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
         }
         else if (argv[i] == "--seam_megapix")
         {
-            _seamMegapix = atof(argv[i + 1].toLocal8Bit().data());
+            dOptions.seamMegapix = atof(argv[i + 1].toLocal8Bit().data());
             i++;
         }
         else if (argv[i] == "--expos_comp")
         {
             if (argv[i + 1] == "no"){
-                _exposCompType = ExposureCompensator::NO;
-                _gainBlock = false;
+                dOptions.exposCompType = ExposureCompensator::NO;
+                dOptions.gainBlock = false;
             }
             else if (argv[i + 1] == "gain"){
-                _exposCompType = ExposureCompensator::GAIN;
-                _gainBlock = false;
+                dOptions.exposCompType = ExposureCompensator::GAIN;
+                dOptions.gainBlock = false;
             }
             else if (argv[i + 1] == "gain_blocks"){
-                _gainBlock = true;
+                dOptions.gainBlock = true;
             }
             else
             {
@@ -86,7 +91,7 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
                     argv[i + 1] == "gc_colorgrad" ||
                     argv[i + 1] == "dp_color" ||
                     argv[i + 1] == "dp_colorgrad")
-                _seamFindType = argv[i + 1];
+                dOptions.seamFindType = argv[i + 1];
             else
             {
                 qDebug()<< "Bad seam finding method\n";
@@ -97,11 +102,11 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
         else if (argv[i] == "--blend")
         {
             if (argv[i + 1] == "no")
-                _blendType = Blender::NO;
+                dOptions.blendType = Blender::NO;
             else if (argv[i + 1] == "feather")
-                _blendType = Blender::FEATHER;
+                dOptions.blendType = Blender::FEATHER;
             else if (argv[i + 1] == "multiband")
-                _blendType = Blender::MULTI_BAND;
+                dOptions.blendType = Blender::MULTI_BAND;
             else
             {
                 qDebug()<< "Bad blending method\n";
@@ -111,7 +116,7 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
         }
         else if (argv[i] == "--blend_strength")
         {
-            _blendStrength = static_cast<float>(atof(argv[i + 1].toLocal8Bit().data()));
+            dOptions.blendStrength = static_cast<float>(atof(argv[i + 1].toLocal8Bit().data()));
             i++;
         }
     }
@@ -203,7 +208,7 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
         Ptr<ExposureCompensator> green_compensator;
         Ptr<ExposureCompensator> blue_compensator;
 
-        if (_gainBlock){
+        if (dOptions.gainBlock){
 
             Bl_per_image = sqrt(10e9/(100*imagesWarped_p.size()*imagesWarped_p.size())); // 10e9 is for 1Giga and 100 is due to the number of allocations
             Bl_num_col = ceil(sqrt(Bl_per_image*(double)mean_row_nb/(double)mean_col_nb));
@@ -223,9 +228,9 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
 
         }else{
             qDebug()<< "Create default Compensator ...\n";
-            red_compensator = ExposureCompensator::createDefault(_exposCompType);
-            green_compensator = ExposureCompensator::createDefault(_exposCompType);
-            blue_compensator = ExposureCompensator::createDefault(_exposCompType);
+            red_compensator = ExposureCompensator::createDefault(dOptions.exposCompType);
+            green_compensator = ExposureCompensator::createDefault(dOptions.exposCompType);
+            blue_compensator = ExposureCompensator::createDefault(dOptions.exposCompType);
         }
 
         //(Do not remove the following three loops, they are needed to minimize memory use)
@@ -304,7 +309,7 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
         int Bl_num_col,Bl_num_row,Bl_w,Bl_h;
         Ptr<ExposureCompensator> compensator;
 
-        if (_gainBlock){
+        if (dOptions.gainBlock){
 
             Bl_per_image = sqrt(10e9/(100*imagesWarped_p.size()*imagesWarped_p.size())); // 10e9 is for 1Giga and 100 is due to the number of allocations
             Bl_num_col = ceil(sqrt(Bl_per_image*(double)mean_row_nb/(double)mean_col_nb));
@@ -320,7 +325,7 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
 
             compensator = new BlocksGainCompensator(Bl_w,Bl_h);
         }else{
-            compensator = ExposureCompensator::createDefault(_exposCompType);
+            compensator = ExposureCompensator::createDefault(dOptions.exposCompType);
         }
 
         compensator->feed(corners_p, imagesWarped_p, masksWarped_p);
@@ -332,7 +337,7 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
     vector<Point> corners_p_seam(num_images);
     double seam_scale;
 
-    seam_scale = min(1.0, sqrt(_seamMegapix * 1e6 / (double)(mean_row_nb*mean_col_nb)));
+    seam_scale = min(1.0, sqrt(dOptions.seamMegapix * 1e6 / (double)(mean_row_nb*mean_col_nb)));
     qDebug()<< "Theoric seam_scale = " << seam_scale <<"\n";
 
     for (int i = 0; i < num_images; ++i){
@@ -357,17 +362,17 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
     }
 
     // Run the seam finder ...
-    qDebug()<< "Seam finder run..." <<_seamFindType;
+    qDebug()<< "Seam finder run..." <<dOptions.seamFindType;
 
     Ptr<SeamFinder> seam_finder;
-    if (_seamFindType == "no")
+    if (dOptions.seamFindType == "no")
         seam_finder = new detail::NoSeamFinder();
-    else if (_seamFindType == "voronoi")
+    else if (dOptions.seamFindType == "voronoi")
         seam_finder = new detail::VoronoiSeamFinder();
-    else if (_seamFindType == "gc_color")
+    else if (dOptions.seamFindType == "gc_color")
     {
 #ifdef HAVE_OPENCV_GPU
-        if (_tryGpu ){
+        if (dOptions.tryGpu ){
             qDebug()<< "Computing with GPU\n";
             seam_finder = new detail::GraphCutSeamFinderGpu(GraphCutSeamFinderBase::COST_COLOR);
         }
@@ -375,18 +380,18 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
 #endif
             seam_finder = new detail::GraphCutSeamFinder(GraphCutSeamFinderBase::COST_COLOR);
     }
-    else if (_seamFindType == "gc_colorgrad")
+    else if (dOptions.seamFindType == "gc_colorgrad")
     {
 #ifdef HAVE_OPENCV_GPU
-        if (_tryGpu )
+        if (dOptions.tryGpu )
             seam_finder = new detail::GraphCutSeamFinderGpu(GraphCutSeamFinderBase::COST_COLOR_GRAD);
         else
 #endif
             seam_finder = new detail::GraphCutSeamFinder(GraphCutSeamFinderBase::COST_COLOR_GRAD);
     }
-    else if (_seamFindType == "dp_color")
+    else if (dOptions.seamFindType == "dp_color")
         seam_finder = new detail::DpSeamFinder(DpSeamFinder::COLOR);
-    else if (_seamFindType == "dp_colorgrad")
+    else if (dOptions.seamFindType == "dp_colorgrad")
         seam_finder = new detail::DpSeamFinder(DpSeamFinder::COLOR_GRAD);
     if (seam_finder.empty())
     {
@@ -416,18 +421,18 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
     Ptr<Blender> blender;
 
     // Initialize the blender
-    blender = Blender::createDefault(_blendType, _tryGpu);
+    blender = Blender::createDefault(dOptions.blendType, dOptions.tryGpu);
     Size dst_sz = resultRoi(corners_p, sizes).size();
-    float blend_width = sqrt(static_cast<float>(dst_sz.area())) * _blendStrength / 100.f;
+    float blend_width = sqrt(static_cast<float>(dst_sz.area())) * dOptions.blendStrength / 100.f;
     if (blend_width < 1.f)
-        blender = Blender::createDefault(Blender::NO, _tryGpu);
-    else if (_blendType == Blender::MULTI_BAND)
+        blender = Blender::createDefault(Blender::NO, dOptions.tryGpu);
+    else if (dOptions.blendType == Blender::MULTI_BAND)
     {
         MultiBandBlender* mb = dynamic_cast<MultiBandBlender*>(static_cast<Blender*>(blender));
         mb->setNumBands(min(static_cast<int>(ceil(log(blend_width)/log(2.)) - 1.),(int)4));
         qDebug()<<  "Multi-band blender, number of bands: " << mb->numBands();
     }
-    else if (_blendType == Blender::FEATHER)
+    else if (dOptions.blendType == Blender::FEATHER)
     {
         FeatherBlender* fb = dynamic_cast<FeatherBlender*>(static_cast<Blender*>(blender));
         fb->setSharpness(1.f/blend_width);
@@ -469,11 +474,22 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
 
 }
 
-void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Point2d blockSize_p, QString writingPathAndPrefix_p)
+void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Point2d blockSize_p, QString writingPath_p, QString prefix_p)
 {
 
     int xBlockNumber, yBlockNumber, xOverlapSize, yOverlapSize;
     int xLastColumnSize, yLastRowSize;
+
+    //bool gainCompRequired = ( dOptions.exposCompType != ExposureCompensator::NO );
+
+    // Create tmp folder to contain temporary files
+    QDir tempDir(writingPath_p + QDir::separator() + QString("tmp"));
+    if (!tempDir.exists()) {
+        tempDir.mkpath(".");
+    }
+
+    // We first backup drawing options as we will change them on blocks blending iterations
+    drawingOptions dOptionsBackup = dOptions;
 
     // 5% overlap hard coded for the moment
     xOverlapSize = (int)(0.05*blockSize_p.x);
@@ -526,19 +542,20 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         y.push_back(yBegin); y.push_back(yBegin); y.push_back(yEnd); y.push_back(yEnd);
         currentPolygon->addContour(x,y);
         x.clear(); y.clear();
-
         vpImagesPoly.push_back(currentPolygon);
 
     }
 
     // Construct polygons corresponding to blocks areas
     vector<Polygon*> vpBlocksPoly;
+    vector<Polygon*> vpEffBlocksPoly;
     vector<vector<int>*> vvBlocksImgIndexes;
 
     for (int j=0; j<xBlockNumber; j++){
         for (int i=0; i<yBlockNumber; i++){
 
-            Polygon *currentPolygon = new Polygon();
+            Polygon *currentBlockPolygon = new Polygon();
+            Polygon *currentEffBlockPolygon = new Polygon();
             vector<int> *currentImgIndexes = new vector<int>;
             std::vector<double> x,y;
             int xBegin, yBegin, xEnd, yEnd;
@@ -567,32 +584,119 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
             // Construct currentPolygon
             x.push_back(xBegin); x.push_back(xEnd); x.push_back(xEnd); x.push_back(xBegin);
             y.push_back(yBegin); y.push_back(yBegin); y.push_back(yEnd); y.push_back(yEnd);
-            currentPolygon->addContour(x,y);
+            currentBlockPolygon->addContour(x,y);
             x.clear(); y.clear();
 
-            // Find images which intersect with this block
-            for (int k=0; k < mosaicD_p.cameraNodes().size(); k++){
-                Polygon *imgBlockIntersection = new Polygon;
-                vpImagesPoly[k]->clip(*currentPolygon,*imgBlockIntersection,basicproc::INT);
+            // Find which images intersect with this block
+            // and compute effective block (ie. remove non occupied space)
 
-                if (!imgBlockIntersection->isEmpty())
+            double img_tlx, img_tly, img_brx, img_bry;
+            double block_tlx, block_tly, block_brx, block_bry;
+
+            block_tlx=DBL_MAX;
+            block_tly=DBL_MAX;
+            block_brx=-DBL_MAX;
+            block_bry=-DBL_MAX;
+
+            for (int k=0; k < mosaicD_p.cameraNodes().size(); k++){
+
+                Polygon *imgBlockIntersection = new Polygon;
+                vpImagesPoly[k]->clip(*currentBlockPolygon,*imgBlockIntersection,basicproc::INT);
+
+                if (!imgBlockIntersection->isEmpty()){
+
                     currentImgIndexes->push_back(k);
+                    imgBlockIntersection->getBoundingBox(img_tlx, img_tly, img_brx, img_bry);
+
+                    if (img_tlx < block_tlx)
+                        block_tlx = img_tlx;
+
+                    if (img_tly < block_tly)
+                        block_tly = img_tly;
+
+                    if (img_brx > block_brx)
+                        block_brx = img_brx;
+
+                    if (img_bry > block_bry)
+                        block_bry = img_bry;
+
+                }
 
                 delete imgBlockIntersection;
             }
 
             if (currentImgIndexes->size() > 0){
-                vpBlocksPoly.push_back(currentPolygon);
+                vpBlocksPoly.push_back(currentBlockPolygon);
                 vvBlocksImgIndexes.push_back(currentImgIndexes);
+
+                // Construct currentEffPolygon
+                x.push_back(block_tlx); x.push_back(block_brx); x.push_back(block_brx); x.push_back(block_tlx);
+                y.push_back(block_tly); y.push_back(block_tly); y.push_back(block_bry); y.push_back(block_bry);
+                currentEffBlockPolygon->addContour(x,y);
+                x.clear(); y.clear();
+                vpEffBlocksPoly.push_back(currentEffBlockPolygon);
             }
-            else
+            else{
                 delete currentImgIndexes;
+                delete currentBlockPolygon;
+                delete currentEffBlockPolygon;
+            }
 
         }
     }
 
-    // Blend separated modules
-    for (unsigned int k=0; k < vpBlocksPoly.size(); k++){
+    // Compensate all images gain at the same time if need (commented because using disk to store images is very slow)
+    /*FileImgGainCompensator fileImgGainComp;
+
+    if(gainCompRequired){
+
+        int camNum = mosaicD_p.cameraNodes().size();
+
+        QString infoFileName = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + "proj_img.info";
+        QString imageFilename;
+        QString imageMaskFilename;
+        QFile infoFile( infoFileName );
+
+        Mat warpedImage;
+        Mat warpedMask;
+        Point corner;
+
+        if ( !infoFile.open(QIODevice::ReadWrite) )
+        {
+            qFatal("You must specify a valid path for output info file...\n");
+        }
+
+        QTextStream stream( &infoFile );
+
+        for (int l=0; l < camNum; l++) {
+
+            ProjectiveCamera* Cam = mosaicD_p.cameraNodes().at(l);
+            Cam->projectImageOnMosaickingPlane(warpedImage, warpedMask, corner);
+
+            imageFilename = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + QString("projimg_%1.tiff").arg(l, 5, 'g', -1, '0');
+            imageMaskFilename = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + QString("projimg_mask_%1.tiff").arg(l, 5, 'g', -1, '0');
+
+            imwrite(imageFilename.toStdString().c_str(), warpedImage);
+            imwrite(imageMaskFilename.toStdString().c_str(), warpedMask);
+
+            stream << QString("projimg_%1.tiff").arg(l, 5, 'g', -1, '0')
+                   << ";" << QString("projimg_mask_%1.tiff").arg(l, 5, 'g', -1, '0')
+                   << ";" << corner.x << ";" << corner.y
+                   << ";" << warpedImage.cols << ";" << warpedImage.rows << endl;
+
+            Cam->image()->releaseImageData();
+
+        }
+
+        infoFile.close();
+
+        fileImgGainComp.feed(writingPath_p + QDir::separator() + QString("tmp"),QString("proj_img.info"));
+
+    }*/
+
+
+    // Blend blocks independantly
+    for (unsigned int k=0; k < vpEffBlocksPoly.size(); k++){
         std::vector<Mat> imagesWarped;
         std::vector<Mat> masksWarped;
         std::vector<Point> corners;
@@ -607,531 +711,371 @@ void MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Poi
         // Project each image on the mosaicking plane (TODO : make it generic for orthophoto 3D/2D mosaicking)
         for (int l=0; l < camNum; l++) {
 
+            Polygon *imgBlockInter = new Polygon();
+            vpImagesPoly[vvBlocksImgIndexes[k]->at(l)]->clip(*(vpEffBlocksPoly[k]),*imgBlockInter,basicproc::INT);
+
             ProjectiveCamera* Cam = mosaicD_p.cameraNodes().at(vvBlocksImgIndexes[k]->at(l));
-            Cam->projectImageOnMosaickingPlane(imagesWarped[l], masksWarped[l], corners[l]);
+
+            if (*(vpImagesPoly[vvBlocksImgIndexes[k]->at(l)]) == *imgBlockInter){
+                Cam->projectImageOnMosaickingPlane(imagesWarped[l], masksWarped[l], corners[l]);
+
+            }else{
+                Mat tempImgWarped,tempMaskWarped;
+                Cam->projectImageOnMosaickingPlane(tempImgWarped, tempMaskWarped, corners[l]);
+
+                // Get useful image part
+                double tl_x,tl_y,br_x,br_y;
+                imgBlockInter->getBoundingBox(tl_x,tl_y,br_x,br_y);
+
+                // Crop images and masks with the bounding box
+                tempImgWarped(cv::Rect(tl_x-corners[l].x,tl_y-corners[l].y,br_x-tl_x+1,br_y-tl_y+1)).copyTo(imagesWarped[l]);
+                tempMaskWarped(cv::Rect(tl_x-corners[l].x,tl_y-corners[l].y,br_x-tl_x+1,br_y-tl_y+1)).copyTo(masksWarped[l]);
+                corners[l].x = tl_x;
+                corners[l].y = tl_y;
+            }
+
             Cam->image()->releaseImageData();
+            delete imgBlockInter;
+
         }
 
+        // Draw block
         drawAndBlend(imagesWarped, masksWarped, corners, mosaicImage, mosaicImageMask);
-        QString filePath = writingPathAndPrefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-        imwrite(filePath.toStdString().c_str(), mosaicImage);
+        QString mosaicFilePath = writingPath_p + QDir::separator() + QString("tmp")
+                + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+        imwrite(mosaicFilePath.toStdString().c_str(), mosaicImage);
+
+        QString mosaicMaskFilePath = writingPath_p + QDir::separator() + QString("tmp")
+                + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+        imwrite(mosaicMaskFilePath.toStdString().c_str(), mosaicImageMask);
+
     }
 
-    //    for m=1:x_bl_nb*y_bl_nb
 
-    //        multiWaitbar( 'Blocks blending progress', 'Value', m/(x_bl_nb*y_bl_nb));
+    // Blend junction between pairs of blocks
+    vector<Polygon*> vpBlocksPairIntersectPoly;
 
-    //        if (~isempty(M_blocks_indexes{m}))
-    //            M_blocks{m}.init = M.init;
-    //            M_blocks{m}.nodes = M.nodes(M_blocks_indexes{m});
-    //            [BlendedMosaic, BlendedMosaic_mask, P_eff_blocks{m}] = mosaic_draw_and_blend(M_blocks{m},algo_param);
-    //            plot([P_eff_blocks{m}.x P_eff_blocks{m}.x(1)], [P_eff_blocks{m}.y P_eff_blocks{m}.y(1)], 'r');
-    //            pause(eps)
+    // Adapt settings to junction blending
+    dOptions.seamMegapix = 0.1;
+    dOptions.exposCompType = ExposureCompensator::NO;
+    dOptions.gainBlock = false;
+    dOptions.seamFindType = "gc_color";
+    dOptions.blendType = Blender::FEATHER;
+    dOptions.blendStrength = 1;
 
+    for (unsigned int k=0; k < vpEffBlocksPoly.size()-1; k++){
 
-    //            % Save mosaic to free memory
-    //            BlendedMosaic(:,:,size(BlendedMosaic,3)+1) = BlendedMosaic_mask;
-    //            write_tiff_alpha(BlendedMosaic,fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m)))
-    //            clear BlendedMosaic BlendedMosaic_mask
+        std::vector<Mat> blocksToBeBlended;
+        std::vector<Mat> blocksToBeBlendedMasks;
+        std::vector<Point> corners;
+        Mat blendedBlocksImg, blendedBlocksImgMask;
 
-    //            % Update block size and homographies
-    //            M_blocks{m} = mosaic_calc_size(M_blocks{m},algo_param);
+        blocksToBeBlended.resize(2);
+        blocksToBeBlendedMasks.resize(2);
+        corners.resize(2);
 
-    //            % Fill non empty block indexes
-    //            non_empty_blocks_indexes(index) = m;
-    //            index = index + 1;
+        QString imgFilePath1,imgFilePath2;
+        QString mosaicMaskFilePath1,mosaicMaskFilePath2;
 
-    //        end
+        for (unsigned int l=k+1; l<vpEffBlocksPoly.size(); l++){
 
-    //    end
-    //    %hold off
-    //    %pause(eps)
-    //    multiWaitbar( 'Blocks blending progress', 'Close');
+            Polygon *blocksPairInter = new Polygon();
+            vpEffBlocksPoly[k]->clip(*(vpEffBlocksPoly[l]),*blocksPairInter,basicproc::INT);
+            double tl_x1,tl_y1,br_x1,br_y1;
+            double tl_x2,tl_y2,br_x2,br_y2;
 
-    //    %% Compute gain compensation method (see OpenCV doc as it is the same implementation)
-    //    fprintf('Compensate exposure between blocks\n');
-    //    block_nb = length ( non_empty_blocks_indexes );
-    //    I = zeros(block_nb, block_nb, d);
-    //    G = zeros(block_nb, d);
-    //    N = zeros(block_nb, block_nb);
+            if( !(blocksPairInter->isEmpty()) ){
 
-    //    for j=1:block_nb
+                // Open first block and mask & get corner
+                imgFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+                blocksToBeBlended[0] = imread(imgFilePath1.toStdString().c_str());
 
-    //        multiWaitbar( 'Compensate exposure between blocks', 'Value', j/block_nb);
+                mosaicMaskFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+                blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath1.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
 
-    //        for k=j:block_nb
+                vpEffBlocksPoly[k]->getBoundingBox(tl_x1,tl_y1,br_x1,br_y1);
+                corners[0].x = (int) tl_x1;
+                corners[0].y = (int) tl_y1;
 
-    //            % Search intersection between block regions %%%%%%%%%%%%%%%%%%%%%%%%
-    //            m = non_empty_blocks_indexes(j);
-    //            n = non_empty_blocks_indexes(k);
-    //            if and(~isempty(P_eff_blocks{m}),~isempty(P_eff_blocks{n}))
+                // Open second block and mask
+                imgFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
+                blocksToBeBlended[1] = imread(imgFilePath2.toStdString().c_str());
 
-    //                P_inter = PolygonClip(P_eff_blocks{m},P_eff_blocks{n},1);
-    //                if ~isempty(P_inter)
+                mosaicMaskFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
+                blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath2.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
 
-    //                    % Open first image
-    //                    Rows_range1 = [min(P_inter.y) max(P_inter.y)-1] - min(P_eff_blocks{m}.y)+1; %+1 is for matlab starting at 1
-    //                    Cols_range1 = [min(P_inter.x) max(P_inter.x)-1] - min(P_eff_blocks{m}.x)+1; %
-    //                    block_one = imread(fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m)),...
-    //                        'PixelRegion',{Rows_range1, Cols_range1});
+                vpEffBlocksPoly[l]->getBoundingBox(tl_x2,tl_y2,br_x2,br_y2);
+                corners[1].x = (int) tl_x2;
+                corners[1].y = (int) tl_y2;
 
+                // Blend blocks
+                drawAndBlend(blocksToBeBlended, blocksToBeBlendedMasks, corners, blendedBlocksImg, blendedBlocksImgMask);
 
-    //                    % Open second image
-    //                    Rows_range2 = [min(P_inter.y) max(P_inter.y)-1] - min(P_eff_blocks{n}.y)+1; %(+1-1)
-    //                    Cols_range2 = [min(P_inter.x) max(P_inter.x)-1] - min(P_eff_blocks{n}.x)+1; %(+1-1)
-    //                    block_two =imread(fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',n)),...
-    //                        'PixelRegion',{Rows_range2, Cols_range2});
+                // Extract and write block 1
+                int roi_x1,roi_x2,roi_y1,roi_y2;
 
-    //                    % Common area mask
-    //                    common_mask = and( block_one(:,:,end)~=0 , block_two(:,:,end)~=0 );
-    //                    N(j,k) = sum(sum(common_mask~=0));
-    //                    N(k,j) = N(j,k);
+                roi_x1 = tl_x1 - std::min(tl_x1, tl_x2);
+                roi_x2 = br_x1 - std::min(tl_x1, tl_x2);
+                roi_y1 = tl_y1 - std::min(tl_y1, tl_y2);
+                roi_y2 = br_y1 - std::min(tl_y1, tl_y2);
 
-    //                    % Compute mean intensities
-    //                    for l=1:d
+                imwrite(imgFilePath1.toStdString().c_str(),blendedBlocksImg(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
+                imwrite(mosaicMaskFilePath1.toStdString().c_str(),blendedBlocksImgMask(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
 
-    //                        if ( N(j,k) > 0 )
+                // Extract and write block 2
 
-    //                            single_ch_block = block_one(:,:,l);
-    //                            I(j,k,l) = mean( mean( single_ch_block( common_mask~=0 ) ));
-    //                            single_ch_block = block_two(:,:,l);
-    //                            I(k,j,l) = mean( mean( single_ch_block( common_mask~=0 ) ));
+                roi_x1 = tl_x2 - std::min(tl_x1, tl_x2);
+                roi_x2 = br_x2 - std::min(tl_x1, tl_x2);
+                roi_y1 = tl_y2 - std::min(tl_y1, tl_y2);
+                roi_y2 = br_y2 - std::min(tl_y1, tl_y2);
 
-    //                        else
+                imwrite(imgFilePath2.toStdString().c_str(),blendedBlocksImg(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
+                imwrite(mosaicMaskFilePath2.toStdString().c_str(),blendedBlocksImgMask(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
 
-    //                            I(j,k,l) = 0;
-    //                            I(k,j,l) = 0;
+                vpBlocksPairIntersectPoly.push_back(blocksPairInter);
 
-    //                        end
 
-    //                    end
+            }else{
+                delete blocksPairInter;
+            }
 
-    //                    clear block_one block_two Rows_range1 Cols_range1 Rows_range2 Cols_range2
 
-    //                end
 
-    //            end
+        }
 
-    //        end
 
-    //    end
+    }
 
-    //    multiWaitbar( 'Compensate exposure between blocks', 'Close');
 
-    //    % Invert linear system to estimate the gains
-    //    alpha = 0.5;
-    //    beta = 100;
-    //    for l=1:d
-    //        A = zeros(block_nb, block_nb);
-    //        b = zeros(block_nb, 1);
+    // Find intersections between junctions
+    Polygon tempPoly1, tempPoly2, junctionInterPoly;
 
-    //        for m=1:block_nb
-    //            for n=1:block_nb
-    //                b(m) = b(m) + beta*N(m,n);
-    //                A(m,m) = A(m,m) + beta*N(m,n);
-    //                if (m~=n)
-    //                    A(m,m) = A(m,m) + 2*alpha*I(m,n,l)*I(m,n,l)*N(m,n);
-    //                    A(m,n) = A(m,n) - 2*alpha*I(m,n,l)*I(n,m,l)*N(m,n);
-    //                end
-    //            end
-    //        end
+    if (vpBlocksPairIntersectPoly.size()!=0){
 
-    //        gains = SVD_solve(A,b);
-    //        G(:,l) = gains;
+        for (unsigned int i=0; i<vpBlocksPairIntersectPoly.size()-1; i++){
 
-    //    end
+            for (unsigned int j=i+1; j<vpBlocksPairIntersectPoly.size(); j++){
 
-    //    % Correct images according to their gains and compute colors cum distrib
-    //    cdf_mean = zeros(256,d); N_tot = zeros(d,1);
-    //    for k=1:block_nb
+                // Intersect junctions
+                vpBlocksPairIntersectPoly[i]->clip(*(vpBlocksPairIntersectPoly[j]),tempPoly1,basicproc::INT);
 
-    //        multiWaitbar( 'Correct block images according to their gain', 'Value', k/block_nb);
+                // Add intersection
+                junctionInterPoly.clip(tempPoly1,tempPoly2,basicproc::UNION);
 
-    //        m = non_empty_blocks_indexes(k);
-    //        if (~isempty(M_blocks_indexes{m}))
-    //            block_image = imread(fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m)));
-    //            for l=1:d
-    //                block_image(:,:,l) = G(k,l)*block_image(:,:,l);
-    //                %block_image(:,:,l) = block_image(:,:,l);
+                // Affect
+                junctionInterPoly = tempPoly2;
 
-    //                % Compute cumulative distribution function if needed for stretching
-    //                if (algo_param.cosmetic_stretch==1)
-
-    //                    for l=1:d
-    //                        single_ch_block = block_image(:,:,l);
-    //                        [cdf_y, cdf_x, n] = cdfcompute(reshape(single_ch_block(block_image(:,:,end)~=0),1,[]));
-    //                        [ cdf_y_filled ] = fillwithprevious( cdf_y, cdf_x, 0:255 );
+            }
 
-    //                        cdf_mean(:,l) = (N_tot(l)*cdf_mean(:,l) + n*cdf_y_filled')/(N_tot(l)+n);
-    //                        N_tot(l) = N_tot(l)+n;
-    //                    end
-
-    //                    clear single_ch_block cdf_y cdf_x cdf_y_filled
-    //                end
-
-    //            end
-    //            write_tiff_alpha(block_image,fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m)));
-    //            clear block_image
-    //        end
-
-    //    end
-    //    multiWaitbar( 'Correct block images according to their gain', 'Close');
-
+        }
 
-    //    %% Strech images if needed
-    //    if (algo_param.cosmetic_stretch==1)
-
-    //        for m=1:x_bl_nb*y_bl_nb
-
-    //            multiWaitbar( 'Compensate exposure between blocks', 'Value', j/block_nb);
+    }
 
-    //            if (~isempty(M_blocks_indexes{m}))
-    //                block_image = imread(fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m)));
-    //                for l=1:d
-    //                    color_lim = [max(find(cdf_mean(:,l)<0.002))-1, min(find(cdf_mean(:,l)>1-0.002))-1];
-    //                    single_ch_block = block_image(:,:,l);
-    //                    block_image(:,:,l) = cv.histogram_stretch(single_ch_block,block_image(:,:,end),color_lim,[0 255]);
+    // Blend intersections between junctions
+    if (!junctionInterPoly.isEmpty()){
 
-    //                end
-    //                write_tiff_alpha(block_image,fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m)));
-    //                clear block_image color_lim single_ch_block
-    //            end
-    //        end
+        QString imgBlockFilePath;
+        QString imgBlockMaskFilePath;
 
-    //        multiWaitbar( 'Compensate exposure between blocks', 'Close');
+        for(unsigned int c=0; c<junctionInterPoly.contours().size(); c++){
 
-    //    end
+            Polygon *currentJunction = new Polygon;
+            double cc_x,cc_y, ncc_x, ncc_y;
+            vector<double> x, y;
 
-    //    %% Blend junctions between blocks %%
+            junctionInterPoly.getContourCenter(cc_x, cc_y, c);
 
-    //    % First in one direction
-    //    for m=1:x_bl_nb
+            // Get contour coords
+            x = junctionInterPoly.contours()[c].x;
+            y = junctionInterPoly.contours()[c].y;
 
-    //        multiWaitbar( 'Merge blocks by columns', 'Value', m/x_bl_nb);
+            // Multiply coords to magnify poly
+            doubleVectorScalarMult(x, 1.05);
+            doubleVectorScalarMult(y, 1.05);
 
-    //        for n=1:y_bl_nb-1
-    //            if and(~isempty(P_eff_blocks{m,n}),~isempty(P_eff_blocks{m,n+1}))
+            // Compute new center
+            ncc_x = doubleVectorMean(x);
+            ncc_y = doubleVectorMean(y);
 
-    //                % Search intersection between regions %%%%%%%%%%%%%%%%%%%%%%%%
-    //                P_inter = PolygonClip(P_eff_blocks{m,n},P_eff_blocks{m,n+1},1);
+            // Recenter polygon and round the coord to have integers
+            for (unsigned int i=0; i<x.size(); i++){
+                x[i] = (int)( x[i] - ncc_x + cc_x );
+                y[i] = (int)( y[i] - ncc_y + cc_y );
+            }
 
-    //                if ~isempty(P_inter)
+            // Fill polygon with this contour
+            currentJunction->addContour(x, y);
+            currentJunction->updateGpcPolygon();
 
 
+            // Fill blocks to be blended *****************************************
+            std::vector<Mat> blocksToBeBlended;
+            std::vector<Mat> blocksToBeBlendedMasks;
+            std::vector<Point> tlCorners, brCorners, tlBlocksCorners;
+            std::vector<int> blocksToBeBlendedIndexes;
+            Mat blendedBlocksImg, blendedBlocksImgMask;
 
-    //                    % Add 5% margin for blending %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //                    max_P_inter_x = max(P_inter.x);
-    //                    min_P_inter_x = min(P_inter.x);
-    //                    max_P_inter_y = max(P_inter.y);
-    //                    min_P_inter_y = min(P_inter.y);
-    //                    P_inter_x_size = max_P_inter_x-min_P_inter_x;
-    //                    P_inter_y_size = max_P_inter_y-min_P_inter_y;
+            double tl_x_min,tl_y_min;
 
-    //                    P_inter_5p = P_inter;
-    //                    P_inter_5p.x(P_inter.x == max_P_inter_x ) = ceil(max_P_inter_x+P_inter_x_size*0.05);
-    //                    P_inter_5p.x(P_inter.x == min_P_inter_x ) = floor(min_P_inter_x-P_inter_x_size*0.05);
-    //                    P_inter_5p.y(P_inter.y == max_P_inter_y ) = ceil(max_P_inter_y+P_inter_y_size*0.05);
-    //                    P_inter_5p.y(P_inter.y == min_P_inter_y ) = floor(min_P_inter_y-P_inter_y_size*0.05);
+            for (unsigned int l=0; l<vpEffBlocksPoly.size(); l++){
 
-    //                    % Extract the images to be blended %%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //                    P_first_block = PolygonClip(P_eff_blocks{m,n},P_inter_5p,1);
-    //                    Rows_range1 = [min(P_first_block.y) max(P_first_block.y)-1] - min(P_eff_blocks{m,n}.y)+1; %(+1-1)
-    //                    Cols_range1 = [min(P_first_block.x) max(P_first_block.x)-1] - min(P_eff_blocks{m,n}.x)+1; %(+1-1)
-    //                    block_images{1} = imread(fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m+(n-1)*x_bl_nb)),...
-    //                        'PixelRegion',{Rows_range1, Cols_range1});
-    //                    block_masks{1} = block_images{1}(:,:,end);
-    //                    block_images{1} = block_images{1}(:,:,1:end-1);
-    //                    corners{1} = [min(P_first_block.x) min(P_first_block.y)];
+                Polygon *blockJunctionInter = new Polygon();
+                currentJunction->clip(*(vpEffBlocksPoly[l]),*blockJunctionInter,basicproc::INT);
+                double tl_x,tl_y,br_x,br_y;
+                double tlBlock_x,tlBlock_y,brBlock_x,brBlock_y;
 
-    //                    P_second_block = PolygonClip(P_eff_blocks{m,n+1},P_inter_5p,1);
-    //                    Rows_range2 = [min(P_second_block.y) max(P_second_block.y)-1] - min(P_eff_blocks{m,n+1}.y)+1; %(+1-1)
-    //                    Cols_range2 = [min(P_second_block.x) max(P_second_block.x)-1] - min(P_eff_blocks{m,n+1}.x)+1; %(+1-1)
-    //                    block_images{2} =imread(fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m+(n+1-1)*x_bl_nb)),...
-    //                        'PixelRegion',{Rows_range2, Cols_range2});
-    //                    block_masks{2} = block_images{2}(:,:,end);
-    //                    block_images{2} = block_images{2}(:,:,1:end-1);
-    //                    corners{2} = [min(P_second_block.x) min(P_second_block.y)];
+                if( !(blockJunctionInter->isEmpty()) ){
 
-    //                    % Blend them %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //                    algo_param.blending_method = 'feather';
-    //                    %algo_param.seam_method = 'no';
-    //                    algo_param.expo_comp_method = 'no';
-    //                    [BlendedEdges, BlendedEdges_mask]= cv.mosaicColorSepBlender(block_images,block_masks,corners,...
-    //                        '--try_gpu','no','--seam',algo_param.seam_method,'--expos_comp',algo_param.expo_comp_method,'--blend',algo_param.blending_method);
-
-    //                    clear block_images block_masks
-
-    //                    % Complete and update the block one
-    //                    block_one = imread(fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m+(n-1)*x_bl_nb)));
-    //                    block_one_mask = block_one(:,:,end);
-    //                    block_one = block_one(:,:,1:end-1);
-
-    //                    % Compute indexes to be updated and update
-    //                    block_one_shift = corners{1} - min(corners{1}, corners{2});
-    //                    block_rows_range = block_one_shift(2)+(1:Rows_range1(2)-Rows_range1(1)+1);
-    //                    block_cols_range = block_one_shift(1)+(1:Cols_range1(2)-Cols_range1(1)+1);
-
-    //                    block_extraction = block_one(Rows_range1(1):Rows_range1(2),Cols_range1(1):Cols_range1(2),:);
-    //                    block_extraction_mask = block_one_mask(Rows_range1(1):Rows_range1(2),Cols_range1(1):Cols_range1(2));
-
-    //                    blending_extraction = BlendedEdges(block_rows_range,block_cols_range,:);
-    //                    blending_extraction_mask = BlendedEdges_mask(block_rows_range,block_cols_range);
-
-    //                    indexes_to_update = blending_extraction_mask ~= 0;
-    //                    indexes_to_update(:,:,2)=indexes_to_update; indexes_to_update(:,:,3)=indexes_to_update(:,:,1);
-    //                    block_extraction(indexes_to_update) = blending_extraction(indexes_to_update);
-    //                    block_extraction_mask = 255*or(block_extraction_mask ~= 0, blending_extraction_mask ~= 0);
-
-    //                    block_one(Rows_range1(1):Rows_range1(2),Cols_range1(1):Cols_range1(2),:) = block_extraction;
-
-    //                    block_one_mask(Rows_range1(1):Rows_range1(2),Cols_range1(1):Cols_range1(2),:) = block_extraction_mask;
-
-    //                    block_one(:,:,size(block_one,3)+1) = block_one_mask;
-    //                    write_tiff_alpha(block_one,fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m+(n-1)*x_bl_nb)));
-
-    //                    clear block_one block_one_mask block_extraction blending_extraction_mask blending_extraction blending_extraction_mask
-
-    //                    % Complete and update the block two
-    //                    block_two_shift = corners{2} - min(corners{1}, corners{2});
-    //                    block_two = imread(fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m+(n+1-1)*x_bl_nb)));
-    //                    block_two_mask = block_two(:,:,end);
-    //                    block_two = block_two(:,:,1:end-1);
-
-
-    //                    block_rows_range = block_two_shift(2)+(1:Rows_range2(2)-Rows_range2(1)+1);
-    //                    block_cols_range = block_two_shift(1)+(1:Cols_range2(2)-Cols_range2(1)+1);
-
-    //                    block_extraction = block_two(Rows_range2(1):Rows_range2(2),Cols_range2(1):Cols_range2(2),:);
-    //                    block_extraction_mask = block_two_mask(Rows_range2(1):Rows_range2(2),Cols_range2(1):Cols_range2(2));
-
-    //                    blending_extraction = BlendedEdges(block_rows_range,block_cols_range,:);
-    //                    blending_extraction_mask = BlendedEdges_mask(block_rows_range,block_cols_range);
-
-    //                    indexes_to_update = blending_extraction_mask ~= 0;
-    //                    indexes_to_update(:,:,2)=indexes_to_update; indexes_to_update(:,:,3)=indexes_to_update(:,:,1);
-    //                    block_extraction(indexes_to_update) = blending_extraction(indexes_to_update);
-    //                    block_extraction_mask = 255*or(block_extraction_mask ~= 0, blending_extraction_mask ~= 0);
-
-    //                    block_two(Rows_range2(1):Rows_range2(2),Cols_range2(1):Cols_range2(2),:) = block_extraction;
-
-    //                    block_two_mask(Rows_range2(1):Rows_range2(2),Cols_range2(1):Cols_range2(2),:) = block_extraction_mask;
-
-    //                    block_two(:,:,size(block_two,3)+1) = block_two_mask;
-    //                    write_tiff_alpha(block_two,fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m+(n+1-1)*x_bl_nb)));
-
-    //                    clear block_two block_two_mask BlendedEdges BlendedEdges_mask block_extraction blending_extraction_mask blending_extraction blending_extraction_mask
 
-    //                end
-
-    //            end
-    //        end
-    //    end
-    //    multiWaitbar( 'Merge blocks by columns', 'Close');
-    //    hold off
-
-    //    % Then in the other direction
-    //    ind1 = 0;
-    //    ind2 = 0;
-    //    block_ind = 1;
-    //    for m=1:x_bl_nb-1
-
-    //        multiWaitbar( 'Merge blocks by rows', 'Value', m/(x_bl_nb-1));
-
-    //        P_line1=[];
-    //        P_line2=[];
-    //        for n=1:y_bl_nb
-    //            % Unify the two polygons lines
-    //            if ~isempty(P_eff_blocks{m,n})
-    //                if ind1==0
-    //                    P_line1=P_eff_blocks{m,n};
-    //                else
-    //                    P_line1=PolygonClip(P_line1,P_eff_blocks{m,n},3);
-    //                end
-    //                ind1 = ind1+1;
-    //            end
-
-    //            if ~isempty(P_eff_blocks{m+1,n})
-    //                if ind2==0
-    //                    P_line2=P_eff_blocks{m+1,n};
-    //                else
-    //                    P_line2=PolygonClip(P_line2,P_eff_blocks{m+1,n},3);
-    //                end
-    //                ind2 = ind2+1;
-    //            end
-    //        end
-    //        ind1 = 0;
-    //        ind2 = 0;
+                    // Open block and mask & get corner
+                    Mat imgTemp;
 
-    //        % Search intersection between lines
-    //        if and(~isempty(P_line1),~isempty(P_line2))
-    //            P_line_inter = PolygonClip(P_line1,P_line2,1);
-    //        else
-    //            P_line_inter = [];
-    //        end
-
-    //        % Loop on the number of independant intersections
-    //        for p=1:size(P_line_inter,2)
+                    vpEffBlocksPoly[l]->getBoundingBox(tlBlock_x, tlBlock_y, brBlock_x, brBlock_y);
+                    blockJunctionInter->getBoundingBox( tl_x,tl_y,br_x,br_y );
 
-    //            % Extract the images to be blended %%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //            block_ind = 1;
-    //            for k=m:m+1
-    //                for l=1:y_bl_nb
-    //                    if and(~isempty(P_line_inter(p)),~isempty(P_eff_blocks{k,l}))
-    //                        P_block{block_ind} = PolygonClip(P_eff_blocks{k,l},P_line_inter(p),1);
+                    imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
+                    imgTemp = imread(imgBlockFilePath.toStdString().c_str());
+                    blocksToBeBlended.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1)) );
 
-    //                        if (~isempty(P_block{block_ind}))
+                    imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
+                    imgTemp = imread(imgBlockMaskFilePath.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+                    blocksToBeBlendedMasks.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1))  );
 
-    //                            try
+                    // Store corners values
+                    tlBlocksCorners.push_back( Point( (int) tlBlock_x, (int) tlBlock_y ) );
+                    tlCorners.push_back( Point( (int) tl_x, (int) tl_y ) );
+                    brCorners.push_back( Point( (int) br_x, (int) br_y ) );
 
-    //                                P_block_5p.x = round(mean(P_block{block_ind}.x)+1.05*(P_block{block_ind}.x-mean(P_block{block_ind}.x)));
-    //                                P_block_5p.y = round(mean(P_block{block_ind}.y)+1.05*(P_block{block_ind}.y-mean(P_block{block_ind}.y)));
-    //                                P_block{block_ind} = PolygonClip(P_eff_blocks{k,l},P_block_5p,1);
-    //                                clear P_block_5p
-    //                            catch error
-    //                                fprintf('error\n');
-    //                            end
+                    blocksToBeBlendedIndexes.push_back(l);
 
-    //                            if ~isempty(P_block{block_ind})
+                    if (blocksToBeBlendedIndexes.size()==1){
+                        tl_x_min = tl_x;
+                        tl_y_min = tl_y;
+                    }else{
+                        tl_x_min = std::min(tl_x_min, tl_x);
+                        tl_y_min = std::min(tl_y_min, tl_y);
+                    }
 
-    //                                Rows_range{block_ind} = [min(P_block{block_ind}.y) max(P_block{block_ind}.y)-1] - min(P_eff_blocks{k,l}.y)+1; %(+1-1)
-    //                                Cols_range{block_ind} = [min(P_block{block_ind}.x) max(P_block{block_ind}.x)-1] - min(P_eff_blocks{k,l}.x)+1; %(+1-1)
 
-    //                                block_images{block_ind} = imread(fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',k+(l-1)*x_bl_nb)),...
-    //                                    'PixelRegion',{Rows_range{block_ind}, Cols_range{block_ind}});
+                }else{
+                    delete blockJunctionInter;
+                }
 
-    //                                block_masks{block_ind} = block_images{block_ind}(:,:,end);
-    //                                block_images{block_ind} = block_images{block_ind}(:,:,1:end-1);
+            }
 
-    //                                corners{block_ind} = [min(P_block{block_ind}.x) min(P_block{block_ind}.y)];
 
-    //                                if (block_ind ==1)
-    //                                    blocks_origin = corners{block_ind};
-    //                                else
-    //                                    blocks_origin = min(blocks_origin, corners{block_ind});
-    //                                end
+            // Blend blocks
+            drawAndBlend(blocksToBeBlended, blocksToBeBlendedMasks, tlCorners, blendedBlocksImg, blendedBlocksImgMask);
 
-    //                                block_ind = block_ind +1;
-    //                            end
-    //                        end
-    //                    end
-    //                end
-    //            end
+            for ( unsigned int i=0; i<blocksToBeBlendedIndexes.size(); i++ ){
 
+                int l = blocksToBeBlendedIndexes[i];
+                imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
+                imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
 
-    //            if (exist('block_images','var'))
+                Mat blockImg = imread(imgBlockFilePath.toStdString().c_str());
+                Mat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str());
 
-    //                % Blend them %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //                algo_param.blending_method = 'feather';
-    //                %algo_param.seam_method = 'no';
-    //                algo_param.expo_comp_method = 'no';
-    //                [BlendedLines, BlendedLines_mask]= cv.mosaicColorSepBlender(block_images,block_masks,corners,...
-    //                    '--try_gpu','no','--seam',algo_param.seam_method,'--expos_comp',algo_param.expo_comp_method,'--blend',algo_param.blending_method);
 
-    //                clear block_images block_masks
+                // Part of the matrix we are interested in
+                Mat blockImgRoi(blockImg, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
+                                               brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
+                // This submatrix will be a REFERENCE to PART of full matrix, NOT a copy
+                Mat blockImgMaskRoi(blockImgMask, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
+                                                       brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
 
-    //                % Complete and update the blocks
-    //                block_ind = 1;
-    //                for k=m:m+1
-    //                    for l=1:y_bl_nb
-    //                        if (~isempty(P_line_inter(p)) && ~isempty(P_eff_blocks{k,l}) && ~isempty(PolygonClip(P_eff_blocks{k,l},P_line_inter(p),1)) )
+                blockImgRoi = blendedBlocksImg( Rect(tlCorners[i].x-tl_x_min, tlCorners[i].y-tl_y_min, brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1 ) );
+                blockImgMaskRoi = blendedBlocksImgMask( Rect(tlCorners[i].x-tl_x_min, tlCorners[i].y-tl_y_min, brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1 ) );
 
-    //                            block_shift = corners{block_ind} - blocks_origin;
-    //                            block = imread(fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',k+(l-1)*x_bl_nb)));
-    //                            block_mask = block(:,:,end);
-    //                            block = block(:,:,1:end-1);
+                // Save image
+                imwrite(imgBlockFilePath.toStdString().c_str(),blockImg);
+                imwrite(imgBlockMaskFilePath.toStdString().c_str(),blockImgMask);
 
-    //                            % Compute indexes to be updated and update
-    //                            block_rows_range = block_shift(2)+(1:Rows_range{block_ind}(2)-Rows_range{block_ind}(1)+1);
-    //                            block_cols_range = block_shift(1)+(1:Cols_range{block_ind}(2)-Cols_range{block_ind}(1)+1);
+            }
 
-    //                            block_extraction = block(Rows_range{block_ind}(1):Rows_range{block_ind}(2),Cols_range{block_ind}(1):Cols_range{block_ind}(2),:);
-    //                            block_extraction_mask = block_mask(Rows_range{block_ind}(1):Rows_range{block_ind}(2),Cols_range{block_ind}(1):Cols_range{block_ind}(2));
 
-    //                            blending_extraction = BlendedLines(block_rows_range,block_cols_range,:);
-    //                            blending_extraction_mask = BlendedLines_mask(block_rows_range,block_cols_range);
+            blocksToBeBlended.clear();
+            blocksToBeBlendedMasks.clear();
+            tlCorners.clear();
+            brCorners.clear();
+            tlBlocksCorners.clear();
+            blocksToBeBlendedIndexes.clear();
 
-    //                            indexes_to_update = blending_extraction_mask ~= 0;
-    //                            indexes_to_update(:,:,2)=indexes_to_update; indexes_to_update(:,:,3)=indexes_to_update(:,:,1);
-    //                            block_extraction(indexes_to_update) = blending_extraction(indexes_to_update);
-    //                            block_extraction_mask = 255*or(block_extraction_mask ~= 0, blending_extraction_mask ~= 0);
+            x.clear();
+            y.clear();
+            delete currentJunction;
 
-    //                            block(Rows_range{block_ind}(1):Rows_range{block_ind}(2),Cols_range{block_ind}(1):Cols_range{block_ind}(2),:) = block_extraction;
+        }
 
-    //                            block_mask(Rows_range{block_ind}(1):Rows_range{block_ind}(2),Cols_range{block_ind}(1):Cols_range{block_ind}(2),:) = block_extraction_mask;
+    }
 
-    //                            block(:,:,size(block,3)+1) = block_mask;
-    //                            write_tiff_alpha(block,fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',k+(l-1)*x_bl_nb)));
+    // Write all geotiff files from temp files
+    for (unsigned int k=0; k<vpEffBlocksPoly.size(); k++){
 
-    //                            % free memory
-    //                            clear block block_mask block_extraction blending_extraction_mask blending_extraction blending_extraction_mask
-    //                            block_ind = block_ind +1;
-    //                        end
-    //                    end
-    //                end
 
-    //                clear corners BlendedLines BlendedLines_mask;
+        QString blockImgFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+        Mat blockImg = imread(blockImgFilePath.toStdString().c_str());
 
-    //            end
+        QString blockImgMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
 
-    //        end
+        QString utmProjParam, utmHemisphereOption,utmZoneString;
 
-    //    end
+        // Construct utm proj param options
+        utmZoneString = QString("%1 ").arg(mosaicD_p.utmZone())+ mosaicD_p.utmHemisphere();
+        QStringList utmParams = utmZoneString.split(" ");
 
-    //    multiWaitbar( 'Merge blocks by rows', 'Close');
+        if ( utmParams.at(1) == "S" ){
+            utmHemisphereOption = QString(" +south");
+        }else{
+            utmHemisphereOption = QString("");
+        }
+        utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
 
+        // Get block corners in pixels
+        double blockTL_x,blockTL_y,blockBR_x,blockBR_y;
+        vpEffBlocksPoly[k]->getBoundingBox(blockTL_x,blockTL_y,blockBR_x,blockBR_y);
 
-    //    %% Save mosaic to Geotiff
-    //    block_ind = 0;
-    //    if isfield(algo_param,'output_filename')
-    //        output_filename = algo_param.output_filename;
-    //    else
-    //        output_filename = 'Blended_Mosaic.tif';
-    //    end
-    //    [path name ext] = fileparts(output_filename);
 
-    //    for m=1:x_bl_nb*y_bl_nb
+        double blockUtmTL_x = mosaicD_p.mosaicOrigin().x + blockTL_x*mosaicD_p.pixelSize().x;
+        double blockUtmTL_y = mosaicD_p.mosaicOrigin().y - blockTL_y*mosaicD_p.pixelSize().y;
 
+        double blockUtmBR_x = mosaicD_p.mosaicOrigin().x + blockBR_x*mosaicD_p.pixelSize().x;
+        double blockUtmBR_y = mosaicD_p.mosaicOrigin().y - blockBR_y*mosaicD_p.pixelSize().y;
 
-    //        multiWaitbar( 'Save blocks to disk', 'Value', m/(x_bl_nb*y_bl_nb));
+        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+                .arg(blockUtmTL_x,0,'f',2)
+                .arg(blockUtmTL_y,0,'f',2)
+                .arg(blockUtmBR_x,0,'f',2)
+                .arg(blockUtmBR_y,0,'f',2);
 
-    //        if (~isempty(M_blocks_indexes{m}))
+        QString geoRefBlockImgFilePath = writingPath_p + QDir::separator() + prefix_p + QString("_%1.tiff").arg(k, 4, 'g', -1, '0');
 
-    //            block_ind = block_ind + 1 ;
+        RasterGeoreferencer rasterGeoref;
+        rasterGeoref.WriteGeoFile(blockImg, blockImgMask, geoRefBlockImgFilePath,gdalOptions);
 
-    //            % Write Geotiff to disk
+    }
 
-    //            input_file = fullfile(algo_param.output_dir,sprintf('Temp_%d.tiff',m));
-    //            if length(non_empty_blocks_indexes)>1
-    //                output_file = fullfile(algo_param.output_dir,[name sprintf('_%d',block_ind) ext]);
-    //            else
-    //                output_file = fullfile(algo_param.output_dir,[name ext]);
-    //            end
-
-    //            if strcmp(algo_param.utm_hemisphere,'S')
-
-    //                write_command = sprintf('gdal_translate -a_srs "+proj=utm +zone=%d +south" -of GTiff -co "INTERLEAVE=PIXEL" -a_ullr %f %f %f %f -mask 4 --config GDAL_TIFF_INTERNAL_MASK YES %s %s',...
-    //                    algo_param.utm_zone,M_blocks{m}.init.mosaic_ullr(1),M_blocks{m}.init.mosaic_ullr(2),M_blocks{m}.init.mosaic_ullr(3),M_blocks{m}.init.mosaic_ullr(4),input_file,output_file);
-
-    //            else
-
-    //                write_command = sprintf('gdal_translate -a_srs "+proj=utm +zone=%d" -of GTiff -co "INTERLEAVE=PIXEL" -a_ullr %f %f %f %f -mask 4 --config GDAL_TIFF_INTERNAL_MASK YES %s %s',...
-    //                    algo_param.utm_zone,M_blocks{m}.init.mosaic_ullr(1),M_blocks{m}.init.mosaic_ullr(2),M_blocks{m}.init.mosaic_ullr(3),M_blocks{m}.init.mosaic_ullr(4),input_file,output_file);
-
-    //            end
-
-
-    //            system(write_command);
-    //            delete(input_file);
-
-    //        end
+    // Restore drawing options
+    dOptions = dOptionsBackup;
 
     // Free memory
     for (unsigned int i=0; i<vpBlocksPoly.size(); i++){
         delete vpBlocksPoly.at(i);
     }
 
+    for (unsigned int i=0; i<vpEffBlocksPoly.size(); i++){
+        delete vpEffBlocksPoly.at(i);
+    }
+
     for (unsigned int i=0; i<vpImagesPoly.size(); i++){
         delete vpImagesPoly.at(i);
     }
+
+    for (unsigned int i=0; i<vpBlocksPairIntersectPoly.size(); i++){
+        delete vpBlocksPairIntersectPoly.at(i);
+    }
+
+    MatisseTools::Tools::removeDir(tempDir.absolutePath());
 
 }

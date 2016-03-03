@@ -1,9 +1,14 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
+#ifdef unix
+#include "gpc.h"
+#else
 extern "C" {
 #include "gpc.h"
 }
+#endif
+
 #include <vector>
 #include <QString>
 
@@ -12,17 +17,17 @@ namespace basicproc {
 
 typedef struct                      /* Vertex list structure             */
 {
-  std::vector<double> x;       /* Vertex array pointer              */
-  std::vector<double> y;
+    std::vector<double> x;       /* Vertex array pointer              */
+    std::vector<double> y;
 } vertexList;
 
 
 typedef enum                        /* Set operation type                */
 {
-  DIFF,                         /* Difference                        */
-  INT,                          /* Intersection                      */
-  XOR,                          /* Exclusive or                      */
-  UNION                         /* Union                             */
+    DIFF,                         /* Difference                        */
+    INT,                          /* Intersection                      */
+    XOR,                          /* Exclusive or                      */
+    UNION                         /* Union                             */
 } poly_op;
 
 
@@ -71,6 +76,28 @@ public:
     /// \param operation : values "DIFF", "INT", "XOR" and "UNION" for corresponding boolean operation Difference, Intersection, Exclusive or, Union
     ///
     void clip(Polygon &poly2_p, Polygon & result_p, poly_op operation);
+
+    ///
+    /// \brief getBoundingBox return the polygon bounding box
+    /// \param tlx_p Top left x coordinate
+    /// \param tly_p Top left y coordinate
+    /// \param brx_p Bottom right x coordinate
+    /// \param bry_p Bottom right y coordinate
+    ///
+    void getBoundingBox(double &tlx_p, double &tly_p, double &brx_p, double &bry_p);
+
+    ///
+    /// \brief getContourCenter get the polygon center
+    /// \param cx_p x coord
+    /// \param cy_p y coord
+    /// \param contourIndex contour for which you want the center
+    ///
+    void getContourCenter(double &cx_p, double &cy_p, int contourIndex_p=0);
+
+    bool operator ==(const Polygon &polyB_p);
+    bool operator !=(const Polygon &polyB_p);
+
+    void operator =(Polygon &polyB_p);
 
 private:
     gpc_polygon _gpcPolygon;

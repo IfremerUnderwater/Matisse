@@ -42,9 +42,8 @@ QWidget#_PB_parameterFold {
 QMenuBar {
     background-color: #2972cf;
     color: #f5f7fa;
-    font-family: "Montserrat";
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 10pt;
+    font-weight: bold;
 }
 
 QMenuBar::item {
@@ -73,6 +72,22 @@ QTreeView::item:selected:!active, QListWidget::item:selected:!active {
 QTreeView::item:hover, QListWidget::item:hover {
     background: rgba(74,138,220,20%);
 }
+
+/* BUTTONS */
+QPushButton:pressed {
+  background-color: #2972cf;
+  border: none;
+}
+
+QPushButton:checked {
+  background-color: #2972cf;
+  border: none;
+}
+
+QPushButton:flat {
+     border: 2px solid #2972cf;
+}
+
 
 
 

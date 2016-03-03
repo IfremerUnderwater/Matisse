@@ -14,7 +14,8 @@ AssemblyGui::AssemblyGui(QString settingsFile, QWidget *parent) :
     _creationVisuModeIcon(":/qss_icons/icons/Clef.svg"),
     _maximizeIcon(":/qss_icons/icons/agrandir.svg"),
     _restoreToNormalIcon(":/qss_icons/icons/reinittaille.svg"),
-    _currentJob(NULL)
+    _currentJob(NULL),
+    _parametersUnfolded(false)
 {
     _ui->setupUi(this);
     _canShow = setSettingsFile(settingsFile);
@@ -105,47 +106,15 @@ void AssemblyGui::initPreferences()
     updateLanguage(_preferences->language(), true);
 }
 
-void AssemblyGui::resizeAndRepositionParametersWidget()
-{
-    quint16 scaWidth = _assemblyParametersDock->minimumWidth();
-    quint16 scaHeight = _userFormWidget->size().height();
-    quint16 posX = _userFormWidget->size().width() - scaWidth;
-    quint16 posY = 0;
-    //quint16 height = _parametersWidget->parent()->size().height();
-
-    _jobParametersDock->resize(scaWidth, scaHeight);
-
-    // renvoie 100 !!???
-    //quint16 vScrollerWidth = _jobParametersDock->verticalScrollBar()->size().width();
-
-    // reducing widget dimensions to avoid default scrollbars
-    quint16 widgetWidth = scaWidth - 20;
-    quint16 widgetHeight = scaHeight - 3;
-
-    _parametersWidget->resize(widgetWidth, widgetHeight);
-
-    _jobParametersDock->move(posX, posY);
-}
-
 void AssemblyGui::initParametersWidget()
 {
-    // Init parameters widget through parameters manager
-    _jobParametersDock = new QScrollArea(_ui->_WID_workViewContainer);
-    _jobParametersDock->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    _jobParametersDock->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    _jobParametersDock->setFrameStyle(QFrame::NoFrame);
-    _jobParametersDock->setLineWidth(0);
+    _parametersDock = _ui->_SCA_parametersDock;
 
-    _assemblyParametersDock = _expertFormWidget->getParametersDock();
-
-    _server.parametersManager()->generateParametersWidget(_jobParametersDock);
+    _server.parametersManager()->generateParametersWidget(_parametersDock);
     _parametersWidget = _server.parametersManager()->parametersWidget();
 
-    _jobParametersDock->setWidget(_parametersWidget);
-
-    resizeAndRepositionParametersWidget();
-
-    _jobParametersDock->raise();
+    _parametersDock->setWidget(_parametersWidget);
+    //_parametersDock->hide(); // not visible at init
 }
 
 void AssemblyGui::init()
@@ -240,6 +209,7 @@ void AssemblyGui::init()
 
     // Tool button actions
     connect(_stopButton, SIGNAL(clicked()), this, SLOT(slot_stopJob()));
+    connect(_ui->_PB_parameterFold, SIGNAL(clicked(bool)), this, SLOT(slot_foldUnfoldParameters()));
 
 
     _server.setSettingsFile();
@@ -445,6 +415,9 @@ void AssemblyGui::initMainMenu()
     _helpMenu->addAction(_aboutAct);
 
     QMenuBar* mainMenuBar = findChild<QMenuBar*>(QString("_MBA_mainMenuBar"));
+    mainMenuBar->setMinimumHeight(_helpMenu->height());
+    mainMenuBar->setMaximumHeight(_helpMenu->height());
+    mainMenuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     mainMenuBar->addMenu(_fileMenu);
     mainMenuBar->addMenu(_displayMenu);
@@ -753,6 +726,8 @@ void AssemblyGui::loadDefaultStyleSheet()
 
 void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int column)
 {
+    doFoldUnfoldParameters(true);
+
     // TODO Voir s'il est nécessaire de filtrer pour ne pas sélectionner sur click droit
     // Si besoin, il faut implémenter le signal clicked au lieu de itemClicked
     QString name = selectedItem->text(column);
@@ -803,6 +778,25 @@ void AssemblyGui::slot_updatePreferences()
     }
 }
 
+void AssemblyGui::slot_foldUnfoldParameters()
+{
+    doFoldUnfoldParameters(!_parametersUnfolded);
+}
+
+void AssemblyGui::doFoldUnfoldParameters(bool doUnfold)
+{
+    if (doUnfold) {
+        qDebug() << "Unfolding parameters";
+       _parametersDock->show();
+    } else {
+       qDebug() << "Folding parameters";
+       _parametersDock->hide();
+    }
+
+    _parametersUnfolded = doUnfold;
+}
+
+
 void AssemblyGui::slot_showApplicationMode(ApplicationMode mode)
 {
     qDebug() << "Start application in mode " << mode;
@@ -836,8 +830,6 @@ void AssemblyGui::slot_showApplicationMode(ApplicationMode mode)
         emit signal_processStopped(); // to reset wheel if previous job was frozen
 
         show();
-        QMenuBar* mainMenuBar = findChild<QMenuBar*>(QString("_MBA_mainMenuBar"));
-        qDebug() << "Taille menu bar :" << mainMenuBar->size();
 
         // TODO : à supprimer test GGIS
         //_userFormWidget->loadTestVectorLayer();
@@ -1267,13 +1259,6 @@ void AssemblyGui::slot_newJob()
         return;
     }
 
-//    if (!assembly) {
-//        if (!_server.xmlTool().readAssemblyFile(assemblyName + ".xml")) {
-//            showError(tr("Fichier d'assemblage..."), tr("Le fichier %1 n'est pas valide ou est illisible...").arg(assemblyName + ".xml") );
-//            return;
-//        }
-//    }
-
     qDebug() << "Creating new job";
     KeyValueList kvl;
     kvl.append("name");
@@ -1324,6 +1309,8 @@ void AssemblyGui::slot_newJob()
     if (addJobInTree(newJobDef)) {
         selectJob(jobName);
     }
+
+    doFoldUnfoldParameters(true);
 }
 
 void AssemblyGui::slot_saveJob()
@@ -1813,6 +1800,7 @@ void AssemblyGui::retranslate()
     _goToResultsAct->setText(tr("Ouvrir emplacement du resultat"));
 }
 
+
 // Dynamic translation
 void AssemblyGui::changeEvent(QEvent *event)
 {
@@ -1822,15 +1810,6 @@ void AssemblyGui::changeEvent(QEvent *event)
         qDebug() << "Retranslating UI...";
         _ui->retranslateUi(this);
         retranslate();
-    }
-}
-
-void AssemblyGui::resizeEvent(QResizeEvent *event)
-{
-    QMainWindow::resizeEvent(event);
-
-    if (_parametersWidget) {
-        resizeAndRepositionParametersWidget();
     }
 }
 
@@ -1907,6 +1886,9 @@ void AssemblyGui::slot_newAssembly()
 
     //slot_selectAssemblyOrJob(item);
     displayAssemblyProperties(_newAssembly);
+
+    // unfold parameters
+    doFoldUnfoldParameters(true);
 
     // activer vue graphique
     _expertFormWidget->getGraphicsView()->setEnabled(true);
@@ -2009,11 +1991,6 @@ void AssemblyGui::slot_swapMapOrCreationView()
         }
         _visuModeButton->setIcon(_creationVisuModeIcon);
 
-        /* Change ownership of parameters widget */
-        QWidget* paramWidget = _jobParametersDock->takeWidget();
-        _assemblyParametersDock->setWidget(paramWidget);
-        _jobParametersDock->lower(); // hide the job parameters overlay
-
         // swap view (1: creation view)
         _ui->_SW_viewStack->setCurrentIndex(1);
 
@@ -2042,17 +2019,12 @@ void AssemblyGui::slot_swapMapOrCreationView()
         }
         _visuModeButton->setIcon(_mapVisuModeIcon);
 
-        /* Change ownership of parameters widget */
-        QWidget* paramWidget = _assemblyParametersDock->takeWidget();
-        if (paramWidget == _parametersWidget) { // at init, parameters widget is already owned by the job parameters dock
-            _jobParametersDock->setWidget(paramWidget);
-            _jobParametersDock->raise(); // show the job parameters overlay
-            _server.parametersManager()->clearExpectedParameters(); // hide job parameters
-        }
+        /* Reset visible parameters */
+        _server.parametersManager()->clearExpectedParameters();
 
         // swap view (0: map view)
         _ui->_SW_viewStack->setCurrentIndex(0);
-        resizeAndRepositionParametersWidget();
+        //resizeAndRepositionParametersWidget();
 
         // Changement des info bulles
         _ui->_TRW_assemblies->setItemsExpandable(true);
@@ -2065,6 +2037,10 @@ void AssemblyGui::slot_swapMapOrCreationView()
 
     /* select tab set */
     _ui->_SW_helperTabSets->setCurrentIndex(!_isMapView);
+
+    _ongoingProcessInfolabel->hide();
+    _ongoingProcessCompletion->hide();
+    doFoldUnfoldParameters(false);
 
     enableActions();
 
@@ -2131,21 +2107,26 @@ void AssemblyGui::slot_launchJob()
     }
 
     // si un parametre est modifié, on demande si il faut enregistrer le paramétrage du job...
-    if (paramValuesModified) {
-        if (QMessageBox::No == QMessageBox::question(this, tr("Modification de parametres..."),
-                                                     tr("Un ou plusieurs parametres ont ete modifies.\nVoulez-vous enregistrer le parametrage de la tache ?"),
-                                                     QMessageBox::Yes,
-                                                     QMessageBox::No)) {
 
-            qDebug() << "User aborted job execution";
-            return;
-            //saveAs = false;
-        } else {
-            qDebug() << "Saving job parameters before launch";
-            // enregistrer les valeurs de parametres
-            _server.parametersManager()->saveParametersValues(jobName, false);
-        }
-    }
+    // TODO reactiver la detection de modification de parametres
+
+//    if (paramValuesModified) {
+//        if (QMessageBox::No == QMessageBox::question(this, tr("Modification de parametres..."),
+//                                                     tr("Un ou plusieurs parametres ont ete modifies.\nVoulez-vous enregistrer le parametrage de la tache ?"),
+//                                                     QMessageBox::Yes,
+//                                                     QMessageBox::No)) {
+
+//            qDebug() << "User aborted job execution";
+//            return;
+//            //saveAs = false;
+//        } else {
+//            qDebug() << "Saving job parameters before launch";
+//            // enregistrer les valeurs de parametres
+//            _server.parametersManager()->saveParametersValues(jobName, false);
+//        }
+//    }
+
+    _server.parametersManager()->saveParametersValues(jobName, false);
 
     AssemblyDefinition * assemblyDef = _server.xmlTool().getAssembly(assemblyName);
     if (!assemblyDef) {
@@ -2186,6 +2167,8 @@ void AssemblyGui::slot_launchJob()
     _lastJobLaunchedItem->setIcon(0, QIcon(":/qss_icons/icons/led-orange.svg"));
     QString msg = tr("Travail %1 en cours...").arg(jobName);
     showStatusMessage(msg, IDLE, true);
+
+    doFoldUnfoldParameters(false);
     _stopButton->setEnabled(true);
     _ongoingProcessInfolabel->show();
     _ongoingProcessCompletion->show();

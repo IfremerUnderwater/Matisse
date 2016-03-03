@@ -4,6 +4,17 @@
 #include "libopticalmapping_global.h"
 #include "MosaicDescriptor.h"
 
+
+struct drawingOptions{
+    bool tryGpu;
+    double seamMegapix;
+    int exposCompType;
+    bool gainBlock;
+    QString seamFindType;
+    int blendType;
+    float blendStrength;
+};
+
 class LIBOPTICALMAPPINGSHARED_EXPORT MosaicDrawer
 {
 public:
@@ -65,19 +76,16 @@ public:
     ///
     void blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p,
                                 Point2d blockSize_p,
-                                QString writingPathAndPrefix_p);
+                                QString writingPath_p,
+                                QString prefix_p);
 
     int parseAndAffectOptions(QString drawingOptions);
 
 private:
 
-    bool _tryGpu;
-    double _seamMegapix;
-    int _exposCompType;
-    bool _gainBlock;
-    QString _seamFindType;
-    int _blendType;
-    float _blendStrength;
+    drawingOptions dOptions;
+
+
 
 
 };

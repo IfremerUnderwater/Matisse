@@ -54,7 +54,6 @@ void MatisseParametersManager::loadStaticCollections()
     _enumShows.insert("spinDouble", DOUBLE_SPIN_BOX);
     _enumShows.insert("check", CHECK_BOX);
     _enumShows.insert("table", TABLE);
-    _enumShows.insert("slider", SLIDER);
     _enumShows.insert("file", FILE_SELECTOR_ABSOLUTE);
 //    _enumShows.insert("file:relative", FILE_SELECTOR_RELATIVE);
 //    _enumShows.insert("file:absolute", FILE_SELECTOR_ABSOLUTE);
@@ -331,7 +330,7 @@ bool MatisseParametersManager::removeUserModuleForParameter(QString userModule, 
     users->remove(userModule);
 
     if (users->isEmpty()) {
-        qDebug() << QString("Parameter '%1' is not longer expected, hiding field").arg(paramName);
+        qDebug() << QString("Parameter '%1' is no longer expected, hiding field").arg(paramName);
         _expectedParameters.remove(paramName);
         delete users;
 
@@ -345,6 +344,19 @@ bool MatisseParametersManager::removeUserModuleForParameter(QString userModule, 
             _expectedGroups.remove(groupName);
             delete groupMembers;
             hideGroup = true;
+        } else {
+            // see if group still has other parameters of same level
+            hideGroup = true;
+
+            Parameter parameter = _parameters.value(paramName);
+
+            foreach (QString otherParamName, *groupMembers) {
+                Parameter otherParameter = _parameters.value(otherParamName);
+                if (otherParameter._level == parameter._level) {
+                    hideGroup = false;
+                    break;
+                }
+            }
         }
 
         /* handling parameters and groups hiding if necessary */
@@ -416,6 +428,7 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
     if (!_structures.contains(structName)) {
         return false;
     }
+
     // recherche du groupe s'il n'existe pas, on le crée. Si pas de nom de groupe
     int noGroup = _structures[structName]._groupsNames.indexOf(groupName);
     if (noGroup == -1) {
@@ -426,6 +439,7 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
         newGroup._hasUserValues = false;
         _structures[structName]._parametersGroups.append(newGroup);
         noGroup = _structures[structName]._groupsNames.size()-1;
+        _groups.insert(groupName, newGroup);
     }
 
     Parameter parameter;
@@ -433,7 +447,8 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
     parameter._name = attributes.value("name").toString();
 
     QString levelStr = attributes.value("level").toString().toLower();
-    parameter._level = _enumLevels.value(levelStr);
+    ParameterLevel level = _enumLevels.value(levelStr);
+    parameter._level = level;
 
     parameter._text = tr(attributes.value("text").toLatin1());
 
@@ -456,14 +471,49 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
         parameter._parameterSize.setHeight(sizeStr.split(",").at(1).toInt());
     }
 
+    quint8 precisionDefault = PRECISION_DEFAULT;
+
+    parameter._precision = precisionDefault; /* default is 2 decimal digits */
+    if (attributes.hasAttribute("precision")) {
+        quint8 precision = QString(attributes.value("precision").toLatin1()).toUShort();
+        quint8 precisionMax = PRECISION_MAX;
+        if (precision > precisionMax) {
+            qWarning() << QString("Parameter '%1' : precision %2 exceeds max precision %3. Leaving default precision %4'").arg(parameter._name).arg(precision).arg(precisionMax).arg(precisionDefault);
+        } else {
+            parameter._precision = precision;
+        }
+    }
+
+    if (attributes.hasAttribute("formatTemplate")) {
+        parameter._formatTemplate = attributes.value("formatTemplate").toString();
+    } else {
+        parameter._formatTemplate = "";
+    }
+
     parameter._range = attributes.value("range").toString().simplified().replace(" ","");
 
     parameter._value = attributes.value("default").toString();
 
     _structures[structName]._parametersGroups[noGroup]._parametersNames << parameter._name;
     _structures[structName]._parametersGroups[noGroup]._parameters.append(parameter);
+
+    _parameters.insert(parameter._name, parameter);
+
     _structureByParameter.insert(parameter._name, structName);
+
     _groupByParameter.insert(parameter._name, groupName);
+
+    /* Appending parameter name to the usage level list */
+    QList<QString>* paramsForLevel;
+
+    if (!_parametersByLevel.contains(level)) {
+        paramsForLevel = new QList<QString>;
+        _parametersByLevel.insert(level, paramsForLevel);
+    } else {
+        paramsForLevel = _parametersByLevel.value(level);
+    }
+
+    paramsForLevel->append(parameter._name);
 
     return true;
 
@@ -485,24 +535,188 @@ bool MatisseParametersManager::addEnum(QString enumsName, QXmlStreamAttributes a
 
 }
 
-ParametersWidgetSkeleton *MatisseParametersManager::generateParametersWidget(QWidget *owner) {
+//ParametersWidgetSkeleton *MatisseParametersManager::generateParametersWidget(QWidget *owner)
+//{
+//    qDebug() << "Building parameters widget";
+//    _fullParametersWidget = new ParametersWidgetSkeleton(owner);
+//    //eraseDialog();
+
+//    // squeleton is created for all parameters in dictionnary
+//    foreach (QString structureName, _structuresNames) {
+//        ParametersWidgetSkeleton * dialogPart = createDialog(_fullParametersWidget, structureName, false);
+//        if (dialogPart)
+//        {
+//            _fullParametersWidget->addWidget(dialogPart);
+//            // pour transmettre le signal...
+//            connect(dialogPart, SIGNAL(signal_valuesModified(bool)), _fullParametersWidget, SLOT(slot_valueModified(bool)));
+//        }
+//    }
+
+//    return _fullParametersWidget;
+//}
+
+ParametersWidgetSkeleton *MatisseParametersManager::generateParametersWidget(QWidget *owner)
+{
     qDebug() << "Building parameters widget";
     _fullParametersWidget = new ParametersWidgetSkeleton(owner);
-    //eraseDialog();
+    _fullParametersWidget->setObjectName("_WID_parametersWidget");
 
-    // squeleton is created for all parameters in dictionnary
-    foreach (QString structureName, _structuresNames) {
-        ParametersWidgetSkeleton * dialogPart = createDialog(_fullParametersWidget, structureName, false);
-        if (dialogPart)
-        {
-            _fullParametersWidget->addWidget(dialogPart);
-            // pour transmettre le signal...
-            connect(dialogPart, SIGNAL(signal_valuesModified(bool)), _fullParametersWidget, SLOT(slot_valueModified(bool)));
-        }
-    }
+    generateLevelParametersWidget(USER, tr("Parametres utilisateur"));
+    generateLevelParametersWidget(ADVANCED, tr("Parametres avances"));
+    generateLevelParametersWidget(EXPERT, tr("Parametres mode expert"));
 
     return _fullParametersWidget;
 }
+
+void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel level, QString levelHeader)
+{
+    QPushButton *levelHeaderButton = new QPushButton(_fullParametersWidget);
+    levelHeaderButton->setObjectName("_PB_levelHeaderButton");
+    levelHeaderButton->setText(levelHeader);
+    levelHeaderButton->setIcon(QIcon(":/qss_icons/rc/branch_closed-on.png"));
+    _fullParametersWidget->addWidget(levelHeaderButton);
+
+    QWidget *levelContainer = new QWidget(_fullParametersWidget);
+    levelContainer->setObjectName("_WID_levelParametersContainer");
+    QVBoxLayout *levelContainerLayout = new QVBoxLayout();
+    levelContainer->setLayout(levelContainerLayout);
+    _fullParametersWidget->addWidget(levelContainer);
+
+    QList<QString>* levelParamsList = _parametersByLevel.value(level);
+
+    QSet<QString> levelGroups;
+
+    QGroupBox* currentGroup = NULL;
+
+    foreach (QString paramName, *levelParamsList) {
+        QString structName = _structureByParameter.value(paramName);
+        QString groupName = _groupByParameter.value(paramName);
+
+        ParametersGroup group;
+        QList<ParametersGroup> groups = _structures[structName]._parametersGroups;
+        foreach (ParametersGroup g, groups) {
+            if (g._name == groupName) {
+                group = g;
+                break;
+            }
+        }
+
+        if (!levelGroups.contains(groupName)) {
+            /* Hide previous group */
+            if (currentGroup) {
+                currentGroup->hide();
+            }
+
+            currentGroup = new QGroupBox(group._text, _fullParametersWidget);
+            QVBoxLayout* currentGroupLayout = new QVBoxLayout();
+            currentGroupLayout->setContentsMargins(0, PARAM_GROUP_MARGIN_TOP, 0, PARAM_GROUP_MARGIN_BOTTOM);
+
+            currentGroup->setLayout(currentGroupLayout);
+            levelContainerLayout->addWidget(currentGroup);
+
+            levelGroups.insert(groupName);
+        }
+
+        Parameter param;
+        QList<Parameter> params = group._parameters;
+        foreach (Parameter p, params) {
+            if (p._name == paramName) {
+                param = p;
+                break;
+            }
+        }
+
+        EnrichedFormWidget * widget = NULL;
+        QString paramLabel = tr(param._text.toLatin1());
+
+        switch(param._show) {
+        case LINE_EDIT: {
+            widget = new EnrichedLineEdit(_fullParametersWidget, paramLabel, param._value.toString());
+         }
+            break;
+        case SPIN_BOX: {
+            QVariant minValue;
+            QVariant maxValue;
+            getRange(param, minValue, maxValue);
+            widget = new EnrichedSpinBox(_fullParametersWidget, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
+        }
+            break;
+        case DOUBLE_SPIN_BOX: {
+            QVariant minValue;
+            QVariant maxValue;
+            getRange(param, minValue, maxValue);
+            EnrichedDecimalValueWidget* decimalValueWidget = new EnrichedDoubleSpinBox(_fullParametersWidget, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
+            decimalValueWidget->setPrecision(param._precision);
+            widget = decimalValueWidget;
+        }
+            break;
+        case COMBO_BOX: {
+            QStringList items = getEnums(param);
+            widget = new EnrichedComboBox(_fullParametersWidget, paramLabel, items, param._value.toString());
+        }
+            break;
+        case LIST_BOX: {
+            QStringList items = getEnums(param);
+            widget = new EnrichedListBox(_fullParametersWidget, param._text, items, param._value.toString());
+        }
+            break;
+        case CHECK_BOX: {
+            widget = new EnrichedCheckBox(_fullParametersWidget, param._text, getBoolValue(param._value));
+        }
+            break;
+        case TABLE: {
+            int nbCols = param._parameterSize.width();
+            int nbRows = param._parameterSize.height();
+            QStringList values = getNumList(param);
+            EnrichedDecimalValueWidget* decimalValueWidget = new EnrichedTableWidget(_fullParametersWidget, param._text, nbCols, nbRows, values, param._formatTemplate);
+            decimalValueWidget->setPrecision(param._precision);
+            widget = decimalValueWidget;
+        }
+            break;
+        case FILE_SELECTOR_RELATIVE:
+        case FILE_SELECTOR_ABSOLUTE: {
+            widget = new EnrichedFileChooser(_fullParametersWidget, param._text, param._show, param._value.toString());
+        }
+            break;
+        case DIR_SELECTOR_RELATIVE:
+        case DIR_SELECTOR_ABSOLUTE: {
+            widget = new EnrichedFileChooser(_fullParametersWidget, param._text, param._show, param._value.toString());
+        }
+            break;
+        case UNKNOWN_SHOW:
+        default:
+            break;
+        }
+        if (widget) {
+            widget->setObjectName("_WID_singleParameterForm");
+            widget->hide();
+
+            connect(widget, SIGNAL(signal_valueChanged(bool)), _fullParametersWidget, SLOT(slot_valueModified(bool)));
+
+            if (!_valuesWidgets.contains(structName)) {
+                QMap<QString, EnrichedFormWidget*> *structWidgets = new QMap<QString, EnrichedFormWidget*>();
+                _valuesWidgets.insert(structName, *structWidgets);
+            }
+            _valuesWidgets[structName].insert(param._name, widget);
+
+            if (!_groupsWidgets.contains(structName)) {
+                QMap<QString, QWidget*> *structGroupsWidgets = new QMap<QString, QWidget*>();
+                _groupsWidgets.insert(structName, *structGroupsWidgets);
+            }
+            _groupsWidgets[structName].insert(param._name, currentGroup);
+
+            currentGroup->layout()->addWidget(widget);
+        }
+
+    }
+
+    /* hide last group */
+    if (currentGroup) {
+        currentGroup->hide();
+    }
+
+}
+
 
 bool MatisseParametersManager::saveParametersValues(QString entityName, bool isAssemblyTemplate)
 {
@@ -686,55 +900,6 @@ bool MatisseParametersManager::writeParametersFile(QString parametersFilename, b
 }
 
 
-//bool MatisseParametersManager::generateParametersFile(QString filename)
-//{
-//    QFile xmlOut(filename);
-//    QDir parentFolder =  QFileInfo(filename).dir();
-//    if (!parentFolder.exists()) {
-//        parentFolder.mkpath(".");
-//    }
-
-//    xmlOut.open(QIODevice::WriteOnly);
-//    QTextStream out(&xmlOut);
-
-//    out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-//    out << "\n";
-
-//    out << "<JobParameters xmlns=\"Matisse\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"Matisse ../../../schemas/JobParameters.xsd\">\n";
-//    out << "\n";
-
-//    foreach(QString structName, _structures.keys()) {
-//        out << "\t<Structure name=\"" << structName << "\">\n";
-//        Structure structure = _structures[structName];
-//        for (int noGroup = 0; noGroup < structure._groupsNames.length(); noGroup++) {
-//            QString groupName = structure._groupsNames.at(noGroup);
-//            if ( groupName != "") {
-//                out << "\t\t<!--" << groupName << "-->\n";
-//            }
-
-//            foreach(Parameter parameter, structure._parametersGroups.at(noGroup)._parameters) {
-//                QString parameterName = parameter._name;
-
-//                if (!_expectedParameters.contains(parameterName)) {
-//                    qDebug() << QString("Parameter '%1' not expected, skipping...").arg(parameterName);
-//                    continue;
-//                }
-
-//                QString value = getValue(structName, parameterName);
-//                out << "\t\t<Parameter name=\"" << parameterName << "\">" << value <<  "</Parameter>\n";
-
-//            }
-//        }
-
-//        out << "\t</Structure>\n\n";
-//    }
-
-//    out << "</JobParameters>";
-//    out.flush();
-//    xmlOut.close();
-
-//    return true;
-//}
 
 bool MatisseParametersManager::readParametersFile(QString filename, bool isAssemblyTemplate)
 {
@@ -842,161 +1007,167 @@ bool MatisseParametersManager::readParametersFile(QString filename, bool isAssem
     return parsingOk;
 }
 
-ParametersWidgetSkeleton * MatisseParametersManager::createDialog(QWidget* owner, QString structName, bool user) {
+//ParametersWidgetSkeleton * MatisseParametersManager::createDialog(QWidget* owner, QString structName, bool user) {
     // all widgets in dialog are initially hidden
 
-    QString structUserExpert = structName /*+ QString("%1").arg(user)*/;
-    if (_dialogs.contains(structUserExpert)) {
-        return _dialogs[structUserExpert];
-    }
+//    QString structUserExpert = structName /*+ QString("%1").arg(user)*/;
+//    if (_dialogs.contains(structUserExpert)) {
+//        return _dialogs[structUserExpert];
+//    }
 
-    if (!_structures.contains(structName)) {
-        return NULL;
-    }
+//    if (!_structures.contains(structName)) {
+//        return NULL;
+//    }
 
-    if ((!_structures[structName]._hasUserValues) && user) {
-        return NULL;
-    }
+//    if ((!_structures[structName]._hasUserValues) && user) {
+//        return NULL;
+//    }
 
-    QList<QLabel*> textsForAlignment;
-    QList<QGroupBox *> groupsForAlignement;
-    // on cree l'interface...
-    ParametersWidgetSkeleton * newDialog = new ParametersWidgetSkeleton(owner);
+//    QList<QLabel*> textsForAlignment;
+//    QList<QGroupBox *> groupsForAlignement;
+//    // on cree l'interface...
+//    ParametersWidgetSkeleton * newDialog = new ParametersWidgetSkeleton(owner);
 
-    quint32 maxWidth = 0;
-    QFontMetrics metrics(QLabel().font());
-    foreach(ParametersGroup parameterGroup, _structures[structName]._parametersGroups) {
-        if ((!parameterGroup._hasUserValues) && user) {
-            continue;
-        }
-        QString groupLabel = tr(parameterGroup._text.toLatin1());
-        QGroupBox * groupBox = new QGroupBox(groupLabel, newDialog);
-        groupBox->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-        groupsForAlignement << groupBox;
-        QVBoxLayout * groupBoxLayout = new QVBoxLayout();
+//    quint32 maxWidth = 0;
+//    QFontMetrics metrics(QLabel().font());
+//    foreach(ParametersGroup parameterGroup, _structures[structName]._parametersGroups) {
+//        if ((!parameterGroup._hasUserValues) && user) {
+//            continue;
+//        }
+//        QString groupLabel = tr(parameterGroup._text.toLatin1());
+//        QGroupBox * groupBox = new QGroupBox(groupLabel, newDialog);
+//        groupBox->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+//        groupsForAlignement << groupBox;
+//        QVBoxLayout * groupBoxLayout = new QVBoxLayout();
 
-        foreach(Parameter param, parameterGroup._parameters) {
-            if ((!param._userModify) && user) {
-                continue;
-            }
-            QHBoxLayout * parameterLayout = new QHBoxLayout(newDialog);
-            EnrichedFormWidget * widget = NULL;
-            QString paramLabel = tr(param._text.toLatin1());
+//        foreach(Parameter param, parameterGroup._parameters) {
+//            if ((!param._userModify) && user) {
+//                continue;
+//            }
+//            QHBoxLayout * parameterLayout = new QHBoxLayout(newDialog);
+//            EnrichedFormWidget * widget = NULL;
+//            QString paramLabel = tr(param._text.toLatin1());
 
-            switch(param._show) {
-            case LINE_EDIT: {
-                widget = new EnrichedLineEdit(newDialog, paramLabel, param._value.toString());
-             }
-                break;
-            case SLIDER: {
-                // A faire en enriched....
-//                QSlider * curWid = new QSlider(Qt::Horizontal);
+//            switch(param._show) {
+//            case LINE_EDIT: {
+//                widget = new EnrichedLineEdit(newDialog, paramLabel, param._value.toString());
+//             }
+//                break;
+//            case SLIDER: {
+//                // A faire en enriched....
+////                QSlider * curWid = new QSlider(Qt::Horizontal);
+////                QVariant minValue;
+////                QVariant maxValue;
+////                getRange(param, minValue, maxValue);
+////                curWid->setRange(minValue.toInt(), maxValue.toInt());
+////                curWid->setValue(getIntValue(param._value));
+////                widget = curWid;
+//            }
+//                qCritical() << "Slider parameter show not handled, widget will be null";
+//                break;
+//            case SPIN_BOX: {
 //                QVariant minValue;
 //                QVariant maxValue;
 //                getRange(param, minValue, maxValue);
-//                curWid->setRange(minValue.toInt(), maxValue.toInt());
-//                curWid->setValue(getIntValue(param._value));
-//                widget = curWid;
-            }
-                qCritical() << "Slider parameter show not handled, widget will be null";
-                break;
-            case SPIN_BOX: {
-                QVariant minValue;
-                QVariant maxValue;
-                getRange(param, minValue, maxValue);
-                widget = new EnrichedSpinBox(newDialog, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
-            }
-                break;
-            case DOUBLE_SPIN_BOX: {
-                QVariant minValue;
-                QVariant maxValue;
-                getRange(param, minValue, maxValue);
-                widget = new EnrichedDoubleSpinBox(newDialog, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
-            }
-                break;
-            case COMBO_BOX: {
-                QStringList items = getEnums(param);
-                widget = new EnrichedComboBox(newDialog, paramLabel, items, param._value.toString());
-            }
-                break;
-            case LIST_BOX: {
-                QStringList items = getEnums(param);
-                widget = new EnrichedListBox(newDialog, param._text, items, param._value.toString());
-            }
-                break;
-            case CHECK_BOX: {
-                widget = new EnrichedCheckBox(newDialog, param._text, getBoolValue(param._value));
-            }
-                break;
-            case TABLE: {
-                int nbCols = param._parameterSize.width();
-                int nbRows = param._parameterSize.height();
-                QStringList values = getNumList(param);
-                widget = new EnrichedTableWidget(newDialog, param._text, nbCols, nbRows, values);
-            }
-                break;
-            case FILE_SELECTOR_RELATIVE:
-            case FILE_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(newDialog, param._text, param._show, param._value.toString());
-            }
-                break;
-            case DIR_SELECTOR_RELATIVE:
-            case DIR_SELECTOR_ABSOLUTE: {
-                widget = new EnrichedFileChooser(newDialog, param._text, param._show, param._value.toString());
-            }
-                break;
-            case UNKNOWN_SHOW:
-            default:
-                break;
-            }
-            if (widget) {
-                widget->hide();
+//                widget = new EnrichedSpinBox(newDialog, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
+//            }
+//                break;
+//            case DOUBLE_SPIN_BOX: {
+//                QVariant minValue;
+//                QVariant maxValue;
+//                getRange(param, minValue, maxValue);
+//                widget = new EnrichedDoubleSpinBox(newDialog, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
+//            }
+//                break;
+//            case COMBO_BOX: {
+//                QStringList items = getEnums(param);
+//                widget = new EnrichedComboBox(newDialog, paramLabel, items, param._value.toString());
+//            }
+//                break;
+//            case LIST_BOX: {
+//                QStringList items = getEnums(param);
+//                widget = new EnrichedListBox(newDialog, param._text, items, param._value.toString());
+//            }
+//                break;
+//            case CHECK_BOX: {
+//                widget = new EnrichedCheckBox(newDialog, param._text, getBoolValue(param._value));
+//            }
+//                break;
+//            case TABLE: {
+//                int nbCols = param._parameterSize.width();
+//                int nbRows = param._parameterSize.height();
+//                QStringList values = getNumList(param);
+//                widget = new EnrichedTableWidget(newDialog, param._text, nbCols, nbRows, values);
+//            }
+//                break;
+//            case FILE_SELECTOR_RELATIVE:
+//            case FILE_SELECTOR_ABSOLUTE: {
+//                widget = new EnrichedFileChooser(newDialog, param._text, param._show, param._value.toString());
+//            }
+//                break;
+//            case DIR_SELECTOR_RELATIVE:
+//            case DIR_SELECTOR_ABSOLUTE: {
+//                widget = new EnrichedFileChooser(newDialog, param._text, param._show, param._value.toString());
+//            }
+//                break;
+//            case UNKNOWN_SHOW:
+//            default:
+//                break;
+//            }
+//            if (widget) {
+//                widget->hide();
 
-                connect(widget, SIGNAL(signal_valueChanged(bool)), newDialog, SLOT(slot_valueModified(bool)));
+//                connect(widget, SIGNAL(signal_valueChanged(bool)), newDialog, SLOT(slot_valueModified(bool)));
 
-                if (!_valuesWidgets.contains(structName)) {
-                    QMap<QString, EnrichedFormWidget*> *structWidgets = new QMap<QString, EnrichedFormWidget*>();
-                    _valuesWidgets.insert(structName, *structWidgets);
-                }
-                _valuesWidgets[structName].insert(param._name, widget);
+//                if (!_valuesWidgets.contains(structName)) {
+//                    QMap<QString, EnrichedFormWidget*> *structWidgets = new QMap<QString, EnrichedFormWidget*>();
+//                    _valuesWidgets.insert(structName, *structWidgets);
+//                }
+//                _valuesWidgets[structName].insert(param._name, widget);
 
-                if (!_groupsWidgets.contains(structName)) {
-                    QMap<QString, QWidget*> *structGroupsWidgets = new QMap<QString, QWidget*>();
-                    _groupsWidgets.insert(structName, *structGroupsWidgets);
-                }
-                _groupsWidgets[structName].insert(param._name, groupBox);
-                QLabel * widLabel = new QLabel(param._text + ":");
-                quint32 currentWidth = metrics.width(param._text + ":");
+//                if (!_groupsWidgets.contains(structName)) {
+//                    QMap<QString, QWidget*> *structGroupsWidgets = new QMap<QString, QWidget*>();
+//                    _groupsWidgets.insert(structName, *structGroupsWidgets);
+//                }
+//                _groupsWidgets[structName].insert(param._name, groupBox);
+//                QLabel * widLabel = new QLabel(param._text + ":");
+//                quint32 currentWidth = metrics.width(param._text + ":");
 
-                maxWidth = qMax(maxWidth, currentWidth);
-                //parameterLayout->addWidget(widLabel);
-                parameterLayout->addWidget(widget);
-                parameterLayout->addStretch();
-                qDebug() << "Add parameter layout";
-                groupBoxLayout->addLayout(parameterLayout);
-                textsForAlignment << widLabel;
-            } else {
-                parameterLayout->deleteLater();
-            }
-        }
+//                maxWidth = qMax(maxWidth, currentWidth);
+//                //parameterLayout->addWidget(widLabel);
 
-        qDebug() << "Set group box layout";
-        groupBox->setLayout(groupBoxLayout);
-        groupBox->hide();
+////                parameterLayout->addWidget(widget);
+////                parameterLayout->addStretch();
+//                groupBoxLayout->addWidget(widget);
 
-        newDialog->addWidget(groupBox);
+//                qDebug() << "Add parameter layout";
 
-    }
-    // realignement textes...
-    // recalcul...
-    foreach(QLabel * label, textsForAlignment) {
-        label->setMinimumWidth(maxWidth);
-    }
+//                //groupBoxLayout->addLayout(parameterLayout);
 
-    _dialogs[structUserExpert] = newDialog;
+//                textsForAlignment << widLabel;
+//            } else {
+//                parameterLayout->deleteLater();
+//            }
+//        }
 
-    return newDialog;
-}
+//        qDebug() << "Set group box layout";
+//        groupBox->setLayout(groupBoxLayout);
+//        groupBox->hide();
+
+//        newDialog->addWidget(groupBox);
+
+//    }
+//    // realignement textes...
+//    // recalcul...
+//    foreach(QLabel * label, textsForAlignment) {
+//        label->setMinimumWidth(maxWidth);
+//    }
+
+//    _dialogs[structUserExpert] = newDialog;
+
+//    return newDialog;
+//    return NULL;
+//}
 
 
 bool MatisseParametersManager::getRange(Parameter param, QVariant &minValue, QVariant &maxValue)

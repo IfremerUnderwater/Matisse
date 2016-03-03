@@ -3,14 +3,16 @@
 using namespace MatisseTools;
 
 EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue):
-    EnrichedFormWidget(parent)
+    EnrichedDecimalValueWidget(parent)
 {
     _spin = new QDoubleSpinBox(this);
+    _spin->setFixedWidth(PARAM_SPINBOX_WIDTH);
     minValue = minValue.trimmed().toLower();
     maxValue = maxValue.trimmed().toLower();
     QString specialValue;
 
-    qreal epsilon = 0.001;
+    quint8 defaultPrecision = PRECISION_DEFAULT;
+    qreal increment = qPow(10, -1 * defaultPrecision);
 
     bool ok;
 
@@ -24,8 +26,8 @@ EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QSt
     if (maxValue.startsWith("inf")) {
         specialValue = "inf";
         _maxValueReal = MAX_REAL;
-        if (qAbs(_minValueReal - MIN_REAL) > epsilon) {
-            _minValueReal -= epsilon;
+        if (qAbs(_minValueReal - MIN_REAL) > increment) {
+            _minValueReal -= increment;
         }
     } else {
         _maxValueReal = maxValue.toInt();
@@ -34,8 +36,8 @@ EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QSt
 
     _spin->setRange(_minValueReal, _maxValueReal);
     _spin->setWrapping(true);
-    _spin->setSingleStep(epsilon);
-    _spin->setDecimals(3);
+    _spin->setSingleStep(increment);
+    _spin->setDecimals(defaultPrecision);
 
     if (!specialValue.isEmpty()) {
         _spin->setSpecialValueText(specialValue);
@@ -89,6 +91,14 @@ void EnrichedDoubleSpinBox::setValue(QString newValue)
 
     _spin->setValue(valueReal);
 
+}
+
+void EnrichedDoubleSpinBox::applyPrecision()
+{
+    qreal increment = qPow(10, -1 * precision());
+
+    _spin->setSingleStep(increment);
+    _spin->setDecimals(precision());
 }
 
 void EnrichedDoubleSpinBox::restoreDefaultValue()

@@ -1,7 +1,10 @@
 #include "Polygon.h"
-
+#include "stdvectoperations.h"
+#include <cfloat>
 
 using namespace basicproc;
+using namespace std;
+
 
 Polygon::Polygon():_modifSinceUpdate(true)
 {
@@ -18,12 +21,17 @@ Polygon::~Polygon()
         for (c=0; c < _gpcPolygon.num_contours; c++) {
 
             delete[] _gpcPolygon.contour[c].vertex;
+            _gpcPolygon.contour[c].vertex = NULL;
 
         }
         delete[] _gpcPolygon.contour;
+        _gpcPolygon.contour = NULL;
     }
-    if (_gpcPolygon.hole)
+    if (_gpcPolygon.hole){
         delete[] _gpcPolygon.hole;
+        _gpcPolygon.hole = NULL;
+    }
+    //gpc_free_polygon(&_gpcPolygon);
 }
 
 bool Polygon::addContour(std::vector<double> x_p, std::vector<double> y_p, bool hole_p)
@@ -64,12 +72,16 @@ void Polygon::updateGpcPolygon()
             for (c=0; c < _gpcPolygon.num_contours; c++) {
 
                 delete[] _gpcPolygon.contour[c].vertex;
+                _gpcPolygon.contour[c].vertex = NULL;
 
             }
             delete[] _gpcPolygon.contour;
+            _gpcPolygon.contour = NULL;
         }
-        if (_gpcPolygon.hole)
+        if (_gpcPolygon.hole){
             delete[] _gpcPolygon.hole;
+            _gpcPolygon.hole = NULL;
+        }
 
         if (this->isEmpty()){
             _gpcPolygon.num_contours=0;
@@ -105,22 +117,24 @@ void Polygon::updateGpcPolygon()
 void Polygon::updatePolygonFromGpc()
 {
     int c, v;
+    _contours.clear();
+    _contoursHole.clear();
 
     for (c=0; c < _gpcPolygon.num_contours; c++)
+    {
+        vertexList vList;
+
+        for (v= 0; v < _gpcPolygon.contour[c].num_vertices; v++)
         {
-            vertexList vList;
-
-            for (v= 0; v < _gpcPolygon.contour[c].num_vertices; v++)
-            {
-                vList.x.push_back(_gpcPolygon.contour[c].vertex[v].x);
-                vList.y.push_back(_gpcPolygon.contour[c].vertex[v].y);
-            }
-            _contours.push_back( vList );
-            vList.x.clear();
-            vList.y.clear();
-
-            _contoursHole.push_back(_gpcPolygon.hole[c]);
+            vList.x.push_back(_gpcPolygon.contour[c].vertex[v].x);
+            vList.y.push_back(_gpcPolygon.contour[c].vertex[v].y);
         }
+        _contours.push_back( vList );
+        vList.x.clear();
+        vList.y.clear();
+
+        _contoursHole.push_back(_gpcPolygon.hole[c]);
+    }
 }
 
 gpc_polygon* Polygon::gpcPolygon()
@@ -151,6 +165,158 @@ void Polygon::clip(Polygon &poly2_p, Polygon &result_p, poly_op operation)
 
     // Update result description from its gpc polygon
     result_p.updatePolygonFromGpc();
+
+}
+
+void Polygon::getBoundingBox(double &tlx_p, double &tly_p, double &brx_p, double &bry_p)
+{
+
+    //Init
+    tlx_p=DBL_MAX;
+    tly_p=DBL_MAX;
+    brx_p=-DBL_MAX;
+    bry_p=-DBL_MAX;
+
+    std::vector<qreal> xArray, yArray;
+    std::vector<qreal>::iterator min_x_it, min_y_it, max_x_it, max_y_it;
+
+
+
+    for (unsigned int i=0; i<_contours.size(); i++){
+        xArray.clear();
+        yArray.clear();
+
+        for (unsigned int j=0; j<_contours[i].x.size(); j++){
+            // Fill x & y array
+            xArray.push_back(_contours[i].x[j]);
+            yArray.push_back(_contours[i].y[j]);
+
+        }
+        // Compute min,max
+        min_x_it = std::min_element(xArray.begin(), xArray.end());
+        min_y_it = std::min_element(yArray.begin(), yArray.end());
+        max_x_it = std::max_element(xArray.begin(), xArray.end());
+        max_y_it = std::max_element(yArray.begin(), yArray.end());
+
+        if (*min_x_it < tlx_p)
+            tlx_p = *min_x_it;
+
+        if (*min_y_it < tly_p)
+            tly_p = *min_y_it;
+
+        if (*max_x_it > brx_p)
+            brx_p = *max_x_it;
+
+        if (*max_y_it > bry_p)
+            bry_p = *max_y_it;
+
+    }
+
+}
+
+void Polygon::getContourCenter(double &cx_p, double &cy_p, int contourIndex_p)
+{
+
+    cx_p = doubleVectorMean(_contours[contourIndex_p].x);
+    cy_p = doubleVectorMean(_contours[contourIndex_p].y);
+
+}
+
+bool Polygon::operator ==(const Polygon &polyB_p)
+{
+    if (_contours.size() == polyB_p.contours().size()){
+
+        for (unsigned int i=0; i<_contours.size(); i++){
+
+            if(_contours[i].x.size() != polyB_p.contours().at(i).x.size())
+                return false;
+        }
+
+        bool x_areEquals = false;
+        bool y_areEquals = false;
+        bool xy_areEquals = false;
+        bool contours_areEquals = true;
+
+        for (unsigned int i=0; i<_contours.size(); i++){
+
+            for (unsigned int j=0; j<_contours[i].x.size(); j++){
+
+                xy_areEquals = false;
+
+                for (unsigned int k=0; k<_contours[i].x.size(); k++){
+
+                    x_areEquals = (_contours[i].x[j]==polyB_p.contours().at(i).x[k]);
+                    y_areEquals = (_contours[i].y[j]==polyB_p.contours().at(i).y[k]);
+
+                    xy_areEquals = xy_areEquals || (x_areEquals && y_areEquals);
+
+                }
+
+                contours_areEquals = contours_areEquals && xy_areEquals;
+
+                if(!contours_areEquals)
+                    return false;
+            }
+        }
+
+    }else{
+        return false;
+    }
+
+    return true;
+
+}
+
+bool Polygon::operator !=(const Polygon &polyB_p)
+{
+    return !(this->operator ==(polyB_p));
+}
+
+void Polygon::operator =(Polygon &polyB_p)
+{
+
+
+    // Remove previously defined polygon
+
+    int c,v;
+
+    if(_gpcPolygon.contour){
+
+        for (c=0; c < _gpcPolygon.num_contours; c++) {
+
+            delete[] _gpcPolygon.contour[c].vertex;
+            _gpcPolygon.contour[c].vertex = NULL;
+
+        }
+        delete[] _gpcPolygon.contour;
+        _gpcPolygon.contour = NULL;
+    }
+    if (_gpcPolygon.hole){
+        delete[] _gpcPolygon.hole;
+        _gpcPolygon.hole = NULL;
+    }
+
+    // Complete Gpc polygon from polyB
+    _gpcPolygon.num_contours = polyB_p.gpcPolygon()->num_contours;
+
+    _gpcPolygon.hole = new int[_gpcPolygon.num_contours];
+    _gpcPolygon.contour = new gpc_vertex_list[_gpcPolygon.num_contours];
+
+    for (c=0; c < _gpcPolygon.num_contours; c++) {
+
+        _gpcPolygon.contour[c].num_vertices = polyB_p.gpcPolygon()->contour[c].num_vertices;
+        _gpcPolygon.contour[c].vertex = new gpc_vertex[_gpcPolygon.contour[c].num_vertices];
+
+
+        for (v= 0; v < _gpcPolygon.contour[c].num_vertices; v++) {
+            _gpcPolygon.contour[c].vertex[v].x = polyB_p.gpcPolygon()->contour[c].vertex[v].x;
+            _gpcPolygon.contour[c].vertex[v].y = polyB_p.gpcPolygon()->contour[c].vertex[v].y;
+        }
+
+        _gpcPolygon.hole[c] = polyB_p.gpcPolygon()->hole[c];
+    }
+
+    this->updatePolygonFromGpc();
 
 }
 

@@ -106,92 +106,92 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="682"/>
+        <location filename="ui/AssemblyGui.ui" line="711"/>
         <source>toolBar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="728"/>
+        <location filename="ui/AssemblyGui.ui" line="757"/>
         <source>Delete processing chain</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="737"/>
+        <location filename="ui/AssemblyGui.ui" line="766"/>
         <source>New processing chain</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="746"/>
-        <location filename="ui/AssemblyGui.ui" line="749"/>
+        <location filename="ui/AssemblyGui.ui" line="775"/>
+        <location filename="ui/AssemblyGui.ui" line="778"/>
         <source>Save Job</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="758"/>
-        <location filename="ui/AssemblyGui.ui" line="761"/>
+        <location filename="ui/AssemblyGui.ui" line="787"/>
+        <location filename="ui/AssemblyGui.ui" line="790"/>
         <source>Save Job as...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="774"/>
-        <location filename="ui/AssemblyGui.ui" line="777"/>
+        <location filename="ui/AssemblyGui.ui" line="803"/>
+        <location filename="ui/AssemblyGui.ui" line="806"/>
         <source>Change user/expert mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="786"/>
-        <location filename="ui/AssemblyGui.ui" line="789"/>
+        <location filename="ui/AssemblyGui.ui" line="815"/>
+        <location filename="ui/AssemblyGui.ui" line="818"/>
         <source>Process Job</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="801"/>
-        <location filename="ui/AssemblyGui.ui" line="804"/>
+        <location filename="ui/AssemblyGui.ui" line="830"/>
+        <location filename="ui/AssemblyGui.ui" line="833"/>
         <source>Reload chains/jobs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="813"/>
-        <location filename="ui/AssemblyGui.ui" line="816"/>
+        <location filename="ui/AssemblyGui.ui" line="842"/>
+        <location filename="ui/AssemblyGui.ui" line="845"/>
         <source>Save parameters set</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="825"/>
-        <location filename="ui/AssemblyGui.ui" line="828"/>
+        <location filename="ui/AssemblyGui.ui" line="854"/>
+        <location filename="ui/AssemblyGui.ui" line="857"/>
         <source>Save processing chain</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="837"/>
-        <location filename="ui/AssemblyGui.ui" line="840"/>
-        <location filename="ui/AssemblyGui.ui" line="843"/>
+        <location filename="ui/AssemblyGui.ui" line="866"/>
+        <location filename="ui/AssemblyGui.ui" line="869"/>
+        <location filename="ui/AssemblyGui.ui" line="872"/>
         <source>Save processing chain as...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="852"/>
-        <location filename="ui/AssemblyGui.ui" line="855"/>
+        <location filename="ui/AssemblyGui.ui" line="881"/>
+        <location filename="ui/AssemblyGui.ui" line="884"/>
         <source>Delete Job</source>
         <translation type="unfinished"></translation>
     </message>
     <message utf8="true">
-        <location filename="ui/AssemblyGui.ui" line="864"/>
-        <location filename="ui/AssemblyGui.ui" line="867"/>
+        <location filename="ui/AssemblyGui.ui" line="893"/>
+        <location filename="ui/AssemblyGui.ui" line="896"/>
         <source>Stopper l&apos;exécution travail</source>
         <translation type="unfinished"></translation>
     </message>
     <message utf8="true">
-        <location filename="ui/AssemblyGui.ui" line="879"/>
-        <location filename="ui/AssemblyGui.ui" line="882"/>
+        <location filename="ui/AssemblyGui.ui" line="908"/>
+        <location filename="ui/AssemblyGui.ui" line="911"/>
         <source>Supprimer les Paramètres</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="ui/AssemblyGui.ui" line="900"/>
-        <location filename="ui/AssemblyGui.ui" line="903"/>
-        <location filename="ui/AssemblyGui.ui" line="906"/>
-        <location filename="ui/AssemblyGui.ui" line="915"/>
+        <location filename="ui/AssemblyGui.ui" line="929"/>
+        <location filename="ui/AssemblyGui.ui" line="932"/>
+        <location filename="ui/AssemblyGui.ui" line="935"/>
+        <location filename="ui/AssemblyGui.ui" line="944"/>
         <source>separator</source>
         <translation type="unfinished"></translation>
     </message>

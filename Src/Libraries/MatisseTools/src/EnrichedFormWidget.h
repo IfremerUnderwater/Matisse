@@ -8,6 +8,8 @@
 #include <QString>
 #include <QSharedPointer>
 
+#include "GraphicalCharter.h"
+
 #include <limits>
 
 namespace MatisseTools {
@@ -17,18 +19,15 @@ class EnrichedFormWidget : public QWidget
 public:
     explicit EnrichedFormWidget(QWidget *parent = 0);
 
-    void setLabelColumnWidth(quint32 width);
-    quint32 getLabelColumnWidth();
-    void setWidth(quint32 labelWidth, quint32 widgetWidth);
     virtual QString currentValue() =0;
     virtual void restoreDefaultValue() = 0;
     virtual void setValue(QString newValue) = 0;
 
 protected:
-    void setWidget(QString label, QWidget * widget);
-    quint32 getLabelWidth();
+    void setWidget(QString label, QWidget * widget, bool wrapWidget = false);
     virtual bool currentValueChanged() = 0;
     void swapColor(bool yes = true);
+    quint32 getTextFieldWidth(QString text);
 
     QString _defaultValue;
 

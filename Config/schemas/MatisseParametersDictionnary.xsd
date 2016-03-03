@@ -37,6 +37,8 @@
         <xs:attribute name="type" type="Type" use="required"/>
         <xs:attribute name="size" type="xs:string" use="optional"/>
         <xs:attribute name="range" type="xs:string" use="optional"/>
+        <xs:attribute name="precision" type="xs:unsignedByte" use="optional"/>
+        <xs:attribute name="formatTemplate" type="xs:string" use="optional"/>
         <xs:attribute name="show" type="Show" use="required"/>
         <xs:attribute name="default" type="xs:string" use="optional"/>
     </xs:complexType>

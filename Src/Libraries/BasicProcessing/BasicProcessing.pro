@@ -11,10 +11,12 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 SOURCES += Polygon.cpp \
-    gpc.cpp
+    gpc.cpp \
+    stdvectoperations.cpp
 
 HEADERS += Polygon.h \
-    gpc.h
+    gpc.h \
+    stdvectoperations.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

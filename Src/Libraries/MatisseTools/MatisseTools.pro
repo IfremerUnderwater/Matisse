@@ -48,7 +48,8 @@ SOURCES +=\
     src/JobServer.cpp \
     src/EnrichedFileChooser.cpp \
     src/MatissePreferences.cpp \
-    src/MatisseParametersManager.cpp
+    src/MatisseParametersManager.cpp \
+    src/EnrichedDecimalValueWidget.cpp
 
 HEADERS +=\
           src/ChooseAndShow.h \
@@ -71,7 +72,8 @@ HEADERS +=\
     src/ToolsCommon.h \
     src/MatissePreferences.h \
     src/MatisseParametersManager.h \
-    src/MatisseDictionnaryLabels.h
+    src/MatisseDictionnaryLabels.h \
+    src/EnrichedDecimalValueWidget.h
 
 FORMS    += ui/ChooseAndShow.ui \
             ui/ParametersWidgetSkeleton.ui
@@ -82,4 +84,3 @@ TRANSLATIONS=MatisseTools_fr.ts \
 DISTFILES += \
     ../../../Config/schemas/MatisseParametersDictionnary.xsd \
     ../../../Config/schemas/JobParameters.xsd \
-    ../../../Config/config/MatisseParametersDictionnary.xml

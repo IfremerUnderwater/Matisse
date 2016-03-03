@@ -25,7 +25,7 @@ public:
     ~RasterGeoreferencer();
 
     ///
-    /// \brief WriteGeoFile write a georeferenced file using memory raster
+    /// \brief WriteGeoFile write a georeferenced file using memory raster (this method is the class version of the command line gdal_translate)
     /// \param raster opencv image of the raster data
     /// \param rasterMask opencv image of the raster mask (0 not to be seen, 255 valid area)
     /// \param outputFile path and name of the output geofile

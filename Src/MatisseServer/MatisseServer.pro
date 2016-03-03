@@ -102,8 +102,7 @@ HEADERS  += \
     src/MatisseTabWidget.h \
     src/MatisseMenu.h \
     src/PreferencesDialog.h \
-    src/LiveProcessWheel.h \
-    src/GraphicalCharter.h
+    src/LiveProcessWheel.h
 
 FORMS    += \
     ui/AssemblyGui.ui \
@@ -112,7 +111,6 @@ FORMS    += \
     ui/UserFormWidget.ui \
     ui/ParametersDialog.ui \
     ui/ServerDialog.ui \
-    ui/JobDialog.ui \
     ui/JobDialog.ui \
     ui/StatusMessageWidget.ui \
     ui/WelcomeDialog.ui \
@@ -126,7 +124,7 @@ FORMS    += \
 
 
 TRANSLATIONS=MatisseServer_fr.ts \
-    MatisseServer_en.ts
+             MatisseServer_en.ts
 
 RESOURCES += \
     ui/resources/resources.qrc \
@@ -144,4 +142,4 @@ OTHER_FILES += \
 
 DISTFILES += \
     ../../Config/xml/models/MatisseAssembly.xsd \
-    ../../Config/schemas/ParametersDictionnary.xsd
+    ../../Config/schemas/MatisseParametersDictionnary.xsd
