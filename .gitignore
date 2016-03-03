@@ -10,6 +10,8 @@ Makefile.Release*
 
 /main/qt/MatisseCommon/tmp
 
+/Doc
+
 *.exe
 
 /main/qt/MatisseServer/temp
