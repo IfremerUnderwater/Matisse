@@ -43,7 +43,7 @@ public:
 
     QStringList resultFileNames() const;
 
-    volatile bool isCancelled() const;
+    bool isCancelled() const;
 
     void setMainGui(AssemblyGui *mainGui);
 

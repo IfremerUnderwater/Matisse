@@ -679,7 +679,7 @@ void JobTask::slot_stop()
     emit signal_jobStopped();
 }
 
-volatile bool JobTask::isCancelled() const
+bool JobTask::isCancelled() const
 {
     return _isCancelled;
 }
