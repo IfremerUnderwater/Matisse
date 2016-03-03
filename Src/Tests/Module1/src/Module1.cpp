@@ -17,6 +17,11 @@ Module1::Module1() :
     Processor(NULL, "Module1", "Module d'essai", 1, 2)
 {
     addExpectedParameter("algo_param", "sift_code");
+    addExpectedParameter("algo_param", "min_matches");
+    addExpectedParameter("algo_param", "max_matches");
+    addExpectedParameter("algo_param", "max_overlap");
+    addExpectedParameter("algo_param", "max_Pitch");
+    addExpectedParameter("algo_param", "ba_method");
 }
 
 bool Module1::configure()

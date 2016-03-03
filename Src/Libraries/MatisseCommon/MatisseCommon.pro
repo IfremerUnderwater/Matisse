@@ -33,7 +33,8 @@ HEADERS += \
     src/Sleeper.h \
     src/Dim2UdpListener.h \
     src/GeoTransform.h \
-    src/RasterGeoreferencer.h
+    src/RasterGeoreferencer.h \
+    src/GraphicalCharter.h
 
 SOURCES += \
     src/Processor.cpp \

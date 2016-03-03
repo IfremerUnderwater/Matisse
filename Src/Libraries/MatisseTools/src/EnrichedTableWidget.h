@@ -6,23 +6,27 @@
 #include <QTableWidget>
 #include <QtDebug>
 
-#include "EnrichedFormWidget.h"
+#include "EnrichedDecimalValueWidget.h"
 
 namespace MatisseTools {
 
-class EnrichedTableWidget : public EnrichedFormWidget
+class EnrichedTableWidget : public EnrichedDecimalValueWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedTableWidget(QWidget *parent, QString label, quint8 cols, quint8 rows, QStringList defaultValues);
+    explicit EnrichedTableWidget(QWidget *parent, QString label, quint8 cols, quint8 rows, QStringList defaultValues, QString formatTemplate);
     bool currentValueChanged();
     virtual QString currentValue();
     virtual void restoreDefaultValue();
     virtual void setValue(QString newValue);
 
+protected:
+    virtual void applyPrecision();
+
 signals:
 
-public slots:
+protected slots:
+    void slot_cellValueChanged(QTableWidgetItem *item);
 
 private:
     QTableWidget * _table;

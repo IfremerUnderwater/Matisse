@@ -52,7 +52,6 @@ public:
     //void test();
     AssemblyGraphicsScene * getScene() { return _scene;}
     QGraphicsView * getGraphicsView();
-    QScrollArea * getParametersDock();
     //void showParameters(AssemblyDefinition * assembly);
 //    bool saveParameters();
 //    bool deleteSelectedParameters();

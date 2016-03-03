@@ -876,7 +876,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>980</width>
+             <width>580</width>
              <height>710</height>
             </size>
            </property>
@@ -907,7 +907,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>980</width>
+              <width>580</width>
               <height>710</height>
              </size>
             </property>
@@ -921,7 +921,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>980</width>
+              <width>580</width>
               <height>710</height>
              </size>
             </property>
@@ -929,6 +929,41 @@
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QScrollArea" name="_SCA_parametersDock">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="lineWidth">
+         <number>0</number>
+        </property>
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>400</width>
+           <height>708</height>
+          </rect>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>

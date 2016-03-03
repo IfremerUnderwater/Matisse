@@ -6,6 +6,9 @@ namespace MatisseTools {
 #define InfInt qPow(2,31)-1
 #define InfDouble exp((double)100)
 
+#define PRECISION_MAX       5;
+#define PRECISION_DEFAULT   2;
+
 struct EnumValue {
     QString _name;
     QString _text;
@@ -47,11 +50,12 @@ struct Parameter {
     QString _name;
     QString _text;
     ParameterLevel _level;
-    bool _userModify;
-    QString _suffix;
     ParameterType _type;
-    QSize _parameterSize;
     QString _typeName;
+    QString _suffix;
+    QSize _parameterSize;
+    quint8 _precision;
+    QString _formatTemplate;
     ParameterShow _show;
     QVariant _value;
     QString _range;

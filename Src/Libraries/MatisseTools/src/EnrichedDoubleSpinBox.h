@@ -4,15 +4,17 @@
 #include <QDoubleSpinBox>
 #include <QString>
 #include <QtDebug>
+#include <qmath.h>
 
-#include "EnrichedFormWidget.h"
+#include "ToolsCommon.h"
+#include "EnrichedDecimalValueWidget.h"
 
 #define MIN_REAL std::numeric_limits<float>::min()
 #define MAX_REAL std::numeric_limits<float>::max()
 
 namespace MatisseTools {
 
-class EnrichedDoubleSpinBox : public EnrichedFormWidget
+class EnrichedDoubleSpinBox : public EnrichedDecimalValueWidget
 {
     Q_OBJECT
 public:
@@ -22,6 +24,8 @@ public:
     virtual void restoreDefaultValue();
     virtual void setValue(QString newValue);
 
+protected:
+    virtual void applyPrecision();
 signals:
 
 public slots:

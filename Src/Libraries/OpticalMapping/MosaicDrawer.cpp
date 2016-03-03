@@ -900,8 +900,8 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
             // Recenter polygon and round the coord to have integers
             for (unsigned int i=0; i<x.size(); i++){
-                x[i] = round( x[i] - ncc_x + cc_x );
-                y[i] = round( y[i] - ncc_y + cc_y );
+                x[i] = (int)( x[i] - ncc_x + cc_x );
+                y[i] = (int)( y[i] - ncc_y + cc_y );
             }
 
             // Fill polygon with this contour

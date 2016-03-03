@@ -82,7 +82,7 @@ public:
     void initPreferences();
     void loadAssemblyParameters(AssemblyDefinition *selectedAssembly);
     void initParametersWidget();
-    void resizeAndRepositionParametersWidget();
+
 private:
     Ui::AssemblyGui *_ui;
     bool _isMapView;
@@ -104,6 +104,7 @@ private:
 
     bool _userParameterModified;
     bool _expertValuesModified;
+    bool _parametersUnfolded;
 
     static const QString PREFERENCES_FILEPATH;
 
@@ -112,8 +113,7 @@ private:
     JobDefinition *_currentJob;
     UserFormWidget * _userFormWidget;
     ExpertFormWidget * _expertFormWidget;
-    QScrollArea * _jobParametersDock;
-    QScrollArea * _assemblyParametersDock;
+    QScrollArea * _parametersDock;
     ParametersWidgetSkeleton * _parametersWidget;
     QLabel* _messagesPicto;
 
@@ -219,17 +219,17 @@ private:
     void showStatusMessage(QString message = "", MessageIndicatorLevel level = IDLE, bool progressOn = false);
     void setActionsStates(QTreeWidgetItem *currentItem = NULL);
 
+    void initVersionDisplay();
     void initLanguages();
     void updateLanguage(QString language, bool forceRetranslation = FALSE);
     void retranslate();
-
-    void initVersionDisplay();
-
+    
     bool loadResultToCartoView(QString resultFile_p);
+    
+    void doFoldUnfoldParameters(bool doUnfold);
 
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
-    void resizeEvent(QResizeEvent* event); // overriding resize event
 
 protected slots:
     //void slot_showAssembly(QModelIndex index);
@@ -259,6 +259,7 @@ protected slots:
     void slot_selectAssemblyOrJob(QTreeWidgetItem *selectedItem, int column=0);
     void slot_updateTimeDisplay();
     void slot_updatePreferences();
+    void slot_foldUnfoldParameters();
 
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);

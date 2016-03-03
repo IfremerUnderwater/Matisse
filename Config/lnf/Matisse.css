@@ -25,7 +25,14 @@ QWidget{
    font-family: "Montserrat";
    font-size: 11pt;
    font-weight: normal;
+   /*border: 1px solid blue;*/
+   border: none;
 }
+
+/*
+QWidget#_WID_parametersWidget QWidget {
+    border: 1px solid green;
+}*/
 
 QLabel
 {
@@ -116,9 +123,9 @@ QMenu {
     /*background: #252a31;*/ /* noir pour marquer le tour de la popup (margin) */
     background-color: #424c58;
     margin: 5px; /* impossible de régler individuellement les marges */
-    font-family: "Montserrat";
-    font-size: 11pt;
-    font-weight: normal;
+    /*font-family: "Montserrat";*/
+    /*font-size: 11pt;*/
+    /*font-weight: normal;*/
 }
 
 QMenu::item {
@@ -371,31 +378,37 @@ QPushButton:hover#_PB_cancel, QPushButton:hover#_PB_save {
     padding: 0px 10px 0px 10px;
 }
 
-
-QPushButton:pressed {
-  background-color: #4a8adc; /* Bleu */
-  border: none;
+QPushButton#_PB_levelHeaderButton {
+    text-align: left;
+    padding: 0px 0px 0px 10px;
+    border:none;
+    font-weight: bold;
 }
 
-QPushButton:checked {
-  background-color: #4a8adc;  /* Bleu */
-  border: none;
+QPushButton:hover#_PB_levelHeaderButton {
+    border:none;
 }
 
 
-QPushButton:flat {
-     border: 2px solid #4a8adc;  /* Bleu */
-}
-
-/** GroupBox **/
+/* GroupBox */
 QGroupBox {
      background-color: #434a54; /* Gris fonce  */
      border: none;
+     /*border: 1px solid red;*/
      /* font attributes for the ::title part */
-     font-family: "Montserrat";
-     font-size: 12px;
      font-weight: bold;
      padding-top: 15;
+ }
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left; /* position at the top left */
+    padding-top: 2;
+    padding-left: 0;
+    /* Font attributes are defined
+     * for the groupbox widget
+     * Do not work for the ::title part */
+    color: #7c828c; /* Gris moyen */
  }
 
 QGroupBox#_GB_userModeSelection {
@@ -405,16 +418,6 @@ QGroupBox#_GB_userModeSelection {
 
 
 
-QGroupBox::title {
-    subcontrol-origin: margin;
-    subcontrol-position: top left; /* position at the top left */
-    padding-top: 2;
-    padding-left: 7;
-    /* Font attributes are defined
-     * for the groupbox widget
-     * Do not work for the ::title part */
-    color: #7c828c; /* Gris moyen */
- }
 
 /* A quoi ça sert ? */
 Line {
@@ -526,7 +529,7 @@ QAbstractSpinBox:down-button
     subcontrol-position: center left;
 }
 
-QSpinBox::up-arrow {
+QAbstractSpinBox::up-arrow {
     image: url(:/qss_icons/rc/up_arrow_disabled.png);
     width: 10px;
     height: 10px;
