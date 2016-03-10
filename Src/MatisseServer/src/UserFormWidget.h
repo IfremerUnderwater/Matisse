@@ -36,6 +36,7 @@ public:
     void loadRasterFile(QString filename = "");
     void loadShapefile(QString filename = "");
     void load3DFile(QString filename = "");
+    void loadImageFile(QString filename);
     void setTools(Tools * tools);
     void saveQgisProject(QString filename);
     void loadTestVectorLayer();

@@ -352,3 +352,17 @@ void UserFormWidget::displayImage(Image *image ){
 
 }
 
+
+void UserFormWidget::loadImageFile(QString filename){
+
+    if (_currentViewType!=QImageView)
+        switchCartoViewTo(QImageView);
+
+
+    QImage result(filename);
+    const QPixmap pix = QPixmap::fromImage(result);
+    const QSize size = _ui->_LA_resultImage->size();
+    this->_ui->_LA_resultImage->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
+
+}
+

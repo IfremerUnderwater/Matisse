@@ -487,6 +487,9 @@ bool AssemblyGui::loadResultToCartoView(QString resultFile_p)
     }else if (_userFormWidget->supported3DFileFormat().contains(infoResult.suffix())){
         _userFormWidget->load3DFile(infoResult.absoluteFilePath());
 
+    }else if (_userFormWidget->supportedImageFormat().contains(infoResult.suffix())){
+        _userFormWidget->loadImageFile(infoResult.absoluteFilePath());
+
     }else{
         qDebug() << "Output file format not supported";
     }
