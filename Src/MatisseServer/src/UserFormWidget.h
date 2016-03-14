@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QImage>
 #include <QGraphicsView>
+#include <QThread>
 #include <qgsmapcanvas.h>
 #include "Image.h"
 #include "Tools.h"
@@ -14,9 +15,32 @@ using namespace MatisseCommon;
 namespace Ui {
 class UserFormWidget;
 }
-
+class QgsRasterLayer;
 
 enum CartoViewType { QGisMapLayer, QImageView, OpenSceneGraphView };
+
+
+class resultLoadingTask : public QObject{
+    Q_OBJECT
+
+public:
+    explicit resultLoadingTask();
+    virtual ~resultLoadingTask();
+
+signals:
+    void signal_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
+    void signal_add3DSceneToCartoView(QString userText);
+
+public slots:
+    void slot_loadRasterFromFile(QString filename_p = "");
+    void slot_load3DSceneFromFile(QString filename = "");
+
+private:
+    CartoViewType _lastLoadedView;
+
+
+};
+
 
 class UserFormWidget : public QWidget
 {
@@ -56,6 +80,9 @@ private:
 
     CartoViewType _currentViewType;
 
+    QThread _resultLoadingThread;
+    resultLoadingTask _resultLoadingTask;
+
     QStringList _supportedRasterFormat;
     QStringList _supportedVectorFormat;
     QStringList _supported3DFileFormat;
@@ -63,9 +90,11 @@ private:
 
 protected slots:
     void slot_parametersChanged(bool changed);
+    void slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
 
 signals:
     void signal_parametersChanged(bool changed);
+    void signal_loadRasterFromFile(QString filename_p = "");
 
 };
 

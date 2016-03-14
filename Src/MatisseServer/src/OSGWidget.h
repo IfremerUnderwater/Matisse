@@ -30,6 +30,13 @@ public:
     bool setSceneFromFile(std::string sceneFile_p);
 
     ///
+    /// \brief setSceneData load a scene from a osg::ref_ptr<osg::Node>
+    /// \param sceneData_p pointer to scene data
+    /// \return true if loading succeded
+    ///
+    bool setSceneData(osg::ref_ptr<osg::Node> sceneData_p);
+
+    ///
     /// \brief setClearColor set the clear color for all cameras
     /// \param r_p red [0..1]
     /// \param g_p green [0..1]

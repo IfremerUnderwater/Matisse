@@ -30,12 +30,19 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
 
     // Default view is QImageView
     switchCartoViewTo(QImageView);
-    _currentViewType = QImageView;
 
     _supportedRasterFormat << "tif" << "tiff";
     _supportedVectorFormat << "shp";
     _supported3DFileFormat << "obj" << "osg" << "ply" << "osgt";
     _supportedImageFormat << "jpg" << "jpeg" << "png";
+
+    // Init loading thread
+    connect(this,SIGNAL(signal_loadRasterFromFile(QString)),&_resultLoadingTask,SLOT(slot_loadRasterFromFile(QString)));
+    connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(QgsRasterLayer*)),this,SLOT(slot_addRasterToCartoView(QgsRasterLayer*)));
+
+    _resultLoadingTask.moveToThread(&_resultLoadingThread);
+    _resultLoadingThread.start();
+
 }
 
 UserFormWidget::~UserFormWidget()
@@ -132,28 +139,18 @@ void UserFormWidget::resetJobForm()
 
 void UserFormWidget::loadRasterFile(QString filename) {
 
-    if (filename.isEmpty()) {
-        return;
-    }
-    QFileInfo fileInfo(filename);
+    emit signal_loadRasterFromFile(filename);
 
-    QgsRasterLayer * mypLayer = new QgsRasterLayer(filename, fileInfo.fileName());
+}
 
-    if (mypLayer->isValid())
-    {
-        qDebug("Layer is valid");
-    }
-    else
-    {
-        qDebug("Layer is NOT valid");
-        return;
-    }
+void UserFormWidget::slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p) {
+
 
     // Add the raster Layer to the Layer Registry
-    QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE, TRUE);
+    QgsMapLayerRegistry::instance()->addMapLayer(rasterLayer_p, TRUE, TRUE);
 
     // Add the layer to the Layer Set
-    _layers->append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
+    _layers->append(QgsMapCanvasLayer(rasterLayer_p, TRUE));//bool visibility
 
     // Merge extents
     QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
@@ -366,3 +363,47 @@ void UserFormWidget::loadImageFile(QString filename){
 
 }
 
+// Threaded result file loading task
+
+resultLoadingTask::resultLoadingTask()
+{
+    _lastLoadedView = QImageView;
+
+}
+
+resultLoadingTask::~resultLoadingTask()
+{
+
+}
+
+void resultLoadingTask::slot_loadRasterFromFile(QString filename_p)
+{
+
+    if (filename_p.isEmpty()) {
+        return;
+    }
+    QFileInfo fileInfo(filename_p);
+
+    QgsRasterLayer * rasterLayer = new QgsRasterLayer(filename_p, fileInfo.fileName());
+
+    if(rasterLayer)
+    {
+        if (rasterLayer->isValid())
+        {
+            qDebug("QGis raster layer is valid");
+            emit signal_addRasterToCartoView(rasterLayer);
+        }
+        else
+        {
+            qDebug("QGis raster layer is NOT valid");
+            delete rasterLayer;
+            return;
+        }
+    }
+
+}
+
+void resultLoadingTask::slot_load3DSceneFromFile(QString filename)
+{
+
+}

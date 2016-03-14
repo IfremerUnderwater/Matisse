@@ -159,6 +159,23 @@ bool OSGWidget::setSceneFromFile(std::string sceneFile_p)
 
 }
 
+bool OSGWidget::setSceneData(osg::ref_ptr<osg::Node> sceneData_p)
+{
+    if (!sceneData_p)
+    {
+        std::cout << "No data loaded" << std::endl;
+        return false;
+    }
+
+    _loadedModel = sceneData_p;
+
+    osgViewer::View *view = _viewer->getView(0);
+
+    view->setSceneData( sceneData_p.get() );
+
+    return true;
+}
+
 void OSGWidget::setClearColor(double r_p, double g_p, double b_p, double alpha_p)
 {
     std::vector<osg::Camera*> cameras;
