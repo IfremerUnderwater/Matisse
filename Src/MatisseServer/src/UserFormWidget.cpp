@@ -37,8 +37,12 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     _supportedImageFormat << "jpg" << "jpeg" << "png";
 
     // Init loading thread
+    qRegisterMetaType< osg::ref_ptr<osg::Node> >();
+
     connect(this,SIGNAL(signal_loadRasterFromFile(QString)),&_resultLoadingTask,SLOT(slot_loadRasterFromFile(QString)));
     connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(QgsRasterLayer*)),this,SLOT(slot_addRasterToCartoView(QgsRasterLayer*)));
+    connect(this,SIGNAL(signal_load3DSceneFromFile(QString)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString)));
+    connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)));
 
     _resultLoadingTask.moveToThread(&_resultLoadingThread);
     _resultLoadingThread.start();
@@ -221,13 +225,18 @@ void UserFormWidget::loadShapefile(QString filename)
     mapCanvas->refresh();
 }
 
-void UserFormWidget::load3DFile(QString filename)
+void UserFormWidget::load3DFile(QString filename_p)
 {
     if (_currentViewType!=OpenSceneGraphView)
         switchCartoViewTo(OpenSceneGraphView);
-    _ui->_OSG_viewer->setSceneFromFile(filename.toStdString());
+
+    emit signal_load3DSceneFromFile(filename_p);
 }
 
+void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p)
+{
+    _ui->_OSG_viewer->setSceneData(sceneData_p);
+}
 
 void UserFormWidget::setTools(Tools *tools)
 {
@@ -320,10 +329,6 @@ QStringList UserFormWidget::supportedImageFormat() const
 }
 
 
-
-
-
-
 void UserFormWidget::slot_parametersChanged(bool changed)
 {
     // pour transmettre le signal vers la maun gui...
@@ -403,7 +408,24 @@ void resultLoadingTask::slot_loadRasterFromFile(QString filename_p)
 
 }
 
-void resultLoadingTask::slot_load3DSceneFromFile(QString filename)
+void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p)
 {
+
+    // load the data
+    setlocale(LC_ALL, "C");
+    //_loadedModel = osgDB::readRefNodeFile(sceneFile_p, new osgDB::Options("noTriStripPolygons"));
+    osg::ref_ptr<osg::Node> sceneData = osgDB::readRefNodeFile(filename_p.toStdString());
+
+    if (!sceneData)
+    {
+        std::cout << "No 3D data loaded" << std::endl;
+        return;
+    }
+
+    // optimize the scene graph, remove redundant nodes and state etc.
+    osgUtil::Optimizer optimizer;
+    optimizer.optimize(sceneData.get());
+
+    emit signal_add3DSceneToCartoView(sceneData);
 
 }

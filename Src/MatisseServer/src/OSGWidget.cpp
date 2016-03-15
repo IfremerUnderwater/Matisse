@@ -171,7 +171,7 @@ bool OSGWidget::setSceneData(osg::ref_ptr<osg::Node> sceneData_p)
 
     osgViewer::View *view = _viewer->getView(0);
 
-    view->setSceneData( sceneData_p.get() );
+    view->setSceneData( _loadedModel.get() );
 
     return true;
 }

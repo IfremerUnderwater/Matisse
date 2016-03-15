@@ -10,6 +10,13 @@
 #include "Tools.h"
 #include "GraphicalCharter.h"
 
+#include <osg/ref_ptr>
+#include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
+#include <osgUtil/Optimizer>
+
+Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
+
 using namespace MatisseTools;
 using namespace MatisseCommon;
 namespace Ui {
@@ -29,11 +36,11 @@ public:
 
 signals:
     void signal_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
-    void signal_add3DSceneToCartoView(QString userText);
+    void signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
 
 public slots:
     void slot_loadRasterFromFile(QString filename_p = "");
-    void slot_load3DSceneFromFile(QString filename = "");
+    void slot_load3DSceneFromFile(QString filename_p = "");
 
 private:
     CartoViewType _lastLoadedView;
@@ -59,7 +66,7 @@ public:
     void resetJobForm();
     void loadRasterFile(QString filename = "");
     void loadShapefile(QString filename = "");
-    void load3DFile(QString filename = "");
+    void load3DFile(QString filename_p = "");
     void loadImageFile(QString filename);
     void setTools(Tools * tools);
     void saveQgisProject(QString filename);
@@ -91,10 +98,12 @@ private:
 protected slots:
     void slot_parametersChanged(bool changed);
     void slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
+    void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
 
 signals:
     void signal_parametersChanged(bool changed);
     void signal_loadRasterFromFile(QString filename_p = "");
+    void signal_load3DSceneFromFile(QString filename_p = "");
 
 };
 
