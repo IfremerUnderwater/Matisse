@@ -816,6 +816,17 @@ void AssemblyGui::doFoldUnfoldParameters(bool doUnfold)
     _parametersUnfolded = doUnfold;
 }
 
+void AssemblyGui::freezeJobUserAction(bool freeze_p)
+{
+    if(freeze_p){
+        _ui->_TRW_assemblies->setEnabled(false);
+        _ui->_MCB_controllBar->setSwitchModeButtonEnable(false);
+    }else{
+        _ui->_TRW_assemblies->setEnabled(true);
+        _ui->_MCB_controllBar->setSwitchModeButtonEnable(true);
+    }
+}
+
 
 void AssemblyGui::slot_showApplicationMode(ApplicationMode mode)
 {
@@ -2184,6 +2195,8 @@ void AssemblyGui::slot_launchJob()
         QString msg = tr("Erreur %1: %2").arg(jobName).arg(_server.messageStr());
         showStatusMessage(msg, ERROR, true);
         _stopButton->setEnabled(false);
+    }else{
+        freezeJobUserAction(true);
     }
 
     //setActionsStates(_lastJobLaunchedItem);
@@ -2223,7 +2236,10 @@ void AssemblyGui::slot_stopJob()
     }
     else {
         // cancel dialog => do nothing
+        return;
     }
+
+    freezeJobUserAction(false);
 
 }
 
@@ -2297,6 +2313,7 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
         // Désactiver le bouton STOP
         emit signal_processStopped();
         _stopButton->setEnabled(false);
+        freezeJobUserAction(false);
     }
 }
 

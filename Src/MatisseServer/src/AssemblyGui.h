@@ -228,6 +228,8 @@ private:
     
     void doFoldUnfoldParameters(bool doUnfold);
 
+    void freezeJobUserAction(bool freeze_p);
+
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 
