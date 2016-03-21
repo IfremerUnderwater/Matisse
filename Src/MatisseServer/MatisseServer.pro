@@ -7,7 +7,7 @@
 TARGET = MatisseServer
 TEMPLATE = app
 
-QT       += core gui network sql xml xmlpatterns script
+QT       += core gui network sql xml xmlpatterns script opengl
 
 win32 {
     RC_FILE = MatisseServer.rc
@@ -26,6 +26,9 @@ else {
 unix{
 INCLUDEPATH *= $$PWD/src
 }
+
+# osg lib link
+LIBS += -losg -losgGA -losgDB -losgUtil -losgViewer
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../
@@ -73,7 +76,8 @@ SOURCES += src/main.cpp\
     src/MatisseTabWidget.cpp \
     src/MatisseMenu.cpp \
     src/PreferencesDialog.cpp \
-    src/LiveProcessWheel.cpp
+    src/LiveProcessWheel.cpp \
+    src/OSGWidget.cpp
 
 HEADERS  += \
     src/AssemblyGui.h \
@@ -102,7 +106,8 @@ HEADERS  += \
     src/MatisseTabWidget.h \
     src/MatisseMenu.h \
     src/PreferencesDialog.h \
-    src/LiveProcessWheel.h
+    src/LiveProcessWheel.h \
+    src/OSGWidget.h
 
 FORMS    += \
     ui/AssemblyGui.ui \

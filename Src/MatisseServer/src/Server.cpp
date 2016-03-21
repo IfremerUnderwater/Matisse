@@ -1,5 +1,6 @@
 ﻿#include "Server.h"
 #include "AssemblyDefinition.h"
+#include "AssemblyGui.h"
 
 using namespace MatisseServer;
 
@@ -8,7 +9,8 @@ Server::Server(QObject *parent) :
     QObject(parent),
     _xmlTool(),
     _jobServer(NULL),
-    _currentJob(NULL)
+    _currentJob(NULL),
+    _mainGui(NULL)
 {
 
 }
@@ -185,7 +187,7 @@ void Server::slot_currentJobProcessed()
     }
 
     disconnect(this, SLOT(slot_currentJobProcessed()));
-    disconnect(this, SIGNAL(signal_jobIntermediateResult(QString,Image *)));
+    disconnect(this, SIGNAL(signal_jobShowImageOnMainView(QString,Image *)));
     disconnect(this, SIGNAL(signal_userInformation(QString)));
     disconnect(this, SIGNAL(signal_processCompletion(quint8)));
 
@@ -381,6 +383,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
 
 
     _currentJob = new JobTask(imageProvider, processorList, rasterProvider, jobDefinition, matisseParameters);
+    _currentJob->setMainGui(_mainGui);
 
     return true;
 
@@ -433,7 +436,7 @@ bool Server::processJob(JobDefinition &jobDefinition)
     connect(_thread, SIGNAL(started()), _currentJob, SLOT(slot_start()));
     connect(_thread, SIGNAL(finished()), _currentJob, SLOT(slot_stop()));
     connect(_currentJob, SIGNAL(signal_jobStopped()), this, SLOT(slot_currentJobProcessed()));
-    connect(_currentJob, SIGNAL(signal_jobIntermediateResult(QString,Image *)), this, SIGNAL(signal_jobIntermediateResult(QString,Image *)));
+    connect(_currentJob, SIGNAL(signal_jobShowImageOnMainView(QString,Image *)), this, SIGNAL(signal_jobShowImageOnMainView(QString,Image *)));
     connect(_currentJob, SIGNAL(signal_userInformation(QString)), this, SIGNAL(signal_userInformation(QString)));
     connect(_currentJob, SIGNAL(signal_processCompletion(quint8)), this, SIGNAL(signal_processCompletion(quint8)));
     _currentJob->moveToThread(_thread);
@@ -455,7 +458,7 @@ bool Server::stopJob(bool cancel)
        _currentJob->stop(cancel);
 
        disconnect(this, SLOT(slot_currentJobProcessed()));
-       disconnect(this, SIGNAL(signal_jobIntermediateResult(QString,Image *)));
+       disconnect(this, SIGNAL(signal_jobShowImageOnMainView(QString,Image *)));
        disconnect(this, SIGNAL(signal_userInformation(QString)));
        disconnect(this, SIGNAL(signal_processCompletion(quint8)));
 
@@ -584,6 +587,7 @@ void JobTask::slot_start()
     qDebug() << "Configuration de la source";
     connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     ok = _imageProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -594,15 +598,17 @@ void JobTask::slot_start()
     qDebug() << "Configuration des Processeurs";
     foreach (Processor* processor, _processors) {
         qDebug() << "Configuration du processeur " << processor->name();
-        connect(processor, SIGNAL(signal_intermediateResult(Image*)), this, SLOT(slot_intermediateResult(Image*)));
+        connect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
         connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+        connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
         processor->callConfigure(_context, _matParameters);
     }
 
     qDebug() << "Configuration de la destination";
     connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     ok = _rasterProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -652,7 +658,7 @@ void JobTask::slot_stop()
     foreach (Processor *processor, _processors) {
         processor->callStop();
     }
-    disconnect(this, SLOT(slot_intermediateResult(Image*)));
+    disconnect(this, SLOT(slot_showImageOnMainView(Image*)));
 
     qDebug() << "Arret du raster provider";
     _rasterProvider->callStop();
@@ -673,14 +679,14 @@ void JobTask::slot_stop()
     emit signal_jobStopped();
 }
 
-volatile bool JobTask::isCancelled() const
+bool JobTask::isCancelled() const
 {
     return _isCancelled;
 }
 
-void JobTask::slot_intermediateResult(Image *image)
+void JobTask::slot_showImageOnMainView(Image *image)
 {
-    emit signal_jobIntermediateResult(_jobDefinition.name(), image);
+    emit signal_jobShowImageOnMainView(_jobDefinition.name(), image);
 }
 
 void JobTask::slot_userInformation(QString userText)
@@ -692,6 +698,11 @@ void JobTask::slot_processCompletion(quint8 percentComplete)
 {
     emit signal_processCompletion(percentComplete);
 }
+void JobTask::setMainGui(AssemblyGui *mainGui)
+{
+    _mainGui = mainGui;
+}
+
 
 
 QStringList JobTask::resultFileNames() const
@@ -762,4 +773,10 @@ bool Server::loadParametersDictionnary()
 bool Server::checkModuleDefinition(QString filepath)
 {
     return false;
+}
+
+
+void Server::setMainGui(AssemblyGui *mainGui_p)
+{
+    _mainGui = mainGui_p;
 }

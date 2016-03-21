@@ -91,7 +91,6 @@ private:
 
     QString _settingsFile;
     QString _rootXml;
-    QString _dataPath;
     QString _appVersion;
 
     Tools * _parameters;
@@ -201,7 +200,7 @@ private:
 
 private:
     void init();
-    void test();
+
     //bool getAssemblyValues(QString filename, QString  name, bool &valid, KeyValueList & assemblyValues);
     void displayAssembly(QString assemblyName);
     void displayJob(QString jobName);
@@ -221,12 +220,15 @@ private:
     void setActionsStates(QTreeWidgetItem *currentItem = NULL);
 
     void initVersionDisplay();
-
     void initLanguages();
     void updateLanguage(QString language, bool forceRetranslation = FALSE);
     void retranslate();
-
+    
+    bool loadResultToCartoView(QString resultFile_p);
+    
     void doFoldUnfoldParameters(bool doUnfold);
+
+    void freezeJobUserAction(bool freeze_p);
 
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
@@ -250,7 +252,7 @@ protected slots:
     void slot_swapMapOrCreationView();
     void slot_launchJob();
     void slot_stopJob();
-    void slot_jobIntermediateResult(QString name, Image *image);
+    void slot_jobShowImageOnMainView(QString name, Image *image);
     void slot_userInformation(QString userText);
     void slot_processCompletion(quint8 percentComplete);
     void slot_jobProcessed(QString name, bool isCancelled);
@@ -264,6 +266,7 @@ protected slots:
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);
     void slot_goHome();
+    void slot_show3DFileOnMainView(QString filepath_p);
 
 signals:
     void signal_showWelcome();

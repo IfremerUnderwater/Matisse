@@ -73,8 +73,9 @@ public:
     /// \param mosaicD_p MosaicDescriptor for the mosaic to be blended
     /// \param blockSize_p x and y size in pixel of a single block
     /// \param writingFolderPath_p path to write mosic files
+    /// \return list of output filenames
     ///
-    void blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p,
+    QStringList blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p,
                                 Point2d blockSize_p,
                                 QString writingPath_p,
                                 QString prefix_p);

@@ -21,6 +21,8 @@ public:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent   (QMouseEvent *event);
 
+    void setSwitchModeButtonEnable(bool enabled_p);
+
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 

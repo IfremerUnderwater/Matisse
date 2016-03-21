@@ -27,6 +27,26 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
 {
     _ui->setupUi(this);
     _layers = new QList<QgsMapCanvasLayer>();
+
+    // Default view is QImageView
+    switchCartoViewTo(QImageView);
+
+    _supportedRasterFormat << "tif" << "tiff";
+    _supportedVectorFormat << "shp";
+    _supported3DFileFormat << "obj" << "osg" << "ply" << "osgt";
+    _supportedImageFormat << "jpg" << "jpeg" << "png";
+
+    // Init loading thread
+    qRegisterMetaType< osg::ref_ptr<osg::Node> >();
+
+    connect(this,SIGNAL(signal_loadRasterFromFile(QString)),&_resultLoadingTask,SLOT(slot_loadRasterFromFile(QString)));
+    connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(QgsRasterLayer*)),this,SLOT(slot_addRasterToCartoView(QgsRasterLayer*)));
+    connect(this,SIGNAL(signal_load3DSceneFromFile(QString)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString)));
+    connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)));
+
+    _resultLoadingTask.moveToThread(&_resultLoadingThread);
+    _resultLoadingThread.start();
+
 }
 
 UserFormWidget::~UserFormWidget()
@@ -54,26 +74,39 @@ void UserFormWidget::showUserParameters(bool flag)
     }
 }
 
-void UserFormWidget::showQGisCanvas(bool flag)
+void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
 {
-    if (flag) {
-        _ui->_stackedWidget->setCurrentIndex(0);
-    }
-    else {
-        _ui->_stackedWidget->setCurrentIndex(1);
-    }
 
+    this->clear();
+
+    switch(cartoViewType_p)
+    {
+
+    case QGisMapLayer:
+        _ui->_stackedWidget->setCurrentIndex(0);
+        _currentViewType = QGisMapLayer;
+        break;
+    case QImageView:
+        _ui->_stackedWidget->setCurrentIndex(1);
+        _currentViewType = QImageView;
+        break;
+    case OpenSceneGraphView:
+        _ui->_stackedWidget->setCurrentIndex(2);
+        _currentViewType = OpenSceneGraphView;
+        break;
+
+    }
 }
 
 
 void UserFormWidget::createCanvas() {
 
-    qDebug() << "Create QGIS Canvas";
+    qDebug() << "Set QGIS Canvas properties";
 
-   // _ui->_GRV_map->deleteLater();
+    // _ui->_GRV_map->deleteLater();
 
     QgsMapCanvas* mapCanvas = _ui->_GRV_map;
-    //QgsMapCanvas* mapCanvas= new QgsMapCanvas(NULL, "mapCanvas");
+
     mapCanvas->enableAntiAliasing(true);
     mapCanvas->useImageToRender(false);
     mapCanvas->setCanvasColor(QColor(MATISSE_BLACK));
@@ -83,33 +116,19 @@ void UserFormWidget::createCanvas() {
     mapCanvas->refresh();
     mapCanvas->show();
 
-    //_ui->_SPL_user->insertWidget(0, mapCanvas);
-   // QList<int> heights;
-   // heights.push_back(550);
-   // heights.push_back(550);
-   // heights.push_back(430);
-   // _ui->_SPL_user->setSizes(heights);
-
-//    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-//    sizePolicy.setHorizontalStretch(0);
-//    sizePolicy.setVerticalStretch(0);
-//    sizePolicy.setHeightForWidth(mapCanvas->sizePolicy().hasHeightForWidth());
-//    _ui->_GRV_map->setSizePolicy(sizePolicy);
-
-    //_ui->_GRV_map=mapCanvas;
-
-    //_ui->_SPL_user->setStretchFactor(0, 1);
-    //_ui->_SPL_user->setStretchFactor(1, 1);
-
 }
 
 void UserFormWidget::clear()
 {
+    // Clear QGis Widget
     _layers->clear();
     QgsMapLayerRegistry::instance()->removeAllMapLayers();
     _ui->_GRV_map->clearExtentHistory();
     _ui->_GRV_map->clear();
     _ui->_GRV_map->refresh();
+
+    // Clear OSG Widget
+    _ui->_OSG_viewer->clearSceneData();
 
 }
 
@@ -124,28 +143,18 @@ void UserFormWidget::resetJobForm()
 
 void UserFormWidget::loadRasterFile(QString filename) {
 
-    if (filename.isEmpty()) {
-        return;
-    }
-    QFileInfo fileInfo(filename);
+    emit signal_loadRasterFromFile(filename);
 
-    QgsRasterLayer * mypLayer = new QgsRasterLayer(filename, fileInfo.fileName());
+}
 
-    if (mypLayer->isValid())
-    {
-      qDebug("Layer is valid");
-    }
-    else
-    {
-      qDebug("Layer is NOT valid");
-      return;
-    }
+void UserFormWidget::slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p) {
+
 
     // Add the raster Layer to the Layer Registry
-    QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE, TRUE);
+    QgsMapLayerRegistry::instance()->addMapLayer(rasterLayer_p, TRUE, TRUE);
 
     // Add the layer to the Layer Set
-    _layers->append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
+    _layers->append(QgsMapCanvasLayer(rasterLayer_p, TRUE));//bool visibility
 
     // Merge extents
     QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
@@ -171,6 +180,10 @@ void UserFormWidget::loadRasterFile(QString filename) {
 
 void UserFormWidget::loadShapefile(QString filename)
 {
+
+    if (_currentViewType!=QGisMapLayer)
+        switchCartoViewTo(QGisMapLayer);
+
     QFileInfo fileInfo(filename);
     QgsVectorLayer * mypLayer = new QgsVectorLayer(filename, fileInfo.fileName(), "ogr");
     if (mypLayer->isValid())
@@ -193,12 +206,12 @@ void UserFormWidget::loadShapefile(QString filename)
     QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
     QgsRectangle extent;
     foreach (QgsMapLayer* layer, layers.values()) {
-      if (extent.width()==0) {
-          extent = layer->extent();
-      }
-      else {
-          extent.combineExtentWith(&layer->extent());
-      }
+        if (extent.width()==0) {
+            extent = layer->extent();
+        }
+        else {
+            extent.combineExtentWith(&layer->extent());
+        }
     }
 
 
@@ -212,6 +225,18 @@ void UserFormWidget::loadShapefile(QString filename)
     mapCanvas->refresh();
 }
 
+void UserFormWidget::load3DFile(QString filename_p)
+{
+    if (_currentViewType!=OpenSceneGraphView)
+        switchCartoViewTo(OpenSceneGraphView);
+
+    emit signal_load3DSceneFromFile(filename_p);
+}
+
+void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p)
+{
+    _ui->_OSG_viewer->setSceneData(sceneData_p);
+}
 
 void UserFormWidget::setTools(Tools *tools)
 {
@@ -227,6 +252,10 @@ void UserFormWidget::saveQgisProject(QString filename)
 
 void UserFormWidget::loadTestVectorLayer()
 {
+
+    if (_currentViewType!=QGisMapLayer)
+        switchCartoViewTo(QImageView);
+
     QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
     //QList<QgsMapCanvasLayer> layers;
@@ -272,12 +301,33 @@ void UserFormWidget::loadTestVectorLayer()
     QgsMapCanvasLayer v1Wrap(v1);
     _layers->append(v1Wrap);
     mapCanvas->setLayerSet(*_layers);
-//    mapCanvas->setCurrentLayer(v1);
+    //    mapCanvas->setCurrentLayer(v1);
     mapCanvas->refresh();
 
     qDebug() << "RENDER VECTOR LAYER !";
 
 }
+CartoViewType UserFormWidget::currentViewType() const
+{
+    return _currentViewType;
+}
+QStringList UserFormWidget::supportedRasterFormat() const
+{
+    return _supportedRasterFormat;
+}
+QStringList UserFormWidget::supportedVectorFormat() const
+{
+    return _supportedVectorFormat;
+}
+QStringList UserFormWidget::supported3DFileFormat() const
+{
+    return _supported3DFileFormat;
+}
+QStringList UserFormWidget::supportedImageFormat() const
+{
+    return _supportedImageFormat;
+}
+
 
 void UserFormWidget::slot_parametersChanged(bool changed)
 {
@@ -287,6 +337,9 @@ void UserFormWidget::slot_parametersChanged(bool changed)
 }
 
 void UserFormWidget::displayImage(Image *image ){
+
+    if (_currentViewType!=QImageView)
+        switchCartoViewTo(QImageView);
 
     Mat dest;
 
@@ -301,3 +354,78 @@ void UserFormWidget::displayImage(Image *image ){
 
 }
 
+
+void UserFormWidget::loadImageFile(QString filename){
+
+    if (_currentViewType!=QImageView)
+        switchCartoViewTo(QImageView);
+
+
+    QImage result(filename);
+    const QPixmap pix = QPixmap::fromImage(result);
+    const QSize size = _ui->_LA_resultImage->size();
+    this->_ui->_LA_resultImage->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
+
+}
+
+// Threaded result file loading task
+
+resultLoadingTask::resultLoadingTask()
+{
+    _lastLoadedView = QImageView;
+
+}
+
+resultLoadingTask::~resultLoadingTask()
+{
+
+}
+
+void resultLoadingTask::slot_loadRasterFromFile(QString filename_p)
+{
+
+    if (filename_p.isEmpty()) {
+        return;
+    }
+    QFileInfo fileInfo(filename_p);
+
+    QgsRasterLayer * rasterLayer = new QgsRasterLayer(filename_p, fileInfo.fileName());
+
+    if(rasterLayer)
+    {
+        if (rasterLayer->isValid())
+        {
+            qDebug("QGis raster layer is valid");
+            emit signal_addRasterToCartoView(rasterLayer);
+        }
+        else
+        {
+            qDebug("QGis raster layer is NOT valid");
+            delete rasterLayer;
+            return;
+        }
+    }
+
+}
+
+void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p)
+{
+
+    // load the data
+    setlocale(LC_ALL, "C");
+    //_loadedModel = osgDB::readRefNodeFile(sceneFile_p, new osgDB::Options("noTriStripPolygons"));
+    osg::ref_ptr<osg::Node> sceneData = osgDB::readRefNodeFile(filename_p.toStdString());
+
+    if (!sceneData)
+    {
+        std::cout << "No 3D data loaded" << std::endl;
+        return;
+    }
+
+    // optimize the scene graph, remove redundant nodes and state etc.
+    osgUtil::Optimizer optimizer;
+    optimizer.optimize(sceneData.get());
+
+    emit signal_add3DSceneToCartoView(sceneData);
+
+}
