@@ -250,11 +250,132 @@ void UserFormWidget::saveQgisProject(QString filename)
     project->write();
 }
 
+void UserFormWidget::addPolygonToMap(basicproc::Polygon &polygon_p, QString polyInsideColor_p, QString layerName_p){
+
+    if (polygon_p.contours().size()>1){
+        qDebug() << "Multi contours polygon not supported yet...returning !";
+        return;
+    }
+
+    if (_currentViewType!=QGisMapLayer)
+        switchCartoViewTo(QGisMapLayer);
+
+    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
+
+    QgsVectorLayer *polygonLayer = new QgsVectorLayer("Polygon", layerName_p, "memory");
+    QgsVectorDataProvider* polygonLayerp = polygonLayer->dataProvider();
+    QgsFeatureList feats;
+
+    QgsPolyline firstPolyline;
+    QgsPolygon qgsPolygon;
+
+    for(unsigned int j=0; j<polygon_p.contours()[0].x.size(); j++){
+        firstPolyline.append( QgsPoint(polygon_p.contours()[0].x[j],polygon_p.contours()[0].y[j]) );
+    }
+
+    qgsPolygon.append(firstPolyline);
+    QgsFeature feat;
+    feat.setGeometry(QgsGeometry::fromPolygon( qgsPolygon ));
+    feats.append(feat);
+
+    polygonLayerp->addFeatures(feats);
+    polygonLayer->updateExtents();
+
+
+    // Complete properties such as color
+    QgsStringMap props;
+    props.insert("color", polyInsideColor_p);
+    QgsFillSymbolV2 *symbol = QgsFillSymbolV2::createSimple(props);
+    QgsFeatureRendererV2 *polygonLayerr = new QgsSingleSymbolRendererV2(symbol);
+
+    polygonLayer->setRendererV2(polygonLayerr);
+
+
+    QgsMapLayerRegistry::instance()->addMapLayer(polygonLayer, TRUE);
+
+    QgsMapCanvasLayer polygonLayerWrap(polygonLayer);
+    _layers->append(polygonLayerWrap);
+    mapCanvas->setLayerSet(*_layers);
+
+    // Merge extents
+    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
+    QgsRectangle extent;
+    foreach (QgsMapLayer* layer, layers.values()) {
+        if (extent.width()==0) {
+            extent = layer->extent();
+        }
+        else {
+            extent.combineExtentWith(&layer->extent());
+        }
+    }
+    mapCanvas->setExtent(extent);
+
+    mapCanvas->setCurrentLayer(polygonLayer);
+    mapCanvas->refresh();
+
+}
+
+void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString pointsColor_p, QString layerName_p){
+
+    if (_currentViewType!=QGisMapLayer)
+        switchCartoViewTo(QGisMapLayer);
+
+    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
+
+    QgsVectorLayer *pointsLayer = new QgsVectorLayer("Point", layerName_p, "memory");
+    QgsVectorDataProvider* pointsLayerp = pointsLayer->dataProvider();
+    QgsFeatureList feats;
+
+    // Fill feats with points
+    foreach (QgsPoint point, pointsList_p) {
+        QgsFeature feat;
+        feat.setGeometry(QgsGeometry::fromPoint( point ));
+        feats.append(feat);
+    }
+
+    pointsLayerp->addFeatures(feats);
+    pointsLayer->updateExtents();
+
+    // Complete properties such as color
+    QgsStringMap props;
+    props.insert("name", "square");
+    props.insert("color", pointsColor_p);
+    QgsMarkerSymbolV2 *symbol = QgsMarkerSymbolV2::createSimple(props);
+    QgsFeatureRendererV2 *pointsLayerr = new QgsSingleSymbolRendererV2(symbol);
+
+    pointsLayer->setRendererV2(pointsLayerr);
+
+    QgsMapLayerRegistry::instance()->addMapLayer(pointsLayer, TRUE);
+
+    QgsMapCanvasLayer pointsLayerWrap(pointsLayer);
+    _layers->append(pointsLayerWrap);
+    mapCanvas->setLayerSet(*_layers);
+
+    // Merge extents
+    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
+    QgsRectangle extent;
+    foreach (QgsMapLayer* layer, layers.values()) {
+        if (extent.width()==0) {
+            extent = layer->extent();
+        }
+        else {
+            extent.combineExtentWith(&layer->extent());
+        }
+    }
+    mapCanvas->setExtent(extent);
+
+    mapCanvas->setCurrentLayer(pointsLayer);
+    mapCanvas->refresh();
+
+    qDebug() << "RENDER POINTS LAYER !";
+
+}
+
 void UserFormWidget::loadTestVectorLayer()
 {
 
     if (_currentViewType!=QGisMapLayer)
-        switchCartoViewTo(QImageView);
+        switchCartoViewTo(QGisMapLayer);
 
     QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
@@ -263,23 +384,28 @@ void UserFormWidget::loadTestVectorLayer()
 
     QgsVectorDataProvider* v1p = v1->dataProvider();
 
-    QList<QgsField> fields;
+    /*QList<QgsField> fields;
     fields.append(QgsField("name", QVariant::String));
     fields.append(QgsField("age", QVariant::Int));
     fields.append(QgsField("size", QVariant::Double));
 
     v1p->addAttributes(fields);
-    v1->updateFields();
+    v1->updateFields();*/
 
-    QgsFeature feat;
-    feat.setGeometry(QgsGeometry::fromPoint(QgsPoint(10,10)));
-    QgsAttributes attrs;
+    QgsFeature feat1;
+    feat1.setGeometry(QgsGeometry::fromPoint(QgsPoint(10,10)));
+    /*QgsAttributes attrs;
     attrs.append("Johny");
     attrs.append(2);
     attrs.append(0.3);
-    feat.setAttributes(attrs);
+    feat.setAttributes(attrs);*/
+
+    QgsFeature feat2;
+    feat2.setGeometry(QgsGeometry::fromPoint(QgsPoint(20,20)));
+
     QgsFeatureList feats;
-    feats.append(feat);
+    feats.append(feat1);
+    feats.append(feat2);
     v1p->addFeatures(feats);
     v1->updateExtents();
 
@@ -301,7 +427,21 @@ void UserFormWidget::loadTestVectorLayer()
     QgsMapCanvasLayer v1Wrap(v1);
     _layers->append(v1Wrap);
     mapCanvas->setLayerSet(*_layers);
-    //    mapCanvas->setCurrentLayer(v1);
+
+    // Merge extents
+    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
+    QgsRectangle extent;
+    foreach (QgsMapLayer* layer, layers.values()) {
+        if (extent.width()==0) {
+            extent = layer->extent();
+        }
+        else {
+            extent.combineExtentWith(&layer->extent());
+        }
+    }
+    mapCanvas->setExtent(extent);
+
+    mapCanvas->setCurrentLayer(v1);
     mapCanvas->refresh();
 
     qDebug() << "RENDER VECTOR LAYER !";

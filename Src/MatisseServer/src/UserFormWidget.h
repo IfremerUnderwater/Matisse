@@ -10,6 +10,8 @@
 #include "Tools.h"
 #include "GraphicalCharter.h"
 
+#include "Polygon.h"
+
 #include <osg/ref_ptr>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
@@ -23,6 +25,7 @@ namespace Ui {
 class UserFormWidget;
 }
 class QgsRasterLayer;
+
 
 enum CartoViewType { QGisMapLayer, QImageView, OpenSceneGraphView };
 
@@ -71,7 +74,9 @@ public:
     void setTools(Tools * tools);
     void saveQgisProject(QString filename);
     void loadTestVectorLayer();
-    
+    void addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString pointsColor_p, QString layerName_p);
+    void addPolygonToMap(basicproc::Polygon &polygon_p, QString polyInsideColor_p, QString layerName_p);
+
     CartoViewType currentViewType() const;
 
     QStringList supportedRasterFormat() const;

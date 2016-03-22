@@ -48,6 +48,7 @@ include(../Scripts/MatisseCommon.pri)
 include(../Scripts/MatisseTools.pri)
 include(../Scripts/opencv.pri)
 include(../Scripts/qgis.pri)
+include(../Scripts/BasicProcessing.pri)
 
 SOURCES += src/main.cpp\
     src/AssemblyGui.cpp \

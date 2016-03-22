@@ -170,7 +170,6 @@ void AssemblyGui::init()
     _userFormWidget = _ui->_WID_mapViewSceneContainer;
     connect(_userFormWidget, SIGNAL(signal_parametersChanged(bool)), this, SLOT(slot_modifiedParameters(bool)));
     _userFormWidget->setTools(_parameters);
-    _userFormWidget->switchCartoViewTo(OpenSceneGraphView);
 
     _expertFormWidget = _ui->_WID_creationSceneContainer;
 
@@ -492,7 +491,28 @@ bool AssemblyGui::loadResultToCartoView(QString resultFile_p)
 
     }else{
         qDebug() << "Output file format not supported";
+        return false;
     }
+
+    return true;
+
+    //_userFormWidget->loadTestVectorLayer();
+    /*QList<QgsPoint> pointsList;
+    pointsList.append(QgsPoint(100,100));
+    pointsList.append(QgsPoint(-100,100));
+    pointsList.append(QgsPoint(100,-100));
+    pointsList.append(QgsPoint(-100,-100));
+
+    _userFormWidget->addQGisPointsToMap(pointsList, QString("blue"), QString("test_points"));*/
+    //_userFormWidget->loadShapefile(QString("/home/data/DATA/ShpMap/tcote_europe_wgs84.shp"));
+
+    /*std::vector<double> x,y;
+    x.push_back(-100); x.push_back(-100); x.push_back(100); x.push_back(100);
+    y.push_back(-100); y.push_back(100); y.push_back(100); y.push_back(-100);
+    basicproc::Polygon poly;
+    poly.addContour(x,y);
+    _userFormWidget->addPolygonToMap(poly,"0,255,0","poly");*/
+
 }
 
 
@@ -807,10 +827,10 @@ void AssemblyGui::doFoldUnfoldParameters(bool doUnfold)
 {
     if (doUnfold) {
         qDebug() << "Unfolding parameters";
-       _parametersDock->show();
+        _parametersDock->show();
     } else {
-       qDebug() << "Folding parameters";
-       _parametersDock->hide();
+        qDebug() << "Folding parameters";
+        _parametersDock->hide();
     }
 
     _parametersUnfolded = doUnfold;
@@ -2125,21 +2145,21 @@ void AssemblyGui::slot_launchJob()
 
     // TODO reactiver la detection de modification de parametres
 
-//    if (paramValuesModified) {
-//        if (QMessageBox::No == QMessageBox::question(this, tr("Modification de parametres..."),
-//                                                     tr("Un ou plusieurs parametres ont ete modifies.\nVoulez-vous enregistrer le parametrage de la tache ?"),
-//                                                     QMessageBox::Yes,
-//                                                     QMessageBox::No)) {
+    //    if (paramValuesModified) {
+    //        if (QMessageBox::No == QMessageBox::question(this, tr("Modification de parametres..."),
+    //                                                     tr("Un ou plusieurs parametres ont ete modifies.\nVoulez-vous enregistrer le parametrage de la tache ?"),
+    //                                                     QMessageBox::Yes,
+    //                                                     QMessageBox::No)) {
 
-//            qDebug() << "User aborted job execution";
-//            return;
-//            //saveAs = false;
-//        } else {
-//            qDebug() << "Saving job parameters before launch";
-//            // enregistrer les valeurs de parametres
-//            _server.parametersManager()->saveParametersValues(jobName, false);
-//        }
-//    }
+    //            qDebug() << "User aborted job execution";
+    //            return;
+    //            //saveAs = false;
+    //        } else {
+    //            qDebug() << "Saving job parameters before launch";
+    //            // enregistrer les valeurs de parametres
+    //            _server.parametersManager()->saveParametersValues(jobName, false);
+    //        }
+    //    }
 
     _server.parametersManager()->saveParametersValues(jobName, false);
 
