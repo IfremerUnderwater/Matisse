@@ -101,10 +101,16 @@ void Module1::onFlush(quint32 port)
     P2.addContour(x,y);
     x.clear(); y.clear();
 
-    P1.clip(P2, P3, basicproc::UNION);
+    P1.clip(P2, P3, basicproc::INT);
+
+    // Test polygon plotting
+    /*emit signal_addPolygonToMap(P3,"blue","P3");
+    emit signal_addPolygonToMap(P1,"red","P1");
+    emit signal_addPolygonToMap(P2,"green","P2");*/
 
     //Test 3D file reading
     emit signal_show3DFileOnMainView("./3DTestData/wallMeshTex.obj");
+
 
     sleep(60);
 

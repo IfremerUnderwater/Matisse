@@ -11,6 +11,7 @@ extern "C" {
 
 #include <vector>
 #include <QString>
+#include <QMetaType>
 
 namespace basicproc {
 
@@ -109,5 +110,7 @@ private:
 };
 
 }
+
+Q_DECLARE_METATYPE(basicproc::Polygon)
 
 #endif // POLYGON_H

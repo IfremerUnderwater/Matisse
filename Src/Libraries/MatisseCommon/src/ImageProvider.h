@@ -6,6 +6,7 @@
 #include "ImageSet.h"
 #include "Context.h"
 #include "LifecycleComponent.h"
+#include "Polygon.h"
 
 namespace MatisseCommon {
 ///
@@ -62,6 +63,7 @@ signals:
     void signal_userInformation(QString userText);
     void signal_processCompletion(quint8 percentComplete);
     void signal_show3DFileOnMainView(QString filepath_p);
+    void signal_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
 
 private:
     QString _comment;

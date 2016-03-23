@@ -267,6 +267,7 @@ public slots:
     void slot_showApplicationMode(ApplicationMode mode);
     void slot_goHome();
     void slot_show3DFileOnMainView(QString filepath_p);
+    void slot_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
 
 signals:
     void signal_showWelcome();

@@ -21,6 +21,8 @@ AssemblyGui::AssemblyGui(QString settingsFile, QWidget *parent) :
     _canShow = setSettingsFile(settingsFile);
     _server.setMainGui(this);
 
+    qRegisterMetaType< basicproc::Polygon >();
+
     init();
 }
 
@@ -895,6 +897,11 @@ void AssemblyGui::slot_goHome()
 void AssemblyGui::slot_show3DFileOnMainView(QString filepath_p)
 {
     _userFormWidget->load3DFile(filepath_p);
+}
+
+void AssemblyGui::slot_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p)
+{
+    _userFormWidget->addPolygonToMap(polygon_p, polyInsideColor_p, layerName_p);
 }
 
 //void AssemblyGui::slot_selectParameters(bool selectedParameters)

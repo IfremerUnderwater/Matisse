@@ -588,6 +588,7 @@ void JobTask::slot_start()
     connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
     connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
+    connect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
     ok = _imageProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -602,6 +603,7 @@ void JobTask::slot_start()
         connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
         connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
+        connect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
         processor->callConfigure(_context, _matParameters);
     }
 
@@ -609,6 +611,7 @@ void JobTask::slot_start()
     connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
     connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
+    connect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
     ok = _rasterProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
