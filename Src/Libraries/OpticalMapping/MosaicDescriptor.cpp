@@ -280,10 +280,6 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
 
 
         // Compute min,max
-        /*min_x_it = std::min_element(std::begin(xArray), std::end(xArray));
-        min_y_it = std::min_element(std::begin(yArray), std::end(yArray));
-        max_x_it = std::max_element(std::begin(xArray), std::end(xArray));
-        max_y_it = std::max_element(std::begin(yArray), std::end(yArray));*/
         min_x_it = std::min_element(xArray.begin(), xArray.end());
         min_y_it = std::min_element(yArray.begin(), yArray.end());
         max_x_it = std::max_element(xArray.begin(), xArray.end());

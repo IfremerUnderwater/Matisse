@@ -1,8 +1,3 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2014-05-19T17:11:08
-#
-#-------------------------------------------------
 
 QT += core xml network
 
@@ -10,7 +5,7 @@ win32{
 QMAKE_CXXFLAGS += /wd4100 /wd4996
 }
 
-TARGET = RTPictureFileSetImageProvider
+TARGET = RTStillCameraProvider
 CONFIG += plugin
 
 TEMPLATE = lib
@@ -37,8 +32,6 @@ unix {
     DESTDIR = $${BUILD_DIR}/Modules/imageProviders
 }
 
-SOURCES += src/RTPictureFileSetImageProvider.cpp \
-    src/Worker.cpp
+SOURCES += src/RTStillCameraProvider.cpp
 
-HEADERS += src/RTPictureFileSetImageProvider.h \
-    src/Worker.h
+HEADERS += src/RTStillCameraProvider.h

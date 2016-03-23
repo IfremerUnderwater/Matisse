@@ -6,7 +6,10 @@ SUBDIRS = DTPictureFileSetImageProvider \
           Flusher \
           Init2DMosaic \
           DrawBlend2DMosaic \
-          GeoTiffImageWriter
+          GeoTiffImageWriter \
+	  RTStillCameraProvider \
+	  RTSurveyPlotter \
+	  BridgeModule
 
 # Following modules are deprecated and windows + MATLAB lib only
           #DrawAndWriteModule \
