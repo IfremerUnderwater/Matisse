@@ -6,6 +6,7 @@
 #include "PictureFileSet.h"
 #include "ImageSet.h"
 #include "FileImage.h"
+#include "MosaicDescriptor.h"
 
 using namespace MatisseCommon;
 
@@ -26,6 +27,14 @@ public:
 
 private:
     QList<QFileInfo> _rastersInfo;
+    QVector<ProjectiveCamera*> *_pCams;
+    QList<Image *> _imageList;
+    MosaicDescriptor *_pMosaicD;
+    QString _utmZone;
+    cv::Mat _K;
+    cv::Mat _V_T_C;
+    cv::Mat _V_R_C;
+    double _scaleFactor;
 
 signals:
     

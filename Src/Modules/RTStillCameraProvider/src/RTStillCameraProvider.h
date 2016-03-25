@@ -31,6 +31,7 @@ public slots:
 private:
     PictureFileSet * _pictureFileSet;
     int _imageCount;
+    cv::Mat _refFrame;
 
     Dim2UDPListener *_udpListener;
     ImageSet * _imageSet;

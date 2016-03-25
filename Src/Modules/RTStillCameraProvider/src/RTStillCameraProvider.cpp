@@ -4,6 +4,7 @@
 #include "NavInfo.h"
 #include "FileImage.h"
 
+#define D2R (3.14159265358979323846 / 180.0)
 
 Q_EXPORT_PLUGIN2(RTStillCameraProvider, RTStillCameraProvider)
 
@@ -44,6 +45,9 @@ bool RTStillCameraProvider::configure()
     qDebug() << logPrefix()  << "Port: " << udpPort;
     //_pictureFileSet = new PictureFileSet(rootDirnameStr,false);
 
+    // To be changed
+    _refFrame = cv::Mat(1024,1024,CV_8UC3);
+
     _udpListener = new Dim2UDPListener();
     _udpListener->slot_configure(udpPort);
 
@@ -68,7 +72,7 @@ bool RTStillCameraProvider::stop()
 
     _imageSet->clear();
     _udpListener->deleteLater();
-    _rtImagesListener.deleteLater();
+    //_rtImagesListener.deleteLater();
     _imageCount = 0;
     return true;
 }
@@ -86,14 +90,14 @@ void RTStillCameraProvider::slot_processLine(QString dim2String)
                         dim2.latitude(),
                         dim2.depth(),
                         dim2.altitude(),
-                        dim2.yaw(),
-                        dim2.roll(),
-                        dim2.pitch(),
+                        D2R*dim2.yaw(),
+                        D2R*dim2.roll(),
+                        D2R*dim2.pitch(),
                         dim2.vx(),
                         dim2.vy(),
                         dim2.vz());
 
-        NavImage * newImage = new NavImage(_imageCount++, NULL, navInfo);
+        NavImage * newImage = new NavImage(_imageCount++, &_refFrame, navInfo);
         _imageSet->addImage(newImage);
     }
 }

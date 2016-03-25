@@ -10,7 +10,7 @@ Dim2UDPListener::~Dim2UDPListener()
 {
     qDebug() << "Destroy Dim2UDPListener!";
     if (_udpSocket) {
-        _udpSocket->deleteLater();
+       _udpSocket->deleteLater();
     }
 }
 
