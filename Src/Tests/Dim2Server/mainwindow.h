@@ -7,6 +7,8 @@
 #include <QTextStream>
 #include <QUdpSocket>
 
+class ProtobufInterface;
+
 namespace Ui {
 class MainWindow;
 }
@@ -29,10 +31,12 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
+    ProtobufInterface *_protoInterface;
+    QUdpSocket *_udpSocket;
     QTextStream *_reader;
-    QUdpSocket *_socket;
-    QHostAddress *_address;
+    QHostAddress *_udpAddress;
     QString _fileName;
+    bool _isTcp;
     int _port;
     int _indTimer;
 
