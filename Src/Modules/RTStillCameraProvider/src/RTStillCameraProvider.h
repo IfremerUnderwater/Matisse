@@ -4,9 +4,14 @@
 #include "ImageProvider.h"
 #include "PictureFileSet.h"
 #include "ImageSet.h"
-#include "Dim2UdpListener.h"
+//#include "Dim2UdpListener.h"
 #include <QThread>
+#include "NavPhotoInfoTcpListener.h"
 
+#include <QMetaType>
+#include "NavPhotoInfoTcpListener.h"
+
+Q_DECLARE_METATYPE(NavPhotoInfoMessage)
 
 using namespace MatisseCommon;
 class Worker;
@@ -25,19 +30,21 @@ public:
     virtual bool start();
     virtual bool stop();
 
+signals:
+    void signal_connectTcpSocket(QString hostname_p, int port_p);
+
 public slots:
     void slot_processLine(QString line);
+    void slot_processNavPhotoInfoMessage(NavPhotoInfoMessage navPhotoInfoMsg_p);
 
 private:
     PictureFileSet * _pictureFileSet;
     int _imageCount;
     cv::Mat _refFrame;
 
-    Dim2UDPListener *_udpListener;
+    NavPhotoInfoTcpListener *_navPhotoInfoTcpListener;
     ImageSet * _imageSet;
     QThread _rtImagesListener;
-
-
 
 };
 

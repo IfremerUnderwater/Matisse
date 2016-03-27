@@ -21,6 +21,9 @@ include(../../Scripts/opencv.pri)
 include(../../Scripts/qgis.pri)
 include(../../Scripts/BasicProcessing.pri)
 
+PROTOS = src/proto/nav_photo_info.proto
+include(../../Scripts/ProtoBuf.pri)
+
 
 HEADERS += \
     src/Context.h \
@@ -44,7 +47,9 @@ HEADERS += \
     src/Dim2UdpListener.h \
     src/GeoTransform.h \
     src/RasterGeoreferencer.h \
-    src/GraphicalCharter.h
+    src/GraphicalCharter.h \
+    src/NavPhotoInfoTcpListener.h \
+    src/matissemetatypes.h
 
 SOURCES += \
     src/Processor.cpp \
@@ -62,9 +67,10 @@ SOURCES += \
     src/LifecycleComponent.cpp \
     src/Dim2UdpListener.cpp \
     src/GeoTransform.cpp \
-    src/RasterGeoreferencer.cpp
+    src/RasterGeoreferencer.cpp \
+    src/NavPhotoInfoTcpListener.cpp
 
-OTHER_FILES +=
+OTHER_FILES += src/proto/*.*
 
 
 

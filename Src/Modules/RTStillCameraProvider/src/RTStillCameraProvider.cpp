@@ -20,12 +20,14 @@ RTStillCameraProvider::RTStillCameraProvider(QObject *parent)
 
     addExpectedParameter("cam_param", "still_camera_address");
     addExpectedParameter("cam_param", "still_camera_port");
+
+    qRegisterMetaType<NavPhotoInfoMessage>();
 }
 
 RTStillCameraProvider::~RTStillCameraProvider()
 {
     delete _imageSet;
-    delete _udpListener;
+    delete _navPhotoInfoTcpListener;
 }
 
 ImageSet *RTStillCameraProvider::imageSet(quint16 port)
@@ -38,21 +40,25 @@ bool RTStillCameraProvider::configure()
 {
     //QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
     bool ok;
-    int udpPort = _matisseParameters->getIntParamValue("cam_param", "still_camera_port", ok );
+    int tcpPort = _matisseParameters->getIntParamValue("cam_param", "still_camera_port", ok );
     if (!ok) {
         return false;
     }
-    qDebug() << logPrefix()  << "Port: " << udpPort;
-    //_pictureFileSet = new PictureFileSet(rootDirnameStr,false);
+
+    QString tcpAddress = _matisseParameters->getStringParamValue("cam_param", "still_camera_address");
+
+    qDebug() << logPrefix()  << "TCP connection port: " << tcpPort;
 
     // To be changed
     _refFrame = cv::Mat(1024,1024,CV_8UC3);
 
-    _udpListener = new Dim2UDPListener();
-    _udpListener->slot_configure(udpPort);
+    _navPhotoInfoTcpListener = new NavPhotoInfoTcpListener();
+    connect(_navPhotoInfoTcpListener, SIGNAL(signal_NavPhotoInfoMessage(NavPhotoInfoMessage)), this, SLOT(slot_processNavPhotoInfoMessage(NavPhotoInfoMessage)), Qt::QueuedConnection);
+    connect(this, SIGNAL(signal_connectTcpSocket(QString,int)), _navPhotoInfoTcpListener, SLOT(slot_Connect(QString,int)), Qt::QueuedConnection);
 
-    connect(_udpListener, SIGNAL(signal_newline(QString)), this, SLOT(slot_processLine(QString)), Qt::QueuedConnection);
-    _udpListener->moveToThread(&_rtImagesListener);
+    _navPhotoInfoTcpListener->moveToThread(&_rtImagesListener);
+
+    emit signal_connectTcpSocket(tcpAddress,tcpPort);
 
     _rtImagesListener.start();
 
@@ -71,34 +77,40 @@ bool RTStillCameraProvider::stop()
 {
 
     _imageSet->clear();
-    _udpListener->deleteLater();
-    //_rtImagesListener.deleteLater();
+    _navPhotoInfoTcpListener->deleteLater();
+
     _imageCount = 0;
     return true;
 }
 
 
-void RTStillCameraProvider::slot_processLine(QString dim2String)
+void RTStillCameraProvider::slot_processNavPhotoInfoMessage(NavPhotoInfoMessage msg_p)
 {
     if (isStarted()) {
-        qDebug() << "Receive: " << dim2String;
-        Dim2 dim2(dim2String);
-        NavInfo navInfo;
-        navInfo.setInfo(dim2.diveNumber(),
-                        dim2.dateTime(),
-                        dim2.longitude(),
-                        dim2.latitude(),
-                        dim2.depth(),
-                        dim2.altitude(),
-                        D2R*dim2.yaw(),
-                        D2R*dim2.roll(),
-                        D2R*dim2.pitch(),
-                        dim2.vx(),
-                        dim2.vy(),
-                        dim2.vz());
+        if(msg_p.has_photopath()){
 
-        NavImage * newImage = new NavImage(_imageCount++, &_refFrame, navInfo);
-        _imageSet->addImage(newImage);
+            QDateTime photoTime;
+            photoTime.setMSecsSinceEpoch((msg_p.photostamp().sec())*1000000 + (uint64)(msg_p.photostamp().nsec()/1000));
+
+            NavInfo navInfo;
+            navInfo.setInfo(0,
+                            photoTime,
+                            msg_p.longitude(),
+                            msg_p.latitude(),
+                            msg_p.depth(),
+                            msg_p.altitude(),
+                            msg_p.yaw(),
+                            msg_p.roll(),
+                            msg_p.pitch(),
+                            0.0,
+                            0.0,
+                            0.0,
+                            msg_p.pan(),
+                            msg_p.tilt());
+
+            NavImage * newImage = new NavImage(_imageCount++, &_refFrame, navInfo);
+            _imageSet->addImage(newImage);
+        }
     }
 }
 

@@ -18,7 +18,7 @@ NavInfo::NavInfo(QString dive, QString time, QString longitude, QString latitude
     setInfo(dive, time, longitude, latitude, depth, altitude, yaw, roll, pitch, vx, vy, vz);
 }
 
-void NavInfo::setInfo(quint32 dive, QDateTime time, qreal longitude, qreal latitude, qreal depth, qreal altitude, qreal yaw, qreal roll, qreal pitch, qreal vx, qreal vy, qreal vz)
+void NavInfo::setInfo(quint32 dive, QDateTime time, qreal longitude, qreal latitude, qreal depth, qreal altitude, qreal yaw, qreal roll, qreal pitch, qreal vx, qreal vy, qreal vz, qreal pan, qreal tilt)
 {
     _diveNumber = dive;
     _timeInfo = time;
@@ -32,6 +32,8 @@ void NavInfo::setInfo(quint32 dive, QDateTime time, qreal longitude, qreal latit
     _vx = vx;
     _vy = vy;
     _vz = vz;
+    _pan = pan;
+    _tilt = tilt;
 }
 
 void NavInfo::setInfo(QString dive, QString time, QString longitude, QString latitude, QString depth, QString altitude, QString yaw, QString roll, QString pitch, QString vx, QString vy, QString vz)
@@ -381,6 +383,26 @@ void NavInfo::setUtmZone(const QString &utmZone)
 {
     _utmZone = utmZone;
 }
+qreal NavInfo::pan() const
+{
+    return _pan;
+}
+
+void NavInfo::setPan(const qreal &pan)
+{
+    _pan = pan;
+}
+qreal NavInfo::tilt() const
+{
+    return _tilt;
+}
+
+void NavInfo::setTilt(const qreal &tilt)
+{
+    _tilt = tilt;
+}
+
+
 
 
 
