@@ -22,6 +22,9 @@ public:
     cv::Mat m_H_i() const;
     void set_m_H_i(const cv::Mat &m_H_i);
 
+    cv::Mat m_H_i_metric() const;
+    void setM_H_i_metric(const cv::Mat &m_H_i_metric);
+
     cv::Mat V_T_C() const;
     void setV_T_C(const cv::Mat &V_T_C);
 
@@ -40,8 +43,9 @@ public:
     /// \brief projectPtOnMosaickingPlane project a camera plane point to mosaic plane point
     /// \param camPlanePt_p camera plane point
     /// \param mosaicPlanePt_p mosaic plane point
+    /// \param metric use metric frame if set to true
     ///
-    void projectPtOnMosaickingPlane(const cv::Mat camPlanePt_p, cv::Mat & mosaicPlanePt_p);
+    void projectPtOnMosaickingPlane(const cv::Mat camPlanePt_p, cv::Mat & mosaicPlanePt_p, bool metric_p=false);
 
     ///
     /// \brief projectImageOnMosaickingPlane project camera plane image to mosaic plane point
@@ -57,10 +61,12 @@ public:
     ///
     void computeImageExtent(cv::Point &corner_p, cv::Size &dstSize_p);
 
+
 private:
 
     cv::Mat _K; // Camera calibration matrix (intrinsics) : each image can be taken with a different cam
     cv::Mat _m_H_i; // Homography : 2D Image Plane to 2D Mosaic Frame (only for 2D mosaicking model)
+    cv::Mat _m_H_i_metric; // same as m_H_i in metric frame
 
     // Those lever arm parameters belongs to the camera as it can be changed using pan & tilt
     // during the acquisition

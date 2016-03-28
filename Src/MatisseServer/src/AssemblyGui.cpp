@@ -498,23 +498,6 @@ bool AssemblyGui::loadResultToCartoView(QString resultFile_p)
 
     return true;
 
-    //_userFormWidget->loadTestVectorLayer();
-    /*QList<QgsPoint> pointsList;
-    pointsList.append(QgsPoint(100,100));
-    pointsList.append(QgsPoint(-100,100));
-    pointsList.append(QgsPoint(100,-100));
-    pointsList.append(QgsPoint(-100,-100));
-
-    _userFormWidget->addQGisPointsToMap(pointsList, QString("blue"), QString("test_points"));*/
-    //_userFormWidget->loadShapefile(QString("/home/data/DATA/ShpMap/tcote_europe_wgs84.shp"));
-
-    /*std::vector<double> x,y;
-    x.push_back(-100); x.push_back(-100); x.push_back(100); x.push_back(100);
-    y.push_back(-100); y.push_back(100); y.push_back(100); y.push_back(-100);
-    basicproc::Polygon poly;
-    poly.addContour(x,y);
-    _userFormWidget->addPolygonToMap(poly,"0,255,0","poly");*/
-
 }
 
 
@@ -904,6 +887,16 @@ void AssemblyGui::slot_addPolygonToMap(basicproc::Polygon polygon_p, QString pol
     _userFormWidget->addPolygonToMap(polygon_p, polyInsideColor_p, layerName_p);
 }
 
+void AssemblyGui::slot_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p)
+{
+    _userFormWidget->addPolylineToMap(polygon_p, polyColor_p, layerName_p);
+}
+
+void AssemblyGui::slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p)
+{
+    _userFormWidget->addQGisPointsToMap(pointsList_p, pointsColor_p, layerName_p);
+
+}
 //void AssemblyGui::slot_selectParameters(bool selectedParameters)
 //{
 //    _ui->_ACT_saveParameters->setEnabled(selectedParameters);

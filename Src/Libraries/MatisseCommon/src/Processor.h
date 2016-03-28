@@ -11,7 +11,7 @@
 #include "MatisseParameters.h"
 #include "LifecycleComponent.h"
 #include "Polygon.h"
-
+#include <qgis/qgspoint.h>
 
 namespace MatisseCommon {
 
@@ -75,6 +75,8 @@ signals:
     void signal_processCompletion(quint8 percentComplete);
     void signal_show3DFileOnMainView(QString filepath_p);
     void signal_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
+    void signal_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p);
+    void signal_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p);
 
 private:
     QString _comment;

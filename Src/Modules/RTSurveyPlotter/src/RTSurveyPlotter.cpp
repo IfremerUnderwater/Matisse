@@ -123,10 +123,10 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
     cv::Mat pt1,pt2,pt3,pt4;
 
     // Project corners_p on mosaic plane
-    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   0,   1), pt1);
-    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, 0,   1), pt2);
-    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, h-1, 1), pt3);
-    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   h-1, 1), pt4);
+    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   0,   1), pt1, true);
+    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, 0,   1), pt2, true);
+    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, h-1, 1), pt3, true);
+    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   h-1, 1), pt4, true);
 
     // Construct polygon
     basicproc::Polygon camWireframe;
@@ -144,7 +144,12 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
 
     camWireframe.addContour(xArray,yArray);
 
-    emit signal_addPolygonToMap(camWireframe,"red","tictic");
+    // Contruc Nav point
+    QList<QgsPoint> navPoint;
+    navPoint.append(QgsPoint(navImage->navInfo().utmX()-_pMosaicD->mosaicOrigin().x, navImage->navInfo().utmY()-_pMosaicD->mosaicOrigin().y));
+    emit signal_addQGisPointsToMap(navPoint,"blue","nav");
+
+    emit signal_addPolylineToMap(camWireframe,"red","imageswireframe");
 
 }
 

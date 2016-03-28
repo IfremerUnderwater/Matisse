@@ -23,6 +23,7 @@ include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/opencv.pri)
 include(../../Scripts/BasicProcessing.pri)
 include(../../Scripts/OpticalMapping.pri)
+include(../../Scripts/qgis.pri)
 
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Modules/rasterProviders

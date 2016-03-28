@@ -17,8 +17,6 @@ win32 {
 }
 else {
     message ("Set include...")
-    INCLUDEPATH += /usr/include/qgis
-    DEFINES += GUI_EXPORT= CORE_EXPORT=
     QMAKE_CXXFLAGS = -fpermissive
 
 }

@@ -228,21 +228,24 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
     // Set Z = 0 (Delete 3th Column) in the Projection Matrix: 3D world to 2D
     // Up-To-Scale Planar Projective Homography: 2D Mosaic Frame to 2D Image Frame
     //_i_H_m = _i_P_M(:, [1 2 4]);
-    std::cerr << "_i_P_M = " << _i_P_M << std::endl;
+    //std::cerr << "_i_P_M = " << _i_P_M << std::endl;
     cv::hconcat(_i_P_M.colRange(0,2),_i_P_M.colRange(3,4), _i_H_m);
 
     // Absolute Homography to be stored into the mosaic: 2D Image Plane to 2D Mosaic Frame
     // Add the scaling factor to have it in pixels.
-    std::cerr << "_i_H_m = " << _i_H_m << std::endl;
+    //std::cerr << "_i_H_m = " << _i_H_m << std::endl;
     cv::invert( _i_H_m, _m_H_i);
+
+    camera_p->setM_H_i_metric( _m_H_i/ _m_H_i.at<qreal>(2,2) );
+
+    // Add the scaling factor to have it in pixels.
     _m_H_i = _Hs * _m_H_i;
-
-    std::cerr << "_m_H_i 1 = " << _m_H_i << std::endl;
-
-    std::cerr << "_m_H_i norm = " << _m_H_i / _m_H_i.at<qreal>(2,2) << std::endl;
 
     // Store Normalized Homography into the mosaic structure ([3,3] element is one).
     camera_p->set_m_H_i( _m_H_i / _m_H_i.at<qreal>(2,2) );
+    //std::cout << "_m_H_i 1 = " << _m_H_i << std::endl;
+    //std::cout << "_m_H_i norm = " << _m_H_i / _m_H_i.at<qreal>(2,2) << std::endl;
+
 }
 
 void MosaicDescriptor::computeMosaicExtentAndShiftFrames()

@@ -5,7 +5,12 @@ win32 {
     LIBS *= -L$$(OSGEO4W_ROOT)/apps/qgis/lib
     message("OSGEO4W_ROOT/lib = $$(OSGEO4W_ROOT)/lib")
 }
+else {
 
+    INCLUDEPATH += /usr/include/qgis
+    DEFINES += GUI_EXPORT= CORE_EXPORT=
+
+}
 CONFIG(debug, debug|release) {
         LIBEXT=d
 }

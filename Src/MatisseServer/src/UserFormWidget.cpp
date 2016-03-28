@@ -315,6 +315,70 @@ void UserFormWidget::addPolygonToMap(basicproc::Polygon &polygon_p, QString poly
 
 }
 
+void UserFormWidget::addPolylineToMap(basicproc::Polygon &polygon_p, QString polyColor_p, QString layerName_p){
+
+    if (polygon_p.contours().size()>1){
+        qDebug() << "Multi contours polygon not supported yet...returning !";
+        return;
+    }
+
+    if (_currentViewType!=QGisMapLayer)
+        switchCartoViewTo(QGisMapLayer);
+
+    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
+
+    QgsVectorLayer *polylineLayer = new QgsVectorLayer("LineString", layerName_p, "memory");
+    QgsVectorDataProvider* polylineLayerp = polylineLayer->dataProvider();
+    QgsFeatureList feats;
+
+    QgsPolyline qgsPolyline;
+
+    for(unsigned int j=0; j<polygon_p.contours()[0].x.size(); j++){
+        qgsPolyline.append( QgsPoint(polygon_p.contours()[0].x[j],polygon_p.contours()[0].y[j]) );
+    }
+    qgsPolyline.append( QgsPoint(polygon_p.contours()[0].x[0],polygon_p.contours()[0].y[0]) );
+
+    QgsFeature feat;
+    feat.setGeometry(QgsGeometry::fromPolyline( qgsPolyline ));
+    feats.append(feat);
+
+    polylineLayerp->addFeatures(feats);
+    polylineLayer->updateExtents();
+
+
+    // Complete properties such as color
+    QgsStringMap props;
+    props.insert("color", polyColor_p);
+    QgsLineSymbolV2 *symbol = QgsLineSymbolV2::createSimple(props);
+    QgsFeatureRendererV2 *polygonLayerr = new QgsSingleSymbolRendererV2(symbol);
+
+    polylineLayer->setRendererV2(polygonLayerr);
+
+
+    QgsMapLayerRegistry::instance()->addMapLayer(polylineLayer, TRUE);
+
+    QgsMapCanvasLayer polylineLayerWrap(polylineLayer);
+    _layers->append(polylineLayerWrap);
+    mapCanvas->setLayerSet(*_layers);
+
+    // Merge extents
+    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
+    QgsRectangle extent;
+    foreach (QgsMapLayer* layer, layers.values()) {
+        if (extent.width()==0) {
+            extent = layer->extent();
+        }
+        else {
+            extent.combineExtentWith(&layer->extent());
+        }
+    }
+    mapCanvas->setExtent(extent);
+
+    mapCanvas->setCurrentLayer(polylineLayer);
+    mapCanvas->refresh();
+
+}
+
 void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString pointsColor_p, QString layerName_p){
 
     if (_currentViewType!=QGisMapLayer)

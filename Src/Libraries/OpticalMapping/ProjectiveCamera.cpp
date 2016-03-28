@@ -82,9 +82,13 @@ void ProjectiveCamera::setScalingFactor(const qreal &scalingFactor)
 
 }
 
-void ProjectiveCamera::projectPtOnMosaickingPlane(const Mat camPlanePt_p, Mat &mosaicPlanePt_p)
+void ProjectiveCamera::projectPtOnMosaickingPlane(const Mat camPlanePt_p, Mat &mosaicPlanePt_p, bool metric_p)
 {
-    mosaicPlanePt_p = _m_H_i * camPlanePt_p;
+    if (metric_p == true){
+        mosaicPlanePt_p = _m_H_i_metric * camPlanePt_p;
+    }else{
+        mosaicPlanePt_p = _m_H_i * camPlanePt_p;
+    }
 }
 
 void ProjectiveCamera::projectImageOnMosaickingPlane(Mat &mosaicPlaneImage_p, Mat &mosaicPlaneMask_p, cv::Point & corner_p)
@@ -157,6 +161,16 @@ void ProjectiveCamera::computeImageExtent(Point &corner_p, Size &dstSize_p)
     corner_p.y = floor(*min_y_it);
 
 }
+cv::Mat ProjectiveCamera::m_H_i_metric() const
+{
+    return _m_H_i_metric;
+}
+
+void ProjectiveCamera::setM_H_i_metric(const cv::Mat &m_H_i_metric)
+{
+    _m_H_i_metric = m_H_i_metric;
+}
+
 
 
 
