@@ -9,6 +9,10 @@
 
 #include "Polygon.h"
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 // Exportation de la classe Module1 dans la bibliotheque de plugin TestModule1
 Q_EXPORT_PLUGIN2(Module1, Module1)
 
@@ -109,10 +113,15 @@ void Module1::onFlush(quint32 port)
     emit signal_addPolygonToMap(P2,"green","P2");*/
 
     //Test 3D file reading
+#ifdef WIN32
+    QString filePath("F:\\DATA\\3D_DATASETS\\Morph\\rock02_corr\\rock02_dense.nvm.cmvs\\00\\models\\wallMeshTex.obj");
+    qDebug() << logPrefix() << filePath;
+    emit signal_show3DFileOnMainView(filePath);
+    Sleep(60000);
+#else
     emit signal_show3DFileOnMainView("./3DTestData/wallMeshTex.obj");
-
-
     sleep(60);
+#endif
 
     /*    MosaicDescriptor mosaicD;
     QVector<ProjectiveCamera*> cams;

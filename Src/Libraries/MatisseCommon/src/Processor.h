@@ -11,7 +11,12 @@
 #include "MatisseParameters.h"
 #include "LifecycleComponent.h"
 #include "Polygon.h"
+
+#ifdef WIN32
+#include <qgspoint.h>
+#else
 #include <qgis/qgspoint.h>
+#endif
 
 namespace MatisseCommon {
 

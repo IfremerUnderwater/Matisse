@@ -143,6 +143,7 @@ const int NavPhotoInfoMessage_TimeStamp::kNsecFieldNumber;
 NavPhotoInfoMessage_TimeStamp::NavPhotoInfoMessage_TimeStamp()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:NavPhotoInfoMessage.TimeStamp)
 }
 
 void NavPhotoInfoMessage_TimeStamp::InitAsDefaultInstance() {
@@ -152,6 +153,7 @@ NavPhotoInfoMessage_TimeStamp::NavPhotoInfoMessage_TimeStamp(const NavPhotoInfoM
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:NavPhotoInfoMessage.TimeStamp)
 }
 
 void NavPhotoInfoMessage_TimeStamp::SharedCtor() {
@@ -162,6 +164,7 @@ void NavPhotoInfoMessage_TimeStamp::SharedCtor() {
 }
 
 NavPhotoInfoMessage_TimeStamp::~NavPhotoInfoMessage_TimeStamp() {
+  // @@protoc_insertion_point(destructor:NavPhotoInfoMessage.TimeStamp)
   SharedDtor();
 }
 
@@ -192,30 +195,44 @@ NavPhotoInfoMessage_TimeStamp* NavPhotoInfoMessage_TimeStamp::New() const {
 }
 
 void NavPhotoInfoMessage_TimeStamp::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    sec_ = 0u;
-    nsec_ = 0u;
-  }
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<NavPhotoInfoMessage_TimeStamp*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  ZR_(sec_, nsec_);
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
 bool NavPhotoInfoMessage_TimeStamp::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:NavPhotoInfoMessage.TimeStamp)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required uint32 sec = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 8) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &sec_)));
           set_has_sec();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(16)) goto parse_nsec;
         break;
@@ -223,25 +240,25 @@ bool NavPhotoInfoMessage_TimeStamp::MergePartialFromCodedStream(
 
       // required uint32 nsec = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 16) {
          parse_nsec:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &nsec_)));
           set_has_nsec();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -249,12 +266,18 @@ bool NavPhotoInfoMessage_TimeStamp::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:NavPhotoInfoMessage.TimeStamp)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:NavPhotoInfoMessage.TimeStamp)
+  return false;
 #undef DO_
 }
 
 void NavPhotoInfoMessage_TimeStamp::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:NavPhotoInfoMessage.TimeStamp)
   // required uint32 sec = 1;
   if (has_sec()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->sec(), output);
@@ -269,10 +292,12 @@ void NavPhotoInfoMessage_TimeStamp::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:NavPhotoInfoMessage.TimeStamp)
 }
 
 ::google::protobuf::uint8* NavPhotoInfoMessage_TimeStamp::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:NavPhotoInfoMessage.TimeStamp)
   // required uint32 sec = 1;
   if (has_sec()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->sec(), target);
@@ -287,6 +312,7 @@ void NavPhotoInfoMessage_TimeStamp::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:NavPhotoInfoMessage.TimeStamp)
   return target;
 }
 
@@ -401,6 +427,7 @@ const int NavPhotoInfoMessage::kTiltFieldNumber;
 NavPhotoInfoMessage::NavPhotoInfoMessage()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:NavPhotoInfoMessage)
 }
 
 void NavPhotoInfoMessage::InitAsDefaultInstance() {
@@ -411,9 +438,11 @@ NavPhotoInfoMessage::NavPhotoInfoMessage(const NavPhotoInfoMessage& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:NavPhotoInfoMessage)
 }
 
 void NavPhotoInfoMessage::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   latitude_ = 0;
   longitude_ = 0;
@@ -422,7 +451,7 @@ void NavPhotoInfoMessage::SharedCtor() {
   pitch_ = 0;
   depth_ = 0;
   altitude_ = 0;
-  photopath_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  photopath_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   photostamp_ = NULL;
   pan_ = 0;
   tilt_ = 0;
@@ -430,11 +459,12 @@ void NavPhotoInfoMessage::SharedCtor() {
 }
 
 NavPhotoInfoMessage::~NavPhotoInfoMessage() {
+  // @@protoc_insertion_point(destructor:NavPhotoInfoMessage)
   SharedDtor();
 }
 
 void NavPhotoInfoMessage::SharedDtor() {
-  if (photopath_ != &::google::protobuf::internal::kEmptyString) {
+  if (photopath_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete photopath_;
   }
   if (this != default_instance_) {
@@ -464,47 +494,57 @@ NavPhotoInfoMessage* NavPhotoInfoMessage::New() const {
 }
 
 void NavPhotoInfoMessage::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    latitude_ = 0;
-    longitude_ = 0;
-    yaw_ = 0;
-    roll_ = 0;
-    pitch_ = 0;
-    depth_ = 0;
-    altitude_ = 0;
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<NavPhotoInfoMessage*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 255) {
+    ZR_(latitude_, altitude_);
     if (has_photopath()) {
-      if (photopath_ != &::google::protobuf::internal::kEmptyString) {
+      if (photopath_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         photopath_->clear();
       }
     }
   }
-  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+  if (_has_bits_[8 / 32] & 1792) {
+    ZR_(pan_, tilt_);
     if (has_photostamp()) {
       if (photostamp_ != NULL) photostamp_->::NavPhotoInfoMessage_TimeStamp::Clear();
     }
-    pan_ = 0;
-    tilt_ = 0;
   }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
 bool NavPhotoInfoMessage::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:NavPhotoInfoMessage)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required double latitude = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+        if (tag == 9) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &latitude_)));
           set_has_latitude();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(17)) goto parse_longitude;
         break;
@@ -512,15 +552,14 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
 
       // required double longitude = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+        if (tag == 17) {
          parse_longitude:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &longitude_)));
           set_has_longitude();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(25)) goto parse_yaw;
         break;
@@ -528,15 +567,14 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
 
       // required double yaw = 3;
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+        if (tag == 25) {
          parse_yaw:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &yaw_)));
           set_has_yaw();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(33)) goto parse_roll;
         break;
@@ -544,15 +582,14 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
 
       // required double roll = 4;
       case 4: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+        if (tag == 33) {
          parse_roll:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &roll_)));
           set_has_roll();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(41)) goto parse_pitch;
         break;
@@ -560,15 +597,14 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
 
       // required double pitch = 5;
       case 5: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+        if (tag == 41) {
          parse_pitch:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &pitch_)));
           set_has_pitch();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(49)) goto parse_depth;
         break;
@@ -576,15 +612,14 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
 
       // required double depth = 6;
       case 6: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+        if (tag == 49) {
          parse_depth:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &depth_)));
           set_has_depth();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(57)) goto parse_altitude;
         break;
@@ -592,15 +627,14 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
 
       // required double altitude = 7;
       case 7: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+        if (tag == 57) {
          parse_altitude:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &altitude_)));
           set_has_altitude();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(66)) goto parse_photopath;
         break;
@@ -608,16 +642,16 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
 
       // optional string photopath = 8;
       case 8: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 66) {
          parse_photopath:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_photopath()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->photopath().data(), this->photopath().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "photopath");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(74)) goto parse_photostamp;
         break;
@@ -625,13 +659,12 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
 
       // optional .NavPhotoInfoMessage.TimeStamp photostamp = 9;
       case 9: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 74) {
          parse_photostamp:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_photostamp()));
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(81)) goto parse_pan;
         break;
@@ -639,15 +672,14 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
 
       // optional double pan = 10;
       case 10: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+        if (tag == 81) {
          parse_pan:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &pan_)));
           set_has_pan();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(89)) goto parse_tilt;
         break;
@@ -655,25 +687,25 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
 
       // optional double tilt = 11;
       case 11: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+        if (tag == 89) {
          parse_tilt:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &tilt_)));
           set_has_tilt();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -681,12 +713,18 @@ bool NavPhotoInfoMessage::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:NavPhotoInfoMessage)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:NavPhotoInfoMessage)
+  return false;
 #undef DO_
 }
 
 void NavPhotoInfoMessage::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:NavPhotoInfoMessage)
   // required double latitude = 1;
   if (has_latitude()) {
     ::google::protobuf::internal::WireFormatLite::WriteDouble(1, this->latitude(), output);
@@ -724,10 +762,11 @@ void NavPhotoInfoMessage::SerializeWithCachedSizes(
 
   // optional string photopath = 8;
   if (has_photopath()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->photopath().data(), this->photopath().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "photopath");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       8, this->photopath(), output);
   }
 
@@ -751,10 +790,12 @@ void NavPhotoInfoMessage::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:NavPhotoInfoMessage)
 }
 
 ::google::protobuf::uint8* NavPhotoInfoMessage::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:NavPhotoInfoMessage)
   // required double latitude = 1;
   if (has_latitude()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(1, this->latitude(), target);
@@ -792,9 +833,10 @@ void NavPhotoInfoMessage::SerializeWithCachedSizes(
 
   // optional string photopath = 8;
   if (has_photopath()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->photopath().data(), this->photopath().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "photopath");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         8, this->photopath(), target);
@@ -821,6 +863,7 @@ void NavPhotoInfoMessage::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:NavPhotoInfoMessage)
   return target;
 }
 

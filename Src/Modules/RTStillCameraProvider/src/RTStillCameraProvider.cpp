@@ -54,7 +54,7 @@ bool RTStillCameraProvider::configure()
         return false;
     }
 
-    m_sensorFullWidth = _matisseParameters->getIntParamValue("cam_param", "sensor_width", ok );
+    m_sensorFullHeight = _matisseParameters->getIntParamValue("cam_param", "sensor_height", ok );
     if (!ok) {
         return false;
     }

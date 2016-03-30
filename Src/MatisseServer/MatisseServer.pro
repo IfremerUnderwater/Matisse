@@ -25,8 +25,6 @@ unix{
 INCLUDEPATH *= $$PWD/src
 }
 
-# osg lib link
-LIBS += -losg -losgGA -losgDB -losgUtil -losgViewer
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../
@@ -47,6 +45,7 @@ include(../Scripts/MatisseTools.pri)
 include(../Scripts/opencv.pri)
 include(../Scripts/qgis.pri)
 include(../Scripts/BasicProcessing.pri)
+include(../Scripts/OpenSceneGraph.pri)
 
 SOURCES += src/main.cpp\
     src/AssemblyGui.cpp \

@@ -3,6 +3,7 @@ win32 {
     INCLUDEPATH *= $$(OSGEO4W_ROOT)/apps/qgis/include
     LIBS *= -L$$(OSGEO4W_ROOT)/lib
     LIBS *= -L$$(OSGEO4W_ROOT)/apps/qgis/lib
+    DEFINES += GUI_EXPORT=__declspec(dllimport) CORE_EXPORT=__declspec(dllimport)
     message("OSGEO4W_ROOT/lib = $$(OSGEO4W_ROOT)/lib")
 }
 else {

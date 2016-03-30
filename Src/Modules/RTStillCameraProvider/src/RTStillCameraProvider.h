@@ -34,7 +34,6 @@ signals:
     void signal_connectTcpSocket(QString hostname_p, int port_p);
 
 public slots:
-    void slot_processLine(QString line);
     void slot_processNavPhotoInfoMessage(NavPhotoInfoMessage navPhotoInfoMsg_p);
 
 private:
