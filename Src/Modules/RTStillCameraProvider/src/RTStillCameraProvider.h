@@ -42,6 +42,8 @@ private:
     int _imageCount;
     cv::Mat _refFrame;
 
+    int m_sensorFullWidth,m_sensorFullHeight;
+
     NavPhotoInfoTcpListener *_navPhotoInfoTcpListener;
     ImageSet * _imageSet;
     QThread _rtImagesListener;

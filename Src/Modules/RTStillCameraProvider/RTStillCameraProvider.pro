@@ -25,6 +25,7 @@ include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/opencv.pri)
 include(../../Scripts/BasicProcessing.pri)
 include(../../Scripts/ProtoBuf.pri)
+include(../../Scripts/qgis.pri)
 
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Modules/imageProviders

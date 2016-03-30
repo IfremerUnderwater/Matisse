@@ -53,6 +53,8 @@
                 <Parameter name="V_Pose_C" level="advanced" text="Position de la camera / centre de nav" type="double" size="(6,1)" range="]-inf,inf[" precision="3" formatTemplate="-9.999" show="table" default="-1.1000; 0.2500; -0.1500; 0; 0; -1.5708"/>
 		<Parameter name="still_camera_port" level="user" text="Port TCP APN" type="integer" range="[1000,99999]" show="spin" default="5600"/>
                 <Parameter name="still_camera_address" level="user" text="Adresse APN" type="string" show="line" default="192.168.1.104"/>
+		<Parameter name="sensor_width" level="advanced" text="Largeur capteur (pixels)" type="integer" range="[0,20000]" show="spin" default="6000"/>
+		<Parameter name="sensor_height" level="advanced" text="Hauteur capteur (pixels)" type="integer" range="[0,20000]" show="spin" default="4000"/>
             </ParametersGroup>
         </Structure>
         <Structure name="video_input_param">

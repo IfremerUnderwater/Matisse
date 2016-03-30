@@ -11,7 +11,9 @@ Q_EXPORT_PLUGIN2(RTStillCameraProvider, RTStillCameraProvider)
 RTStillCameraProvider::RTStillCameraProvider(QObject *parent)
     : ImageProvider(NULL, "RTStillCameraProvider", "", 1),
       _pictureFileSet(NULL),
-      _imageCount(0)
+      _imageCount(0),
+      m_sensorFullWidth(0),
+      m_sensorFullHeight(0)
 {
     Q_UNUSED(parent)
     setIsRealTime(true);
@@ -20,6 +22,8 @@ RTStillCameraProvider::RTStillCameraProvider(QObject *parent)
 
     addExpectedParameter("cam_param", "still_camera_address");
     addExpectedParameter("cam_param", "still_camera_port");
+    addExpectedParameter("cam_param", "sensor_width");
+    addExpectedParameter("cam_param", "sensor_height");
 
     qRegisterMetaType<NavPhotoInfoMessage>();
 }
@@ -27,7 +31,7 @@ RTStillCameraProvider::RTStillCameraProvider(QObject *parent)
 RTStillCameraProvider::~RTStillCameraProvider()
 {
     delete _imageSet;
-    delete _navPhotoInfoTcpListener;
+    _navPhotoInfoTcpListener->deleteLater();
 }
 
 ImageSet *RTStillCameraProvider::imageSet(quint16 port)
@@ -45,12 +49,22 @@ bool RTStillCameraProvider::configure()
         return false;
     }
 
+    m_sensorFullWidth = _matisseParameters->getIntParamValue("cam_param", "sensor_width", ok );
+    if (!ok) {
+        return false;
+    }
+
+    m_sensorFullWidth = _matisseParameters->getIntParamValue("cam_param", "sensor_width", ok );
+    if (!ok) {
+        return false;
+    }
+
     QString tcpAddress = _matisseParameters->getStringParamValue("cam_param", "still_camera_address");
 
     qDebug() << logPrefix()  << "TCP connection port: " << tcpPort;
 
     // To be changed
-    _refFrame = cv::Mat(1024,1024,CV_8UC3);
+    _refFrame = cv::Mat(m_sensorFullHeight, m_sensorFullWidth, CV_8UC3);
 
     _navPhotoInfoTcpListener = new NavPhotoInfoTcpListener();
     connect(_navPhotoInfoTcpListener, SIGNAL(signal_NavPhotoInfoMessage(NavPhotoInfoMessage)), this, SLOT(slot_processNavPhotoInfoMessage(NavPhotoInfoMessage)), Qt::QueuedConnection);
@@ -77,7 +91,6 @@ bool RTStillCameraProvider::stop()
 {
 
     _imageSet->clear();
-    _navPhotoInfoTcpListener->deleteLater();
 
     _imageCount = 0;
     return true;
