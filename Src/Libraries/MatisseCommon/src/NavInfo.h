@@ -3,7 +3,9 @@
 
 #include <QDateTime>
 #include <QStringList>
-#include <cmath>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 // NAN is not defined in math.h (as normally required by C99) by VSC++
 #ifdef WIN32
@@ -28,7 +30,7 @@ public:
     NavInfo(quint32 dive = 0, QDateTime time = QDateTime(), qreal longitude = InvalidValue, qreal latitude = InvalidValue, qreal depth = InvalidValue, qreal altitude = InvalidValue, qreal yaw = InvalidValue, qreal roll = InvalidValue, qreal pitch = InvalidValue, qreal vx = InvalidValue, qreal vy = InvalidValue, qreal vz = InvalidValue);
     NavInfo(QString dive, QString time, QString longitude, QString latitude, QString depth, QString altitude, QString yaw, QString roll, QString pitch, QString vx, QString vy, QString vz);
 
-    void setInfo(quint32 dive = 0, QDateTime time = QDateTime(), qreal longitude = InvalidValue, qreal latitude = InvalidValue, qreal depth = InvalidValue, qreal altitude = InvalidValue, qreal yaw = InvalidValue, qreal roll = InvalidValue, qreal pitch = InvalidValue, qreal vx = InvalidValue, qreal vy = InvalidValue, qreal vz = InvalidValue, qreal pan=0.0, qreal tilt=0.0);
+    void setInfo(quint32 dive = 0, QDateTime time = QDateTime(), qreal longitude = InvalidValue, qreal latitude = InvalidValue, qreal depth = InvalidValue, qreal altitude = InvalidValue, qreal yaw = InvalidValue, qreal roll = InvalidValue, qreal pitch = InvalidValue, qreal vx = InvalidValue, qreal vy = InvalidValue, qreal vz = InvalidValue, qreal pan=0.0, qreal tilt=-M_PI_2);
     void setInfo(QString dive, QString time, QString longitude, QString latitude, QString depth, QString altitude, QString yaw, QString roll, QString pitch, QString vx, QString vy, QString vz);
     void setInfo(QStringList args);
 

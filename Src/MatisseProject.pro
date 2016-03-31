@@ -16,5 +16,5 @@ Tests.depends = Libraries
 MatisseServer.depends = Libraries Modules Tests
 
 OTHER_FILES += .qmake.conf
-OTHER_FILES += ./Scripts/Deploy.pro \
+OTHER_FILES += ./Scripts/Deploy_Release.pro \
                ./Scripts/Deploy_Debug.pro

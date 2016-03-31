@@ -313,6 +313,10 @@ void UserFormWidget::addPolygonToMap(basicproc::Polygon &polygon_p, QString poly
     mapCanvas->setCurrentLayer(polygonLayer);
     mapCanvas->refresh();
 
+#ifdef WIN32
+    mapCanvas->update();
+#endif
+
 }
 
 void UserFormWidget::addPolylineToMap(basicproc::Polygon &polygon_p, QString polyColor_p, QString layerName_p){
@@ -375,7 +379,12 @@ void UserFormWidget::addPolylineToMap(basicproc::Polygon &polygon_p, QString pol
     mapCanvas->setExtent(extent);
 
     mapCanvas->setCurrentLayer(polylineLayer);
+
+
     mapCanvas->refresh();
+#ifdef WIN32
+    mapCanvas->update();
+#endif
 
 }
 
@@ -430,6 +439,10 @@ void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString p
 
     mapCanvas->setCurrentLayer(pointsLayer);
     mapCanvas->refresh();
+
+#ifdef WIN32
+    mapCanvas->update();
+#endif
 
     qDebug() << "RENDER POINTS LAYER !";
 
@@ -507,6 +520,10 @@ void UserFormWidget::loadTestVectorLayer()
 
     mapCanvas->setCurrentLayer(v1);
     mapCanvas->refresh();
+
+#ifdef WIN32
+    mapCanvas->update();
+#endif
 
     qDebug() << "RENDER VECTOR LAYER !";
 

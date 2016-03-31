@@ -61,19 +61,6 @@ bool RTSurveyPlotter::configure()
     _V_T_C = cv::Mat(3,1,CV_64F);
     _V_R_C = cv::Mat(3,3,CV_64F);
 
-    Matrix6x1 V_Pose_C = _matisseParameters->getMatrix6x1ParamValue("cam_param",  "V_Pose_C",  Ok);
-    if (Ok){
-
-        for (int i=0; i<3; i++){
-            _V_T_C.at<qreal>(i,0) = V_Pose_C(0,i);
-        }
-
-        GeoTransform T;
-
-        _V_R_C = T.RotZ(V_Pose_C(0,5))*T.RotY(V_Pose_C(0,4))*T.RotX(V_Pose_C(0,3));
-
-    }
-
 
     return true;
 }
@@ -86,6 +73,21 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
     NavImage *navImage = dynamic_cast<NavImage*>(&image);
     _imageList.append(navImage);
     if (navImage){
+        bool Ok;
+        Matrix6x1 V_Pose_C = _matisseParameters->getMatrix6x1ParamValue("cam_param",  "V_Pose_C",  Ok);
+        if (Ok){
+
+            for (int i=0; i<3; i++){
+                _V_T_C.at<qreal>(i,0) = V_Pose_C(0,i);
+            }
+
+            GeoTransform T;
+
+            _V_R_C = T.RotZ(V_Pose_C(0,5))*T.RotY(V_Pose_C(0,4)+(navImage->navInfo().tilt()-M_PI_2))*T.RotX(V_Pose_C(0,3)+navImage->navInfo().pan());
+
+        }
+
+
         _pCams->push_back(new ProjectiveCamera(navImage , _K, _V_T_C, _V_R_C, (qreal)_scaleFactor));
     }else{
         qDebug() << "cannot cast as navImage \n";

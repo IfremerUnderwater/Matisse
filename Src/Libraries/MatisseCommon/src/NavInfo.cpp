@@ -197,7 +197,7 @@ void NavInfo::setYaw(const QString &arg)
     if (!ok) {
         _yaw = InvalidValue;
     } else {
-        if ((_yaw < 0) || (_yaw > 360)) {
+        if ((_yaw < -360) || (_yaw > 360)) {
             _yaw = InvalidValue;
         }
     }

@@ -7,6 +7,9 @@
 #include "Dim2FileReader.h"
 #include "protobuf_interface.h"
 
+#define _USE_MATH_DEFINES
+#include "math.h"
+
 #define D2R (3.14159265358979323846 / 180.0)
 
 using namespace MatisseCommon;
@@ -119,7 +122,7 @@ void MainWindow::timerEvent(QTimerEvent *event )
             msg.set_photopath(dim2.filename().toStdString().c_str(),dim2.filename().toStdString().size());
             msg.set_pitch(D2R*dim2.pitch());
             msg.set_roll(D2R*dim2.roll());
-            msg.set_tilt(0.0);
+            msg.set_tilt(-M_PI_2);
             msg.set_yaw(D2R*dim2.yaw());
             _protoInterface->sl_OnReceiveNavPhotoInfoMessage(msg);
         }
