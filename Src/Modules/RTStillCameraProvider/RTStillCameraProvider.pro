@@ -22,6 +22,7 @@ CONFIG(release, debug|release) {
 # ------------------------------------------------------------------------
 
 include(../../Scripts/MatisseCommon.pri)
+include(../../Scripts/MatisseTools.pri)
 include(../../Scripts/opencv.pri)
 include(../../Scripts/BasicProcessing.pri)
 include(../../Scripts/ProtoBuf.pri)

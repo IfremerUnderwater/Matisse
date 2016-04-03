@@ -35,6 +35,7 @@ private:
     cv::Mat _V_T_C;
     cv::Mat _V_R_C;
     double _scaleFactor;
+    int _sensorFullWidth,_sensorFullHeight;
 
 signals:
     

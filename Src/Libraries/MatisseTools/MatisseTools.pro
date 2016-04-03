@@ -49,7 +49,8 @@ SOURCES +=\
     src/EnrichedFileChooser.cpp \
     src/MatissePreferences.cpp \
     src/MatisseParametersManager.cpp \
-    src/EnrichedDecimalValueWidget.cpp
+    src/EnrichedDecimalValueWidget.cpp \
+    src/httpImageDownloader.cpp
 
 HEADERS +=\
           src/ChooseAndShow.h \
@@ -73,7 +74,8 @@ HEADERS +=\
     src/MatissePreferences.h \
     src/MatisseParametersManager.h \
     src/MatisseDictionnaryLabels.h \
-    src/EnrichedDecimalValueWidget.h
+    src/EnrichedDecimalValueWidget.h \
+    src/httpImageDownloader.h
 
 FORMS    += ui/ChooseAndShow.ui \
             ui/ParametersWidgetSkeleton.ui

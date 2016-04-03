@@ -260,7 +260,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     qDebug() << "Verification présence destination";
     DestinationDefinition * destinationDef= assembly.destinationDefinition();
     if (!destinationDef) {
-         setMessageStr(tr("Destination non definie"));
+        setMessageStr(tr("Destination non definie"));
         return false;
     }
     quint32 order = destinationDef->order();
@@ -401,7 +401,7 @@ bool Server::processJob(JobDefinition &jobDefinition)
         return false;
     }
 
-     setMessageStr();
+    setMessageStr();
 
     // Deleted by JobTask
     MatisseParameters* parameters = buildMatisseParameters(jobDefinition);
@@ -454,23 +454,23 @@ bool Server::isProcessingJob()
 
 bool Server::stopJob(bool cancel)
 {
-   if (_currentJob) {
-       _currentJob->stop(cancel);
+    if (_currentJob) {
+        _currentJob->stop(cancel);
 
-       disconnect(this, SLOT(slot_currentJobProcessed()));
-       disconnect(this, SIGNAL(signal_jobShowImageOnMainView(QString,Image *)));
-       disconnect(this, SIGNAL(signal_userInformation(QString)));
-       disconnect(this, SIGNAL(signal_processCompletion(quint8)));
+        disconnect(this, SLOT(slot_currentJobProcessed()));
+        disconnect(this, SIGNAL(signal_jobShowImageOnMainView(QString,Image *)));
+        disconnect(this, SIGNAL(signal_userInformation(QString)));
+        disconnect(this, SIGNAL(signal_processCompletion(quint8)));
 
-       qDebug() << "Fin du Thread" ;
-       _thread->quit();
-   }
-   return true;
+        qDebug() << "Fin du Thread" ;
+        _thread->quit();
+    }
+    return true;
 }
 
 bool Server::errorFlag()
 {
- return _errorFlag;
+    return _errorFlag;
 }
 
 QString Server::messageStr()
@@ -588,6 +588,7 @@ void JobTask::slot_start()
     connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
     connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
+    connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
     connect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
     connect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
     connect(_imageProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
@@ -606,6 +607,7 @@ void JobTask::slot_start()
         connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
         connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
+        connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
         connect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
         connect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
         connect(processor, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
@@ -616,6 +618,7 @@ void JobTask::slot_start()
     connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
     connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
+    connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
     connect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
     connect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
     connect(_rasterProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));

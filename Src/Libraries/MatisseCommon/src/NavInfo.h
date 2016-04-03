@@ -79,7 +79,7 @@ public:
     void setVz(const qreal &vz);
     void setVz(const QString &arg);
 
-    bool isValid(QString flags = "111111111");
+    bool isValid(QString flags = "11111111");
 
     QString dump();
 

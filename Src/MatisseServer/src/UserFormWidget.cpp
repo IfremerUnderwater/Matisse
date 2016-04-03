@@ -13,6 +13,7 @@
 #include "UserFormWidget.h"
 #include "ui_UserFormWidget.h"
 #include "qgsmapcanvas.h"
+#include "unistd.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -175,7 +176,7 @@ void UserFormWidget::slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p) {
 
     // Set the Map Canvas Layer Set
     mapCanvas->setLayerSet(*_layers);
-    mapCanvas->refresh();
+    //mapCanvas->refresh();
 }
 
 void UserFormWidget::loadShapefile(QString filename)
@@ -427,14 +428,24 @@ void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString p
     // Merge extents
     QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
     QgsRectangle extent;
+    int i=0;
     foreach (QgsMapLayer* layer, layers.values()) {
-        if (extent.width()==0) {
+        if (i==0) {
             extent = layer->extent();
         }
         else {
             extent.combineExtentWith(&layer->extent());
         }
+        i++;
     }
+
+    if (extent.width()==0 && layers.size()==1){
+        extent.setXMinimum(extent.xMinimum()-1.0);
+        extent.setYMinimum(extent.yMinimum()-1.0);
+        extent.setXMaximum(extent.xMaximum()+1.0);
+        extent.setYMaximum(extent.yMaximum()+1.0);
+    }
+
     mapCanvas->setExtent(extent);
 
     mapCanvas->setCurrentLayer(pointsLayer);

@@ -12,7 +12,9 @@ RTSurveyPlotter::RTSurveyPlotter(QObject *parent):
 
     addExpectedParameter("vehic_param", "alt_setpoint");
     addExpectedParameter("cam_param",  "K");
-    addExpectedParameter("algo_param", "scale_factor");
+    //addExpectedParameter("algo_param", "scale_factor");
+    addExpectedParameter("cam_param", "sensor_width");
+    addExpectedParameter("cam_param", "sensor_height");
     addExpectedParameter("cam_param",  "V_Pose_C");
 }
 
@@ -51,7 +53,15 @@ bool RTSurveyPlotter::configure()
         return false;
     }
 
-    std::cerr <<"K = " << _K;
+    _sensorFullWidth = _matisseParameters->getIntParamValue("cam_param", "sensor_width", Ok );
+    if (!Ok) {
+        return false;
+    }
+
+    _sensorFullHeight = _matisseParameters->getIntParamValue("cam_param", "sensor_height", Ok );
+    if (!Ok) {
+        return false;
+    }
 
 
     // for future use
@@ -72,6 +82,11 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
     // Create camera
     NavImage *navImage = dynamic_cast<NavImage*>(&image);
     _imageList.append(navImage);
+
+    // init scale factor
+    if (navImage->id() == 0)
+        _scaleFactor = (double)navImage->width()/(double)_sensorFullWidth;
+
     if (navImage){
         bool Ok;
         Matrix6x1 V_Pose_C = _matisseParameters->getMatrix6x1ParamValue("cam_param",  "V_Pose_C",  Ok);
@@ -83,7 +98,8 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
 
             GeoTransform T;
 
-            _V_R_C = T.RotZ(V_Pose_C(0,5))*T.RotY(V_Pose_C(0,4)+(navImage->navInfo().tilt()-M_PI_2))*T.RotX(V_Pose_C(0,3)+navImage->navInfo().pan());
+            //_V_R_C = T.RotZ(V_Pose_C(0,5))*T.RotY(V_Pose_C(0,4)+(navImage->navInfo().tilt()-M_PI_2))*T.RotX(V_Pose_C(0,3)+navImage->navInfo().pan());
+            _V_R_C = T.RotX(V_Pose_C(0,3))*T.RotY(V_Pose_C(0,4)+(navImage->navInfo().tilt()-M_PI_2))*T.RotZ(V_Pose_C(0,5)-navImage->navInfo().pan());
 
         }
 
@@ -135,24 +151,79 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
     std::vector<double> xArray,yArray;
     xArray.clear(); yArray.clear();
 
-    xArray.push_back(pt1.at<qreal>(0,0)/pt1.at<qreal>(2,0));
-    yArray.push_back(-pt1.at<qreal>(1,0)/pt1.at<qreal>(2,0));
-    xArray.push_back(pt2.at<qreal>(0,0)/pt2.at<qreal>(2,0));
-    yArray.push_back(-pt2.at<qreal>(1,0)/pt2.at<qreal>(2,0));
-    xArray.push_back(pt3.at<qreal>(0,0)/pt3.at<qreal>(2,0));
-    yArray.push_back(-pt3.at<qreal>(1,0)/pt3.at<qreal>(2,0));
-    xArray.push_back(pt4.at<qreal>(0,0)/pt4.at<qreal>(2,0));
-    yArray.push_back(-pt4.at<qreal>(1,0)/pt4.at<qreal>(2,0));
+    xArray.push_back((pt1.at<qreal>(0,0)/pt1.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().x);
+    yArray.push_back((-pt1.at<qreal>(1,0)/pt1.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().y);
+    xArray.push_back((pt2.at<qreal>(0,0)/pt2.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().x);
+    yArray.push_back((-pt2.at<qreal>(1,0)/pt2.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().y);
+    xArray.push_back((pt3.at<qreal>(0,0)/pt3.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().x);
+    yArray.push_back((-pt3.at<qreal>(1,0)/pt3.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().y);
+    xArray.push_back((pt4.at<qreal>(0,0)/pt4.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().x);
+    yArray.push_back((-pt4.at<qreal>(1,0)/pt4.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().y);
 
     camWireframe.addContour(xArray,yArray);
 
     // Contruc Nav point
     QList<QgsPoint> navPoint;
-    navPoint.append(QgsPoint(navImage->navInfo().utmX()-_pMosaicD->mosaicOrigin().x, navImage->navInfo().utmY()-_pMosaicD->mosaicOrigin().y));
+    navPoint.append(QgsPoint(navImage->navInfo().utmX(), navImage->navInfo().utmY()));
     emit signal_addQGisPointsToMap(navPoint,"blue","nav");
 
     emit signal_addPolylineToMap(camWireframe,"red","imageswireframe");
 
+    // Project Image
+    cv::Mat warpedImage, warpedImageMask;
+    cv::Point corner_p;
+    _pCams->at(navImage->id())->projectImageOnMosaickingPlane(warpedImage, warpedImageMask, corner_p);
+
+    MosaicDescriptor singleFrameMosaic;
+    cv::Mat img_ullr;
+    img_ullr = (cv::Mat_<qreal>(4,1) << _pMosaicD->mosaicOrigin().x + corner_p.x*(double)_pMosaicD->pixelSize().x,
+    _pMosaicD->mosaicOrigin().y - corner_p.y*(double)_pMosaicD->pixelSize().y,
+    _pMosaicD->mosaicOrigin().x + (corner_p.x+(double)warpedImage.cols-1.0)*_pMosaicD->pixelSize().x,
+    _pMosaicD->mosaicOrigin().y - (corner_p.y+(double)warpedImage.rows-1.0)*_pMosaicD->pixelSize().y);
+
+    singleFrameMosaic.setMosaic_ullr(img_ullr);
+    singleFrameMosaic.setUtmZone(_pMosaicD->utmZone());
+    singleFrameMosaic.setUtmHemisphere(_pMosaicD->utmHemisphere());
+
+    //QString imgFile = QString("/home/data/DATA/RealTimeMosaic/image_%1.tiff").arg(navImage->id());
+    QString imgFileTmp = QString("/home/aarnaube/image_temp_%1.tiff").arg(navImage->id());
+    QString imgFile = QString("/home/aarnaube/image_%1.tiff").arg(navImage->id());
+
+    // create image with tranparency
+    std::vector<Mat> rasterChannels;
+    cv::Mat warpedImageTransparent;
+    split(warpedImage, rasterChannels);
+    rasterChannels.pop_back();
+    rasterChannels.push_back(warpedImageMask);
+    merge(rasterChannels, warpedImageTransparent);
+
+    cv::imwrite(imgFileTmp.toStdString(),warpedImageTransparent);
+
+    QString utmProjParam, utmHemisphereOption;
+
+    if ( _pMosaicD->utmHemisphere() == "S" ){
+        utmHemisphereOption = QString(" +south");
+    }else{
+        utmHemisphereOption = QString("");
+    }
+    utmProjParam = QString("+proj=utm +zone=") + QString("%1").arg(_pMosaicD->utmZone());
+
+    QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+            .arg(img_ullr.at<qreal>(0,0),0,'f',2)
+            .arg(img_ullr.at<qreal>(1,0),0,'f',2)
+            .arg(img_ullr.at<qreal>(2,0),0,'f',2)
+            .arg(img_ullr.at<qreal>(3,0),0,'f',2)
+            + QString(" -mask 4 --config GDAL_TIFF_INTERNAL_MASK YES ");
+
+    QString cmdLine;
+    cmdLine = QString("gdal_translate ") + gdalOptions + " " + imgFileTmp + " " + imgFile;
+    system(cmdLine.toStdString().c_str());
+
+    qDebug() << "system cmd = " << cmdLine;
+    QFile::remove(imgFileTmp);
+
+    //if(navImage->id() == 3)
+    emit signal_addRasterFileToMap(imgFile);
 }
 
 void RTSurveyPlotter::onFlush(quint32 port)

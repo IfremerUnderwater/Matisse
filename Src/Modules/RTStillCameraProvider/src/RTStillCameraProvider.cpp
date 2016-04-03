@@ -3,6 +3,7 @@
 #include "Dim2.h"
 #include "NavInfo.h"
 #include "FileImage.h"
+#include "GeoTransform.h"
 
 #define D2R (3.14159265358979323846 / 180.0)
 
@@ -12,8 +13,8 @@ RTStillCameraProvider::RTStillCameraProvider(QObject *parent)
     : ImageProvider(NULL, "RTStillCameraProvider", "", 1),
       _pictureFileSet(NULL),
       _imageCount(0),
-      m_sensorFullWidth(0),
-      m_sensorFullHeight(0)
+      _sensorFullWidth(0),
+      _sensorFullHeight(0)
 {
     Q_UNUSED(parent)
     setIsRealTime(true);
@@ -25,6 +26,8 @@ RTStillCameraProvider::RTStillCameraProvider(QObject *parent)
     addExpectedParameter("cam_param", "sensor_width");
     addExpectedParameter("cam_param", "sensor_height");
 
+    _imageDownloader = new HTTPImageDownloader();
+
     qRegisterMetaType<NavPhotoInfoMessage>();
 }
 
@@ -32,6 +35,7 @@ RTStillCameraProvider::~RTStillCameraProvider()
 {
     delete _imageSet;
     _navPhotoInfoTcpListener->deleteLater();
+    delete _imageDownloader;
 }
 
 ImageSet *RTStillCameraProvider::imageSet(quint16 port)
@@ -49,22 +53,22 @@ bool RTStillCameraProvider::configure()
         return false;
     }
 
-    m_sensorFullWidth = _matisseParameters->getIntParamValue("cam_param", "sensor_width", ok );
+    _sensorFullWidth = _matisseParameters->getIntParamValue("cam_param", "sensor_width", ok );
     if (!ok) {
         return false;
     }
 
-    m_sensorFullHeight = _matisseParameters->getIntParamValue("cam_param", "sensor_height", ok );
+    _sensorFullHeight = _matisseParameters->getIntParamValue("cam_param", "sensor_height", ok );
     if (!ok) {
         return false;
     }
 
-    QString tcpAddress = _matisseParameters->getStringParamValue("cam_param", "still_camera_address");
+    _tcpAddress = _matisseParameters->getStringParamValue("cam_param", "still_camera_address");
 
     qDebug() << logPrefix()  << "TCP connection port: " << tcpPort;
 
     // To be changed
-    _refFrame = cv::Mat(m_sensorFullHeight, m_sensorFullWidth, CV_8UC3);
+    _refFrame = cv::Mat(_sensorFullHeight, _sensorFullWidth, CV_8UC3);
 
     _navPhotoInfoTcpListener = new NavPhotoInfoTcpListener();
     connect(_navPhotoInfoTcpListener, SIGNAL(signal_NavPhotoInfoMessage(NavPhotoInfoMessage)), this, SLOT(slot_processNavPhotoInfoMessage(NavPhotoInfoMessage)), Qt::QueuedConnection);
@@ -72,7 +76,10 @@ bool RTStillCameraProvider::configure()
 
     _navPhotoInfoTcpListener->moveToThread(&_rtImagesListener);
 
-    emit signal_connectTcpSocket(tcpAddress,tcpPort);
+    emit signal_connectTcpSocket(_tcpAddress,tcpPort);
+
+    // Connect HTTP image downloader
+    connect(_imageDownloader,SIGNAL(signal_imageReady(QImage)), this, SLOT(slot_onReceiveImage(QImage)));
 
     _rtImagesListener.start();
 
@@ -105,8 +112,7 @@ void RTStillCameraProvider::slot_processNavPhotoInfoMessage(NavPhotoInfoMessage 
             QDateTime photoTime;
             photoTime.setMSecsSinceEpoch((msg_p.photostamp().sec())*1000000 + (uint64)(msg_p.photostamp().nsec()/1000));
 
-            NavInfo navInfo;
-            navInfo.setInfo(0,
+            _lastNavInfo.setInfo(0,
                             photoTime,
                             msg_p.longitude(),
                             msg_p.latitude(),
@@ -118,13 +124,86 @@ void RTStillCameraProvider::slot_processNavPhotoInfoMessage(NavPhotoInfoMessage 
                             0.0,
                             0.0,
                             0.0,
-                            msg_p.pan(),
-                            msg_p.tilt());
+                            D2R*msg_p.pan(),
+                            D2R*msg_p.tilt());
 
-            NavImage * newImage = new NavImage(_imageCount++, &_refFrame, navInfo);
-            _imageSet->addImage(newImage);
+            QFileInfo photoFile(QString::fromStdString(msg_p.photopath()));
+            QString photoBasename = photoFile.completeBaseName();
+            if (photoFile.suffix() == "jpg"){
+                photoBasename = photoBasename + ".jpg";
+            }else{
+                photoBasename = photoBasename + ".nef.jpg";
+            }
+
+            QString photoFileUrl = QString("http://") + _tcpAddress + QString(":8080/Preview/") + photoBasename;
+
+            _imageDownloader->startDownloadOfFile(photoFileUrl);
+
+
+        }else{
+         /*   GeoTransform T;
+            QList<QgsPoint> navPoint;
+
+            double utm_x,utm_y;
+            QString utmZone;
+
+            T.LatLongToUTM(msg_p.latitude(),msg_p.longitude(),utm_x,utm_y, utmZone);
+qDebug() << "lat = " << msg_p.latitude() << "lon = " << msg_p.longitude() << "\n";
+qDebug() << "utmX = " << utm_x << "utmY = " << utm_y << "\n";
+            navPoint.append(QgsPoint(utm_x,utm_y));
+            emit signal_addQGisPointsToMap(navPoint,"green","nav");*/
         }
     }
 }
+
+void RTStillCameraProvider::slot_onReceiveImage(QImage downImage_p)
+{
+    cv::Mat *downImageOpenCv = new cv::Mat;
+    *downImageOpenCv = QImageToCvMat( downImage_p);
+
+    NavImage * newImage = new NavImage(_imageCount++, downImageOpenCv, _lastNavInfo);
+
+    _imageSet->addImage(newImage);
+}
+
+cv::Mat RTStillCameraProvider::QImageToCvMat( const QImage &inImage, bool inCloneImageData)
+{
+    switch ( inImage.format() )
+    {
+    // 8-bit, 4 channel
+    case QImage::Format_RGB32:
+    {
+        cv::Mat  mat( inImage.height(), inImage.width(), CV_8UC4, const_cast<uchar*>(inImage.bits()), inImage.bytesPerLine() );
+
+        return (inCloneImageData ? mat.clone() : mat);
+    }
+
+        // 8-bit, 3 channel
+    case QImage::Format_RGB888:
+    {
+        if ( !inCloneImageData )
+            qWarning() << "ASM::QImageToCvMat() - Conversion requires cloning since we use a temporary QImage";
+
+        QImage   swapped = inImage.rgbSwapped();
+
+        return cv::Mat( swapped.height(), swapped.width(), CV_8UC3, const_cast<uchar*>(swapped.bits()), swapped.bytesPerLine() ).clone();
+    }
+
+        // 8-bit, 1 channel
+    case QImage::Format_Indexed8:
+    {
+        cv::Mat  mat( inImage.height(), inImage.width(), CV_8UC1, const_cast<uchar*>(inImage.bits()), inImage.bytesPerLine() );
+
+        return (inCloneImageData ? mat.clone() : mat);
+    }
+
+    default:
+        qWarning() << "ASM::QImageToCvMat() - QImage format not handled in switch:" << inImage.format();
+        break;
+    }
+
+    return cv::Mat();
+}
+
 
 

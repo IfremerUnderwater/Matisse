@@ -6,10 +6,11 @@
 #include "ImageSet.h"
 //#include "Dim2UdpListener.h"
 #include <QThread>
-#include "NavPhotoInfoTcpListener.h"
 
 #include <QMetaType>
 #include "NavPhotoInfoTcpListener.h"
+#include "httpImageDownloader.h"
+#include "NavInfo.h"
 
 Q_DECLARE_METATYPE(NavPhotoInfoMessage)
 
@@ -35,17 +36,25 @@ signals:
 
 public slots:
     void slot_processNavPhotoInfoMessage(NavPhotoInfoMessage navPhotoInfoMsg_p);
+    void slot_onReceiveImage(QImage downImage_p);
+
+protected:
+    cv::Mat QImageToCvMat(const QImage &inImage, bool inCloneImageData=true);
 
 private:
     PictureFileSet * _pictureFileSet;
     int _imageCount;
     cv::Mat _refFrame;
 
-    int m_sensorFullWidth,m_sensorFullHeight;
+    int _sensorFullWidth,_sensorFullHeight;
 
     NavPhotoInfoTcpListener *_navPhotoInfoTcpListener;
+    HTTPImageDownloader *_imageDownloader;
     ImageSet * _imageSet;
     QThread _rtImagesListener;
+
+    QString _tcpAddress;
+    NavInfo _lastNavInfo;
 
 };
 

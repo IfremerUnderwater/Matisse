@@ -200,9 +200,9 @@ Dim2::Dim2(QString args):
         break;
     }
 
-        char * flag = "1";
+        char flag[1] = {'1'};
         if (!ok) {
-            flag = "0";
+            flag[0] = '0';
         }
 
         if (noArg == 0) {

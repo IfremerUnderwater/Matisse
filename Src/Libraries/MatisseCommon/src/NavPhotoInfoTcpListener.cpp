@@ -43,10 +43,14 @@ void NavPhotoInfoTcpListener::slot_OnDataReceived()
 {
     QByteArray data_received = _tcpSocket->readAll();
 
-    NavPhotoInfoMessage msg;
-    msg.ParseFromArray(data_received.data(), data_received.size());
+    if (!data_received.isEmpty()){
 
-    emit signal_NavPhotoInfoMessage(msg);
+        NavPhotoInfoMessage msg;
+        msg.ParseFromArray(data_received.data(), data_received.size());
+
+        emit signal_NavPhotoInfoMessage(msg);
+
+    }
 
 }
 bool NavPhotoInfoTcpListener::isConnected() const

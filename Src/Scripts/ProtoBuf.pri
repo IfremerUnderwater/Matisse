@@ -9,8 +9,12 @@ win32 {
     }
 
 }
+win32{
 LIBS += -llibprotobuf
-
+}
+else{
+LIBS += -lprotobuf
+}
 if (!isEmpty(PROTOS)){
 
 message("Generating protocol buffer classes from .proto files.")
