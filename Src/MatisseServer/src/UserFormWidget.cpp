@@ -40,10 +40,10 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     // Init loading thread
     qRegisterMetaType< osg::ref_ptr<osg::Node> >();
 
-    connect(this,SIGNAL(signal_loadRasterFromFile(QString)),&_resultLoadingTask,SLOT(slot_loadRasterFromFile(QString)));
-    connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(QgsRasterLayer*)),this,SLOT(slot_addRasterToCartoView(QgsRasterLayer*)));
-    connect(this,SIGNAL(signal_load3DSceneFromFile(QString)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString)));
-    connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)));
+    connect(this,SIGNAL(signal_loadRasterFromFile(QString)),&_resultLoadingTask,SLOT(slot_loadRasterFromFile(QString)),Qt::QueuedConnection);
+    connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(QgsRasterLayer*)),this,SLOT(slot_addRasterToCartoView(QgsRasterLayer*)),Qt::QueuedConnection);
+    connect(this,SIGNAL(signal_load3DSceneFromFile(QString)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString)),Qt::QueuedConnection);
+    connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),Qt::QueuedConnection);
 
     _resultLoadingTask.moveToThread(&_resultLoadingThread);
     _resultLoadingThread.start();
@@ -122,8 +122,8 @@ void UserFormWidget::createCanvas() {
 void UserFormWidget::clear()
 {
     // Clear QGis Widget
-    _layers->clear();
     QgsMapLayerRegistry::instance()->removeAllMapLayers();
+    _layers->clear();
     _ui->_GRV_map->clearExtentHistory();
     _ui->_GRV_map->clear();
     _ui->_GRV_map->refresh();
@@ -137,7 +137,6 @@ void UserFormWidget::resetJobForm()
 {
     // reset parameters
     qDebug() << "resetJobForm";
-    //showUserParameters(false);
     clear();
 }
 
@@ -157,26 +156,8 @@ void UserFormWidget::slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p) {
     // Add the layer to the Layer Set
     _layers->append(QgsMapCanvasLayer(rasterLayer_p, TRUE));//bool visibility
 
-    // Merge extents
-    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
-    QgsRectangle extent;
-    foreach (QgsMapLayer* layer, layers.values()) {
-        if (extent.width()==0) {
-            extent = layer->extent();
-        }
-        else {
-            extent.combineExtentWith(&layer->extent());
-        }
-    }
+    this->updateMapCanvasAndExtent(NULL);
 
-    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
-
-    // set the canvas to the extent of our layer
-    mapCanvas->setExtent(extent);
-
-    // Set the Map Canvas Layer Set
-    mapCanvas->setLayerSet(*_layers);
-    //mapCanvas->refresh();
 }
 
 void UserFormWidget::loadShapefile(QString filename)
@@ -203,27 +184,7 @@ void UserFormWidget::loadShapefile(QString filename)
     // Add the layer to the Layer Set
     _layers->append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
 
-    // Merge extents
-    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
-    QgsRectangle extent;
-    foreach (QgsMapLayer* layer, layers.values()) {
-        if (extent.width()==0) {
-            extent = layer->extent();
-        }
-        else {
-            extent.combineExtentWith(&layer->extent());
-        }
-    }
-
-
-    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
-
-    // set the canvas to the extent of our layer
-    mapCanvas->setExtent(extent);
-
-    // Set the Map Canvas Layer Set
-    mapCanvas->setLayerSet(*_layers);
-    mapCanvas->refresh();
+    this->updateMapCanvasAndExtent(NULL);
 }
 
 void UserFormWidget::load3DFile(QString filename_p)
@@ -261,7 +222,6 @@ void UserFormWidget::addPolygonToMap(basicproc::Polygon &polygon_p, QString poly
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
 
-    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
     QgsVectorLayer *polygonLayer = new QgsVectorLayer("Polygon", layerName_p, "memory");
     QgsVectorDataProvider* polygonLayerp = polygonLayer->dataProvider();
@@ -294,29 +254,9 @@ void UserFormWidget::addPolygonToMap(basicproc::Polygon &polygon_p, QString poly
 
     QgsMapLayerRegistry::instance()->addMapLayer(polygonLayer, TRUE);
 
-    QgsMapCanvasLayer polygonLayerWrap(polygonLayer);
-    _layers->append(polygonLayerWrap);
-    mapCanvas->setLayerSet(*_layers);
+    _layers->append(QgsMapCanvasLayer(polygonLayer, TRUE));
 
-    // Merge extents
-    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
-    QgsRectangle extent;
-    foreach (QgsMapLayer* layer, layers.values()) {
-        if (extent.width()==0) {
-            extent = layer->extent();
-        }
-        else {
-            extent.combineExtentWith(&layer->extent());
-        }
-    }
-    mapCanvas->setExtent(extent);
-
-    mapCanvas->setCurrentLayer(polygonLayer);
-    mapCanvas->refresh();
-
-#ifdef WIN32
-    mapCanvas->update();
-#endif
+    this->updateMapCanvasAndExtent(polygonLayer);
 
 }
 
@@ -362,30 +302,10 @@ void UserFormWidget::addPolylineToMap(basicproc::Polygon &polygon_p, QString pol
 
     QgsMapLayerRegistry::instance()->addMapLayer(polylineLayer, TRUE);
 
-    QgsMapCanvasLayer polylineLayerWrap(polylineLayer);
-    _layers->append(polylineLayerWrap);
+    _layers->append(QgsMapCanvasLayer(polylineLayer, TRUE));
     mapCanvas->setLayerSet(*_layers);
 
-    // Merge extents
-    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
-    QgsRectangle extent;
-    foreach (QgsMapLayer* layer, layers.values()) {
-        if (extent.width()==0) {
-            extent = layer->extent();
-        }
-        else {
-            extent.combineExtentWith(&layer->extent());
-        }
-    }
-    mapCanvas->setExtent(extent);
-
-    mapCanvas->setCurrentLayer(polylineLayer);
-
-
-    mapCanvas->refresh();
-#ifdef WIN32
-    mapCanvas->update();
-#endif
+    this->updateMapCanvasAndExtent(polylineLayer);
 
 }
 
@@ -421,41 +341,10 @@ void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString p
 
     QgsMapLayerRegistry::instance()->addMapLayer(pointsLayer, TRUE);
 
-    QgsMapCanvasLayer pointsLayerWrap(pointsLayer);
-    _layers->append(pointsLayerWrap);
+    _layers->append(QgsMapCanvasLayer(pointsLayer, TRUE));
     mapCanvas->setLayerSet(*_layers);
 
-    // Merge extents
-    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
-    QgsRectangle extent;
-    int i=0;
-    foreach (QgsMapLayer* layer, layers.values()) {
-        if (i==0) {
-            extent = layer->extent();
-        }
-        else {
-            extent.combineExtentWith(&layer->extent());
-        }
-        i++;
-    }
-
-    if (extent.width()==0 && layers.size()==1){
-        extent.setXMinimum(extent.xMinimum()-1.0);
-        extent.setYMinimum(extent.yMinimum()-1.0);
-        extent.setXMaximum(extent.xMaximum()+1.0);
-        extent.setYMaximum(extent.yMaximum()+1.0);
-    }
-
-    mapCanvas->setExtent(extent);
-
-    mapCanvas->setCurrentLayer(pointsLayer);
-    mapCanvas->refresh();
-
-#ifdef WIN32
-    mapCanvas->update();
-#endif
-
-    qDebug() << "RENDER POINTS LAYER !";
+    this->updateMapCanvasAndExtent(pointsLayer);
 
 }
 
@@ -512,33 +401,72 @@ void UserFormWidget::loadTestVectorLayer()
 
     QgsMapLayerRegistry::instance()->addMapLayer(v1, TRUE);
 
-    QgsMapCanvasLayer v1Wrap(v1);
-    _layers->append(v1Wrap);
+    _layers->append(QgsMapCanvasLayer(v1, TRUE));
     mapCanvas->setLayerSet(*_layers);
+
+    this->updateMapCanvasAndExtent(NULL);
+
+    qDebug() << "RENDER VECTOR LAYER !";
+
+}
+
+void UserFormWidget::loadImageFile(QString filename){
+
+    if (_currentViewType!=QImageView)
+        switchCartoViewTo(QImageView);
+
+
+    QImage result(filename);
+    const QPixmap pix = QPixmap::fromImage(result);
+    const QSize size = _ui->_LA_resultImage->size();
+    this->_ui->_LA_resultImage->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
+
+}
+
+void UserFormWidget::updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p)
+{
+    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
     // Merge extents
     QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
-    QgsRectangle extent;
+    QgsRectangle combinedExtent, extent;
+    int i=0;
     foreach (QgsMapLayer* layer, layers.values()) {
-        if (extent.width()==0) {
-            extent = layer->extent();
+        if (i==0) {
+            combinedExtent = layer->extent();
         }
         else {
-            extent.combineExtentWith(&layer->extent());
+            extent = layer->extent();
+            combinedExtent.combineExtentWith(&extent);
         }
+        i++;
     }
-    mapCanvas->setExtent(extent);
 
-    mapCanvas->setCurrentLayer(v1);
-    mapCanvas->refresh();
+    if (combinedExtent.width()==0 && layers.size()==1){
+        combinedExtent.setXMinimum(combinedExtent.xMinimum()-1.0);
+        combinedExtent.setYMinimum(combinedExtent.yMinimum()-1.0);
+        combinedExtent.setXMaximum(combinedExtent.xMaximum()+1.0);
+        combinedExtent.setYMaximum(combinedExtent.yMaximum()+1.0);
+    }
+
+    mapCanvas->setExtent(combinedExtent);
+    mapCanvas->setLayerSet(*_layers);
+
+    if (currentLayer_p != NULL)
+        mapCanvas->setCurrentLayer(currentLayer_p);
+
+    //mapCanvas->refresh();
 
 #ifdef WIN32
     mapCanvas->update();
 #endif
 
-    qDebug() << "RENDER VECTOR LAYER !";
+    this->repaint();
+    QApplication::processEvents();
+    QApplication::flush();
 
 }
+
 CartoViewType UserFormWidget::currentViewType() const
 {
     return _currentViewType;
@@ -586,26 +514,10 @@ void UserFormWidget::displayImage(Image *image ){
 
 }
 
-
-void UserFormWidget::loadImageFile(QString filename){
-
-    if (_currentViewType!=QImageView)
-        switchCartoViewTo(QImageView);
-
-
-    QImage result(filename);
-    const QPixmap pix = QPixmap::fromImage(result);
-    const QSize size = _ui->_LA_resultImage->size();
-    this->_ui->_LA_resultImage->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
-
-}
-
 // Threaded result file loading task
 
 resultLoadingTask::resultLoadingTask()
 {
-    _lastLoadedView = QImageView;
-
 }
 
 resultLoadingTask::~resultLoadingTask()
@@ -661,3 +573,4 @@ void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p)
     emit signal_add3DSceneToCartoView(sceneData);
 
 }
+

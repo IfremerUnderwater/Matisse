@@ -778,7 +778,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
             if (endElt == NULL) {
                 // on cherche si la sortie est une destination...
                 if (_destinationWidget) {
-                    if (_destinationWidget -> getOrder() == endOrder) {
+                    if (_destinationWidget->getOrder() == endOrder) {
                         endElt = _destinationWidget;
                     }
                 }

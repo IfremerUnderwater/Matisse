@@ -46,7 +46,7 @@ public slots:
     void slot_load3DSceneFromFile(QString filename_p = "");
 
 private:
-    CartoViewType _lastLoadedView;
+
 
 
 };
@@ -86,9 +86,12 @@ public:
     QStringList supportedImageFormat() const;
 
 private:
+
+    void updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p);
+
     Ui::UserFormWidget *_ui;
-    Tools * _tools;
     ParametersWidgetSkeleton * _parametersWidget;
+    Tools * _tools;
     QList<QgsMapCanvasLayer> *_layers;
 
     CartoViewType _currentViewType;
