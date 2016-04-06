@@ -1,4 +1,5 @@
 ﻿#include <qgsvectorlayer.h>
+#include <qgsmapcanvas.h>
 #include <qgsrasterlayer.h>
 #include <qgsmaplayerregistry.h>
 
@@ -27,7 +28,6 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     _tools(NULL)
 {
     _ui->setupUi(this);
-    _layers = new QList<QgsMapCanvasLayer>();
 
     // Default view is QImageView
     switchCartoViewTo(QImageView);
@@ -123,7 +123,7 @@ void UserFormWidget::clear()
 {
     // Clear QGis Widget
     QgsMapLayerRegistry::instance()->removeAllMapLayers();
-    _layers->clear();
+    _layers.clear();
     _ui->_GRV_map->clearExtentHistory();
     _ui->_GRV_map->clear();
     _ui->_GRV_map->refresh();
@@ -154,7 +154,7 @@ void UserFormWidget::slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p) {
     QgsMapLayerRegistry::instance()->addMapLayer(rasterLayer_p, TRUE, TRUE);
 
     // Add the layer to the Layer Set
-    _layers->append(QgsMapCanvasLayer(rasterLayer_p, TRUE));//bool visibility
+    _layers.append(QgsMapCanvasLayer(rasterLayer_p, TRUE));//bool visibility
 
     this->updateMapCanvasAndExtent(NULL);
 
@@ -182,7 +182,7 @@ void UserFormWidget::loadShapefile(QString filename)
     QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE);
 
     // Add the layer to the Layer Set
-    _layers->append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
+    _layers.append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
 
     this->updateMapCanvasAndExtent(NULL);
 }
@@ -223,7 +223,17 @@ void UserFormWidget::addPolygonToMap(basicproc::Polygon &polygon_p, QString poly
         switchCartoViewTo(QGisMapLayer);
 
 
-    QgsVectorLayer *polygonLayer = new QgsVectorLayer("Polygon", layerName_p, "memory");
+    QgsVectorLayer *polygonLayer;
+    bool layerAlreadyExists = false;
+    int i;
+
+    if (findLayerIndexFromName(layerName_p, i)){
+        polygonLayer = (QgsVectorLayer *)_layers.at(i).layer();
+        layerAlreadyExists = true;
+    }else{
+        polygonLayer = new QgsVectorLayer("Polygon", layerName_p, "memory");
+    }
+
     QgsVectorDataProvider* polygonLayerp = polygonLayer->dataProvider();
     QgsFeatureList feats;
 
@@ -254,7 +264,8 @@ void UserFormWidget::addPolygonToMap(basicproc::Polygon &polygon_p, QString poly
 
     QgsMapLayerRegistry::instance()->addMapLayer(polygonLayer, TRUE);
 
-    _layers->append(QgsMapCanvasLayer(polygonLayer, TRUE));
+    if(!layerAlreadyExists)
+        _layers.append(QgsMapCanvasLayer(polygonLayer, TRUE));
 
     this->updateMapCanvasAndExtent(polygonLayer);
 
@@ -270,9 +281,17 @@ void UserFormWidget::addPolylineToMap(basicproc::Polygon &polygon_p, QString pol
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
 
-    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
+    QgsVectorLayer *polylineLayer;
+    bool layerAlreadyExists = false;
+    int i;
 
-    QgsVectorLayer *polylineLayer = new QgsVectorLayer("LineString", layerName_p, "memory");
+    if (findLayerIndexFromName(layerName_p, i)){
+        polylineLayer = (QgsVectorLayer *)_layers.at(i).layer();
+        layerAlreadyExists = true;
+    }else{
+        polylineLayer = new QgsVectorLayer("LineString", layerName_p, "memory");
+    }
+
     QgsVectorDataProvider* polylineLayerp = polylineLayer->dataProvider();
     QgsFeatureList feats;
 
@@ -302,8 +321,8 @@ void UserFormWidget::addPolylineToMap(basicproc::Polygon &polygon_p, QString pol
 
     QgsMapLayerRegistry::instance()->addMapLayer(polylineLayer, TRUE);
 
-    _layers->append(QgsMapCanvasLayer(polylineLayer, TRUE));
-    mapCanvas->setLayerSet(*_layers);
+    if(!layerAlreadyExists)
+        _layers.append(QgsMapCanvasLayer(polylineLayer, TRUE));
 
     this->updateMapCanvasAndExtent(polylineLayer);
 
@@ -314,9 +333,17 @@ void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString p
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
 
-    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
+    QgsVectorLayer *pointsLayer;
+    bool layerAlreadyExists = false;
+    int i;
 
-    QgsVectorLayer *pointsLayer = new QgsVectorLayer("Point", layerName_p, "memory");
+    if (findLayerIndexFromName(layerName_p, i)){
+        pointsLayer = (QgsVectorLayer *)_layers.at(i).layer();
+        layerAlreadyExists = true;
+    }else{
+        pointsLayer = new QgsVectorLayer("Point", layerName_p, "memory");
+    }
+
     QgsVectorDataProvider* pointsLayerp = pointsLayer->dataProvider();
     QgsFeatureList feats;
 
@@ -341,8 +368,8 @@ void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString p
 
     QgsMapLayerRegistry::instance()->addMapLayer(pointsLayer, TRUE);
 
-    _layers->append(QgsMapCanvasLayer(pointsLayer, TRUE));
-    mapCanvas->setLayerSet(*_layers);
+    if (!layerAlreadyExists)
+        _layers.append(QgsMapCanvasLayer(pointsLayer, TRUE));
 
     this->updateMapCanvasAndExtent(pointsLayer);
 
@@ -354,7 +381,6 @@ void UserFormWidget::loadTestVectorLayer()
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
 
-    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
     //QList<QgsMapCanvasLayer> layers;
     QgsVectorLayer *v1 = new QgsVectorLayer("Point", "temporary_points", "memory");
@@ -401,8 +427,7 @@ void UserFormWidget::loadTestVectorLayer()
 
     QgsMapLayerRegistry::instance()->addMapLayer(v1, TRUE);
 
-    _layers->append(QgsMapCanvasLayer(v1, TRUE));
-    mapCanvas->setLayerSet(*_layers);
+    _layers.append(QgsMapCanvasLayer(v1, TRUE));
 
     this->updateMapCanvasAndExtent(NULL);
 
@@ -450,7 +475,7 @@ void UserFormWidget::updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p)
     }
 
     mapCanvas->setExtent(combinedExtent);
-    mapCanvas->setLayerSet(*_layers);
+    mapCanvas->setLayerSet(_layers);
 
     if (currentLayer_p != NULL)
         mapCanvas->setCurrentLayer(currentLayer_p);
@@ -464,6 +489,23 @@ void UserFormWidget::updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p)
     this->repaint();
     QApplication::processEvents();
     QApplication::flush();
+
+}
+
+bool UserFormWidget::findLayerIndexFromName(const QString &layerName_p, int &idx_p)
+{
+    int i=0;
+
+    foreach (QgsMapCanvasLayer currentLayer, _layers){
+        if(currentLayer.layer()->name() == layerName_p){
+            idx_p = i;
+            return true;
+        }
+
+        i++;
+    }
+
+    return false;
 
 }
 

@@ -88,11 +88,12 @@ public:
 private:
 
     void updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p);
+    bool findLayerIndexFromName(const QString &layerName_p, int &idx_p);
 
     Ui::UserFormWidget *_ui;
     ParametersWidgetSkeleton * _parametersWidget;
     Tools * _tools;
-    QList<QgsMapCanvasLayer> *_layers;
+    QList<QgsMapCanvasLayer> _layers;
 
     CartoViewType _currentViewType;
 
