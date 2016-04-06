@@ -37,6 +37,30 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     _supported3DFileFormat << "obj" << "osg" << "ply" << "osgt";
     _supportedImageFormat << "jpg" << "jpeg" << "png";
 
+    // Init QAction & Menu
+    _extentAutoResize = new QAction(tr("Ajustement auto a l'emprise"),this);
+    _extentAutoResize->setCheckable(true);
+    _extentAutoResize->setChecked(true);
+
+    _followLastItem = new QAction(tr("Suivre le dernier ajout"),this);
+    _followLastItem->setCheckable(false);
+    _followLastItem->setChecked(false);
+
+    _manualMove = new QAction(tr("Deplacement manuel"),this);
+    _manualMove->setCheckable(false);
+    _manualMove->setChecked(false);
+
+    _repaintBehaviorMenu = new QMenu(this);
+    _repaintBehaviorMenu->addAction(_extentAutoResize);
+    _repaintBehaviorMenu->addAction(_followLastItem);
+    _repaintBehaviorMenu->addAction(_manualMove);
+
+    _repaintBehaviorState = ExtentAutoResize;
+
+    connect(_extentAutoResize, SIGNAL(triggered()), this, SLOT(slot_onAutoResizeTrigger()));
+    connect(_followLastItem, SIGNAL(triggered()), this, SLOT(slot_onFollowLastItem()));
+    connect(_manualMove, SIGNAL(triggered()), this, SLOT(slot_onManualMove()));
+
     // Init loading thread
     qRegisterMetaType< osg::ref_ptr<osg::Node> >();
 
@@ -47,6 +71,10 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
 
     _resultLoadingTask.moveToThread(&_resultLoadingThread);
     _resultLoadingThread.start();
+
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+            this, SLOT(slot_showContextMenu(const QPoint&)));
 
 }
 
@@ -198,6 +226,105 @@ void UserFormWidget::load3DFile(QString filename_p)
 void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p)
 {
     _ui->_OSG_viewer->setSceneData(sceneData_p);
+}
+
+void UserFormWidget::slot_showContextMenu(const QPoint &pos_p)
+{
+    if (_currentViewType == QGisMapLayer){
+        _repaintBehaviorMenu->popup(this->mapToGlobal(pos_p));
+    }
+}
+
+void UserFormWidget::slot_onAutoResizeTrigger()
+{
+    if (_repaintBehaviorState == ExtentAutoResize){
+        _extentAutoResize->setChecked(true);
+    }
+
+    if (_currentViewType == QGisMapLayer){
+
+        switch (_repaintBehaviorState) {
+
+        case FollowLastItem:
+            _repaintBehaviorState = ExtentAutoResize;
+            _extentAutoResize->setCheckable(true);
+            _extentAutoResize->setChecked(true);
+            _followLastItem->setCheckable(false);
+            break;
+        case ManualMove:
+            _repaintBehaviorState = ExtentAutoResize;
+            _extentAutoResize->setCheckable(true);
+            _extentAutoResize->setChecked(true);
+            _manualMove->setCheckable(false);
+            break;
+        default:
+            break;
+
+        }
+    }
+
+    this->updateMapCanvasAndExtent(NULL);
+    _ui->_GRV_map->refresh();
+}
+
+void UserFormWidget::slot_onFollowLastItem()
+{
+    if (_repaintBehaviorState == FollowLastItem){
+        _followLastItem->setChecked(true);
+        return;
+    }
+
+    if (_currentViewType == QGisMapLayer){
+
+        switch (_repaintBehaviorState) {
+
+        case ExtentAutoResize:
+            _repaintBehaviorState = FollowLastItem;
+            _followLastItem->setCheckable(true);
+            _followLastItem->setChecked(true);
+            _extentAutoResize->setCheckable(false);
+            break;
+        case ManualMove:
+            _repaintBehaviorState = FollowLastItem;
+            _followLastItem->setCheckable(true);
+            _followLastItem->setChecked(true);
+            _manualMove->setCheckable(false);
+            break;
+        default:
+            break;
+
+        }
+    }
+}
+
+void UserFormWidget::slot_onManualMove()
+{
+    if (_repaintBehaviorState == ManualMove){
+        _manualMove->setChecked(true);
+        return;
+    }
+
+    if (_currentViewType == QGisMapLayer){
+
+        switch (_repaintBehaviorState) {
+
+        case ExtentAutoResize:
+            _repaintBehaviorState = ManualMove;
+            _manualMove->setCheckable(true);
+            _manualMove->setChecked(true);
+            _extentAutoResize->setCheckable(false);
+            break;
+        case FollowLastItem:
+            _repaintBehaviorState = ManualMove;
+            _manualMove->setCheckable(true);
+            _manualMove->setChecked(true);
+            _followLastItem->setCheckable(false);
+            break;
+        default:
+            break;
+
+        }
+    }
 }
 
 void UserFormWidget::setTools(Tools *tools)
@@ -454,27 +581,46 @@ void UserFormWidget::updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p)
 
     // Merge extents
     QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
-    QgsRectangle combinedExtent, extent;
+    QgsRectangle finalExtent, extent;
     int i=0;
-    foreach (QgsMapLayer* layer, layers.values()) {
-        if (i==0) {
-            combinedExtent = layer->extent();
+
+    if (_repaintBehaviorState == ExtentAutoResize){
+
+        foreach (QgsMapLayer* layer, layers.values()) {
+            if (i==0) {
+                finalExtent = layer->extent();
+            }
+            else {
+                extent = layer->extent();
+                finalExtent.combineExtentWith(&extent);
+            }
+            i++;
         }
-        else {
-            extent = layer->extent();
-            combinedExtent.combineExtentWith(&extent);
+
+        if (finalExtent.width()==0 && layers.size()==1){
+            finalExtent.setXMinimum(finalExtent.xMinimum()-1.0);
+            finalExtent.setYMinimum(finalExtent.yMinimum()-1.0);
+            finalExtent.setXMaximum(finalExtent.xMaximum()+1.0);
+            finalExtent.setYMaximum(finalExtent.yMaximum()+1.0);
         }
-        i++;
+        mapCanvas->setExtent(finalExtent);
+    }else if (_repaintBehaviorState == FollowLastItem){
+        if (currentLayer_p !=NULL){
+            extent = currentLayer_p->extent();
+
+            if (extent.width()==0){
+                extent.setXMinimum(extent.xMinimum()-1.0);
+                extent.setYMinimum(extent.yMinimum()-1.0);
+                extent.setXMaximum(extent.xMaximum()+1.0);
+                extent.setYMaximum(extent.yMaximum()+1.0);
+            }
+
+            mapCanvas->setExtent(extent);
+        }
+    }else if (_repaintBehaviorState == ManualMove){
+        // do nothing
     }
 
-    if (combinedExtent.width()==0 && layers.size()==1){
-        combinedExtent.setXMinimum(combinedExtent.xMinimum()-1.0);
-        combinedExtent.setYMinimum(combinedExtent.yMinimum()-1.0);
-        combinedExtent.setXMaximum(combinedExtent.xMaximum()+1.0);
-        combinedExtent.setYMaximum(combinedExtent.yMaximum()+1.0);
-    }
-
-    mapCanvas->setExtent(combinedExtent);
     mapCanvas->setLayerSet(_layers);
 
     if (currentLayer_p != NULL)

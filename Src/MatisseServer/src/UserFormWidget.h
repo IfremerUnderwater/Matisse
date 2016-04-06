@@ -2,6 +2,7 @@
 #define USERFORMWIDGET_H
 
 #include <QWidget>
+#include <QMenu>
 #include <QImage>
 #include <QGraphicsView>
 #include <QThread>
@@ -28,6 +29,8 @@ class QgsRasterLayer;
 
 
 enum CartoViewType { QGisMapLayer, QImageView, OpenSceneGraphView };
+
+enum RepaintBehaviorState { ExtentAutoResize, FollowLastItem, ManualMove };
 
 
 class resultLoadingTask : public QObject{
@@ -85,6 +88,21 @@ public:
     QStringList supported3DFileFormat() const;
     QStringList supportedImageFormat() const;
 
+
+protected slots:
+    void slot_parametersChanged(bool changed);
+    void slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
+    void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
+
+    void slot_showContextMenu(const QPoint& pos_p);
+    void slot_onAutoResizeTrigger();
+    void slot_onFollowLastItem();
+    void slot_onManualMove();
+signals:
+    void signal_parametersChanged(bool changed);
+    void signal_loadRasterFromFile(QString filename_p = "");
+    void signal_load3DSceneFromFile(QString filename_p = "");
+
 private:
 
     void updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p);
@@ -105,15 +123,11 @@ private:
     QStringList _supported3DFileFormat;
     QStringList _supportedImageFormat;
 
-protected slots:
-    void slot_parametersChanged(bool changed);
-    void slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
-    void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
-
-signals:
-    void signal_parametersChanged(bool changed);
-    void signal_loadRasterFromFile(QString filename_p = "");
-    void signal_load3DSceneFromFile(QString filename_p = "");
+    QAction *_extentAutoResize;
+    QAction *_followLastItem;
+    QAction *_manualMove;
+    QMenu *_repaintBehaviorMenu;
+    RepaintBehaviorState _repaintBehaviorState;
 
 };
 
