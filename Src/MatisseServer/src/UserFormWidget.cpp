@@ -14,7 +14,6 @@
 #include "UserFormWidget.h"
 #include "ui_UserFormWidget.h"
 #include "qgsmapcanvas.h"
-#include "unistd.h"
 
 #include <opencv2/opencv.hpp>
 
