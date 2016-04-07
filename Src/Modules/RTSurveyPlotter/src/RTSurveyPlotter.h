@@ -27,6 +27,9 @@ public:
 
 private:
     QList<QFileInfo> _rastersInfo;
+    QString _outputDirnameStr;
+    QString _outputFilename;
+
     QVector<ProjectiveCamera*> *_pCams;
     QList<Image *> _imageList;
     MosaicDescriptor *_pMosaicD;

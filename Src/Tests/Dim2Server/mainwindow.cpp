@@ -118,11 +118,11 @@ void MainWindow::timerEvent(QTimerEvent *event )
             msg.set_depth(dim2.depth());
             msg.set_latitude(dim2.latitude());
             msg.set_longitude(dim2.longitude());
-            msg.set_pan(0.0);
+            msg.set_pan(dim2.mainPan());
             msg.set_photopath(dim2.filename().toStdString().c_str(),dim2.filename().toStdString().size());
             msg.set_pitch(D2R*dim2.pitch());
             msg.set_roll(D2R*dim2.roll());
-            msg.set_tilt(-M_PI_2);
+            msg.set_tilt(dim2.mainTilt());
             msg.set_yaw(D2R*dim2.yaw());
             _protoInterface->sl_OnReceiveNavPhotoInfoMessage(msg);
         }

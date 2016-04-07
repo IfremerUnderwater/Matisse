@@ -33,6 +33,7 @@ public:
 
 signals:
     void signal_connectTcpSocket(QString hostname_p, int port_p);
+    void signal_disconnectTcpSocket();
 
 public slots:
     void slot_processNavPhotoInfoMessage(NavPhotoInfoMessage navPhotoInfoMsg_p);
@@ -54,6 +55,7 @@ private:
     QThread _rtImagesListener;
 
     QString _tcpAddress;
+    int _tcpPort;
     NavInfo _lastNavInfo;
 
 };

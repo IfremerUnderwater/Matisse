@@ -48,7 +48,7 @@ bool RTStillCameraProvider::configure()
 {
     //QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
     bool ok;
-    int tcpPort = _matisseParameters->getIntParamValue("cam_param", "still_camera_port", ok );
+    _tcpPort = _matisseParameters->getIntParamValue("cam_param", "still_camera_port", ok );
     if (!ok) {
         return false;
     }
@@ -65,7 +65,7 @@ bool RTStillCameraProvider::configure()
 
     _tcpAddress = _matisseParameters->getStringParamValue("cam_param", "still_camera_address");
 
-    qDebug() << logPrefix()  << "TCP connection port: " << tcpPort;
+    qDebug() << logPrefix()  << "TCP connection port: " << _tcpPort;
 
     // To be changed
     _refFrame = cv::Mat(_sensorFullHeight, _sensorFullWidth, CV_8UC3);
@@ -73,10 +73,9 @@ bool RTStillCameraProvider::configure()
     _navPhotoInfoTcpListener = new NavPhotoInfoTcpListener();
     connect(_navPhotoInfoTcpListener, SIGNAL(signal_NavPhotoInfoMessage(NavPhotoInfoMessage)), this, SLOT(slot_processNavPhotoInfoMessage(NavPhotoInfoMessage)), Qt::QueuedConnection);
     connect(this, SIGNAL(signal_connectTcpSocket(QString,int)), _navPhotoInfoTcpListener, SLOT(slot_Connect(QString,int)), Qt::QueuedConnection);
+    connect(this, SIGNAL(signal_disconnectTcpSocket()), _navPhotoInfoTcpListener, SLOT(slot_disconnect()), Qt::QueuedConnection);
 
     _navPhotoInfoTcpListener->moveToThread(&_rtImagesListener);
-
-    emit signal_connectTcpSocket(_tcpAddress,tcpPort);
 
     // Connect HTTP image downloader
     connect(_imageDownloader,SIGNAL(signal_imageReady(QImage)), this, SLOT(slot_onReceiveImage(QImage)));
@@ -88,7 +87,8 @@ bool RTStillCameraProvider::configure()
 
 bool RTStillCameraProvider::start()
 {
-    qDebug() << logPrefix() << "Started... ";
+    qDebug() << logPrefix() << "Started TCP Listening... ";
+    emit signal_connectTcpSocket(_tcpAddress,_tcpPort);
     return true;
 }
 
@@ -98,7 +98,7 @@ bool RTStillCameraProvider::stop()
 {
 
     _imageSet->clear();
-
+    emit signal_disconnectTcpSocket();
     _imageCount = 0;
     return true;
 }
@@ -113,19 +113,19 @@ void RTStillCameraProvider::slot_processNavPhotoInfoMessage(NavPhotoInfoMessage 
             photoTime.setMSecsSinceEpoch((msg_p.photostamp().sec())*1000000 + (uint64)(msg_p.photostamp().nsec()/1000));
 
             _lastNavInfo.setInfo(0,
-                            photoTime,
-                            msg_p.longitude(),
-                            msg_p.latitude(),
-                            msg_p.depth(),
-                            msg_p.altitude(),
-                            msg_p.yaw(),
-                            msg_p.roll(),
-                            msg_p.pitch(),
-                            0.0,
-                            0.0,
-                            0.0,
-                            D2R*msg_p.pan(),
-                            D2R*msg_p.tilt());
+                                 photoTime,
+                                 msg_p.longitude(),
+                                 msg_p.latitude(),
+                                 msg_p.depth(),
+                                 msg_p.altitude(),
+                                 msg_p.yaw(),
+                                 msg_p.roll(),
+                                 msg_p.pitch(),
+                                 0.0,
+                                 0.0,
+                                 0.0,
+                                 D2R*msg_p.pan(),
+                                 D2R*msg_p.tilt());
 
             QFileInfo photoFile(QString::fromStdString(msg_p.photopath()));
             QString photoBasename = photoFile.completeBaseName();
@@ -141,7 +141,7 @@ void RTStillCameraProvider::slot_processNavPhotoInfoMessage(NavPhotoInfoMessage 
 
 
         }else{
-         /*   GeoTransform T;
+            /*   GeoTransform T;
             QList<QgsPoint> navPoint;
 
             double utm_x,utm_y;

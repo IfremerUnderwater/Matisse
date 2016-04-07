@@ -21,6 +21,7 @@ signals:
 
 public slots:
     void slot_Connect(QString hostname_p, int port_p);
+    void slot_disconnect();
 
 private slots:
     void slot_OnDataReceived();

@@ -16,6 +16,9 @@ RTSurveyPlotter::RTSurveyPlotter(QObject *parent):
     addExpectedParameter("cam_param", "sensor_width");
     addExpectedParameter("cam_param", "sensor_height");
     addExpectedParameter("cam_param",  "V_Pose_C");
+
+    addExpectedParameter("dataset_param", "output_dir");
+    addExpectedParameter("dataset_param",  "output_filename");
 }
 
 RTSurveyPlotter::~RTSurveyPlotter()
@@ -27,10 +30,18 @@ bool RTSurveyPlotter::configure()
 {
     qDebug() << logPrefix() << "configure";
 
-    // No raster to write, only real time plotting
+    // Init output dir params
+    _outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    _outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+
+    if (_outputDirnameStr.isEmpty()
+     || _outputFilename.isEmpty())
+        return false;
+
     _rastersInfo.clear();
 
 
+    // Init mosaic parameters
     _pMosaicD = new MosaicDescriptor;
     _pCams = new QVector<ProjectiveCamera*>;
 
@@ -186,8 +197,8 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
     singleFrameMosaic.setUtmHemisphere(_pMosaicD->utmHemisphere());
 
     //QString imgFile = QString("/home/data/DATA/RealTimeMosaic/image_%1.tiff").arg(navImage->id());
-    QString imgFileTmp = QString("/home/aarnaube/image_temp_%1.tiff").arg(navImage->id());
-    QString imgFile = QString("/home/aarnaube/image_%1.tiff").arg(navImage->id());
+    QString imgFileTmp = _outputDirnameStr + QDir::separator() + _outputFilename + QString("_temp_%1.tiff").arg(navImage->id());
+    QString imgFile = _outputDirnameStr + QDir::separator() + _outputFilename + QString("_%1.tiff").arg(navImage->id());
 
     // create image with tranparency
     std::vector<Mat> rasterChannels;
@@ -222,8 +233,9 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
     qDebug() << "system cmd = " << cmdLine;
     QFile::remove(imgFileTmp);
 
-    //if(navImage->id() == 3)
     emit signal_addRasterFileToMap(imgFile);
+
+    _rastersInfo << QFileInfo(imgFile);
 }
 
 void RTSurveyPlotter::onFlush(quint32 port)

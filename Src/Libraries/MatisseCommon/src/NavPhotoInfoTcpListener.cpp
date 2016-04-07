@@ -39,6 +39,11 @@ void NavPhotoInfoTcpListener::Connect()
     _connectionTimer->start();
 }
 
+void NavPhotoInfoTcpListener::slot_disconnect(){
+    _tcpSocket->disconnectFromHost();
+    _connectionTimer->stop();
+}
+
 void NavPhotoInfoTcpListener::slot_OnDataReceived()
 {
     QByteArray data_received = _tcpSocket->readAll();
