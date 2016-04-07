@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources/resources.qrc">
-    <normaloff>:/jpg/ifremer-grand.jpg</normaloff>:/jpg/ifremer-grand.jpg</iconset>
+    <normaloff>:/png/ifremer-grand.png</normaloff>:/png/ifremer-grand.png</iconset>
   </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">

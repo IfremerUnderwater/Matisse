@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources/resources.qrc">
-    <normaloff>:/jpg/ifremer-grand.jpg</normaloff>:/jpg/ifremer-grand.jpg</iconset>
+    <normaloff>:/png/ifremer-grand.png</normaloff>:/png/ifremer-grand.png</iconset>
   </property>
   <property name="animated">
    <bool>false</bool>

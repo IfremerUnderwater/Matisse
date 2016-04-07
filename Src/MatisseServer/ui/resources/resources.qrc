@@ -1,36 +1,7 @@
 <RCC>
     <qresource prefix="/png">
-        <file>accessories-text-editor-5.png</file>
-        <file>application-exit-5.png</file>
-        <file>document-new-3.png</file>
-        <file>document-open-4.png</file>
-        <file>document-save-2.png</file>
-        <file>document-save-as-2.png</file>
-        <file>edit-delete-3.png</file>
-        <file>led-green.png</file>
-        <file>led-grey.png</file>
-        <file>expert.png</file>
-        <file>user.png</file>
-        <file>documentation.png</file>
-        <file>run-error.png</file>
-        <file>run-ok.png</file>
-        <file>run-unknown.png</file>
-        <file>view-refresh-3.png</file>
-        <file>deleteAssembly.png</file>
-        <file>newAssembly.png</file>
-        <file>SaveAsAssembly.png</file>
-        <file>SaveAssembly.png</file>
-        <file>deleteJob.png</file>
-        <file>SaveAsJob.png</file>
-        <file>SaveJob.png</file>
-        <file alias="stop.png">process-stop-9.png</file>
-        <file>led-orange.png</file>
-        <file>led-red.png</file>
-        <file>deleteParameters.png</file>
-        <file>separator.png</file>
+        <file>ifremer-grand.png</file>
     </qresource>
-    <qresource prefix="/jpg">
-        <file>ifremer-grand.jpg</file>
-    </qresource>
+    <qresource prefix="/jpg"/>
     <qresource prefix="/"/>
 </RCC>
