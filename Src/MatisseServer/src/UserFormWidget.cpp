@@ -625,7 +625,7 @@ void UserFormWidget::updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p)
     if (currentLayer_p != NULL)
         mapCanvas->setCurrentLayer(currentLayer_p);
 
-    //mapCanvas->refresh();
+    mapCanvas->refresh();
 
 #ifdef WIN32
     mapCanvas->update();

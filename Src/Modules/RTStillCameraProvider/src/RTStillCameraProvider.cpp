@@ -14,7 +14,8 @@ RTStillCameraProvider::RTStillCameraProvider(QObject *parent)
       _pictureFileSet(NULL),
       _imageCount(0),
       _sensorFullWidth(0),
-      _sensorFullHeight(0)
+      _sensorFullHeight(0),
+      _doRealTimeMosaicking(true)
 {
     Q_UNUSED(parent)
     setIsRealTime(true);
@@ -25,6 +26,7 @@ RTStillCameraProvider::RTStillCameraProvider(QObject *parent)
     addExpectedParameter("cam_param", "still_camera_port");
     addExpectedParameter("cam_param", "sensor_width");
     addExpectedParameter("cam_param", "sensor_height");
+    addExpectedParameter("algo_param", "do_realtime_mosaicking");
 
     _imageDownloader = new HTTPImageDownloader();
 
@@ -64,6 +66,11 @@ bool RTStillCameraProvider::configure()
     }
 
     _tcpAddress = _matisseParameters->getStringParamValue("cam_param", "still_camera_address");
+
+    _doRealTimeMosaicking = _matisseParameters->getBoolParamValue("algo_param", "do_realtime_mosaicking", ok);
+    if (!ok) {
+        return false;
+    }
 
     qDebug() << logPrefix()  << "TCP connection port: " << _tcpPort;
 
@@ -137,7 +144,13 @@ void RTStillCameraProvider::slot_processNavPhotoInfoMessage(NavPhotoInfoMessage 
 
             QString photoFileUrl = QString("http://") + _tcpAddress + QString(":8080/Preview/") + photoBasename;
 
-            _imageDownloader->startDownloadOfFile(photoFileUrl);
+            if (_doRealTimeMosaicking){
+                _imageDownloader->startDownloadOfFile(photoFileUrl);
+            }
+            else{
+                NavImage * newImage = new NavImage(_imageCount++, &_refFrame, _lastNavInfo);
+                _imageSet->addImage(newImage);
+            }
 
 
         }else{

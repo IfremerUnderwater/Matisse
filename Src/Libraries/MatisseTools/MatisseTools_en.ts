@@ -31,16 +31,6 @@
 <context>
     <name>MatisseTools::MatisseParametersManager</name>
     <message>
-        <location filename="src/MatisseParametersManager.cpp" line="940"/>
-        <source>Fichier</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/MatisseParametersManager.cpp" line="945"/>
-        <source>Repertoire</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="src/MatisseDictionnaryLabels.h" line="33"/>
         <source>Code a executer pour le sift</source>
         <translation>Sift execution code</translation>
@@ -270,24 +260,26 @@
         <source>Hemisphere UTM</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>MatisseTools::Tools</name>
     <message>
-        <location filename="src/Tools.cpp" line="358"/>
-        <source>Fichier</source>
+        <location filename="src/MatisseParametersManager.cpp" line="564"/>
+        <source>Parametres utilisateur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Tools.cpp" line="363"/>
-        <source>Repertoire</source>
+        <location filename="src/MatisseParametersManager.cpp" line="565"/>
+        <source>Parametres avances</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/MatisseParametersManager.cpp" line="566"/>
+        <source>Parametres mode expert</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ParametersWidgetSkeleton</name>
     <message>
-        <location filename="ui/ParametersWidgetSkeleton.ui" line="20"/>
+        <location filename="ui/ParametersWidgetSkeleton.ui" line="32"/>
         <source>Form</source>
         <translation type="unfinished"></translation>
     </message>

@@ -29,6 +29,7 @@ private:
     QList<QFileInfo> _rastersInfo;
     QString _outputDirnameStr;
     QString _outputFilename;
+    bool _doRealTimeMosaicking;
 
     QVector<ProjectiveCamera*> *_pCams;
     QList<Image *> _imageList;

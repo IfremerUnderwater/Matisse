@@ -19,6 +19,10 @@ RTSurveyPlotter::RTSurveyPlotter(QObject *parent):
 
     addExpectedParameter("dataset_param", "output_dir");
     addExpectedParameter("dataset_param",  "output_filename");
+
+    addExpectedParameter("algo_param", "do_realtime_mosaicking");
+
+    _doRealTimeMosaicking = true;
 }
 
 RTSurveyPlotter::~RTSurveyPlotter()
@@ -35,7 +39,7 @@ bool RTSurveyPlotter::configure()
     _outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
     if (_outputDirnameStr.isEmpty()
-     || _outputFilename.isEmpty())
+            || _outputFilename.isEmpty())
         return false;
 
     _rastersInfo.clear();
@@ -74,6 +78,10 @@ bool RTSurveyPlotter::configure()
         return false;
     }
 
+    _doRealTimeMosaicking = _matisseParameters->getBoolParamValue("algo_param", "do_realtime_mosaicking", Ok);
+    if (!Ok) {
+        return false;
+    }
 
     // for future use
     _scaleFactor = 1.0;
@@ -181,61 +189,63 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
     emit signal_addPolylineToMap(camWireframe,"red","imageswireframe");
 
     // Project Image
-    cv::Mat warpedImage, warpedImageMask;
-    cv::Point corner_p;
-    _pCams->at(navImage->id())->projectImageOnMosaickingPlane(warpedImage, warpedImageMask, corner_p);
+    if (_doRealTimeMosaicking){
+        cv::Mat warpedImage, warpedImageMask;
+        cv::Point corner_p;
+        _pCams->at(navImage->id())->projectImageOnMosaickingPlane(warpedImage, warpedImageMask, corner_p);
 
-    MosaicDescriptor singleFrameMosaic;
-    cv::Mat img_ullr;
-    img_ullr = (cv::Mat_<qreal>(4,1) << _pMosaicD->mosaicOrigin().x + corner_p.x*(double)_pMosaicD->pixelSize().x,
-    _pMosaicD->mosaicOrigin().y - corner_p.y*(double)_pMosaicD->pixelSize().y,
-    _pMosaicD->mosaicOrigin().x + (corner_p.x+(double)warpedImage.cols-1.0)*_pMosaicD->pixelSize().x,
-    _pMosaicD->mosaicOrigin().y - (corner_p.y+(double)warpedImage.rows-1.0)*_pMosaicD->pixelSize().y);
+        MosaicDescriptor singleFrameMosaic;
+        cv::Mat img_ullr;
+        img_ullr = (cv::Mat_<qreal>(4,1) << _pMosaicD->mosaicOrigin().x + corner_p.x*(double)_pMosaicD->pixelSize().x,
+                    _pMosaicD->mosaicOrigin().y - corner_p.y*(double)_pMosaicD->pixelSize().y,
+                    _pMosaicD->mosaicOrigin().x + (corner_p.x+(double)warpedImage.cols-1.0)*_pMosaicD->pixelSize().x,
+                    _pMosaicD->mosaicOrigin().y - (corner_p.y+(double)warpedImage.rows-1.0)*_pMosaicD->pixelSize().y);
 
-    singleFrameMosaic.setMosaic_ullr(img_ullr);
-    singleFrameMosaic.setUtmZone(_pMosaicD->utmZone());
-    singleFrameMosaic.setUtmHemisphere(_pMosaicD->utmHemisphere());
+        singleFrameMosaic.setMosaic_ullr(img_ullr);
+        singleFrameMosaic.setUtmZone(_pMosaicD->utmZone());
+        singleFrameMosaic.setUtmHemisphere(_pMosaicD->utmHemisphere());
 
-    //QString imgFile = QString("/home/data/DATA/RealTimeMosaic/image_%1.tiff").arg(navImage->id());
-    QString imgFileTmp = _outputDirnameStr + QDir::separator() + _outputFilename + QString("_temp_%1.tiff").arg(navImage->id());
-    QString imgFile = _outputDirnameStr + QDir::separator() + _outputFilename + QString("_%1.tiff").arg(navImage->id());
+        //QString imgFile = QString("/home/data/DATA/RealTimeMosaic/image_%1.tiff").arg(navImage->id());
+        QString imgFileTmp = _outputDirnameStr + QDir::separator() + _outputFilename + QString("_temp_%1.tiff").arg(navImage->id());
+        QString imgFile = _outputDirnameStr + QDir::separator() + _outputFilename + QString("_%1.tiff").arg(navImage->id());
 
-    // create image with tranparency
-    std::vector<Mat> rasterChannels;
-    cv::Mat warpedImageTransparent;
-    split(warpedImage, rasterChannels);
-    rasterChannels.pop_back();
-    rasterChannels.push_back(warpedImageMask);
-    merge(rasterChannels, warpedImageTransparent);
+        // create image with tranparency
+        std::vector<Mat> rasterChannels;
+        cv::Mat warpedImageTransparent;
+        split(warpedImage, rasterChannels);
+        rasterChannels.pop_back();
+        rasterChannels.push_back(warpedImageMask);
+        merge(rasterChannels, warpedImageTransparent);
 
-    cv::imwrite(imgFileTmp.toStdString(),warpedImageTransparent);
+        cv::imwrite(imgFileTmp.toStdString(),warpedImageTransparent);
 
-    QString utmProjParam, utmHemisphereOption;
+        QString utmProjParam, utmHemisphereOption;
 
-    if ( _pMosaicD->utmHemisphere() == "S" ){
-        utmHemisphereOption = QString(" +south");
-    }else{
-        utmHemisphereOption = QString("");
+        if ( _pMosaicD->utmHemisphere() == "S" ){
+            utmHemisphereOption = QString(" +south");
+        }else{
+            utmHemisphereOption = QString("");
+        }
+        utmProjParam = QString("+proj=utm +zone=") + QString("%1").arg(_pMosaicD->utmZone());
+
+        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+                .arg(img_ullr.at<qreal>(0,0),0,'f',2)
+                .arg(img_ullr.at<qreal>(1,0),0,'f',2)
+                .arg(img_ullr.at<qreal>(2,0),0,'f',2)
+                .arg(img_ullr.at<qreal>(3,0),0,'f',2)
+                + QString(" -mask 4 --config GDAL_TIFF_INTERNAL_MASK YES ");
+
+        QString cmdLine;
+        cmdLine = QString("gdal_translate ") + gdalOptions + " " + imgFileTmp + " " + imgFile;
+        system(cmdLine.toStdString().c_str());
+
+        qDebug() << "system cmd = " << cmdLine;
+        QFile::remove(imgFileTmp);
+
+        emit signal_addRasterFileToMap(imgFile);
+
+        _rastersInfo << QFileInfo(imgFile);
     }
-    utmProjParam = QString("+proj=utm +zone=") + QString("%1").arg(_pMosaicD->utmZone());
-
-    QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
-            .arg(img_ullr.at<qreal>(0,0),0,'f',2)
-            .arg(img_ullr.at<qreal>(1,0),0,'f',2)
-            .arg(img_ullr.at<qreal>(2,0),0,'f',2)
-            .arg(img_ullr.at<qreal>(3,0),0,'f',2)
-            + QString(" -mask 4 --config GDAL_TIFF_INTERNAL_MASK YES ");
-
-    QString cmdLine;
-    cmdLine = QString("gdal_translate ") + gdalOptions + " " + imgFileTmp + " " + imgFile;
-    system(cmdLine.toStdString().c_str());
-
-    qDebug() << "system cmd = " << cmdLine;
-    QFile::remove(imgFileTmp);
-
-    emit signal_addRasterFileToMap(imgFile);
-
-    _rastersInfo << QFileInfo(imgFile);
 }
 
 void RTSurveyPlotter::onFlush(quint32 port)

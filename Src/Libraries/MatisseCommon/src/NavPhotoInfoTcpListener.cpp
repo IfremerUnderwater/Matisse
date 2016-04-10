@@ -9,6 +9,12 @@ NavPhotoInfoTcpListener::NavPhotoInfoTcpListener() : QObject()
     _isConnected = false;
     _hostname = QString("none");
 
+    connect(_connectionTimer, SIGNAL(timeout()), this, SLOT(slot_OnConnectionTimer()));
+
+    connect(_tcpSocket, SIGNAL(disconnected()), this, SLOT(slot_OnDisconnect()));
+    connect(_tcpSocket, SIGNAL(connected()), this, SLOT(slot_OnConnect()));
+    connect(_tcpSocket, SIGNAL(readyRead()), this, SLOT(slot_OnDataReceived()));
+
 }
 
 NavPhotoInfoTcpListener::~NavPhotoInfoTcpListener()
@@ -25,11 +31,6 @@ void NavPhotoInfoTcpListener::slot_Connect(QString hostname_p, int port_p)
     _hostport = port_p;
 
     _connectionTimer->setInterval(2000);
-    connect(_connectionTimer, SIGNAL(timeout()), this, SLOT(slot_OnConnectionTimer()));
-
-    connect(_tcpSocket, SIGNAL(disconnected()), this, SLOT(slot_OnDisconnect()));
-    connect(_tcpSocket, SIGNAL(connected()), this, SLOT(slot_OnConnect()));
-    connect(_tcpSocket, SIGNAL(readyRead()), this, SLOT(slot_OnDataReceived()));
 
     Connect();
 }

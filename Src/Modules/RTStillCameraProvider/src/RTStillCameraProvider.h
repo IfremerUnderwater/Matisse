@@ -49,6 +49,8 @@ private:
 
     int _sensorFullWidth,_sensorFullHeight;
 
+    bool _doRealTimeMosaicking;
+
     NavPhotoInfoTcpListener *_navPhotoInfoTcpListener;
     HTTPImageDownloader *_imageDownloader;
     ImageSet * _imageSet;

@@ -4,47 +4,65 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="mainwindow.ui" line="14"/>
+        <location filename="mainwindow.ui" line="26"/>
         <source>Dim2Server</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="37"/>
         <source>Configure</source>
-        <translation>Configure</translation>
+        <translation type="obsolete">Configure</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="104"/>
+        <location filename="mainwindow.ui" line="93"/>
         <source>Periode (s)</source>
         <translation>period</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="117"/>
+        <location filename="mainwindow.ui" line="83"/>
         <source>Port</source>
         <translation>Port</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="59"/>
         <source>Fichier DIM2</source>
-        <translation>DIM2 File</translation>
+        <translation type="obsolete">DIM2 File</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="78"/>
+        <location filename="mainwindow.ui" line="39"/>
+        <source>Configure Dim2 Server:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="56"/>
+        <source>DIM2 File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="72"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="21"/>
+        <location filename="mainwindow.ui" line="108"/>
+        <source>Dim2UDPServer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="113"/>
+        <source>NavPhotoInfoServer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="132"/>
         <source>Start</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="43"/>
+        <location filename="mainwindow.cpp" line="57"/>
         <source>Choix d&apos;un fichier...</source>
         <translation>Open File...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="61"/>
+        <location filename="mainwindow.cpp" line="76"/>
         <source>Fichier non trouvé :</source>
         <translation>File not found : </translation>
     </message>
