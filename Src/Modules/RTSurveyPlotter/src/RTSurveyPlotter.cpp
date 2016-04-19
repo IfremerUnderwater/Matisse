@@ -186,7 +186,8 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
     navPoint.append(QgsPoint(navImage->navInfo().utmX(), navImage->navInfo().utmY()));
     emit signal_addQGisPointsToMap(navPoint,"blue","nav");
 
-    emit signal_addPolylineToMap(camWireframe,"red","imageswireframe");
+    if(!_doRealTimeMosaicking)
+        emit signal_addPolylineToMap(camWireframe,"red","imageswireframe");
 
     // Project Image
     if (_doRealTimeMosaicking){

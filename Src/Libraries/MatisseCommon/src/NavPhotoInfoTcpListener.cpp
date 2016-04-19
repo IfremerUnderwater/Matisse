@@ -1,7 +1,7 @@
 #include "NavPhotoInfoTcpListener.h"
 #include <QThread>
 
-NavPhotoInfoTcpListener::NavPhotoInfoTcpListener() : QObject()
+NavPhotoInfoTcpListener::NavPhotoInfoTcpListener() : QObject(), _connectionAllowed(false)
 {
     _connectionTimer = new QTimer(this);
     _tcpSocket = new QTcpSocket(this);
@@ -31,20 +31,25 @@ void NavPhotoInfoTcpListener::slot_Connect(QString hostname_p, int port_p)
     _hostport = port_p;
 
     _connectionTimer->setInterval(2000);
-
+    _connectionAllowed = true;
     Connect();
 }
 
 void NavPhotoInfoTcpListener::Connect()
 {
     qDebug() << " NavPhotoInfo Thread = " << QThread::currentThread();
-    _tcpSocket->connectToHost(_hostname, _hostport);
-    _connectionTimer->start();
+    if(_connectionAllowed){
+        _tcpSocket->connectToHost(_hostname, _hostport);
+        _connectionTimer->start();
+    }
+
 }
 
 void NavPhotoInfoTcpListener::slot_disconnect(){
-    _tcpSocket->disconnectFromHost();
     _connectionTimer->stop();
+    _connectionAllowed = false;
+    _tcpSocket->disconnectFromHost();
+    _isConnected = false;
 }
 
 void NavPhotoInfoTcpListener::slot_OnDataReceived()

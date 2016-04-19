@@ -2,12 +2,22 @@
 win32 {
 	INCLUDEPATH *=  $$(OSG_DIR)/include
         LIBS += -L$$(OSG_DIR)/lib
-        LIBS += -lOpenThreads
+
+        CONFIG(debug, debug|release) {
+                LIBEXT=d
+        }
+        else {
+                LIBEXT=""
+        }
+}
+
+unix {
+        LIBEXT=""
 }
 
 message("Adding Osg dep.")
 message($$LIBS)
 
 # osg lib link
-LIBS += -losg -losgGA -losgDB -losgUtil -losgViewer
+LIBS += -lOpenThreads$$LIBEXT -losg$$LIBEXT -losgGA$$LIBEXT -losgDB$$LIBEXT -losgUtil$$LIBEXT -losgViewer$$LIBEXT
 

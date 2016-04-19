@@ -32,6 +32,7 @@ private:
     QTimer *_connectionTimer;
     QTcpSocket * _tcpSocket;
     bool _isConnected;
+    bool _connectionAllowed;
     QString _hostname;
     int _hostport;
 

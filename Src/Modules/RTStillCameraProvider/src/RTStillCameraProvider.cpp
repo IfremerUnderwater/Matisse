@@ -31,6 +31,20 @@ RTStillCameraProvider::RTStillCameraProvider(QObject *parent)
     _imageDownloader = new HTTPImageDownloader();
 
     qRegisterMetaType<NavPhotoInfoMessage>();
+
+
+    _navPhotoInfoTcpListener = new NavPhotoInfoTcpListener();
+    connect(_navPhotoInfoTcpListener, SIGNAL(signal_NavPhotoInfoMessage(NavPhotoInfoMessage)), this, SLOT(slot_processNavPhotoInfoMessage(NavPhotoInfoMessage)), Qt::QueuedConnection);
+    connect(this, SIGNAL(signal_connectTcpSocket(QString,int)), _navPhotoInfoTcpListener, SLOT(slot_Connect(QString,int)), Qt::QueuedConnection);
+    connect(this, SIGNAL(signal_disconnectTcpSocket()), _navPhotoInfoTcpListener, SLOT(slot_disconnect()), Qt::QueuedConnection);
+
+    _navPhotoInfoTcpListener->moveToThread(&_rtImagesListener);
+
+    // Connect HTTP image downloader
+    connect(_imageDownloader,SIGNAL(signal_imageReady(QImage)), this, SLOT(slot_onReceiveImage(QImage)));
+
+    _rtImagesListener.start();
+
 }
 
 RTStillCameraProvider::~RTStillCameraProvider()
@@ -76,18 +90,6 @@ bool RTStillCameraProvider::configure()
 
     // To be changed
     _refFrame = cv::Mat(_sensorFullHeight, _sensorFullWidth, CV_8UC3);
-
-    _navPhotoInfoTcpListener = new NavPhotoInfoTcpListener();
-    connect(_navPhotoInfoTcpListener, SIGNAL(signal_NavPhotoInfoMessage(NavPhotoInfoMessage)), this, SLOT(slot_processNavPhotoInfoMessage(NavPhotoInfoMessage)), Qt::QueuedConnection);
-    connect(this, SIGNAL(signal_connectTcpSocket(QString,int)), _navPhotoInfoTcpListener, SLOT(slot_Connect(QString,int)), Qt::QueuedConnection);
-    connect(this, SIGNAL(signal_disconnectTcpSocket()), _navPhotoInfoTcpListener, SLOT(slot_disconnect()), Qt::QueuedConnection);
-
-    _navPhotoInfoTcpListener->moveToThread(&_rtImagesListener);
-
-    // Connect HTTP image downloader
-    connect(_imageDownloader,SIGNAL(signal_imageReady(QImage)), this, SLOT(slot_onReceiveImage(QImage)));
-
-    _rtImagesListener.start();
 
     return true;
 }
