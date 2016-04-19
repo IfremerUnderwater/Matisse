@@ -21,15 +21,27 @@ public:
 
     virtual QString currentValue() =0;
     virtual void restoreDefaultValue() = 0;
-    virtual void setValue(QString newValue) = 0;
+    void setValue(QString newValue);
+
+    void setLabelText(QString text) {
+        if (_label) {
+            _label->setText(text);
+        }
+    }
+
+    void overrideDefaultValue(QString newDefaultValue) {
+        _defaultValue = newDefaultValue;
+    }
 
 protected:
+    virtual void applyValue(QString newValue) = 0;
     void setWidget(QString label, QWidget * widget, bool wrapWidget = false);
-    virtual bool currentValueChanged() = 0;
+    virtual bool currentValueChanged();
     void swapColor(bool yes = true);
     quint32 getTextFieldWidth(QString text);
 
-    QString _defaultValue;
+    QString _defaultValue; // default value defined for the parameter in the dictionnary
+    QString _initialValue; // assembly or job parameter value before user modification
 
 
 private:

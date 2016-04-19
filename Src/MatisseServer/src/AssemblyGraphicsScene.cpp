@@ -6,12 +6,11 @@ using namespace MatisseServer;
 
 AssemblyGraphicsScene::AssemblyGraphicsScene(const QRectF &sceneRect, QObject *parent) :
     QGraphicsScene(sceneRect, parent),
-    _server(NULL), isSceneActive(false)
+    _server(NULL), _isSceneActive(false), _isAssemblyModified(false), _isAssemblyComplete(false)
 {
     //    _startPos = QPointF();
     //    _endPos = QPointF();
     init();
-
 }
 
 void AssemblyGraphicsScene::init() {
@@ -20,9 +19,107 @@ void AssemblyGraphicsScene::init() {
     //    _pipeItem->setVisible(false);
     //    addItem(_pipeItem);
     _sourceWidget = NULL;
-    _parametersWidget = NULL;
     _destinationWidget = NULL;
+    //resolveMessageTargetWidget();
     connect(this, SIGNAL(changed(QList<QRectF>)), this, SLOT(slot_sceneChanged(QList<QRectF>)));
+}
+
+void AssemblyGraphicsScene::checkAssemblyComplete()
+{
+    // check source
+    if (!_sourceWidget) {
+        applyAssemblyCompleteness(false);
+    }
+
+    // check destination
+    if (!_destinationWidget) {
+        applyAssemblyCompleteness(false);
+    }
+
+    // check at least 1 processor
+    if (_processorsWidgets.isEmpty()) {
+        applyAssemblyCompleteness(false);
+    }
+
+    // check connectors
+    if (_connectors.isEmpty()) {
+        applyAssemblyCompleteness(false);
+    }
+
+    bool sourceConnected = false;
+    bool destinationConnected = false;
+
+    QSet<ProcessorWidget*> inputConnectedProcessors;
+    QSet<ProcessorWidget*> outputConnectedProcessors;
+
+    /* Parse connectors to determine what widgets are connected */
+    foreach (PipeWidget *connector, _connectors) {
+        ElementWidget * startElement = connector->getStartElement();
+        ElementWidget * endElement = connector->getEndElement();
+
+        if (startElement == _sourceWidget) {
+            sourceConnected = true;
+        } else {
+            foreach (ProcessorWidget *processor, _processorsWidgets) {
+                if (startElement == processor) {
+                    inputConnectedProcessors.insert(processor);
+                    break;
+                }
+            }
+        }
+
+        if (endElement == _destinationWidget) {
+            destinationConnected = true;
+        } else {
+            foreach (ProcessorWidget *processor, _processorsWidgets) {
+                if (endElement == processor) {
+                    outputConnectedProcessors.insert(processor);
+                    break;
+                }
+            }
+        }
+    }
+
+    /* assembly is not complete if either source or destination is disconnected */
+    if (!sourceConnected) {
+        applyAssemblyCompleteness(false);
+    }
+
+    if (!destinationConnected) {
+        applyAssemblyCompleteness(false);
+    }
+
+    /* check if all processors are connected at input and output */
+    bool allProcessorsConnected = true;
+
+    foreach (ProcessorWidget *processor, _processorsWidgets) {
+        if (!inputConnectedProcessors.contains(processor)) {
+            allProcessorsConnected = false;
+            break;
+        }
+
+        if (!outputConnectedProcessors.contains(processor)) {
+            allProcessorsConnected = false;
+            break;
+        }
+    }
+
+    applyAssemblyCompleteness(allProcessorsConnected);
+}
+
+void AssemblyGraphicsScene::applyAssemblyCompleteness(bool isComplete)
+{
+    bool hasChanged = (isComplete != _isAssemblyComplete);
+
+    if (hasChanged) {
+        _isAssemblyComplete = isComplete;
+        AssemblyDefinition *assembly = NULL;
+        if (isComplete) {
+            assembly = new AssemblyDefinition();
+        }
+
+        emit signal_assemblyComplete(_isAssemblyComplete);
+    }
 }
 
 void AssemblyGraphicsScene::slot_sceneChanged(const QList<QRectF> &region)
@@ -65,10 +162,10 @@ void AssemblyGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
             QAction * delSrcAct = NULL;
             QAction * delDestAct =NULL;
             if ((eltType == ProcessorType) || (eltType == DestinationType)) {
-                delSrcAct = menu.addAction(tr("Supprimer les sources"));
+                delSrcAct = menu.addAction(tr("Supprimer les connexions entrantes"));
             }
             if (eltType != DestinationType) {
-                delDestAct = menu.addAction(tr("Supprimer les destinations"));
+                delDestAct = menu.addAction(tr("Supprimer les connexions sortantes"));
             }
 
             QAction * cmd = menu.exec(event->screenPos());
@@ -78,25 +175,28 @@ void AssemblyGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
             }
             int delMode = 0;
             if (cmd == delItemAct) {
-                // suppression item
+                // remove item
                 delMode = 3;
             }
             if ((cmd == delSrcAct) || (delMode & 1)) {
-                // suppression sources
+                // remove incoming connexions
                 foreach(PipeWidget * pipeWidget, _connectors) {
                     if (pipeWidget->getEndElement() == elt) {
                         _connectors.removeOne((PipeWidget *)pipeWidget);
                         pipeWidget->deleteLater();
+                        _isAssemblyModified = true;
+
                     }
                 }
 
             }
             if ((cmd == delDestAct) || (delMode & 2)) {
-                // suppression destinations
+                // removing outgoing connexions
                 foreach(PipeWidget * pipeWidget, _connectors) {
                     if (pipeWidget->getStartElement() == elt) {
                         _connectors.removeOne((PipeWidget *)pipeWidget);
                         pipeWidget->deleteLater();
+                        _isAssemblyModified = true;
                     }
                 }
             }
@@ -109,12 +209,19 @@ void AssemblyGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
                     _processorsWidgets.remove(_processorsWidgets.key((ProcessorWidget *)elt));
                 }
                 elt->deleteLater();
-                // qDebug() << "Verif source = " << int(_sourceWidget.data());
-                // qDebug() << "Verif destination = " << int(_destinationWidget.data());
+                _isAssemblyModified = true;
+            }
+
+            if (_isAssemblyModified) {
+                checkAssemblyComplete();
+
+                // notify modification
+                emit signal_assemblyModified();
             }
 
             return;
         }
+
         int sourcePipe = elt->getOutputLine(event->scenePos());
         qDebug() << "Source et ligne" << (QGraphicsItem*)elt << sourcePipe;
 
@@ -132,23 +239,18 @@ void AssemblyGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         }
         // }
 
-    } else if (eltType == DestinationType) {
-        qDebug() << "Destination...";
-
     } else if (eltType == PipeType) {
         if (event->buttons() & Qt::RightButton) {
             removeItem(elt);
             _connectors.removeOne((PipeWidget *)elt);
             delete elt;
+
+            _isAssemblyModified = true;
+            checkAssemblyComplete();
+            emit signal_assemblyModified();
         }
-    } else if (eltType == ParametersType) {
-        //_expertGui->_
-        //emit signal_selectParameters(parameters);
     }
 
-//    if ((_connectors.size() == 0) && (_parametersWidget == NULL) && (_sourceWidget == NULL) && (_processorsWidgets.size() == 0) && (_destinationWidget == NULL)) {
-//        _mainGui->enableDeleteAssemby(false);
-//    }
     QGraphicsScene::mousePressEvent(event);
 }
 
@@ -260,13 +362,12 @@ void AssemblyGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             addItem(newPipe);
             _connectors.append(newPipe);
             update();
+
+            _isAssemblyModified = true;
+            checkAssemblyComplete();
+            emit signal_assemblyModified();
+
         }
-
-    } else if (eltType == ProcessorType) {
-        qDebug() << "Processor...";
-
-    } else if (eltType == DestinationType) {
-        qDebug() << "Destination...";
 
     }
 
@@ -277,26 +378,13 @@ void AssemblyGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     QGraphicsScene::mouseReleaseEvent(event);
 }
 
-void AssemblyGraphicsScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event){
-    QString sourceName = event->source()->objectName();
-    if (sourceName == "_TRW_parameters") {
-        QTreeWidget * treeWid = qobject_cast<QTreeWidget *>( event->source());
-        QTreeWidgetItem * parentItem = treeWid->currentItem()->parent();
-        // Modif: on n'instancie qu'une instance, pas le modèle...
-        if (!parentItem) {
-            event->ignore();
-            return;
-        }
-    }
-    event->accept();
-}
 
 void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!isSceneActive) {
+    if (!_isSceneActive) {
         /* resize scene so that scrollbar is available */
         setSceneRect(0, 0, ACTIVE_SCENE_WIDTH, ACTIVE_SCENE_HEIGHT);
-        isSceneActive;
+        _isSceneActive;
     }
 
     //    qDebug() << "DROP SCENE";
@@ -331,7 +419,7 @@ void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
         QListWidget * listWid = qobject_cast<QListWidget *>(source);
         QListWidgetItem * item = listWid->currentItem();
         QString srcName = item->data(Qt::DisplayRole).toString();
-        SourceWidget * src = _mainGui -> getSourceWidget(srcName);
+        SourceWidget * src = _elementProvider -> getSourceWidget(srcName);
 
         if (!src) {
             qCritical() << QString("Source not found in repository for item '%1'").arg(item->text());
@@ -348,11 +436,13 @@ void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
             qDebug() << "Scene rect:" << sceneRect();
         }
 
+        _isAssemblyModified = true;
+
     } else if (sourceName == "_LW_processors") {
         QListWidget * listWid = qobject_cast<QListWidget *>(source);
         QListWidgetItem * item = listWid->currentItem();
         QString procName = item->data(Qt::DisplayRole).toString();
-        ProcessorWidget * proc = _mainGui -> getProcessorWidget(procName);
+        ProcessorWidget * proc = _elementProvider -> getProcessorWidget(procName);
 
         if (!proc) {
             qCritical() << QString("Processor not found in repository for item '%1'").arg(item->text());
@@ -393,6 +483,8 @@ void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
             _destinationWidget -> setPos(0, 195 * destPos + 215);
         }
 
+        _isAssemblyModified = true;
+
     } else if (sourceName == "_LW_outputs") {
 
         quint32 posIndex = 1;
@@ -417,7 +509,7 @@ void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 
         QListWidgetItem * item = listWid->currentItem();
         QString dstName = item->data(Qt::DisplayRole).toString();
-        DestinationWidget * dst = _mainGui -> getDestinationWidget(dstName);
+        DestinationWidget * dst = _elementProvider -> getDestinationWidget(dstName);
 
         if (!dst) {
             qCritical() << QString("Destination not found in repository for item '%1'").arg(item->text());
@@ -432,35 +524,36 @@ void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
         addItem(dst);
         dst->setOrder(posIndex);
         dst->setPos(0, 195 * (posIndex-1) + 215);
+
+        _isAssemblyModified = true;
     }
 
-//    _mainGui->enableDeleteAssemby();
+    if (_isAssemblyModified) {
+        checkAssemblyComplete();
+
+        // notify modification
+        emit signal_assemblyModified();
+    }
+
     event->accept();
 }
 
 bool AssemblyGraphicsScene::event(QEvent *event)
 {
     if (event->type() == QEvent::Enter) {
-        qDebug() << "Enter mouse";
+        //qDebug() << "Enter mouse";
         _viewport->setCursor(Qt::ArrowCursor);
     } else if (event->type() == QEvent::Leave) {
-        qDebug() << "Leave mouse";
+        //qDebug() << "Leave mouse";
     }
 
     return QGraphicsScene::event(event);
 }
 
-void AssemblyGraphicsScene::setExpertGui(ExpertFormWidget *gui) {
-    _expertGui = gui;
-    _viewport =  views().at(0)->viewport();
-    // _viewport->setCursor(Qt::CrossCursor);
-
-}
-
-void AssemblyGraphicsScene::setMainGui(AssemblyGui *gui)
+/* Link to the UI element that provides element widgets (source, processors, destination) */
+void AssemblyGraphicsScene::setElementWidgetProvider(ElementWidgetProvider *elementProvider)
 {
-    _mainGui = gui;
-    connect(this, SIGNAL(signal_itemsCount(int)), _mainGui, SLOT(slot_assemblyElementsCount(int)));
+    _elementProvider = elementProvider;
 }
 
 void AssemblyGraphicsScene::reset()
@@ -482,11 +575,6 @@ void AssemblyGraphicsScene::reset()
     }
     _connectors.clear();
 
-    if (_parametersWidget) {
-        removeItem(_parametersWidget);
-        _parametersWidget.data()->deleteLater();
-    }
-
     if (_sourceWidget) {
         removeItem(_sourceWidget);
         _sourceWidget.data()->deleteLater();
@@ -507,7 +595,9 @@ void AssemblyGraphicsScene::reset()
 
     /* resize scene to hide scrollbar */
     setSceneRect(0, 0, INACTIVE_SCENE_WIDTH, INACTIVE_SCENE_HEIGHT);
-    isSceneActive = false;
+    _isSceneActive = false;
+    _isAssemblyModified = false;
+    applyAssemblyCompleteness(false);
 }
 
 bool AssemblyGraphicsScene::saveAssembly(QString filename, AssemblyDefinition *assembly)
@@ -549,17 +639,17 @@ bool AssemblyGraphicsScene::saveAssembly(QString filename, AssemblyDefinition *a
     os << "\t</DescriptorFields>\n";
     // On teste tout au cas ou l'assemblage ne serait pas valide...
     // ecriture des parameters
-    QString parametersName = "";
-    QString parametersVersion = "";
-    if (_parametersWidget) {
-        QStringList args = _parametersWidget ->getName().split("\n");
-        if (args.size() > 1) {
-            parametersVersion = args[0];
-            parametersName = args[1];
-        }
-    }
-    os << QString("\t<Parameters id=\"%1\" model=\"%2\" name=\"%3\"/>\n").arg(99).arg(parametersVersion).arg(parametersName);
-    os << "\n";
+//    QString parametersName = "";
+//    QString parametersVersion = "";
+//    if (_parametersWidget) {
+//        QStringList args = _parametersWidget ->getName().split("\n");
+//        if (args.size() > 1) {
+//            parametersVersion = args[0];
+//            parametersName = args[1];
+//        }
+//    }
+//    os << QString("\t<Parameters id=\"%1\" model=\"%2\" name=\"%3\"/>\n").arg(99).arg(parametersVersion).arg(parametersName);
+//    os << "\n";
     // ecriture de la source
     QString sourceName = "";
     if (_sourceWidget) {
@@ -608,10 +698,9 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 {
     qDebug() << "AssemblyGraphicsScene::loadAssembly" << assemblyName;
 
-
     AssemblyDefinition * assembly = _server->xmlTool().getAssembly(assemblyName);
     if (!assembly) {
-        QMessageBox::warning(_mainGui, tr("Assemblage invalide"), tr("L'assemblage ne peut etre charge..."));
+        QMessageBox::warning(_messageTargetWidget, tr("Assemblage invalide"), tr("L'assemblage ne peut etre charge..."));
         return false;
     }
 
@@ -619,41 +708,11 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     /* resize scene so that scrollbar is available */
     setSceneRect(0, 0, ACTIVE_SCENE_WIDTH, ACTIVE_SCENE_HEIGHT);
-    isSceneActive = true;
+    _isSceneActive = true;
 
     bool continueLoad = true;
 //    bool paramOk = true;
     QString partialLoadMessage = tr("L'assemblage sera partiellement charge...\nContinuer ?");
-    // recherche parametres
-//    ParameterDefinition * parameters = assembly->parametersDefinition();
-//    if (parameters) {
-
-//        QString parametersName = parameters->name();
-//        QString paramatersModel = parameters->model();
-
-//        qDebug() << "Model et name parameter:" << parametersName << paramatersModel;
-
-//        _parametersWidget = _expertGui -> getParametersWidget(paramatersModel + "/" + parametersName);
-//        if (_parametersWidget) {
-//            _parametersWidget->setPos(200, 40);
-//            addItem(_parametersWidget);
-//            paramOk = true;
-//        }
-//    }
-
-//    if (!paramOk){
-//        qWarning() << "Parameters NOK";
-//        if (!continueLoad) {
-//            continueLoad = (QMessageBox::question(_mainGui, tr("Parametres invalides"),
-//                                                  partialLoadStr,
-//                                                  QMessageBox::Yes,
-//                                                  QMessageBox::No)
-//                            == QMessageBox::Yes);
-//            if (!continueLoad) {
-//                return false;
-//            }
-//        }
-//    }
 
     // recherche source
     bool srcOk = false;
@@ -664,7 +723,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
         qDebug() << "Name source:" << sourceName;
 
-        _sourceWidget = _mainGui -> getSourceWidget(sourceName);
+        _sourceWidget = _elementProvider -> getSourceWidget(sourceName);
         if (_sourceWidget) {
             _sourceWidget->setPos(0, 40);
             addItem(_sourceWidget);
@@ -675,7 +734,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
     if (!srcOk){
         qWarning() << "Source NOK";
         if (!continueLoad) {
-            continueLoad = (QMessageBox::question(_mainGui, tr("Source invalide"),
+            continueLoad = (QMessageBox::question(_messageTargetWidget, tr("Source invalide"),
                                                   partialLoadMessage,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)
@@ -692,7 +751,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
             QString procName = processor->name();
             quint32 procOrder = processor->order();
             qDebug() << "Processeur name, order" << procName << procOrder;
-            ProcessorWidget * newProc = _mainGui -> getProcessorWidget(procName);
+            ProcessorWidget * newProc = _elementProvider -> getProcessorWidget(procName);
             if (newProc) {
                 newProc->setOrder(procOrder);
                 _processorsWidgets.insert(procOrder, newProc);
@@ -700,7 +759,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
                 addItem(newProc);
             } else {
                 if (!continueLoad) {
-                    continueLoad = (QMessageBox::question(_mainGui, "Processeur invalide",
+                    continueLoad = (QMessageBox::question(_messageTargetWidget, "Processeur invalide",
                                                           partialLoadMessage,
                                                           QMessageBox::Yes,
                                                           QMessageBox::No)
@@ -713,7 +772,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
         } else {
             if (!continueLoad) {
-                continueLoad = (QMessageBox::question(_mainGui, tr("Processeur invalide"),
+                continueLoad = (QMessageBox::question(_messageTargetWidget, tr("Processeur invalide"),
                                                       partialLoadMessage,
                                                       QMessageBox::Yes,
                                                       QMessageBox::No)
@@ -732,7 +791,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
         QString destName = destination->name();
         quint32 destOrder = destination->order();
         qDebug() << "Destination name, order" << destName << destOrder;
-        DestinationWidget * newDest = _mainGui -> getDestinationWidget(destName);
+        DestinationWidget * newDest = _elementProvider -> getDestinationWidget(destName);
         if (newDest) {
             newDest->setOrder(destOrder);
             _destinationWidget = newDest;
@@ -744,7 +803,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     if (!destOk){
         if (!continueLoad) {
-            continueLoad = (QMessageBox::question(_mainGui, tr("Destination invalide"),
+            continueLoad = (QMessageBox::question(_messageTargetWidget, tr("Destination invalide"),
                                                   partialLoadMessage,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)
@@ -778,7 +837,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
             if (endElt == NULL) {
                 // on cherche si la sortie est une destination...
                 if (_destinationWidget) {
-                    if (_destinationWidget->getOrder() == endOrder) {
+                    if (_destinationWidget -> getOrder() == endOrder) {
                         endElt = _destinationWidget;
                     }
                 }
@@ -798,5 +857,17 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
         }
     }
 
+    checkAssemblyComplete();
+
     return true;
+}
+
+void AssemblyGraphicsScene::setMessageTarget(QWidget *targetWidget)
+{
+    _messageTargetWidget = targetWidget;
+}
+
+void AssemblyGraphicsScene::initViewport()
+{
+    _viewport =  views().at(0)->viewport();
 }

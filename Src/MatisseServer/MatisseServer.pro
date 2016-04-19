@@ -53,7 +53,6 @@ SOURCES += src/main.cpp\
     src/SourceWidget.cpp \
     src/ElementWidget.cpp \
     src/DestinationWidget.cpp \
-    src/ParametersWidget.cpp \
     src/AssemblyGraphicsScene.cpp \
     src/PipeWidget.cpp \
     src/AssemblyDialog.cpp \
@@ -75,6 +74,9 @@ SOURCES += src/main.cpp\
     src/MatisseMenu.cpp \
     src/PreferencesDialog.cpp \
     src/LiveProcessWheel.cpp \
+    src/ParametersFoldButton.cpp \
+    src/ElementWidgetProvider.cpp \
+    src/AboutDialog.cpp \
     src/OSGWidget.cpp
 
 HEADERS  += \
@@ -83,7 +85,6 @@ HEADERS  += \
     src/SourceWidget.h \
     src/ElementWidget.h \
     src/DestinationWidget.h \
-    src/ParametersWidget.h \
     src/AssemblyGraphicsScene.h \
     src/PipeWidget.h \
     src/AssemblyDialog.h \
@@ -105,6 +106,9 @@ HEADERS  += \
     src/MatisseMenu.h \
     src/PreferencesDialog.h \
     src/LiveProcessWheel.h \
+    src/ParametersFoldButton.h \
+    src/ElementWidgetProvider.h \
+    src/AboutDialog.h \
     src/OSGWidget.h
 
 FORMS    += \
@@ -123,7 +127,8 @@ FORMS    += \
     ui/OngoingProcessWidget.ui \
     ui/MainControllBar.ui \
     ui/MatisseVersionWidget.ui \
-    ui/PreferencesDialog.ui
+    ui/PreferencesDialog.ui \
+    ui/AboutDialog.ui
 
 
 TRANSLATIONS=MatisseServer_fr.ts \

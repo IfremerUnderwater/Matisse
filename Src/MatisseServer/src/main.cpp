@@ -67,6 +67,9 @@ int main(int argc, char *argv[])
 
     //a.setStyle(QStyleFactory::create("Fusion"));
 
+    // Define default encoding for all text streaming
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
+
     qDebug() << QgsApplication::showSettings();
     QString testLaunch("testLaunch");
     if (argc==2 && testLaunch== argv[1])

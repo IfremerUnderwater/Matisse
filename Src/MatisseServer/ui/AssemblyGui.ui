@@ -967,7 +967,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="_PB_parameterFold">
+       <widget class="MatisseServer::ParametersFoldButton" name="_PB_parameterFold">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -1047,10 +1047,15 @@
    <header>ExpertFormWidget.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>MatisseServer::ParametersFoldButton</class>
+   <extends>QPushButton</extends>
+   <header>ParametersFoldButton.h</header>
+  </customwidget>
  </customwidgets>
  <resources>
-  <include location="icons.qrc"/>
   <include location="resources/resources.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>

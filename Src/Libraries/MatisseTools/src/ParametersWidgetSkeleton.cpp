@@ -23,12 +23,8 @@ void ParametersWidgetSkeleton::addWidget(QWidget *widget)
     _widgets << widget;
 }
 
-void ParametersWidgetSkeleton::clearWidget()
+void ParametersWidgetSkeleton::clearModifications()
 {
-    foreach(QWidget * widget, _widgets) {
-        _ui->_VLAY_parameters->removeWidget(widget);
-        widget->deleteLater();
-    }
     _modifiedValues.clear();
 }
 
@@ -37,14 +33,24 @@ bool ParametersWidgetSkeleton::hasModifiedValues()
     return (_modifiedValues.size() > 0);
 }
 
-void ParametersWidgetSkeleton::slot_valueModified(bool trueOrFalse)
+void ParametersWidgetSkeleton::slot_valueModified(bool isModified)
 {
     QObject * widSender = sender();
-    if (trueOrFalse == false) {
+    if (!isModified) {
         _modifiedValues.removeOne(widSender);
     } else if (!_modifiedValues.contains(widSender)) {
         _modifiedValues.append(widSender);
     }
     emit signal_valuesModified(hasModifiedValues());
-    qDebug() << "Emit signal modified 1";
+}
+
+// Dynamic translation
+void ParametersWidgetSkeleton::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::LanguageChange)
+    {
+        // retranslate designer form
+        qDebug() << "Signalling parameters widget UI retranslation...";
+        emit signal_translateParameters();
+    }
 }

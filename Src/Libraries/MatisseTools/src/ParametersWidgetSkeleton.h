@@ -19,14 +19,18 @@ public:
     ~ParametersWidgetSkeleton();
 
     void addWidget(QWidget * widget);
-    void clearWidget();
+    void clearModifications();
     bool hasModifiedValues();
+
+protected:
+    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 
 protected slots:
     void slot_valueModified(bool trueOrFalse);
 
 signals:
     void signal_valuesModified(bool trueOrFalse);
+    void signal_translateParameters();
 
 private:
     Ui::ParametersWidgetSkeleton *_ui;

@@ -14,9 +14,8 @@
 #include "RasterProvider.h"
 #include "JobServer.h"
 #include "Xml.h"
-#include "Tools.h"
+#include "FileUtils.h"
 #include "MatisseParametersManager.h"
-
 
 using namespace MatisseCommon;
 using namespace MatisseTools;
@@ -120,7 +119,6 @@ private:
     bool buildJobTask( AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters);
     void setMessageStr(QString messageStr = "", bool error = true);
     bool loadParametersDictionnary();
-    bool checkModuleDefinition(QString filepath);
 
     AssemblyGui* _mainGui;
     JobServer *_jobServer;

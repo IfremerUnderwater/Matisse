@@ -22,9 +22,7 @@ using namespace cv;
 
 UserFormWidget::UserFormWidget(QWidget *parent) :
     QWidget(parent),
-    _ui(new Ui::UserFormWidget),
-    _parametersWidget(NULL),
-    _tools(NULL)
+    _ui(new Ui::UserFormWidget)
 {
     _ui->setupUi(this);
 
@@ -82,26 +80,6 @@ UserFormWidget::~UserFormWidget()
     delete _ui;
 }
 
-void UserFormWidget::showUserParameters(bool flag)
-{
-    if (!_tools) {
-        return;
-    }
-    _tools->eraseDialog();
-    if (_parametersWidget) {
-        _parametersWidget->deleteLater();
-        _parametersWidget = NULL;
-    }
-    if (flag) {
-        _parametersWidget = _tools->createFullParametersDialog(true);
-        connect(_parametersWidget, SIGNAL(signal_valuesModified(bool)), this, SLOT(slot_parametersChanged(bool)));
-        //_ui->_SCA_parameters->setWidget(_parametersWidget);
-
-    } else {
-        //_ui->_SCA_parameters->setWidget(NULL);
-    }
-}
-
 void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
 {
 
@@ -129,7 +107,7 @@ void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
 
 void UserFormWidget::createCanvas() {
 
-    qDebug() << "Set QGIS Canvas properties";
+    qDebug() << "Create QGIS Canvas";
 
     // _ui->_GRV_map->deleteLater();
 
@@ -176,6 +154,8 @@ void UserFormWidget::loadRasterFile(QString filename) {
 
 void UserFormWidget::slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p) {
 
+    if (_currentViewType!=QGisMapLayer)
+        switchCartoViewTo(QGisMapLayer);
 
     // Add the raster Layer to the Layer Registry
     QgsMapLayerRegistry::instance()->addMapLayer(rasterLayer_p, TRUE, TRUE);
@@ -326,10 +306,7 @@ void UserFormWidget::slot_onManualMove()
     }
 }
 
-void UserFormWidget::setTools(Tools *tools)
-{
-    _tools = tools;
-}
+
 
 void UserFormWidget::saveQgisProject(QString filename)
 {
@@ -675,13 +652,6 @@ QStringList UserFormWidget::supportedImageFormat() const
     return _supportedImageFormat;
 }
 
-
-void UserFormWidget::slot_parametersChanged(bool changed)
-{
-    // pour transmettre le signal vers la maun gui...
-    qDebug() << "Emit param changed userForm...";
-    emit signal_parametersChanged(changed);
-}
 
 void UserFormWidget::displayImage(Image *image ){
 

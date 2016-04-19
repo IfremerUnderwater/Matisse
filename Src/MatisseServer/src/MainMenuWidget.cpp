@@ -17,7 +17,9 @@ MainMenuWidget::MainMenuWidget(QWidget *parent) :
     boxLayout->setContentsMargins(0,0,0,0);
 
     QMenuBar* menuBar = new QMenuBar();
-
+//    menuBar->setMinimumHeight(60);
+//    menuBar->setMaximumHeight(60);
+//    menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     menuBar->setObjectName("_MBA_mainMenuBar");
     this->layout()->addWidget(menuBar);
 }

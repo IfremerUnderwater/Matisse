@@ -38,8 +38,6 @@ public:
     AssemblyDefinition *getAssembly(QString assemblyName);
 
     bool readJobFile(QString filename);
-
-    bool updateJobFile(QString jobName);
     bool writeJobFile(QString jobName, bool overWrite = false);
     bool writeJobFile(JobDefinition *job, bool overWrite = false);
     bool readMatisseGuiSettings(QString filename);
@@ -59,7 +57,6 @@ public:
     QString getAssembliesParametersPathNew() { return _assembliesParametersPath; }
     static bool validateXmlFile(QString xmlSchema, QString xmlFile = "");
 
-    KeyValueList readParametersFileDescriptor(QString filename);
     void clearAssembliesDatas();
     void clearJobsDatas();
 

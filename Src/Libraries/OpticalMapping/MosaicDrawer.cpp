@@ -14,12 +14,14 @@
 #include "RasterGeoreferencer.h"
 #include "FileImgExposureCompensate.h"
 #include "stdvectoperations.h"
-#include "Tools.h"
+#include "FileUtils.h"
+#include <math.h>
 
 using namespace std;
 using namespace cv;
 using namespace cv::detail;
 using namespace basicproc;
+using namespace MatisseCommon;
 
 MosaicDrawer::MosaicDrawer(QString drawingOptions)
 {
@@ -1078,7 +1080,7 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
         delete vpBlocksPairIntersectPoly.at(i);
     }
 
-    MatisseTools::Tools::removeDir(tempDir.absolutePath());
+    FileUtils::removeDir(tempDir.absolutePath());
 
     return outputFiles;
 

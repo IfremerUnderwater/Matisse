@@ -14,17 +14,17 @@ EnrichedListBox::EnrichedListBox(QWidget *parent, QString label, QStringList val
     connect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
 }
 
-bool EnrichedListBox::currentValueChanged()
-{
-    return currentValue() != _defaultValue;
-}
+//bool EnrichedListBox::currentValueChanged()
+//{
+//    return currentValue() != _defaultValue;
+//}
 
 QString EnrichedListBox::currentValue()
 {
     return _list->currentItem()->text();
 }
 
-void EnrichedListBox::setValue(QString newValue)
+void EnrichedListBox::applyValue(QString newValue)
 {
     QList<QListWidgetItem *> items = _list->findItems(newValue, Qt::MatchExactly);
 
@@ -33,10 +33,14 @@ void EnrichedListBox::setValue(QString newValue)
         return;
     }
 
+    disconnect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
     _list->setCurrentItem(items.at(0));
+    connect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
 }
 
 void EnrichedListBox::restoreDefaultValue()
 {
+    disconnect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
     _list->setCurrentRow(_defaultValueIndex);
+    connect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
 }

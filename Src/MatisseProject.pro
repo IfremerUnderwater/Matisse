@@ -9,9 +9,11 @@ CONFIG += ordered
 SUBDIRS = Libraries \
             Modules \
             Tests \
-            MatisseServer
+            MatisseServer \
+            Tools
 
 Modules.depends = Libraries
+Tools.depends = Libraries
 Tests.depends = Libraries
 MatisseServer.depends = Libraries Modules Tests
 

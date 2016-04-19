@@ -48,6 +48,7 @@ HEADERS += \
     src/GeoTransform.h \
     src/RasterGeoreferencer.h \
     src/GraphicalCharter.h \
+    src/FileUtils.h \
     src/NavPhotoInfoTcpListener.h \
     src/matissemetatypes.h
 
@@ -68,6 +69,7 @@ SOURCES += \
     src/Dim2UdpListener.cpp \
     src/GeoTransform.cpp \
     src/RasterGeoreferencer.cpp \
+    src/FileUtils.cpp \
     src/NavPhotoInfoTcpListener.cpp
 
 OTHER_FILES += src/proto/*.*

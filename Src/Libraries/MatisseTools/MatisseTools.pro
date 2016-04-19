@@ -30,10 +30,8 @@ include(../../Scripts/MatisseCommon.pri)
 INCLUDEPATH += src
 
 SOURCES +=\
-    src/ChooseAndShow.cpp \
     src/ParametersWidgetSkeleton.cpp \
     src/KeyValueList.cpp \
-    src/Tools.cpp \
     src/AssemblyDefinition.cpp \
     src/Xml.cpp \
     src/EnrichedComboBox.cpp \
@@ -50,13 +48,13 @@ SOURCES +=\
     src/MatissePreferences.cpp \
     src/MatisseParametersManager.cpp \
     src/EnrichedDecimalValueWidget.cpp \
-    src/httpImageDownloader.cpp
+    src/httpImageDownloader.cpp \
+    src/ParametersHeaderButton.cpp \
+    src/FoldUnfoldButton.cpp
 
 HEADERS +=\
-          src/ChooseAndShow.h \
     src/ParametersWidgetSkeleton.h \
     src/KeyValueList.h \
-    src/Tools.h \
     src/AssemblyDefinition.h \
     src/Xml.h \
     src/EnrichedComboBox.h \
@@ -75,9 +73,11 @@ HEADERS +=\
     src/MatisseParametersManager.h \
     src/MatisseDictionnaryLabels.h \
     src/EnrichedDecimalValueWidget.h \
-    src/httpImageDownloader.h
+    src/httpImageDownloader.h \
+    src/ParametersHeaderButton.h \
+    src/FoldUnfoldButton.h
 
-FORMS    += ui/ChooseAndShow.ui \
+FORMS    += \
             ui/ParametersWidgetSkeleton.ui
 
 TRANSLATIONS=MatisseTools_fr.ts \

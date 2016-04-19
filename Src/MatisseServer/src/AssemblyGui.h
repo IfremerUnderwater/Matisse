@@ -16,14 +16,11 @@
 #include <QMenuBar>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QDesktopServices>
 
 #include <QtDebug>
 
-#include "SourceWidget.h"
-#include "ProcessorWidget.h"
-#include "DestinationWidget.h"
-#include "ParametersWidget.h"
-#include "PipeWidget.h"
+#include "ElementWidgetProvider.h"
 #include "AssemblyGraphicsScene.h"
 #include "KeyValueList.h"
 #include "Xml.h"
@@ -32,7 +29,6 @@
 #include "AssemblyDialog.h"
 #include "JobDialog.h"
 #include "PreferencesDialog.h"
-#include "Tools.h"
 #include "UserFormWidget.h"
 #include "ExpertFormWidget.h"
 #include "Dim2FileReader.h"
@@ -41,6 +37,7 @@
 #include "HomeWidget.h"
 #include "MatisseMenu.h"
 #include "LiveProcessWheel.h"
+#include "AboutDialog.h"
 
 
 namespace Ui {
@@ -57,7 +54,7 @@ enum MessageIndicatorLevel {
 };
 
 
-class AssemblyGui : public QMainWindow
+class AssemblyGui : public QMainWindow, ElementWidgetProvider
 {
     Q_OBJECT
     
@@ -66,23 +63,18 @@ public:
     ~AssemblyGui();
     bool setSettingsFile(QString settings);
     bool isShowable();
-    void loadAssembliesAndJobsLists(bool doExpand=true);
     void loadDefaultStyleSheet();
 
-    void initMainMenu();
-    void initStylesheetSelection();
-    void initContextMenus();
-    void enableActions();
+    virtual SourceWidget * getSourceWidget(QString name);
+    virtual ProcessorWidget * getProcessorWidget(QString name);
+    virtual DestinationWidget * getDestinationWidget(QString name);
 
-    SourceWidget * getSourceWidget(QString name);
-    ProcessorWidget * getProcessorWidget(QString name);
-    DestinationWidget * getDestinationWidget(QString name);
-
-    void initDateTimeDisplay();
-    void initPreferences();
-    void loadAssemblyParameters(AssemblyDefinition *selectedAssembly);
-    void initParametersWidget();
-
+    void applyNewApplicationContext();
+    void handleAssemblyModified();
+    void checkAndSelectAssembly(QString selectedAssemblyName);
+    void checkAndSelectJob(QTreeWidgetItem* selectedItem);
+    void resetOngoingProcessIndicators();
+    void updatePreferredDatasetParameters();
 private:
     Ui::AssemblyGui *_ui;
     bool _isMapView;
@@ -91,9 +83,9 @@ private:
 
     QString _settingsFile;
     QString _rootXml;
+    QString _dataPath;
     QString _appVersion;
 
-    Tools * _parameters;
     bool _beforeSelect;
     MatissePreferences* _preferences;
     QTranslator* _toolsTranslator_en;
@@ -102,20 +94,28 @@ private:
     QTranslator* _serverTranslator_fr;
     QString _currentLanguage;
 
-    bool _userParameterModified;
-    bool _expertValuesModified;
-    bool _parametersUnfolded;
+    bool _jobParameterModified;
+    bool _isAssemblyModified;
+    bool _isAssemblyComplete;
 
     static const QString PREFERENCES_FILEPATH;
 
     QTreeWidgetItem * _lastJobLaunchedItem;
     AssemblyDefinition *_newAssembly;
+    AssemblyDefinition *_currentAssembly;
     JobDefinition *_currentJob;
     UserFormWidget * _userFormWidget;
     ExpertFormWidget * _expertFormWidget;
     QScrollArea * _parametersDock;
     ParametersWidgetSkeleton * _parametersWidget;
     QLabel* _messagesPicto;
+
+    QTreeWidgetItem *_assemblyVersionPropertyItem;
+    QTreeWidgetItem *_assemblyCreationDatePropertyItem;
+    QTreeWidgetItem *_assemblyAuthorPropertyItem;
+    QTreeWidgetItem *_assemblyCommentPropertyHeaderItem;
+    QTreeWidgetItem *_assemblyCommentPropertyItem;
+    QLabel *_assemblyCommentPropertyItemText;
 
     ApplicationMode _activeApplicationMode;
     QHash<QString, QTreeWidgetItem*> _assembliesItems;
@@ -143,11 +143,7 @@ private:
     LiveProcessWheel *_liveProcessWheel;
 
     // status bar
-    //QProgressBar _statusProgressBar;
     StatusMessageWidget* _statusMessageWidget;
-    //QComboBox _messagesCombo;
-    //QPushButton _messagesResetButton;
-
 
     QHash<QString, SourceWidget *> _availableSources;
     QHash<QString, ProcessorWidget *> _availableProcessors;
@@ -197,17 +193,27 @@ private:
     QAction* _archiveJobAct;
     QAction* _goToResultsAct;
 
-
 private:
     void init();
-
+    void initMainMenu();
+    void initStylesheetSelection();
+    void initContextMenus();
+    void enableActions();
+    void initDateTimeDisplay();
+    void initPreferences();
+    void initVersionDisplay();
+    void loadAssemblyParameters(AssemblyDefinition *selectedAssembly);
+    void initParametersWidget();
+    void initProcessorWidgets();
     //bool getAssemblyValues(QString filename, QString  name, bool &valid, KeyValueList & assemblyValues);
+    void loadAssembliesAndJobsLists(bool doExpand=true);
     void displayAssembly(QString assemblyName);
-    void displayJob(QString jobName);
-    void selectJob(QString jobName);
+    void displayJob(QString jobName, bool forceReload = false);
+    void selectJob(QString jobName, bool reloadJob = true);
+    void selectAssembly(QString assemblyName, bool reloadAssembly = true);
     void showError(QString title, QString message);
     QTreeWidgetItem * addAssemblyInTree(AssemblyDefinition *assembly);
-    QTreeWidgetItem * addJobInTree(JobDefinition *job);
+    QTreeWidgetItem * addJobInTree(JobDefinition *job, bool isNewJob = false);
     void selectItem(QTreeWidget wid, QString itemText);
 
     void loadStyleSheet(ApplicationMode mode);
@@ -217,34 +223,37 @@ private:
 
     void initStatusBar();
     void showStatusMessage(QString message = "", MessageIndicatorLevel level = IDLE, bool progressOn = false);
-    void setActionsStates(QTreeWidgetItem *currentItem = NULL);
 
-    void initVersionDisplay();
     void initLanguages();
     void updateLanguage(QString language, bool forceRetranslation = FALSE);
     void retranslate();
     
     bool loadResultToCartoView(QString resultFile_p);
     
-    void doFoldUnfoldParameters(bool doUnfold);
+    void doFoldUnfoldParameters(bool doUnfold, bool isExplicitAction = false);
 
     void freezeJobUserAction(bool freeze_p);
 
+    void handleJobModified();
+    QString getActualAssemblyOrJobName(QTreeWidgetItem* currentItem);
+    QString getActualNewAssemblyName();
+    bool promptAssemblyNotSaved();
+    void promptJobNotSaved();
+
+    void deleteAssemblyAndReload(bool promptUser);
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 
 protected slots:
-    //void slot_showAssembly(QModelIndex index);
     void slot_saveAssembly();
-    //void slot_saveAsAssembly();
     void slot_deleteAssembly();
     void slot_newJob();
     void slot_saveJob();
-    //void slot_saveAsJob();
     void slot_deleteJob();
     void slot_assemblyContextMenuRequested(const QPoint &pos);
 
     void slot_maximizeOrRestore();
+    void slot_quit();
     void slot_moveWindow(const QPoint &pos);
 
     void slot_clearAssembly();
@@ -258,10 +267,14 @@ protected slots:
     void slot_jobProcessed(QString name, bool isCancelled);
     void slot_assembliesReload();
     void slot_modifiedParameters(bool changed);
+    void slot_modifiedAssembly();
+    void slot_assemblyComplete(bool isComplete);
     void slot_selectAssemblyOrJob(QTreeWidgetItem *selectedItem, int column=0);
     void slot_updateTimeDisplay();
     void slot_updatePreferences();
     void slot_foldUnfoldParameters();
+    void slot_showUserManual();
+    void slot_showAboutBox();
 
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);

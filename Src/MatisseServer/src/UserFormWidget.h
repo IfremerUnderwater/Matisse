@@ -8,7 +8,6 @@
 #include <QThread>
 #include <qgsmapcanvas.h>
 #include "Image.h"
-#include "Tools.h"
 #include "GraphicalCharter.h"
 
 #include "Polygon.h"
@@ -20,7 +19,6 @@
 
 Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 
-using namespace MatisseTools;
 using namespace MatisseCommon;
 namespace Ui {
 class UserFormWidget;
@@ -74,7 +72,6 @@ public:
     void loadShapefile(QString filename = "");
     void load3DFile(QString filename_p = "");
     void loadImageFile(QString filename);
-    void setTools(Tools * tools);
     void saveQgisProject(QString filename);
     void loadTestVectorLayer();
     void addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString pointsColor_p, QString layerName_p);
@@ -90,7 +87,6 @@ public:
 
 
 protected slots:
-    void slot_parametersChanged(bool changed);
     void slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
     void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
 
@@ -99,7 +95,6 @@ protected slots:
     void slot_onFollowLastItem();
     void slot_onManualMove();
 signals:
-    void signal_parametersChanged(bool changed);
     void signal_loadRasterFromFile(QString filename_p = "");
     void signal_load3DSceneFromFile(QString filename_p = "");
 
@@ -109,8 +104,6 @@ private:
     bool findLayerIndexFromName(const QString &layerName_p, int &idx_p);
 
     Ui::UserFormWidget *_ui;
-    ParametersWidgetSkeleton * _parametersWidget;
-    Tools * _tools;
     QList<QgsMapCanvasLayer> _layers;
 
     CartoViewType _currentViewType;

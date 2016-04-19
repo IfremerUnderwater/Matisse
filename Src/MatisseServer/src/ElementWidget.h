@@ -22,7 +22,6 @@
 
 namespace MatisseServer {
 enum UserItemType { ElementType = QGraphicsItem::UserType +1,
-        ParametersType,
         SourceType,
         ProcessorType,
         DestinationType,

@@ -260,7 +260,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     qDebug() << "Verification présence destination";
     DestinationDefinition * destinationDef= assembly.destinationDefinition();
     if (!destinationDef) {
-        setMessageStr(tr("Destination non definie"));
+         setMessageStr(tr("Destination non definie"));
         return false;
     }
     quint32 order = destinationDef->order();
@@ -401,7 +401,7 @@ bool Server::processJob(JobDefinition &jobDefinition)
         return false;
     }
 
-    setMessageStr();
+     setMessageStr();
 
     // Deleted by JobTask
     MatisseParameters* parameters = buildMatisseParameters(jobDefinition);
@@ -782,12 +782,6 @@ bool Server::loadParametersDictionnary()
 
     return true;
 }
-
-bool Server::checkModuleDefinition(QString filepath)
-{
-    return false;
-}
-
 
 void Server::setMainGui(AssemblyGui *mainGui_p)
 {

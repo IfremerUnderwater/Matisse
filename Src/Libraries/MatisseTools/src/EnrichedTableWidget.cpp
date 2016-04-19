@@ -57,10 +57,10 @@ EnrichedTableWidget::EnrichedTableWidget(QWidget *parent, QString label, quint8 
     connect(_table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(slot_cellValueChanged(QTableWidgetItem*)));
 }
 
-bool EnrichedTableWidget::currentValueChanged()
-{
-    return currentValue() != _defaultValue;
-}
+//bool EnrichedTableWidget::currentValueChanged()
+//{
+//    return currentValue() != _defaultValue;
+//}
 
 QString EnrichedTableWidget::currentValue()
 {
@@ -73,8 +73,10 @@ QString EnrichedTableWidget::currentValue()
     return currentValues.join(";");
 }
 
-void EnrichedTableWidget::setValue(QString newValue)
+void EnrichedTableWidget::applyValue(QString newValue)
 {
+    disconnect(_table, SIGNAL(cellChanged(int,int)), this, SLOT(slot_valueChanged()));
+
     QStringList newValues = newValue.split(";");
     QStringList defaultValues = _defaultValue.split(";");
 
@@ -91,6 +93,8 @@ void EnrichedTableWidget::setValue(QString newValue)
             index++;
         }
     }
+
+    connect(_table, SIGNAL(cellChanged(int,int)), this, SLOT(slot_valueChanged()));
 }
 
 void EnrichedTableWidget::applyPrecision()
@@ -107,6 +111,8 @@ void EnrichedTableWidget::slot_cellValueChanged(QTableWidgetItem* item)
 
 void EnrichedTableWidget::restoreDefaultValue()
 {
+    disconnect(_table, SIGNAL(cellChanged(int,int)), this, SLOT(slot_valueChanged()));
+
     QStringList defaultValues = _defaultValue.split(";");
 
     int index = 0;
@@ -117,5 +123,7 @@ void EnrichedTableWidget::restoreDefaultValue()
             index++;
         }
     }
+
+    connect(_table, SIGNAL(cellChanged(int,int)), this, SLOT(slot_valueChanged()));
 }
 
