@@ -1,6 +1,13 @@
 #include "OSGWidget.h"
 //#include "PickHandler.h"
 
+#include <QDebug>
+#include <QKeyEvent>
+#include <QWheelEvent>
+
+
+#ifdef WITH_OSG
+
 #include <osg/Camera>
 
 #include <osg/DisplaySettings>
@@ -27,10 +34,6 @@
 
 #include <stdexcept>
 #include <vector>
-
-#include <QDebug>
-#include <QKeyEvent>
-#include <QWheelEvent>
 
 namespace
 {
@@ -508,3 +511,17 @@ void OSGWidget::processSelection()
     }
 #endif
 }
+
+#else
+OSGWidget::OSGWidget( QWidget* parent,
+           const QGLWidget* shareWidget,
+           Qt::WindowFlags f){
+    Q_UNUSED(parent)
+    Q_UNUSED(shareWidget)
+    Q_UNUSED(f)
+    qCritical("You cannot use OSG as your version is compiled without WITH_OSG\n");
+}
+
+OSGWidget::~OSGWidget(){}
+
+#endif

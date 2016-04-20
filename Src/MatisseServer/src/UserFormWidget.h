@@ -12,12 +12,15 @@
 
 #include "Polygon.h"
 
+#ifdef WITH_OSG
 #include <osg/ref_ptr>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
 #include <osgUtil/Optimizer>
 
 Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
+
+#endif
 
 using namespace MatisseCommon;
 namespace Ui {
@@ -40,8 +43,9 @@ public:
 
 signals:
     void signal_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
+#ifdef WITH_OSG
     void signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
-
+#endif
 public slots:
     void slot_loadRasterFromFile(QString filename_p = "");
     void slot_load3DSceneFromFile(QString filename_p = "");
@@ -88,8 +92,9 @@ public:
 
 protected slots:
     void slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
+#ifdef WITH_OSG
     void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
-
+#endif
     void slot_showContextMenu(const QPoint& pos_p);
     void slot_onAutoResizeTrigger();
     void slot_onFollowLastItem();

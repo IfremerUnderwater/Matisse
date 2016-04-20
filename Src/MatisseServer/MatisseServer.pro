@@ -45,7 +45,18 @@ include(../Scripts/MatisseTools.pri)
 include(../Scripts/opencv.pri)
 include(../Scripts/qgis.pri)
 include(../Scripts/BasicProcessing.pri)
-include(../Scripts/OpenSceneGraph.pri)
+
+
+win32{
+    CONFIG(release, debug|release) {
+        include(../Scripts/OpenSceneGraph.pri)
+        DEFINES += WITH_OSG
+    }
+}
+unix{
+    include(../Scripts/OpenSceneGraph.pri)
+    DEFINES += WITH_OSG
+}
 
 SOURCES += src/main.cpp\
     src/AssemblyGui.cpp \

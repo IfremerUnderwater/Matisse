@@ -7,7 +7,7 @@
 #QT       -= gui
 QT       += core xml script xmlpatterns network
 
-TARGET = OpticalMapping
+
 TEMPLATE = lib
 
 DEFINES += LIBOPTICALMAPPING_LIBRARY
@@ -16,10 +16,14 @@ DEFINES += LIBOPTICALMAPPING_LIBRARY
 SOURCE_DIR=$$PWD/../../
 CONFIG(debug, debug|release) {
     BUILD_DIR=$${SOURCE_DIR}../Build/Debug
+    BUILD_EXT="d"
 }
 CONFIG(release, debug|release) {
     BUILD_DIR=$${SOURCE_DIR}../Build/Release
+    BUILD_EXT=""
 }
+
+TARGET = OpticalMapping$$BUILD_EXT
 # ------------------------------------------------------------------------
 
 include(../../Scripts/MatisseCommon.pri)
@@ -31,6 +35,10 @@ include(../../Scripts/BasicProcessing.pri)
 
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Libraries/dll
+}
+
+unix {
+    DESTDIR = $${BUILD_DIR}/Libraries/dll
 }
 
 SOURCES += \

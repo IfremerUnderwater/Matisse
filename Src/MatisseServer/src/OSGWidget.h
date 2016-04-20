@@ -6,10 +6,14 @@
 #include <QtOpenGL>
 #include <QTimer>
 
+#ifdef WITH_OSG
+
 #include <osg/ref_ptr>
 
 #include <osgViewer/GraphicsWindow>
 #include <osgViewer/CompositeViewer>
+
+#endif
 
 class OSGWidget : public QGLWidget
 {
@@ -22,6 +26,7 @@ public:
 
     virtual ~OSGWidget();
 
+#ifdef WITH_OSG
     ///
     /// \brief setSceneFromFile load a scene from a 3D file
     /// \param sceneFile_p path to any 3D file supported by osg
@@ -49,6 +54,7 @@ public:
     /// \brief clearSceneData removes scene data
     ///
     void clearSceneData();
+
 
 protected:
 
@@ -89,6 +95,9 @@ private:
 
 protected:
     QTimer _timer;
+
+#endif // WITH_OSG
+
 
 };
 

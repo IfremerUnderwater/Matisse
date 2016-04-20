@@ -9,6 +9,8 @@ CONFIG(debug, debug|release) {
     else{
         LIBS *= -L$${BUILD_DIR}/Libraries/OpticalMapping
     }
+
+    LIBS*= -lOpticalMappingd
 }
 else {
     win32{
@@ -17,6 +19,6 @@ else {
     else{
         LIBS *= -L$${BUILD_DIR}/Libraries/OpticalMapping
     }
-}
 
-LIBS*= -lOpticalMapping
+    LIBS*= -lOpticalMapping
+}

@@ -16,7 +16,6 @@ unix {
 }
 
 message("Adding Osg dep.")
-message($$LIBS)
 
 # osg lib link
 LIBS += -lOpenThreads$$LIBEXT -losg$$LIBEXT -losgGA$$LIBEXT -losgDB$$LIBEXT -losgUtil$$LIBEXT -losgViewer$$LIBEXT
