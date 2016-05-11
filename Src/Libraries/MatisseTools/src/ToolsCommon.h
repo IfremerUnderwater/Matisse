@@ -1,13 +1,22 @@
 #ifndef TOOLSCOMMON_H
 #define TOOLSCOMMON_H
 
+#include <QVariant>
+
 namespace MatisseTools {
+
 
 #define InfInt qPow(2,31)-1
 #define InfDouble exp((double)100)
 
 #define PRECISION_MAX       5;
 #define PRECISION_DEFAULT   2;
+
+#define DATASET_STRUCTURE               "dataset_param"
+#define DATASET_PARAM_OUTPUT_DIR        "output_dir"
+#define DATASET_PARAM_OUTPUT_FILENAME   "output_filename"
+#define DATASET_PARAM_DATASET_DIR       "dataset_dir"
+#define DATASET_PARAM_NAVIGATION_FILE   "navFile"
 
 struct EnumValue {
     QString _name;

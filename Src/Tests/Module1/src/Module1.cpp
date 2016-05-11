@@ -9,6 +9,10 @@
 
 #include "Polygon.h"
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 // Exportation de la classe Module1 dans la bibliotheque de plugin TestModule1
 Q_EXPORT_PLUGIN2(Module1, Module1)
 
@@ -21,7 +25,7 @@ Module1::Module1() :
     addExpectedParameter("algo_param", "max_matches");
     addExpectedParameter("algo_param", "max_overlap");
     addExpectedParameter("algo_param", "max_Pitch");
-    addExpectedParameter("algo_param", "ba_method");
+    //addExpectedParameter("algo_param", "ba_method");
 }
 
 bool Module1::configure()
@@ -101,7 +105,23 @@ void Module1::onFlush(quint32 port)
     P2.addContour(x,y);
     x.clear(); y.clear();
 
-    P1.clip(P2, P3, basicproc::UNION);
+    P1.clip(P2, P3, basicproc::INT);
+
+    // Test polygon plotting
+    /*emit signal_addPolygonToMap(P3,"blue","P3");
+    emit signal_addPolygonToMap(P1,"red","P1");
+    emit signal_addPolygonToMap(P2,"green","P2");*/
+
+    //Test 3D file reading
+#ifdef WIN32
+    QString filePath("F:\\DATA\\3D_DATASETS\\Morph\\rock02_corr\\rock02_dense.nvm.cmvs\\00\\models\\wallMeshTex.obj");
+    qDebug() << logPrefix() << filePath;
+    emit signal_show3DFileOnMainView(filePath);
+    Sleep(60000);
+#else
+    emit signal_show3DFileOnMainView("./3DTestData/wallMeshTex.obj");
+    sleep(60);
+#endif
 
     /*    MosaicDescriptor mosaicD;
     QVector<ProjectiveCamera*> cams;

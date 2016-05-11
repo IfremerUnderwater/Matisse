@@ -22,10 +22,12 @@ class EnrichedFileChooser : public EnrichedFormWidget
     Q_OBJECT
 public:
     explicit EnrichedFileChooser(QWidget *parent, QString label, ParameterShow type, QString defaultValue);
-    bool currentValueChanged();
+    //bool currentValueChanged();
     virtual QString currentValue();
     virtual void restoreDefaultValue();
-    virtual void setValue(QString newValue);
+
+protected:
+    virtual void applyValue(QString newValue);
 
 private:
     QLineEdit * _lineEdit;

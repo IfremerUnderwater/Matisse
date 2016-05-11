@@ -14,7 +14,7 @@
 #include "RasterProvider.h"
 #include "JobServer.h"
 #include "Xml.h"
-#include "Tools.h"
+#include "FileUtils.h"
 #include "MatisseParametersManager.h"
 
 using namespace MatisseCommon;
@@ -29,7 +29,7 @@ enum ApplicationMode {
     APP_CONFIG
 };
 
-
+class AssemblyGui;
 class Server;
 class JobTask : public QObject{
     Q_OBJECT
@@ -42,11 +42,12 @@ public:
 
     QStringList resultFileNames() const;
 
-    volatile bool isCancelled() const;
+    bool isCancelled() const;
 
+    void setMainGui(AssemblyGui *mainGui);
 
 signals:
-    void signal_jobIntermediateResult(QString jobName, Image *image);
+    void signal_jobShowImageOnMainView(QString jobName, Image *image);
     void signal_userInformation(QString userText);
     void signal_processCompletion(quint8 percentComplete);
     void signal_jobStopped();
@@ -54,11 +55,12 @@ signals:
 public slots:
     void slot_start();
     void slot_stop();
-    void slot_intermediateResult(Image *image);
+    void slot_showImageOnMainView(Image *image);
     void slot_userInformation(QString userText);
     void slot_processCompletion(quint8 percentComplete);
 
 private:
+    AssemblyGui* _mainGui;
     Context* _context;
     ImageProvider* _imageProvider;
     QList<Processor*> _processors;
@@ -83,6 +85,7 @@ public:
 
     bool setSettingsFile(QString settings = "");
     void init();
+    void setMainGui(AssemblyGui* mainGui_p);
 
     QList<Processor*> const getAvailableProcessors();
     QList<ImageProvider*> const getAvailableImageProviders();
@@ -103,7 +106,7 @@ public:
     MatisseParametersManager * parametersManager() { return _dicoParamMgr; }
 
 signals:
-    void signal_jobIntermediateResult(QString jobName, Image *image);
+    void signal_jobShowImageOnMainView(QString jobName, Image *image);
     void signal_userInformation(QString userText);
     void signal_processCompletion(quint8 percentComplete);
     void signal_jobProcessed(QString jobName, bool isCancelled);
@@ -116,9 +119,8 @@ private:
     bool buildJobTask( AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters);
     void setMessageStr(QString messageStr = "", bool error = true);
     bool loadParametersDictionnary();
-    bool checkModuleDefinition(QString filepath);
 
-private:
+    AssemblyGui* _mainGui;
     JobServer *_jobServer;
     JobTask* _currentJob;
     QThread* _thread;

@@ -59,17 +59,17 @@ EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QSt
 
 }
 
-bool EnrichedDoubleSpinBox::currentValueChanged()
-{
-    return _spin->text() != _defaultValue;
-}
+//bool EnrichedDoubleSpinBox::currentValueChanged()
+//{
+//    return _spin->text() != _defaultValue;
+//}
 
 QString EnrichedDoubleSpinBox::currentValue()
 {
     return _spin->text();
 }
 
-void EnrichedDoubleSpinBox::setValue(QString newValue)
+void EnrichedDoubleSpinBox::applyValue(QString newValue)
 {
     bool ok;
 
@@ -89,7 +89,9 @@ void EnrichedDoubleSpinBox::setValue(QString newValue)
         return;
     }
 
+    disconnect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
     _spin->setValue(valueReal);
+    connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
 
 }
 
@@ -111,5 +113,7 @@ void EnrichedDoubleSpinBox::restoreDefaultValue()
         return;
     }
 
+    disconnect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
     _spin->setValue(defaultValueReal);
+    connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
 }

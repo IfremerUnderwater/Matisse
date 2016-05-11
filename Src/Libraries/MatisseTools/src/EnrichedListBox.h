@@ -14,10 +14,12 @@ class EnrichedListBox : public EnrichedFormWidget
     Q_OBJECT
 public:
     explicit EnrichedListBox(QWidget *parent, QString label, QStringList values, QString defaultValue);
-    bool currentValueChanged();
+    //bool currentValueChanged();
     virtual QString currentValue();
     virtual void restoreDefaultValue();
-    virtual void setValue(QString newValue);
+
+protected:
+    virtual void applyValue(QString newValue);
 
 signals:
 

@@ -16,6 +16,12 @@ EnrichedFormWidget::EnrichedFormWidget(QWidget *parent) :
     _gridLayout->setHorizontalSpacing(PARAM_WIDGET_FIELD_HSPACING);
 }
 
+void EnrichedFormWidget::setValue(QString newValue)
+{
+    applyValue(newValue);
+    _initialValue = currentValue();
+}
+
 void EnrichedFormWidget::setWidget(QString label, QWidget *widget, bool wrapWidget)
 {
     if (!label.isEmpty()) {
@@ -43,6 +49,12 @@ void EnrichedFormWidget::setWidget(QString label, QWidget *widget, bool wrapWidg
     }
 }
 
+bool EnrichedFormWidget::currentValueChanged()
+{
+    QString currentVal = currentValue();
+    return currentVal != _initialValue;
+}
+
 void EnrichedFormWidget::swapColor(bool yes)
 {
     QPalette labelPalette = _label->palette();
@@ -68,6 +80,7 @@ quint32 EnrichedFormWidget::getTextFieldWidth(QString text)
 
 void EnrichedFormWidget::slot_valueChanged()
 {
-    swapColor(currentValueChanged());
-    emit signal_valueChanged(currentValueChanged());
+    bool hasValueChanged = currentValueChanged();
+    swapColor(hasValueChanged);
+    emit signal_valueChanged(hasValueChanged);
 }

@@ -12,10 +12,10 @@ EnrichedLineEdit::EnrichedLineEdit(QWidget *parent, QString label, QString defau
 }
 
 
-bool EnrichedLineEdit::currentValueChanged()
-{
-    return _lineEdit->text().trimmed() != _defaultValue;
-}
+//bool EnrichedLineEdit::currentValueChanged()
+//{
+//    return _lineEdit->text().trimmed() != _defaultValue;
+//}
 
 QString EnrichedLineEdit::currentValue()
 {
@@ -24,12 +24,16 @@ QString EnrichedLineEdit::currentValue()
 
 void EnrichedLineEdit::restoreDefaultValue()
 {
+    disconnect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));
     _lineEdit->setText(_defaultValue);
+    connect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));
 }
 
-void EnrichedLineEdit::setValue(QString newValue)
+void EnrichedLineEdit::applyValue(QString newValue)
 {
+    disconnect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));
     _lineEdit->setText(newValue);
+    connect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));
 }
 
 //void EnrichedLineEdit::slot_valueChanged()

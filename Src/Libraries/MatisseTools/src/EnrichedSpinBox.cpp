@@ -85,18 +85,20 @@ EnrichedSpinBox::EnrichedSpinBox(QWidget *parent, QString label, QString minValu
 
 }
 
-bool EnrichedSpinBox::currentValueChanged()
-{
-    return _spin->text() != _defaultValue;
-}
+//bool EnrichedSpinBox::currentValueChanged()
+//{
+//    return _spin->text() != _defaultValue;
+//}
 
 QString EnrichedSpinBox::currentValue()
 {
     return _spin->text();
 }
 
-void EnrichedSpinBox::setValue(QString newValue)
+void EnrichedSpinBox::applyValue(QString newValue)
 {
+    disconnect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
+
     if (newValue.startsWith("-inf")) {
 
         if (_minValueInt > MIN_SINT32) {
@@ -136,6 +138,8 @@ void EnrichedSpinBox::setValue(QString newValue)
 
         _spin->setValue(valueInt);
     }
+
+    connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
 }
 
 void EnrichedSpinBox::restoreDefaultValue()
@@ -148,5 +152,7 @@ void EnrichedSpinBox::restoreDefaultValue()
         return;
     }
 
+    disconnect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
     _spin->setValue(defaultValueInt);
+    connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
 }

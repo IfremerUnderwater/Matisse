@@ -2,6 +2,7 @@
 #include "ui_MainControllBar.h"
 
 #include <QDebug>
+#include <QToolButton>
 
 MainControllBar::MainControllBar(QWidget *parent) :
     QFrame(parent),
@@ -35,6 +36,14 @@ void MainControllBar::mouseMoveEvent(QMouseEvent *event)
     //qDebug() << "Delta : " << currentPos - _initialPosition;
     emit signal_moveWindow(delta);
 }
+
+
+void MainControllBar::setSwitchModeButtonEnable(bool enabled_p)
+{
+    QToolButton* switchModeButton = findChild<QToolButton*>(QString("_TBU_visuModeSwap"));
+    switchModeButton->setEnabled(enabled_p);
+}
+
 
 void MainControllBar::changeEvent(QEvent *event)
 {

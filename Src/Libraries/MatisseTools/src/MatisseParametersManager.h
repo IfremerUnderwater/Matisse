@@ -28,6 +28,8 @@
 #include "EnrichedCheckBox.h"
 #include "EnrichedTableWidget.h"
 #include "EnrichedFileChooser.h"
+#include "MatisseDictionnaryLabels.h"
+#include "ParametersHeaderButton.h"
 
 namespace MatisseTools {
 
@@ -44,7 +46,6 @@ public:
 
     bool addParameter(QString structName, QString groupName, QString groupText, QXmlStreamAttributes attributes);
     bool addEnum(QString enumsName, QXmlStreamAttributes attributes);
-//    ParametersWidgetSkeleton * generateParametersWidget(QWidget *owner);
     ParametersWidgetSkeleton *generateParametersWidget(QWidget *owner);
     ParametersWidgetSkeleton * parametersWidget() { return _fullParametersWidget; }
 
@@ -54,15 +55,19 @@ public:
 
     void createJobParametersFile(QString assemblyName, QString jobName, KeyValueList kvl);
 
-    void checkDictionnaryComplete();
-    void updateDatasetParametersValues(KeyValueList kvl);
+    void applyApplicationContext(bool isExpert, bool isProgramming);
+    void toggleReadOnlyMode(bool isReadOnly);
+    void pullDatasetParameters(KeyValueList &kvl);
+    void pushPreferredDatasetParameters(KeyValueList kvl);
+
 signals:
 
-public slots:
+protected slots:
+    void slot_translateParameters();
+    void slot_foldUnfoldLevelParameters();
 
 private:
     void loadStaticCollections();
-//    ParametersWidgetSkeleton *createDialog(QWidget *owner, QString structName, bool user);
     bool getRange(Parameter param, QVariant &minValue, QVariant &maxValue);
     QString getValue(QString structName, QString parameterName);
     qint32 getIntValue(QVariant value);
@@ -70,10 +75,15 @@ private:
     qreal getDoubleValue(QVariant value);
     QStringList getNumList(Parameter param);
     QStringList getEnums(Parameter param);
-    //bool generateParametersFile(QString filename);
     bool readParametersFile(QString filename, bool isAssemblyTemplate);
     bool writeParametersFile(QString parametersFilename, bool overwrite=false);
-    void generateLevelParametersWidget(ParameterLevel level, QString levelHeader);
+    void generateLevelParametersWidget(ParameterLevel level);
+    void translateHeaderButtons();
+    void retranslateLevelGroups(ParameterLevel level);
+    void checkDictionnaryComplete();
+    void pushDatasetParameters(KeyValueList kvl);
+
+    MatisseDictionnaryLabels _dictionnaryLabels;
 
     QMap<QString, Structure> _structures;
     QMap<QString, ParametersGroup> _groups;
@@ -86,6 +96,7 @@ private:
     QMap<ParameterLevel, QList<QString>*> _parametersByLevel;
     QMap<QString, QSet<QString>*> _expectedGroups;
     QSet<QString> _jobExtraParameters;
+    QMap<QString, QString> _preferredDatasetParameters;
     QDateTime _dicoPublicationTimestamp;
     QString _selectedAssembly;
 
@@ -94,8 +105,13 @@ private:
     QMap<QString, QMap<QString, EnrichedFormWidget*> > _valuesWidgets;
     QMap<QString, QMap<QString, QWidget*> > _groupsWidgets;
 
-    QMap<ParameterLevel, QPushButton*> _headerByLevel;
-    QMap<ParameterLevel, QWidget*> _ParamContainerByLevel;
+    QMap<QString, EnrichedFormWidget*> _valueWidgetsByParamName;
+    QMap<ParameterLevel, QMap<QString, QGroupBox*>* > _groupWidgetsByLevel;
+
+    QMap<ParameterLevel, ParametersHeaderButton*> _headerButtonsByLevel;
+    QMap<ParameterLevel, QWidget*> _paramContainersByLevel;
+
+    bool _isReadOnlyMode;
 
     static QMap<QString, ParameterType> _enumTypes;
     static QMap<QString, ParameterLevel> _enumLevels;

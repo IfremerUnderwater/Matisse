@@ -19,7 +19,9 @@ public:
     virtual QString currentValue();
     qint32 currentIndex();
     virtual void restoreDefaultValue();
-    virtual void setValue(QString newValue);
+
+protected:
+    virtual void applyValue(QString newValue);
 
 signals:
 
@@ -28,6 +30,7 @@ public slots:
 private:
         QComboBox *_combo;
         qint32 _defaultIndex;
+        qint32 _initialIndex;
 };
 }
 #endif // ENRICHEDCOMBOBOX_H

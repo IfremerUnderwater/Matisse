@@ -41,41 +41,18 @@ public:
     // TODO provisoire à supprimer
     void setServer(Server *server);
 
-//    void addProcessorWidget(ProcessorWidget * procWidget);
-//    void addSourceWidget(SourceWidget * sourceWidget);
-//    void addDestinationWidget(DestinationWidget * destinationWidget);
-
-    //ParametersWidget * getParametersWidget(QString name);
     bool loadAssembly(QString assemblyName);
-    bool saveAssembly(QString filename, KeyValueList fields);
     void resetAssemblyForm();
-    //void test();
     AssemblyGraphicsScene * getScene() { return _scene;}
     QGraphicsView * getGraphicsView();
-    //void showParameters(AssemblyDefinition * assembly);
-//    bool saveParameters();
-//    bool deleteSelectedParameters();
-//    void selectLastUsedParameter();
-//    bool selectParametersItem(QString model, QString parameters);
 
 private:
     Ui::ExpertFormWidget * _ui;
     AssemblyGraphicsScene * _scene;
-//    QHash<QString, SourceWidget *> _availableSources;
-//    QHash<QString, ProcessorWidget *> _availableProcessors;
-//    QHash<QString, DestinationWidget *> _availableDestinations;
-
-    //QString _currentAssemblyName;
-    //QTreeWidgetItem * _lastUsedParameter;
-    //QString _settingsFile;
-    //QString _rootXml;
     QHash<QString, KeyValueList> _assembliesValues;
     Server * _server;
-    //Xml _xmlTool;
-    //Tools * _currentParameters;
 
     void init();
-    //void fillLists();
 
 protected:
     void resizeEvent(QResizeEvent *event);

@@ -14,8 +14,8 @@ JobDialog::JobDialog(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
 
     _ui->_LE_name->setValidator(new QRegExpValidator(QRegExp("\\w+(\\s|\\w)+\\w")));
 
-    if (!keyValues->getKeys().contains("dataPath")) {
-        // Traitement TR : on désactive le chemin des données et fichier de nav
+    if (!keyValues->getKeys().contains(DATASET_PARAM_DATASET_DIR)) {
+        // RT processing chain : fields for dataset dir and nav file are disabled
         _isRealTime = true;
         _ui->_LA_dataPath->setEnabled(false);
         _ui->_LE_dataPath->setEnabled(false);
@@ -23,9 +23,13 @@ JobDialog::JobDialog(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
         _ui->_LA_navigationFile->setEnabled(false);
         _ui->_LE_navigationFile->setEnabled(false);
         _ui->_PB_navigationFile->setEnabled(false);
+    } else { // Post-processing
+        _ui->_LE_dataPath->setText(keyValues->getValue(DATASET_PARAM_DATASET_DIR));
+        _ui->_LE_navigationFile->setText(keyValues->getValue(DATASET_PARAM_NAVIGATION_FILE));
     }
-    _ui->_LE_resultPath->setText(keyValues->getValue("resultPath"));
-    _ui->_LE_outputFile->setText(keyValues->getValue("outputFile"));
+
+    _ui->_LE_resultPath->setText(keyValues->getValue(DATASET_PARAM_OUTPUT_DIR));
+    _ui->_LE_outputFile->setText(keyValues->getValue(DATASET_PARAM_OUTPUT_FILENAME));
 
     connect(_ui->_LE_name, SIGNAL(textEdited(QString)), this, SLOT(slot_formatName(QString)));
     connect(_ui->_PB_save, SIGNAL(clicked()), this, SLOT(slot_close()));
@@ -93,11 +97,11 @@ void JobDialog::slot_close()
         _keyValues->set("comment", _ui->_TXT_comments->toPlainText().trimmed());
 
         if (!_isRealTime) {
-            _keyValues->set("dataPath", _ui->_LE_dataPath->text());
-            _keyValues->set("navigationFile", _ui->_LE_navigationFile->text());
+            _keyValues->set(DATASET_PARAM_DATASET_DIR, _ui->_LE_dataPath->text());
+            _keyValues->set(DATASET_PARAM_NAVIGATION_FILE, _ui->_LE_navigationFile->text());
         }
-        _keyValues->set("resultPath", _ui->_LE_resultPath->text());
-        _keyValues->set("outputFile", _ui->_LE_outputFile->text());
+        _keyValues->set(DATASET_PARAM_OUTPUT_DIR, _ui->_LE_resultPath->text());
+        _keyValues->set(DATASET_PARAM_OUTPUT_FILENAME, _ui->_LE_outputFile->text());
 
         accept();
     }
@@ -105,7 +109,7 @@ void JobDialog::slot_close()
 
 void JobDialog::slot_selectDir()
 {
-    QDir dataRoot(".");
+    QDir dataRoot("./");
     QString fieldText;
     QString caption;
     QDir current = dataRoot;
@@ -144,7 +148,7 @@ void JobDialog::slot_selectDir()
         // chemin relatif
         dirPath = dataRoot.relativeFilePath(dirPath);
         if (dirPath.isEmpty()) {
-            dirPath = ".";
+            dirPath = "./";
         }
     }
 
@@ -158,7 +162,7 @@ void JobDialog::slot_selectDir()
 void JobDialog::slot_selectFile()
 {
     QString selFile;
-    QDir dataRoot(".");
+    QDir dataRoot("./");
     QString currentPath = dataRoot.path();
     QString fieldText;
 

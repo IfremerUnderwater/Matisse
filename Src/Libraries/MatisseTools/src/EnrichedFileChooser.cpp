@@ -31,32 +31,36 @@ EnrichedFileChooser::EnrichedFileChooser(QWidget *parent, QString label, Paramet
     connect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));
 }
 
-bool EnrichedFileChooser::currentValueChanged()
-{
-    return _lineEdit->text().trimmed() != _defaultValue;
-}
+//bool EnrichedFileChooser::currentValueChanged()
+//{
+//    return _lineEdit->text().trimmed() != _defaultValue;
+//}
 
 QString EnrichedFileChooser::currentValue()
 {
     return _lineEdit->text().trimmed();
 }
 
-void EnrichedFileChooser::setValue(QString newValue)
+void EnrichedFileChooser::applyValue(QString newValue)
 {
+    disconnect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));
     _lineEdit->setText(newValue);
+    connect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));
 }
 
 void EnrichedFileChooser::restoreDefaultValue()
 {
+    disconnect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));
     _lineEdit->setText(_defaultValue);
+    connect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));
 }
 
 void EnrichedFileChooser::slot_clicked() {
     QString retFile;
     if ((_type == FILE_SELECTOR_RELATIVE) || (_type == FILE_SELECTOR_ABSOLUTE)) {
-        retFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), "Choix d'un fichier...");
+        retFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Choix d'un fichier..."));
     } else {
-        retFile = QFileDialog::getExistingDirectory(qobject_cast<QWidget *>(sender()), "Choix d'un répertoire...");
+        retFile = QFileDialog::getExistingDirectory(qobject_cast<QWidget *>(sender()), tr("Choix d'un repertoire..."));
     }
     if (!retFile.isEmpty()) {
         if ((_type == FILE_SELECTOR_RELATIVE) || (_type == DIR_SELECTOR_RELATIVE)) {

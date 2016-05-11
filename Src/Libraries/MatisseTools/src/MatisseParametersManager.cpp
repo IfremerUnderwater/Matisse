@@ -25,9 +25,12 @@ MatisseParametersManager::MatisseParametersManager(QObject *parent) :
     _dialogs(),
     _groupsWidgets(),
     _valuesWidgets(),
-    _selectedAssembly("")
+    _selectedAssembly(""),
+    _dictionnaryLabels(),
+    _isReadOnlyMode(false)
 {
     loadStaticCollections();
+    _dictionnaryLabels.declareLabels();
 }
 
 void MatisseParametersManager::loadStaticCollections()
@@ -65,75 +68,47 @@ void MatisseParametersManager::loadStaticCollections()
     _enumLevels.insert("advanced", ADVANCED);
     _enumLevels.insert("expert", EXPERT);
 
-    _datasetParamNames.insert("output_dir");
-    _datasetParamNames.insert("output_filename");
-    _datasetParamNames.insert("dataset_dir");
-    _datasetParamNames.insert("navFile");
+    _datasetParamNames.insert(DATASET_PARAM_OUTPUT_DIR);
+    _datasetParamNames.insert(DATASET_PARAM_OUTPUT_FILENAME);
+    _datasetParamNames.insert(DATASET_PARAM_DATASET_DIR);
+    _datasetParamNames.insert(DATASET_PARAM_NAVIGATION_FILE);
 }
 
 void MatisseParametersManager::checkDictionnaryComplete()
 {
-    if (!_structures.contains("dataset_param")) {
+    if (!_structures.contains(DATASET_STRUCTURE)) {
         qFatal("Dictionnary does not contain mandatory 'dataset_param' structure");
     }
 
-    Structure datasetStruct = _structures.value("dataset_param");
+    Structure datasetStruct = _structures.value(DATASET_STRUCTURE);
     QList<ParametersGroup> datasetGroups = datasetStruct._parametersGroups;
 
-    bool outputDirParamFound = false;
-    bool outputFilenameParamFound = false;
-    bool datasetDirParamFound = false;
-    bool navFileParamFound = false;
+    QSet<QString> foundDatasetParams;
 
-    bool allFound = false;
-
-    // TODO changer algo pour iterer sur la collection _datasetParamNames
     foreach (ParametersGroup group, datasetGroups) {
         QStringList params = group._parametersNames;
 
-        if (!outputDirParamFound) {
-            if (params.contains("output_dir")) {
-                outputDirParamFound = true;
+        foreach (QString param, params) {
+            if (_datasetParamNames.contains(param)) {
+                foundDatasetParams.insert(param);
             }
-        }
-
-        if (!outputFilenameParamFound) {
-            if (params.contains("output_filename")) {
-                outputFilenameParamFound = true;
-            }
-        }
-
-        if (!datasetDirParamFound) {
-            if (params.contains("dataset_dir")) {
-                datasetDirParamFound = true;
-            }
-        }
-
-        if (!navFileParamFound) {
-            if (params.contains("navFile")) {
-                navFileParamFound = true;
-            }
-        }
-
-        allFound = outputDirParamFound && outputFilenameParamFound && datasetDirParamFound && navFileParamFound;
-        if (allFound) {
-            break;
         }
     }
 
-    if (!allFound) {
-        qFatal("One of the dataset params 'output_dir', 'output_filename', 'dataset_dir' or 'navFile' was not found in the dictionnary");
+    if (foundDatasetParams != _datasetParamNames) {
+
+        QStringList found = foundDatasetParams.values();
+        QStringList expected = _datasetParamNames.values();
+        QString fullMessage = QString("Dataset parameters were not all found in the dictionnary\Expected: ")
+                .append(expected.join(",")).append("\nFound: ").append(found.join(","));
+
+        qFatal(fullMessage.toLatin1());
     }
 }
 
 bool MatisseParametersManager::readDictionnaryFile(QString xmlFilename)
 {
-    //if (!append) {
-        _structures.clear();
-//        _structuresNames.clear();
-//        _enums.clear();
-//        _fileInfo.clear();
-    //}
+    _structures.clear();
 
     QFile inputFile(xmlFilename);
     if (!inputFile.exists()) {
@@ -154,9 +129,17 @@ bool MatisseParametersManager::readDictionnaryFile(QString xmlFilename)
     QString groupText = "";
     QString enumsName;
     while (!reader.atEnd()) {
-        if (reader.readNextStartElement()) {
+        /* Read next element.*/
+        QXmlStreamReader::TokenType token = reader.readNext();
+        /* If token is just StartDocument, we'll go to next.*/
+        if(token == QXmlStreamReader::StartDocument) {
+           continue;
+        }
+
+        /* If token is StartElement, we'll see if we can read it.*/
+        if(token == QXmlStreamReader::StartElement) {
+
             QString name = reader.name().toString();
-            // qDebug() << "START ELEMENT:" << name;
             attributes = reader.attributes();
 
             if (name == "Structures") {
@@ -167,6 +150,11 @@ bool MatisseParametersManager::readDictionnaryFile(QString xmlFilename)
                 Structure newStruct;
                 newStruct._name = structureName;
                 newStruct._hasUserValues = false;
+
+                /* check structure name unicity (not supported by Qt XML schema validation) */
+                if (_structures.contains(structureName)) {
+                    qFatal(QString("Unique constraint violation for structure name '%1'").arg(structureName).toLatin1());
+                }
                 _structures.insert(structureName, newStruct);
                 _structuresNames << structureName;
             } else if (name == "ParametersGroup") {
@@ -184,19 +172,15 @@ bool MatisseParametersManager::readDictionnaryFile(QString xmlFilename)
             } else if (name == "EnumValue") {
                 addEnum(enumsName, attributes);
             }
-//            } else if (name == "Field") {
-//            _fileInfo << attributes.value("name").toString();
-//        }
         }
 
         if (reader.hasError()) {
             qWarning() << "An error occurred while reading the dictionnary file:\n" << reader.errorString();
         }
     }
-    // qDebug() << "Fermeture fichier...";
+
     reader.clear();
     inputFile.close();
-
 
     // check dictionnary integrity
     checkDictionnaryComplete();
@@ -236,7 +220,7 @@ bool MatisseParametersManager::addUserModuleForParameter(QString userModule, QSt
         }
     }
 
-    // Pas la peine de vérifier la présence de la clé (déjà vérifiée pour structure)
+    // Not necessary to check the presence of the key (already checked for the structure)
     QString groupName = _groupByParameter.value(paramName);
 
     if (!_expectedGroups.contains(groupName)) {
@@ -248,7 +232,7 @@ bool MatisseParametersManager::addUserModuleForParameter(QString userModule, QSt
         qDebug() << "Adding param" << paramName << "as member of expected group" << groupName;
         QSet<QString> *groupMembers = _expectedGroups.value(groupName);
         if (groupMembers->contains(paramName)) {
-            qWarning() << QString("Param '%1' is already referenced as member of expected group '%2'").arg(paramName).arg(groupName);
+            qDebug() << QString("Param '%1' is already referenced as member of expected group '%2'").arg(paramName).arg(groupName);
         } else {
             groupMembers->insert(paramName);
         }
@@ -426,6 +410,7 @@ bool MatisseParametersManager::clearExpectedParameters()
 bool MatisseParametersManager::addParameter(QString structName, QString groupName, QString groupText, QXmlStreamAttributes attributes)
 {
     if (!_structures.contains(structName)) {
+        qCritical() << QString("Structure '%1'' not found, cannot add parameter").arg(structName);
         return false;
     }
 
@@ -438,7 +423,13 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
         newGroup._text = groupText;
         newGroup._hasUserValues = false;
         _structures[structName]._parametersGroups.append(newGroup);
-        noGroup = _structures[structName]._groupsNames.size()-1;
+        noGroup = _structures[structName]._groupsNames.size() - 1;
+
+        /* check unique constraint for group name */
+        if (_groups.contains(groupName)) {
+            qFatal(QString("Unique constraint violation for group name '%1'").arg(groupName).toLatin1());
+        }
+
         _groups.insert(groupName, newGroup);
     }
 
@@ -494,14 +485,20 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
 
     parameter._value = attributes.value("default").toString();
 
-    _structures[structName]._parametersGroups[noGroup]._parametersNames << parameter._name;
+    QString paramName = parameter._name;
+
+    _structures[structName]._parametersGroups[noGroup]._parametersNames << paramName;
     _structures[structName]._parametersGroups[noGroup]._parameters.append(parameter);
 
-    _parameters.insert(parameter._name, parameter);
+    /* check unique constraint for parameter name */
+    if (_parameters.contains(paramName)) {
+        qFatal(QString("Unique constraint violation for parameter name '%1'").arg(paramName).toLatin1());
+    }
+    _parameters.insert(paramName, parameter);
 
-    _structureByParameter.insert(parameter._name, structName);
+    _structureByParameter.insert(paramName, structName);
 
-    _groupByParameter.insert(parameter._name, groupName);
+    _groupByParameter.insert(paramName, groupName);
 
     /* Appending parameter name to the usage level list */
     QList<QString>* paramsForLevel;
@@ -513,7 +510,7 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
         paramsForLevel = _parametersByLevel.value(level);
     }
 
-    paramsForLevel->append(parameter._name);
+    paramsForLevel->append(paramName);
 
     return true;
 
@@ -535,52 +532,42 @@ bool MatisseParametersManager::addEnum(QString enumsName, QXmlStreamAttributes a
 
 }
 
-//ParametersWidgetSkeleton *MatisseParametersManager::generateParametersWidget(QWidget *owner)
-//{
-//    qDebug() << "Building parameters widget";
-//    _fullParametersWidget = new ParametersWidgetSkeleton(owner);
-//    //eraseDialog();
-
-//    // squeleton is created for all parameters in dictionnary
-//    foreach (QString structureName, _structuresNames) {
-//        ParametersWidgetSkeleton * dialogPart = createDialog(_fullParametersWidget, structureName, false);
-//        if (dialogPart)
-//        {
-//            _fullParametersWidget->addWidget(dialogPart);
-//            // pour transmettre le signal...
-//            connect(dialogPart, SIGNAL(signal_valuesModified(bool)), _fullParametersWidget, SLOT(slot_valueModified(bool)));
-//        }
-//    }
-
-//    return _fullParametersWidget;
-//}
-
 ParametersWidgetSkeleton *MatisseParametersManager::generateParametersWidget(QWidget *owner)
 {
     qDebug() << "Building parameters widget";
     _fullParametersWidget = new ParametersWidgetSkeleton(owner);
     _fullParametersWidget->setObjectName("_WID_parametersWidget");
 
-    generateLevelParametersWidget(USER, tr("Parametres utilisateur"));
-    generateLevelParametersWidget(ADVANCED, tr("Parametres avances"));
-    generateLevelParametersWidget(EXPERT, tr("Parametres mode expert"));
+    generateLevelParametersWidget(USER);
+    generateLevelParametersWidget(ADVANCED);
+    generateLevelParametersWidget(EXPERT);
+
+    translateHeaderButtons();
+
+    connect(_fullParametersWidget, SIGNAL(signal_translateParameters()), this, SLOT(slot_translateParameters()));
+
+    applyApplicationContext(false, false);
 
     return _fullParametersWidget;
 }
 
-void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel level, QString levelHeader)
+void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel level)
 {
-    QPushButton *levelHeaderButton = new QPushButton(_fullParametersWidget);
+    ParametersHeaderButton *levelHeaderButton = new ParametersHeaderButton(_fullParametersWidget, level);
     levelHeaderButton->setObjectName("_PB_levelHeaderButton");
-    levelHeaderButton->setText(levelHeader);
-    levelHeaderButton->setIcon(QIcon(":/qss_icons/rc/branch_closed-on.png"));
     _fullParametersWidget->addWidget(levelHeaderButton);
+
+    _headerButtonsByLevel.insert(level, levelHeaderButton);
+
+    connect(levelHeaderButton, SIGNAL(clicked(bool)), this, SLOT(slot_foldUnfoldLevelParameters()));
 
     QWidget *levelContainer = new QWidget(_fullParametersWidget);
     levelContainer->setObjectName("_WID_levelParametersContainer");
     QVBoxLayout *levelContainerLayout = new QVBoxLayout();
     levelContainer->setLayout(levelContainerLayout);
     _fullParametersWidget->addWidget(levelContainer);
+
+    _paramContainersByLevel.insert(level, levelContainer);
 
     QList<QString>* levelParamsList = _parametersByLevel.value(level);
 
@@ -607,7 +594,9 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
                 currentGroup->hide();
             }
 
-            currentGroup = new QGroupBox(group._text, _fullParametersWidget);
+            QString groupLabel = _dictionnaryLabels.getGroupLabel(groupName);
+            //currentGroup = new QGroupBox(group._text, _fullParametersWidget);
+            currentGroup = new QGroupBox(groupLabel, _fullParametersWidget);
             QVBoxLayout* currentGroupLayout = new QVBoxLayout();
             currentGroupLayout->setContentsMargins(0, PARAM_GROUP_MARGIN_TOP, 0, PARAM_GROUP_MARGIN_BOTTOM);
 
@@ -615,6 +604,17 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
             levelContainerLayout->addWidget(currentGroup);
 
             levelGroups.insert(groupName);
+
+            /* referencing group for deferred translation */
+            QMap<QString, QGroupBox*> *levelGroupWidgets;
+            if (!_groupWidgetsByLevel.contains(level)) {
+                levelGroupWidgets = new QMap<QString, QGroupBox*>();
+                _groupWidgetsByLevel.insert(level, levelGroupWidgets);
+            } else {
+                levelGroupWidgets = _groupWidgetsByLevel.value(level);
+            }
+
+            levelGroupWidgets->insert(groupName, currentGroup);
         }
 
         Parameter param;
@@ -627,60 +627,60 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
         }
 
         EnrichedFormWidget * widget = NULL;
-        QString paramLabel = tr(param._text.toLatin1());
+        QString paramLabelText = _dictionnaryLabels.getParamLabel(paramName);
 
         switch(param._show) {
         case LINE_EDIT: {
-            widget = new EnrichedLineEdit(_fullParametersWidget, paramLabel, param._value.toString());
+            widget = new EnrichedLineEdit(_fullParametersWidget, paramLabelText, param._value.toString());
          }
             break;
         case SPIN_BOX: {
             QVariant minValue;
             QVariant maxValue;
             getRange(param, minValue, maxValue);
-            widget = new EnrichedSpinBox(_fullParametersWidget, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
+            widget = new EnrichedSpinBox(_fullParametersWidget, paramLabelText, minValue.toString(), maxValue.toString(), param._value.toString());
         }
             break;
         case DOUBLE_SPIN_BOX: {
             QVariant minValue;
             QVariant maxValue;
             getRange(param, minValue, maxValue);
-            EnrichedDecimalValueWidget* decimalValueWidget = new EnrichedDoubleSpinBox(_fullParametersWidget, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
+            EnrichedDecimalValueWidget* decimalValueWidget = new EnrichedDoubleSpinBox(_fullParametersWidget, paramLabelText, minValue.toString(), maxValue.toString(), param._value.toString());
             decimalValueWidget->setPrecision(param._precision);
             widget = decimalValueWidget;
         }
             break;
         case COMBO_BOX: {
             QStringList items = getEnums(param);
-            widget = new EnrichedComboBox(_fullParametersWidget, paramLabel, items, param._value.toString());
+            widget = new EnrichedComboBox(_fullParametersWidget, paramLabelText, items, param._value.toString());
         }
             break;
         case LIST_BOX: {
             QStringList items = getEnums(param);
-            widget = new EnrichedListBox(_fullParametersWidget, param._text, items, param._value.toString());
+            widget = new EnrichedListBox(_fullParametersWidget, paramLabelText, items, param._value.toString());
         }
             break;
         case CHECK_BOX: {
-            widget = new EnrichedCheckBox(_fullParametersWidget, param._text, getBoolValue(param._value));
+            widget = new EnrichedCheckBox(_fullParametersWidget, paramLabelText, getBoolValue(param._value));
         }
             break;
         case TABLE: {
             int nbCols = param._parameterSize.width();
             int nbRows = param._parameterSize.height();
             QStringList values = getNumList(param);
-            EnrichedDecimalValueWidget* decimalValueWidget = new EnrichedTableWidget(_fullParametersWidget, param._text, nbCols, nbRows, values, param._formatTemplate);
+            EnrichedDecimalValueWidget* decimalValueWidget = new EnrichedTableWidget(_fullParametersWidget, paramLabelText, nbCols, nbRows, values, param._formatTemplate);
             decimalValueWidget->setPrecision(param._precision);
             widget = decimalValueWidget;
         }
             break;
         case FILE_SELECTOR_RELATIVE:
         case FILE_SELECTOR_ABSOLUTE: {
-            widget = new EnrichedFileChooser(_fullParametersWidget, param._text, param._show, param._value.toString());
+            widget = new EnrichedFileChooser(_fullParametersWidget, paramLabelText, param._show, param._value.toString());
         }
             break;
         case DIR_SELECTOR_RELATIVE:
         case DIR_SELECTOR_ABSOLUTE: {
-            widget = new EnrichedFileChooser(_fullParametersWidget, param._text, param._show, param._value.toString());
+            widget = new EnrichedFileChooser(_fullParametersWidget, paramLabelText, param._show, param._value.toString());
         }
             break;
         case UNKNOWN_SHOW:
@@ -698,6 +698,7 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
                 _valuesWidgets.insert(structName, *structWidgets);
             }
             _valuesWidgets[structName].insert(param._name, widget);
+            _valueWidgetsByParamName.insert(param._name, widget);
 
             if (!_groupsWidgets.contains(structName)) {
                 QMap<QString, QWidget*> *structGroupsWidgets = new QMap<QString, QWidget*>();
@@ -716,6 +717,205 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
     }
 
 }
+
+void MatisseParametersManager::translateHeaderButtons()
+{
+    ParametersHeaderButton *userHeaderButton = _headerButtonsByLevel.value(USER);
+    userHeaderButton->setText(tr("Parametres utilisateur"));
+
+    ParametersHeaderButton *advancedHeaderButton = _headerButtonsByLevel.value(ADVANCED);
+    advancedHeaderButton->setText(tr("Parametres avances"));
+
+    ParametersHeaderButton *expertHeaderButton = _headerButtonsByLevel.value(EXPERT);
+    expertHeaderButton->setText(tr("Parametres mode expert"));
+}
+
+void MatisseParametersManager::slot_translateParameters()
+{
+    translateHeaderButtons();
+
+    QList<QString> paramNames = _valueWidgetsByParamName.keys();
+    foreach (QString paramName, paramNames) {
+        EnrichedFormWidget *valueWidget = _valueWidgetsByParamName.value(paramName);
+        QString translatedLabel = _dictionnaryLabels.getParamLabel(paramName);
+        valueWidget->setLabelText(translatedLabel);
+    }
+
+    retranslateLevelGroups(USER);
+    retranslateLevelGroups(ADVANCED);
+    retranslateLevelGroups(EXPERT);
+}
+
+void MatisseParametersManager::slot_foldUnfoldLevelParameters()
+{
+    ParametersHeaderButton* headerButton = qobject_cast<ParametersHeaderButton*>(sender());
+    //headerButton->slot_flip();
+    ParameterLevel level = headerButton->getLevel();
+
+    QWidget* paramContainer = _paramContainersByLevel.value(level);
+
+    if (headerButton->getIsUnfolded()) {
+        paramContainer->show();
+    } else {
+        paramContainer->hide();
+    }
+}
+
+void MatisseParametersManager::retranslateLevelGroups(ParameterLevel level)
+{
+    QMap<QString, QGroupBox*> *levelGroups = _groupWidgetsByLevel.value(level);
+
+    QList<QString> groupNames = levelGroups->keys();
+    foreach (QString groupName, groupNames) {
+        QGroupBox *groupWidget = levelGroups->value(groupName);
+        QString translatedLabel = _dictionnaryLabels.getGroupLabel(groupName);
+        groupWidget->setTitle(translatedLabel);
+    }
+
+}
+void MatisseParametersManager::applyApplicationContext(bool isExpert, bool isProgramming)
+{
+    ParametersHeaderButton *advancedParamsHeader = _headerButtonsByLevel.value(ADVANCED);
+    QWidget *advancedParamsContainer = _paramContainersByLevel.value(ADVANCED);
+
+    ParametersHeaderButton *expertParamsHeader = _headerButtonsByLevel.value(EXPERT);
+    QWidget *expertParamsContainer = _paramContainersByLevel.value(EXPERT);
+
+    if (isExpert) {
+        advancedParamsHeader->setIsUnfolded(isProgramming);
+        expertParamsHeader->setIsUnfolded(isProgramming);
+        expertParamsHeader->show();
+
+        if (isProgramming) {
+            advancedParamsContainer->show();
+            expertParamsContainer->show();
+        } else {
+            advancedParamsContainer->hide();
+            expertParamsContainer->hide();
+        }
+
+    } else {
+        advancedParamsHeader->setIsUnfolded(false);
+        advancedParamsContainer->hide();
+        expertParamsHeader->hide();
+        expertParamsContainer->hide();
+    }
+}
+
+void MatisseParametersManager::toggleReadOnlyMode(bool isReadOnly)
+{
+    if (isReadOnly == _isReadOnlyMode) {
+        return;
+    }
+
+    qDebug() << "Toggling parameter widgets to mode " << ((isReadOnly) ? "Read-Only" : "Editing");
+
+    foreach (QString structName, _valuesWidgets.keys()) {
+        QMap<QString, EnrichedFormWidget*> structParams = _valuesWidgets.value(structName);
+        foreach (EnrichedFormWidget* widget, structParams.values()) {
+            widget->setEnabled(!isReadOnly);
+        }
+    }
+
+    _isReadOnlyMode = isReadOnly;
+}
+
+void MatisseParametersManager::pullDatasetParameters(KeyValueList &kvl)
+{
+    foreach (QString datasetParamName, _datasetParamNames) {
+        if (kvl.getKeys().contains(datasetParamName)) {
+
+            /* Get assembly template parameter value */
+            QString value = getValue(DATASET_STRUCTURE, datasetParamName);
+
+            /* Default value is not overriden if the parameter is not defined for the assembly */
+            if (value != "") {
+                kvl.set(datasetParamName, value);
+            }
+        }
+    }
+}
+
+void MatisseParametersManager::pushPreferredDatasetParameters(KeyValueList kvl)
+{
+    _preferredDatasetParameters.insert(DATASET_PARAM_OUTPUT_DIR, kvl.getValue(DATASET_PARAM_OUTPUT_DIR));
+    _preferredDatasetParameters.insert(DATASET_PARAM_OUTPUT_FILENAME, kvl.getValue(DATASET_PARAM_OUTPUT_FILENAME));
+
+    foreach (QString prefParamName, _preferredDatasetParameters.keys()) {
+        QString prefParamValue = _preferredDatasetParameters.value(prefParamName);
+
+        /* override default value only if the preference value was defined */
+        if (prefParamValue == "") {
+            continue;
+        }
+
+        QWidget* paramWidget = _valuesWidgets.value(DATASET_STRUCTURE).value(prefParamName);
+
+        if (!paramWidget) {
+            qCritical() << QString("Widget for parameter '%1' is null").arg(prefParamName);
+            continue;
+        }
+
+        EnrichedFormWidget* actualParamWidget = static_cast<EnrichedFormWidget *>(paramWidget);
+        actualParamWidget->overrideDefaultValue(prefParamValue);
+    }
+}
+
+void MatisseParametersManager::pushDatasetParameters(KeyValueList kvl)
+{
+    QString resultPath = kvl.getValue(DATASET_PARAM_OUTPUT_DIR);
+    QString outputFile = kvl.getValue(DATASET_PARAM_OUTPUT_FILENAME);
+    QString dataPath;
+    QString navigationFile;
+
+    bool isRealTime = false;
+    if (kvl.getKeys().contains(DATASET_PARAM_DATASET_DIR)) {
+        dataPath = kvl.getValue(DATASET_PARAM_DATASET_DIR);
+        navigationFile = kvl.getValue(DATASET_PARAM_NAVIGATION_FILE);
+    } else {
+        isRealTime = true;
+    }
+
+    _jobExtraParameters.clear();
+
+    /* mettre a jour valeur de parametre pour le dossier de sortie */
+    EnrichedFormWidget* paramWidget;
+    paramWidget = _valuesWidgets.value(DATASET_STRUCTURE).value(DATASET_PARAM_OUTPUT_DIR);
+    paramWidget->setValue(resultPath);
+
+    if (!_expectedParameters.contains(DATASET_PARAM_OUTPUT_DIR)) {
+        _jobExtraParameters.insert(DATASET_PARAM_OUTPUT_DIR);
+    }
+
+    /* mettre a jour valeur de parametre pour le nom du fichier de sortie */
+    paramWidget = _valuesWidgets.value(DATASET_STRUCTURE).value(DATASET_PARAM_OUTPUT_FILENAME);
+    paramWidget->setValue(outputFile);
+
+    if (!_expectedParameters.contains(DATASET_PARAM_OUTPUT_FILENAME)) {
+        _jobExtraParameters.insert(DATASET_PARAM_OUTPUT_FILENAME);
+    }
+
+    if (!isRealTime) {
+        /* mettre a jour valeur de parametre pour le chemin du dataset */
+        paramWidget = _valuesWidgets.value(DATASET_STRUCTURE).value(DATASET_PARAM_DATASET_DIR);
+        paramWidget->setValue(dataPath);
+
+
+        if (!_expectedParameters.contains(DATASET_PARAM_DATASET_DIR)) {
+            _jobExtraParameters.insert(DATASET_PARAM_DATASET_DIR);
+        }
+
+        /* mettre a jour valeur de parametre pour le fichier de navigation */
+        paramWidget = _valuesWidgets.value(DATASET_STRUCTURE).value(DATASET_PARAM_NAVIGATION_FILE);
+        paramWidget->setValue(navigationFile);
+
+        if (!_expectedParameters.contains(DATASET_PARAM_NAVIGATION_FILE)) {
+            _jobExtraParameters.insert(DATASET_PARAM_NAVIGATION_FILE);
+        }
+    }
+}
+
+
 
 
 bool MatisseParametersManager::saveParametersValues(QString entityName, bool isAssemblyTemplate)
@@ -747,6 +947,7 @@ bool MatisseParametersManager::loadParameters(QString entityName, bool isAssembl
 
     QString filename = path.append(entityName).append(".xml");
     bool readStatus = readParametersFile(filename, isAssemblyTemplate);
+    _fullParametersWidget->clearModifications();
     return readStatus;
 }
 
@@ -762,60 +963,6 @@ void MatisseParametersManager::restoreParametersDefaultValues()
     }
 }
 
-void MatisseParametersManager::updateDatasetParametersValues(KeyValueList kvl)
-{
-    QString resultPath = kvl.getValue("resultPath");
-    QString outputFile = kvl.getValue("outputFile");
-    QString dataPath;
-    QString navigationFile;
-
-    bool isRealTime = false;
-    if (kvl.getKeys().contains("dataPath")) {
-        dataPath = kvl.getValue("dataPath");
-        navigationFile = kvl.getValue("navigationFile");
-    } else {
-        isRealTime = true;
-    }
-
-    _jobExtraParameters.clear();
-
-    /* mettre a jour valeur de parametre pour le dossier de sortie */
-    EnrichedFormWidget* paramWidget;
-    paramWidget = _valuesWidgets.value("dataset_param").value("output_dir");
-    paramWidget->setValue(resultPath);
-
-    if (!_expectedParameters.contains("output_dir")) {
-        _jobExtraParameters.insert("output_dir");
-    }
-
-    /* mettre a jour valeur de parametre pour le nom du fichier de sortie */
-    paramWidget = _valuesWidgets.value("dataset_param").value("output_filename");
-    paramWidget->setValue(outputFile);
-
-    if (!_expectedParameters.contains("output_filename")) {
-        _jobExtraParameters.insert("output_filename");
-    }
-
-    if (!isRealTime) {
-        /* mettre a jour valeur de parametre pour le chemin du dataset */
-        paramWidget = _valuesWidgets.value("dataset_param").value("dataset_dir");
-        paramWidget->setValue(dataPath);
-
-
-        if (!_expectedParameters.contains("dataset_dir")) {
-            _jobExtraParameters.insert("dataset_dir");
-        }
-
-        /* mettre a jour valeur de parametre pour le fichier de navigation */
-        paramWidget = _valuesWidgets.value("dataset_param").value("navFile");
-        paramWidget->setValue(navigationFile);
-
-        if (!_expectedParameters.contains("navFile")) {
-            _jobExtraParameters.insert("navFile");
-        }
-    }
-}
-
 void MatisseParametersManager::createJobParametersFile(QString assemblyName, QString jobName, KeyValueList kvl)
 {
     qDebug() << QString("Creating job parameters file for job '%1'").arg(jobName);
@@ -826,7 +973,7 @@ void MatisseParametersManager::createJobParametersFile(QString assemblyName, QSt
         return;
     }
 
-    updateDatasetParametersValues(kvl);
+    pushDatasetParameters(kvl);
 
     QString jobParametersFilename = QString("xml/jobs/parameters/").append(jobName).append(".xml");
     writeParametersFile(jobParametersFilename);
@@ -888,7 +1035,6 @@ bool MatisseParametersManager::writeParametersFile(QString parametersFilename, b
         }
 
         writer.writeEndElement();
-        //out << "\t</Structure>\n\n";
     }
 
     writer.writeEndDocument();
@@ -926,8 +1072,15 @@ bool MatisseParametersManager::readParametersFile(QString filename, bool isAssem
     QString currentStructure;
     bool parsingOk = true;
 
-    while(!reader.atEnd()) {
-        if (reader.readNextStartElement()) {
+    while(!reader.atEnd()) {        
+        /* Read next element.*/
+        QXmlStreamReader::TokenType token = reader.readNext();
+        /* If token is just StartDocument, we'll go to next.*/
+        if(token == QXmlStreamReader::StartDocument) {
+           continue;
+        }
+        /* If token is StartElement, we'll see if we can read it.*/
+        if(token == QXmlStreamReader::StartElement) {
             QString tagName = reader.name().toString();
 
             if (tagName == "Structure") {
@@ -961,7 +1114,7 @@ bool MatisseParametersManager::readParametersFile(QString filename, bool isAssem
                                   .arg(paramName).arg(currentStructure).arg(dicoStructureName);
                 }
 
-                bool isExtraDatasetParam = false;
+                bool isExtraDatasetParam = false;                
 
                 if (!_expectedParameters.contains(paramName)) {
                     if (!isAssemblyTemplate && _datasetParamNames.contains(paramName)) {
@@ -1006,168 +1159,6 @@ bool MatisseParametersManager::readParametersFile(QString filename, bool isAssem
 
     return parsingOk;
 }
-
-//ParametersWidgetSkeleton * MatisseParametersManager::createDialog(QWidget* owner, QString structName, bool user) {
-    // all widgets in dialog are initially hidden
-
-//    QString structUserExpert = structName /*+ QString("%1").arg(user)*/;
-//    if (_dialogs.contains(structUserExpert)) {
-//        return _dialogs[structUserExpert];
-//    }
-
-//    if (!_structures.contains(structName)) {
-//        return NULL;
-//    }
-
-//    if ((!_structures[structName]._hasUserValues) && user) {
-//        return NULL;
-//    }
-
-//    QList<QLabel*> textsForAlignment;
-//    QList<QGroupBox *> groupsForAlignement;
-//    // on cree l'interface...
-//    ParametersWidgetSkeleton * newDialog = new ParametersWidgetSkeleton(owner);
-
-//    quint32 maxWidth = 0;
-//    QFontMetrics metrics(QLabel().font());
-//    foreach(ParametersGroup parameterGroup, _structures[structName]._parametersGroups) {
-//        if ((!parameterGroup._hasUserValues) && user) {
-//            continue;
-//        }
-//        QString groupLabel = tr(parameterGroup._text.toLatin1());
-//        QGroupBox * groupBox = new QGroupBox(groupLabel, newDialog);
-//        groupBox->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-//        groupsForAlignement << groupBox;
-//        QVBoxLayout * groupBoxLayout = new QVBoxLayout();
-
-//        foreach(Parameter param, parameterGroup._parameters) {
-//            if ((!param._userModify) && user) {
-//                continue;
-//            }
-//            QHBoxLayout * parameterLayout = new QHBoxLayout(newDialog);
-//            EnrichedFormWidget * widget = NULL;
-//            QString paramLabel = tr(param._text.toLatin1());
-
-//            switch(param._show) {
-//            case LINE_EDIT: {
-//                widget = new EnrichedLineEdit(newDialog, paramLabel, param._value.toString());
-//             }
-//                break;
-//            case SLIDER: {
-//                // A faire en enriched....
-////                QSlider * curWid = new QSlider(Qt::Horizontal);
-////                QVariant minValue;
-////                QVariant maxValue;
-////                getRange(param, minValue, maxValue);
-////                curWid->setRange(minValue.toInt(), maxValue.toInt());
-////                curWid->setValue(getIntValue(param._value));
-////                widget = curWid;
-//            }
-//                qCritical() << "Slider parameter show not handled, widget will be null";
-//                break;
-//            case SPIN_BOX: {
-//                QVariant minValue;
-//                QVariant maxValue;
-//                getRange(param, minValue, maxValue);
-//                widget = new EnrichedSpinBox(newDialog, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
-//            }
-//                break;
-//            case DOUBLE_SPIN_BOX: {
-//                QVariant minValue;
-//                QVariant maxValue;
-//                getRange(param, minValue, maxValue);
-//                widget = new EnrichedDoubleSpinBox(newDialog, param._text, minValue.toString(), maxValue.toString(), param._value.toString());
-//            }
-//                break;
-//            case COMBO_BOX: {
-//                QStringList items = getEnums(param);
-//                widget = new EnrichedComboBox(newDialog, paramLabel, items, param._value.toString());
-//            }
-//                break;
-//            case LIST_BOX: {
-//                QStringList items = getEnums(param);
-//                widget = new EnrichedListBox(newDialog, param._text, items, param._value.toString());
-//            }
-//                break;
-//            case CHECK_BOX: {
-//                widget = new EnrichedCheckBox(newDialog, param._text, getBoolValue(param._value));
-//            }
-//                break;
-//            case TABLE: {
-//                int nbCols = param._parameterSize.width();
-//                int nbRows = param._parameterSize.height();
-//                QStringList values = getNumList(param);
-//                widget = new EnrichedTableWidget(newDialog, param._text, nbCols, nbRows, values);
-//            }
-//                break;
-//            case FILE_SELECTOR_RELATIVE:
-//            case FILE_SELECTOR_ABSOLUTE: {
-//                widget = new EnrichedFileChooser(newDialog, param._text, param._show, param._value.toString());
-//            }
-//                break;
-//            case DIR_SELECTOR_RELATIVE:
-//            case DIR_SELECTOR_ABSOLUTE: {
-//                widget = new EnrichedFileChooser(newDialog, param._text, param._show, param._value.toString());
-//            }
-//                break;
-//            case UNKNOWN_SHOW:
-//            default:
-//                break;
-//            }
-//            if (widget) {
-//                widget->hide();
-
-//                connect(widget, SIGNAL(signal_valueChanged(bool)), newDialog, SLOT(slot_valueModified(bool)));
-
-//                if (!_valuesWidgets.contains(structName)) {
-//                    QMap<QString, EnrichedFormWidget*> *structWidgets = new QMap<QString, EnrichedFormWidget*>();
-//                    _valuesWidgets.insert(structName, *structWidgets);
-//                }
-//                _valuesWidgets[structName].insert(param._name, widget);
-
-//                if (!_groupsWidgets.contains(structName)) {
-//                    QMap<QString, QWidget*> *structGroupsWidgets = new QMap<QString, QWidget*>();
-//                    _groupsWidgets.insert(structName, *structGroupsWidgets);
-//                }
-//                _groupsWidgets[structName].insert(param._name, groupBox);
-//                QLabel * widLabel = new QLabel(param._text + ":");
-//                quint32 currentWidth = metrics.width(param._text + ":");
-
-//                maxWidth = qMax(maxWidth, currentWidth);
-//                //parameterLayout->addWidget(widLabel);
-
-////                parameterLayout->addWidget(widget);
-////                parameterLayout->addStretch();
-//                groupBoxLayout->addWidget(widget);
-
-//                qDebug() << "Add parameter layout";
-
-//                //groupBoxLayout->addLayout(parameterLayout);
-
-//                textsForAlignment << widLabel;
-//            } else {
-//                parameterLayout->deleteLater();
-//            }
-//        }
-
-//        qDebug() << "Set group box layout";
-//        groupBox->setLayout(groupBoxLayout);
-//        groupBox->hide();
-
-//        newDialog->addWidget(groupBox);
-
-//    }
-//    // realignement textes...
-//    // recalcul...
-//    foreach(QLabel * label, textsForAlignment) {
-//        label->setMinimumWidth(maxWidth);
-//    }
-
-//    _dialogs[structUserExpert] = newDialog;
-
-//    return newDialog;
-//    return NULL;
-//}
 
 
 bool MatisseParametersManager::getRange(Parameter param, QVariant &minValue, QVariant &maxValue)

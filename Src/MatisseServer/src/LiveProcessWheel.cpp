@@ -20,8 +20,6 @@ LiveProcessWheel::LiveProcessWheel(QWidget *parent) : QWidget(parent),
 
     _clockTimer = new QTimer(this);
     connect(_clockTimer, SIGNAL(timeout()), this, SLOT(slot_newHour()));
-
-    QColor toto = Qt::black;
 }
 
 LiveProcessWheel::~LiveProcessWheel()
@@ -102,7 +100,7 @@ void LiveProcessWheel::paintEvent(QPaintEvent *evt)
     QPolygonF tick11 = transform11.map(tick0);
 
     QPainter painter(this);
-    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
     // translate wheel to the center of the widget
     painter.translate(_center->x(), _center->y());

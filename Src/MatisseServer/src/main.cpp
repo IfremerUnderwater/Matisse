@@ -63,7 +63,12 @@ int main(int argc, char *argv[])
     QgsApplication::initQgis();
     QgsApplication a(argc, argv, true);
 
+    setlocale(LC_ALL, "C");
+
     //a.setStyle(QStyleFactory::create("Fusion"));
+
+    // Define default encoding for all text streaming
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
     qDebug() << QgsApplication::showSettings();
     QString testLaunch("testLaunch");
@@ -81,11 +86,11 @@ int main(int argc, char *argv[])
 
         // Attente 1 seconde pour les flusher les logs
         QTime dieTime= QTime::currentTime().addSecs(1);
-           while( QTime::currentTime() < dieTime ) {
-               QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-           }
+        while( QTime::currentTime() < dieTime ) {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        }
 
-           delete jobDef;
+        delete jobDef;
 
         return 0;
     }

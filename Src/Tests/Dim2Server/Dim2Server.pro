@@ -22,12 +22,15 @@ CONFIG(release, debug|release) {
 
 include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/opencv.pri)
+include(../../Scripts/ProtoBuf.pri)
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    protobuf_interface.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    protobuf_interface.h
 
 TRANSLATIONS=Dim2Server_en.ts Dim2Server_fr.ts
 

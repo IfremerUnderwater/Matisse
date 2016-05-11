@@ -19,13 +19,14 @@ class EnrichedDoubleSpinBox : public EnrichedDecimalValueWidget
     Q_OBJECT
 public:
     explicit EnrichedDoubleSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue);
-    bool currentValueChanged();
+    //bool currentValueChanged();
     virtual QString currentValue();
     virtual void restoreDefaultValue();
-    virtual void setValue(QString newValue);
 
 protected:
+    virtual void applyValue(QString newValue);
     virtual void applyPrecision();
+
 signals:
 
 public slots:

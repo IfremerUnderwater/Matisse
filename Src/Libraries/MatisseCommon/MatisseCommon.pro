@@ -8,8 +8,21 @@ win32 {
     QMAKE_CXXFLAGS += /wd4100 /wd4996
 }
 
+# Workaround to be removed in qt5 with qmake.conf and shadowed function --
+SOURCE_DIR=$$PWD/../../
+CONFIG(debug, debug|release) {
+    BUILD_DIR=$${SOURCE_DIR}../Build/Debug
+}
+CONFIG(release, debug|release) {
+    BUILD_DIR=$${SOURCE_DIR}../Build/Release
+}
+
 include(../../Scripts/opencv.pri)
 include(../../Scripts/qgis.pri)
+include(../../Scripts/BasicProcessing.pri)
+
+PROTOS = src/proto/nav_photo_info.proto
+include(../../Scripts/ProtoBuf.pri)
 
 
 HEADERS += \
@@ -34,7 +47,10 @@ HEADERS += \
     src/Dim2UdpListener.h \
     src/GeoTransform.h \
     src/RasterGeoreferencer.h \
-    src/GraphicalCharter.h
+    src/GraphicalCharter.h \
+    src/FileUtils.h \
+    src/NavPhotoInfoTcpListener.h \
+    src/matissemetatypes.h
 
 SOURCES += \
     src/Processor.cpp \
@@ -52,9 +68,11 @@ SOURCES += \
     src/LifecycleComponent.cpp \
     src/Dim2UdpListener.cpp \
     src/GeoTransform.cpp \
-    src/RasterGeoreferencer.cpp
+    src/RasterGeoreferencer.cpp \
+    src/FileUtils.cpp \
+    src/NavPhotoInfoTcpListener.cpp
 
-OTHER_FILES +=
+OTHER_FILES += src/proto/*.*
 
 
 

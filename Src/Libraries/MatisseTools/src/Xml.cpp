@@ -91,13 +91,8 @@ bool Xml::readAssemblyFile(QString filename)
                 }
             }
             else if ("Parameters" == elementName) {
-                if (newAssembly) {
-                    QXmlStreamAttributes attributes = reader.attributes();
-                    QString model = attributes.value("model").toString();
-                    QString name = attributes.value("name").toString();
-                    ParameterDefinition* parameterDefinition = new ParameterDefinition(model, name);
-                    newAssembly->setParametersDefinition(parameterDefinition);
-                }
+                // for backward compatibility
+                continue;
             }
             else if ("Source" == elementName) {
                 if (newAssembly) {
@@ -272,38 +267,6 @@ bool Xml::readJobFile(QString filename)
     return true;
 }
 
-bool Xml::updateJobFile(QString jobName)
-{
-    return writeJobFile(jobName, true);
-}
-
-bool Xml::writeJobFile(QString jobName, bool overWrite)
-{
-    JobDefinition * job = getJob(jobName);
-    if (!job) {
-        return false;
-    }
-    QFile jobFile(getJobsPath() + QDir::separator() + jobName + ".xml");
-
-    if (jobFile.exists() && (!overWrite)) {
-        return false;
-    }
-
-    if (!jobFile.open(QFile::WriteOnly)) {
-        return false;
-    }
-
-    QTextStream os(&jobFile);
-    os << QString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    os << job->serialized();
-
-    os.flush();
-
-    jobFile.close();
-
-    return true;
-}
-
 // TODO Ne marche pas encore
 // La structure AssemblyDefinition en cours de création n'est pas complète
 // La structure à jour est défini par les collections de widgets dans
@@ -419,32 +382,91 @@ bool Xml::saveAssembly(QString filename, AssemblyDefinition *assembly)
     return true;
 }
 
+
+bool Xml::writeJobFile(QString jobName, bool overWrite)
+{
+    JobDefinition * job = getJob(jobName);
+    if (!job) {
+        qCritical() << QString("Job '%1' not found in local repository").arg(jobName);
+        return false;
+    }
+
+    bool status = writeJobFile(job, overWrite);
+    return status;
+}
+
+
 bool Xml::writeJobFile(JobDefinition * job, bool overWrite)
 {
     if (!job) {
+        qCritical() << "Cannot write null job";
         return false;
     }
+
     QString filename = job->filename();
     if (filename.isEmpty()) {
         filename = job->name();
         filename.replace(" ", "_").append(".xml");
         job->setFilename(filename);
     }
-    QFile jobFile(getJobsPath() + QDir::separator() + filename);
+
+    QString jobFileFullPath = getJobsPath() + QDir::separator() + filename;
+
+    QFile jobFile(jobFileFullPath);
 
     if (jobFile.exists() && (!overWrite)) {
         return false;
     }
 
     if (!jobFile.open(QFile::WriteOnly)) {
+        qCritical() << QString("Error while opening file '%1'").arg(jobFileFullPath);
         return false;
     }
 
-    QTextStream os(&jobFile);
-    os << QString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    os << job->serialized();
+    QXmlStreamWriter xsw(&jobFile);
+    xsw.setAutoFormatting(true);
+    xsw.writeStartDocument();
 
-    os.flush();
+    xsw.writeStartElement("MatisseJob");
+    QXmlStreamAttribute jobNameAttr("name", job->name());
+    xsw.writeAttribute(jobNameAttr);
+    QXmlStreamAttribute assemblyNameAttr("assembly", job->assemblyName());
+    xsw.writeAttribute(assemblyNameAttr);
+    QXmlStreamAttribute versionAttr("version", job->assemblyVersion());
+    xsw.writeAttribute(versionAttr);
+
+    xsw.writeStartElement("Comments");
+    xsw.writeCharacters(job->comment());
+    xsw.writeEndElement();
+
+    xsw.writeStartElement("Execution");
+    QXmlStreamAttribute executedAttr("executed", QVariant(job->executionDefinition()->executed()).toString());
+    xsw.writeAttribute(executedAttr);
+
+    if (job->executionDefinition()->executed()) {
+        QString jobExecutionDate = job->executionDefinition()->executionDate().toString("dd/MM/yyyy hh:mm");
+        QXmlStreamAttribute executionDateAttr("executionDate", jobExecutionDate);
+        xsw.writeAttribute(executionDateAttr);
+
+        foreach (QString resultFileName, job->executionDefinition()->resultFileNames()) {
+            xsw.writeStartElement("Result");
+            QXmlStreamAttribute filenameAttr("filename", resultFileName);
+            xsw.writeAttribute(filenameAttr);
+            xsw.writeEndElement();
+        }
+    } else {
+        QXmlStreamAttribute executionDate("executionDate", "");
+        xsw.writeAttribute(executionDate);
+    }
+
+    xsw.writeEndElement(); // Execution
+
+    xsw.writeEndElement(); // MatisseJob
+
+    if (xsw.hasError()) {
+        qCritical() << "Errors occurred while writing XML job file :";
+        return false;
+    }
 
     jobFile.close();
 
@@ -453,47 +475,50 @@ bool Xml::writeJobFile(JobDefinition * job, bool overWrite)
 
 bool Xml::readMatisseGuiSettings(QString filename)
 {
-    // TODO: modifier signature: retour bool + liste key/values....
-    QFileInfo fileIn(filename);
+   QFileInfo fileIn(filename);
+    QFile settingsFile(fileIn.absoluteFilePath());
 
-    QXmlQuery query;
-    QString queryRootDir = "doc('" + fileIn.absoluteFilePath() + "')//MatisseSettings";
+    settingsFile.open(QIODevice::ReadOnly);
 
-    query.setQuery(queryRootDir);
+    QXmlStreamReader reader(&settingsFile);
 
-    if(!query.isValid()) {
-        qWarning() << "Invalid query:" << queryRootDir;
-        return false;
-    }
+    while(!reader.atEnd()) {
+        /* Read next element.*/
+        QXmlStreamReader::TokenType token = reader.readNext();
+        /* If token is just StartDocument, we'll go to next.*/
+        if(token == QXmlStreamReader::StartDocument) {
+           continue;
+        }
+        /* If token is StartElement, we'll see if we can read it.*/
+        if(token == QXmlStreamReader::StartElement) {
+            QString elementName = reader.name().toString();
 
-    QString bufferStr;
-
-    query.evaluateTo(&bufferStr);
-    QStringList settingsFields = bufferStr.split("\n");
-
-    foreach(QString settingsField, settingsFields) {
-        QXmlStreamReader reader(settingsField);
-        if (reader.readNextStartElement()) {
-            if (reader.name() == "XmlRootDir") {
+            if (elementName == "XmlRootDir") {
                 _basePath = reader.readElementText();
                 //qDebug()<< "BasePath : " << _basePath;
             }
-            else if (reader.name() == "DllRootDir") {
+            else if (elementName == "DllRootDir") {
                 _dllPath = reader.readElementText();
                 //qDebug()<< "DllPath : " << _dllPath;
             }
-            else if (reader.name() == "Port") {
+            else if (elementName == "Port") {
                 bool isOk;
                 _port = reader.readElementText().toFloat(&isOk);
                 if (!isOk)
                     _port=6666;
                 //qDebug()<< "Port : " << _port;
-            } else if (reader.name() == "Version") {
+            } else if (elementName == "Version") {
                 _version = reader.readElementText();
             }
+        }
 
+        if (reader.hasError()) {
+            qWarning() << "Error while parsing preferences file :" << reader.error();
         }
     }
+
+    reader.clear();
+
     _jobsPath = _basePath + QDir::separator() + "jobs";
     _jobsParametersPath =  _basePath + QDir::separator() + "jobs" + QDir::separator() + "parameters";
     _assembliesPath = _basePath + QDir::separator() + "assemblies";
@@ -517,39 +542,49 @@ bool Xml::readMatissePreferences(QString filename, MatissePreferences &prefs)
 
     qDebug() << "Reading preferences file...";
 
-    QXmlStreamReader xsr(&prefsFile);
+    QXmlStreamReader reader(&prefsFile);
 
-    while (xsr.readNextStartElement()) {
-        if (xsr.name() == "LastUpdate") {
-            QString value = xsr.readElementText();
-            QDateTime dt = QDateTime::fromString(value, "dd/MM/yyyy hh:mm");
-            prefs.setLastUpdate(dt);
-
-        } else if (xsr.name() == "ImportExportPath") {
-            prefs.setImportExportPath(xsr.readElementText());
-
-        } else if (xsr.name() == "ArchivePath") {
-            prefs.setArchivePath(xsr.readElementText());
-
-        } else if (xsr.name() == "DefaultResultPath") {
-            prefs.setDefaultResultPath(xsr.readElementText());
-
-        } else if (xsr.name() == "DefaultMosaicFilenamePrefix") {
-            prefs.setDefaultMosaicFilenamePrefix(xsr.readElementText());
-
-        } else if (xsr.name() == "ProgrammingModeEnabled") {
-            QString value = xsr.readElementText();
-            bool progEnabled = QVariant(value).toBool();
-            prefs.setProgrammingModeEnabled(progEnabled);
-
-        } else if (xsr.name() == "Language") {
-            prefs.setLanguage(xsr.readElementText());
+    while(!reader.atEnd()) {
+        /* Read next element.*/
+        QXmlStreamReader::TokenType token = reader.readNext();
+        /* If token is just StartDocument, we'll go to next.*/
+        if(token == QXmlStreamReader::StartDocument) {
+           continue;
         }
-    }
+        /* If token is StartElement, we'll see if we can read it.*/
+        if(token == QXmlStreamReader::StartElement) {
+            QString elementName = reader.name().toString();
 
-    if (xsr.hasError()) {
-        xsr.raiseError();
-        qCritical() << "Error while parsing preferences file :" << xsr.error();
+            if (elementName == "LastUpdate") {
+                QString value = reader.readElementText();
+                QDateTime dt = QDateTime::fromString(value, "dd/MM/yyyy hh:mm");
+                prefs.setLastUpdate(dt);
+
+            } else if (elementName == "ImportExportPath") {
+                prefs.setImportExportPath(reader.readElementText());
+
+            } else if (elementName == "ArchivePath") {
+                prefs.setArchivePath(reader.readElementText());
+
+            } else if (elementName == "DefaultResultPath") {
+                prefs.setDefaultResultPath(reader.readElementText());
+
+            } else if (elementName == "DefaultMosaicFilenamePrefix") {
+                prefs.setDefaultMosaicFilenamePrefix(reader.readElementText());
+
+            } else if (elementName == "ProgrammingModeEnabled") {
+                QString value = reader.readElementText();
+                bool progEnabled = QVariant(value).toBool();
+                prefs.setProgrammingModeEnabled(progEnabled);
+
+            } else if (elementName == "Language") {
+                prefs.setLanguage(reader.readElementText());
+            }
+        }
+
+        if (reader.hasError()) {
+            qWarning() << "Error while parsing preferences file :" << reader.error();
+        }
     }
 
     return true;
@@ -765,49 +800,12 @@ bool Xml::xmlIsValid(QXmlSchema &schema, QFileInfo fileInfo)
     file.close();
     return true;
 }
+
 QString Xml::getVersion() const
 {
     return _version;
 }
 
-
-// lecture des descripteurs
-// on suppose que le fichier est valide...
-
-KeyValueList Xml::readParametersFileDescriptor(QString filename)
-{
-    KeyValueList keyValueList;
-    QFileInfo fileIn(filename);
-
-    QXmlQuery query;
-    QString queryDescriptor = "doc('" + fileIn.absoluteFilePath() + "')//fileDescriptor/*";
-
-    query.setQuery(queryDescriptor);
-
-    if(!query.isValid()) {
-        qDebug() << "Invalid query:" << queryDescriptor;
-        return keyValueList;
-    }
-
-    QString bufferStr;
-
-    query.evaluateTo(&bufferStr);
-    QStringList fields = bufferStr.split("\n");
-    foreach(QString field, fields) {
-    QXmlStreamReader reader(field);
-
-    if (reader.readNextStartElement()) {
-        QString name(reader.name().toUtf8());
-        if (name != "") {
-            reader.readNext();
-            QString value(reader.text().toUtf8());
-            keyValueList.append(name, value);
-        }
-    }
-}
-
-    return keyValueList;
-}
 
 void Xml::clearAssembliesDatas()
 {

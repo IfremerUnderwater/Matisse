@@ -11,8 +11,8 @@
 
 #include <QtDebug>
 
-
 #include "KeyValueList.h"
+#include "ToolsCommon.h"
 
 using namespace MatisseTools;
 

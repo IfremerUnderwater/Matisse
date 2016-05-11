@@ -6,6 +6,13 @@
 #include "ImageSet.h"
 #include "Context.h"
 #include "LifecycleComponent.h"
+#include "Polygon.h"
+
+#ifdef WIN32
+#include <qgspoint.h>
+#else
+#include <qgis/qgspoint.h>
+#endif
 
 namespace MatisseCommon {
 ///
@@ -61,6 +68,11 @@ protected:
 signals:
     void signal_userInformation(QString userText);
     void signal_processCompletion(quint8 percentComplete);
+    void signal_show3DFileOnMainView(QString filepath_p);
+    void signal_addRasterFileToMap(QString filepath_p);
+    void signal_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
+    void signal_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p);
+    void signal_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p);
 
 private:
     QString _comment;

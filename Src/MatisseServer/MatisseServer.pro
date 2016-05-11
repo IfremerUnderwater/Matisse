@@ -7,7 +7,7 @@
 TARGET = MatisseServer
 TEMPLATE = app
 
-QT       += core gui network sql xml xmlpatterns script
+QT       += core gui network sql xml xmlpatterns script opengl
 
 win32 {
     RC_FILE = MatisseServer.rc
@@ -17,8 +17,6 @@ win32 {
 }
 else {
     message ("Set include...")
-    INCLUDEPATH += /usr/include/qgis
-    DEFINES += GUI_EXPORT= CORE_EXPORT=
     QMAKE_CXXFLAGS = -fpermissive
 
 }
@@ -26,6 +24,7 @@ else {
 unix{
 INCLUDEPATH *= $$PWD/src
 }
+
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../
@@ -45,6 +44,19 @@ include(../Scripts/MatisseCommon.pri)
 include(../Scripts/MatisseTools.pri)
 include(../Scripts/opencv.pri)
 include(../Scripts/qgis.pri)
+include(../Scripts/BasicProcessing.pri)
+
+
+win32{
+    CONFIG(release, debug|release) {
+        include(../Scripts/OpenSceneGraph.pri)
+        DEFINES += WITH_OSG
+    }
+}
+unix{
+    include(../Scripts/OpenSceneGraph.pri)
+    DEFINES += WITH_OSG
+}
 
 SOURCES += src/main.cpp\
     src/AssemblyGui.cpp \
@@ -52,7 +64,6 @@ SOURCES += src/main.cpp\
     src/SourceWidget.cpp \
     src/ElementWidget.cpp \
     src/DestinationWidget.cpp \
-    src/ParametersWidget.cpp \
     src/AssemblyGraphicsScene.cpp \
     src/PipeWidget.cpp \
     src/AssemblyDialog.cpp \
@@ -73,7 +84,11 @@ SOURCES += src/main.cpp\
     src/MatisseTabWidget.cpp \
     src/MatisseMenu.cpp \
     src/PreferencesDialog.cpp \
-    src/LiveProcessWheel.cpp
+    src/LiveProcessWheel.cpp \
+    src/ParametersFoldButton.cpp \
+    src/ElementWidgetProvider.cpp \
+    src/AboutDialog.cpp \
+    src/OSGWidget.cpp
 
 HEADERS  += \
     src/AssemblyGui.h \
@@ -81,7 +96,6 @@ HEADERS  += \
     src/SourceWidget.h \
     src/ElementWidget.h \
     src/DestinationWidget.h \
-    src/ParametersWidget.h \
     src/AssemblyGraphicsScene.h \
     src/PipeWidget.h \
     src/AssemblyDialog.h \
@@ -102,7 +116,11 @@ HEADERS  += \
     src/MatisseTabWidget.h \
     src/MatisseMenu.h \
     src/PreferencesDialog.h \
-    src/LiveProcessWheel.h
+    src/LiveProcessWheel.h \
+    src/ParametersFoldButton.h \
+    src/ElementWidgetProvider.h \
+    src/AboutDialog.h \
+    src/OSGWidget.h
 
 FORMS    += \
     ui/AssemblyGui.ui \
@@ -120,7 +138,8 @@ FORMS    += \
     ui/OngoingProcessWidget.ui \
     ui/MainControllBar.ui \
     ui/MatisseVersionWidget.ui \
-    ui/PreferencesDialog.ui
+    ui/PreferencesDialog.ui \
+    ui/AboutDialog.ui
 
 
 TRANSLATIONS=MatisseServer_fr.ts \

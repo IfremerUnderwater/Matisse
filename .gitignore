@@ -30,3 +30,5 @@ Makefile.Release*
 /Build/
 /BuildWin/
 /Run/
+/Doc/html
+*~

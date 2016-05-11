@@ -15,12 +15,12 @@ class EnrichedTableWidget : public EnrichedDecimalValueWidget
     Q_OBJECT
 public:
     explicit EnrichedTableWidget(QWidget *parent, QString label, quint8 cols, quint8 rows, QStringList defaultValues, QString formatTemplate);
-    bool currentValueChanged();
+//    bool currentValueChanged();
     virtual QString currentValue();
     virtual void restoreDefaultValue();
-    virtual void setValue(QString newValue);
 
 protected:
+    virtual void applyValue(QString newValue);
     virtual void applyPrecision();
 
 signals:

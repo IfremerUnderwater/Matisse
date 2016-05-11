@@ -17,9 +17,10 @@
 #include <QPointer>
 #include <QMenu>
 #include <QAction>
+#include <QMainWindow>
 
-#include "ParametersWidget.h"
 #include "ElementWidget.h"
+#include "ElementWidgetProvider.h"
 #include "SourceWidget.h"
 #include "ProcessorWidget.h"
 #include "DestinationWidget.h"
@@ -27,11 +28,10 @@
 #include "KeyValueList.h"
 #include "Server.h"
 
+
 using namespace MatisseTools;
 
 namespace MatisseServer {
-class ExpertFormWidget;
-class AssemblyGui;
 
 class AssemblyGraphicsScene : public QGraphicsScene
 {
@@ -44,29 +44,27 @@ public:
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    //virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
     virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event){event->accept();}
     virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
     virtual bool event(QEvent *event);
-    void setExpertGui(ExpertFormWidget * gui);
     void setServer(Server* server) { _server = server; }
-    void setMainGui(AssemblyGui * gui);
+    void setElementWidgetProvider(ElementWidgetProvider * elementProvider);
     void reset();
 
     bool saveAssembly(QString filename, AssemblyDefinition *assembly);
     bool loadAssembly(QString assemblyName);
+    void setMessageTarget(QWidget *targetWidget);
+    void initViewport();
 
 private:
-//    QPointF _startPos;
-//    QPointF _endPos;
     QPointer<PipeWidget> _pipeItem;
     QList<PipeWidget *> _connectors;
     QWidget * _viewport;
+    QWidget * _messageTargetWidget;
 
-    ExpertFormWidget * _expertGui;
-    AssemblyGui * _mainGui;
+    ElementWidgetProvider * _elementProvider;
     Server * _server;
-    QPointer<ParametersWidget> _parametersWidget;
     QPointer<SourceWidget> _sourceWidget;
     QMap<quint8, ProcessorWidget *> _processorsWidgets;
     QPointer<DestinationWidget> _destinationWidget;
@@ -74,13 +72,19 @@ private:
     static const quint16 ACTIVE_SCENE_HEIGHT = 1200;
     static const quint16 INACTIVE_SCENE_WIDTH = 200;
     static const quint16 INACTIVE_SCENE_HEIGHT = 500;
-    bool isSceneActive;
+    bool _isSceneActive;
+    bool _isAssemblyModified;
+    bool _isAssemblyComplete;
 
     void init();
+    void checkAssemblyComplete();
+    void applyAssemblyCompleteness(bool isComplete);
 
 signals:
     void signal_itemsCount(int count);
     void signal_selectParameters(QString parameters);
+    void signal_assemblyModified();
+    void signal_assemblyComplete(bool isComplete, AssemblyDefinition *assembly = NULL);
 
 public slots:
     void slot_sceneChanged(const QList<QRectF> & region);

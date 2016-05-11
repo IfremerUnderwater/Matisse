@@ -12,7 +12,7 @@ Q_EXPORT_PLUGIN2(DrawBlend2DMosaic, DrawBlend2DMosaic)
 
 
 DrawBlend2DMosaic::DrawBlend2DMosaic() :
-    Processor(NULL, "DrawBlend2DMosaic", "DrawBlend2DMosaic", 1, 1)
+    RasterProvider(NULL, "DrawBlend2DMosaic", "DrawBlend2DMosaic", 1)
 {
     qDebug() << logPrefix() << "DrawBlend2DMosaic in constructor...";
 
@@ -32,6 +32,28 @@ DrawBlend2DMosaic::~DrawBlend2DMosaic(){
 
 bool DrawBlend2DMosaic::configure()
 {
+    qDebug() << logPrefix() << "configure";
+
+    QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    _outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+
+    if (datasetDirnameStr.isEmpty()
+     || _outputDirnameStr.isEmpty()
+     || outputFilename.isEmpty())
+        return false;
+
+
+    QFileInfo outputDirInfo(_outputDirnameStr);
+    QFileInfo datasetDirInfo(datasetDirnameStr);
+
+    bool isRelativeDir = outputDirInfo.isRelative();
+
+    if (isRelativeDir) {
+        _outputDirnameStr = QDir::cleanPath( datasetDirInfo.absoluteFilePath() + QDir::separator() + _outputDirnameStr);
+    }
+    _rastersInfo.clear();
+
     return true;
 }
 
@@ -39,6 +61,11 @@ void DrawBlend2DMosaic::onNewImage(quint32 port, Image &image)
 {
     Q_UNUSED(port);
     Q_UNUSED(image);
+}
+
+QList<QFileInfo> DrawBlend2DMosaic::rastersInfo()
+{
+    return _rastersInfo;
 }
 
 bool DrawBlend2DMosaic::start()
@@ -89,32 +116,14 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     int blockHeight = _matisseParameters->getIntParamValue("algo_param", "block_height", Ok);
     qDebug() << logPrefix() << "block_height = " << blockHeight;
 
-    // Get drawing path
-    QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-    QString outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    // Get drawing prefix
     QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
-
-    if (outputDirnameStr.isEmpty()
-            || datasetDirnameStr.isEmpty()
-            || outputFilename.isEmpty())
-        return;
-
-    QFileInfo outputDirInfo(outputDirnameStr);
-    QFileInfo datasetDirInfo(datasetDirnameStr);
-
-    bool isRelativeDir = outputDirInfo.isRelative();
-
-    if (isRelativeDir) {
-        outputDirnameStr = QDir::cleanPath( datasetDirInfo.absoluteFilePath() + QDir::separator() + outputDirnameStr);
-    }
-
-    qDebug() << "output_dir = " << outputDirnameStr;
-    qDebug() << "output_filename = " << outputFilename;
 
     emit signal_processCompletion(10);
 
     //Draw mosaic
     MosaicDrawer mosaicDrawer;
+    QFileInfo outputFileInfo;
 
     if (!blockDraw){
 
@@ -129,14 +138,21 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
         mosaicMask.release();
 
         // Write geofile
-        pMosaicD->writeToGeoTiff(mosaicImage,maskCopy,outputDirnameStr + QDir::separator() + outputFilename);
+        pMosaicD->writeToGeoTiff(mosaicImage,maskCopy,_outputDirnameStr + QDir::separator() + outputFilename + ".tiff");
+
+        outputFileInfo.setFile(QDir(_outputDirnameStr), outputFilename+ ".tiff");
+        _rastersInfo << outputFileInfo;
 
     }else{
         qDebug()<< logPrefix() << "entered block drawing part...";
 
-        mosaicDrawer.blockDrawBlendAndWrite(*pMosaicD,
-                                            Point2d(blockWidth, blockHeight),
-                                            outputDirnameStr, QString("MosaicOut"));
+        QStringList outputFiles = mosaicDrawer.blockDrawBlendAndWrite(*pMosaicD,
+                                                                      Point2d(blockWidth, blockHeight),
+                                                                      _outputDirnameStr, outputFilename);
+        foreach (QString filename, outputFiles) {
+            outputFileInfo.setFile(QDir(_outputDirnameStr), filename);
+            _rastersInfo << outputFileInfo;
+        }
 
     }
 

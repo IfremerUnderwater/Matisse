@@ -37,6 +37,8 @@
 #define PARAM_GROUP_MARGIN_TOP          10
 #define PARAM_GROUP_MARGIN_BOTTOM       10
 
+#define ASSEMBLY_PROPS_LABEL_WIDTH      140
+
 
 #endif // GRAPHICALCHARTER_H
 
