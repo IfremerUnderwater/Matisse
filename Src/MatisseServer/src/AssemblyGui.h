@@ -17,6 +17,7 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QDesktopServices>
+#include <QRegExp>
 
 #include <QtDebug>
 
@@ -38,7 +39,9 @@
 #include "MatisseMenu.h"
 #include "LiveProcessWheel.h"
 #include "AboutDialog.h"
-
+#include "SystemDataManager.h"
+#include "ProcessDataManager.h"
+#include "PlatformComparisonStatus.h"
 
 namespace Ui {
 class AssemblyGui;
@@ -54,15 +57,45 @@ enum MessageIndicatorLevel {
 };
 
 
+enum UserAction {
+    SYSTEM_INIT,
+    SWAP_VIEW,
+    CHANGE_APP_MODE,
+    CREATE_ASSEMBLY,
+    MODIFY_ASSEMBLY,
+    SAVE_ASSEMBLY,
+    SAVE_JOB,
+    SELECT_ASSEMBLY,
+    SELECT_JOB,
+    RUN_JOB,
+    JOB_COMPLETE,
+    STOP_JOB
+};
+
+class UserActionContext {
+public:
+    UserActionContext() :
+        _lastActionPerformed(SYSTEM_INIT) {}
+    UserAction lastActionPerformed() const { return _lastActionPerformed; }
+    void setLastActionPerformed(UserAction lastActionPerformed) {
+        qDebug() << "Last action performed : " << lastActionPerformed;
+        _lastActionPerformed = lastActionPerformed;
+    }
+
+private:
+    UserAction _lastActionPerformed;
+};
+
 class AssemblyGui : public QMainWindow, ElementWidgetProvider
 {
     Q_OBJECT
     
 public:
-    explicit AssemblyGui(QString settingsFile, QWidget *parent = 0);
+    explicit AssemblyGui(QWidget *parent = 0);
     ~AssemblyGui();
-    bool setSettingsFile(QString settings);
-    bool isShowable();
+//    bool setSettingsFile(QString settings);
+//    bool isShowable();
+    void init();
     void loadDefaultStyleSheet();
 
     virtual SourceWidget * getSourceWidget(QString name);
@@ -75,16 +108,25 @@ public:
     void checkAndSelectJob(QTreeWidgetItem* selectedItem);
     void resetOngoingProcessIndicators();
     void updatePreferredDatasetParameters();
+
+    void setSystemDataManager(SystemDataManager *systemDataManager);
+    void setProcessDataManager(ProcessDataManager *processDataManager);
+
 private:
     Ui::AssemblyGui *_ui;
     bool _isMapView;
     Server _server;
-    bool _canShow;
+//    bool _canShow;
+    UserActionContext _context;
 
-    QString _settingsFile;
-    QString _rootXml;
-    QString _dataPath;
+    SystemDataManager *_systemDataManager;
+    ProcessDataManager *_processDataManager;
+
+//    QString _settingsFile;
     QString _appVersion;
+
+    QString _exportPath;
+    QString _importPath;
 
     bool _beforeSelect;
     MatissePreferences* _preferences;
@@ -99,6 +141,12 @@ private:
     bool _isAssemblyComplete;
 
     static const QString PREFERENCES_FILEPATH;
+    static const QString ASSEMBLY_EXPORT_PREFIX;
+    static const QString JOB_EXPORT_PREFIX;
+    static const QString DEFAULT_EXCHANGE_PATH;
+    static const QString DEFAULT_ARCHIVE_PATH;
+    static const QString DEFAULT_RESULT_PATH;
+    static const QString DEFAULT_MOSAIC_PREFIX;
 
     QTreeWidgetItem * _lastJobLaunchedItem;
     AssemblyDefinition *_newAssembly;
@@ -147,7 +195,7 @@ private:
 
     QHash<QString, SourceWidget *> _availableSources;
     QHash<QString, ProcessorWidget *> _availableProcessors;
-    QHash<QString, DestinationWidget *> _availableDestinations;    
+    QHash<QString, DestinationWidget *> _availableDestinations;
 
     /* static menu headers */
     MatisseMenu *_fileMenu;
@@ -194,7 +242,6 @@ private:
     QAction* _goToResultsAct;
 
 private:
-    void init();
     void initMainMenu();
     void initStylesheetSelection();
     void initContextMenus();
@@ -241,6 +288,11 @@ private:
     void promptJobNotSaved();
 
     void deleteAssemblyAndReload(bool promptUser);
+    void createExportDir();
+    void createImportDir();
+    void executeImportWorkflow(bool isJobImportAction = false);
+    void executeExportWorkflow(bool isJobExportAction = false);
+
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 
@@ -275,6 +327,10 @@ protected slots:
     void slot_foldUnfoldParameters();
     void slot_showUserManual();
     void slot_showAboutBox();
+    void slot_exportAssembly();
+    void slot_importAssembly();
+    void slot_exportJob();
+    void slot_importJob();
 
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);

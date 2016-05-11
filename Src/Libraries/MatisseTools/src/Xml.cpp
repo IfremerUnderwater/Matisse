@@ -45,14 +45,15 @@ bool Xml::readAssemblyFile(QString filename)
     bool startDescriptor = false;
     bool endDescriptor = false;
 
-    while(!reader.atEnd() &&
-               !reader.hasError()) {
+    while(!reader.atEnd()) {
         /* Read next element.*/
         QXmlStreamReader::TokenType token = reader.readNext();
+
         /* If token is just StartDocument, we'll go to next.*/
         if(token == QXmlStreamReader::StartDocument) {
            continue;
         }
+
         /* If token is StartElement, we'll see if we can read it.*/
         if(token == QXmlStreamReader::StartElement) {
             QString elementName = reader.name().toString();
@@ -145,10 +146,16 @@ bool Xml::readAssemblyFile(QString filename)
             }
 
         }
+
+        if (reader.hasError()) {
+            qWarning() << "Error while parsing assembly file :" << reader.error();
+        }
     }
+
     /* Removes any device() or data from the reader
          * and resets its internal state to the initial state. */
     reader.clear();
+    assemblyFile.close();
 
     if (newAssembly) {
         _assemblies.insert(newAssembly->name(), newAssembly);
@@ -380,19 +387,6 @@ bool Xml::saveAssembly(QString filename, AssemblyDefinition *assembly)
     assemblyFile.close();
 
     return true;
-}
-
-
-bool Xml::writeJobFile(QString jobName, bool overWrite)
-{
-    JobDefinition * job = getJob(jobName);
-    if (!job) {
-        qCritical() << QString("Job '%1' not found in local repository").arg(jobName);
-        return false;
-    }
-
-    bool status = writeJobFile(job, overWrite);
-    return status;
 }
 
 
@@ -652,30 +646,6 @@ bool Xml::writeMatissePreferences(QString filename, MatissePreferences &prefs)
     return true;
 }
 
-bool Xml::validateXmlFile(QString xmlSchema, QString xmlFile)
-{
-    bool ret = false;
-    QXmlSchema schema;
-        schema.load(QUrl::fromLocalFile(xmlSchema));
-        if ( schema.isValid() ) {
-            if (!xmlFile.isEmpty()) {
-                QXmlSchemaValidator validator( schema );
-                if ( validator.validate(QUrl::fromLocalFile(xmlFile))) {
-                    qDebug() << "instance is valid";
-                    ret = true;
-                } else {
-                    qDebug() << "instance is invalid";
-                }
-            } else {
-                ret = true;
-            }
-        } else {
-            qDebug() << "schema is invalid";
-        }
-
-        return ret;
-}
-
 QStringList Xml::getAssembliesList()
 {
     return _assemblies.keys();
@@ -701,20 +671,6 @@ QStringList Xml::getJobsNames()
     return _jobs.keys();
 }
 
-QString Xml::getModelPath(QString parameterVersion)
-{
-    return  QDir::cleanPath( _basePath
-                             + QDir::separator()
-                             + "models"
-                             + QDir::separator()
-                             + "parameters"
-                             + QDir::separator()
-                             + "Parameters_"
-                             + parameterVersion
-                             + ".xml"
-                             );
-}
-
 QString Xml::getJobsPath()
 {
     return _jobsPath;
@@ -728,18 +684,6 @@ QString Xml::getJobsParametersPath(QString jobName)
                             );
 }
 
-QString Xml::getAssembliesParametersPath(QString parameterVersion, QString parameterName)
-{
-    return QDir::cleanPath(_basePath
-                           + QDir::separator()
-                           + "parameters"
-                           + QDir::separator()
-                           + parameterVersion
-                           + QDir::separator()
-                           + parameterName.replace(" ", "_") + ".xml"
-                           );
-}
-
 bool Xml::loadModels()
 {
 
@@ -751,12 +695,12 @@ bool Xml::loadModels()
     }
 
     if (!assembliesXsd.open(QIODevice::ReadOnly)) {
-        qCritical() << "Error opening MatisseAssemblies.xsd";
+        qCritical() << "Error opening MatisseAssembly.xsd";
         return false;
     }
 
     if (!_assembliesSchema.load(&assembliesXsd, QUrl::fromLocalFile(assembliesXsd.fileName()))) {
-        qCritical() << "Error loading MatisseAssemblies.xsd";
+        qCritical() << "Error loading MatisseAssembly.xsd";
         return false;
     }
 
@@ -807,13 +751,13 @@ QString Xml::getVersion() const
 }
 
 
-void Xml::clearAssembliesDatas()
+void Xml::clearAssemblies()
 {
     // TODO: remplacer les pointeur par des shared pointer et enlever les references dans le clear...
     _assemblies.clear();
 }
 
-void Xml::clearJobsDatas()
+void Xml::clearJobs()
 {
     // TODO: remplacer les pointeur par des shared pointer et enlever les references dans le clear...
     _jobs.clear();

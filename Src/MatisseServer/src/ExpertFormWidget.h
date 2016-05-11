@@ -50,7 +50,7 @@ private:
     Ui::ExpertFormWidget * _ui;
     AssemblyGraphicsScene * _scene;
     QHash<QString, KeyValueList> _assembliesValues;
-    Server * _server;
+//    Server * _server;
 
     void init();
 

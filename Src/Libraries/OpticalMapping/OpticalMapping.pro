@@ -30,6 +30,7 @@ include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/MatisseTools.pri)
 include(../../Scripts/opencv.pri)
 include(../../Scripts/qgis.pri)
+include(../../Scripts/QuaZIP.pri)
 include(../../Scripts/BasicProcessing.pri)
 
 

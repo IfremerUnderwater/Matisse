@@ -23,6 +23,7 @@ include(../../Scripts/BasicProcessing.pri)
 
 PROTOS = src/proto/nav_photo_info.proto
 include(../../Scripts/ProtoBuf.pri)
+include(../../Scripts/QuaZIP.pri)
 
 
 HEADERS += \

@@ -8,8 +8,8 @@ using namespace MatisseServer;
 
 ExpertFormWidget::ExpertFormWidget(QWidget *parent) :
     QWidget(parent),
-    _ui(new Ui::ExpertFormWidget),
-    _server(NULL)
+    _ui(new Ui::ExpertFormWidget)//,
+    //_server(NULL)
 {
     _ui->setupUi(this);
     init();
@@ -41,10 +41,10 @@ void ExpertFormWidget::resizeEvent(QResizeEvent *event)
     qDebug() << "ExpertFormWidget Resize event : " << event->oldSize() << event->size();
 }
 
-void ExpertFormWidget::setServer(Server *server) {
-    _server = server;
-    _scene->setServer(server);
-}
+//void ExpertFormWidget::setServer(Server *server) {
+//    _server = server;
+//    _scene->setServer(server);
+//}
 
 
 QGraphicsView *ExpertFormWidget::getGraphicsView()

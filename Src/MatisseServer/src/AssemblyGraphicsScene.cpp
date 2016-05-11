@@ -6,7 +6,7 @@ using namespace MatisseServer;
 
 AssemblyGraphicsScene::AssemblyGraphicsScene(const QRectF &sceneRect, QObject *parent) :
     QGraphicsScene(sceneRect, parent),
-    _server(NULL), _isSceneActive(false), _isAssemblyModified(false), _isAssemblyComplete(false)
+    _server(NULL), _processDataManager(NULL), _isSceneActive(false), _isAssemblyModified(false), _isAssemblyComplete(false)
 {
     //    _startPos = QPointF();
     //    _endPos = QPointF();
@@ -29,21 +29,25 @@ void AssemblyGraphicsScene::checkAssemblyComplete()
     // check source
     if (!_sourceWidget) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     // check destination
     if (!_destinationWidget) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     // check at least 1 processor
     if (_processorsWidgets.isEmpty()) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     // check connectors
     if (_connectors.isEmpty()) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     bool sourceConnected = false;
@@ -83,10 +87,12 @@ void AssemblyGraphicsScene::checkAssemblyComplete()
     /* assembly is not complete if either source or destination is disconnected */
     if (!sourceConnected) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     if (!destinationConnected) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     /* check if all processors are connected at input and output */
@@ -602,10 +608,14 @@ void AssemblyGraphicsScene::reset()
 
 bool AssemblyGraphicsScene::saveAssembly(QString filename, AssemblyDefinition *assembly)
 {
+    /* Assembly completeness is not tested here : the completeness event is signalled to
+     * controlling class that should handle save action activation or not */
+
     if (!assembly) {
+        // This case can not occur as assembly is tested by calling class
         qWarning() << "Assembly is null : could not be saved";
         return false;
-    }
+    }    
 
     // TODO: vérification, de la présence des paramètres
     // TODO: vérification de la liste des entrées
@@ -698,7 +708,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 {
     qDebug() << "AssemblyGraphicsScene::loadAssembly" << assemblyName;
 
-    AssemblyDefinition * assembly = _server->xmlTool().getAssembly(assemblyName);
+    AssemblyDefinition * assembly = _processDataManager->getAssembly(assemblyName);
     if (!assembly) {
         QMessageBox::warning(_messageTargetWidget, tr("Assemblage invalide"), tr("L'assemblage ne peut etre charge..."));
         return false;
@@ -871,3 +881,8 @@ void AssemblyGraphicsScene::initViewport()
 {
     _viewport =  views().at(0)->viewport();
 }
+void AssemblyGraphicsScene::setProcessDataManager(ProcessDataManager *processDataManager)
+{
+    _processDataManager = processDataManager;
+}
+

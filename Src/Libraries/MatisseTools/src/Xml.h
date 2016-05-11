@@ -38,7 +38,6 @@ public:
     AssemblyDefinition *getAssembly(QString assemblyName);
 
     bool readJobFile(QString filename);
-    bool writeJobFile(QString jobName, bool overWrite = false);
     bool writeJobFile(JobDefinition *job, bool overWrite = false);
     bool readMatisseGuiSettings(QString filename);
     bool readMatissePreferences(QString filename, MatissePreferences &prefs);
@@ -47,18 +46,15 @@ public:
 
     JobDefinition *getJob(QString jobName);
     QStringList getJobsNames();
-    QString getModelPath(QString parameterVersion);
     QString getJobsPath();
     QString getJobsParametersPath(QString jobName);
 
-    QString getAssembliesParametersPath(QString parameterVersion, QString parameterName);
     QStringList getAssembliesList();
     QString getAssembliesPath();
-    QString getAssembliesParametersPathNew() { return _assembliesParametersPath; }
-    static bool validateXmlFile(QString xmlSchema, QString xmlFile = "");
+    QString getAssembliesParametersPath() { return _assembliesParametersPath; }
 
-    void clearAssembliesDatas();
-    void clearJobsDatas();
+    void clearAssemblies();
+    void clearJobs();
 
     QString getVersion() const;
 

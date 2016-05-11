@@ -57,11 +57,14 @@ public:
     void setMessageTarget(QWidget *targetWidget);
     void initViewport();
 
+    void setProcessDataManager(ProcessDataManager *processDataManager);
+
 private:
     QPointer<PipeWidget> _pipeItem;
     QList<PipeWidget *> _connectors;
     QWidget * _viewport;
     QWidget * _messageTargetWidget;
+    ProcessDataManager *_processDataManager;
 
     ElementWidgetProvider * _elementProvider;
     Server * _server;

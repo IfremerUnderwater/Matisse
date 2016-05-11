@@ -5,13 +5,14 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 #include "Xml.h"
+#include "ProcessDataManager.h"
 
 namespace MatisseTools {
 class JobServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit JobServer(int port, Xml *xml);
+    explicit JobServer(int port, ProcessDataManager *processDataManager);
 
     void sendExecutionNotification(QString name);
 signals:
@@ -26,7 +27,8 @@ private:
 private:
     QTcpServer _server;
     QTcpSocket *_socket;
-    Xml *_xml;
+    //Xml *_xml;
+    ProcessDataManager *_processDataManager;
 };
 }
 

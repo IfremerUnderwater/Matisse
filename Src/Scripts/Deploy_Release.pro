@@ -44,6 +44,7 @@ system("$$MKDIR \"$$RUN_DIR/lnf\"")
 system("$$MKDIR \"$$RUN_DIR/xml\"")
 system("$$MKDIR \"$$RUN_DIR/i18n\"")
 system("$$MKDIR \"$$RUN_DIR/schemas\"")
+system("$$MKDIR \"$$RUN_DIR/platform\"")
 
 win32{
 # Copy Modules in Run directory

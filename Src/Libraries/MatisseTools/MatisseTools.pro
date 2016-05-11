@@ -25,6 +25,21 @@ CONFIG(release, debug|release) {
 # ------------------------------------------------------------------------
 
 include(../../Scripts/MatisseCommon.pri)
+include(../../Scripts/opencv.pri)
+include(../../Scripts/qgis.pri)
+include(../../Scripts/ProtoBuf.pri)
+include(../../Scripts/QuaZIP.pri)
+
+win32{
+    CONFIG(release, debug|release) {
+        include(../../Scripts/OpenSceneGraph.pri)
+        DEFINES *= WITH_OSG
+    }
+}
+unix{
+    include(../../Scripts/OpenSceneGraph.pri)
+    DEFINES *= WITH_OSG
+}
 
 
 INCLUDEPATH += src
@@ -50,7 +65,17 @@ SOURCES +=\
     src/EnrichedDecimalValueWidget.cpp \
     src/httpImageDownloader.cpp \
     src/ParametersHeaderButton.cpp \
-    src/FoldUnfoldButton.cpp
+    src/FoldUnfoldButton.cpp \
+    src/SystemDataManager.cpp \
+    src/ProcessDataManager.cpp \
+    src/PlatformComponent.cpp \
+    src/PlatformInspector.cpp \
+    src/PlatformDump.cpp \
+    src/PlatformQgisComponent.cpp \
+    src/PlatformOpencvComponent.cpp \
+    src/platformOsgComponent.cpp \
+    src/PlatformComparisonStatus.cpp \
+    src/PlatformComparator.cpp
 
 HEADERS +=\
     src/ParametersWidgetSkeleton.h \
@@ -75,7 +100,17 @@ HEADERS +=\
     src/EnrichedDecimalValueWidget.h \
     src/httpImageDownloader.h \
     src/ParametersHeaderButton.h \
-    src/FoldUnfoldButton.h
+    src/FoldUnfoldButton.h \
+    src/SystemDataManager.h \
+    src/ProcessDataManager.h \
+    src/PlatformComponent.h \
+    src/PlatformInspector.h \
+    src/PlatformDump.h \
+    src/PlatformQgisComponent.h \
+    src/PlatformOpencvComponent.h \
+    src/PlatformOsgComponent.h \
+    src/PlatformComparisonStatus.h \
+    src/PlatformComparator.h
 
 FORMS    += \
             ui/ParametersWidgetSkeleton.ui
