@@ -5,10 +5,22 @@
 #include <QFile>
 #include <QDir>
 #include <QStringList>
+
+#ifdef WIN32
+
 #include "quazip.h"
 #include "quazipfile.h"
 #include "quazipnewinfo.h"
 #include "JlCompress.h"
+
+#else
+
+#include "quazip/quazip.h"
+#include "quazip/quazipfile.h"
+#include "quazip/quazipnewinfo.h"
+#include "quazip/JlCompress.h"
+
+#endif
 
 namespace MatisseCommon {
 

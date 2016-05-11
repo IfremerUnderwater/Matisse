@@ -62,11 +62,11 @@ void PlatformInspector::inspectOsAndEnvVariables()
     osName = "Windows";
     versionCommand = "cmd /C ver"; // opening Windows console displays OS version
     envVarCommand = "cmd /C set";
-#elif Q_OS_LINUX
+#elif defined(Q_OS_LINUX)
     osName = "Linux";
     versionCommand = "/bin/sh -c \"uname -sor\"";
     envVarCommand = "/bin/sh -c \"env\"";
-#elif Q_OS_DARWIN // Mac
+#elif defined(Q_OS_DARWIN) // Mac
     osName = "Mac OS";
     versionCommand = "/bin/sh -c \"sw_vers -productVersion\"";
     envVarCommand = "/bin/sh -c \"env\"";
