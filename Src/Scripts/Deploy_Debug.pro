@@ -2,6 +2,7 @@
 SOURCE_DIR=$$PWD/..
 SERVER_SOURCE_DIR=$${SOURCE_DIR}/MatisseServer
 MATISSE_TOOLS_SOURCE_DIR=$${SOURCE_DIR}/Libraries/MatisseTools
+MATISSE_SERVER_SOURCE_DIR=$${SOURCE_DIR}/MatisseServer
 CONFIG_DIR=$${SOURCE_DIR}/../Config
 message("CONFIG_DIR = $$CONFIG_DIR")
 BUILD_DIR=$${SOURCE_DIR}/../Build/Debug
@@ -41,6 +42,7 @@ system("$$MKDIR \"$$RUN_DIR/Modules/rasterProviders\"")
 system("$$MKDIR \"$$RUN_DIR/Libraries\"")
 system("$$MKDIR \"$$RUN_DIR/help\"")
 system("$$MKDIR \"$$RUN_DIR/lnf\"")
+system("$$MKDIR \"$$RUN_DIR/lnf\icons"")
 system("$$MKDIR \"$$RUN_DIR/xml\"")
 system("$$MKDIR \"$$RUN_DIR/i18n\"")
 system("$$MKDIR \"$$RUN_DIR/schemas\"")
@@ -60,6 +62,9 @@ system("$$COPY_DIR \"$$CONFIG_DIR/config\" \"$$RUN_DIR/config\"")
 system("$$COPY_DIR \"$$CONFIG_DIR/schemas\" \"$$RUN_DIR/schemas\"")
 system("$$COPY_DIR \"$$CONFIG_DIR/xml\" \"$$RUN_DIR/xml\"")
 system("$$COPY_DIR \"$$BUILD_DIR/Libraries/dll\" \"$$RUN_DIR/Libraries\"")
+
+# Deploy icon files
+system("$$COPY \"$$MATISSE_SERVER_SOURCE_DIR/ui/icons\*.svg\" \"$$RUN_DIR/lnf\icons"")
 
 # Copy linguist files
 #system("echo $$CHDIR \"$$SERVER_SOURCE_DIR\"")

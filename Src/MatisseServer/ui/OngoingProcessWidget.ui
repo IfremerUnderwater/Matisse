@@ -169,7 +169,7 @@
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">
-       <normaloff>:/qss_icons/icons/Main_mode-prog.svg</normaloff>:/qss_icons/icons/Main_mode-prog.svg</iconset>
+       <normaloff>:/qss_icons/icons/Main_orange.svg</normaloff>:/qss_icons/icons/Main_orange.svg</iconset>
      </property>
      <property name="iconSize">
       <size>

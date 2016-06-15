@@ -221,15 +221,6 @@ bool Xml::readJobFile(QString filename)
                     newJob->setComment(reader.readElementText());
                 }
             }
-            else if ("Parameters" == elementName) {
-                if (newJob) {
-                    QXmlStreamAttributes attributes = reader.attributes();
-                    QString model = attributes.value("model").toString();
-                    QString name = attributes.value("name").toString();
-                    ParameterDefinition* parameterDefinition = new ParameterDefinition(model, name);
-                    newJob->setParametersDefinition(parameterDefinition);
-                }
-            }
             else if ("Execution" == elementName) {
                 if (newJob) {
                     QXmlStreamAttributes attributes = reader.attributes();

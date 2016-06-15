@@ -1,28 +1,14 @@
-﻿#include <qgsvectorlayer.h>
-#include <qgsmapcanvas.h>
-#include <qgsrasterlayer.h>
-#include <qgsmaplayerregistry.h>
-
-#include <qgsvectordataprovider.h>
-#include <qgsgeometry.h>
-#include <qgsmarkersymbollayerv2.h>
-#include <qgssinglesymbolrendererv2.h>
-#include <qgsrendererv2.h>
-#include <qgsproject.h>
-
-
-#include "UserFormWidget.h"
+﻿#include "UserFormWidget.h"
 #include "ui_UserFormWidget.h"
-#include "qgsmapcanvas.h"
-
-#include <opencv2/opencv.hpp>
 
 using namespace cv;
 
 
 UserFormWidget::UserFormWidget(QWidget *parent) :
     QWidget(parent),
-    _ui(new Ui::UserFormWidget)
+    _ui(new Ui::UserFormWidget),
+    _isToolBarDisplayed(false),
+    _iconFactory(NULL)
 {
     _ui->setupUi(this);
 
@@ -74,13 +60,91 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
-            this, SLOT(slot_showContextMenu(const QPoint&)));
+            this, SLOT(slot_showMapContextMenu(const QPoint&)));
 
 }
 
 UserFormWidget::~UserFormWidget()
 {
+    delete _panTool;
+    delete _zoomInTool;
+    delete _zoomOutTool;
     delete _ui;
+}
+
+void UserFormWidget::initMapToolBar()
+{
+    if (!_iconFactory) {
+        qCritical() << "Icon factory is not defined in UserFormWidget, cannot initialize map toolbar";
+        return;
+    }
+
+    _mapToolBar = new QToolBar("Map tools", this);
+    QAction *panAction = new QAction(this);
+    IconizedActionWrapper *panActionWrapper = new IconizedActionWrapper(panAction);
+    _iconFactory->attachIcon(panActionWrapper, "lnf/icons/carte-deplacer.svg", false, false);
+    panAction->setIconText(tr("Deplacer"));
+    _mapToolBar->addAction(panAction);
+    connect(panAction, SIGNAL(triggered(bool)), this, SLOT(slot_activatePanTool()));
+    _panTool = new QgsMapToolPan(_ui->_GRV_map);
+    _panTool->setAction(panAction);
+
+    QAction *zoomInAction = new QAction(this);
+    IconizedActionWrapper *zoomInActionWrapper = new IconizedActionWrapper(zoomInAction);
+    _iconFactory->attachIcon(zoomInActionWrapper, "lnf/icons/carte-zoom-in.svg", false, false);
+    zoomInAction->setIconText(tr("Zoom AV"));
+    _mapToolBar->addAction(zoomInAction);
+    connect(zoomInAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomInTool()));
+    _zoomInTool = new QgsMapToolZoom(_ui->_GRV_map, false);
+    _zoomInTool->setAction(zoomInAction);
+
+    QAction *zoomOutAction = new QAction(this);
+    IconizedActionWrapper *zoomOutActionWrapper = new IconizedActionWrapper(zoomOutAction);
+    _iconFactory->attachIcon(zoomOutActionWrapper, "lnf/icons/carte-zoom-out.svg", false, false);
+    zoomOutAction->setIconText(tr("Zoom AR"));
+    _mapToolBar->addAction(zoomOutAction);
+    connect(zoomOutAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomOutTool()));
+    _zoomOutTool = new QgsMapToolZoom(_ui->_GRV_map, true);
+    _zoomOutTool->setAction(zoomOutAction);
+
+    QAction *recenterAction = new QAction(this);
+    IconizedActionWrapper *recenterActionWrapper = new IconizedActionWrapper(recenterAction);
+    _iconFactory->attachIcon(recenterActionWrapper, "lnf/icons/carte-afficher-tout.svg", false, false);
+    recenterAction->setIconText(tr("Recentrer"));
+    _mapToolBar->addAction(recenterAction);
+    connect(recenterAction, SIGNAL(triggered(bool)), this, SLOT(slot_recenterMap()));
+
+//    _mapToolBar->setFloatable(true);
+//    _mapToolBar->setMovable(true);
+//    _mapToolBar->setOrientation(Qt::Vertical);
+//    _mapToolBar->show();
+
+    _ui->_WID_pageQGis->layout()->setMenuBar(_mapToolBar);
+    _mapToolBar->setVisible(false);
+}
+
+void UserFormWidget::initLayersWidget()
+{
+    _layersWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    _layersWidget->setDragEnabled(true);
+    _layersWidget->viewport()->setAcceptDrops(true);
+    _layersWidget->setDefaultDropAction(Qt::MoveAction);
+    _layersWidget->setDropIndicatorShown(true);
+    _layersWidget->setDragDropMode(QAbstractItemView::InternalMove);
+
+    connect(QgsMapLayerRegistry::instance(), SIGNAL(layerWasAdded(QgsMapLayer*)), this, SLOT(slot_layerWasAdded(QgsMapLayer*)));
+    connect(QgsMapLayerRegistry::instance(), SIGNAL(layerRemoved(QString)), this, SLOT(slot_layerWasRemoved(QString)));
+    connect(_layersWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(slot_layerItemChanged()));
+    connect(_layersWidget->model(), SIGNAL(layoutChanged()), this, SLOT(slot_layerItemChanged()));
+
+    /* Initialize context menu */
+    _removeLayerAction = new QAction(tr("Supprimer"), this);
+    _layersMenu = new QMenu(this);
+    _layersMenu->addAction(_removeLayerAction);
+
+    _layersWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(_layersWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slot_showLayersWidgetContextMenu(QPoint)));
+    connect(_removeLayerAction, SIGNAL(triggered()), this, SLOT(slot_removeLayer()));
 }
 
 void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
@@ -108,23 +172,150 @@ void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
 }
 
 
-void UserFormWidget::createCanvas() {
+void UserFormWidget::initCanvas() {
 
-    qDebug() << "Create QGIS Canvas";
-
-    // _ui->_GRV_map->deleteLater();
+    qDebug() << "Init QGIS Canvas";
 
     QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
     mapCanvas->enableAntiAliasing(true);
     mapCanvas->useImageToRender(false);
-    mapCanvas->setCanvasColor(QColor(MATISSE_BLACK));
+    /* bg color is set by signal updateColorPalette */
     mapCanvas->freeze(false);
     mapCanvas->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mapCanvas->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mapCanvas->refresh();
     mapCanvas->show();
 
+}
+
+void UserFormWidget::slot_updateColorPalette(QMap<QString,QString> newColorPalette)
+{
+    QString backgroundColor = newColorPalette.value("color.black");
+    qDebug() << "Update QGIS Canvas with bg color : " << backgroundColor;
+    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
+    mapCanvas->setCanvasColor(QColor(backgroundColor));
+    mapCanvas->refresh();
+}
+
+void UserFormWidget::slot_showHideToolbar()
+{
+    _isToolBarDisplayed = !_isToolBarDisplayed;
+    _mapToolBar->setVisible(_isToolBarDisplayed);
+}
+
+void UserFormWidget::slot_activatePanTool()
+{
+    _ui->_GRV_map->setMapTool(_panTool);
+}
+
+void UserFormWidget::slot_activateZoomInTool()
+{
+    _ui->_GRV_map->setMapTool(_zoomInTool);
+}
+
+void UserFormWidget::slot_activateZoomOutTool()
+{
+    _ui->_GRV_map->setMapTool(_zoomOutTool);
+}
+
+void UserFormWidget::slot_recenterMap()
+{
+    /* resize options ? */
+    slot_onAutoResizeTrigger();
+}
+
+void UserFormWidget::slot_layerWasAdded(QgsMapLayer *layer)
+{
+    QListWidgetItem *layerItem = new QListWidgetItem(layer->id());
+    layerItem->setCheckState(Qt::Checked);
+    _layersWidget->addItem(layerItem);
+}
+
+void UserFormWidget::slot_layerWasRemoved(QString layerId)
+{
+    QList<QListWidgetItem *> foundItems = _layersWidget->findItems(layerId, Qt::MatchExactly);
+
+    if (foundItems.isEmpty()) {
+        qWarning() << QString("Layer '%1' was not found in layers widget").arg(layerId);
+        return;
+    }
+
+    if (foundItems.size() > 1) {
+        qWarning() << QString("Found %1 layers with id '%2', they will all be removed").arg(foundItems.size()).arg(layerId);
+    } else {
+        qDebug() << QString("Removing layer '%1' from layers widget").arg(layerId);
+    }
+
+    foreach (QListWidgetItem *item, foundItems) {
+        _layersWidget->removeItemWidget(item);
+        delete item;
+    }
+}
+
+void UserFormWidget::slot_layerItemChanged()
+{
+    /* rebuild layers list from updated graphical list */
+
+    QMap<QString, QgsMapLayer*> layersById = QgsMapLayerRegistry::instance()->mapLayers();
+//    QList<QgsMapCanvasLayer> _layers;
+    _layers.clear();
+
+    for (int row = 0; row < _layersWidget->count() ; row++) {
+        QListWidgetItem *currentItem = _layersWidget->item(row);
+        QString currentLayerId = currentItem->text();
+        QgsMapLayer *layer = layersById.value(currentLayerId);
+        QgsMapCanvasLayer canvasLayer(layer);
+
+        bool isVisible = (currentItem->checkState() == Qt::Checked);
+
+        qDebug() << QString("Layer %1 has visibility %2").arg(currentLayerId).arg(isVisible);
+        canvasLayer.setVisible(isVisible);
+        _layers.append(canvasLayer);
+    }
+
+    _ui->_GRV_map->setLayerSet(_layers);
+}
+
+void UserFormWidget::slot_removeLayer()
+{
+    QListWidgetItem *currentLayerItem = _layersWidget->currentItem();
+    if (!currentLayerItem) {
+        qCritical() << QString("Current layer item not identified, cannot remove layer");
+        return;
+    }
+
+    QString currentLayerId = currentLayerItem->text();
+
+    qDebug() << QString("Removing layer id '%1'...").arg(currentLayerId);
+
+    bool foundCanvasLayer = false;
+
+    for (int i=0 ; i < _layers.size() ; i++) {
+        QgsMapCanvasLayer canvasLayer = _layers.at(i);
+        if (canvasLayer.layer()->id() == currentLayerId) {
+            _layers.removeAt(i);
+            foundCanvasLayer = true;
+        }
+    }
+
+    if (!foundCanvasLayer) {
+        qCritical() << QString("Canvas layer not found for id '%1'").arg(currentLayerId);
+        return;
+    }
+
+    QgsMapLayer *layer = QgsMapLayerRegistry::instance()->mapLayer(currentLayerId);
+
+    if (!layer) {
+        qCritical() << QString("Layer id '%1' not referenced in layer registry, cannot remove layer properly").arg(currentLayerId);
+        return;
+    }
+
+    QgsMapLayerRegistry::instance()->removeMapLayer(currentLayerId); /* layer object deleted here */
+    /* Layer item removal is handled by signal/slot from here */
+
+    /* recenter dans reload layers */
+    updateMapCanvasAndExtent(NULL);
 }
 
 void UserFormWidget::clear()
@@ -171,26 +362,38 @@ void UserFormWidget::slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p) {
 
 }
 
+void UserFormWidget::slot_showLayersWidgetContextMenu(const QPoint &pos)
+{
+    QListWidgetItem *selectedItem = _layersWidget->currentItem();
+    if (!selectedItem) {
+        qDebug() << "No layer item selected, context menu not shown";
+        return;
+    }
+
+    _layersMenu->popup(_layersWidget->viewport()->mapToGlobal(pos));
+}
+
 void UserFormWidget::loadShapefile(QString filename)
 {
-
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
 
     QFileInfo fileInfo(filename);
-    QgsVectorLayer * mypLayer = new QgsVectorLayer(filename, fileInfo.fileName(), "ogr");
-    if (mypLayer->isValid())
-    {
-        qDebug("Layer is valid");
-    }
-    else
-    {
-        qDebug("Layer is NOT valid");
+    QString layerName = fileInfo.fileName();
+    layerName.chop(4);
+    QgsVectorLayer * mypLayer = new QgsVectorLayer(filename, layerName, "ogr");
+
+    if (!mypLayer->isValid()) {
+        qCritical() << QString("Layer '%1' is NOT valid").arg(layerName);
         return;
     }
 
+    qDebug() << QString("Loading layer '%1'...").arg(layerName);
+
+//    mypLayer->setCoordinateSystem();
+
     // Add the Vector Layer to the Layer Registry
-    QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE);
+    QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE, TRUE);
 
     // Add the layer to the Layer Set
     _layers.append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
@@ -214,7 +417,7 @@ void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneDat
 }
 #endif
 
-void UserFormWidget::slot_showContextMenu(const QPoint &pos_p)
+void UserFormWidget::slot_showMapContextMenu(const QPoint &pos_p)
 {
     if (_currentViewType == QGisMapLayer){
         _repaintBehaviorMenu->popup(this->mapToGlobal(pos_p));
@@ -245,7 +448,6 @@ void UserFormWidget::slot_onAutoResizeTrigger()
             break;
         default:
             break;
-
         }
     }
 
@@ -436,6 +638,37 @@ void UserFormWidget::addPolylineToMap(basicproc::Polygon &polygon_p, QString pol
 
     this->updateMapCanvasAndExtent(polylineLayer);
 
+}
+
+void UserFormWidget::exportMapViewToImage(QString imageFilePath)
+{
+    QImage image(QSize(800, 600), QImage::Format_ARGB32_Premultiplied);
+
+    QColor color(0,0,0);
+    image.fill(color.rgb());
+
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QgsMapRenderer renderer;
+    QList<QgsMapLayer *> layers = _ui->_GRV_map->layers();
+
+    QStringList layerIds;
+
+    foreach (QgsMapLayer *layer, layers) {
+        layerIds << layer->id();
+    }
+
+    renderer.setLayerSet(layerIds);
+
+    QgsRectangle rect(renderer.fullExtent());
+    rect.scale(1.1);
+    renderer.setExtent(rect);
+
+    renderer.setOutputSize(image.size(), image.logicalDpiX());
+
+    renderer.render(&painter);
+    image.save(imageFilePath, "png");
 }
 
 void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString pointsColor_p, QString layerName_p){
@@ -637,6 +870,16 @@ bool UserFormWidget::findLayerIndexFromName(const QString &layerName_p, int &idx
     return false;
 
 }
+void UserFormWidget::setLayersWidget(QListWidget *layersWidget)
+{
+    _layersWidget = layersWidget;
+}
+
+void UserFormWidget::setIconFactory(MatisseIconFactory *iconFactory)
+{
+    _iconFactory = iconFactory;
+}
+
 
 CartoViewType UserFormWidget::currentViewType() const
 {

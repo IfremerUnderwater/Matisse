@@ -2,6 +2,8 @@
 
 using namespace MatisseTools;
 
+const QString ProcessDataManager::RELATIVE_EXECUTION_LOG_PATH = QString("log");
+
 ProcessDataManager::ProcessDataManager(QString dataRootDir, QString userDataPath)
 {
     _jobsPath = userDataPath + "/jobs";
@@ -20,6 +22,63 @@ ProcessDataManager::ProcessDataManager(QString dataRootDir, QString userDataPath
     _jobParametersFilePattern = relativeJobPath + "/parameters/\\w+\\.xml";
 }
 
+void ProcessDataManager::loadAssembliesAndJobs()
+{
+    /* Load assemblies */
+    clearAssemblies();
+
+    qDebug() << "Loading assemblies...";
+
+    QDir assembliesDir(_assembliesPath);
+    if (!assembliesDir.exists()) {
+        qCritical() << QString("The assemblies directory '%1' does not exist. Could not load assemblies").arg(_assembliesPath);
+        return;
+    }
+
+    QStringList assembliesFiles = assembliesDir.entryList(QStringList() << "*.xml");
+    foreach(QString assemblyFile, assembliesFiles) {
+        if (!readAssemblyFile(assemblyFile)) {
+            qWarning() << "Unable to read assembly file " << assemblyFile;
+            continue;
+        }
+    }
+
+    /* Load jobs */
+    clearJobs();
+
+    qDebug() << "Loading jobs...";
+
+    QDir jobsDir(_jobsPath);
+    QStringList jobFiles  = jobsDir.entryList(QStringList() << "*.xml");
+    foreach(QString jobFile, jobFiles) {
+        if (!readJobFile(jobFile)) {
+            qWarning() << "Unable to read job file " << jobFile;
+            continue;
+        }
+    }
+}
+
+void ProcessDataManager::loadArchivedJobs(QString archivePath)
+{
+    clearArchivedJobs();
+
+    qDebug() << "Loading archived jobs";
+
+    QDir archiveDir(archivePath);
+    if (!archiveDir.exists()) {
+        qWarning() << QString("The path for archived jobs '%1' does not exist, could not load archived jobs").arg(archivePath);
+        return;
+    }
+
+    QStringList archivedJobFiles = archiveDir.entryList(QStringList() << "*.xml");
+    foreach (QString archivedJobFile, archivedJobFiles) {
+        if (!readJobFile(archivedJobFile, true, archivePath)) {
+            qWarning() << QString("Job file '%1' found in archive path could not be read properly").arg(archivedJobFile);
+            continue;
+        }
+    }
+}
+
 
 ///
 /// \brief ProcessDataManager::readAssemblyFile
@@ -28,7 +87,7 @@ ProcessDataManager::ProcessDataManager(QString dataRootDir, QString userDataPath
 ///
 bool ProcessDataManager::readAssemblyFile(QString filename)
 {
-    qDebug()<< "readAssemblyFile "  << filename;
+    qDebug()<< "Reading assembly file "  << filename;
 
     if (!_assembliesSchema.isValid()) {
         loadModels();
@@ -40,13 +99,9 @@ bool ProcessDataManager::readAssemblyFile(QString filename)
 
     QFileInfo fileInfo(_assembliesPath + QDir::separator() + filename);
 
-
     if (!xmlIsValid(_assembliesSchema, fileInfo)) {
         return false;
     }
-
-
-    qDebug()<< "Recherche de l'assemblage " << fileInfo.absoluteFilePath();
 
     QFile assemblyFile(fileInfo.absoluteFilePath());
     assemblyFile.open(QIODevice::ReadOnly);
@@ -70,7 +125,6 @@ bool ProcessDataManager::readAssemblyFile(QString filename)
         /* If token is StartElement, we'll see if we can read it.*/
         if(token == QXmlStreamReader::StartElement) {
             QString elementName = reader.name().toString();
-            //qDebug() << "Find element " << elementName;
 
             if ("MatisseAssembly" ==  elementName) {
                 QXmlStreamAttributes attributes = reader.attributes();
@@ -185,21 +239,21 @@ bool ProcessDataManager::readAssemblyFile(QString filename)
 /// \param filename chemin relatif aux assemblages
 /// \return
 ///
-bool ProcessDataManager::readJobFile(QString filename)
+bool ProcessDataManager::readJobFile(QString filename, bool isArchiveFile, QString archivePath)
 {
-    QString jobFilePath = _jobsPath + QDir::separator() + filename;
+    QString jobBasePath;
+
+    if (isArchiveFile) {
+        jobBasePath = archivePath; // archive path was controlled by calling function
+    } else {
+        jobBasePath = _jobsPath;
+    }
+
+    QString jobFilePath = jobBasePath + QDir::separator() + filename;
 
     qDebug()<< "Reading job file "  << jobFilePath;
 
-
     QFileInfo fileInfo(jobFilePath);
-
-
-//    if (!xmlIsValid(_assembliesSchema, fileInfo)) {
-//        return false;
-//    }
-
-    qDebug()<< "Loading job " << fileInfo.absoluteFilePath();
 
     QFile jobFile(fileInfo.absoluteFilePath());
     jobFile.open(QIODevice::ReadOnly);
@@ -235,15 +289,6 @@ bool ProcessDataManager::readJobFile(QString filename)
                     newJob->setComment(reader.readElementText());
                 }
             }
-            else if ("Parameters" == elementName) {
-                if (newJob) {
-                    QXmlStreamAttributes attributes = reader.attributes();
-                    QString model = attributes.value("model").toString();
-                    QString name = attributes.value("name").toString();
-                    ParameterDefinition* parameterDefinition = new ParameterDefinition(model, name);
-                    newJob->setParametersDefinition(parameterDefinition);
-                }
-            }
             else if ("Execution" == elementName) {
                 if (newJob) {
                     QXmlStreamAttributes attributes = reader.attributes();
@@ -265,7 +310,6 @@ bool ProcessDataManager::readJobFile(QString filename)
                    results << filename;
                    executionDefinition->setResultFileNames(results);
                 }
-
             }
         }
 
@@ -284,126 +328,32 @@ bool ProcessDataManager::readJobFile(QString filename)
         return false;
     }
 
-    _jobs.insert(newJob->name(), newJob);
-    _jobNameByFileName.insert(filename, newJob->name());
-    return true;
-}
+    if (isArchiveFile) {
+        _archivedJobs.insert(newJob->name(), newJob);
+        _archivedJobNameByFileName.insert(filename, newJob->name());
+        QString assemblyName = newJob->assemblyName();
 
-// TODO Fonction inoperante a reecrire
-// La structure AssemblyDefinition en cours de création n'est pas complète
-// La structure à jour est définie par les collections de widgets dans
-// AssemblyGraphicsScene
-bool ProcessDataManager::saveAssembly(QString filename, AssemblyDefinition *assembly)
-{
-    if (!assembly) {
-        qWarning() << "Assembly is null : could not be saved";
-        return false;
-    }
-
-    // TODO: vérification, de la présence des paramètres
-    // TODO: vérification de la liste des entrées
-    QFile assemblyFile(filename);
-    QTextStream os(&assemblyFile);
-    os.setCodec("UTF-8"); // forcer l'encodage en UTF-8, sinon les caractères accentués
-                          // mal encodés empêchent de relire l'assemblage
-    if (!assemblyFile.open(QIODevice::WriteOnly)) {
-        qDebug() << "Erreur ouverture ecriture";
-        return false;
-    }
-
-    bool valid = false;
-
-    QString name = assembly->name();
-
-    os << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-    os << QString("<MatisseAssembly name=\"%1\" isRealTime=\"%2\" usable=\"%3\">\n").arg(name).arg(assembly->isRealTime()).arg(valid);
-    os << "\t<DescriptorFields>\n";
-
-    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Author").arg(assembly->author());
-    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Version").arg(assembly->version());
-    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Comments").arg(assembly->comment());
-    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Date").arg(assembly->date());
-
-//    QStringList fieldsKeys = QStringList() << "Author" << "Version" << "Comments" << "Date";
-//    foreach(QString key, fieldsKeys) {
-//        // test manuel pour l'instant...
-//        os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg(key).arg(fields.getValue(key));
-//    }
-    os << "\t</DescriptorFields>\n";
-    // On teste tout au cas ou l'assemblage ne serait pas valide...
-    // ecriture des parameters
-//    QString parametersName = "";
-//    QString parametersVersion = "";
-//    if (_parametersWidget) {
-//        QStringList args = _parametersWidget ->getName().split("\n");
-//        if (args.size() > 1) {
-//            parametersVersion = args[0];
-//            parametersName = args[1];
+        QStringList *archivedJobs;
+//        if (!_assembliesWithArchivedJobs.contains(assemblyName)) {
+//            _assembliesWithArchivedJobs.insert(assemblyName);
 //        }
-//    }
-    os << QString("\t<Parameters id=\"99\" model=\"V1.0\" name=\"VictorOTUSCongo\"/>\n");
-    os << "\n";
-    // ecriture de la source
-    QString sourceName = assembly->sourceDefinition()->name();
-//    if (_sourceWidget) {
-//        sourceName = _sourceWidget->getName();
-//    }
 
-    os << QString("\t<Source id=\"99\" name=\"%1\" order=\"0\"/>\n").arg(sourceName);
-    os << "\n";
-    // ecriture des processeurs
-    os << "\t<Processors>\n";
-//    foreach(quint8 procPos, _processorsWidgets.keys()) {
-//        ProcessorWidget * curProc = _processorsWidgets.value(procPos);
-//        os << QString("\t\t<Processor id=\"%1\" name=\"%2\" order=\"%3\"/>\n").arg(99).arg(curProc->getName()).arg(procPos);
-//    }
+        if (_archivedJobsByAssembly.contains(assemblyName)) {
+            archivedJobs = _archivedJobsByAssembly.value(assemblyName);
+        } else {
+            archivedJobs = new QStringList();
+            _archivedJobsByAssembly.insert(assemblyName, archivedJobs);
+        }
 
-    foreach(ProcessorDefinition* processorDef, assembly->processorDefs()) {
-        os << QString("\t\t<Processor id=\"99\" name=\"%1\" order=\"%2\"/>\n").arg(processorDef->name()).arg(processorDef->order());
+        archivedJobs->append(newJob->name());
+
+    } else {
+        _jobs.insert(newJob->name(), newJob);
+        _jobNameByFileName.insert(filename, newJob->name());
     }
-
-    os << "\t</Processors>\n";
-    os << "\n";
-
-    // ecriture de la destination
-    QString destinationName = assembly->destinationDefinition()->name();
-    QString destinationOrder = QString::number(assembly->destinationDefinition()->order());
-//    if (_destinationWidget) {
-//        destinationName = QString("%1").arg(_destinationWidget->getName());
-//        destinationOrder = QString("%1").arg(_destinationWidget->getOrder());
-//    }
-    os << QString("\t<Destination id=\"99\" name=\"%1\" order=\"%2\"/>\n").arg(99).arg(destinationName).arg(destinationOrder);
-    os << "\n";
-    // ecriture des relations
-    os << "\t<Connections>\n";
-//    foreach(PipeWidget * pipe, _connectors) {
-//        qint8 order1 = pipe->getStartElement()->getOrder();
-//        qint8 line1 = pipe->getStartElementLine();
-//        qint8 order2 = pipe->getEndElement()->getOrder();
-//        qint8 line2 = pipe->getEndElementLine();
-//        QColor color = pipe->getColor();
-//        os << QString("\t\t<Connection startOrder=\"%1\" startLine=\"%2\" endOrder=\"%3\" endLine=\"%4\" color=\"%5\"/>\n").arg(order1).arg(line1).arg(order2).arg(line2).arg(color.rgba());
-//    }
-
-    foreach(ConnectionDefinition *connectionDef, assembly->connectionDefs()) {
-        qint32 order1 = connectionDef->startOrder();
-        qint32 line1 = connectionDef->startLine();
-        qint32 order2 = connectionDef->endOrder();
-        qint32 line2 = connectionDef->endLine();
-        QRgb color = connectionDef->color();
-
-        //QColor color = pipe->getColor();
-        os << QString("\t\t<Connection startOrder=\"%1\" startLine=\"%2\" endOrder=\"%3\" endLine=\"%4\" color=\"%5\"/>\n").arg(order1).arg(line1).arg(order2).arg(line2).arg(color);
-    }
-
-    os << "\t</Connections>\n";
-    os << "</MatisseAssembly>";
-    os.flush();
-    assemblyFile.close();
 
     return true;
 }
-
 
 bool ProcessDataManager::writeJobFile(JobDefinition * job, bool overWrite)
 {
@@ -414,12 +364,11 @@ bool ProcessDataManager::writeJobFile(JobDefinition * job, bool overWrite)
 
     QString filename = job->filename();
     if (filename.isEmpty()) {
-        filename = job->name();
-        filename.replace(" ", "_").append(".xml");
+        filename = fromNameToFileName(job->name());
         job->setFilename(filename);
     }
 
-    QString jobFileFullPath = getJobsPath() + QDir::separator() + filename;
+    QString jobFileFullPath = getJobsBasePath() + QDir::separator() + filename;
 
     QFile jobFile(jobFileFullPath);
 
@@ -482,6 +431,139 @@ bool ProcessDataManager::writeJobFile(JobDefinition * job, bool overWrite)
     return true;
 }
 
+
+bool ProcessDataManager::writeAssemblyFile(AssemblyDefinition * assembly, bool overWrite)
+{
+    if (!assembly) {
+        qCritical() << "Cannot write null assembly";
+        return false;
+    }
+
+    QString filename = assembly->filename();
+    if (filename.isEmpty()) {
+        filename = fromNameToFileName(assembly->name());
+        assembly->setFilename(filename);
+    }
+
+    QString assemblyFileFullPath = _assembliesPath + QDir::separator() + filename;
+
+    QFile assemblyFile(assemblyFileFullPath);
+
+    if (assemblyFile.exists() && (!overWrite)) {
+        return false;
+    }
+
+    if (!assemblyFile.open(QFile::WriteOnly)) {
+        qCritical() << QString("Error while opening file '%1'").arg(assemblyFileFullPath);
+        return false;
+    }
+
+    QXmlStreamWriter xsw(&assemblyFile);
+    xsw.setAutoFormatting(true);
+    xsw.writeStartDocument();
+
+    xsw.writeStartElement("MatisseAssembly");
+    QXmlStreamAttribute assemblyNameAttr("name", assembly->name());
+    xsw.writeAttribute(assemblyNameAttr);
+    QXmlStreamAttribute assemblyTypeAttr("isRealTime", QVariant(assembly->isRealTime()).toString());
+    xsw.writeAttribute(assemblyTypeAttr);
+    QXmlStreamAttribute assemblyUsableAttr("usable", QVariant(assembly->usable()).toString());
+    xsw.writeAttribute(assemblyUsableAttr);
+
+    xsw.writeStartElement("DescriptorFields");
+
+    xsw.writeStartElement("Author");
+    xsw.writeCharacters(assembly->author());
+    xsw.writeEndElement();
+
+    xsw.writeStartElement("Version");
+    xsw.writeCharacters(assembly->version());
+    xsw.writeEndElement();
+
+    xsw.writeStartElement("Comments");
+    xsw.writeCharacters(assembly->comment());
+    xsw.writeEndElement();
+
+    xsw.writeStartElement("Date");
+    xsw.writeCharacters(assembly->date());
+    xsw.writeEndElement();
+
+    xsw.writeEndElement();
+
+    /* Write source definition */
+    xsw.writeStartElement("Source");
+    QXmlStreamAttribute sourceIdAttr("id", QString::number(99));
+    xsw.writeAttribute(sourceIdAttr);
+    QXmlStreamAttribute sourceNameAttr("name", assembly->sourceDefinition()->name());
+    xsw.writeAttribute(sourceNameAttr);
+    QXmlStreamAttribute sourceOrderAttr("order", QString::number(assembly->sourceDefinition()->order()));
+    xsw.writeAttribute(sourceOrderAttr);
+    xsw.writeEndElement();
+
+    /* Write processors definition */
+    xsw.writeStartElement("Processors");
+
+    foreach (ProcessorDefinition *processor, assembly->processorDefs()) {
+        xsw.writeStartElement("Processor");
+
+        QXmlStreamAttribute processorIdAttr("id", QString::number(99));
+        xsw.writeAttribute(processorIdAttr);
+        QXmlStreamAttribute processorNameAttr("name", processor->name());
+        xsw.writeAttribute(processorNameAttr);
+        QXmlStreamAttribute processorOrderAttr("order", QString::number(processor->order()));
+        xsw.writeAttribute(processorOrderAttr);
+
+        xsw.writeEndElement();
+    }
+
+    xsw.writeEndElement();
+
+    /* Write destination definition */
+    xsw.writeStartElement("Destination");
+    QXmlStreamAttribute destinationIdAttr("id", QString::number(99));
+    xsw.writeAttribute(destinationIdAttr);
+    QXmlStreamAttribute destinationNameAttr("name", assembly->destinationDefinition()->name());
+    xsw.writeAttribute(destinationNameAttr);
+    QXmlStreamAttribute destinationOrderAttr("order", QString::number(assembly->destinationDefinition()->order()));
+    xsw.writeAttribute(destinationOrderAttr);
+    xsw.writeEndElement();
+
+    /* Write connections definition */
+    xsw.writeStartElement("Connections");
+
+    foreach (ConnectionDefinition *connection, assembly->connectionDefs()) {
+        xsw.writeStartElement("Connection");
+
+        QXmlStreamAttribute connStartOrderAttr("startOrder", QString::number(connection->startOrder()));
+        xsw.writeAttribute(connStartOrderAttr);
+        QXmlStreamAttribute connStartLineAttr("startLine", QString::number(connection->startLine()));
+        xsw.writeAttribute(connStartLineAttr);
+        QXmlStreamAttribute connEndOrderAttr("endOrder", QString::number(connection->endOrder()));
+        xsw.writeAttribute(connEndOrderAttr);
+        QXmlStreamAttribute connEndLineAttr("endLine", QString::number(connection->endLine()));
+        xsw.writeAttribute(connEndLineAttr);
+        QXmlStreamAttribute connColorAttr("color", QString("%1").arg(connection->color()));
+        xsw.writeAttribute(connColorAttr);
+
+        xsw.writeEndElement();
+    }
+
+    xsw.writeEndElement();
+
+
+    xsw.writeEndElement(); // MatisseAssembly
+
+    if (xsw.hasError()) {
+        qCritical() << "Errors occurred while writing XML assembly file :";
+        return false;
+    }
+
+    assemblyFile.close();
+
+    return true;
+}
+
+
 QStringList ProcessDataManager::getAssembliesList()
 {
     return _assemblies.keys();
@@ -502,12 +584,140 @@ JobDefinition *ProcessDataManager::getJob(QString jobName)
     return _jobs.value(jobName, NULL);
 }
 
+JobDefinition *ProcessDataManager::getArchivedJob(QString archivedJobName)
+{
+    return _archivedJobs.value(archivedJobName, NULL);
+}
+
+QStringList ProcessDataManager::getAssemblyArchivedJobs(QString assemblyName) const
+{
+    if (!_archivedJobsByAssembly.contains(assemblyName)) {
+        qWarning() << QString("No archived jobs for assembly %1").arg(assemblyName);
+        return QStringList();
+    }
+
+    QStringList *archivedJobs = _archivedJobsByAssembly.value(assemblyName);
+
+    return *archivedJobs;
+}
+
+QStringList ProcessDataManager::getArchivedJobNames() const
+{
+    QStringList archivedJobNames = _archivedJobs.keys();
+    return archivedJobNames;
+}
+
+bool ProcessDataManager::restoreArchivedJobs(QString archivePath, QString assemblyName, QStringList jobsToRestore)
+{
+    QDir archiveDir(archivePath);
+    if (!archiveDir.exists()) {
+        qCritical() << QString("Archive directory '%1' does not exist, cannot restore job files").arg(archivePath);
+        return false;
+    }
+
+    if (!_archivedJobsByAssembly.contains(assemblyName)) {
+        qWarning() << QString("No archived jobs for assembly '%1'. Could not restore jobs").arg(assemblyName);
+        return false;
+    }
+
+    QStringList *archivedJobs = _archivedJobsByAssembly.value(assemblyName);
+
+    bool restoredOne = false;
+
+    foreach (QString jobToRestore, jobsToRestore) {
+        if (!archivedJobs->contains(jobToRestore)) {
+            qCritical() << QString("Assembly '%1' does not have an archived job named '%2'");
+            continue;
+        }
+
+        bool restored = restoreArchivedJob(archivePath, jobToRestore);
+        if (restored) {
+            archivedJobs->removeOne(jobToRestore); /* for immediate consistency */
+            /* memory will be deallocated when reloading assembly tree */
+        }
+
+        /* operation is successful if at least one job has been restored */
+        restoredOne = restoredOne || restored;
+    }
+
+    return restoredOne;
+}
+
+bool ProcessDataManager::restoreArchivedJob(QString archivePath, QString jobToRestore) {
+
+    /* archive path was checked by calling class */
+
+    qDebug() << QString("Restoring job '%1'...").arg(jobToRestore);
+
+    if (_jobs.contains(jobToRestore)) {
+        /* Technically inconsistent case, better eliminate it anyway */
+        qCritical() << QString("Job '%1' was found in displayed jobs list, could not restore.").arg(jobToRestore);
+        return false;
+    }
+
+    JobDefinition *job = _archivedJobs.value(jobToRestore);
+    QString jobFileName = job->filename();
+
+    /* Resolving source and target paths */
+    QString sourceJobFilePath = archivePath + "/" + jobFileName;
+    QString targetJobFilePath = _jobsPath + "/" + jobFileName;
+
+    QString jobParametersBaseRelativePath = _jobsParametersPath;
+    jobParametersBaseRelativePath.remove(0, _jobsPath.length() + 1);
+    QString sourceJobParametersFilePath = archivePath + "/" + jobParametersBaseRelativePath + "/" + jobFileName;
+    QString targetJobParametersFilePath = _jobsParametersPath + "/" + jobFileName;
+
+    QFile targetJobFile(targetJobFilePath);
+    if (targetJobFile.exists()) {
+        qWarning() << QString("Found file '%1', removing...").arg(targetJobFilePath);
+        bool removed = targetJobFile.remove();
+        if (!removed) {
+            qCritical() << QString("Failed to remove file '%1', could not restore job.").arg(targetJobFilePath);
+            return false;
+        }
+    }
+
+    QFile targetJobParametersFile(targetJobParametersFilePath);
+    if (targetJobParametersFile.exists()) {
+        qWarning() << QString("Found file '%1', removing...").arg(targetJobParametersFilePath);
+        bool removed = targetJobParametersFile.remove();
+        if (!removed) {
+            qCritical() << QString("Failed to remove file '%1', could not restore job.").arg(targetJobParametersFilePath);
+            return false;
+        }
+    }
+
+    bool movedJobFile = QFile::rename(sourceJobFilePath, targetJobFilePath);
+
+    if (movedJobFile) {
+        qDebug() << QString("Moved file %1 to %2").arg(sourceJobFilePath).arg(targetJobFilePath);
+    } else {
+        qCritical() << QString("Could not move file %1 to %2").arg(sourceJobFilePath).arg(targetJobFilePath);
+        return false;
+    }
+
+    bool movedJobParametersFile = QFile::rename(sourceJobParametersFilePath, targetJobParametersFilePath);
+
+    if (movedJobParametersFile) {
+        qDebug() << QString("Moved file %1 to %2").arg(sourceJobParametersFilePath).arg(targetJobParametersFilePath);
+    } else {
+        qCritical() << QString("Could not move file %1 to %2").arg(sourceJobParametersFilePath).arg(targetJobParametersFilePath);
+        return false;
+    }
+
+    return true;
+}
+
+
+
+
+
 QStringList ProcessDataManager::getJobsNames()
 {
     return _jobs.keys();
 }
 
-QString ProcessDataManager::getJobsPath()
+QString ProcessDataManager::getJobsBasePath()
 {
     return _jobsPath;
 }
@@ -580,6 +790,49 @@ bool ProcessDataManager::xmlIsValid(QXmlSchema &schema, QFileInfo fileInfo)
     file.close();
     return true;
 }
+
+bool ProcessDataManager::duplicateElementParameters(QString fileName, QString newFileName, bool isAssembly)
+{
+    QString parametersBasePath;
+
+    if (isAssembly) {
+        parametersBasePath = _assembliesParametersPath;
+    } else {
+        parametersBasePath = _jobsParametersPath;
+    }
+
+    QString parametersFilePath = parametersBasePath + "/" + fileName;
+    QFile elementParametersFile(parametersFilePath);
+
+    if (!elementParametersFile.exists()) {
+        qCritical() << QString("Could not find parameters file '%1'. Failed to duplicate parameters").arg(fileName);
+        return false;
+    }
+
+    QString targetParametersFilePath = parametersBasePath + "/" + newFileName;
+    QFile targetParametersFile(targetParametersFilePath);
+
+    if (targetParametersFile.exists()) {
+        qCritical() << QString("Target parameters file '%1' already exists. Failed to duplicate parameters").arg(targetParametersFilePath);
+        return false;
+    }
+
+    bool copied = elementParametersFile.copy(targetParametersFilePath);
+
+    if (copied) {
+        qDebug() << QString("Copied parameters file to '%1'").arg(targetParametersFilePath);
+        return true;
+    } else {
+        qCritical() << QString("Failed to copy parameters file '%1' to '%2'").arg(parametersFilePath).arg(targetParametersFilePath);
+        return true;
+    }
+}
+
+QString ProcessDataManager::getJobsParametersBasePath() const
+{
+    return _jobsParametersPath;
+}
+
 QString ProcessDataManager::getJobParametersFilePattern() const
 {
     return _jobParametersFilePattern;
@@ -657,16 +910,237 @@ QString ProcessDataManager::getAssembliesParametersPath() const
 
 void ProcessDataManager::clearAssemblies()
 {
-    // TODO: remplacer les pointeur par des shared pointer et enlever les references dans le clear...
     _assemblies.clear();
     _assemblyNameByFileName.clear();
 }
 
 void ProcessDataManager::clearJobs()
 {
-    // TODO: remplacer les pointeur par des shared pointer et enlever les references dans le clear...
     _jobs.clear();
     _jobNameByFileName.clear();
+}
 
+void ProcessDataManager::clearArchivedJobs()
+{
+    _archivedJobs.clear();
+    _archivedJobNameByFileName.clear();
 
+    /* deallocate memory for archived jobs collections */
+    QList<QString> keys = _archivedJobsByAssembly.keys();
+    foreach (QString key, keys) {
+        QStringList *archivedJobs = _archivedJobsByAssembly.value(key);
+        _archivedJobsByAssembly.remove(key);
+        delete archivedJobs;
+    }
+
+    //_assembliesWithArchivedJobs.clear();
+}
+
+bool ProcessDataManager::copyJobFilesToResult(QString jobName, QString resultPath)
+{
+    qDebug() << "Copying job files to result directory...";
+
+    if (!_jobs.contains(jobName)) {
+        qCritical() << QString("Job '%1' not found in local repository, cannot copy files to result dir").arg(jobName);
+        return false;
+    }
+
+    JobDefinition *currentJob = _jobs.value(jobName);
+    QString jobFileName = currentJob->filename();
+
+    QDir resultDir(resultPath);
+    if (!resultDir.exists()) {
+        qCritical() << QString("Result dir '%1' does not exist, impossible to copy job XML files").arg(resultPath);
+        return false;
+    }
+
+    /* Creating log path if necessary */
+    QString jobLogDirPath = resultPath + "/" + RELATIVE_EXECUTION_LOG_PATH;
+    QDir jobLogDir(jobLogDirPath);
+    if (!jobLogDir.exists()) {
+        qDebug() << "Creating job logs dir...";
+        bool created = jobLogDir.mkdir(".");
+
+        if (!created) {
+            qCritical() << QString("Failed to create job logs dir '%1', could not copy job files").arg(jobLogDirPath);
+            return false;
+        }
+    }
+
+    /* Resolving source and target paths */
+    QString sourceJobFilePath = _jobsPath + "/" + jobFileName;
+    QString targetJobFilePath = jobLogDirPath + "/" + jobFileName;
+
+    QString sourceJobParametersFilePath = _jobsParametersPath + "/" + jobFileName;
+
+    QString jobParametersBaseRelativePath = _jobsParametersPath;
+    jobParametersBaseRelativePath.remove(0, _jobsPath.length() + 1);
+
+    QString targetJobParametersBasePath = jobLogDirPath + "/" + jobParametersBaseRelativePath;
+    QDir targetJobParametersBaseDir(targetJobParametersBasePath);
+    targetJobParametersBaseDir.mkdir(".");
+    QString targetJobParametersFilePath = targetJobParametersBasePath + "/" + jobFileName;
+
+    /* Removing existing copy files */
+    bool copyJobFile = true;
+    QFile previousJobFile(targetJobFilePath);
+    if (previousJobFile.exists()) {
+        bool removed = previousJobFile.remove();
+        if (!removed) {
+            qCritical() << QString("Could not remove previous job file copy '%1").arg(targetJobFilePath);
+            copyJobFile = false;
+        }
+    }
+
+    bool copyJobParametersFile = true;
+    QFile previousJobParametersFile(targetJobParametersFilePath);
+    if (previousJobParametersFile.exists()) {
+        bool removed = previousJobParametersFile.remove();
+        if (!removed) {
+            qCritical() << QString("Could not remove previous job parameters file copy '%1").arg(targetJobParametersFilePath);
+            copyJobParametersFile = false;
+        }
+    }
+
+    /* Copy files */
+    if (copyJobFile) {
+        QFile jobFile(sourceJobFilePath);
+        bool jobCopied = jobFile.copy(targetJobFilePath);
+        if (jobCopied) {
+            qDebug() << QString("Copied job file '%1' to result dir").arg(sourceJobFilePath);
+        } else {
+            qCritical() << QString("Could not copy job file '%1' to result dir").arg(sourceJobFilePath);
+        }
+    }
+
+    if (copyJobParametersFile) {
+        QFile jobParametersFile(sourceJobParametersFilePath);
+        bool jobParametersCopied = jobParametersFile.copy(targetJobParametersFilePath);
+        if (jobParametersCopied) {
+            qDebug() << QString("Copied job parameters file '%1' to result dir").arg(sourceJobParametersFilePath);
+        } else {
+            qCritical() << QString("Could not copy job parameters file '%1' to result dir").arg(sourceJobParametersFilePath);
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+bool ProcessDataManager::archiveJobFiles(QString jobName, QString archivePath)
+{
+    qDebug() << "Archiving job...";
+
+    if (!_jobs.contains(jobName)) {
+        qCritical() << QString("Job '%1' not found in local repository, cannot archive files").arg(jobName);
+        return false;
+    }
+
+    QDir archiveDir(archivePath);
+    if (!archiveDir.exists()) {
+        qCritical() << QString("Archive directory '%1' does not exist, cannot archive job files").arg(archivePath);
+        return false;
+    }
+
+    JobDefinition *currentJob = _jobs.value(jobName);
+    QString jobFileName = currentJob->filename();
+
+    /* Resolving source and target paths */
+    QString sourceJobFilePath = _jobsPath + "/" + jobFileName;
+    QString targetJobFilePath = archivePath + "/" + jobFileName;
+
+    QString sourceJobParametersFilePath = _jobsParametersPath + "/" + jobFileName;
+
+    QString jobParametersBaseRelativePath = _jobsParametersPath;
+    jobParametersBaseRelativePath.remove(0, _jobsPath.length() + 1);
+
+    QString targetJobParametersBasePath = archivePath + "/" + jobParametersBaseRelativePath;
+    QDir targetJobParametersBaseDir(targetJobParametersBasePath);
+    if (!targetJobParametersBaseDir.exists()) {
+        bool created = targetJobParametersBaseDir.mkdir(".");
+
+        if (!created) {
+            qCritical() << QString("Could not create archive job parameters dir");
+            return false;
+        }
+    }
+    QString targetJobParametersFilePath = targetJobParametersBasePath + "/" + jobFileName;
+
+    bool movedJobFile = QFile::rename(sourceJobFilePath, targetJobFilePath);
+
+    if (movedJobFile) {
+        qDebug() << QString("Moved file %1 to %2").arg(sourceJobFilePath).arg(targetJobFilePath);
+    } else {
+        qCritical() << QString("Could not move file %1 to %2").arg(sourceJobFilePath).arg(targetJobFilePath);
+    }
+
+    bool movedJobParametersFile = QFile::rename(sourceJobParametersFilePath, targetJobParametersFilePath);
+
+    if (movedJobParametersFile) {
+        qDebug() << QString("Moved file %1 to %2").arg(sourceJobParametersFilePath).arg(targetJobParametersFilePath);
+    } else {
+        qCritical() << QString("Could not move file %1 to %2").arg(sourceJobParametersFilePath).arg(targetJobParametersFilePath);
+    }
+
+    /* archived jobs collections will be updated when reloading the assembly tree */
+
+    return true;
+}
+
+bool ProcessDataManager::duplicateJob(QString jobName, QString newName)
+{
+    qDebug() << "Duplicating job...";
+
+    if (!_jobs.contains(jobName)) {
+        qCritical() << QString("Job '%1' not found in local repository, cannot duplicate").arg(jobName);
+        return false;
+    }
+
+    JobDefinition *job = _jobs.value(jobName);
+    QString newFileName = fromNameToFileName(newName);
+    JobDefinition *newJob = job->duplicate(newName, newFileName);
+    bool jobFileWritten = writeJobFile(newJob);
+
+    if (!jobFileWritten) {
+        qCritical() << QString("Failed to duplicate job '%1'").arg(jobName);
+        return false;
+    }
+
+    return duplicateElementParameters(job->filename(), newJob->filename(), false);
+}
+
+bool ProcessDataManager::duplicateAssembly(QString assemblyName, QString newName)
+{
+    qDebug() << "Duplicating job...";
+
+    if (!_assemblies.contains(assemblyName)) {
+        qCritical() << QString("Assembly '%1' not found in local repository, cannot duplicate").arg(assemblyName);
+        return false;
+    }
+
+    AssemblyDefinition *assembly = _assemblies.value(assemblyName);
+    QString newFileName = fromNameToFileName(newName);
+    AssemblyDefinition *newAssembly = assembly->duplicate(newName, newFileName);
+    bool assemblyFileWritten = writeAssemblyFile(newAssembly);
+
+    if (!assemblyFileWritten) {
+        qCritical() << QString("Failed to duplicate assembly '%1'").arg(assemblyName);
+        return false;
+    }
+
+    return duplicateElementParameters(assembly->filename(), newFileName, true);
+}
+
+QString ProcessDataManager::fromNameToFileName(QString name)
+{
+    QString fileName = name;
+    fileName.replace(" ", "_"); // normalize name
+    fileName.append(".xml");    // append file extension
+    return fileName;
+}
+
+bool ProcessDataManager::assemblyHasArchivedJob(QString assemblyName)
+{
+    return _archivedJobsByAssembly.contains(assemblyName);
 }

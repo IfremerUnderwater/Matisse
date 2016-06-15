@@ -75,6 +75,7 @@ void AssemblyDialog::slot_close()
     } else {
         QString inputName = _ui->_LE_name->text();
         inputName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
+        //inputName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\[\\]\\\\]")));
         *_name = inputName; // normalisation du nom saisi
         _keyValue->set("Author", _ui->_LE_author->text().trimmed());
         bool isRealTime = _ui->_RB_realTime->isChecked();

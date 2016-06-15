@@ -9,6 +9,8 @@
 
 #include "ToolsCommon.h"
 #include "EnrichedFormWidget.h"
+#include "MatisseIconFactory.h"
+#include "IconizedButtonWrapper.h"
 
 namespace MatisseTools {
 
@@ -21,7 +23,7 @@ class EnrichedFileChooser : public EnrichedFormWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedFileChooser(QWidget *parent, QString label, ParameterShow type, QString defaultValue);
+    explicit EnrichedFileChooser(QWidget *parent, MatisseIconFactory *iconFactory, QString label, ParameterShow type, QString defaultValue);
     //bool currentValueChanged();
     virtual QString currentValue();
     virtual void restoreDefaultValue();

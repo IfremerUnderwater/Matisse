@@ -4,6 +4,8 @@
 #include <QDialog>
 
 #include "Server.h"
+#include "MatisseIconFactory.h"
+#include "IconizedButtonWrapper.h"
 
 namespace Ui {
 class WelcomeDialog;
@@ -16,7 +18,7 @@ class WelcomeDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit WelcomeDialog(QWidget *parent = 0);
+    explicit WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory);
     ~WelcomeDialog();
 
     void createOverlayLabel();

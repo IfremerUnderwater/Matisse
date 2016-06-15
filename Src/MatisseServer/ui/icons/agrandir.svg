@@ -4,7 +4,7 @@
 <svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 12 12" style="enable-background:new 0 0 12 12;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;}
+	.st0{fill-rule:evenodd;clip-rule:evenodd;fill:{%color.white%};}
 </style>
 <path class="st0" d="M9,5v3v1H8H4H3V8V5h0V3h6L9,5L9,5z M4,8h4V5H4V8z"/>
 </svg>

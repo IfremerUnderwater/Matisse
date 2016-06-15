@@ -52,15 +52,15 @@
   <g
      transform="translate(-204.28634,-374.50566)"
      id="layer1"
-     style="stroke:none;stroke-opacity:1;fill:#252a31;fill-opacity:1">
+     style="stroke:none;stroke-opacity:1;fill:{%color.black%};fill-opacity:1">
     <g
        transform="matrix(1.25,0,0,-1.25,228.66009,397.00441)"
        id="g96"
-       style="stroke:none;stroke-opacity:1;fill:#252a31;fill-opacity:1">
+       style="stroke:none;stroke-opacity:1;fill:{%color.black%};fill-opacity:1">
       <path
          d="M 0,0 C -0.829,0 -1.5,0.671 -1.5,1.5 -1.5,2.329 -0.829,3 0,3 0.829,3 1.5,2.329 1.5,1.5 1.5,0.671 0.829,0 0,0 m 0,6 c -2.484,0 -4.5,-2.015 -4.5,-4.5 0,-1.708 0.961,-3.174 2.361,-3.938 L 0,-6 2.139,-2.438 C 3.539,-1.674 4.5,-0.208 4.5,1.5 4.5,3.985 2.487,6 0,6 m -7.5,-5.221 -4.5,-2.165 0,14.834 4.5,2.163 0,-14.832 z m -5.999,-2.165 -4.5,2.165 0,14.832 4.5,-2.163 0,-14.834 z M -1.5,7.287 C -1.017,7.412 -0.521,7.5 0,7.5 l 0,6.894 -6.75,3.245 -5.999,-2.885 -6.75,3.245 0,-18.164 6.75,-3.246 5.999,2.886 0.75,-0.363 0,16.499 4.5,-2.163 0,-6.161 z"
          id="path98"
-         style="fill:#252a31;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-opacity:1" />
+         style="fill:{%color.black%};fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-opacity:1" />
     </g>
   </g>
 </svg>

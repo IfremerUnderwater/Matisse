@@ -78,6 +78,11 @@ void Server::addParametersForImageProvider(QString name)
 {
     qDebug() << "Loading parameters for image provider " << name;
 
+    if (!_imageProviders.contains(name)) {
+        qCritical() << QString("Image provider '%1' could not be found.").arg(name);
+        return;
+    }
+
     ImageProvider* source = _imageProviders.value(name);
     QList<MatisseParameter> expectedParams = source->expectedParameters();
     _expectedParametersByModule.insert(name, expectedParams);
@@ -93,6 +98,11 @@ void Server::addParametersForProcessor(QString name)
 {
     qDebug() << "Loading parameters for Processor " << name;
 
+    if (!_processors.contains(name)) {
+        qCritical() << QString("Processor '%1' could not be found.").arg(name);
+        return;
+    }
+
     Processor* processor = _processors.value(name);
     QList<MatisseParameter> expectedParams = processor->expectedParameters();
     _expectedParametersByModule.insert(name, expectedParams);
@@ -107,6 +117,11 @@ void Server::addParametersForProcessor(QString name)
 void Server::addParametersForRasterProvider(QString name)
 {
     qDebug() << "Loading parameters for raster provider " << name;
+
+    if (!_rasterProviders.contains(name)) {
+        qCritical() << QString("Raster provider '%1' could not be found.").arg(name);
+        return;
+    }
 
     RasterProvider* destination = _rasterProviders.value(name);
     QList<MatisseParameter> expectedParams = destination->expectedParameters();

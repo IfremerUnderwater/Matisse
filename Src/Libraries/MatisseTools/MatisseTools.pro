@@ -75,7 +75,15 @@ SOURCES +=\
     src/PlatformOpencvComponent.cpp \
     src/platformOsgComponent.cpp \
     src/PlatformComparisonStatus.cpp \
-    src/PlatformComparator.cpp
+    src/PlatformComparator.cpp \
+    src/MatisseIconFactory.cpp \
+    src/IconizedWidgetWrapper.cpp \
+    src/IconizedLabelWrapper.cpp \
+    src/IconizedButtonWrapper.cpp \
+    src/IconizedComboBoxItemWrapper.cpp \
+    src/MatisseTreeItem.cpp \
+    src/IconizedTreeItemWrapper.cpp \
+    src/IconizedActionWrapper.cpp
 
 HEADERS +=\
     src/ParametersWidgetSkeleton.h \
@@ -110,7 +118,15 @@ HEADERS +=\
     src/PlatformOpencvComponent.h \
     src/PlatformOsgComponent.h \
     src/PlatformComparisonStatus.h \
-    src/PlatformComparator.h
+    src/PlatformComparator.h \
+    src/MatisseIconFactory.h \
+    src/IconizedWidgetWrapper.h \
+    src/IconizedLabelWrapper.h \
+    src/IconizedButtonWrapper.h \
+    src/IconizedComboBoxItemWrapper.h \
+    src/MatisseTreeItem.h \
+    src/IconizedTreeItemWrapper.h \
+    src/IconizedActionWrapper.h
 
 FORMS    += \
             ui/ParametersWidgetSkeleton.ui

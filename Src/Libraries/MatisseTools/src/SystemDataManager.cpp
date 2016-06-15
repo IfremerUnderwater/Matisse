@@ -61,6 +61,19 @@ bool SystemDataManager::readMatisseSettings(QString filename)
             else if (elementName == "DataRootDir") {
                 _dataRootDir = reader.readElementText();
             }
+
+            else if (elementName == "ExternalTool") {
+                QXmlStreamAttributes attributes = reader.attributes();
+                QString toolName = attributes.value("name").toString();
+                QString toolExePath = attributes.value("exePath").toString();
+
+                if (_externalTools.contains(toolName)) {
+                    qCritical() << QString("External tool '%1' is defined more than once").arg(toolName);
+                    continue;
+                }
+
+                _externalTools.insert(toolName, toolExePath);
+            }
         }
 
         if (reader.hasError()) {
@@ -397,6 +410,11 @@ void SystemDataManager::getPlatformDump()
     _platformDump = _platformInspector.getDump();
     _platformDump->setMatisseVersion(_version);
 }
+QMap<QString, QString> SystemDataManager::getExternalTools() const
+{
+    return _externalTools;
+}
+
 
 QString SystemDataManager::getDataRootDir() const
 {

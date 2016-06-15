@@ -23,15 +23,16 @@ void ParametersFoldButton::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
 
-    QColor matisseBlack(MATISSE_BLACK);
+    //QColor matisseBlack(MATISSE_BLACK);
+    QColor paintColor(_currentPaintColorRef);
 
-    painter.setPen(matisseBlack);
-    painter.setBrush(matisseBlack);
+    painter.setPen(paintColor);
+    painter.setBrush(paintColor);
 
     if (getIsUnfolded()) {
-        drawFoldArrow(painter, matisseBlack);
+        drawFoldArrow(painter, paintColor);
     } else {
-        drawUnfoldArrow(painter, matisseBlack);
+        drawUnfoldArrow(painter, paintColor);
     }
 }
 
@@ -85,6 +86,13 @@ void ParametersFoldButton::drawUnfoldArrow(QPainter &painter, QColor paintColor)
 
 void ParametersFoldButton::showNewState()
 {
+    repaint();
+}
+
+void ParametersFoldButton::slot_updateColorPalette(QMap<QString, QString> newColorPalette)
+{
+    _currentPaintColorRef = newColorPalette.value("color.black");
+    qDebug() << "Parameters fold button, new black color : " << _currentPaintColorRef;
     repaint();
 }
 

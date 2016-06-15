@@ -1,7 +1,9 @@
 #include "PreferencesDialog.h"
 #include "ui_PreferencesDialog.h"
 
-PreferencesDialog::PreferencesDialog(QWidget *parent, MatissePreferences *prefs) :
+using namespace MatisseServer;
+
+PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFactory, MatissePreferences *prefs) :
     QDialog(parent),
     _ui(new Ui::PreferencesDialog)
 {
@@ -38,6 +40,15 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, MatissePreferences *prefs)
     connect(_ui->_PB_defaultResultPathSelect, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
     connect(_ui->_LE_defaultMosaicPrefix, SIGNAL(editingFinished()), this, SLOT(slot_validatePrefixInput()));
     //connect(_ui->_LE_defaultMosaicPrefix, SIGNAL(textEdited(QString)), this, SLOT(slot_restorePrefixInput(QString)));
+
+    IconizedButtonWrapper *importExportPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_importExportPathSelect);
+    iconFactory->attachIcon(importExportPathButtonWrapper, "lnf/icons/Dossier.svg");
+
+    IconizedButtonWrapper *archivePathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_archivePathSelect);
+    iconFactory->attachIcon(archivePathButtonWrapper, "lnf/icons/Dossier.svg");
+
+    IconizedButtonWrapper *defaultResultPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_defaultResultPathSelect);
+    iconFactory->attachIcon(defaultResultPathButtonWrapper, "lnf/icons/Dossier.svg");
 }
 
 PreferencesDialog::~PreferencesDialog()

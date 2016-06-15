@@ -29,6 +29,7 @@ public:
     QString getPlatformSummaryFilePath() const;
     QString getPlatformEnvDumpFilePath() const;
     QString getDataRootDir() const;
+    QMap<QString, QString> getExternalTools() const;
 
     bool readMatisseSettings(QString filename);
     bool readMatissePreferences(QString filename, MatissePreferences &prefs);
@@ -38,6 +39,7 @@ public:
     bool writePlatformEnvDump();
 
     PlatformComparisonStatus *compareRemoteAndLocalPlatform();
+
 
 private:
     void getPlatformDump();
@@ -50,6 +52,7 @@ private:
     QString _version;
     QString _platformSummaryFilePath;
     QString _platformEnvDumpFilePath;
+    QMap<QString,QString> _externalTools;
     PlatformInspector _platformInspector;
     PlatformDump *_platformDump;
     PlatformDump *_remotePlatformDump;

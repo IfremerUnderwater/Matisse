@@ -57,7 +57,7 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="QToolButton" name="homeButton">
+    <widget class="QToolButton" name="_TB_homeButton">
      <property name="minimumSize">
       <size>
        <width>60</width>

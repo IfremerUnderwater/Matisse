@@ -11,7 +11,10 @@ QT       += core gui network sql xml xmlpatterns script opengl
 
 win32 {
     RC_FILE = MatisseServer.rc
-    QMAKE_CXXFLAGS += /wd4100 /wd4996
+    QMAKE_CXXFLAGS += /wd4100 /wd4129 /wd4996
+#    CONFIG(debug, debug|release) {
+#        QMAKE_CXXFLAGS += /MDd
+#    }
 
     DEFINES += GUI_EXPORT=__declspec(dllimport) CORE_EXPORT=__declspec(dllimport)
 }
@@ -89,7 +92,10 @@ SOURCES += src/main.cpp\
     src/ParametersFoldButton.cpp \
     src/ElementWidgetProvider.cpp \
     src/AboutDialog.cpp \
-    src/OSGWidget.cpp
+    src/OSGWidget.cpp \
+    src/DuplicateDialog.cpp \
+    src/RestoreJobsDialog.cpp \
+    src/NetworkCheckDialog.cpp
 
 HEADERS  += \
     src/AssemblyGui.h \
@@ -121,7 +127,10 @@ HEADERS  += \
     src/ParametersFoldButton.h \
     src/ElementWidgetProvider.h \
     src/AboutDialog.h \
-    src/OSGWidget.h
+    src/OSGWidget.h \
+    src/DuplicateDialog.h \
+    src/RestoreJobsDialog.h \
+    src/NetworkCheckDialog.h
 
 FORMS    += \
     ui/AssemblyGui.ui \
@@ -140,7 +149,10 @@ FORMS    += \
     ui/MainControllBar.ui \
     ui/MatisseVersionWidget.ui \
     ui/PreferencesDialog.ui \
-    ui/AboutDialog.ui
+    ui/AboutDialog.ui \
+    ui/DuplicateDialog.ui \
+    ui/RestoreJobsDialog.ui \
+    ui/NetworkCheckDialog.ui
 
 
 TRANSLATIONS=MatisseServer_fr.ts \
@@ -156,6 +168,8 @@ OTHER_FILES += \
     ../../Config/lnf/MatisseModeProg.css \
     ../../Config/lnf/MatisseModeRt.css \
     ../../Config/lnf/MatisseModeDt.css \
+    ../../Config/lnf/MatisseColorsDay.properties \
+    ../../Config/lnf/MatisseColorsNight.properties \
     MatisseServer_fr.ts \
     MatisseServer_en.ts \
     ../../Config/config/MatisseSettings.xml

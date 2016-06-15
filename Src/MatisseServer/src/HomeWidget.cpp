@@ -8,7 +8,7 @@ HomeWidget::HomeWidget(QWidget *parent) :
     ui(new Ui::HomeWidget)
 {
     ui->setupUi(this);
-    connect(ui->homeButton, SIGNAL(clicked()), this, SLOT(slot_goHome()));
+    connect(ui->_TB_homeButton, SIGNAL(clicked()), this, SLOT(slot_goHome()));
 }
 
 HomeWidget::~HomeWidget()

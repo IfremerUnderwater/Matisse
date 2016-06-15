@@ -4,7 +4,6 @@
 #include "AssemblyDefinition.h"
 
 namespace MatisseTools {
-class ParameterDefinition;
 
 class ExecutionDefinition {
     friend class JobDefinition;
@@ -46,13 +45,10 @@ public:
     QString comment() const;
     void setComment(const QString &comment);
 
-    ParameterDefinition *parametersDefinition() const;
-    void setParametersDefinition(ParameterDefinition *parametersDefinition);
-
     ExecutionDefinition *executionDefinition() const;
     void setExecutionDefinition(ExecutionDefinition *executionDefinition);
 
-    QString serialized();
+    JobDefinition *duplicate(QString newName, QString newFileName);
 
 private:
     QString _filename;
@@ -61,7 +57,6 @@ private:
     QString _assemblyName;
     QString _assemblyVersion;
     ExecutionDefinition *_executionDefinition;
-    ParameterDefinition *_parametersDefinition;
 };
 }
 

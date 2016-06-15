@@ -32,6 +32,6 @@
        d="m 299.28571,149.64285 a 149.64285,149.64285 0 1 1 -299.28571,0 149.64285,149.64285 0 1 1 299.28571,0 z"
        transform="translate(391.44177,310.76993)"
        id="path2996"
-       style="color:#000000;fill:#37bc9b;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.25;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+       style="color:#000000;fill:{%color.{&context.color1.alias&}%};fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.25;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
   </g>
 </svg>

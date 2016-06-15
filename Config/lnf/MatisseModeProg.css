@@ -1,31 +1,31 @@
 /*
 *
-* Feuille de style spécifique au mode PROGRAMMATION
+* PROGRAMMING mode specific stylesheet
 *
 /
 
 /* MAIN CONTROLL BAR */
 QWidget#homeWidget QWidget {
-   background-color: #f6bb42;
+   background-color: <%color.orange2%>;
    border: none;
 }
 
 QWidget#matisseVersionWidget {
-    background-color: #e7a213;
+    background-color: <%color.orange%>;
 }
 
 QWidget#matisseVersionWidget QWidget {
-    background-color: #e7a213;
+    background-color: <%color.orange%>;
     border: none;
 }
 
 
 QWidget#mainMenuWidget {
-    background-color: #e7a213;    
+    background-color: <%color.orange%>;    
 }
 
 QProgressBar::chunk {
-    background-color: #e7a213;
+    background-color: <%color.orange%>;
     width: 10px;
     border-radius: 2px;
     margin: 0.5px;
@@ -33,66 +33,75 @@ QProgressBar::chunk {
 
 /* Parameters fold/unfold widget */
 QWidget#_PB_parameterFold {
-    background-color: #e7a213;
+    background-color: <%color.orange%>;
     border: none;
 }
 
 
 /* Customisation des menus et menus contextuels */
 QMenuBar {
-    background-color: #e7a213;
-    color: #f5f7fa;
+    background-color: <%color.orange%>;
+    color: <%color.white%>;
     font-size: 10pt;
     font-weight: bold;
 }
 
 QMenuBar::item {
-    background: #e7a213;
+    background: <%color.orange%>;
 }
 
 QMenu::item:selected {
-    border: 2px solid #e7a213;
+    border: 2px solid <%color.orange%>;
 }
 
-/* COULEURS DE SELECTION : ARBRES ET LISTES */
+/* SELECTION COLORS : trees, lists and combos */
 QTreeView::item:selected, QTreeView::item:hover, QListWidget::item:selected, QListWidget::item:hover {
-    border: 1px solid rgb(246,187,66);
+    border: 1px solid rgb(<%color.orange.rgb%>);
     padding-left: -1px;
-    color: #f5f7fa;
+    color: <%color.white%>;
 }
 
 QTreeView::item:selected:active, QListWidget::item:selected:active {
-    background: rgba(246,187,66,60%);
+    background: rgba(<%color.orange.rgb%>,60%);
 }
 
 QTreeView::item:selected:!active, QListWidget::item:selected:!active {
-    background: rgba(246,187,66,45%);
+    background: rgba(<%color.orange.rgb%>,45%);
 }
 
 QTreeView::item:hover, QListWidget::item:hover {
-    background: rgba(246,187,66,20%);
+    background: rgba(<%color.orange.rgb%>,20%);
 }
 
+QComboBox
+{
+    selection-background-color: <%color.orange%>;
+}
+
+QComboBox QAbstractItemView
+{
+    selection-background-color: <%color.orange%>;
+}
 
 /* BUTTONS */
 QPushButton:pressed {
-  background-color: #e7a213;
+  background-color: <%color.orange%>;
   border: none;
 }
 
 QPushButton:checked {
-  background-color: #e7a213;
+  background-color: <%color.orange%>;
   border: none;
 }
 
 QPushButton:flat {
-     border: 2px solid #e7a213;
+     border: 2px solid <%color.orange%>;
 }
 
 
 /* ONGLETS */
 QTabBar::tab:selected {
     margin: 0;
-    background: #e7a213;
-    color: #f5f7fa;
+    background: <%color.orange%>;
+    color: <%color.white%>;
 }

@@ -34,7 +34,7 @@ void PlatformComparator::compareElementVersions(QString localVersion, QString re
 
         bool foundDifference = false;
 
-        for (int i=0 ; i++ ; i < versionComparisonScope) {
+        for (int i=0 ; i < versionComparisonScope ; i++) {
             QString local = localVersionParts.at(i);
             QString remote = remoteVersionParts.at(i);
             int compared = remote.compare(local);
