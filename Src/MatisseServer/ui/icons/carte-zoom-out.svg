@@ -3,7 +3,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="16px" height="16.001px" viewBox="0 0 16 16.001" enable-background="new 0 0 16 16.001" xml:space="preserve">
-<path fill-rule="evenodd" clip-rule="evenodd" fill="{%color.black%}" d="M15.852,14.421l-1.434,1.432c-0.197,0.197-0.52,0.197-0.717,0
+<path fill-rule="evenodd" clip-rule="evenodd" fill="{%color.white%}" d="M15.852,14.421l-1.434,1.432c-0.197,0.197-0.52,0.197-0.717,0
 	l-2.789-2.791c-1.104,0.707-2.413,1.123-3.82,1.123C3.175,14.185,0,11.009,0,7.093C0,3.175,3.175,0,7.092,0
 	c3.916,0,7.092,3.175,7.092,7.093c0,1.407-0.416,2.717-1.123,3.82l2.791,2.79C16.049,13.9,16.049,14.223,15.852,14.421z
 	 M7.092,2.027c-2.793,0-5.066,2.272-5.066,5.066c0,2.793,2.272,5.065,5.066,5.065c2.793,0,5.066-2.272,5.066-5.065
