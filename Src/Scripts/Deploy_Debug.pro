@@ -89,6 +89,9 @@ system("$$COPY_DIR $$CONFIG_DIR/config $$RUN_DIR")
 system("$$COPY_DIR $$BUILD_DIR/Libraries/dll/* $$RUN_DIR/Libraries")
 system("$$COPY_DIR $$CONFIG_DIR/schemas $$RUN_DIR")
 
+# Deploy icon files
+system("$$COPY_DIR $$MATISSE_SERVER_SOURCE_DIR/ui/icons/*.svg $$RUN_DIR/lnf/icons")
+
 # Copy linguist files
 #system("echo $$CHDIR \"$$SERVER_SOURCE_DIR\"")
 #system("$$CHDIR \"$$SERVER_SOURCE_DIR\"")

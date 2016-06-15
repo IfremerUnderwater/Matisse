@@ -361,7 +361,7 @@ bool FileUtils::createTempDirectory(QString & tempDirPath, QString prefix)
             continue;
         }
 
-        bool created = tempDir.mkdir(".");
+        bool created = tempDir.mkpath(".");
         if (!created) {
             qWarning() << QString("Could not create temp directory '%1'").arg(tempDirAttemptPath);
             trials++;
