@@ -64,6 +64,9 @@
        <height>60</height>
       </size>
      </property>
+     <property name="toolTip">
+      <string>Retour a l'ecran d'accueil</string>
+     </property>
      <property name="text">
       <string>...</string>
      </property>

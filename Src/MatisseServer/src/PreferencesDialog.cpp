@@ -3,7 +3,7 @@
 
 using namespace MatisseServer;
 
-PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFactory, MatissePreferences *prefs) :
+PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFactory, MatissePreferences *prefs, bool allowProgrammingModeActivation) :
     QDialog(parent),
     _ui(new Ui::PreferencesDialog)
 {
@@ -19,6 +19,11 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFa
     _ui->_LE_defaultResultPath->setText(_prefs->defaultResultPath());
     _ui->_LE_defaultMosaicPrefix->setText(_prefs->defaultMosaicFilenamePrefix());
     _ui->_CK_enableProgrammingMode->setChecked(_prefs->programmingModeEnabled());
+
+    if (!allowProgrammingModeActivation) {
+        _ui->_LA_enableProgrammingMode->setEnabled(false);
+        _ui->_CK_enableProgrammingMode->setEnabled(false);
+    }
 
     if (_prefs->language() == "FR") {
         _ui->_CB_languageSelect->setCurrentIndex(0);

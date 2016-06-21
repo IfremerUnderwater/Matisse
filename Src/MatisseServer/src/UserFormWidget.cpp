@@ -229,6 +229,7 @@ void UserFormWidget::slot_layerWasAdded(QgsMapLayer *layer)
 {
     QListWidgetItem *layerItem = new QListWidgetItem(layer->id());
     layerItem->setCheckState(Qt::Checked);
+    layerItem->setToolTip(layer->name());
     _layersWidget->addItem(layerItem);
 }
 
@@ -661,8 +662,8 @@ void UserFormWidget::exportMapViewToImage(QString imageFilePath)
 
     renderer.setLayerSet(layerIds);
 
-    QgsRectangle rect(renderer.fullExtent());
-    rect.scale(1.1);
+    /* user current canvas extent to render image */
+    QgsRectangle rect(_ui->_GRV_map->extent());
     renderer.setExtent(rect);
 
     renderer.setOutputSize(image.size(), image.logicalDpiX());

@@ -40,9 +40,6 @@ QWidget#_PB_parameterFold {
 /* Customisation des menus et menus contextuels */
 QMenuBar {
     background-color: <%color.mauve%>;
-    color: <%color.white%>;
-    font-size: 10pt;
-    font-weight: bold;
 }
 
 QMenuBar::item {

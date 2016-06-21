@@ -986,6 +986,9 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>Deplier la fenetre de parametrage</string>
+        </property>
         <property name="text">
          <string/>
         </property>

@@ -7,7 +7,7 @@
 
 using namespace MatisseServer;
 
-WelcomeDialog::WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory) :
+WelcomeDialog::WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory, bool isProgrammingModeEnabled) :
     QDialog(parent),
     ui(new Ui::WelcomeDialog)
 {
@@ -15,8 +15,9 @@ WelcomeDialog::WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory) :
 
     createOverlayLabel();
 
+    ui->progModeLauncherButton->setEnabled(isProgrammingModeEnabled);
+
     connect(this, SIGNAL(signal_launchApplication(ApplicationMode)), parentWidget(), SLOT(slot_showApplicationMode(ApplicationMode)));
-    connect(parentWidget(), SIGNAL(signal_showWelcome()), this, SLOT(slot_showWelcome()));
     connect(ui->_TBU_welcomeCloseButton, SIGNAL(clicked()), this, SLOT(close()));
 
     IconizedButtonWrapper *closeButtonWrapper = new IconizedButtonWrapper(ui->_TBU_welcomeCloseButton);
@@ -26,6 +27,11 @@ WelcomeDialog::WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory) :
 WelcomeDialog::~WelcomeDialog()
 {
     delete ui;
+}
+
+void WelcomeDialog::enableProgrammingMode(bool isProgrammingModeEnabled)
+{
+    ui->progModeLauncherButton->setEnabled(isProgrammingModeEnabled);
 }
 
 void WelcomeDialog::createOverlayLabel()
@@ -61,11 +67,6 @@ void WelcomeDialog::on_deferredTimeModeLauncherButton_clicked()
 {
     hide();
     emit signal_launchApplication(DEFERRED_TIME);
-}
-
-void WelcomeDialog::slot_showWelcome()
-{
-    show();
 }
 
 void WelcomeDialog::changeEvent(QEvent *event)

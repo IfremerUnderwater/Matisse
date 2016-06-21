@@ -42,6 +42,10 @@ QWidget#progModeLauncherButton {
     font-weight: bold;
 }
 
+QWidget#progModeLauncherButton:disabled {
+    color: <%color.grey%>;
+}
+
 QWidget#realTimeModeLauncherButton {
     background-color: <%color.blue2%>;
     color: black;
@@ -94,6 +98,14 @@ QWidget#ongoingProcessWidget {
 
 QWidget#ongoingProcessWidget QWidget {
     background-color: <%color.black%>;
+}
+
+/* Main menu bar */
+QMenuBar {
+    color: <%color.white%>;
+    font-size: 10pt;
+    font-weight: bold;
+    padding-top: 4px; /* center the menu bar content vertically */
 }
 
 /* Contextual and static menu popups */

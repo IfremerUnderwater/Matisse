@@ -38,12 +38,9 @@ QWidget#_PB_parameterFold {
 }
 
 
-/* Customisation des menus et menus contextuels */
+/* Customizing main menu bar and drop down menus */
 QMenuBar {
     background-color: <%color.orange%>;
-    color: <%color.white%>;
-    font-size: 10pt;
-    font-weight: bold;
 }
 
 QMenuBar::item {

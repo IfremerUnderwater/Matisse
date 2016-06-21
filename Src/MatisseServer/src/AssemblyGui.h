@@ -344,6 +344,8 @@ protected slots:
     void slot_jobShowImageOnMainView(QString name, Image *image);
     void slot_userInformation(QString userText);
     void slot_processCompletion(quint8 percentComplete);
+    void slot_showInformationMessage(QString title, QString message);
+    void slot_showErrorMessage(QString title, QString message);
     void slot_jobProcessed(QString name, bool isCancelled);
     void slot_assembliesReload();
     void slot_modifiedParameters(bool changed);
@@ -383,7 +385,6 @@ public slots:
     void slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p);
 
 signals:
-    void signal_showWelcome();
     void signal_processRunning();
     void signal_processStopped();
     void signal_processFrozen();

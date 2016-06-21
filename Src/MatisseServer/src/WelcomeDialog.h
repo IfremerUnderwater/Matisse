@@ -18,10 +18,10 @@ class WelcomeDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory);
+    explicit WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory, bool isProgrammingModeEnabled);
     ~WelcomeDialog();
+    void enableProgrammingMode(bool isProgrammingModeEnabled);
 
-    void createOverlayLabel();
 signals:
     void signal_launchApplication(ApplicationMode mode);
 
@@ -30,12 +30,12 @@ private slots:
     void on_realTimeModeLauncherButton_clicked();
     void on_configModeLauncherButton_clicked();
     void on_deferredTimeModeLauncherButton_clicked();
-    void slot_showWelcome();
 
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 
 private:
+    void createOverlayLabel();
     Ui::WelcomeDialog *ui;
 };
 }

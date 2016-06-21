@@ -97,6 +97,7 @@ void AssemblyGui::initPreferences()
         _preferences->setArchivePath(DEFAULT_ARCHIVE_PATH);
         _preferences->setDefaultResultPath(DEFAULT_RESULT_PATH);
         _preferences->setDefaultMosaicFilenamePrefix(DEFAULT_MOSAIC_PREFIX);
+        _preferences->setProgrammingModeEnabled(false); // By default, programming mode is disabled
         _preferences->setLanguage("FR");
 
         _systemDataManager->writeMatissePreferences(PREFERENCES_FILEPATH, *_preferences);
@@ -295,8 +296,8 @@ void AssemblyGui::initAssemblyCreationScene()
 }
 
 void AssemblyGui::initWelcomeDialog()
-{
-    _welcomeDialog = new WelcomeDialog(this, _iconFactory);
+{   
+    _welcomeDialog = new WelcomeDialog(this, _iconFactory, _preferences->programmingModeEnabled());
     _welcomeDialog->setObjectName("_D_welcomeDialog");
     _welcomeDialog->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     _welcomeDialog->show();
@@ -324,6 +325,7 @@ void AssemblyGui::init()
     initLanguages();
 
     initIconFactory();
+
     initStatusBar();
 
     lookupChildWidgets();
@@ -333,10 +335,8 @@ void AssemblyGui::init()
     // hide current process indicators
     resetOngoingProcessIndicators();
 
-    // Initialisation du menu principal
     initMainMenu();
 
-    // Initialisation des menus contextuels
     initContextMenus();
 
     initProcessWheelSignalling();
@@ -983,7 +983,7 @@ void AssemblyGui::slot_updatePreferences()
     bool previousFoldingState = _ui->_PB_parameterFold->getIsUnfolded();
     doFoldUnfoldParameters(false);
 
-    PreferencesDialog dialog(this, _iconFactory, _preferences);
+    PreferencesDialog dialog(this, _iconFactory, _preferences, false);
     dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
 
     /* new preferences are saved if modified */
@@ -2089,9 +2089,11 @@ void AssemblyGui::doFoldUnfoldParameters(bool doUnfold, bool isExplicitAction)
     if (doUnfold) {
         qDebug() << "Unfolding parameters";
        _parametersDock->show();
+       _ui->_PB_parameterFold->setToolTip(tr("Replier la fenetre de parametrage"));
     } else {
        qDebug() << "Folding parameters";
        _parametersDock->hide();
+       _ui->_PB_parameterFold->setToolTip(tr("Deplier la fenetre de parametrage"));
     }
 
     if (!isExplicitAction) {
@@ -2213,7 +2215,8 @@ void AssemblyGui::slot_goHome()
         _currentJob = NULL;
 
         hide();
-        emit signal_showWelcome();
+        _welcomeDialog->enableProgrammingMode(_preferences->programmingModeEnabled());
+        _welcomeDialog->show();
     }
 }
 
@@ -3203,9 +3206,11 @@ void AssemblyGui::slot_maximizeOrRestore()
     if (isMaximized()) {
         showNormal();
         _iconFactory->attachIcon(_maxOrRestoreButtonWrapper, "lnf/icons/agrandir.svg", false, false);
+        _maximizeOrRestoreButton->setToolTip(tr("Agrandir la fenetre principale"));
     } else {
         showMaximized();
         _iconFactory->attachIcon(_maxOrRestoreButtonWrapper, "lnf/icons/reinittaille.svg", false, false);
+        _maximizeOrRestoreButton->setToolTip(tr("Restaurer la taille initiale"));
     }
 }
 
@@ -3440,6 +3445,7 @@ void AssemblyGui::slot_swapMapOrCreationView()
         }
 //        _visuModeButton->setIcon(_creationVisuModeIcon);
         _iconFactory->attachIcon(_visuModeButtonWrapper, "lnf/icons/Clef.svg", false, false);
+        _visuModeButton->setToolTip(tr("Basculer sur la vue Cartographie"));
 
         // swap view (1: creation view)
         _ui->_SW_viewStack->setCurrentIndex(1);
@@ -3473,6 +3479,7 @@ void AssemblyGui::slot_swapMapOrCreationView()
         }
 //        _visuModeButton->setIcon(_mapVisuModeIcon);
         _iconFactory->attachIcon(_visuModeButtonWrapper, "lnf/icons/Cartographie.svg", false, false);
+        _visuModeButton->setToolTip(tr("Basculer sur la vue Creation"));
 
         /* Reset visible parameters */
         _server.parametersManager()->clearExpectedParameters();
@@ -3722,6 +3729,16 @@ void AssemblyGui::slot_processCompletion(quint8 percentComplete)
     }
 
     _ongoingProcessCompletion->setValue(percentComplete);
+}
+
+void AssemblyGui::slot_showInformationMessage(QString title, QString message)
+{
+    QMessageBox::information(this, title, message);
+}
+
+void AssemblyGui::slot_showErrorMessage(QString title, QString message)
+{
+    QMessageBox::critical(this, title, message);
 }
 
 
