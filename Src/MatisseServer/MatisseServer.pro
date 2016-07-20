@@ -73,7 +73,6 @@ SOURCES += src/main.cpp\
     src/AssemblyDialog.cpp \
     src/ExpertFormWidget.cpp \
     src/UserFormWidget.cpp \
-    src/MatisseSpinBox.cpp \
     src/ParametersDialog.cpp \
     src/Server.cpp \
     src/JobDialog.cpp \
@@ -108,7 +107,6 @@ HEADERS  += \
     src/AssemblyDialog.h \
     src/ExpertFormWidget.h \
     src/UserFormWidget.h \
-    src/MatisseSpinBox.h \
     src/ParametersDialog.h \
     src/Server.h \
     src/JobDialog.h \

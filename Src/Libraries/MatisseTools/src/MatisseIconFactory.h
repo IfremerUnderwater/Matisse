@@ -10,6 +10,11 @@
 #include "FileUtils.h"
 #include "IconizedWidgetWrapper.h"
 
+///
+/// Class for changing icon colors
+///
+
+
 namespace MatisseTools {
 class MatisseIconSpec {
 public:

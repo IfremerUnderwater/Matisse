@@ -4,8 +4,13 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QTcpServer>
-#include "Xml.h"
 #include "ProcessDataManager.h"
+
+///
+/// Class for serving jobs list and results location to QGIS plugin
+///
+
+
 
 namespace MatisseTools {
 class JobServer : public QObject

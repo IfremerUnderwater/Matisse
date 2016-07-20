@@ -17,6 +17,10 @@
 
 namespace MatisseTools {
 
+///
+/// \brief The SystemDataManager class class is used for reading writing system data
+///
+
 class SystemDataManager
 {
 public:

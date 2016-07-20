@@ -9,6 +9,10 @@
 #include <QMultiHash>
 #include <QStringList>
 
+///
+/// Business object for assemblies
+///
+
 namespace MatisseTools {
 
 enum AssemblyDefinitionValidity {

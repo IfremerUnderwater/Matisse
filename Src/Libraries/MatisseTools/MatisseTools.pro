@@ -48,7 +48,6 @@ SOURCES +=\
     src/ParametersWidgetSkeleton.cpp \
     src/KeyValueList.cpp \
     src/AssemblyDefinition.cpp \
-    src/Xml.cpp \
     src/EnrichedComboBox.cpp \
     src/EnrichedFormWidget.cpp \
     src/EnrichedLineEdit.cpp \
@@ -89,7 +88,6 @@ HEADERS +=\
     src/ParametersWidgetSkeleton.h \
     src/KeyValueList.h \
     src/AssemblyDefinition.h \
-    src/Xml.h \
     src/EnrichedComboBox.h \
     src/EnrichedFormWidget.h \
     src/EnrichedLineEdit.h \

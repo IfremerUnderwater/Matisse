@@ -6,6 +6,11 @@
 #include <QString>
 #include <QStringList>
 
+///
+/// Equivalent to a map class
+///
+
+
 namespace MatisseTools {
 class KeyValueList
 {

@@ -3,6 +3,11 @@
 
 #include "AssemblyDefinition.h"
 
+///
+/// Business object for jobs
+///
+
+
 namespace MatisseTools {
 
 class ExecutionDefinition {

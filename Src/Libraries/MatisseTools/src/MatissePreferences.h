@@ -6,6 +6,10 @@
 #include <QString>
 #include <QDateTime>
 
+///
+/// \brief The MatissePreferences class is the business class for Matisse preferences
+///
+
 class MatissePreferences
 {
 private:

@@ -13,7 +13,6 @@
 #include "ImageProvider.h"
 #include "RasterProvider.h"
 #include "JobServer.h"
-#include "Xml.h"
 #include "FileUtils.h"
 #include "MatisseParametersManager.h"
 #include "SystemDataManager.h"

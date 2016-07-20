@@ -17,7 +17,6 @@
 #include "PipeWidget.h"
 #include "AssemblyGraphicsScene.h"
 #include "KeyValueList.h"
-#include "Xml.h"
 #include "ParametersDialog.h"
 #include "Server.h"
 #include "MatisseParametersManager.h"

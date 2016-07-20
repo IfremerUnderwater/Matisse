@@ -20,6 +20,11 @@
 
 namespace MatisseTools {
 
+///
+/// \brief The ProcessDataManager class is used for reading writing business data for assemblies, jobs and parameters
+///
+
+
 class ProcessDataManager
 {
 public:
