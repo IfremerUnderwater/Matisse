@@ -6,6 +6,12 @@
 #include <QDebug>
 #include <QPixmap>
 
+///
+/// Class for HTML file downloading
+///
+///
+
+
 HTTPImageDownloader::HTTPImageDownloader(QObject *parent) : QObject(parent)
 {
     connect(&_manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slot_receiveReply(QNetworkReply*)));

@@ -13,6 +13,8 @@ namespace MatisseServer {
 
 class ParametersFoldButton : public FoldUnfoldButton
 {
+    Q_OBJECT
+
 public:
     ParametersFoldButton(QWidget *parent=0);
 
@@ -20,9 +22,14 @@ protected:
     void paintEvent(QPaintEvent *event);
     void showNewState();
 
+protected slots:
+    void slot_updateColorPalette(QMap<QString,QString> newColorPalette);
+
 private:
     void drawFoldArrow(QPainter &painter, QColor paintColor);
     void drawUnfoldArrow(QPainter &painter, QColor paintColor);
+
+    QString _currentPaintColorRef;
 
     static const quint8 ARROW_LINE_WIDTH;
     static const quint8 ARROW_LINE_HEIGHT;

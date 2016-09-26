@@ -17,7 +17,6 @@
 #include "PipeWidget.h"
 #include "AssemblyGraphicsScene.h"
 #include "KeyValueList.h"
-#include "Xml.h"
 #include "ParametersDialog.h"
 #include "Server.h"
 #include "MatisseParametersManager.h"
@@ -50,7 +49,7 @@ private:
     Ui::ExpertFormWidget * _ui;
     AssemblyGraphicsScene * _scene;
     QHash<QString, KeyValueList> _assembliesValues;
-    Server * _server;
+//    Server * _server;
 
     void init();
 

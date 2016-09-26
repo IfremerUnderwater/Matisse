@@ -99,7 +99,7 @@ void MatisseParametersManager::checkDictionnaryComplete()
 
         QStringList found = foundDatasetParams.values();
         QStringList expected = _datasetParamNames.values();
-        QString fullMessage = QString("Dataset parameters were not all found in the dictionnary\Expected: ")
+        QString fullMessage = QString("Dataset parameters were not all found in the dictionnary\nExpected: ")
                 .append(expected.join(",")).append("\nFound: ").append(found.join(","));
 
         qFatal(fullMessage.toLatin1());
@@ -203,6 +203,11 @@ bool MatisseParametersManager::addUserModuleForParameter(QString userModule, QSt
     QString dicoStructName = _structureByParameter.value(paramName);
     if (dicoStructName != structureName) {
         qWarning() << QString("Parameter '%1' found in dictionnary in structure '%2', not '%3'").arg(paramName).arg(dicoStructName).arg(structureName);
+    }
+
+    if (_datasetParamNames.contains(paramName)) {
+        qWarning() << QString("Trying to add dataset parameter '%1' as expected parameter. It will be ignored").arg(paramName);
+        return false;
     }
 
     if (!_expectedParameters.contains(paramName)) {
@@ -373,12 +378,23 @@ bool MatisseParametersManager::clearExpectedParameters()
     QSet<QWidget*> groupWidgets;
 
     // clear expected parameters and using modules
-    QList<QString> params = _expectedParameters.keys();
-    foreach (QString param, params) {
-        QSet<QString> *users = _expectedParameters.value(param);
-        _expectedParameters.remove(param);
-        users->clear();
-        delete users;
+    QList<QString> expectedParamNames = _expectedParameters.keys();
+
+    QList<QString> paramsToHide(expectedParamNames);
+
+    /* Add dataset parameter group(s) in the list to hide */
+    foreach (QString datasetParamName, _datasetParamNames) {
+        paramsToHide.append(datasetParamName);
+    }
+
+    foreach (QString param, paramsToHide) {
+        /* dataset parameters are not expected */
+        if (_expectedParameters.contains(param)) {
+            QSet<QString> *users = _expectedParameters.value(param);
+            _expectedParameters.remove(param);
+            users->clear();
+            delete users;
+        }
 
         QString structure = _structureByParameter.value(param);
         QWidget* paramWidget = _valuesWidgets.value(structure).value(param);
@@ -393,10 +409,13 @@ bool MatisseParametersManager::clearExpectedParameters()
     // clear expected groups and member parameters
     QList<QString> groups = _expectedGroups.keys();
     foreach (QString group, groups) {
-        QSet<QString> *members = _expectedGroups.value(group);
-        _expectedGroups.remove(group);
-        members->clear();
-        delete members;
+        /* dataset group is not expected */
+        if (_expectedGroups.contains(group)) {
+            QSet<QString> *members = _expectedGroups.value(group);
+            _expectedGroups.remove(group);
+            members->clear();
+            delete members;
+        }
     }
 
     foreach (QWidget* groupWidget, groupWidgets) {
@@ -675,12 +694,12 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
             break;
         case FILE_SELECTOR_RELATIVE:
         case FILE_SELECTOR_ABSOLUTE: {
-            widget = new EnrichedFileChooser(_fullParametersWidget, paramLabelText, param._show, param._value.toString());
+            widget = new EnrichedFileChooser(_fullParametersWidget, _iconFactory, paramLabelText, param._show, param._value.toString());
         }
             break;
         case DIR_SELECTOR_RELATIVE:
         case DIR_SELECTOR_ABSOLUTE: {
-            widget = new EnrichedFileChooser(_fullParametersWidget, paramLabelText, param._show, param._value.toString());
+            widget = new EnrichedFileChooser(_fullParametersWidget, _iconFactory, paramLabelText, param._show, param._value.toString());
         }
             break;
         case UNKNOWN_SHOW:
@@ -861,6 +880,27 @@ void MatisseParametersManager::pushPreferredDatasetParameters(KeyValueList kvl)
     }
 }
 
+QString MatisseParametersManager::getParameterValue(QString parameterName)
+{
+    QString value;
+
+    if (!_parameters.contains(parameterName)) {
+        qCritical() << QString("Parameter '%1' is not defined in dictionnary, cannot retrieve value").arg(parameterName);
+        return value;
+    }
+
+    if (!_expectedParameters.contains(parameterName) && !_datasetParamNames.contains(parameterName)) {
+        qCritical() << QString("Parameter '%1' is neither expected nor a dataset parameter, cannot retrieve value").arg(parameterName);
+        return value;
+    }
+
+    QString structureName = _structureByParameter.value(parameterName);
+    EnrichedFormWidget *valueWidget = _valuesWidgets.value(structureName).value(parameterName);
+    value = valueWidget->currentValue();
+
+    return value;
+}
+
 void MatisseParametersManager::pushDatasetParameters(KeyValueList kvl)
 {
     QString resultPath = kvl.getValue(DATASET_PARAM_OUTPUT_DIR);
@@ -915,8 +955,10 @@ void MatisseParametersManager::pushDatasetParameters(KeyValueList kvl)
     }
 }
 
-
-
+void MatisseParametersManager::setIconFactory(MatisseIconFactory *iconFactory)
+{
+    _iconFactory = iconFactory;
+}
 
 bool MatisseParametersManager::saveParametersValues(QString entityName, bool isAssemblyTemplate)
 {
@@ -1128,6 +1170,13 @@ bool MatisseParametersManager::readParametersFile(QString filename, bool isAssem
                     }
                 }
 
+                /* Dataset parameters are excluded from assembly parameters (generic template) */
+                /* Since dataset parameters are not to be expected parameters, we should never reach this */
+                if (isAssemblyTemplate && _datasetParamNames.contains(paramName)) {
+                    qWarning() << QString("Dataset parameter '%1' was referenced as expected").arg(paramName);
+                    continue;
+                }
+
                 QWidget* paramWidget = _valuesWidgets.value(dicoStructureName).value(paramName);
 
                 if (!paramWidget) {
@@ -1139,9 +1188,15 @@ bool MatisseParametersManager::readParametersFile(QString filename, bool isAssem
 
                 EnrichedFormWidget* actualParamWidget = static_cast<EnrichedFormWidget *>(paramWidget);
                 actualParamWidget->setValue(value);
+
                 if (isExtraDatasetParam) {
                     _jobExtraParameters.insert(paramName);
                     actualParamWidget->show(); // montrer le parametre non defini dans l'assemblage
+
+                    /* show dataset param group */
+                    QMap<QString, QWidget*> structureGroupsWidgets = _groupsWidgets.value(dicoStructureName);
+                    QWidget* groupWidget = structureGroupsWidgets.value(paramName);
+                    groupWidget->show();
                 }
             }
 
@@ -1149,8 +1204,8 @@ bool MatisseParametersManager::readParametersFile(QString filename, bool isAssem
 
         if (reader.hasError()) {
             qCritical() << "Error parsing parameters file:\n" << reader.errorString();
-            parsingOk = false;
-            break;
+//            parsingOk = false;
+//            break;
         }
     }
 

@@ -4,10 +4,10 @@
 
 using namespace MatisseServer;
 
-// TODO Initialiser _JobServer avec une variable des settings
 Server::Server(QObject *parent) :
     QObject(parent),
-    _xmlTool(),
+    _systemDataManager(NULL),
+    _processDataManager(NULL),
     _jobServer(NULL),
     _currentJob(NULL),
     _mainGui(NULL)
@@ -22,44 +22,44 @@ Server::~Server()
     }
 }
 
-bool Server::setSettingsFile(QString settings)
-{
-    QString standardFile = "config/MatisseSettings.xml";
-    setMessageStr();
-    // lecture du fichier xml de settings
-    if (settings == "") {
-        settings = standardFile;
-    }
-    QFileInfo settingsFile(settings);
-    if (!settingsFile.exists()) {
-        //QMessageBox::critical(this, "Fichier de configuration introuvable", "Impossible de trouver le fichier:\n" + _settingsFile + "\nRelancez l'application avec un nom de fichier valide en paramètre\nou un fichier " + standardFile + " valide!");
-        setMessageStr(tr("Fichier de configuration introuvable: %1").arg(settingsFile.absoluteFilePath()));
-        return false;
-    }
+//bool Server::setSettingsFile(QString settings)
+//{
+//    QString standardFile = "config/MatisseSettings.xml";
+//    setMessageStr();
+//    // lecture du fichier xml de settings
+//    if (settings == "") {
+//        settings = standardFile;
+//    }
+//    QFileInfo settingsFile(settings);
+//    if (!settingsFile.exists()) {
+//        //QMessageBox::critical(this, "Fichier de configuration introuvable", "Impossible de trouver le fichier:\n" + _settingsFile + "\nRelancez l'application avec un nom de fichier valide en paramètre\nou un fichier " + standardFile + " valide!");
+//        setMessageStr(tr("Fichier de configuration introuvable: %1").arg(settingsFile.absoluteFilePath()));
+//        return false;
+//    }
 
-    if (!settingsFile.isReadable()) {
-        //QMessageBox::critical(this, "Fichier de configuration illisible", "Impossible de lire le fichier:\n" + _settingsFile + "\nRelancez l'application avec un nom de fichier lisible en paramètre\nou rendez le fichier " + standardFile + " lisible!");
-        setMessageStr(tr("Fichier de configuration illisible: %1").arg(settingsFile.absoluteFilePath()));
-        return false;
-    }
+//    if (!settingsFile.isReadable()) {
+//        //QMessageBox::critical(this, "Fichier de configuration illisible", "Impossible de lire le fichier:\n" + _settingsFile + "\nRelancez l'application avec un nom de fichier lisible en paramètre\nou rendez le fichier " + standardFile + " lisible!");
+//        setMessageStr(tr("Fichier de configuration illisible: %1").arg(settingsFile.absoluteFilePath()));
+//        return false;
+//    }
 
-    _xmlTool.readMatisseGuiSettings(settings);
-    if (( _xmlTool.getBasePath()) == "") {
-        //QMessageBox::critical(this, "Fichier de configuration incorrect", "La valeur de XmlRootDir ne peut être déterminée.\nRelancez l'application avec un paramètre XmlRootDir valide\ndans le fichier de configuration!");
-        setMessageStr(tr("XmlRootDir introuvable dans le fichier de configuration: %1").arg(settingsFile.absoluteFilePath()));
-        return false;
-    }
+//    _xmlTool.readMatisseGuiSettings(settings);
+//    if (( _xmlTool.getBasePath()) == "") {
+//        //QMessageBox::critical(this, "Fichier de configuration incorrect", "La valeur de XmlRootDir ne peut être déterminée.\nRelancez l'application avec un paramètre XmlRootDir valide\ndans le fichier de configuration!");
+//        setMessageStr(tr("XmlRootDir introuvable dans le fichier de configuration: %1").arg(settingsFile.absoluteFilePath()));
+//        return false;
+//    }
 
-    if (( _xmlTool.getDllPath()) == "") {
-        setMessageStr(tr("DllRootDir introuvable dans le fichier de configuration: %1").arg(settingsFile.absoluteFilePath()));
-        return false;
-    }
+//    if (( _xmlTool.getDllPath()) == "") {
+//        setMessageStr(tr("DllRootDir introuvable dans le fichier de configuration: %1").arg(settingsFile.absoluteFilePath()));
+//        return false;
+//    }
 
 
-    _jobServer = new JobServer(_xmlTool.port(), &_xmlTool);
+//    _jobServer = new JobServer(_xmlTool.port(), &_xmlTool);
 
-    return true;
-}
+//    return true;
+//}
 
 QList<Processor*> const Server::getAvailableProcessors() {
     return _processors.values();
@@ -78,6 +78,11 @@ void Server::addParametersForImageProvider(QString name)
 {
     qDebug() << "Loading parameters for image provider " << name;
 
+    if (!_imageProviders.contains(name)) {
+        qCritical() << QString("Image provider '%1' could not be found.").arg(name);
+        return;
+    }
+
     ImageProvider* source = _imageProviders.value(name);
     QList<MatisseParameter> expectedParams = source->expectedParameters();
     _expectedParametersByModule.insert(name, expectedParams);
@@ -93,6 +98,11 @@ void Server::addParametersForProcessor(QString name)
 {
     qDebug() << "Loading parameters for Processor " << name;
 
+    if (!_processors.contains(name)) {
+        qCritical() << QString("Processor '%1' could not be found.").arg(name);
+        return;
+    }
+
     Processor* processor = _processors.value(name);
     QList<MatisseParameter> expectedParams = processor->expectedParameters();
     _expectedParametersByModule.insert(name, expectedParams);
@@ -107,6 +117,11 @@ void Server::addParametersForProcessor(QString name)
 void Server::addParametersForRasterProvider(QString name)
 {
     qDebug() << "Loading parameters for raster provider " << name;
+
+    if (!_rasterProviders.contains(name)) {
+        qCritical() << QString("Raster provider '%1' could not be found.").arg(name);
+        return;
+    }
 
     RasterProvider* destination = _rasterProviders.value(name);
     QList<MatisseParameter> expectedParams = destination->expectedParameters();
@@ -139,7 +154,7 @@ bool Server::removeModuleAndExpectedParameters(QString name)
 MatisseParameters* Server::buildMatisseParameters(JobDefinition &job) {
 
 
-    QString file = _xmlTool.getJobsParametersPath(job.name());
+    QString file = _processDataManager->getJobParametersFilePath(job.name());
 
     qDebug() << "Chargement du fichier de paramètres : " << file;
     MatisseParameters* parameters = NULL;
@@ -170,10 +185,10 @@ void Server::setMessageStr(QString messageStr, bool error)
     }
 }
 
-Xml& Server::xmlTool()
-{
-    return _xmlTool;
-}
+//Xml& Server::xmlTool()
+//{
+//    return _xmlTool;
+//}
 
 void Server::slot_currentJobProcessed()
 {
@@ -416,7 +431,7 @@ bool Server::processJob(JobDefinition &jobDefinition)
     qDebug() << "Dump parametres:" << parameters->dumpStructures();
 
     QString assemblyName = jobDefinition.assemblyName();
-    AssemblyDefinition * assemblyDefinition = xmlTool().getAssembly(assemblyName);
+    AssemblyDefinition * assemblyDefinition = _processDataManager->getAssembly(assemblyName);
 
     if (!assemblyDefinition) {
         setMessageStr(tr("Impossible de charger l'assemblage %1").arg(assemblyName));
@@ -486,10 +501,12 @@ QString Server::messageStr()
 
 void Server::init(){
 
+    _jobServer = new JobServer(_systemDataManager->port(), _processDataManager);
+
     loadParametersDictionnary();
 
     // Load processors
-    QDir processorsDir = QDir(_xmlTool.getDllPath() + QDir::separator() +  "processors");
+    QDir processorsDir = QDir(_systemDataManager->getDllPath() + QDir::separator() +  "processors");
     setMessageStr();
 
 
@@ -509,7 +526,7 @@ void Server::init(){
     }
 
     // Load imageProviders
-    QDir imageProvidersDir = QDir(_xmlTool.getDllPath() + QDir::separator() + "imageProviders");
+    QDir imageProvidersDir = QDir(_systemDataManager->getDllPath() + QDir::separator() + "imageProviders");
     foreach (QString fileName, imageProvidersDir.entryList(QStringList() << SHARED_DLL_EXT, QDir::Files)) {
         qDebug() <<"Loading ImageProvider DLL " << fileName;
         QPluginLoader loader(imageProvidersDir.absoluteFilePath(fileName));
@@ -523,7 +540,7 @@ void Server::init(){
     }
 
     // Load rasterProviders
-    QDir rasterProvidersDir = QDir(_xmlTool.getDllPath() + QDir::separator() + "rasterProviders");
+    QDir rasterProvidersDir = QDir(_systemDataManager->getDllPath() + QDir::separator() + "rasterProviders");
 
     foreach (QString fileName, rasterProvidersDir.entryList(QStringList() << SHARED_DLL_EXT, QDir::Files)) {
         qDebug() <<"Loading RasterProvider DLL " << fileName;
@@ -587,6 +604,8 @@ void JobTask::slot_start()
     qDebug() << "Configuration de la source";
     connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    connect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
+    connect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
     connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
     connect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
@@ -606,6 +625,8 @@ void JobTask::slot_start()
         connect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
         connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+        connect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
+        connect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
         connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
         connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
         connect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
@@ -617,6 +638,8 @@ void JobTask::slot_start()
     qDebug() << "Configuration de la destination";
     connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    connect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
+    connect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
     connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
     connect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
@@ -782,6 +805,16 @@ bool Server::loadParametersDictionnary()
 
     return true;
 }
+void Server::setProcessDataManager(ProcessDataManager *processDataManager)
+{
+    _processDataManager = processDataManager;
+}
+
+void Server::setSystemDataManager(SystemDataManager *systemDataManager)
+{
+    _systemDataManager = systemDataManager;
+}
+
 
 void Server::setMainGui(AssemblyGui *mainGui_p)
 {

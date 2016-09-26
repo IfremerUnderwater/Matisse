@@ -164,12 +164,15 @@
        <height>60</height>
       </size>
      </property>
+     <property name="toolTip">
+      <string>Arreter le traitement en cours</string>
+     </property>
      <property name="text">
       <string>...</string>
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">
-       <normaloff>:/qss_icons/icons/Main_mode-prog.svg</normaloff>:/qss_icons/icons/Main_mode-prog.svg</iconset>
+       <normaloff>:/qss_icons/icons/Main_orange.svg</normaloff>:/qss_icons/icons/Main_orange.svg</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -201,6 +204,9 @@
          <height>20</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Fermer l'application</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -230,6 +236,9 @@
          <height>20</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Agrandir la fenetre principale</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -252,6 +261,9 @@
          <width>20</width>
          <height>20</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Reduire la fenetre principale</string>
        </property>
        <property name="text">
         <string>...</string>

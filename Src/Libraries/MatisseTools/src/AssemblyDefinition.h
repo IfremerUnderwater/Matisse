@@ -9,11 +9,14 @@
 #include <QMultiHash>
 #include <QStringList>
 
+///
+/// Business object for assemblies
+///
+
 namespace MatisseTools {
 
 enum AssemblyDefinitionValidity {
     VALID = 0,
-    MISSING_PARAMETERS,
     MISSING_SOURCE,
     MISSING_PROCESSOR,
     MISSING_DESTINATION,
@@ -58,30 +61,6 @@ private:
     quint32 _id;
     QString _name;
     quint32 _order;
-};
-
-class ParameterDefinition
-{
-    friend class AssemblyDefinition;
-public:
-    ParameterDefinition(QString model, QString name) :
-        _id(0),
-        _model(model),
-        _name(name) {}
-
-    quint32 id() const { return _id;}
-    QString name() const { return _name;}
-    QString model() const { return _model;}
-    QString filenameWithVersionPath() { return QString("%1/%2.xml").arg(_model).arg(_name.replace(" ", "_")); }
-
-    ParameterDefinition * clone() {
-        return new ParameterDefinition(_model, _name);
-    }
-
-private:
-    quint32 _id;
-    QString _model;
-    QString _name;
 };
 
 class ProcessorDefinition {
@@ -154,9 +133,6 @@ public:
     SourceDefinition* sourceDefinition() const;
     void setSourceDefinition(SourceDefinition *sourceDefinition);
 
-    ParameterDefinition* parametersDefinition() const;
-    void setParametersDefinition(ParameterDefinition *parametersDefinition);
-
     DestinationDefinition* destinationDefinition() const;
     void setDestinationDefinition(DestinationDefinition *destinationDefinition);
 
@@ -175,10 +151,10 @@ public:
     bool isRealTime() const;
     void setIsRealTime(bool isRealTime);
 
-    QString serialized();
-
     QList<AssemblyDefinitionValidity> checkDefinition();
 
+    AssemblyDefinition * duplicate(QString newName, QString newFileName);
+    void clearAllElements();
 
 signals:
 
@@ -196,7 +172,6 @@ private:
     bool _isRealTime;
 
     SourceDefinition *_sourceDefinition;
-    ParameterDefinition *_parametersDefinition;
     QList<ProcessorDefinition*> _processorDefs;
     QList<ConnectionDefinition*> _connectionDefs;
     DestinationDefinition *_destinationDefinition;

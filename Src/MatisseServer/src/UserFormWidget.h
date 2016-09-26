@@ -3,14 +3,12 @@
 
 #include <QWidget>
 #include <QMenu>
+#include <QToolBar>
 #include <QImage>
 #include <QGraphicsView>
 #include <QThread>
-#include <qgsmapcanvas.h>
-#include "Image.h"
-#include "GraphicalCharter.h"
+#include <QListWidget>
 
-#include "Polygon.h"
 
 #ifdef WITH_OSG
 #include <osg/ref_ptr>
@@ -22,7 +20,34 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 
 #endif
 
+#include <qgsmapcanvas.h>
+#include <qgsvectorlayer.h>
+#include <qgsmapcanvas.h>
+#include <qgsrasterlayer.h>
+#include <qgsmaplayerregistry.h>
+
+#include <qgsvectordataprovider.h>
+#include <qgsgeometry.h>
+#include <qgsmarkersymbollayerv2.h>
+#include <qgssinglesymbolrendererv2.h>
+#include <qgsrendererv2.h>
+#include <qgsproject.h>
+#include <qgsmapcanvas.h>
+#include <qgsmaptoolpan.h>
+#include <qgsmaptoolzoom.h>
+#include <qgscomposition.h>
+
+#include <opencv2/opencv.hpp>
+
+#include "Image.h"
+#include "Polygon.h"
+#include "GraphicalCharter.h"
+#include "MatisseIconFactory.h"
+#include "IconizedActionWrapper.h"
+
 using namespace MatisseCommon;
+using namespace MatisseTools;
+
 namespace Ui {
 class UserFormWidget;
 }
@@ -65,15 +90,17 @@ public:
     explicit UserFormWidget(QWidget *parent = NULL);
     virtual ~UserFormWidget();
 
-    void showUserParameters(bool flag);
     void switchCartoViewTo(CartoViewType cartoViewType_p);
 
-    void createCanvas();
+    void setIconFactory(MatisseIconFactory *iconFactory);
+    void initCanvas();
+    void initMapToolBar();
+    void initLayersWidget();
     void clear();
     void displayImage(Image *image);
     void resetJobForm();
-    void loadRasterFile(QString filename = "");
-    void loadShapefile(QString filename = "");
+    void loadRasterFile(QString filename);
+    void loadShapefile(QString filename);
     void load3DFile(QString filename_p = "");
     void loadImageFile(QString filename);
     void saveQgisProject(QString filename);
@@ -81,6 +108,7 @@ public:
     void addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString pointsColor_p, QString layerName_p);
     void addPolygonToMap(basicproc::Polygon &polygon_p, QString polyInsideColor_p, QString layerName_p);
     void addPolylineToMap(basicproc::Polygon &polygon_p, QString polyInsideColor_p, QString layerName_p);
+    void exportMapViewToImage(QString imageFilePath);
 
     CartoViewType currentViewType() const;
 
@@ -89,27 +117,43 @@ public:
     QStringList supported3DFileFormat() const;
     QStringList supportedImageFormat() const;
 
+    void setLayersWidget(QListWidget *layersWidget);
 
 protected slots:
     void slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
 #ifdef WITH_OSG
     void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
 #endif
-    void slot_showContextMenu(const QPoint& pos_p);
+    void slot_showLayersWidgetContextMenu(const QPoint &pos);
+    void slot_showMapContextMenu(const QPoint& pos_p);
     void slot_onAutoResizeTrigger();
     void slot_onFollowLastItem();
     void slot_onManualMove();
+    void slot_updateColorPalette(QMap<QString,QString>);
+    void slot_showHideToolbar();
+    void slot_activatePanTool();
+    void slot_activateZoomInTool();
+    void slot_activateZoomOutTool();
+    void slot_recenterMap();
+    void slot_layerWasAdded(QgsMapLayer *layer);
+    void slot_layerWasRemoved(QString layerId);
+    void slot_layerItemChanged();
+    void slot_removeLayer();
+
 signals:
     void signal_loadRasterFromFile(QString filename_p = "");
     void signal_load3DSceneFromFile(QString filename_p = "");
 
 private:
-
     void updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p);
     bool findLayerIndexFromName(const QString &layerName_p, int &idx_p);
 
     Ui::UserFormWidget *_ui;
     QList<QgsMapCanvasLayer> _layers;
+
+    bool _isToolBarDisplayed;
+
+    MatisseIconFactory *_iconFactory;
 
     CartoViewType _currentViewType;
 
@@ -125,8 +169,18 @@ private:
     QAction *_followLastItem;
     QAction *_manualMove;
     QMenu *_repaintBehaviorMenu;
-    RepaintBehaviorState _repaintBehaviorState;
 
+    QAction *_removeLayerAction;
+    QMenu *_layersMenu;
+
+    RepaintBehaviorState _repaintBehaviorState;
+    QToolBar *_mapToolBar;
+
+    QgsMapTool *_panTool;
+    QgsMapTool *_zoomInTool;
+    QgsMapTool *_zoomOutTool;
+
+    QListWidget *_layersWidget;
 };
 
 

@@ -2,22 +2,27 @@
 #define PREFERENCESDIALOG_H
 
 #include "MatissePreferences.h"
+#include "MatisseIconFactory.h"
+#include "IconizedButtonWrapper.h"
 
 #include <QDialog>
 #include <QFileDialog>
 
 #include <QtDebug>
 
+using namespace MatisseTools;
+
 namespace Ui {
 class PreferencesDialog;
 }
 
+namespace MatisseServer {
 class PreferencesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit PreferencesDialog(QWidget *parent, MatissePreferences *prefs);
+    explicit PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFactory, MatissePreferences *prefs, bool allowProgrammingModeActivation = true);
     ~PreferencesDialog();
 
 protected:
@@ -34,5 +39,6 @@ protected slots:
     void slot_validatePrefixInput();
     //void slot_restorePrefixInput(QString newText);
 };
+}
 
 #endif // PREFERENCESDIALOG_H

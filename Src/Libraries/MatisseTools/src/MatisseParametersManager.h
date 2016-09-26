@@ -30,6 +30,7 @@
 #include "EnrichedFileChooser.h"
 #include "MatisseDictionnaryLabels.h"
 #include "ParametersHeaderButton.h"
+#include "MatisseIconFactory.h"
 
 namespace MatisseTools {
 
@@ -59,6 +60,10 @@ public:
     void toggleReadOnlyMode(bool isReadOnly);
     void pullDatasetParameters(KeyValueList &kvl);
     void pushPreferredDatasetParameters(KeyValueList kvl);
+
+    QString getParameterValue(QString parameterName);
+
+    void setIconFactory(MatisseIconFactory *iconFactory);
 
 signals:
 
@@ -112,6 +117,8 @@ private:
     QMap<ParameterLevel, QWidget*> _paramContainersByLevel;
 
     bool _isReadOnlyMode;
+
+    MatisseIconFactory *_iconFactory;
 
     static QMap<QString, ParameterType> _enumTypes;
     static QMap<QString, ParameterLevel> _enumLevels;

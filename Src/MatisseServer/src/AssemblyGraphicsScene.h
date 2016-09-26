@@ -52,16 +52,21 @@ public:
     void setElementWidgetProvider(ElementWidgetProvider * elementProvider);
     void reset();
 
-    bool saveAssembly(QString filename, AssemblyDefinition *assembly);
+    //bool saveAssembly(QString filename, AssemblyDefinition *assembly);
+    void updateAssembly(AssemblyDefinition* assembly);
     bool loadAssembly(QString assemblyName);
     void setMessageTarget(QWidget *targetWidget);
     void initViewport();
+
+    void setProcessDataManager(ProcessDataManager *processDataManager);
+
 
 private:
     QPointer<PipeWidget> _pipeItem;
     QList<PipeWidget *> _connectors;
     QWidget * _viewport;
     QWidget * _messageTargetWidget;
+    ProcessDataManager *_processDataManager;
 
     ElementWidgetProvider * _elementProvider;
     Server * _server;

@@ -6,7 +6,7 @@ using namespace MatisseServer;
 
 AssemblyGraphicsScene::AssemblyGraphicsScene(const QRectF &sceneRect, QObject *parent) :
     QGraphicsScene(sceneRect, parent),
-    _server(NULL), _isSceneActive(false), _isAssemblyModified(false), _isAssemblyComplete(false)
+    _server(NULL), _processDataManager(NULL), _isSceneActive(false), _isAssemblyModified(false), _isAssemblyComplete(false)
 {
     //    _startPos = QPointF();
     //    _endPos = QPointF();
@@ -29,21 +29,25 @@ void AssemblyGraphicsScene::checkAssemblyComplete()
     // check source
     if (!_sourceWidget) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     // check destination
     if (!_destinationWidget) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     // check at least 1 processor
     if (_processorsWidgets.isEmpty()) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     // check connectors
     if (_connectors.isEmpty()) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     bool sourceConnected = false;
@@ -83,10 +87,12 @@ void AssemblyGraphicsScene::checkAssemblyComplete()
     /* assembly is not complete if either source or destination is disconnected */
     if (!sourceConnected) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     if (!destinationConnected) {
         applyAssemblyCompleteness(false);
+        return;
     }
 
     /* check if all processors are connected at input and output */
@@ -600,105 +606,138 @@ void AssemblyGraphicsScene::reset()
     applyAssemblyCompleteness(false);
 }
 
-bool AssemblyGraphicsScene::saveAssembly(QString filename, AssemblyDefinition *assembly)
-{
-    if (!assembly) {
-        qWarning() << "Assembly is null : could not be saved";
-        return false;
-    }
+//bool AssemblyGraphicsScene::saveAssembly(QString filename, AssemblyDefinition *assembly)
+//{
+//    /* Assembly completeness is not tested here : the completeness event is signalled to
+//     * controlling class that should handle save action activation or not */
 
-    // TODO: vérification, de la présence des paramètres
-    // TODO: vérification de la liste des entrées
-    QFile assemblyFile(filename);
-    QTextStream os(&assemblyFile);
-    os.setCodec("UTF-8"); // forcer l'encodage en UTF-8, sinon les caractères accentués
-                          // mal encodés empêchent de relire l'assemblage
-    if (!assemblyFile.open(QIODevice::WriteOnly)) {
-        qDebug() << "Erreur ouverture ecriture";
-        return false;
-    }
-
-    bool valid = false;
-
-    QString name = assembly->name();
-
-    os << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-    os << QString("<MatisseAssembly name=\"%1\" isRealTime=\"%2\" usable=\"%3\">\n").arg(name).arg(assembly->isRealTime()).arg(valid);
-    os << "\t<DescriptorFields>\n";
-
-    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Author").arg(assembly->author());
-    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Version").arg(assembly->version());
-    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Comments").arg(assembly->comment());
-    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Date").arg(assembly->date());
-
-//    QStringList fieldsKeys = QStringList() << "Author" << "Version" << "Comments" << "Date";
-//    foreach(QString key, fieldsKeys) {
-//        // test manuel pour l'instant...
-//        os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg(key).arg(fields.getValue(key));
+//    if (!assembly) {
+//        // This case can not occur as assembly is tested by calling class
+//        qWarning() << "Assembly is null : could not be saved";
+//        return false;
 //    }
-    os << "\t</DescriptorFields>\n";
-    // On teste tout au cas ou l'assemblage ne serait pas valide...
-    // ecriture des parameters
-//    QString parametersName = "";
-//    QString parametersVersion = "";
-//    if (_parametersWidget) {
-//        QStringList args = _parametersWidget ->getName().split("\n");
-//        if (args.size() > 1) {
-//            parametersVersion = args[0];
-//            parametersName = args[1];
-//        }
+
+//    // TODO: vérification, de la présence des paramètres
+//    // TODO: vérification de la liste des entrées
+//    QFile assemblyFile(filename);
+//    QTextStream os(&assemblyFile);
+//    os.setCodec("UTF-8"); // forcer l'encodage en UTF-8, sinon les caractères accentués
+//                          // mal encodés empêchent de relire l'assemblage
+//    if (!assemblyFile.open(QIODevice::WriteOnly)) {
+//        qDebug() << "Erreur ouverture ecriture";
+//        return false;
 //    }
-//    os << QString("\t<Parameters id=\"%1\" model=\"%2\" name=\"%3\"/>\n").arg(99).arg(parametersVersion).arg(parametersName);
+
+//    bool valid = false;
+
+//    QString name = assembly->name();
+
+//    os << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+//    os << QString("<MatisseAssembly name=\"%1\" isRealTime=\"%2\" usable=\"%3\">\n").arg(name).arg(assembly->isRealTime()).arg(valid);
+//    os << "\t<DescriptorFields>\n";
+
+//    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Author").arg(assembly->author());
+//    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Version").arg(assembly->version());
+//    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Comments").arg(assembly->comment());
+//    os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg("Date").arg(assembly->date());
+
+////    QStringList fieldsKeys = QStringList() << "Author" << "Version" << "Comments" << "Date";
+////    foreach(QString key, fieldsKeys) {
+////        // test manuel pour l'instant...
+////        os << QString("\t\t<%1>\n\t\t\t%2\n\t\t</%1>\n").arg(key).arg(fields.getValue(key));
+////    }
+//    os << "\t</DescriptorFields>\n";
+//    // On teste tout au cas ou l'assemblage ne serait pas valide...
+//    // ecriture des parameters
+////    QString parametersName = "";
+////    QString parametersVersion = "";
+////    if (_parametersWidget) {
+////        QStringList args = _parametersWidget ->getName().split("\n");
+////        if (args.size() > 1) {
+////            parametersVersion = args[0];
+////            parametersName = args[1];
+////        }
+////    }
+////    os << QString("\t<Parameters id=\"%1\" model=\"%2\" name=\"%3\"/>\n").arg(99).arg(parametersVersion).arg(parametersName);
+////    os << "\n";
+//    // ecriture de la source
+//    QString sourceName = "";
+//    if (_sourceWidget) {
+//        sourceName = _sourceWidget->getName();
+//    }
+
+//    os << QString("\t<Source id=\"%1\" name=\"%2\" order=\"0\"/>\n").arg(99).arg(sourceName);
 //    os << "\n";
-    // ecriture de la source
-    QString sourceName = "";
-    if (_sourceWidget) {
-        sourceName = _sourceWidget->getName();
-    }
+//    // ecriture des processeurs
+//    os << "\t<Processors>\n";
+//    foreach(quint8 procPos, _processorsWidgets.keys()) {
+//        ProcessorWidget * curProc = _processorsWidgets.value(procPos);
+//        os << QString("\t\t<Processor id=\"%1\" name=\"%2\" order=\"%3\"/>\n").arg(99).arg(curProc->getName()).arg(procPos);
+//    }
+//    os << "\t</Processors>\n";
+//    os << "\n";
 
-    os << QString("\t<Source id=\"%1\" name=\"%2\" order=\"0\"/>\n").arg(99).arg(sourceName);
-    os << "\n";
-    // ecriture des processeurs
-    os << "\t<Processors>\n";
+//    // ecriture de la destination
+//    QString destinationName;
+//    QString destinationOrder;
+//    if (_destinationWidget) {
+//        destinationName = QString("%1").arg(_destinationWidget->getName());
+//        destinationOrder = QString("%1").arg(_destinationWidget->getOrder());
+//    }
+//    os << QString("\t<Destination id=\"%1\" name=\"%2\" order=\"%3\"/>\n").arg(99).arg(destinationName).arg(destinationOrder);
+//    os << "\n";
+//    // ecriture des relations
+//    os << "\t<Connections>\n";
+//    foreach(PipeWidget * pipe, _connectors) {
+//        qint8 order1 = pipe->getStartElement()->getOrder();
+//        qint8 line1 = pipe->getStartElementLine();
+//        qint8 order2 = pipe->getEndElement()->getOrder();
+//        qint8 line2 = pipe->getEndElementLine();
+//        QColor color = pipe->getColor();
+//        os << QString("\t\t<Connection startOrder=\"%1\" startLine=\"%2\" endOrder=\"%3\" endLine=\"%4\" color=\"%5\"/>\n").arg(order1).arg(line1).arg(order2).arg(line2).arg(color.rgba());
+//    }
+//    os << "\t</Connections>\n";
+//    os << "</MatisseAssembly>";
+//    os.flush();
+//    assemblyFile.close();
+
+//    return true;
+//}
+
+/* Update assembly definition object with current graphical state */
+void AssemblyGraphicsScene::updateAssembly(AssemblyDefinition *assembly)
+{
+    assembly->clearAllElements();
+
+    SourceDefinition *sourceDef = new SourceDefinition(_sourceWidget->getName());
+    assembly->setSourceDefinition(sourceDef);
+
     foreach(quint8 procPos, _processorsWidgets.keys()) {
         ProcessorWidget * curProc = _processorsWidgets.value(procPos);
-        os << QString("\t\t<Processor id=\"%1\" name=\"%2\" order=\"%3\"/>\n").arg(99).arg(curProc->getName()).arg(procPos);
+        ProcessorDefinition *newProcDef = new ProcessorDefinition(curProc->getName(), curProc->getOrder());
+        assembly->addProcessorDef(newProcDef);
     }
-    os << "\t</Processors>\n";
-    os << "\n";
 
-    // ecriture de la destination
-    QString destinationName;
-    QString destinationOrder;
-    if (_destinationWidget) {
-        destinationName = QString("%1").arg(_destinationWidget->getName());
-        destinationOrder = QString("%1").arg(_destinationWidget->getOrder());
-    }
-    os << QString("\t<Destination id=\"%1\" name=\"%2\" order=\"%3\"/>\n").arg(99).arg(destinationName).arg(destinationOrder);
-    os << "\n";
-    // ecriture des relations
-    os << "\t<Connections>\n";
+    DestinationDefinition *destinationDef = new DestinationDefinition(_destinationWidget->getName(), _destinationWidget->getOrder());
+    assembly->setDestinationDefinition(destinationDef);
+
     foreach(PipeWidget * pipe, _connectors) {
         qint8 order1 = pipe->getStartElement()->getOrder();
         qint8 line1 = pipe->getStartElementLine();
         qint8 order2 = pipe->getEndElement()->getOrder();
         qint8 line2 = pipe->getEndElementLine();
         QColor color = pipe->getColor();
-        os << QString("\t\t<Connection startOrder=\"%1\" startLine=\"%2\" endOrder=\"%3\" endLine=\"%4\" color=\"%5\"/>\n").arg(order1).arg(line1).arg(order2).arg(line2).arg(color.rgba());
-    }
-    os << "\t</Connections>\n";
-    os << "</MatisseAssembly>";
-    os.flush();
-    assemblyFile.close();
 
-    return true;
+        ConnectionDefinition *newConnDef = new ConnectionDefinition(order1, line1, order2, line2, color.rgba());
+        assembly->addConnectionDef(newConnDef);
+    }
 }
 
 bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 {
     qDebug() << "AssemblyGraphicsScene::loadAssembly" << assemblyName;
 
-    AssemblyDefinition * assembly = _server->xmlTool().getAssembly(assemblyName);
+    AssemblyDefinition * assembly = _processDataManager->getAssembly(assemblyName);
     if (!assembly) {
         QMessageBox::warning(_messageTargetWidget, tr("Assemblage invalide"), tr("L'assemblage ne peut etre charge..."));
         return false;
@@ -871,3 +910,8 @@ void AssemblyGraphicsScene::initViewport()
 {
     _viewport =  views().at(0)->viewport();
 }
+void AssemblyGraphicsScene::setProcessDataManager(ProcessDataManager *processDataManager)
+{
+    _processDataManager = processDataManager;
+}
+

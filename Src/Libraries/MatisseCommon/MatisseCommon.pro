@@ -23,6 +23,7 @@ include(../../Scripts/BasicProcessing.pri)
 
 PROTOS = src/proto/nav_photo_info.proto
 include(../../Scripts/ProtoBuf.pri)
+include(../../Scripts/QuaZIP.pri)
 
 
 HEADERS += \
@@ -50,7 +51,8 @@ HEADERS += \
     src/GraphicalCharter.h \
     src/FileUtils.h \
     src/NavPhotoInfoTcpListener.h \
-    src/matissemetatypes.h
+    src/matissemetatypes.h \
+    src/StringUtils.h
 
 SOURCES += \
     src/Processor.cpp \
@@ -70,7 +72,8 @@ SOURCES += \
     src/GeoTransform.cpp \
     src/RasterGeoreferencer.cpp \
     src/FileUtils.cpp \
-    src/NavPhotoInfoTcpListener.cpp
+    src/NavPhotoInfoTcpListener.cpp \
+    src/StringUtils.cpp
 
 OTHER_FILES += src/proto/*.*
 

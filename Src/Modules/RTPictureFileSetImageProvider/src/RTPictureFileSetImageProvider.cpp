@@ -43,7 +43,7 @@ bool RTPictureFileSetImageProvider::configure()
         return false;
     }
     qDebug() << logPrefix()  << "Port: " << udpPort;
-    _pictureFileSet = new PictureFileSet(rootDirnameStr,false);
+    _pictureFileSet = new PictureFileSet(rootDirnameStr);
 
     _udpListener = new Dim2UDPListener();
     _udpListener->slot_configure(udpPort);

@@ -2,7 +2,10 @@
 #include <QList>
 #include <QtDebug>
 #include <QTranslator>
+#include <QStyleFactory>
+#include <qgsapplication.h>
 
+#include "FileUtils.h"
 #include "Server.h"
 #include "FileImage.h"
 #include "ImageSet.h"
@@ -12,8 +15,9 @@
 #include "MatisseParameters.h"
 #include "AssemblyGui.h"
 #include "WelcomeDialog.h"
-#include <qgsapplication.h>
-#include <QStyleFactory>
+#include "SystemDataManager.h"
+#include "ProcessDataManager.h"
+
 using namespace MatisseServer;
 using namespace MatisseTools;
 
@@ -65,57 +69,31 @@ int main(int argc, char *argv[])
 
     setlocale(LC_ALL, "C");
 
-    //a.setStyle(QStyleFactory::create("Fusion"));
+    qRegisterMetaType< basicproc::Polygon >();
 
-    // Define default encoding for all text streaming
+    /* Define default encoding for all text streaming */
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
     qDebug() << QgsApplication::showSettings();
-    QString testLaunch("testLaunch");
-    if (argc==2 && testLaunch== argv[1])
-    {
-        qDebug() << testLaunch;
-        Server server;
-        server.setSettingsFile();
-        server.init();
 
-        server.xmlTool().readAssemblyFile("Assemblage_1.xml");
-        JobDefinition * jobDef = server.xmlTool().getJob("job2");
+    /* Clean all temp directories created during previous sessions */
+    FileUtils::removeAllTempDirectories();
 
-        server.processJob(*jobDef);
+    /* Create managers to be injected */
+    SystemDataManager systemDataManager;
+    systemDataManager.readMatisseSettings("config/MatisseSettings.xml");
+    QString dataRootDir = systemDataManager.getDataRootDir();
+    QString userDataPath = systemDataManager.getUserDataPath();
+    ProcessDataManager processDataManager(dataRootDir, userDataPath);
 
-        // Attente 1 seconde pour les flusher les logs
-        QTime dieTime= QTime::currentTime().addSecs(1);
-        while( QTime::currentTime() < dieTime ) {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-        }
-
-        delete jobDef;
-
-        return 0;
-    }
-
-    QString settingsFile = "";
-    if (argc > 1) {
-        settingsFile = argv[1];
-    }
-
-
-    AssemblyGui w(settingsFile);
+    /* Create main window */
+    AssemblyGui w;
     w.setObjectName("_MW_assemblyGui");
-
-    if (!w.isShowable()) {
-        return -1;
-    }
-
-    // Afficher en premier l'écran d'accueil
-    WelcomeDialog wd(&w);
-    wd.setObjectName("_D_welcomeDialog");
-    wd.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-    wd.show();
-
+    w.setSystemDataManager(&systemDataManager);
+    w.setProcessDataManager(&processDataManager);
+    w.init();
     w.loadDefaultStyleSheet();
-    w.setWindowFlags(Qt::FramelessWindowHint);//| Qt::WindowMinimizeButtonHint);
+    w.setWindowFlags(Qt::FramelessWindowHint);
 
     return a.exec();
 }

@@ -4,28 +4,14 @@
         <file>icons/Clef.svg</file>
         <file>icons/Dossier.svg</file>
         <file>icons/File.svg</file>
-        <file>icons/Fleche-droite.svg</file>
-        <file>icons/Fleche-gauche.svg</file>
         <file>icons/Maison.svg</file>
         <file>icons/Roue.svg</file>
-        <file>icons/Main_mode-dt.svg</file>
-        <file>icons/Main_mode-prog.svg</file>
-        <file>icons/Main_mode-rt.svg</file>
-        <file>icons/Message_mode-dt.svg</file>
-        <file>icons/Message_mode-prog.svg</file>
-        <file>icons/Message_mode-rt.svg</file>
         <file>icons/agrandir.svg</file>
         <file>icons/fermer.svg</file>
         <file>icons/reduire.svg</file>
         <file>icons/trash.svg</file>
         <file>icons/reinittaille.svg</file>
-        <file>icons/led-green.svg</file>
-        <file>icons/led-orange.svg</file>
-        <file>icons/led-red.svg</file>
-        <file>icons/led-grey.svg</file>
-        <file>icons/Message-green.svg</file>
-        <file>icons/Message-grey.svg</file>
         <file>icons/Message-orange.svg</file>
-        <file>icons/Message-red.svg</file>
+        <file>icons/Main_orange.svg</file>
     </qresource>
 </RCC>

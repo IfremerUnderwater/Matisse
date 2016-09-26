@@ -13,6 +13,9 @@
 
 #include "KeyValueList.h"
 #include "ToolsCommon.h"
+#include "MatisseIconFactory.h"
+#include "IconizedButtonWrapper.h"
+
 
 using namespace MatisseTools;
 
@@ -26,10 +29,10 @@ class JobDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit JobDialog(QWidget *parent = NULL, KeyValueList * keyValues = NULL, QString jobsPath = QString());
+    explicit JobDialog(QWidget *parent,  MatisseIconFactory *iconFactory, KeyValueList * keyValues, QString jobsPath, QStringList existingJobNames, QStringList archivedJobNames);
     ~JobDialog();
 
-    static QString newJobName(QWidget * parent = NULL, KeyValueList * keyValues = NULL, QString jobsPath = QString());
+//    static QString newJobName(QWidget * parent = NULL, KeyValueList * keyValues = NULL, QString jobsPath = QString());
 
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
@@ -37,8 +40,10 @@ protected:
 private:
     Ui::JobDialog *_ui;
     KeyValueList * _keyValues;
-    QString _jobsPath;
     bool _isRealTime;
+    QString _jobsPath;
+    QStringList _existingJobNames;
+    QStringList _archivedJobNames;
 
 public slots:
     void slot_formatName(QString text);

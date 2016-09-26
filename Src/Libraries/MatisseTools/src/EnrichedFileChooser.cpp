@@ -2,7 +2,7 @@
 
 using namespace MatisseTools;
 
-EnrichedFileChooser::EnrichedFileChooser(QWidget *parent, QString label, ParameterShow type, QString defaultValue) :
+EnrichedFileChooser::EnrichedFileChooser(QWidget *parent,  MatisseIconFactory *iconFactory, QString label, ParameterShow type, QString defaultValue) :
     EnrichedFormWidget(parent)
 {
     QWidget * comboWidget = new QWidget(this);
@@ -15,10 +15,14 @@ EnrichedFileChooser::EnrichedFileChooser(QWidget *parent, QString label, Paramet
 
     _type = type;
 
+    IconizedButtonWrapper *buttonWrapper = new IconizedButtonWrapper(button);
+
     if (_type == FILE_SELECTOR_RELATIVE || _type == FILE_SELECTOR_ABSOLUTE) {
-        button->setIcon(QIcon(":/qss_icons/icons/File.svg"));
+        iconFactory->attachIcon(buttonWrapper, "lnf/icons/File.svg", false, false);
+//        button->setIcon(QIcon(":/qss_icons/icons/File.svg"));
     } else {
-        button->setIcon(QIcon(":/qss_icons/icons/Dossier.svg"));
+        iconFactory->attachIcon(buttonWrapper, "lnf/icons/Dossier.svg", false, false);
+//        button->setIcon(QIcon(":/qss_icons/icons/Dossier.svg"));
     }
 
     layout->addWidget(_lineEdit);
@@ -30,11 +34,6 @@ EnrichedFileChooser::EnrichedFileChooser(QWidget *parent, QString label, Paramet
     connect(button, SIGNAL(clicked()), this, SLOT(slot_clicked()));
     connect(_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(slot_valueChanged()));
 }
-
-//bool EnrichedFileChooser::currentValueChanged()
-//{
-//    return _lineEdit->text().trimmed() != _defaultValue;
-//}
 
 QString EnrichedFileChooser::currentValue()
 {

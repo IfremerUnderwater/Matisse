@@ -3,12 +3,14 @@
 
 using namespace MatisseServer;
 
-JobDialog::JobDialog(QWidget *parent, KeyValueList *keyValues, QString jobsPath) :
+JobDialog::JobDialog(QWidget *parent, MatisseIconFactory *iconFactory, KeyValueList *keyValues, QString jobsPath, QStringList existingJobNames, QStringList archivedJobNames) :
     QDialog(parent),
     _ui(new Ui::JobDialog),
     _keyValues(keyValues),
+    _isRealTime(false),
     _jobsPath(jobsPath),
-    _isRealTime(false)
+    _existingJobNames(existingJobNames),
+    _archivedJobNames(archivedJobNames)
 {
     _ui->setupUi(this);
 
@@ -37,6 +39,15 @@ JobDialog::JobDialog(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
     connect(_ui->_PB_dataPath, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
     connect(_ui->_PB_resultPath, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
     connect(_ui->_PB_navigationFile, SIGNAL(clicked()), this, SLOT(slot_selectFile()));
+
+    IconizedButtonWrapper *dataPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_dataPath);
+    iconFactory->attachIcon(dataPathButtonWrapper, "lnf/icons/Dossier.svg");
+
+    IconizedButtonWrapper *resultPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_resultPath);
+    iconFactory->attachIcon(resultPathButtonWrapper, "lnf/icons/Dossier.svg");
+
+    IconizedButtonWrapper *navFileButtonWrapper = new IconizedButtonWrapper(_ui->_PB_navigationFile);
+    iconFactory->attachIcon(navFileButtonWrapper, "lnf/icons/File.svg");
 }
 
 JobDialog::~JobDialog()
@@ -53,17 +64,17 @@ void JobDialog::changeEvent(QEvent *event)
 }
 
 
-QString JobDialog::newJobName(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
-{
-    QString jobName;
+//QString JobDialog::newJobName(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
+//{
+//    QString jobName;
 
-    JobDialog * newJobDialog = new JobDialog(parent, keyValues, jobsPath);
-    if (newJobDialog->exec() == Accepted) {
-        jobName = keyValues->getValue("name");
-    }
+//    JobDialog * newJobDialog = new JobDialog(parent, keyValues, jobsPath);
+//    if (newJobDialog->exec() == Accepted) {
+//        jobName = keyValues->getValue("name");
+//    }
 
-    return jobName;
-}
+//    return jobName;
+//}
 
 void JobDialog::slot_formatName(QString text) {
     text.replace(" ", "_");
@@ -80,7 +91,20 @@ void JobDialog::slot_close()
         name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
 
         if (name.isEmpty()) {
-            QMessageBox::warning(this, tr("Enregistrement impossible..."), tr("Un nom doit obligatoirement etre fourni pour la tache"));
+            QMessageBox::warning(this, tr("Enregistrement impossible..."), tr("Un nom doit obligatoirement etre fourni pour la tache."));
+            return;
+        }
+
+
+        if (_existingJobNames.contains(name)) {
+            QMessageBox::warning(this, tr("Enregistrement impossible..."),
+                                 tr("Le nom de tache '%1' est deja utilise.").arg(name));
+            return;
+        }
+
+        if (_archivedJobNames.contains(name)) {
+            QMessageBox::warning(this, tr("Enregistrement impossible..."),
+                                 tr("Le nom '%1' est deja utilise par une tache archivee.").arg(name));
             return;
         }
 
@@ -88,10 +112,13 @@ void JobDialog::slot_close()
         filename.replace(" ", "_").append(".xml");
         QFileInfo info(_jobsPath + QDir::separator() + filename);
         if (info.exists()) {
+            /* Technically inconsistent state */
+            qCritical() << QString("The file %1 was found, could not create job %2").arg(info.absoluteFilePath()).arg(name);
             // Le nom est déjà utilisé
-            QMessageBox::warning(this, tr("Enregistrement impossible..."), tr("Un travail sous ce nom existe deja..."));
+            QMessageBox::critical(this, tr("Enregistrement impossible..."), tr("Le fichier '%1' existe deja.").arg(info.absoluteFilePath()));
             return;
         }
+
         _keyValues->set("filename", info.absoluteFilePath());
         _keyValues->set("name", name);
         _keyValues->set("comment", _ui->_TXT_comments->toPlainText().trimmed());

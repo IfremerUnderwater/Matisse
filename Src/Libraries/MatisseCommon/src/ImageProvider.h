@@ -68,6 +68,8 @@ protected:
 signals:
     void signal_userInformation(QString userText);
     void signal_processCompletion(quint8 percentComplete);
+    void signal_showInformationMessage(QString title, QString text);
+    void signal_showErrorMessage(QString title, QString text);
     void signal_show3DFileOnMainView(QString filepath_p);
     void signal_addRasterFileToMap(QString filepath_p);
     void signal_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);

@@ -13,9 +13,10 @@
 #include "ImageProvider.h"
 #include "RasterProvider.h"
 #include "JobServer.h"
-#include "Xml.h"
 #include "FileUtils.h"
 #include "MatisseParametersManager.h"
+#include "SystemDataManager.h"
+#include "ProcessDataManager.h"
 
 using namespace MatisseCommon;
 using namespace MatisseTools;
@@ -83,7 +84,7 @@ public:
     explicit Server(QObject *parent = 0);
     virtual ~Server();
 
-    bool setSettingsFile(QString settings = "");
+    //bool setSettingsFile(QString settings = "");
     void init();
     void setMainGui(AssemblyGui* mainGui_p);
 
@@ -102,8 +103,11 @@ public:
     bool stopJob(bool cancel=false);
     bool errorFlag();
     QString messageStr();
-    Xml& xmlTool();
+//    Xml& xmlTool();
     MatisseParametersManager * parametersManager() { return _dicoParamMgr; }
+
+    void setSystemDataManager(SystemDataManager *systemDataManager);
+    void setProcessDataManager(ProcessDataManager *processDataManager);
 
 signals:
     void signal_jobShowImageOnMainView(QString jobName, Image *image);
@@ -121,10 +125,12 @@ private:
     bool loadParametersDictionnary();
 
     AssemblyGui* _mainGui;
+    SystemDataManager *_systemDataManager;
+    ProcessDataManager *_processDataManager;
     JobServer *_jobServer;
     JobTask* _currentJob;
     QThread* _thread;
-    Xml _xmlTool;
+    //Xml _xmlTool;
     MatisseParametersManager* _dicoParamMgr;
     QHash<QString, Processor*> _processors;
     QHash<QString, ImageProvider*> _imageProviders;

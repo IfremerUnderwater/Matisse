@@ -57,12 +57,15 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="QToolButton" name="homeButton">
+    <widget class="QToolButton" name="_TB_homeButton">
      <property name="minimumSize">
       <size>
        <width>60</width>
        <height>60</height>
       </size>
+     </property>
+     <property name="toolTip">
+      <string>Retour a l'ecran d'accueil</string>
      </property>
      <property name="text">
       <string>...</string>

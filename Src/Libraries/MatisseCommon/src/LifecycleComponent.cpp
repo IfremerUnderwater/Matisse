@@ -4,8 +4,7 @@ using namespace MatisseCommon;
 
 LifecycleComponent::LifecycleComponent(QString name, QString logPrefix)
 : _name(name),
-  _logPrefix(logPrefix),
-  _expectedParameters(QList<MatisseParameter>())
+  _logPrefix(logPrefix)
 {
 }
 

@@ -32,12 +32,12 @@
   <path
      d="M 11.142892,0.05497337 A 1.9716319,1.9716319 0 0 0 9.1707497,2.0271155 l 0,2.868571 -3.3048323,-0.035853 C 5.1540503,4.850829 4.50063,5.4985317 4.503347,6.2104512 L 4.569089,28.597254 c 0.00366,0.70192 0.6427107,1.338177 1.3446419,1.338663 l 18.3827531,0 c 0.703916,-4.59e-4 1.344145,-0.640725 1.344641,-1.344639 l 0,-22.1895889 C 25.640799,5.7037013 25.012323,5.0668358 24.314407,5.0570443 l -3.316784,-0.035853 0,-2.9940707 A 1.9716319,1.9716319 0 0 0 19.025482,0.05497633 l -7.88259,0 z m 8.492162,9.36468793 a 1.1188542,1.1188542 0 0 1 1.135476,1.1354757 l 0,14.241257 a 1.1188542,1.1188542 0 1 1 -2.235096,0 l 0,-14.241257 a 1.1188542,1.1188542 0 0 1 1.09962,-1.1354757 z m -9.269067,0.065742 a 1.1188542,1.1188542 0 0 1 1.135477,1.1354757 l 0,14.24723 a 1.1188542,1.1188542 0 1 1 -2.2350954,0 l 0,-14.24723 A 1.1188542,1.1188542 0 0 1 10.365987,9.4854034 z m 4.703262,0 a 1.1188542,1.1188542 0 0 1 1.135474,1.1354757 l 0,14.24723 a 1.1188542,1.1188542 0 1 1 -2.235094,0 l 0,-14.24723 a 1.1188542,1.1188542 0 0 1 1.09962,-1.1354757 z"
      id="path4678"
-     style="font-size:medium;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:normal;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:14.07102203;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans" />
+     style="font-size:medium;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:normal;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:{%color.white%};fill-opacity:1;stroke:none;stroke-width:14.07102203;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans" />
   <rect
      width="25.193666"
      height="3.8294375"
      x="2.476047"
      y="3.2324283"
      id="rect4747"
-     style="fill:#ffffff;fill-opacity:1;stroke:none" />
+     style="fill:{%color.white%};fill-opacity:1;stroke:none" />
 </svg>

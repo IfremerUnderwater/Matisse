@@ -17,18 +17,21 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QDesktopServices>
+#include <QRegExp>
 
 #include <QtDebug>
 
 #include "ElementWidgetProvider.h"
 #include "AssemblyGraphicsScene.h"
 #include "KeyValueList.h"
-#include "Xml.h"
 #include "Server.h"
 #include "GraphicalCharter.h"
 #include "AssemblyDialog.h"
 #include "JobDialog.h"
 #include "PreferencesDialog.h"
+#include "DuplicateDialog.h"
+#include "RestoreJobsDialog.h"
+#include "NetworkCheckDialog.h"
 #include "UserFormWidget.h"
 #include "ExpertFormWidget.h"
 #include "Dim2FileReader.h"
@@ -38,7 +41,16 @@
 #include "MatisseMenu.h"
 #include "LiveProcessWheel.h"
 #include "AboutDialog.h"
-
+#include "SystemDataManager.h"
+#include "ProcessDataManager.h"
+#include "PlatformComparisonStatus.h"
+#include "StringUtils.h"
+#include "MatisseIconFactory.h"
+#include "IconizedButtonWrapper.h"
+#include "IconizedLabelWrapper.h"
+#include "IconizedTreeItemWrapper.h"
+#include "MatisseTreeItem.h"
+#include "WelcomeDialog.h"
 
 namespace Ui {
 class AssemblyGui;
@@ -54,15 +66,45 @@ enum MessageIndicatorLevel {
 };
 
 
+enum UserAction {
+    SYSTEM_INIT,
+    SWAP_VIEW,
+    CHANGE_APP_MODE,
+    CREATE_ASSEMBLY,
+    MODIFY_ASSEMBLY,
+    SAVE_ASSEMBLY,
+    SAVE_JOB,
+    SELECT_ASSEMBLY,
+    SELECT_JOB,
+    RUN_JOB,
+    JOB_COMPLETE,
+    STOP_JOB
+};
+
+class UserActionContext {
+public:
+    UserActionContext() :
+        _lastActionPerformed(SYSTEM_INIT) {}
+    UserAction lastActionPerformed() const { return _lastActionPerformed; }
+    void setLastActionPerformed(UserAction lastActionPerformed) {
+        qDebug() << "Last action performed : " << lastActionPerformed;
+        _lastActionPerformed = lastActionPerformed;
+    }
+
+private:
+    UserAction _lastActionPerformed;
+};
+
 class AssemblyGui : public QMainWindow, ElementWidgetProvider
 {
     Q_OBJECT
     
 public:
-    explicit AssemblyGui(QString settingsFile, QWidget *parent = 0);
+    explicit AssemblyGui(QWidget *parent = 0);
     ~AssemblyGui();
-    bool setSettingsFile(QString settings);
-    bool isShowable();
+//    bool setSettingsFile(QString settings);
+//    bool isShowable();
+    void init();
     void loadDefaultStyleSheet();
 
     virtual SourceWidget * getSourceWidget(QString name);
@@ -75,18 +117,28 @@ public:
     void checkAndSelectJob(QTreeWidgetItem* selectedItem);
     void resetOngoingProcessIndicators();
     void updatePreferredDatasetParameters();
+
+    void setSystemDataManager(SystemDataManager *systemDataManager);
+    void setProcessDataManager(ProcessDataManager *processDataManager);
+
+    void initMapFeatures();
 private:
     Ui::AssemblyGui *_ui;
     bool _isMapView;
     Server _server;
-    bool _canShow;
+//    bool _canShow;
+    UserActionContext _context;
 
-    QString _settingsFile;
-    QString _rootXml;
-    QString _dataPath;
+    SystemDataManager *_systemDataManager;
+    ProcessDataManager *_processDataManager;
+
+//    QString _settingsFile;
     QString _appVersion;
 
-    bool _beforeSelect;
+    QString _exportPath;
+    QString _importPath;
+    QString _archivePath;
+
     MatissePreferences* _preferences;
     QTranslator* _toolsTranslator_en;
     QTranslator* _toolsTranslator_fr;
@@ -99,6 +151,12 @@ private:
     bool _isAssemblyComplete;
 
     static const QString PREFERENCES_FILEPATH;
+    static const QString ASSEMBLY_EXPORT_PREFIX;
+    static const QString JOB_EXPORT_PREFIX;
+    static const QString DEFAULT_EXCHANGE_PATH;
+    static const QString DEFAULT_ARCHIVE_PATH;
+    static const QString DEFAULT_RESULT_PATH;
+    static const QString DEFAULT_MOSAIC_PREFIX;
 
     QTreeWidgetItem * _lastJobLaunchedItem;
     AssemblyDefinition *_newAssembly;
@@ -121,18 +179,23 @@ private:
     QHash<QString, QTreeWidgetItem*> _assembliesItems;
     QHash<QString, KeyValueList*> _assembliesProperties;
     QMap<ApplicationMode, QString> _stylesheetByAppMode;
-    QMap<ApplicationMode, QIcon> _stopButtonIconByAppMode;
-    QMap<ApplicationMode, QPixmap> _messagePictoByAppMode;
     QMap<ApplicationMode, QString> _wheelColorsByMode;
-    QMap<MessageIndicatorLevel, QPixmap> _messagePictoByLevel;
-    QMap<MessageIndicatorLevel, QIcon> _messagesLevelIcons;
-    QIcon _mapVisuModeIcon;
-    QIcon _creationVisuModeIcon;
+    QMap<ApplicationMode, QString> _colorsByMode1;
+    QMap<ApplicationMode, QString> _colorsByMode2;
+    QMap<MessageIndicatorLevel, QString> _colorsByLevel;
     QToolButton* _visuModeButton;
     QToolButton* _stopButton;
-    QIcon _maximizeIcon;
-    QIcon _restoreToNormalIcon;
     QToolButton* _maximizeOrRestoreButton;
+    QToolButton* _closeButton;
+    QToolButton* _minimizeButton;
+    QToolButton* _homeButton;
+    QPushButton* _resetMessagesButton;
+    HomeWidget *_homeWidget;
+    WelcomeDialog *_welcomeDialog;
+
+
+    bool _isNightDisplayMode;
+    QMap<QString, QString> _currentColorSet;
 
     QLabel *_activeViewOrModeLabel;
     QLabel *_currentDateTimeLabel;
@@ -147,7 +210,11 @@ private:
 
     QHash<QString, SourceWidget *> _availableSources;
     QHash<QString, ProcessorWidget *> _availableProcessors;
-    QHash<QString, DestinationWidget *> _availableDestinations;    
+    QHash<QString, DestinationWidget *> _availableDestinations;
+
+    MatisseIconFactory *_iconFactory;
+    IconizedWidgetWrapper *_maxOrRestoreButtonWrapper;
+    IconizedWidgetWrapper *_visuModeButtonWrapper;
 
     /* static menu headers */
     MatisseMenu *_fileMenu;
@@ -194,8 +261,8 @@ private:
     QAction* _goToResultsAct;
 
 private:
-    void init();
     void initMainMenu();
+    void initIconFactory();
     void initStylesheetSelection();
     void initContextMenus();
     void enableActions();
@@ -205,6 +272,12 @@ private:
     void loadAssemblyParameters(AssemblyDefinition *selectedAssembly);
     void initParametersWidget();
     void initProcessorWidgets();
+    void lookupChildWidgets();
+    void initProcessWheelSignalling();
+    void initUserActions();
+    void initServer();
+    void initAssemblyCreationScene();
+    void initWelcomeDialog();
     //bool getAssemblyValues(QString filename, QString  name, bool &valid, KeyValueList & assemblyValues);
     void loadAssembliesAndJobsLists(bool doExpand=true);
     void displayAssembly(QString assemblyName);
@@ -222,7 +295,7 @@ private:
     void displayAssemblyProperties(AssemblyDefinition *selectedAssembly);
 
     void initStatusBar();
-    void showStatusMessage(QString message = "", MessageIndicatorLevel level = IDLE, bool progressOn = false);
+    void showStatusMessage(QString message = "", MessageIndicatorLevel level = IDLE);
 
     void initLanguages();
     void updateLanguage(QString language, bool forceRetranslation = FALSE);
@@ -241,6 +314,13 @@ private:
     void promptJobNotSaved();
 
     void deleteAssemblyAndReload(bool promptUser);
+    void createExportDir();
+    void createImportDir();
+    void executeImportWorkflow(bool isJobImportAction = false);
+    void executeExportWorkflow(bool isJobExportAction = false);
+    void checkArchiveDirCreated();
+    bool checkArchivePathChange();
+
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 
@@ -264,6 +344,8 @@ protected slots:
     void slot_jobShowImageOnMainView(QString name, Image *image);
     void slot_userInformation(QString userText);
     void slot_processCompletion(quint8 percentComplete);
+    void slot_showInformationMessage(QString title, QString message);
+    void slot_showErrorMessage(QString title, QString message);
     void slot_jobProcessed(QString name, bool isCancelled);
     void slot_assembliesReload();
     void slot_modifiedParameters(bool changed);
@@ -275,6 +357,23 @@ protected slots:
     void slot_foldUnfoldParameters();
     void slot_showUserManual();
     void slot_showAboutBox();
+    void slot_exportAssembly();
+    void slot_importAssembly();
+    void slot_exportJob();
+    void slot_importJob();
+    void slot_goToResult();
+    void slot_archiveJob();
+    void slot_restoreJobs();
+    void slot_duplicateJob();
+    void slot_duplicateAssembly();
+    void slot_checkNetworkRx();
+    void slot_swapDayNightDisplay();
+    void slot_exportMapToImage();
+    void slot_exportMapToQgisProject();
+    void slot_loadShapeFile();
+    void slot_loadRasterFile();
+    void slot_launchExposureTool();
+    void slot_launchVideoToImageTool();
 
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);
@@ -286,11 +385,13 @@ public slots:
     void slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p);
 
 signals:
-    void signal_showWelcome();
     void signal_processRunning();
     void signal_processStopped();
     void signal_processFrozen();
     void signal_updateWheelColors(QString colors);
+    void signal_updateColorPalette(QMap<QString,QString>);
+    void signal_updateExecutionStatusColor(QString newStatusColorAlias);
+    void signal_updateAppModeColors(QString newAppModeColorAlias1, QString newAppModeColorAlias2);
 };
 }
 

@@ -3,7 +3,9 @@
 using namespace MatisseTools;
 
 AssemblyDefinition::AssemblyDefinition(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    _sourceDefinition(NULL),
+    _destinationDefinition(NULL)
 {
 }
 
@@ -36,16 +38,6 @@ SourceDefinition* AssemblyDefinition::sourceDefinition() const
 void AssemblyDefinition::setSourceDefinition(SourceDefinition *sourceDefinition)
 {
     _sourceDefinition = sourceDefinition;
-}
-
-ParameterDefinition* AssemblyDefinition::parametersDefinition() const
-{
-    return _parametersDefinition;
-}
-
-void AssemblyDefinition::setParametersDefinition( ParameterDefinition *parametersDefinition)
-{
-    _parametersDefinition = parametersDefinition;
 }
 
 DestinationDefinition * AssemblyDefinition::destinationDefinition() const
@@ -128,74 +120,12 @@ void AssemblyDefinition::setComment(const QString &comment)
 
 QList<ProcessorDefinition*> AssemblyDefinition::processorDefs() const
 {
-    // TODO copy?
     return _processorDefs;
 }
 
 QList<ConnectionDefinition*> AssemblyDefinition::connectionDefs() const
 {
-    // TODO copy?
     return _connectionDefs;
-}
-
-QString AssemblyDefinition::serialized()
-{
-    QString text;
-
-    text.append(QString("<MatisseAssembly name=\"%1\" usable=\"%2\">\n").arg(name()).arg(usable()));
-
-    text.append(QString("\t<DescriptorFields>\n"));
-    text.append(QString("\t\t<Author>\n%1\n\t\t</Author>\n").arg(author()));
-    text.append(QString("\t\t<Version>\n%1\n\t\t</Version>\n").arg(version()));
-    text.append(QString("\t\t<Comments>\n%1\n\t\t</Comments>\n").arg(comment()));
-    text.append(QString("\t\t<Date>\n%1\n\t\t</Date>\n").arg(creationDate().toString("dd/MM/yyyy")));
-    text.append(QString("\t</DescriptorFields>\n\n"));
-
-    if (parametersDefinition()) {
-        text.append(QString("\t<Parameters id=\"%1\" model=\"%2\" name=\"%3\">\n\n")
-                    .arg(parametersDefinition()->id())
-                    .arg(parametersDefinition()->model())
-                    .arg(parametersDefinition()->name()));
-    }
-
-    if (sourceDefinition()) {
-        text.append(QString("\t<Source id=\"%1\" name=\"%2\" order=\"%3\">\n\n")
-                    .arg(sourceDefinition()->id())
-                    .arg(sourceDefinition()->name())
-                    .arg(sourceDefinition()->order()));
-    }
-
-    if (processorDefs().size()) {
-        text.append(QString("\t<Processors>\n"));
-        foreach(ProcessorDefinition * proc, processorDefs()) {
-            text.append(QString("\t\t<Processor id=\"%1\" name=\"%2\" order=\"%3\">\n")
-                        .arg(proc->id())
-                        .arg(proc->name())
-                        .arg(proc->order()));
-        }
-        text.append(QString("\t</Processors>\n"));
-    }
-
-    if (_destinationDefinition) {
-            text.append(QString("\t<Destination id=\"%1\" name=\"%2\" order=\"%3\">\n")
-                        .arg(_destinationDefinition->id())
-                        .arg(_destinationDefinition->name())
-                        .arg(_destinationDefinition->order()));
-    }
-
-    if (connectionDefs().size()) {
-        text.append(QString("\t<Connections>\n"));
-        foreach(ConnectionDefinition * con, connectionDefs()) {
-            text.append(QString("\t\t<Connection startOrder=\"%1\" startLine=\"%2\" endOrder=\"%3\" endLine=\"%4\" color=\"%5\">\n")
-                        .arg(con->startOrder())
-                        .arg(con->startLine())
-                        .arg(con->endOrder())
-                        .arg(con->endLine())
-                        .arg(con->color()));
-        }
-        text.append(QString("\t</Connections>\n"));
-    }
-    return text;
 }
 
 QList<AssemblyDefinitionValidity> AssemblyDefinition::checkDefinition()
@@ -208,10 +138,6 @@ QList<AssemblyDefinitionValidity> AssemblyDefinition::checkDefinition()
     quint32 maxProcessorOrder = 0;
     int destinationOrder = -1;
     bool duplicatedProcessorOrder = false;
-
-    if (!_parametersDefinition) {
-        retList << MISSING_PARAMETERS;
-    }
 
     if (!_sourceDefinition) {
         retList << MISSING_SOURCE;
@@ -330,6 +256,72 @@ QList<AssemblyDefinitionValidity> AssemblyDefinition::checkDefinition()
     return retList;
 
 }
+
+AssemblyDefinition *AssemblyDefinition::duplicate(QString newName, QString newFileName)
+{
+    AssemblyDefinition *newAssembly = new AssemblyDefinition();
+    newAssembly->setName(newName);
+    newAssembly->setFilename(newFileName);
+    newAssembly->setVersion(_version);
+    newAssembly->setAuthor(_author);
+    newAssembly->setComment(_comment);
+    newAssembly->setUsable(_usable);
+    newAssembly->setIsRealTime(_isRealTime);
+
+    QDateTime creationDate = QDateTime::currentDateTime();
+    QString ts = creationDate.toString("dd/MM/yyyy");
+    newAssembly->setCreationDate(creationDate.date());
+    newAssembly->setDate(ts);
+
+    SourceDefinition *source = new SourceDefinition(_sourceDefinition->name());
+    newAssembly->setSourceDefinition(source);
+
+    foreach (ProcessorDefinition *procDef, _processorDefs) {
+        ProcessorDefinition *processor = new ProcessorDefinition(procDef->name(), procDef->order());
+        newAssembly->addProcessorDef(processor);
+    }
+
+
+    foreach (ConnectionDefinition *connDef, _connectionDefs) {
+        ConnectionDefinition *connection = new ConnectionDefinition(
+                    connDef->startOrder(),
+                    connDef->startLine(),
+                    connDef->endOrder(),
+                    connDef->endLine(),
+                    connDef->color()
+                    );
+        newAssembly->addConnectionDef(connection);
+    }
+
+    DestinationDefinition *destination = new DestinationDefinition(_destinationDefinition->name(), _destinationDefinition->order());
+    newAssembly->setDestinationDefinition(destination);
+
+    return newAssembly;
+}
+
+void AssemblyDefinition::clearAllElements()
+{
+    if (_sourceDefinition) {
+        delete _sourceDefinition;
+        _sourceDefinition = NULL;
+    }
+
+    if (_destinationDefinition) {
+        delete _destinationDefinition;
+        _destinationDefinition = NULL;
+    }
+
+    foreach (ProcessorDefinition *procDef, _processorDefs) {
+        _processorDefs.removeOne(procDef);
+        delete procDef;
+    }
+
+    foreach (ConnectionDefinition *connDef, _connectionDefs) {
+        _connectionDefs.removeOne(connDef);
+        delete connDef;
+    }
+}
+
 bool AssemblyDefinition::isRealTime() const
 {
     return _isRealTime;
