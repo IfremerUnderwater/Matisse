@@ -4,6 +4,8 @@
 #
 #-------------------------------------------------
 
+QMAKE_CXXFLAGS += -std=c++11
+
 TARGET = MatisseServer
 TEMPLATE = app
 
