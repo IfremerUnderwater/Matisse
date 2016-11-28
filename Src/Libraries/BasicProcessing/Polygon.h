@@ -1,7 +1,7 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
-#ifdef unix
+#ifdef __unix__
 #include "gpc.h"
 #else
 extern "C" {

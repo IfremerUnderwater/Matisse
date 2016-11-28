@@ -4,6 +4,8 @@
 #
 #-------------------------------------------------
 
+QMAKE_CXXFLAGS += -std=c++11
+
 QT       -= gui
 
 TARGET = BasicProcessing

@@ -4,6 +4,8 @@
 #
 #-------------------------------------------------
 
+QMAKE_CXXFLAGS += -std=c++11
+
 #QT       -= gui
 QT       += core xml script xmlpatterns network
 

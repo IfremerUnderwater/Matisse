@@ -12,6 +12,8 @@ win32 {
 
 }
 
+QMAKE_CXXFLAGS += -std=c++11
+
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../
 CONFIG(debug, debug|release) {

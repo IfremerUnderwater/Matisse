@@ -6,9 +6,6 @@
 
 QT       += core xml
 
-win32 {
-QMAKE_CXXFLAGS += /wd4100 /wd4996
-}
 
 TARGET = Flusher
 CONFIG += plugin
@@ -17,8 +14,9 @@ TEMPLATE = lib
 
 win32 {
     QMAKE_CXXFLAGS += /wd4100 /wd4996
-
 }
+
+QMAKE_CXXFLAGS += -std=c++11
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../

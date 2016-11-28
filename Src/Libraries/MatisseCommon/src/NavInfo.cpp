@@ -1,5 +1,7 @@
 ﻿#include "NavInfo.h"
+#include <cmath>
 
+using namespace std;
 // NAN is not defined in math.h (as normally required by C99) by VSC++
 #ifdef WIN32
       int isnan(double x) { return x != x; }

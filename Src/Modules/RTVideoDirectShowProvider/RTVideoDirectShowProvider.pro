@@ -24,6 +24,9 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
     BUILD_DIR=$${SOURCE_DIR}../Build/Release
 }
+
+QMAKE_CXXFLAGS += -std=c++11
+
 # ------------------------------------------------------------------------
 
 include(../../Scripts/MatisseCommon.pri)

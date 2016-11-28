@@ -4,8 +4,6 @@
 #
 #-------------------------------------------------
 
-QMAKE_CXXFLAGS += -std=c++11
-
 TARGET = MatisseServer
 TEMPLATE = app
 
@@ -25,6 +23,9 @@ else {
     QMAKE_CXXFLAGS = -fpermissive
 
 }
+
+QMAKE_CXXFLAGS += -std=c++11
+
 
 unix{
 INCLUDEPATH *= $$PWD/src

@@ -10,6 +10,8 @@ win32{
 QMAKE_CXXFLAGS += /wd4100 /wd4996
 }
 
+QMAKE_CXXFLAGS += -std=c++11
+
 TARGET = RTPictureFileSetImageProvider
 CONFIG += plugin
 
