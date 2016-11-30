@@ -16,7 +16,7 @@ QString StringUtils::substitutePlaceHolders(QString source, QMap<QString, QStrin
         QString phKey = phRex.cap(1);
 
         if (properties.contains(phKey)) {
-            qDebug() << QString("Subsituting placeholder %1").arg(phKey);
+            //qDebug() << QString("Subsituting placeholder %1").arg(phKey);
             QString value = properties.value(phKey);
             int phSize = phRex.matchedLength();
             current.replace(index, phSize, value);

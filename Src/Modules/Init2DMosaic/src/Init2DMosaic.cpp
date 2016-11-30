@@ -17,6 +17,11 @@ Init2DMosaic::Init2DMosaic() :
     addExpectedParameter("cam_param",  "K");
     addExpectedParameter("algo_param", "scale_factor");
     addExpectedParameter("cam_param",  "V_Pose_C");
+
+    addExpectedParameter("algo_param","filter_overlap");
+    addExpectedParameter("algo_param","min_overlap");
+    addExpectedParameter("algo_param","max_overlap");
+
 }
 
 Init2DMosaic::~Init2DMosaic(){
@@ -134,6 +139,15 @@ void Init2DMosaic::onFlush(quint32 port)
         // Init cameras
         pMosaicD->initCamerasAndFrames(*pCams,true);
         qDebug() << "Init done";
+
+
+        // Filter cameras on overlap
+        if ( _matisseParameters->getBoolParamValue("overlap_filtering_params","filter_overlap", Ok) ){
+            double min_overlap = _matisseParameters->getDoubleParamValue("overlap_filtering_params","min_overlap", Ok);
+            double max_overlap = _matisseParameters->getDoubleParamValue("overlap_filtering_params","max_overlap", Ok);
+
+            pMosaicD->decimateImagesFromOverlap(min_overlap, max_overlap);
+        }
 
         // Compute extents
         pMosaicD->computeMosaicExtentAndShiftFrames();

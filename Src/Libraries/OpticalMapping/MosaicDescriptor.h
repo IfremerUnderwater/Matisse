@@ -84,6 +84,13 @@ public:
     ///
     void writeToGeoTiff(Mat &raster_p, Mat &rasterMask_p, QString filePath_p);
 
+    ///
+    /// \brief decimateImagesFromOverlap This function removes images that have to much overlap with each others
+    /// \param minOverlap_p minimum required overlap
+    /// \param maxOverlap_p maximum overlap before decimation
+    ///
+    void decimateImagesFromOverlap(double minOverlap_p=0.5, double maxOverlap_p=0.7);
+
 
 protected:
 

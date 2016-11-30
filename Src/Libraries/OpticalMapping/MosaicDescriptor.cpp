@@ -5,6 +5,9 @@
 #include <vector>
 #include <iterator>
 #include "RasterGeoreferencer.h"
+#include "Polygon.h"
+
+using namespace basicproc;
 
 MosaicDescriptor::MosaicDescriptor():_mosaicOrigin(0,0,0),
     _pixelSize(0,0),_mosaicSize(0,0), _utmHemisphere("UNDEF"),
@@ -345,6 +348,8 @@ void MosaicDescriptor::writeToGeoTiff(Mat &raster_p, Mat &rasterMask_p, QString 
     rasterGeoref.WriteGeoFile(raster_p,rasterMask_p,filePath_p,gdalOptions);
 
 }
+
+
 QVector<ProjectiveCamera *> MosaicDescriptor::cameraNodes() const
 {
     return _cameraNodes;
@@ -355,9 +360,75 @@ bool MosaicDescriptor::isInitialized() const
     return _isInitialized;
 }
 
+void MosaicDescriptor::decimateImagesFromOverlap(double minOverlap_p, double maxOverlap_p)
+{
 
 
+    // Allocate and build polygons associated with images
+    std::vector<Polygon*> vpImagesPoly;
 
 
+    for (int k=0; k < cameraNodes().size(); k++){
+        std::vector<double> x,y;
+        int xBegin, yBegin, xEnd, yEnd;
+        cv::Point imgCorner;
+        cv::Size imgSize;
+
+        cameraNodes().at(k)->computeImageExtent(imgCorner, imgSize);
+
+        // Compute extents
+        xBegin = imgCorner.x;
+        yBegin = imgCorner.y;
+
+        xEnd = imgCorner.x + imgSize.width-1;
+        yEnd = imgCorner.y + imgSize.height-1;
+
+        // Construct currentPolygon
+        Polygon *currentPolygon = new Polygon();
+        x.push_back(xBegin); x.push_back(xEnd); x.push_back(xEnd); x.push_back(xBegin);
+        y.push_back(yBegin); y.push_back(yBegin); y.push_back(yEnd); y.push_back(yEnd);
+        currentPolygon->addContour(x,y);
+        x.clear(); y.clear();
+        vpImagesPoly.push_back(currentPolygon);
+
+    }
+
+    // Decimate images
+    int i_curr = 0;
+    std::vector<bool> keptIndexes;
+    keptIndexes.push_back(true);
+
+    for (int i_next=1; i_next<(cameraNodes().size()-1 ); i_next++){
+
+        double area_ratio_1 = vpImagesPoly.at(i_curr)->clipArea(*vpImagesPoly.at(i_next), basicproc::INT)/vpImagesPoly.at(i_curr)->area();
+        double area_ratio_2 = vpImagesPoly.at(i_next)->clipArea(*vpImagesPoly.at(i_next+1), basicproc::INT)/vpImagesPoly.at(i_next)->area();
+
+        if (area_ratio_1<maxOverlap_p || area_ratio_2<minOverlap_p){
+            keptIndexes.push_back(true);
+            i_curr = i_next;
+        }else{
+            keptIndexes.push_back(false);
+        }
+
+    }
+
+    // Recreate cameraNode and delete non needed cameras
+    QVector<ProjectiveCamera*> tempCameraNodes;
+    for (unsigned int i=0; i<keptIndexes.size(); i++){
+        if (keptIndexes.at(i)==true){
+            tempCameraNodes.push_back(_cameraNodes.at(i));
+        }else{
+            delete _cameraNodes.at(i);
+        }
+    }
+
+    _cameraNodes = tempCameraNodes;
 
 
+    // Delete Polygons from memory
+    for (unsigned int i=0; i<vpImagesPoly.size(); i++){
+        delete vpImagesPoly.at(i);
+    }
+
+
+}

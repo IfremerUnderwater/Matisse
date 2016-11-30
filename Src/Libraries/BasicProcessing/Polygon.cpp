@@ -222,6 +222,37 @@ void Polygon::getContourCenter(double &cx_p, double &cy_p, int contourIndex_p)
 
 }
 
+double Polygon::area()
+{
+    // Initialze area
+    double area = 0.0;
+
+    for (unsigned int k=0; k<_contours.size(); k++){
+
+        // Calculate value of shoelace formula
+        int j = _contours[k].x.size() - 1;
+
+        for (unsigned int i = 0; i < _contours[k].x.size(); i++)
+        {
+            area += (_contours[k].x[j] + _contours[k].x[i]) * (_contours[k].y[j] - _contours[k].y[i]);
+            j = i;  // j is previous vertex to i
+        }
+
+    }
+
+    // Return absolute value
+    return abs(area / 2.0);
+}
+
+double Polygon::clipArea(Polygon &poly2_p, poly_op operation)
+{
+    Polygon result;
+
+    this->clip(poly2_p, result, operation);
+
+    return result.area();
+}
+
 bool Polygon::operator ==(const Polygon &polyB_p)
 {
     if (_contours.size() == polyB_p.contours().size()){

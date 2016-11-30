@@ -95,6 +95,20 @@ public:
     ///
     void getContourCenter(double &cx_p, double &cy_p, int contourIndex_p=0);
 
+    ///
+    /// \brief area this function compute the signed polygon area
+    /// \return area
+    ///
+    double area();
+
+    ///
+    /// \brief clipArea compute area of the clipped polygons
+    /// \param poly2_p polygon with the one clipping operation is done
+    /// \param operation : values "DIFF", "INT", "XOR" and "UNION" for corresponding boolean operation Difference, Intersection, Exclusive or, Union
+    /// \return area of clipped polygons
+    ///
+    double clipArea(Polygon &poly2_p, poly_op operation);
+
     bool operator ==(const Polygon &polyB_p);
     bool operator !=(const Polygon &polyB_p);
 
