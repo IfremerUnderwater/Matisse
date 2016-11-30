@@ -224,12 +224,12 @@ void Dim2::setComment(const QString &comment)
 {
     _comment = comment;
 }
-qreal Dim2::mainZoom() const
+double Dim2::mainZoom() const
 {
     return _mainZoom;
 }
 
-void Dim2::setMainZoom(const qreal &mainZoom)
+void Dim2::setMainZoom(const double &mainZoom)
 {
     _mainZoom = mainZoom;
 }
@@ -285,183 +285,183 @@ void Dim2::setFilename(const QString &filename)
 {
     _filename = filename;
 }
-qreal Dim2::latitude() const
+double Dim2::latitude() const
 {
     return _latitude;
 }
 
-void Dim2::setLatitude(const qreal &latitude)
+void Dim2::setLatitude(const double &latitude)
 {
     _latitude = latitude;
 }
-qreal Dim2::longitude() const
+double Dim2::longitude() const
 {
     return _longitude;
 }
 
-void Dim2::setLongitude(const qreal &longitude)
+void Dim2::setLongitude(const double &longitude)
 {
     _longitude = longitude;
 }
-qreal Dim2::depth() const
+double Dim2::depth() const
 {
     return _depth;
 }
 
-void Dim2::setDepth(const qreal &depth)
+void Dim2::setDepth(const double &depth)
 {
     _depth = depth;
 }
-qreal Dim2::altitude() const
+double Dim2::altitude() const
 {
     return _altitude;
 }
 
-void Dim2::setAltitude(const qreal &altitude)
+void Dim2::setAltitude(const double &altitude)
 {
     _altitude = altitude;
 }
-qreal Dim2::yaw() const
+double Dim2::yaw() const
 {
     return _yaw;
 }
 
-void Dim2::setYaw(const qreal &yaw)
+void Dim2::setYaw(const double &yaw)
 {
     _yaw = yaw;
 }
-qreal Dim2::roll() const
+double Dim2::roll() const
 {
     return _roll;
 }
 
-void Dim2::setRoll(const qreal &roll)
+void Dim2::setRoll(const double &roll)
 {
     _roll = roll;
 }
-qreal Dim2::pitch() const
+double Dim2::pitch() const
 {
     return _pitch;
 }
 
-void Dim2::setPitch(const qreal &pitch)
+void Dim2::setPitch(const double &pitch)
 {
     _pitch = pitch;
 }
-qreal Dim2::vx() const
+double Dim2::vx() const
 {
     return _vx;
 }
 
-void Dim2::setVx(const qreal &vx)
+void Dim2::setVx(const double &vx)
 {
     _vx = vx;
 }
-qreal Dim2::vy() const
+double Dim2::vy() const
 {
     return _vy;
 }
 
-void Dim2::setVy(const qreal &vy)
+void Dim2::setVy(const double &vy)
 {
     _vy = vy;
 }
-qreal Dim2::vz() const
+double Dim2::vz() const
 {
     return _vz;
 }
 
-void Dim2::setVz(const qreal &vz)
+void Dim2::setVz(const double &vz)
 {
     _vz = vz;
 }
-qreal Dim2::vrx() const
+double Dim2::vrx() const
 {
     return _vrx;
 }
 
-void Dim2::setVrx(const qreal &vrx)
+void Dim2::setVrx(const double &vrx)
 {
     _vrx = vrx;
 }
-qreal Dim2::vry() const
+double Dim2::vry() const
 {
     return _vry;
 }
 
-void Dim2::setVry(const qreal &vry)
+void Dim2::setVry(const double &vry)
 {
     _vry = vry;
 }
-qreal Dim2::vrz() const
+double Dim2::vrz() const
 {
     return _vrz;
 }
 
-void Dim2::setVrz(const qreal &vrz)
+void Dim2::setVrz(const double &vrz)
 {
     _vrz = vrz;
 }
-qreal Dim2::mainPan() const
+double Dim2::mainPan() const
 {
     return _mainPan;
 }
 
-void Dim2::setMainPan(const qreal &mainPan)
+void Dim2::setMainPan(const double &mainPan)
 {
     _mainPan = mainPan;
 }
-qreal Dim2::mainTilt() const
+double Dim2::mainTilt() const
 {
     return _mainTilt;
 }
 
-void Dim2::setMainTilt(const qreal &mainTilt)
+void Dim2::setMainTilt(const double &mainTilt)
 {
     _mainTilt = mainTilt;
 }
-qreal Dim2::mainFocus() const
+double Dim2::mainFocus() const
 {
     return _mainFocus;
 }
 
-void Dim2::setMainFocus(const qreal &mainFocus)
+void Dim2::setMainFocus(const double &mainFocus)
 {
     _mainFocus = mainFocus;
 }
-qreal Dim2::mainIris() const
+double Dim2::mainIris() const
 {
     return _mainIris;
 }
 
-void Dim2::setMainIris(const qreal &mainIris)
+void Dim2::setMainIris(const double &mainIris)
 {
     _mainIris = mainIris;
 }
-qreal Dim2::verticalZoom() const
+double Dim2::verticalZoom() const
 {
     return _verticalZoom;
 }
 
-void Dim2::setVerticalZoom(const qreal &verticalZoom)
+void Dim2::setVerticalZoom(const double &verticalZoom)
 {
     _verticalZoom = verticalZoom;
 }
-qreal Dim2::verticalFocus() const
+double Dim2::verticalFocus() const
 {
     return _verticalFocus;
 }
 
-void Dim2::setVerticalFocus(const qreal &verticalFocus)
+void Dim2::setVerticalFocus(const double &verticalFocus)
 {
     _verticalFocus = verticalFocus;
 }
-qreal Dim2::verticalIris() const
+double Dim2::verticalIris() const
 {
     return _verticalIris;
 }
 
-void Dim2::setVerticalIris(const qreal &verticalIris)
+void Dim2::setVerticalIris(const double &verticalIris)
 {
     _verticalIris = verticalIris;
 }

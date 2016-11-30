@@ -39,68 +39,68 @@ public:
     QString filename() const;
     void setFilename(const QString &filename);
 
-    qreal latitude() const;
-    void setLatitude(const qreal &latitude);
+    double latitude() const;
+    void setLatitude(const double &latitude);
 
-    qreal longitude() const;
-    void setLongitude(const qreal &longitude);
+    double longitude() const;
+    void setLongitude(const double &longitude);
 
-    qreal depth() const;
-    void setDepth(const qreal &depth);
+    double depth() const;
+    void setDepth(const double &depth);
 
-    qreal altitude() const;
-    void setAltitude(const qreal &altitude);
+    double altitude() const;
+    void setAltitude(const double &altitude);
 
-    qreal yaw() const;
-    void setYaw(const qreal &yaw);
+    double yaw() const;
+    void setYaw(const double &yaw);
 
-    qreal roll() const;
-    void setRoll(const qreal &roll);
+    double roll() const;
+    void setRoll(const double &roll);
 
-    qreal pitch() const;
-    void setPitch(const qreal &pitch);
+    double pitch() const;
+    void setPitch(const double &pitch);
 
-    qreal vx() const;
-    void setVx(const qreal &vx);
+    double vx() const;
+    void setVx(const double &vx);
 
-    qreal vy() const;
-    void setVy(const qreal &vy);
+    double vy() const;
+    void setVy(const double &vy);
 
-    qreal vz() const;
-    void setVz(const qreal &vz);
+    double vz() const;
+    void setVz(const double &vz);
 
-    qreal vrx() const;
-    void setVrx(const qreal &vrx);
+    double vrx() const;
+    void setVrx(const double &vrx);
 
-    qreal vry() const;
-    void setVry(const qreal &vry);
+    double vry() const;
+    void setVry(const double &vry);
 
-    qreal vrz() const;
-    void setVrz(const qreal &vrz);
+    double vrz() const;
+    void setVrz(const double &vrz);
 
-    qreal mainPan() const;
-    void setMainPan(const qreal &mainPan);
+    double mainPan() const;
+    void setMainPan(const double &mainPan);
 
-    qreal mainTilt() const;
-    void setMainTilt(const qreal &mainTilt);
+    double mainTilt() const;
+    void setMainTilt(const double &mainTilt);
 
-    qreal mainZoom() const;
-    void setMainZoom(const qreal &mainZoom);
+    double mainZoom() const;
+    void setMainZoom(const double &mainZoom);
 
-    qreal mainFocus() const;
-    void setMainFocus(const qreal &mainFocus);
+    double mainFocus() const;
+    void setMainFocus(const double &mainFocus);
 
-    qreal mainIris() const;
-    void setMainIris(const qreal &mainIris);
+    double mainIris() const;
+    void setMainIris(const double &mainIris);
 
-    qreal verticalZoom() const;
-    void setVerticalZoom(const qreal &verticalZoom);
+    double verticalZoom() const;
+    void setVerticalZoom(const double &verticalZoom);
 
-    qreal verticalFocus() const;
-    void setVerticalFocus(const qreal &verticalFocus);
+    double verticalFocus() const;
+    void setVerticalFocus(const double &verticalFocus);
 
-    qreal verticalIris() const;
-    void setVerticalIris(const qreal &verticalIris);
+    double verticalIris() const;
+    void setVerticalIris(const double &verticalIris);
 
     QString event() const;
     void setEvent(const QString &event);
@@ -119,27 +119,27 @@ private:
     QString _source;
     QString _format;
     QString _filename;
-    qreal _latitude;
-    qreal _longitude;
-    qreal _depth;
-    qreal _altitude;
-    qreal _yaw;
-    qreal _roll;
-    qreal _pitch;
-    qreal _vx;
-    qreal _vy;
-    qreal _vz;
-    qreal _vrx;
-    qreal _vry;
-    qreal _vrz;
-    qreal _mainPan;
-    qreal _mainTilt;
-    qreal _mainZoom;
-    qreal _mainFocus;
-    qreal _mainIris;
-    qreal _verticalZoom;
-    qreal _verticalFocus;
-    qreal _verticalIris;
+    double _latitude;
+    double _longitude;
+    double _depth;
+    double _altitude;
+    double _yaw;
+    double _roll;
+    double _pitch;
+    double _vx;
+    double _vy;
+    double _vz;
+    double _vrx;
+    double _vry;
+    double _vrz;
+    double _mainPan;
+    double _mainTilt;
+    double _mainZoom;
+    double _mainFocus;
+    double _mainIris;
+    double _verticalZoom;
+    double _verticalFocus;
+    double _verticalIris;
     QString _event;
     QString _tag;
     QString _comment;

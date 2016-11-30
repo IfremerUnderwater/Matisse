@@ -34,8 +34,8 @@ public slots:
 private:
     QDoubleSpinBox * _spin;
 
-    qreal _minValueReal;
-    qreal _maxValueReal;
+    double _minValueReal;
+    double _maxValueReal;
 };
 }
 

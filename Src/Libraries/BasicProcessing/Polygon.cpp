@@ -177,8 +177,8 @@ void Polygon::getBoundingBox(double &tlx_p, double &tly_p, double &brx_p, double
     brx_p=-DBL_MAX;
     bry_p=-DBL_MAX;
 
-    std::vector<qreal> xArray, yArray;
-    std::vector<qreal>::iterator min_x_it, min_y_it, max_x_it, max_y_it;
+    std::vector<double> xArray, yArray;
+    std::vector<double>::iterator min_x_it, min_y_it, max_x_it, max_y_it;
 
 
 

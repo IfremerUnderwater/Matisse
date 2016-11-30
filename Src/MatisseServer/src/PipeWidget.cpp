@@ -250,8 +250,8 @@ void PipeWidget::toDestinationPos(QPointF dstPos)
 
     //setVisible(true);
     if (_startElt) {
-        qreal leftX = qMin(_x + _deltaXt, _x + _deltaXt + _deltaXb);
-        qreal rightX = qMax(_x + _deltaXt, _x + _deltaXt + _deltaXb);
+        double leftX = qMin(_x + _deltaXt, _x + _deltaXt + _deltaXb);
+        double rightX = qMax(_x + _deltaXt, _x + _deltaXt + _deltaXb);
         QPointF locSrcPos = mapFromScene(_startElt->getOutputLinePos(_startLine));
         QPointF locDstPos = mapFromScene(dstPos);
         prepareGeometryChange();

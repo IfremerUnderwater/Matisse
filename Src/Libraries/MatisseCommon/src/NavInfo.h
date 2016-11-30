@@ -27,10 +27,10 @@ namespace MatisseCommon {
 class NavInfo
 {
 public:
-    NavInfo(quint32 dive = 0, QDateTime time = QDateTime(), qreal longitude = InvalidValue, qreal latitude = InvalidValue, qreal depth = InvalidValue, qreal altitude = InvalidValue, qreal yaw = InvalidValue, qreal roll = InvalidValue, qreal pitch = InvalidValue, qreal vx = InvalidValue, qreal vy = InvalidValue, qreal vz = InvalidValue);
+    NavInfo(quint32 dive = 0, QDateTime time = QDateTime(), double longitude = InvalidValue, double latitude = InvalidValue, double depth = InvalidValue, double altitude = InvalidValue, double yaw = InvalidValue, double roll = InvalidValue, double pitch = InvalidValue, double vx = InvalidValue, double vy = InvalidValue, double vz = InvalidValue);
     NavInfo(QString dive, QString time, QString longitude, QString latitude, QString depth, QString altitude, QString yaw, QString roll, QString pitch, QString vx, QString vy, QString vz);
 
-    void setInfo(quint32 dive = 0, QDateTime time = QDateTime(), qreal longitude = InvalidValue, qreal latitude = InvalidValue, qreal depth = InvalidValue, qreal altitude = InvalidValue, qreal yaw = InvalidValue, qreal roll = InvalidValue, qreal pitch = InvalidValue, qreal vx = InvalidValue, qreal vy = InvalidValue, qreal vz = InvalidValue, qreal pan=0.0, qreal tilt=-M_PI_2);
+    void setInfo(quint32 dive = 0, QDateTime time = QDateTime(), double longitude = InvalidValue, double latitude = InvalidValue, double depth = InvalidValue, double altitude = InvalidValue, double yaw = InvalidValue, double roll = InvalidValue, double pitch = InvalidValue, double vx = InvalidValue, double vy = InvalidValue, double vz = InvalidValue, double pan=0.0, double tilt=-M_PI_2);
     void setInfo(QString dive, QString time, QString longitude, QString latitude, QString depth, QString altitude, QString yaw, QString roll, QString pitch, QString vx, QString vy, QString vz);
     void setInfo(QStringList args);
 
@@ -42,81 +42,81 @@ public:
     void setTimeInfo(const QDateTime &timeInfo);
     void setTimeInfo(const QString &arg);
 
-    qreal longitude() const;
-    qreal latitude() const;
-    void setLatLon(const qreal &latitude,const qreal &longitude);
+    double longitude() const;
+    double latitude() const;
+    void setLatLon(const double &latitude,const double &longitude);
     void setLatLon(const QString &arg_lat, const QString &arg_lon);
 
-    qreal depth() const;
-    void setDepth(const qreal &depth);
+    double depth() const;
+    void setDepth(const double &depth);
     void setDepth(const QString &arg);
 
-    qreal altitude() const;
-    void setAltitude(const qreal &altitude);
+    double altitude() const;
+    void setAltitude(const double &altitude);
     void setAltitude(const QString &arg);
 
-    qreal yaw() const;
-    void setYaw(const qreal &yaw);
+    double yaw() const;
+    void setYaw(const double &yaw);
     void setYaw(const QString &arg);
 
-    qreal roll() const;
-    void setRoll(const qreal &roll);
+    double roll() const;
+    void setRoll(const double &roll);
     void setRoll(const QString &arg);
 
-    qreal pitch() const;
-    void setPitch(const qreal &pitch);
+    double pitch() const;
+    void setPitch(const double &pitch);
     void setPitch(const QString &arg);
 
-    qreal vx() const;
-    void setVx(const qreal &vx);
+    double vx() const;
+    void setVx(const double &vx);
     void setVx(const QString &arg);
 
-    qreal vy() const;
-    void setVy(const qreal &vy);
+    double vy() const;
+    void setVy(const double &vy);
     void setVy(const QString &arg);
 
-    qreal vz() const;
-    void setVz(const qreal &vz);
+    double vz() const;
+    void setVz(const double &vz);
     void setVz(const QString &arg);
 
     bool isValid(QString flags = "11111111");
 
     QString dump();
 
-    qreal utmX() const;
-    void setUtmX(const qreal &utmX);
+    double utmX() const;
+    void setUtmX(const double &utmX);
 
-    qreal utmY() const;
-    void setUtmY(const qreal &utmY);
+    double utmY() const;
+    void setUtmY(const double &utmY);
 
     QString utmZone() const;
     void setUtmZone(const QString &utmZone);
 
-    qreal pan() const;
-    void setPan(const qreal &pan);
+    double pan() const;
+    void setPan(const double &pan);
 
-    qreal tilt() const;
-    void setTilt(const qreal &tilt);
+    double tilt() const;
+    void setTilt(const double &tilt);
 
 private:
     quint32 _diveNumber;
     QDateTime _timeInfo;
-    qreal _utmX;
-    qreal _utmY;
+    double _utmX;
+    double _utmY;
     QString _utmZone;
-    qreal _longitude;
-    qreal _latitude;
-    qreal _depth;
-    qreal _altitude;
-    qreal _yaw;
-    qreal _roll;
-    qreal _pitch;
-    qreal _vx;
-    qreal _vy;
-    qreal _vz;
+    double _longitude;
+    double _latitude;
+    double _depth;
+    double _altitude;
+    double _yaw;
+    double _roll;
+    double _pitch;
+    double _vx;
+    double _vy;
+    double _vz;
 
-    qreal _pan;
-    qreal _tilt;
+    double _pan;
+    double _tilt;
 };
 }
 #endif // NAVINFO_H

@@ -239,7 +239,7 @@ bool MatisseParameters::getBoolParamValue(QString paramStructName, QString param
     return retValue;
 }
 
-qreal MatisseParameters::getDoubleParamValue(QString paramStructName, QString paramName, bool &ok)
+double MatisseParameters::getDoubleParamValue(QString paramStructName, QString paramName, bool &ok)
 {
     ok=true;
     QString valueStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"").trimmed();

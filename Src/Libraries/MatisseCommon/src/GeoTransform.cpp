@@ -11,7 +11,7 @@ GeoTransform::GeoTransform()
 {
 }
 
-bool GeoTransform::LatLongToUTM(qreal lat_p, qreal lon_p, qreal & x_p, qreal & y_p, QString & utmZone_p, bool forceZone)
+bool GeoTransform::LatLongToUTM(double lat_p, double lon_p, double & x_p, double & y_p, QString & utmZone_p, bool forceZone)
 {
 
     projPJ pj_latlong, pj_utm;
@@ -65,7 +65,7 @@ bool GeoTransform::LatLongToUTM(qreal lat_p, qreal lon_p, qreal & x_p, qreal & y
 
 }
 
-bool GeoTransform::UTMToLatLong(qreal x_p, qreal y_p, QString utmZone_p, qreal &lat_p, qreal &lon_p)
+bool GeoTransform::UTMToLatLong(double x_p, double y_p, QString utmZone_p, double &lat_p, double &lon_p)
 {
 
     projPJ pj_latlong, pj_utm;
@@ -107,10 +107,10 @@ bool GeoTransform::UTMToLatLong(qreal x_p, qreal y_p, QString utmZone_p, qreal &
 
 }
 
-cv::Mat GeoTransform::RotX(qreal a)
+cv::Mat GeoTransform::RotX(double a)
 {
 
-    cv::Mat R = (cv::Mat_<qreal>(3,3) <<
+    cv::Mat R = (cv::Mat_<double>(3,3) <<
                  1,       0,       0,
                  0,  cos(a), -sin(a),
                  0,  sin(a),  cos(a));
@@ -119,9 +119,9 @@ cv::Mat GeoTransform::RotX(qreal a)
 
 }
 
-cv::Mat GeoTransform::RotY(qreal a)
+cv::Mat GeoTransform::RotY(double a)
 {
-    cv::Mat R = (cv::Mat_<qreal>(3,3) <<
+    cv::Mat R = (cv::Mat_<double>(3,3) <<
                  cos(a),       0,  sin(a),
                  0,       1,       0,
                  -sin(a),       0,  cos(a));
@@ -129,9 +129,9 @@ cv::Mat GeoTransform::RotY(qreal a)
     return R;
 }
 
-cv::Mat GeoTransform::RotZ(qreal a)
+cv::Mat GeoTransform::RotZ(double a)
 {
-    cv::Mat R = (cv::Mat_<qreal>(3,3) <<
+    cv::Mat R = (cv::Mat_<double>(3,3) <<
                  cos(a), -sin(a),       0,
                  sin(a),  cos(a),       0,
                  0,       0,       1 );

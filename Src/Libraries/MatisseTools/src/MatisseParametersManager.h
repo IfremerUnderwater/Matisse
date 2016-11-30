@@ -77,7 +77,7 @@ private:
     QString getValue(QString structName, QString parameterName);
     qint32 getIntValue(QVariant value);
     bool getBoolValue(QVariant value);
-    qreal getDoubleValue(QVariant value);
+    double getDoubleValue(QVariant value);
     QStringList getNumList(Parameter param);
     QStringList getEnums(Parameter param);
     bool readParametersFile(QString filename, bool isAssemblyTemplate);

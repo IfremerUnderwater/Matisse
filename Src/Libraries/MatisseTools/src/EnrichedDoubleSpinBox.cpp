@@ -12,7 +12,7 @@ EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QSt
     QString specialValue;
 
     quint8 defaultPrecision = PRECISION_DEFAULT;
-    qreal increment = qPow(10, -1 * defaultPrecision);
+    double increment = qPow(10, -1 * defaultPrecision);
 
     bool ok;
 
@@ -43,7 +43,7 @@ EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QSt
         _spin->setSpecialValueText(specialValue);
     }
     _defaultValue = defaultValue;
-    qreal defaultValueReal = defaultValue.toDouble(&ok);
+    double defaultValueReal = defaultValue.toDouble(&ok);
     if (!ok) {
         qWarning() << QString("Could not convert default value '%1' to real, using min value as default").arg(_defaultValue);
 
@@ -73,9 +73,9 @@ void EnrichedDoubleSpinBox::applyValue(QString newValue)
 {
     bool ok;
 
-    qreal valueReal = newValue.toDouble(&ok);
+    double valueReal = newValue.toDouble(&ok);
     if (!ok) {
-        qWarning() << QString("Error converting '%1' to qreal for double spin box value assignment, skipping...").arg(newValue);
+        qWarning() << QString("Error converting '%1' to double for double spin box value assignment, skipping...").arg(newValue);
         return;
     }
 
@@ -97,7 +97,7 @@ void EnrichedDoubleSpinBox::applyValue(QString newValue)
 
 void EnrichedDoubleSpinBox::applyPrecision()
 {
-    qreal increment = qPow(10, -1 * precision());
+    double increment = qPow(10, -1 * precision());
 
     _spin->setSingleStep(increment);
     _spin->setDecimals(precision());

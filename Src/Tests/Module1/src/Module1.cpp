@@ -48,7 +48,7 @@ void Module1::onNewImage(quint32 port, Image &image)
     NavImage * ImageNav = (NavImage*)(&image);
     qDebug()<< ImageNav->navInfo().dump();
 
-    qreal x,y,lat,lon;
+    double x,y,lat,lon;
     QString utmZone;
     TGeo.LatLongToUTM(ImageNav->navInfo().latitude(),ImageNav->navInfo().longitude(),x,y,utmZone);
     qDebug()<< "X = " << x << " Y = " << y << " UTMzone = " << utmZone;
@@ -144,7 +144,7 @@ void Module1::onFlush(quint32 port)
 
         for (int i=0; i<3; i++){
             for(int j=0; j<3; j++){
-                K.at<qreal>(i,j) = qK(i,j);
+                K.at<double>(i,j) = qK(i,j);
             }
         }
 
@@ -169,7 +169,7 @@ void Module1::onFlush(quint32 port)
     if (Ok){
 
         for (int i=0; i<3; i++){
-            V_T_C.at<qreal>(i,0) = V_Pose_C(0,i);
+            V_T_C.at<double>(i,0) = V_Pose_C(0,i);
         }
 
         GeoTransform T;
@@ -187,7 +187,7 @@ void Module1::onFlush(quint32 port)
 
             NavImage *navImage = dynamic_cast<NavImage*>(image);
             if (navImage){
-                cams.push_back(new ProjectiveCamera(navImage , K, V_T_C, V_R_C, (qreal)scaleFactor));
+                cams.push_back(new ProjectiveCamera(navImage , K, V_T_C, V_R_C, (double)scaleFactor));
             }else{
                 qDebug() << "cannot cast as navImage \n";
                 exit(1);

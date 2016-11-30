@@ -1313,9 +1313,9 @@ bool MatisseParametersManager::getBoolValue(QVariant value)
     return retValue;
 }
 
-qreal MatisseParametersManager::getDoubleValue(QVariant value)
+double MatisseParametersManager::getDoubleValue(QVariant value)
 {
-    qreal retValue;
+    double retValue;
 
     if (value.toString() == "-inf") {
         retValue = -InfDouble;

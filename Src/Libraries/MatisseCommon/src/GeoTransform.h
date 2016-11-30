@@ -27,7 +27,7 @@ public:
     /// \param forceZone
     /// \return true on success, false on fail
     ///
-    bool LatLongToUTM(qreal lat_p, qreal lon_p, qreal & x_p, qreal & y_p, QString & utmZone_p, bool forceZone = false);
+    bool LatLongToUTM(double lat_p, double lon_p, double & x_p, double & y_p, QString & utmZone_p, bool forceZone = false);
 
     ///
     /// \brief UTMToLatLong
@@ -38,28 +38,28 @@ public:
     /// \param lon_p : longitude
     /// \return true on success, false on fail
     ///
-    bool UTMToLatLong(qreal x_p, qreal y_p, QString utmZone_p, qreal &lat_p, qreal &lon_p);
+    bool UTMToLatLong(double x_p, double y_p, QString utmZone_p, double &lat_p, double &lon_p);
 
     ///
     /// \brief RotX construct a rotation matrix of angle "a" around x axis
     /// \param a : rotation angle in rad
     /// \return the rotation matrix
     ///
-    cv::Mat RotX( qreal a );
+    cv::Mat RotX( double a );
 
     ///
     /// \brief RotY construct a rotation matrix of angle "a" around y axis
     /// \param a : rotation angle in rad
     /// \return the rotation matrix
     ///
-    cv::Mat RotY( qreal a );
+    cv::Mat RotY( double a );
 
     ///
     /// \brief RotZ construct a rotation matrix of angle "a" around z axis
     /// \param a : rotation angle in rad
     /// \return the rotation matrix
     ///
-    cv::Mat RotZ( qreal a );
+    cv::Mat RotZ( double a );
 };
 
 }

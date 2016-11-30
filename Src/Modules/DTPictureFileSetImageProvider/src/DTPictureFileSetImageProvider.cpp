@@ -115,7 +115,7 @@ bool DTPictureFileSetImageProvider::start()
              _imageSet->addImage(newImage);
          }
 
-         qreal progressRatio = i/_dim2FileReader->getNumberOfImages();
+         double progressRatio = i/_dim2FileReader->getNumberOfImages();
          quint8 progress = progressRatio * 100;
          emit signal_processCompletion(progress);
     }

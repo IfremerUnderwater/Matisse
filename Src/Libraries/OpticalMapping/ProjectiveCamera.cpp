@@ -117,9 +117,32 @@ void ProjectiveCamera::projectImageOnMosaickingPlane(Mat &mosaicPlaneImage_p, Ma
 
 void ProjectiveCamera::computeImageExtent(Point &corner_p, Size &dstSize_p)
 {
-    cv::Mat pt1,pt2,pt3,pt4;
     std::vector<qreal> xArray, yArray;
     std::vector<qreal>::iterator min_x_it, min_y_it, max_x_it, max_y_it;
+
+    computeImageFootPrint(xArray, yArray);
+
+    // Compute min,max
+    min_x_it = std::min_element(xArray.begin(), xArray.end());
+    min_y_it = std::min_element(yArray.begin(), yArray.end());
+    max_x_it = std::max_element(xArray.begin(), xArray.end());
+    max_y_it = std::max_element(yArray.begin(), yArray.end());
+
+    // Compute dstSize
+    int dstWidth = ceil(*max_x_it)-floor(*min_x_it) + 1;
+    int dstHeight = ceil(*max_y_it)-floor(*min_y_it) + 1;
+
+    cv::Size dstSize(dstWidth,dstHeight);
+    dstSize_p = dstSize;
+
+    corner_p.x = floor(*min_x_it);
+    corner_p.y = floor(*min_y_it);
+
+}
+
+void ProjectiveCamera::computeImageFootPrint(std::vector<double> &xArray, std::vector<double> &yArray)
+{
+    cv::Mat pt1,pt2,pt3,pt4;
 
     int width = image()->width();
     int height = image()->height();
@@ -142,23 +165,6 @@ void ProjectiveCamera::computeImageExtent(Point &corner_p, Size &dstSize_p)
     yArray.push_back(pt3.at<qreal>(1,0)/pt3.at<qreal>(2,0));
     xArray.push_back(pt4.at<qreal>(0,0)/pt4.at<qreal>(2,0));
     yArray.push_back(pt4.at<qreal>(1,0)/pt4.at<qreal>(2,0));
-
-
-    // Compute min,max
-    min_x_it = std::min_element(xArray.begin(), xArray.end());
-    min_y_it = std::min_element(yArray.begin(), yArray.end());
-    max_x_it = std::max_element(xArray.begin(), xArray.end());
-    max_y_it = std::max_element(yArray.begin(), yArray.end());
-
-    // Compute dstSize
-    int dstWidth = ceil(*max_x_it)-floor(*min_x_it) + 1;
-    int dstHeight = ceil(*max_y_it)-floor(*min_y_it) + 1;
-
-    cv::Size dstSize(dstWidth,dstHeight);
-    dstSize_p = dstSize;
-
-    corner_p.x = floor(*min_x_it);
-    corner_p.y = floor(*min_y_it);
 
 }
 cv::Mat ProjectiveCamera::m_H_i_metric() const

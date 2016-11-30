@@ -51,9 +51,9 @@ private:
     QColor* activeColor;
     QColor* leadingActiveColor;
 
-    qreal _wheelRadius;
-    qreal _innerRadius;
-    qreal _rayWidth;
+    double _wheelRadius;
+    double _innerRadius;
+    double _rayWidth;
     quint32 _msForOneHourClockTurn;
     quint8 _currentHour;
     bool _firstRound;

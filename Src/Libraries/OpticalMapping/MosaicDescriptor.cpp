@@ -48,7 +48,7 @@ void MosaicDescriptor::setPixelSize(const Point2d &pixelSize)
 {
     _pixelSize = pixelSize;
 
-    _Hs = (cv::Mat_<qreal>(3,3) <<
+    _Hs = (cv::Mat_<double>(3,3) <<
            1.0/_pixelSize.x,               0,       0,
            0,               1.0/_pixelSize.y,       0,
            0,                              0,       1);
@@ -95,12 +95,12 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
     _camerasOwner = camerasOwner_p;
 
     _cameraNodes = cameras_p;
-    qreal meanLat=0;
-    qreal meanLon=0;
-    qreal meanAlt=0;
-    qreal meanPixelSizeFor1meter=0;
-    qreal minX, maxX, minY, maxY;
-    qreal X,Y;
+    double meanLat=0;
+    double meanLon=0;
+    double meanAlt=0;
+    double meanPixelSizeFor1meter=0;
+    double minX, maxX, minY, maxY;
+    double X,Y;
     QString utmZone;
     bool first=true;
 
@@ -110,8 +110,8 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
         meanLon += Cam->image()->navInfo().longitude();
     }
 
-    meanLat /= (qreal)_cameraNodes.size();
-    meanLon /= (qreal)_cameraNodes.size();
+    meanLat /= (double)_cameraNodes.size();
+    meanLon /= (double)_cameraNodes.size();
 
     if ( !(_T.LatLongToUTM(meanLat, meanLon, X, Y, utmZone)) ){
         qDebug() << "Cannot retrieve UTM Zone\n";
@@ -145,7 +145,7 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
                 minY = Y;
                 maxY = minY;
                 meanAlt = Cam->image()->navInfo().altitude();
-                meanPixelSizeFor1meter = 2/(Cam->K().at<qreal>(0,0)+Cam->K().at<qreal>(1,1));
+                meanPixelSizeFor1meter = 2/(Cam->K().at<double>(0,0)+Cam->K().at<double>(1,1));
 
                 first = false;
             }else{
@@ -154,13 +154,13 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
                 if (Y < minY) minY = Y;
                 if (Y > maxY) maxY = Y;
                 meanAlt = meanAlt + Cam->image()->navInfo().altitude();
-                meanPixelSizeFor1meter += 2/(Cam->K().at<qreal>(0,0)+Cam->K().at<qreal>(1,1));
+                meanPixelSizeFor1meter += 2/(Cam->K().at<double>(0,0)+Cam->K().at<double>(1,1));
             }
 
         }
     }
-    meanAlt /= (qreal)_cameraNodes.size();
-    meanPixelSizeFor1meter /= (qreal)_cameraNodes.size();
+    meanAlt /= (double)_cameraNodes.size();
+    meanPixelSizeFor1meter /= (double)_cameraNodes.size();
 
     this->setMosaicOrigin(Point3d(minX,maxY,meanAlt));
     this->setPixelSize(Point2d(meanPixelSizeFor1meter*meanAlt,meanPixelSizeFor1meter*meanAlt));
@@ -170,7 +170,7 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
     _W_R_M = _T.RotX(CV_PI);
     // Mosaic Translation w.r.t. 3D World Frame
     // (The mosaic is translated according to the X, Y origin but not in moved in Z).
-    _W_T_M = (cv::Mat_<qreal>(3,1) << _mosaicOrigin.x, _mosaicOrigin.y, 0 );
+    _W_T_M = (cv::Mat_<double>(3,1) << _mosaicOrigin.x, _mosaicOrigin.y, 0 );
 
     // Compute Inverse Transformation 3D World Frame -> 3D Mosaic Frame: M_X = M_R_W * W_X + M_T_W
     cv::transpose(_W_R_M, _M_R_W);
@@ -206,7 +206,7 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
     //  Rotation in X (Roll): Roll in the vehicle frame.
     _W_R_V = _T.RotZ ( CV_PI / 2 ) * _T.RotZ ( Yaw ) * _T.RotX ( CV_PI ) * _T.RotY ( navdata->pitch() ) * _T.RotX ( navdata->roll() );
     // Vehicle Translation w.r.t. 3D World Frame
-    _W_T_V = (cv::Mat_<qreal>(3,1) << navdata->utmX(), navdata->utmY(), navdata->altitude() );
+    _W_T_V = (cv::Mat_<double>(3,1) << navdata->utmX(), navdata->utmY(), navdata->altitude() );
 
     // Convert a Pose (V_T_C, V_R_C) w.r.t. 3D Vehicle Frame to the 3D World Frame
     // This new pose will also be the Transformation 3D Camera Frame -> 3D World Frame: W_X = W_R_C * C_X + W_T_C
@@ -239,27 +239,27 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
     //std::cerr << "_i_H_m = " << _i_H_m << std::endl;
     cv::invert( _i_H_m, _m_H_i);
 
-    camera_p->setM_H_i_metric( _m_H_i/ _m_H_i.at<qreal>(2,2) );
+    camera_p->setM_H_i_metric( _m_H_i/ _m_H_i.at<double>(2,2) );
 
     // Add the scaling factor to have it in pixels.
     _m_H_i = _Hs * _m_H_i;
 
     // Store Normalized Homography into the mosaic structure ([3,3] element is one).
-    camera_p->set_m_H_i( _m_H_i / _m_H_i.at<qreal>(2,2) );
+    camera_p->set_m_H_i( _m_H_i / _m_H_i.at<double>(2,2) );
     //std::cout << "_m_H_i 1 = " << _m_H_i << std::endl;
-    //std::cout << "_m_H_i norm = " << _m_H_i / _m_H_i.at<qreal>(2,2) << std::endl;
+    //std::cout << "_m_H_i norm = " << _m_H_i / _m_H_i.at<double>(2,2) << std::endl;
 
 }
 
 void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
 {
 
-    cv::Mat mosaicbounds = (cv::Mat_<qreal>(2,2) << FLT_MAX, FLT_MAX, 0, 0 );
+    cv::Mat mosaicbounds = (cv::Mat_<double>(2,2) << FLT_MAX, FLT_MAX, 0, 0 );
     int w,h =0;
 
     cv::Mat pt1,pt2,pt3,pt4;
-    std::vector<qreal> xArray, yArray;
-    std::vector<qreal>::iterator min_x_it, min_y_it, max_x_it, max_y_it;
+    std::vector<double> xArray, yArray;
+    std::vector<double>::iterator min_x_it, min_y_it, max_x_it, max_y_it;
 
     foreach (ProjectiveCamera* Cam, _cameraNodes) {
 
@@ -267,22 +267,22 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
         h = Cam->image()->height();
 
         // Project corners_p on mosaic plane
-        Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   0,   1), pt1);
-        Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, 0,   1), pt2);
-        Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, h-1, 1), pt3);
-        Cam->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   h-1, 1), pt4);
+        Cam->projectPtOnMosaickingPlane((cv::Mat_<double>(3,1) << 0,   0,   1), pt1);
+        Cam->projectPtOnMosaickingPlane((cv::Mat_<double>(3,1) << w-1, 0,   1), pt2);
+        Cam->projectPtOnMosaickingPlane((cv::Mat_<double>(3,1) << w-1, h-1, 1), pt3);
+        Cam->projectPtOnMosaickingPlane((cv::Mat_<double>(3,1) << 0,   h-1, 1), pt4);
 
         // Fill x & y array
         xArray.clear();
         yArray.clear();
-        xArray.push_back(pt1.at<qreal>(0,0)/pt1.at<qreal>(2,0));
-        yArray.push_back(pt1.at<qreal>(1,0)/pt1.at<qreal>(2,0));
-        xArray.push_back(pt2.at<qreal>(0,0)/pt2.at<qreal>(2,0));
-        yArray.push_back(pt2.at<qreal>(1,0)/pt2.at<qreal>(2,0));
-        xArray.push_back(pt3.at<qreal>(0,0)/pt3.at<qreal>(2,0));
-        yArray.push_back(pt3.at<qreal>(1,0)/pt3.at<qreal>(2,0));
-        xArray.push_back(pt4.at<qreal>(0,0)/pt4.at<qreal>(2,0));
-        yArray.push_back(pt4.at<qreal>(1,0)/pt4.at<qreal>(2,0));
+        xArray.push_back(pt1.at<double>(0,0)/pt1.at<double>(2,0));
+        yArray.push_back(pt1.at<double>(1,0)/pt1.at<double>(2,0));
+        xArray.push_back(pt2.at<double>(0,0)/pt2.at<double>(2,0));
+        yArray.push_back(pt2.at<double>(1,0)/pt2.at<double>(2,0));
+        xArray.push_back(pt3.at<double>(0,0)/pt3.at<double>(2,0));
+        yArray.push_back(pt3.at<double>(1,0)/pt3.at<double>(2,0));
+        xArray.push_back(pt4.at<double>(0,0)/pt4.at<double>(2,0));
+        yArray.push_back(pt4.at<double>(1,0)/pt4.at<double>(2,0));
 
 
         // Compute min,max
@@ -291,16 +291,16 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
         max_x_it = std::max_element(xArray.begin(), xArray.end());
         max_y_it = std::max_element(yArray.begin(), yArray.end());
 
-        mosaicbounds.at<qreal>(0,0) = std::min(*min_x_it, mosaicbounds.at<qreal>(0, 0));
-        mosaicbounds.at<qreal>(1,0) = std::max(*max_x_it,mosaicbounds.at<qreal>(1, 0));
-        mosaicbounds.at<qreal>(0,1) = std::min(*min_y_it,mosaicbounds.at<qreal>(0, 1));
-        mosaicbounds.at<qreal>(1,1) = std::max(*max_y_it,mosaicbounds.at<qreal>(1, 1));
+        mosaicbounds.at<double>(0,0) = std::min(*min_x_it, mosaicbounds.at<double>(0, 0));
+        mosaicbounds.at<double>(1,0) = std::max(*max_x_it,mosaicbounds.at<double>(1, 0));
+        mosaicbounds.at<double>(0,1) = std::min(*min_y_it,mosaicbounds.at<double>(0, 1));
+        mosaicbounds.at<double>(1,1) = std::max(*max_y_it,mosaicbounds.at<double>(1, 1));
 
     }
 
     // Shift all homographies with H
-    cv::Mat H = (cv::Mat_<qreal>(3,3) << 1, 0, -mosaicbounds.at<qreal>(0,0),
-                 0, 1, -mosaicbounds.at<qreal>(0,1),
+    cv::Mat H = (cv::Mat_<double>(3,3) << 1, 0, -mosaicbounds.at<double>(0,0),
+                 0, 1, -mosaicbounds.at<double>(0,1),
                  0, 0, 1);
 
     foreach (ProjectiveCamera* Cam, _cameraNodes) {
@@ -308,16 +308,16 @@ void MosaicDescriptor::computeMosaicExtentAndShiftFrames()
     }
 
     // Shift origin
-    _mosaicOrigin.x = _mosaicOrigin.x - (-mosaicbounds.at<qreal>(0,0))*_pixelSize.x;
-    _mosaicOrigin.y = _mosaicOrigin.y + (-mosaicbounds.at<qreal>(0,1))*_pixelSize.y;
-    _mosaicSize.x = std::ceil(mosaicbounds.at<qreal>(1,0)-mosaicbounds.at<qreal>(0,0))+2; //+2 due to the 0 and the round
-    _mosaicSize.y = std::ceil(mosaicbounds.at<qreal>(1,1)-mosaicbounds.at<qreal>(0,1))+2;
+    _mosaicOrigin.x = _mosaicOrigin.x - (-mosaicbounds.at<double>(0,0))*_pixelSize.x;
+    _mosaicOrigin.y = _mosaicOrigin.y + (-mosaicbounds.at<double>(0,1))*_pixelSize.y;
+    _mosaicSize.x = std::ceil(mosaicbounds.at<double>(1,0)-mosaicbounds.at<double>(0,0))+2; //+2 due to the 0 and the round
+    _mosaicSize.y = std::ceil(mosaicbounds.at<double>(1,1)-mosaicbounds.at<double>(0,1))+2;
 
 
     // Upper Left and Lower Right corner coordinates
-    qreal x_shift = (mosaicbounds.at<qreal>(1,0)-mosaicbounds.at<qreal>(0,0));
-    qreal y_shift = (mosaicbounds.at<qreal>(1,1)-mosaicbounds.at<qreal>(0,1));
-    _mosaic_ullr = (cv::Mat_<qreal>(4,1) << _mosaicOrigin.x, _mosaicOrigin.y,
+    double x_shift = (mosaicbounds.at<double>(1,0)-mosaicbounds.at<double>(0,0));
+    double y_shift = (mosaicbounds.at<double>(1,1)-mosaicbounds.at<double>(0,1));
+    _mosaic_ullr = (cv::Mat_<double>(4,1) << _mosaicOrigin.x, _mosaicOrigin.y,
                     _mosaicOrigin.x+x_shift*_pixelSize.x, _mosaicOrigin.y-y_shift*_pixelSize.y);
 
 
@@ -340,10 +340,10 @@ void MosaicDescriptor::writeToGeoTiff(Mat &raster_p, Mat &rasterMask_p, QString 
     utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
 
     QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
-            .arg(mosaic_ullr().at<qreal>(0,0),0,'f',2)
-            .arg(mosaic_ullr().at<qreal>(1,0),0,'f',2)
-            .arg(mosaic_ullr().at<qreal>(2,0),0,'f',2)
-            .arg(mosaic_ullr().at<qreal>(3,0),0,'f',2);
+            .arg(mosaic_ullr().at<double>(0,0),0,'f',2)
+            .arg(mosaic_ullr().at<double>(1,0),0,'f',2)
+            .arg(mosaic_ullr().at<double>(2,0),0,'f',2)
+            .arg(mosaic_ullr().at<double>(3,0),0,'f',2);
     RasterGeoreferencer rasterGeoref;
     rasterGeoref.WriteGeoFile(raster_p,rasterMask_p,filePath_p,gdalOptions);
 
@@ -370,7 +370,7 @@ void MosaicDescriptor::decimateImagesFromOverlap(double minOverlap_p, double max
 
     for (int k=0; k < cameraNodes().size(); k++){
         std::vector<double> x,y;
-        int xBegin, yBegin, xEnd, yEnd;
+        /*int xBegin, yBegin, xEnd, yEnd;
         cv::Point imgCorner;
         cv::Size imgSize;
 
@@ -381,12 +381,13 @@ void MosaicDescriptor::decimateImagesFromOverlap(double minOverlap_p, double max
         yBegin = imgCorner.y;
 
         xEnd = imgCorner.x + imgSize.width-1;
-        yEnd = imgCorner.y + imgSize.height-1;
+        yEnd = imgCorner.y + imgSize.height-1;*/
 
         // Construct currentPolygon
+        cameraNodes().at(k)->computeImageFootPrint(x,y);
         Polygon *currentPolygon = new Polygon();
-        x.push_back(xBegin); x.push_back(xEnd); x.push_back(xEnd); x.push_back(xBegin);
-        y.push_back(yBegin); y.push_back(yBegin); y.push_back(yEnd); y.push_back(yEnd);
+        //x.push_back(xBegin); x.push_back(xEnd); x.push_back(xEnd); x.push_back(xBegin);
+        //y.push_back(yBegin); y.push_back(yBegin); y.push_back(yEnd); y.push_back(yEnd);
         currentPolygon->addContour(x,y);
         x.clear(); y.clear();
         vpImagesPoly.push_back(currentPolygon);

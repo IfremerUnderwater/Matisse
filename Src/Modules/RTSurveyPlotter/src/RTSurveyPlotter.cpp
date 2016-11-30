@@ -59,7 +59,7 @@ bool RTSurveyPlotter::configure()
 
         for (int i=0; i<3; i++){
             for(int j=0; j<3; j++){
-                _K.at<qreal>(i,j) = qK(i,j);
+                _K.at<double>(i,j) = qK(i,j);
             }
         }
 
@@ -112,7 +112,7 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
         if (Ok){
 
             for (int i=0; i<3; i++){
-                _V_T_C.at<qreal>(i,0) = V_Pose_C(0,i);
+                _V_T_C.at<double>(i,0) = V_Pose_C(0,i);
             }
 
             GeoTransform T;
@@ -123,7 +123,7 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
         }
 
 
-        _pCams->push_back(new ProjectiveCamera(navImage , _K, _V_T_C, _V_R_C, (qreal)_scaleFactor));
+        _pCams->push_back(new ProjectiveCamera(navImage , _K, _V_T_C, _V_R_C, (double)_scaleFactor));
     }else{
         qDebug() << "cannot cast as navImage \n";
         exit(1);
@@ -138,7 +138,7 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
     }else{
 
         GeoTransform T;
-        qreal X,Y;
+        double X,Y;
         T.LatLongToUTM(_pCams->at(navImage->id())->image()->navInfo().latitude(),
                        _pCams->at(navImage->id())->image()->navInfo().longitude(),
                        X, Y, _utmZone, true);
@@ -160,24 +160,24 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
     cv::Mat pt1,pt2,pt3,pt4;
 
     // Project corners_p on mosaic plane
-    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   0,   1), pt1, true);
-    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, 0,   1), pt2, true);
-    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << w-1, h-1, 1), pt3, true);
-    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<qreal>(3,1) << 0,   h-1, 1), pt4, true);
+    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<double>(3,1) << 0,   0,   1), pt1, true);
+    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<double>(3,1) << w-1, 0,   1), pt2, true);
+    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<double>(3,1) << w-1, h-1, 1), pt3, true);
+    _pCams->at(navImage->id())->projectPtOnMosaickingPlane((cv::Mat_<double>(3,1) << 0,   h-1, 1), pt4, true);
 
     // Construct polygon
     basicproc::Polygon camWireframe;
     std::vector<double> xArray,yArray;
     xArray.clear(); yArray.clear();
 
-    xArray.push_back((pt1.at<qreal>(0,0)/pt1.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().x);
-    yArray.push_back((-pt1.at<qreal>(1,0)/pt1.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().y);
-    xArray.push_back((pt2.at<qreal>(0,0)/pt2.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().x);
-    yArray.push_back((-pt2.at<qreal>(1,0)/pt2.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().y);
-    xArray.push_back((pt3.at<qreal>(0,0)/pt3.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().x);
-    yArray.push_back((-pt3.at<qreal>(1,0)/pt3.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().y);
-    xArray.push_back((pt4.at<qreal>(0,0)/pt4.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().x);
-    yArray.push_back((-pt4.at<qreal>(1,0)/pt4.at<qreal>(2,0))+_pMosaicD->mosaicOrigin().y);
+    xArray.push_back((pt1.at<double>(0,0)/pt1.at<double>(2,0))+_pMosaicD->mosaicOrigin().x);
+    yArray.push_back((-pt1.at<double>(1,0)/pt1.at<double>(2,0))+_pMosaicD->mosaicOrigin().y);
+    xArray.push_back((pt2.at<double>(0,0)/pt2.at<double>(2,0))+_pMosaicD->mosaicOrigin().x);
+    yArray.push_back((-pt2.at<double>(1,0)/pt2.at<double>(2,0))+_pMosaicD->mosaicOrigin().y);
+    xArray.push_back((pt3.at<double>(0,0)/pt3.at<double>(2,0))+_pMosaicD->mosaicOrigin().x);
+    yArray.push_back((-pt3.at<double>(1,0)/pt3.at<double>(2,0))+_pMosaicD->mosaicOrigin().y);
+    xArray.push_back((pt4.at<double>(0,0)/pt4.at<double>(2,0))+_pMosaicD->mosaicOrigin().x);
+    yArray.push_back((-pt4.at<double>(1,0)/pt4.at<double>(2,0))+_pMosaicD->mosaicOrigin().y);
 
     camWireframe.addContour(xArray,yArray);
 
@@ -197,7 +197,7 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
 
         MosaicDescriptor singleFrameMosaic;
         cv::Mat img_ullr;
-        img_ullr = (cv::Mat_<qreal>(4,1) << _pMosaicD->mosaicOrigin().x + corner_p.x*(double)_pMosaicD->pixelSize().x,
+        img_ullr = (cv::Mat_<double>(4,1) << _pMosaicD->mosaicOrigin().x + corner_p.x*(double)_pMosaicD->pixelSize().x,
                     _pMosaicD->mosaicOrigin().y - corner_p.y*(double)_pMosaicD->pixelSize().y,
                     _pMosaicD->mosaicOrigin().x + (corner_p.x+(double)warpedImage.cols-1.0)*_pMosaicD->pixelSize().x,
                     _pMosaicD->mosaicOrigin().y - (corner_p.y+(double)warpedImage.rows-1.0)*_pMosaicD->pixelSize().y);
@@ -230,10 +230,10 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
         utmProjParam = QString("+proj=utm +zone=") + QString("%1").arg(_pMosaicD->utmZone());
 
         QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
-                .arg(img_ullr.at<qreal>(0,0),0,'f',2)
-                .arg(img_ullr.at<qreal>(1,0),0,'f',2)
-                .arg(img_ullr.at<qreal>(2,0),0,'f',2)
-                .arg(img_ullr.at<qreal>(3,0),0,'f',2)
+                .arg(img_ullr.at<double>(0,0),0,'f',2)
+                .arg(img_ullr.at<double>(1,0),0,'f',2)
+                .arg(img_ullr.at<double>(2,0),0,'f',2)
+                .arg(img_ullr.at<double>(3,0),0,'f',2)
                 + QString(" -mask 4 --config GDAL_TIFF_INTERNAL_MASK YES ");
 
         QString cmdLine;

@@ -10,7 +10,7 @@ using namespace std;
 
 using namespace MatisseCommon;
 
-NavInfo::NavInfo(quint32 dive, QDateTime time, qreal longitude, qreal latitude, qreal depth, qreal altitude, qreal yaw, qreal roll, qreal pitch, qreal vx, qreal vy, qreal vz)
+NavInfo::NavInfo(quint32 dive, QDateTime time, double longitude, double latitude, double depth, double altitude, double yaw, double roll, double pitch, double vx, double vy, double vz)
 {
     setInfo(dive, time, longitude, latitude, depth, altitude, yaw, roll, pitch, vx, vy, vz);
 }
@@ -20,7 +20,7 @@ NavInfo::NavInfo(QString dive, QString time, QString longitude, QString latitude
     setInfo(dive, time, longitude, latitude, depth, altitude, yaw, roll, pitch, vx, vy, vz);
 }
 
-void NavInfo::setInfo(quint32 dive, QDateTime time, qreal longitude, qreal latitude, qreal depth, qreal altitude, qreal yaw, qreal roll, qreal pitch, qreal vx, qreal vy, qreal vz, qreal pan, qreal tilt)
+void NavInfo::setInfo(quint32 dive, QDateTime time, double longitude, double latitude, double depth, double altitude, double yaw, double roll, double pitch, double vx, double vy, double vz, double pan, double tilt)
 {
     _diveNumber = dive;
     _timeInfo = time;
@@ -78,12 +78,12 @@ void NavInfo::setInfo(QStringList args)
     setVz(args[11]);
 }
 
-qreal NavInfo::vz() const
+double NavInfo::vz() const
 {
     return _vz;
 }
 
-void NavInfo::setVz(const qreal &vz)
+void NavInfo::setVz(const double &vz)
 {
     _vz = vz;
 }
@@ -98,12 +98,12 @@ void NavInfo::setVz(const QString &arg)
 
 }
 
-qreal NavInfo::vy() const
+double NavInfo::vy() const
 {
     return _vy;
 }
 
-void NavInfo::setVy(const qreal &vy)
+void NavInfo::setVy(const double &vy)
 {
     _vy = vy;
 }
@@ -117,12 +117,12 @@ void NavInfo::setVy(const QString &arg)
     }
 }
 
-qreal NavInfo::vx() const
+double NavInfo::vx() const
 {
     return _vx;
 }
 
-void NavInfo::setVx(const qreal &vx)
+void NavInfo::setVx(const double &vx)
 {
     _vx = vx;
 }
@@ -136,12 +136,12 @@ void NavInfo::setVx(const QString &arg)
     }
 }
 
-qreal NavInfo::pitch() const
+double NavInfo::pitch() const
 {
     return _pitch;
 }
 
-void NavInfo::setPitch(const qreal &pitch)
+void NavInfo::setPitch(const double &pitch)
 {
     _pitch = pitch;
 }
@@ -159,12 +159,12 @@ void NavInfo::setPitch(const QString &arg)
     }
 }
 
-qreal NavInfo::roll() const
+double NavInfo::roll() const
 {
     return _roll;
 }
 
-void NavInfo::setRoll(const qreal &roll)
+void NavInfo::setRoll(const double &roll)
 {
     _roll = roll;
 }
@@ -182,12 +182,12 @@ void NavInfo::setRoll(const QString &arg)
     }
 }
 
-qreal NavInfo::yaw() const
+double NavInfo::yaw() const
 {
     return _yaw;
 }
 
-void NavInfo::setYaw(const qreal &yaw)
+void NavInfo::setYaw(const double &yaw)
 {
     _yaw = yaw;
 }
@@ -205,12 +205,12 @@ void NavInfo::setYaw(const QString &arg)
     }
 }
 
-qreal NavInfo::altitude() const
+double NavInfo::altitude() const
 {
     return _altitude;
 }
 
-void NavInfo::setAltitude(const qreal &altitude)
+void NavInfo::setAltitude(const double &altitude)
 {
     _altitude = altitude;
 }
@@ -228,12 +228,12 @@ void NavInfo::setAltitude(const QString &arg)
     }
 }
 
-qreal NavInfo::depth() const
+double NavInfo::depth() const
 {
     return _depth;
 }
 
-void NavInfo::setDepth(const qreal &depth)
+void NavInfo::setDepth(const double &depth)
 {
     _depth = depth;
 }
@@ -251,12 +251,12 @@ void NavInfo::setDepth(const QString &arg)
     }
 }
 
-qreal NavInfo::latitude() const
+double NavInfo::latitude() const
 {
     return _latitude;
 }
 
-void NavInfo::setLatLon(const qreal &latitude,const qreal &longitude)
+void NavInfo::setLatLon(const double &latitude,const double &longitude)
 {
     _latitude = latitude;
     _longitude = longitude;
@@ -285,7 +285,7 @@ void NavInfo::setLatLon(const QString &arg_lat, const QString &arg_lon)
     }
 }
 
-qreal NavInfo::longitude() const
+double NavInfo::longitude() const
 {
     return _longitude;
 }
@@ -357,21 +357,21 @@ QString NavInfo::dump()
 
     return ret;
 }
-qreal NavInfo::utmX() const
+double NavInfo::utmX() const
 {
     return _utmX;
 }
 
-void NavInfo::setUtmX(const qreal &utmX)
+void NavInfo::setUtmX(const double &utmX)
 {
     _utmX = utmX;
 }
-qreal NavInfo::utmY() const
+double NavInfo::utmY() const
 {
     return _utmY;
 }
 
-void NavInfo::setUtmY(const qreal &utmY)
+void NavInfo::setUtmY(const double &utmY)
 {
     _utmY = utmY;
 }
@@ -384,21 +384,21 @@ void NavInfo::setUtmZone(const QString &utmZone)
 {
     _utmZone = utmZone;
 }
-qreal NavInfo::pan() const
+double NavInfo::pan() const
 {
     return _pan;
 }
 
-void NavInfo::setPan(const qreal &pan)
+void NavInfo::setPan(const double &pan)
 {
     _pan = pan;
 }
-qreal NavInfo::tilt() const
+double NavInfo::tilt() const
 {
     return _tilt;
 }
 
-void NavInfo::setTilt(const qreal &tilt)
+void NavInfo::setTilt(const double &tilt)
 {
     _tilt = tilt;
 }

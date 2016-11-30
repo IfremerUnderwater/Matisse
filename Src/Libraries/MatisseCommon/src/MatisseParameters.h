@@ -19,7 +19,7 @@ namespace MatisseCommon {
 
 
 //structures utilitaires
-typedef QGenericMatrix<6, 1, qreal> Matrix6x1;
+typedef QGenericMatrix<6, 1, double> Matrix6x1;
 
 ///
 /// \brief Structure composite pour valeur de retour
@@ -107,7 +107,7 @@ public:
     /// \param ok true si la valeur est convertible
     /// \return 2^31-1 si valeur="inf"
     ///
-    qreal getDoubleParamValue(QString paramStructName, QString paramName, bool &ok);
+    double getDoubleParamValue(QString paramStructName, QString paramName, bool &ok);
 
     ///
     /// \brief Retourne en QString la valeur du couple (paramStructName,paramName)

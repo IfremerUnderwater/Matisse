@@ -49,8 +49,8 @@ void LiveProcessWheel::selectColor(QPainter &painter, int hourTick)
 
 void LiveProcessWheel::paintEvent(QPaintEvent *evt)
 {
-    qreal rayHalfWidth = _rayWidth / 2;
-    qreal rayLength = _wheelRadius - _innerRadius;
+    double rayHalfWidth = _rayWidth / 2;
+    double rayLength = _wheelRadius - _innerRadius;
 
     // define clock ticks
     QRectF tick0 = QRectF(0 - rayHalfWidth, 0 - _wheelRadius, _rayWidth, rayLength);

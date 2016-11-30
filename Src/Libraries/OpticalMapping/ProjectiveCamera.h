@@ -12,7 +12,7 @@ class LIBOPTICALMAPPINGSHARED_EXPORT ProjectiveCamera
 {
 public:
     ProjectiveCamera();
-    ProjectiveCamera(NavImage *image_p, cv::Mat cameraMatrixK_p, cv::Mat V_T_C, cv::Mat V_R_C, qreal scaleFactor_p);
+    ProjectiveCamera(NavImage *image_p, cv::Mat cameraMatrixK_p, cv::Mat V_T_C, cv::Mat V_R_C, double scaleFactor_p);
 
     // **** Attributes setters & getters ****
 
@@ -34,8 +34,8 @@ public:
     NavImage *image() const;
     void setImage(MatisseCommon::NavImage *image);
 
-    qreal scalingFactor() const;
-    void setScalingFactor(const qreal &scalingFactor);
+    double scalingFactor() const;
+    void setScalingFactor(const double &scalingFactor);
 
     // **************************************
 
@@ -61,6 +61,13 @@ public:
     ///
     void computeImageExtent(cv::Point &corner_p, cv::Size &dstSize_p);
 
+    ///
+    /// \brief computeImageFootPrint compute image footprint coords on the mosaicking plane
+    /// \param xArray x coords
+    /// \param yArray y coords
+    ///
+    void computeImageFootPrint(std::vector<double> &xArray, std::vector<double> &yArray);
+
 
 private:
 
@@ -73,7 +80,7 @@ private:
     cv::Mat _V_T_C;// Vehicule to Camera Translation
     cv::Mat _V_R_C;// Vehicule to Camera Rotation
 
-    qreal _scalingFactor; // Images can be reduced to improve performances ( 0 < scalingFactor <= 1 )
+    double _scalingFactor; // Images can be reduced to improve performances ( 0 < scalingFactor <= 1 )
 
     bool _scalingFactorIsSet;
     bool _KIsSet;
