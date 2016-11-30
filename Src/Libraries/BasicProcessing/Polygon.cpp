@@ -250,7 +250,10 @@ double Polygon::clipArea(Polygon &poly2_p, poly_op operation)
 
     this->clip(poly2_p, result, operation);
 
-    return result.area();
+    if (result.isEmpty())
+        return 0;
+    else
+        return result.area();
 }
 
 bool Polygon::operator ==(const Polygon &polyB_p)
