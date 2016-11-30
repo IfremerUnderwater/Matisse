@@ -14,6 +14,8 @@ DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *parent):
     addExpectedParameter("algo_param", "First_processed_image");
     addExpectedParameter("algo_param", "Last_processed_image");
     addExpectedParameter("algo_param", "step_im");
+    addExpectedParameter("algo_param", "scale_factor");
+
 }
 
 DTPictureFileSetImageProvider::~DTPictureFileSetImageProvider()
@@ -76,7 +78,7 @@ bool DTPictureFileSetImageProvider::configure()
         return false;
     }
 
-    _pictureFileSet = new PictureFileSet(rootDirnameStr,false);
+    _pictureFileSet = new PictureFileSet(rootDirnameStr);
     // Le dive number est mis à 0 car lu dans le fichier...
     // on pourrait (normalement...) le lire dans le nom du répertoire...
     _dim2FileReader = new Dim2FileReader(navFileStr, firstImageIndex, lastImageIndex, stepIndex);
@@ -92,6 +94,9 @@ bool DTPictureFileSetImageProvider::start()
 {
     qDebug() << logPrefix() << " inside start";
 
+    bool ok;
+    double scaleFactor = _matisseParameters->getDoubleParamValue("algo_param", "scale_factor", ok);
+
     emit signal_processCompletion(0);
     emit signal_userInformation("Building image set...");
 
@@ -106,6 +111,7 @@ bool DTPictureFileSetImageProvider::start()
              QString fileSource = _dim2FileReader->getImageSource(i);
              NavInfo navInfo = _dim2FileReader->getNavInfo(i);
              FileImage * newImage = new FileImage(_pictureFileSet, filename, fileSource, fileFormat, i, navInfo);
+             newImage->setScaleFactor(scaleFactor);
              _imageSet->addImage(newImage);
          }
 

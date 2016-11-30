@@ -68,12 +68,17 @@ public:
     ///
     virtual QString dumpAttr();
 
+    double getScaleFactor() const;
+    void setScaleFactor(double scaleFactor);
+
 protected:
     QString _fileName;
     QString _sourceName;
     QString _sourceFormat;
     PictureFileSet * _pictureFileSet;
     QImageReader *_imReader;
+
+    double _scaleFactor;
 
 };
 
