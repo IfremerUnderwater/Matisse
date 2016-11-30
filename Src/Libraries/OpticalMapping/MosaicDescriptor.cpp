@@ -411,6 +411,8 @@ void MosaicDescriptor::decimateImagesFromOverlap(double minOverlap_p, double max
         }
 
     }
+    // include last image
+    keptIndexes.push_back(true);
 
     // Recreate cameraNode and delete non needed cameras
     QVector<ProjectiveCamera*> tempCameraNodes;

@@ -142,10 +142,11 @@ void Init2DMosaic::onFlush(quint32 port)
 
 
         // Filter cameras on overlap
-        if ( _matisseParameters->getBoolParamValue("overlap_filtering_params","filter_overlap", Ok) ){
-            double min_overlap = _matisseParameters->getDoubleParamValue("overlap_filtering_params","min_overlap", Ok);
-            double max_overlap = _matisseParameters->getDoubleParamValue("overlap_filtering_params","max_overlap", Ok);
+        if ( _matisseParameters->getBoolParamValue("algo_param","filter_overlap", Ok) ){
+            double min_overlap = _matisseParameters->getDoubleParamValue("algo_param","min_overlap", Ok);
+            double max_overlap = _matisseParameters->getDoubleParamValue("algo_param","max_overlap", Ok);
 
+            pMosaicD->computeMosaicExtentAndShiftFrames();
             pMosaicD->decimateImagesFromOverlap(min_overlap, max_overlap);
         }
 
