@@ -1,12 +1,14 @@
 #ifndef NAVPHOTOINFOTCPLISTENER_H
 #define NAVPHOTOINFOTCPLISTENER_H
 
+#include "libmatissecommon_global.h"
+
 #include <QObject>
 #include <QtNetwork/QTcpSocket>
 #include <QTimer>
 #include "proto/nav_photo_info.pb.h"
 
-class NavPhotoInfoTcpListener : public QObject
+class LIBMATISSECOMMONSHARED_EXPORT NavPhotoInfoTcpListener : public QObject
 {
     Q_OBJECT
 public:

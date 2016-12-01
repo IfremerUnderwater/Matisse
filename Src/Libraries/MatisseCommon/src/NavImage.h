@@ -1,6 +1,8 @@
 ﻿#ifndef NAVIMAGE_H
 #define NAVIMAGE_H
 
+#include "libmatissecommon_global.h"
+
 #include <QDateTime>
 
 #include "NavInfo.h"
@@ -11,7 +13,7 @@ namespace MatisseCommon {
 ///
 /// \brief Image associée à une information de navigation
 ///
-class NavImage : public Image
+class LIBMATISSECOMMONSHARED_EXPORT NavImage : public Image
 {
 public:
 

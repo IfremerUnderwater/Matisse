@@ -3,6 +3,7 @@
 # Project created by QtCreator 2014-03-13T19:10:30
 #
 #-------------------------------------------------
+TEMPLATE = lib
 
 QT       += core xml
 
@@ -10,7 +11,6 @@ QT       += core xml
 TARGET = Flusher
 CONFIG += plugin
 
-TEMPLATE = lib
 
 win32 {
     QMAKE_CXXFLAGS += /wd4100 /wd4996
@@ -40,9 +40,6 @@ win32 {
 unix {
     DESTDIR = $${BUILD_DIR}/Modules/imageProviders
 }
-
-
-LIBS +=  -lMatisseCommon
 
 
 #DLLDESTDIR = ../../dll/imageProviders

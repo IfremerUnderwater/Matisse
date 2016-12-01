@@ -1,6 +1,8 @@
 ﻿#ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include "libmatissecommon_global.h"
+
 #include <QHash>
 #include <QList>
 
@@ -9,7 +11,7 @@ namespace MatisseCommon {
 ///
 /// \brief Classe de partage de données entre instances de Processors et d'ImageProvider lors de l'execution d'un assemblage
 ///
-class Context
+class LIBMATISSECOMMONSHARED_EXPORT Context
 {
 public:
     Context(){}

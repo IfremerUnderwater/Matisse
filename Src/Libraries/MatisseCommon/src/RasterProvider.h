@@ -1,6 +1,8 @@
 ﻿#ifndef RASTERPROVIDER_H
 #define RASTERPROVIDER_H
 
+#include "libmatissecommon_global.h"
+
 #include "LifecycleComponent.h"
 #include "ImageListener.h"
 #include "Image.h"
@@ -16,7 +18,7 @@
 
 namespace MatisseCommon {
 
-class RasterProvider : public QObject, public ImageListener, public LifecycleComponent  {
+class LIBMATISSECOMMONSHARED_EXPORT RasterProvider : public QObject, public ImageListener, public LifecycleComponent  {
     Q_OBJECT
     Q_INTERFACES(MatisseCommon::ImageListener)
     Q_INTERFACES(MatisseCommon::LifecycleComponent)

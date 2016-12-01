@@ -1,6 +1,8 @@
 ﻿#ifndef LIFECYCLECOMPONENT_H
 #define LIFECYCLECOMPONENT_H
 
+#include "libmatissecommon_global.h"
+
 #include <QList>
 #include <QtPlugin>
 
@@ -8,7 +10,7 @@
 #include "MatisseParameters.h"
 
 namespace MatisseCommon {
-class LifecycleComponent
+class LIBMATISSECOMMONSHARED_EXPORT LifecycleComponent
 {
 public:
     LifecycleComponent(QString name, QString logPrefix);

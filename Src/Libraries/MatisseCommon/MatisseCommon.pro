@@ -1,6 +1,5 @@
 TARGET = MatisseCommon
 TEMPLATE = lib
-CONFIG += staticlib
 
 QT += core xml network
 
@@ -10,13 +9,17 @@ win32 {
 
 QMAKE_CXXFLAGS += -std=c++11
 
+DEFINES += LIBMATISSECOMMON_LIBRARY
+
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../
 CONFIG(debug, debug|release) {
     BUILD_DIR=$${SOURCE_DIR}../Build/Debug
+    BUILD_EXT="d"
 }
 CONFIG(release, debug|release) {
     BUILD_DIR=$${SOURCE_DIR}../Build/Release
+    BUILD_EXT=""
 }
 
 include(../../Scripts/opencv.pri)
@@ -27,6 +30,16 @@ PROTOS = src/proto/nav_photo_info.proto
 include(../../Scripts/ProtoBuf.pri)
 include(../../Scripts/QuaZIP.pri)
 
+TARGET = MatisseCommon$$BUILD_EXT
+# ------------------------------------------------------------------------
+
+win32 {
+    DLLDESTDIR = $${BUILD_DIR}/Libraries/dll
+}
+
+unix {
+    DESTDIR = $${BUILD_DIR}/Libraries/dll
+}
 
 HEADERS += \
     src/Context.h \
@@ -54,7 +67,8 @@ HEADERS += \
     src/FileUtils.h \
     src/NavPhotoInfoTcpListener.h \
     src/matissemetatypes.h \
-    src/StringUtils.h
+    src/StringUtils.h \
+    src/libmatissecommon_global.h
 
 SOURCES += \
     src/Processor.cpp \

@@ -1,6 +1,8 @@
 ﻿#ifndef PROCESSOR_H
 #define PROCESSOR_H
 
+#include "libmatissecommon_global.h"
+
 #include <QList>
 #include <QtPlugin>
 
@@ -23,7 +25,7 @@ namespace MatisseCommon {
 ///
 /// \brief Classe de base des modules chargeables dans MatisseServer
 ///
-class Processor : public QObject, public ImageListener, public LifecycleComponent
+class LIBMATISSECOMMONSHARED_EXPORT Processor : public QObject, public ImageListener, public LifecycleComponent
 {
     Q_OBJECT
     Q_INTERFACES(MatisseCommon::ImageListener)

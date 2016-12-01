@@ -1,6 +1,8 @@
 ﻿#ifndef PICTUREFILESET_H
 #define PICTUREFILESET_H
 
+#include "libmatissecommon_global.h"
+
 #include <QString>
 #include <QDir>
 #include <QFileInfo>
@@ -12,7 +14,7 @@ namespace MatisseCommon {
 ///
 /// \brief Racine de l'arborescence d'une série d'image
 ///
-class PictureFileSet : public InputSource
+class LIBMATISSECOMMONSHARED_EXPORT PictureFileSet : public InputSource
 {
 public:
     ///
