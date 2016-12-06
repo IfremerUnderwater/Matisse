@@ -1,26 +1,41 @@
 #include "stdvectoperations.h"
+#include <algorithm>
 
 
-double doubleVectorMean( vector<double> & v_p )
+double doubleVectorMean(vector<double> & _v )
 {
-        double sum = 0.0;
-        int n = v_p.size();
+    double sum = 0.0;
+    int n = _v.size();
 
-        for ( int i=0; i < n; i++)
-        {
-            sum += v_p[i];
-        }
+    for ( int i=0; i < n; i++)
+    {
+        sum += _v[i];
+    }
 
-        return ( sum / (double)n);
+    return ( sum / (double)n);
 }
 
 
-void doubleVectorScalarMult(vector<double> &v_p, double m_p)
+void doubleVectorScalarMult(vector<double> &_v, double _alpha)
 {
 
-    for (unsigned int i=0; i < v_p.size(); i++)
+    for (unsigned int i=0; i < _v.size(); i++)
     {
-        v_p[i] *= m_p;
+        _v[i] *= _alpha;
     }
+
+}
+
+vector<int> integerQuantiles(vector<int> _v, vector<double> _quantiles)
+{
+    // sort vector
+    sort(_v.begin(),_v.end());
+
+    vector<int> quantiles_limits;
+
+    for (unsigned int i=0; i<_quantiles.size(); i++)
+        quantiles_limits.push_back( _v[round(_quantiles[i]*(double)_v.size())] );
+
+    return quantiles_limits;
 
 }

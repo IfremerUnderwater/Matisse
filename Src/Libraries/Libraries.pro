@@ -5,6 +5,7 @@ CONFIG += ordered
 SUBDIRS = MatisseCommon \
           MatisseTools \
           BasicProcessing \
-          OpticalMapping
+          OpticalMapping \
+    ImageProcessing
 
 
