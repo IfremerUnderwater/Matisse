@@ -9,10 +9,5 @@ SUBDIRS = DTPictureFileSetImageProvider \
           GeoTiffImageWriter \
 	  RTStillCameraProvider \
 	  RTSurveyPlotter \
-	  BridgeModule
-
-# Following modules are deprecated and windows + MATLAB lib only
-          #DrawAndWriteModule \
-          #InitMatchModule \
-          #OptimizationModule \
-          #MatlabCppInterface \
+          BridgeModule \
+          Init3DRecon
