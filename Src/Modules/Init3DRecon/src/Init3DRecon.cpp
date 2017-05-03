@@ -487,7 +487,6 @@ void Init3DRecon::onFlush(quint32 port)
               << "usable #File(s) listed in sfm_data: " << sfm_data.GetViews().size() << "\n"
               << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data.GetIntrinsics().size() << std::endl;
 
-    exit(EXIT_SUCCESS);
 
     // Flush next module port
     flush(0);

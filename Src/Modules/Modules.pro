@@ -10,4 +10,5 @@ SUBDIRS = DTPictureFileSetImageProvider \
 	  RTStillCameraProvider \
 	  RTSurveyPlotter \
           BridgeModule \
-          Init3DRecon
+          Init3DRecon \
+          Matching3D
