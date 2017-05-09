@@ -248,7 +248,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
         maxOrder = qMax(maxOrder, order);
         QString processorName = procDef->name();
         qDebug() << "Processeur" << processorName;
-        if (order=0) {
+        if (order==0) {
             setMessageStr(tr("Processeur defini avec un ordre incorrect: %1").arg(processorName));
             // impossible :source
             return false;
@@ -763,19 +763,19 @@ bool Server::loadParametersDictionnary()
     QFile dicoXsdFile("schemas/MatisseParametersDictionnary.xsd");
 
     if (!dicoXsdFile.exists()) {
-        qFatal(QString("Error finding ").append(dicoXsdFile.fileName()).toLatin1());
+        qFatal("%s\n",QString("Error finding ").append(dicoXsdFile.fileName()).toStdString().c_str());
     }
 
     if (!dicoXsdFile.open(QIODevice::ReadOnly)) {
-        qFatal("Error opening MatisseParametersDictionnary.xsd");
+        qFatal("%s\n","Error opening MatisseParametersDictionnary.xsd");
     }
 
     if (!dictionnarySchema.load(&dicoXsdFile, QUrl::fromLocalFile(dicoXsdFile.fileName()))) {
-        qFatal("Error loading ParametersDictionnary.xsd");
+        qFatal("%s\n","Error loading ParametersDictionnary.xsd");
     }
 
     if (!dictionnarySchema.isValid()) {
-        qFatal("Error ParametersDictionnary.xsd is not valid");
+        qFatal("%s\n","Error ParametersDictionnary.xsd is not valid");
     }
 
     qDebug() << "MatisseParametersDictionnary.xsd is a valid schema";
@@ -786,16 +786,16 @@ bool Server::loadParametersDictionnary()
     QFile dicoXmlFile("config/MatisseParametersDictionnary.xml");
 
     if (!dicoXmlFile.exists()) {
-        qFatal(QString("Error finding").append(dicoXmlFile.fileName()).toLatin1());
+        qFatal("%s\n",QString("Error finding").append(dicoXmlFile.fileName()).toStdString().c_str());
     }
 
     if (!dicoXmlFile.open(QIODevice::ReadOnly)) {
-        qFatal("Error opening MatisseParametersDictionnary.xml");
+        qFatal("%s\n","Error opening MatisseParametersDictionnary.xml");
     }
 
     QXmlSchemaValidator validator(dictionnarySchema);
     if (!validator.validate(&dicoXmlFile, QUrl::fromLocalFile(dicoXmlFile.fileName()))) {
-        qFatal("Dictionnary XML file does not conform to schema");
+        qFatal("%s\n","Dictionnary XML file does not conform to schema");
     }
 
     qDebug() << "XML dictionnary file is consistent with schema";

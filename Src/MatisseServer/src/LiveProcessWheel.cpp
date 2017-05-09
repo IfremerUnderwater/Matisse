@@ -49,6 +49,8 @@ void LiveProcessWheel::selectColor(QPainter &painter, int hourTick)
 
 void LiveProcessWheel::paintEvent(QPaintEvent *evt)
 {
+    Q_UNUSED(evt)
+
     double rayHalfWidth = _rayWidth / 2;
     double rayLength = _wheelRadius - _innerRadius;
 

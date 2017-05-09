@@ -10,7 +10,6 @@ class PlatformQGisComponent : public PlatformComponent
 {
 public:
     PlatformQGisComponent();
-
     virtual QString getVersionInfo();
 };
 

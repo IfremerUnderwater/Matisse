@@ -20,7 +20,7 @@ win32 {
 }
 else {
     message ("Set include...")
-    QMAKE_CXXFLAGS = -fpermissive
+    QMAKE_CXXFLAGS = -fpermissive -Wno-reorder
 
 }
 

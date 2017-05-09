@@ -124,12 +124,15 @@ void AssemblyGraphicsScene::applyAssemblyCompleteness(bool isComplete)
             assembly = new AssemblyDefinition();
         }
 
+        Q_UNUSED(assembly) // Warningggggg !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         emit signal_assemblyComplete(_isAssemblyComplete);
     }
 }
 
 void AssemblyGraphicsScene::slot_sceneChanged(const QList<QRectF> &region)
 {
+    Q_UNUSED(region)
     emit signal_itemsCount(items().size());
 }
 
@@ -390,7 +393,7 @@ void AssemblyGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
     if (!_isSceneActive) {
         /* resize scene so that scrollbar is available */
         setSceneRect(0, 0, ACTIVE_SCENE_WIDTH, ACTIVE_SCENE_HEIGHT);
-        _isSceneActive;
+        _isSceneActive=true;
     }
 
     //    qDebug() << "DROP SCENE";
@@ -876,7 +879,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
             if (endElt == NULL) {
                 // on cherche si la sortie est une destination...
                 if (_destinationWidget) {
-                    if (_destinationWidget -> getOrder() == endOrder) {
+                    if (_destinationWidget->getOrder() == (quint8)endOrder) {
                         endElt = _destinationWidget;
                     }
                 }

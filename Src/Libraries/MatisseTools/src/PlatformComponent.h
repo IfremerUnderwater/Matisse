@@ -9,7 +9,7 @@ class PlatformComponent
 {
 public:
     PlatformComponent(QString name);
-    virtual ~PlatformComponent()=0;
+    virtual ~PlatformComponent(){}
     virtual QString getVersionInfo() = 0;
 
     QString getName() const;

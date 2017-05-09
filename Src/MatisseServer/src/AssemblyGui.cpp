@@ -905,6 +905,7 @@ void AssemblyGui::resetOngoingProcessIndicators()
 
 void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int column)
 {
+    Q_UNUSED(column)
 
     if (_isMapView) {
         resetOngoingProcessIndicators();
@@ -3707,6 +3708,7 @@ void AssemblyGui::slot_stopJob()
 
 void AssemblyGui::slot_jobShowImageOnMainView(QString name, Image *image)
 {
+    Q_UNUSED(name)
     if (image) {
         _userFormWidget->displayImage(image);
         delete image;

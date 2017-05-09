@@ -88,7 +88,8 @@ void JobDialog::slot_close()
     } else {
         // normalisation du nom de job
         QString name = _ui->_LE_name->text().trimmed().toLower();
-        name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
+        //name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
+        name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_+|~=`{}\\[\\]:\";'<>?,.\\\\/]")));
 
         if (name.isEmpty()) {
             QMessageBox::warning(this, tr("Enregistrement impossible..."), tr("Un nom doit obligatoirement etre fourni pour la tache."));

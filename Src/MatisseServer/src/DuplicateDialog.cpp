@@ -31,7 +31,8 @@ void DuplicateDialog::slot_close()
         reject();
     } else {
         QString name = _ui->_LE_newName->text().trimmed();
-        name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
+        //name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
+        name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_+|~=`{}\\[\\]:\";'<>?,.\\\\/]")));
 
         if (name.isEmpty()) {
             QMessageBox::warning(this, tr("Duplication impossible..."), tr("Un nom doit obligatoirement etre fourni pour la tache"));

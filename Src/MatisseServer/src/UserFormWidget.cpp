@@ -179,7 +179,7 @@ void UserFormWidget::initCanvas() {
     QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
     mapCanvas->enableAntiAliasing(true);
-    mapCanvas->useImageToRender(false);
+    //mapCanvas->useImageToRender(false);
     /* bg color is set by signal updateColorPalette */
     mapCanvas->freeze(false);
     mapCanvas->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -325,7 +325,7 @@ void UserFormWidget::clear()
     QgsMapLayerRegistry::instance()->removeAllMapLayers();
     _layers.clear();
     _ui->_GRV_map->clearExtentHistory();
-    _ui->_GRV_map->clear();
+    //_ui->_GRV_map->clear();
     _ui->_GRV_map->refresh();
 
     // Clear OSG Widget

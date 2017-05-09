@@ -234,6 +234,9 @@ void ElementWidget::setOutputsNumber(int number)
 
 void ElementWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
+
     painter->save();
     painter->setPen(_pen);
     painter->setBrush(_brush);
@@ -275,6 +278,7 @@ qint8 ElementWidget::getOrder()
 
 void ElementWidget::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
+    Q_UNUSED(event)
     //event->setAccepted(event->mimeData()
 }
 

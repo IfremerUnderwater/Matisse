@@ -32,13 +32,13 @@ AssemblyDialog::AssemblyDialog(QWidget *parent, QString &name, KeyValueList &key
     if (isNewAssembly) {
         setWindowTitle(tr("Nouvelle chaine de traitement..."));
         //_ui->_WID_properties->hide();
-//        _ui->_LA_author->hide();
-//        _ui->_LE_author->hide();
-//        _ui->_HSP_author->hide();
-//        _ui->_LA_version->hide();
-//        _ui->_LA_valid->hide();
-//        _ui->_LA_comments->hide();
-//        _ui->_TXT_comments->hide();
+        //        _ui->_LA_author->hide();
+        //        _ui->_LE_author->hide();
+        //        _ui->_HSP_author->hide();
+        //        _ui->_LA_version->hide();
+        //        _ui->_LA_valid->hide();
+        //        _ui->_LA_comments->hide();
+        //        _ui->_TXT_comments->hide();
         _ui->_PB_save->setText((tr("Creer")));
 
     } else {
@@ -74,8 +74,8 @@ void AssemblyDialog::slot_close()
         reject();
     } else {
         QString inputName = _ui->_LE_name->text();
-        inputName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
-        //inputName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\[\\]\\\\]")));
+        //inputName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
+        inputName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_+|~=`{}\\[\\]:\";'<>?,.\\\\/]")));
         *_name = inputName; // normalisation du nom saisi
         _keyValue->set("Author", _ui->_LE_author->text().trimmed());
         bool isRealTime = _ui->_RB_realTime->isChecked();

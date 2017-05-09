@@ -60,6 +60,7 @@ void PipeWidget::setCurrentColor(QRgb color)
 
 void PipeWidget::drawSymbol(QPainter *painter, bool forIcon)
 {
+    Q_UNUSED(forIcon)
     /*
     if ((!_sourceIsValid) && (!_destinationIsValid)) {
         qDebug() << "NOK!!!";
