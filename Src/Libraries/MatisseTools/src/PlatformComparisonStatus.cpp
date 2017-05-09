@@ -3,8 +3,8 @@
 using namespace MatisseTools;
 
 PlatformComparisonStatus::PlatformComparisonStatus() :
-    _componentsCompared(NULL),
-    _doesMatch(false)
+    _doesMatch(false),
+    _componentsCompared(NULL)
 {
 }
 

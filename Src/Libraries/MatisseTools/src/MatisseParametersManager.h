@@ -106,9 +106,9 @@ private:
     QString _selectedAssembly;
 
     ParametersWidgetSkeleton * _fullParametersWidget;
-    QMap<QString, ParametersWidgetSkeleton*> _dialogs;
-    QMap<QString, QMap<QString, EnrichedFormWidget*> > _valuesWidgets;
     QMap<QString, QMap<QString, QWidget*> > _groupsWidgets;
+    QMap<QString, QMap<QString, EnrichedFormWidget*> > _valuesWidgets;
+    QMap<QString, ParametersWidgetSkeleton*> _dialogs;
 
     QMap<QString, EnrichedFormWidget*> _valueWidgetsByParamName;
     QMap<ParameterLevel, QMap<QString, QGroupBox*>* > _groupWidgetsByLevel;

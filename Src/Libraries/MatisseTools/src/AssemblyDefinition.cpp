@@ -136,7 +136,7 @@ QList<AssemblyDefinitionValidity> AssemblyDefinition::checkDefinition()
     QList <quint32> processorOrders;
     quint32 minProcessorOrder = 4294967295;
     quint32 maxProcessorOrder = 0;
-    int destinationOrder = -1;
+    quint32 destinationOrder = 0;
     bool duplicatedProcessorOrder = false;
 
     if (!_sourceDefinition) {
@@ -207,7 +207,7 @@ QList<AssemblyDefinitionValidity> AssemblyDefinition::checkDefinition()
         }
 
         // test destination
-        if (destinationOrder > -1) {
+        if (destinationOrder > 0) {
             QList<quint32> destCons = connectionsMap.keys(destinationOrder);
             if (destCons.size() != 1) {
                 ok = false;

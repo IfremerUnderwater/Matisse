@@ -21,12 +21,12 @@ QString MatisseParametersManager::_infStr = QString::number(quint64(InfInt));
 
 MatisseParametersManager::MatisseParametersManager(QObject *parent) :
     QObject(parent),
+    _dictionnaryLabels(),
     _structures(),
-    _dialogs(),
+    _selectedAssembly(""),
     _groupsWidgets(),
     _valuesWidgets(),
-    _selectedAssembly(""),
-    _dictionnaryLabels(),
+    _dialogs(),
     _isReadOnlyMode(false)
 {
     loadStaticCollections();
@@ -58,11 +58,11 @@ void MatisseParametersManager::loadStaticCollections()
     _enumShows.insert("check", CHECK_BOX);
     _enumShows.insert("table", TABLE);
     _enumShows.insert("file", FILE_SELECTOR_ABSOLUTE);
-//    _enumShows.insert("file:relative", FILE_SELECTOR_RELATIVE);
-//    _enumShows.insert("file:absolute", FILE_SELECTOR_ABSOLUTE);
+    //    _enumShows.insert("file:relative", FILE_SELECTOR_RELATIVE);
+    //    _enumShows.insert("file:absolute", FILE_SELECTOR_ABSOLUTE);
     _enumShows.insert("dir", DIR_SELECTOR_ABSOLUTE);
-//    _enumShows.insert("dir:relative", DIR_SELECTOR_RELATIVE);
-//    _enumShows.insert("dir:absolute", DIR_SELECTOR_ABSOLUTE);
+    //    _enumShows.insert("dir:relative", DIR_SELECTOR_RELATIVE);
+    //    _enumShows.insert("dir:absolute", DIR_SELECTOR_ABSOLUTE);
 
     _enumLevels.insert("user", USER);
     _enumLevels.insert("advanced", ADVANCED);
@@ -102,7 +102,7 @@ void MatisseParametersManager::checkDictionnaryComplete()
         QString fullMessage = QString("Dataset parameters were not all found in the dictionnary\nExpected: ")
                 .append(expected.join(",")).append("\nFound: ").append(found.join(","));
 
-        qFatal(fullMessage.toLatin1());
+        qFatal("%s\n",fullMessage.toAscii().constData());
     }
 }
 
@@ -133,7 +133,7 @@ bool MatisseParametersManager::readDictionnaryFile(QString xmlFilename)
         QXmlStreamReader::TokenType token = reader.readNext();
         /* If token is just StartDocument, we'll go to next.*/
         if(token == QXmlStreamReader::StartDocument) {
-           continue;
+            continue;
         }
 
         /* If token is StartElement, we'll see if we can read it.*/
@@ -153,7 +153,7 @@ bool MatisseParametersManager::readDictionnaryFile(QString xmlFilename)
 
                 /* check structure name unicity (not supported by Qt XML schema validation) */
                 if (_structures.contains(structureName)) {
-                    qFatal(QString("Unique constraint violation for structure name '%1'").arg(structureName).toLatin1());
+                    qFatal("%s\n",QString("Unique constraint violation for structure name '%1'").arg(structureName).toStdString().c_str());
                 }
                 _structures.insert(structureName, newStruct);
                 _structuresNames << structureName;
@@ -446,7 +446,7 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
 
         /* check unique constraint for group name */
         if (_groups.contains(groupName)) {
-            qFatal(QString("Unique constraint violation for group name '%1'").arg(groupName).toLatin1());
+            qFatal("%s\n",QString("Unique constraint violation for group name '%1'").arg(groupName).toStdString().c_str());
         }
 
         _groups.insert(groupName, newGroup);
@@ -511,7 +511,7 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
 
     /* check unique constraint for parameter name */
     if (_parameters.contains(paramName)) {
-        qFatal(QString("Unique constraint violation for parameter name '%1'").arg(paramName).toLatin1());
+        qFatal("%s\n",QString("Unique constraint violation for parameter name '%1'").arg(paramName).toStdString().c_str());
     }
     _parameters.insert(paramName, parameter);
 
@@ -651,7 +651,7 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
         switch(param._show) {
         case LINE_EDIT: {
             widget = new EnrichedLineEdit(_fullParametersWidget, paramLabelText, param._value.toString());
-         }
+        }
             break;
         case SPIN_BOX: {
             QVariant minValue;
@@ -1063,7 +1063,7 @@ bool MatisseParametersManager::writeParametersFile(QString parametersFilename, b
             foreach(Parameter parameter, structure._parametersGroups.at(noGroup)._parameters) {
                 QString parameterName = parameter._name;
 
-                if (!_expectedParameters.contains(parameterName) && (!_jobExtraParameters.contains(parameterName))) {                    
+                if (!_expectedParameters.contains(parameterName) && (!_jobExtraParameters.contains(parameterName))) {
                     qDebug() << QString("Parameter '%1' not expected, skipping...").arg(parameterName);
                     continue;
                 }
@@ -1114,12 +1114,12 @@ bool MatisseParametersManager::readParametersFile(QString filename, bool isAssem
     QString currentStructure;
     bool parsingOk = true;
 
-    while(!reader.atEnd()) {        
+    while(!reader.atEnd()) {
         /* Read next element.*/
         QXmlStreamReader::TokenType token = reader.readNext();
         /* If token is just StartDocument, we'll go to next.*/
         if(token == QXmlStreamReader::StartDocument) {
-           continue;
+            continue;
         }
         /* If token is StartElement, we'll see if we can read it.*/
         if(token == QXmlStreamReader::StartElement) {
@@ -1156,7 +1156,7 @@ bool MatisseParametersManager::readParametersFile(QString filename, bool isAssem
                                   .arg(paramName).arg(currentStructure).arg(dicoStructureName);
                 }
 
-                bool isExtraDatasetParam = false;                
+                bool isExtraDatasetParam = false;
 
                 if (!_expectedParameters.contains(paramName)) {
                     if (!isAssemblyTemplate && _datasetParamNames.contains(paramName)) {
@@ -1204,8 +1204,8 @@ bool MatisseParametersManager::readParametersFile(QString filename, bool isAssem
 
         if (reader.hasError()) {
             qCritical() << "Error parsing parameters file:\n" << reader.errorString();
-//            parsingOk = false;
-//            break;
+            //            parsingOk = false;
+            //            break;
         }
     }
 
@@ -1275,7 +1275,7 @@ QString MatisseParametersManager::getValue(QString structName, QString parameter
         return value;
     }
     else {
-       value = (qobject_cast<EnrichedFormWidget *>(widget))->currentValue();
+        value = (qobject_cast<EnrichedFormWidget *>(widget))->currentValue();
     }
 
 
@@ -1333,7 +1333,7 @@ QStringList MatisseParametersManager::getNumList(Parameter param)
     QString valuesStr = param._value.toString();
 
     valuesStr = valuesStr.simplified().replace(" ", "");
-//    valuesStr = valuesStr.mid(1, valuesStr.length()-2);
+    //    valuesStr = valuesStr.mid(1, valuesStr.length()-2);
 
     valuesStr.replace("inf",_infStr);
 
@@ -1346,7 +1346,7 @@ QStringList MatisseParametersManager::getNumList(Parameter param)
     }
 
     for (int noVar = retValue.length(); noVar < nbVars; noVar++) {
-            retValue.append("0");
+        retValue.append("0");
     }
 
     return retValue;

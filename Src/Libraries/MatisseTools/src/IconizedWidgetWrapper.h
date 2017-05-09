@@ -14,8 +14,8 @@ class IconizedWidgetWrapper : public QObject
 public:
     IconizedWidgetWrapper(QObject* widget, bool _hasIcon);
 
-    virtual void setIcon(const QIcon &icon) {}
-    virtual void setPixmap(const QPixmap &pixmap) {}
+    virtual void setIcon(const QIcon &icon) {Q_UNUSED(icon)}
+    virtual void setPixmap(const QPixmap &pixmap) {Q_UNUSED(pixmap)}
 
     bool hasIcon() const;
     bool isValid() const;

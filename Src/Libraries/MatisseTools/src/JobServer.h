@@ -31,9 +31,9 @@ private:
 
 private:
     QTcpServer _server;
+    ProcessDataManager *_processDataManager;
     QTcpSocket *_socket;
     //Xml *_xml;
-    ProcessDataManager *_processDataManager;
 };
 }
 

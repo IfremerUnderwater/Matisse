@@ -12,7 +12,7 @@ bool SystemDataManager::readMatisseSettings(QString filename)
 {
     QFileInfo fileIn(filename);
     if (!fileIn.exists()) {
-        qFatal(QString("Matisse settings file '%1' not found").arg(filename).toLatin1());
+        qFatal("%s\n",QString("Matisse settings file '%1' not found").arg(filename).toStdString().c_str());
     }
 
     QFile settingsFile(fileIn.absoluteFilePath());
