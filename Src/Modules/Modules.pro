@@ -11,4 +11,7 @@ SUBDIRS = DTPictureFileSetImageProvider \
 	  RTSurveyPlotter \
           BridgeModule \
           Init3DRecon \
-          Matching3D
+          Matching3D \
+          SfmBundleAdjustment \
+          Meshing3D \
+          Texturing3D

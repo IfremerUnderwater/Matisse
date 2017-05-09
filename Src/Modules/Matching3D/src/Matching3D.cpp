@@ -54,10 +54,6 @@ bool Matching3D::stop()
 void Matching3D::onFlush(quint32 port)
 {
 
-
-    std::string sImageDir;
-
-
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
 
