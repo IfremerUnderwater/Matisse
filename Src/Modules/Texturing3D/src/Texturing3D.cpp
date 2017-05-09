@@ -35,6 +35,7 @@ bool Texturing3D::configure()
 
 void Texturing3D::onNewImage(quint32 port, Image &image)
 {
+    Q_UNUSED(port)
 
     // Forward image
     postImage(0, image);
@@ -53,6 +54,7 @@ bool Texturing3D::stop()
 
 void Texturing3D::onFlush(quint32 port)
 {
+    Q_UNUSED(port)
 
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");

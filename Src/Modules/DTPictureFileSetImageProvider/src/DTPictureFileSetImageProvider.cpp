@@ -8,6 +8,7 @@ DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *parent):
     _pictureFileSet(NULL),
     _dim2FileReader(NULL)
 {
+    Q_UNUSED(parent)
     _imageSet = new ImageSet();
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("dataset_param", "navFile");
@@ -27,6 +28,7 @@ DTPictureFileSetImageProvider::~DTPictureFileSetImageProvider()
 
 ImageSet * DTPictureFileSetImageProvider::imageSet(quint16 port)
 {
+    Q_UNUSED(port)
     return _imageSet;
 }
 

@@ -45,7 +45,7 @@ bool BridgeModule::stop()
 
 void BridgeModule::onFlush(quint32 port)
 {
-
+    Q_UNUSED(port)
     // Flush next module port
     flush(0);
 

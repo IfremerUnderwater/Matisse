@@ -13,6 +13,7 @@ RTPictureFileSetImageProvider::RTPictureFileSetImageProvider(QObject *parent)
       _pictureFileSet(NULL),
       _imageCount(0)
 {
+    Q_UNUSED(parent)
     setIsRealTime(true);
 
 
@@ -31,6 +32,7 @@ RTPictureFileSetImageProvider::~RTPictureFileSetImageProvider()
 
 ImageSet *RTPictureFileSetImageProvider::imageSet(quint16 port)
 {
+    Q_UNUSED(port)
     return _imageSet;
 }
 

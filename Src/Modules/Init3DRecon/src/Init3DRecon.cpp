@@ -161,6 +161,7 @@ bool Init3DRecon::configure()
 
 void Init3DRecon::onNewImage(quint32 port, Image &image)
 {
+    Q_UNUSED(port)
 
     // Forward image
     postImage(0, image);

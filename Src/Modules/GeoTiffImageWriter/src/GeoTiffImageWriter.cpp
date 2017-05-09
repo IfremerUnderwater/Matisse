@@ -7,6 +7,7 @@ Q_EXPORT_PLUGIN2(GeoTiffImageWriter, GeoTiffImageWriter)
 GeoTiffImageWriter::GeoTiffImageWriter(QObject *parent):
     RasterProvider(NULL, "GeoTiffImageWriter", "", 1)
 {
+    Q_UNUSED(parent)
     addExpectedParameter("dataset_param", "output_dir");
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("dataset_param", "output_filename");
@@ -49,6 +50,7 @@ bool GeoTiffImageWriter::configure()
 
 void GeoTiffImageWriter::onNewImage(quint32 port, Image &image)
 {
+    Q_UNUSED(image)
     qDebug() << logPrefix() << "Receive image on port " << port;
 }
 

@@ -35,6 +35,7 @@ bool Meshing3D::configure()
 
 void Meshing3D::onNewImage(quint32 port, Image &image)
 {
+    Q_UNUSED(port)
 
     // Forward image
     postImage(0, image);
@@ -53,6 +54,7 @@ bool Meshing3D::stop()
 
 void Meshing3D::onFlush(quint32 port)
 {
+    Q_UNUSED(port)
 
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");

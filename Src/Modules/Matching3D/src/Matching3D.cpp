@@ -35,7 +35,7 @@ bool Matching3D::configure()
 
 void Matching3D::onNewImage(quint32 port, Image &image)
 {
-
+    Q_UNUSED(port)
     // Forward image
     postImage(0, image);
 
@@ -53,6 +53,7 @@ bool Matching3D::stop()
 
 void Matching3D::onFlush(quint32 port)
 {
+    Q_UNUSED(port)
 
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
