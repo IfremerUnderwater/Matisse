@@ -62,19 +62,20 @@ void Meshing3D::onFlush(quint32 port)
     // densify
     QProcess denseProc;
     denseProc.setWorkingDirectory(rootDirnameStr);
-    denseProc.start("openMVG_main_ConvertSfM_DataFormat -i ./sfm_data.bin -o ./sfm_data.json");
+    denseProc.start("openMVG_main_ConvertSfM_DataFormat -i ./outReconstruction/sfm_data.bin -o ./outReconstruction/sfm_data.json");
 
     while(denseProc.waitForReadyRead(-1)){
         qDebug() << denseProc.readAllStandardOutput();
     }
 
-    denseProc.start("InterfaceOpenMVG -i ./outReconstruction/sfm_data.json -o model.mvs");
+    //denseProc.start("InterfaceOpenMVG -i ./outReconstruction/sfm_data.json -o ./model.mvs");
+    denseProc.start("openMVG_main_openMVG2openMVS -i ./outReconstruction/sfm_data.json -o ./model.mvs");
 
     while(denseProc.waitForReadyRead(-1)){
         qDebug() << denseProc.readAllStandardOutput();
     }
 
-    denseProc.start("DensifyPointCloud ./model.mvs");
+    denseProc.start("/usr/local/bin/OpenMVS/DensifyPointCloud ./model.mvs");
 
     while(denseProc.waitForReadyRead(-1)){
         qDebug() << denseProc.readAllStandardOutput();
@@ -84,7 +85,7 @@ void Meshing3D::onFlush(quint32 port)
     // Compute Mesh
     QProcess meshProc;
     meshProc.setWorkingDirectory(rootDirnameStr);
-    meshProc.start("ReconstructMesh ./model_dense.mvs");
+    meshProc.start("/usr/local/bin/OpenMVS/ReconstructMesh ./model_dense.mvs");
 
     while(meshProc.waitForReadyRead(-1)){
         qDebug() << meshProc.readAllStandardOutput();

@@ -69,39 +69,29 @@ bool checkIntrinsicStringValidity(const std::string & Kmatrix, double & focal, d
 
 std::pair<bool, Vec3> checkGPS
 (
-        const std::string & filename,
-        const int & GPS_to_XYZ_method = 0
-        )
+  const std::string & filename
+)
 {
-    std::pair<bool, Vec3> val(false, Vec3::Zero());
-    std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
-    if (exifReader)
+  std::pair<bool, Vec3> val(false, Vec3::Zero());
+  std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
+  if (exifReader)
+  {
+    // Try to parse EXIF metada & check existence of EXIF data
+    if ( exifReader->open( filename ) && exifReader->doesHaveExifInfo() )
     {
-        // Try to parse EXIF metada & check existence of EXIF data
-        if ( exifReader->open( filename ) && exifReader->doesHaveExifInfo() )
-        {
-            // Check existence of GPS coordinates
-            double latitude, longitude, altitude;
-            if ( exifReader->GPSLatitude( &latitude ) &&
-                 exifReader->GPSLongitude( &longitude ) &&
-                 exifReader->GPSAltitude( &altitude ) )
-            {
-                // Add ECEF or UTM XYZ position to the GPS position array
-                val.first = true;
-                switch(GPS_to_XYZ_method)
-                {
-                case 1:
-                    val.second = lla_to_utm( latitude, longitude, altitude );
-                    break;
-                case 0:
-                default:
-                    val.second = lla_to_ecef( latitude, longitude, altitude );
-                    break;
-                }
-            }
-        }
+      // Check existence of GPS coordinates
+      double latitude, longitude, altitude;
+      if ( exifReader->GPSLatitude( &latitude ) &&
+           exifReader->GPSLongitude( &longitude ) &&
+           exifReader->GPSAltitude( &altitude ) )
+      {
+        // Add ECEF XYZ position to the GPS position array
+        val.first = true;
+        val.second = lla_to_ecef( latitude, longitude, altitude );
+      }
     }
-    return val;
+  }
+  return val;
 }
 
 
@@ -196,7 +186,7 @@ void Init3DRecon::onFlush(quint32 port)
     int i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
 
     bool b_Group_camera_model = true;
-    bool use_prior = true;
+    bool use_prior = false;
 
     int i_GPS_XYZ_method = 0;
 
@@ -237,7 +227,7 @@ void Init3DRecon::onFlush(quint32 port)
     // Check focal length string "f;0;ppx;0;f;ppy;0;0;1"
     bool Ok;
     QMatrix3x3 qK = _matisseParameters->getMatrix3x3ParamValue("cam_param",  "K",  Ok);
-    sKmatrix = std::to_string(qK(0,0)) + ";0" + std::to_string(qK(0,2)) + ";0" + std::to_string(qK(1,1)) + ";0" + std::to_string(qK(1,2)) + ";0;0;1";
+    sKmatrix = std::to_string(qK(0,0)) + ";0;" + std::to_string(qK(0,2)) + ";0;" + std::to_string(qK(1,1)) + ";" + std::to_string(qK(1,2)) + ";0;0;1";
 
     if (sKmatrix.size() > 0 &&
             !checkIntrinsicStringValidity(sKmatrix, focal, ppx, ppy) )
@@ -276,10 +266,10 @@ void Init3DRecon::onFlush(quint32 port)
     std::sort(vec_image.begin(), vec_image.end());
 
     // Configure an empty scene with Views and their corresponding cameras
-    SfM_Data sfm_data;
-    sfm_data.s_root_path = sImageDir; // Setup main image root_path
-    Views & views = sfm_data.views;
-    Intrinsics & intrinsics = sfm_data.intrinsics;
+    SfM_Data *sfm_data = new SfM_Data();
+    sfm_data->s_root_path = sImageDir; // Setup main image root_path
+    Views & views = sfm_data->views;
+    Intrinsics & intrinsics = sfm_data->intrinsics;
 
     C_Progress_display my_progress_bar( vec_image.size(),
                                         std::cout, "\n- Image listing -\n" );
@@ -331,7 +321,7 @@ void Init3DRecon::onFlush(quint32 port)
                 && !exifReader->getModel().empty();
 
         // Consider the case where the focal is provided manually
-        if ( !bHaveValidExifMetadata || focal_pixels != -1)
+        if ( !bHaveValidExifMetadata || focal_pixels != -1)// || sKmatrix.size()>0)
         {
             if (sKmatrix.size() > 0) // Known user calibration K matrix
             {
@@ -408,7 +398,7 @@ void Init3DRecon::onFlush(quint32 port)
         }
 
         // Build the view corresponding to the image
-        const std::pair<bool, Vec3> gps_info = checkGPS(sImageFilename, i_GPS_XYZ_method);
+        const std::pair<bool, Vec3> gps_info = checkGPS(sImageFilename);
         if (gps_info.first && use_prior)
         {
             ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
@@ -459,6 +449,7 @@ void Init3DRecon::onFlush(quint32 port)
         }
     }
 
+
     // Display saved warning & error messages if any.
     if (!error_report_stream.str().empty())
     {
@@ -470,13 +461,13 @@ void Init3DRecon::onFlush(quint32 port)
     // Group camera that share common properties if desired (leads to more faster & stable BA).
     if (b_Group_camera_model)
     {
-        GroupSharedIntrinsics(sfm_data);
+        GroupSharedIntrinsics(*sfm_data);
     }
 
     // Store SfM_Data views & intrinsic data
-    if (!Save(
+    /*if (!Save(
                 sfm_data,
-                stlplus::create_filespec( sOutputDir, "sfm_data.json" ).c_str(),
+                stlplus::create_filespec( sOutputDir, "sfm_data->json" ).c_str(),
                 ESfM_Data(VIEWS|INTRINSICS)))
     {
         exit(EXIT_FAILURE);
@@ -485,9 +476,10 @@ void Init3DRecon::onFlush(quint32 port)
     std::cout << std::endl
               << "SfMInit_ImageListing report:\n"
               << "listed #File(s): " << vec_image.size() << "\n"
-              << "usable #File(s) listed in sfm_data: " << sfm_data.GetViews().size() << "\n"
-              << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data.GetIntrinsics().size() << std::endl;
-
+              << "usable #File(s) listed in sfm_data: " << sfm_data->GetViews().size() << "\n"
+              << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data->GetIntrinsics().size() << std::endl;
+*/
+    delete sfm_data;
 
     // Flush next module port
     flush(0);

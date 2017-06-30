@@ -61,7 +61,7 @@ void Matching3D::onFlush(quint32 port)
     // Compute Features
     QProcess featuresProc;
     featuresProc.setWorkingDirectory(rootDirnameStr);
-    featuresProc.start("openMVG_main_ComputeFeatures -i ./matches/sfm_data.json -o ./matches -p ULTRA");
+    featuresProc.start("openMVG_main_ComputeFeatures -i ./matches/sfm_data.json -o ./matches -p ULTRA -n 8");
 
     while(featuresProc.waitForReadyRead(-1)){
         qDebug() << featuresProc.readAllStandardOutput();
