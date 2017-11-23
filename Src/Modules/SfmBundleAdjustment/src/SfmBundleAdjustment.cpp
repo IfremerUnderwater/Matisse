@@ -59,6 +59,9 @@ void SfmBundleAdjustment::onFlush(quint32 port)
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
 
+    emit signal_processCompletion(0);
+    emit signal_userInformation("Compute Sfm bundle adj...");
+
     // Compute Sfm bundle adjustment
     QProcess sfmProc;
     sfmProc.setWorkingDirectory(rootDirnameStr);
@@ -67,6 +70,9 @@ void SfmBundleAdjustment::onFlush(quint32 port)
     while(sfmProc.waitForReadyRead(-1)){
         qDebug() << sfmProc.readAllStandardOutput();
     }
+
+    emit signal_processCompletion(100);
+    emit signal_userInformation("Compute Sfm bundle adj. ended");
 
     // Flush next module port
     flush(0);

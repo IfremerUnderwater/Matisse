@@ -21,7 +21,9 @@ Texturing3D::Texturing3D() :
 {
 
     addExpectedParameter("dataset_param", "dataset_dir");
+    addExpectedParameter("dataset_param", "output_filename");
 
+    addExpectedParameter("algo_param", "keep_unseen_faces");
 }
 
 Texturing3D::~Texturing3D(){
@@ -58,6 +60,7 @@ void Texturing3D::onFlush(quint32 port)
 
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
     // Convert model to mve
     QProcess featuresProc;
@@ -69,11 +72,21 @@ void Texturing3D::onFlush(quint32 port)
     }
 
     // Texture model
-    featuresProc.setWorkingDirectory(rootDirnameStr);
-    featuresProc.start("texrecon ./outReconstruction/MVE::undistorted ./model_dense_mesh.ply model_texrecon");
+    QString cmdLine = "texrecon";
 
-    while(featuresProc.waitForReadyRead(-1)){
-        qDebug() << featuresProc.readAllStandardOutput();
+    bool ok = false;
+    bool keep_unseen_faces = _matisseParameters->getBoolParamValue("algo_param", "keep_unseen_faces", ok);
+    if(ok && keep_unseen_faces)
+        cmdLine += " --keep_unseen_faces";
+    cmdLine += " ./outReconstruction/MVE::undistorted ";
+    cmdLine += "./outReconstruction/" + fileNamePrefixStr + "_dense_mesh.ply ";
+    cmdLine += "./outReconstruction/" + fileNamePrefixStr + "_texrecon";
+    QProcess textureProc;
+    textureProc.setWorkingDirectory(rootDirnameStr);
+    textureProc.start(cmdLine);
+
+    while(textureProc.waitForReadyRead(-1)){
+        qDebug() << textureProc.readAllStandardOutput();
     }
 
     // Flush next module port

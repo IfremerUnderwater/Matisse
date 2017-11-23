@@ -21,7 +21,11 @@ Meshing3D::Meshing3D() :
 {
 
     addExpectedParameter("dataset_param", "dataset_dir");
+    addExpectedParameter("dataset_param", "output_filename");
 
+    addExpectedParameter("algo_param", "resolution_level");
+    addExpectedParameter("algo_param", "number_views_fuse");
+    addExpectedParameter("algo_param", "decimate_factor");
 }
 
 Meshing3D::~Meshing3D(){
@@ -59,23 +63,44 @@ void Meshing3D::onFlush(quint32 port)
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
 
-    // densify
-    QProcess denseProc;
-    denseProc.setWorkingDirectory(rootDirnameStr);
-    denseProc.start("openMVG_main_ConvertSfM_DataFormat -i ./outReconstruction/sfm_data.bin -o ./outReconstruction/sfm_data.json");
+    QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
-    while(denseProc.waitForReadyRead(-1)){
-        qDebug() << denseProc.readAllStandardOutput();
-    }
+    // densify
+//    QProcess denseProc;
+//    denseProc.setWorkingDirectory(rootDirnameStr);
+//    denseProc.start("openMVG_main_ConvertSfM_DataFormat -i ./outReconstruction/sfm_data.bin -o ./outReconstruction/sfm_data.json");
+
+//    while(denseProc.waitForReadyRead(-1)){
+//        qDebug() << denseProc.readAllStandardOutput();
+//    }
 
     //denseProc.start("InterfaceOpenMVG -i ./outReconstruction/sfm_data.json -o ./model.mvs");
-    denseProc.start("openMVG_main_openMVG2openMVS -i ./outReconstruction/sfm_data.json -o ./model.mvs");
+    //denseProc.start("openMVG_main_openMVG2openMVS -i ./outReconstruction/sfm_data.json -o ./model.mvs");
 
-    while(denseProc.waitForReadyRead(-1)){
-        qDebug() << denseProc.readAllStandardOutput();
+    QString cmdline = "openMVG_main_openMVG2openMVS -i ./outReconstruction/sfm_data.bin -o ";
+    cmdline += "./outReconstruction/" + fileNamePrefixStr + ".mvs";
+    QProcess cvtProc;
+    cvtProc.setWorkingDirectory(rootDirnameStr);
+    cvtProc.start(cmdline);
+
+    while(cvtProc.waitForReadyRead(-1)){
+        qDebug() << cvtProc.readAllStandardOutput();
     }
 
-    denseProc.start("/usr/local/bin/OpenMVS/DensifyPointCloud ./model.mvs");
+    // densify
+    cmdline = "/usr/local/bin/OpenMVS/DensifyPointCloud";
+    bool ok = true;
+    int reslevel = _matisseParameters->getIntParamValue("algo_param", "resolution_level", ok);
+    if(ok)
+        cmdline += " --resolution-level " + QString::number(reslevel);
+    int nbviewfuse =  _matisseParameters->getIntParamValue("algo_param", "number_views_fuse", ok);
+    if(ok)
+        cmdline += " --number-views-fuse " + QString::number(nbviewfuse);
+
+    cmdline += " ./outReconstruction/" + fileNamePrefixStr + ".mvs";
+    QProcess denseProc;
+    denseProc.setWorkingDirectory(rootDirnameStr);
+    denseProc.start(cmdline);
 
     while(denseProc.waitForReadyRead(-1)){
         qDebug() << denseProc.readAllStandardOutput();
@@ -83,9 +108,15 @@ void Meshing3D::onFlush(quint32 port)
 
 
     // Compute Mesh
+    cmdline = "/usr/local/bin/OpenMVS/ReconstructMesh";
+    double decimatearg = _matisseParameters->getDoubleParamValue("algo_param", "decimate_factor", ok);
+    if(ok)
+        cmdline += " --decimate " + QString::number(decimatearg);
+
+    cmdline +=  " ./outReconstruction/" + fileNamePrefixStr + "_dense.mvs";
     QProcess meshProc;
     meshProc.setWorkingDirectory(rootDirnameStr);
-    meshProc.start("/usr/local/bin/OpenMVS/ReconstructMesh ./model_dense.mvs");
+    meshProc.start(cmdline);
 
     while(meshProc.waitForReadyRead(-1)){
         qDebug() << meshProc.readAllStandardOutput();

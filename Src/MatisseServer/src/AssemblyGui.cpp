@@ -576,7 +576,8 @@ bool AssemblyGui::loadResultToCartoView(QString resultFile_p)
     QFileInfo infoResult(resultFile_p);
 
     if (!infoResult.exists()) {
-        qCritical() << "Erreur fichier image introuvable" << infoResult.absoluteFilePath();
+        qCritical() << "Result image file not found " << infoResult.absoluteFilePath();
+        return false;
     }
 
     if (_userFormWidget->supportedRasterFormat().contains(infoResult.suffix())){

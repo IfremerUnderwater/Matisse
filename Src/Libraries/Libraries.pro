@@ -6,6 +6,6 @@ SUBDIRS = MatisseCommon \
           MatisseTools \
           BasicProcessing \
           OpticalMapping \
-    ImageProcessing
+          ImageProcessing
 
 

@@ -327,13 +327,13 @@ void NavInfo::setDiveNumber(const QString &arg)
 bool NavInfo::isValid(QString flags)
 {
     return ((timeInfo().isValid() || (flags[1] == '0'))
-            && (!isnan(longitude()) || (flags[2] == '0'))
-            && (!isnan(latitude()) || (flags[3] == '0'))
-            && (!isnan(depth()) || (flags[4] == '0'))
-            && (!isnan(altitude()) || (flags[5] == '0'))
-            && (!isnan(yaw()) || (flags[6] == '0'))
-            && (!isnan(roll()) || (flags[7] == '0'))
-            && (!isnan(pitch()) || (flags[8] == '0')));
+            && (!std::isnan(longitude()) || (flags[2] == '0'))
+            && (!std::isnan(latitude()) || (flags[3] == '0'))
+            && (!std::isnan(depth()) || (flags[4] == '0'))
+            && (!std::isnan(altitude()) || (flags[5] == '0'))
+            && (!std::isnan(yaw()) || (flags[6] == '0'))
+            && (!std::isnan(roll()) || (flags[7] == '0'))
+            && (!std::isnan(pitch()) || (flags[8] == '0')));
             /* Mosaic can be done without vx, vy, vz
             && (!isnan(vx()) || (flags[9] == '0'))
             && (!isnan(vy()) || (flags[10] == '0'))

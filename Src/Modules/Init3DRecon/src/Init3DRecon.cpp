@@ -131,12 +131,14 @@ Init3DRecon::Init3DRecon() :
 
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("cam_param",  "K");
-    addExpectedParameter("algo_param", "scale_factor");
-    addExpectedParameter("cam_param",  "V_Pose_C");
-
-    addExpectedParameter("algo_param","filter_overlap");
-    addExpectedParameter("algo_param","min_overlap");
-    addExpectedParameter("algo_param","max_overlap");
+    // unused
+    //addExpectedParameter("algo_param", "scale_factor");
+    // unused
+    //addExpectedParameter("cam_param",  "V_Pose_C");
+    // unused
+    //addExpectedParameter("algo_param","filter_overlap");
+    //addExpectedParameter("algo_param","min_overlap");
+    //addExpectedParameter("algo_param","max_overlap");
 
 }
 
@@ -188,7 +190,7 @@ void Init3DRecon::onFlush(quint32 port)
     bool b_Group_camera_model = true;
     bool use_prior = false;
 
-    int i_GPS_XYZ_method = 0;
+    //int i_GPS_XYZ_method = 0;
 
     double focal_pixels = -1.0;
 
@@ -280,7 +282,7 @@ void Init3DRecon::onFlush(quint32 port)
           ++iter_image, ++my_progress_bar )
     {
         counter++;
-        emit signal_processCompletion((double)counter/(double)vec_image.size());
+        emit signal_processCompletion(100.0*(double)counter/(double)vec_image.size());
 
         // Read meta data to fill camera parameter (w,h,focal,ppx,ppy) fields.
         width = height = ppx = ppy = focal = -1.0;
@@ -465,9 +467,8 @@ void Init3DRecon::onFlush(quint32 port)
     }
 
     // Store SfM_Data views & intrinsic data
-    /*if (!Save(
-                sfm_data,
-                stlplus::create_filespec( sOutputDir, "sfm_data->json" ).c_str(),
+    if (!Save(  *sfm_data,
+                stlplus::create_filespec( sOutputDir, "sfm_data.json" ).c_str(),
                 ESfM_Data(VIEWS|INTRINSICS)))
     {
         exit(EXIT_FAILURE);
@@ -478,8 +479,10 @@ void Init3DRecon::onFlush(quint32 port)
               << "listed #File(s): " << vec_image.size() << "\n"
               << "usable #File(s) listed in sfm_data: " << sfm_data->GetViews().size() << "\n"
               << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data->GetIntrinsics().size() << std::endl;
-*/
+
     delete sfm_data;
+
+    emit signal_userInformation("3D Mosaic - ended");
 
     // Flush next module port
     flush(0);

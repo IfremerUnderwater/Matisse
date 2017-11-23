@@ -66,7 +66,7 @@ void DictionnaryValidator::slot_generateTranslationFiles()
     /* Generate label declaration */
     QString genDeclareLabels;
 
-    QFile dicoFile("config/MatisseParametersDictionnary.xml");
+    QFile dicoFile(DICTIONNARY_SRC_PATH);
     dicoFile.open(QIODevice::ReadOnly);
 
     QXmlStreamReader xmlReader(&dicoFile);

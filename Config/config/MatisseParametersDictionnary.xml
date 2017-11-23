@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MatisseParametersDictionnary xmlns="Matisse" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="Matisse ../schemas/MatisseParametersDictionnary.xsd ">
-    <Structures publicationTimestamp="2016-03-31T16:00:56">
+    <Structures publicationTimestamp="2017-11-22T17:58:26">
         <Structure name="algo_param">
             <ParametersGroup name="general_algo_params">
                 <Parameter name="sift_code" level="expert" text="Code a executer pour le sift" type="string" range= "{$SIFT_CODE}" show="combo" default="GPU_sift"/>
@@ -11,11 +11,12 @@
                 <Parameter name="First_processed_image" level="user" text="Index premiere image" type="integer" range="[1,inf[" show="spin" default="1"/>
                 <Parameter name="Last_processed_image" level="user" text="Index derniere image" type="integer" range="[1,inf[" show="spin" default="inf"/>
                 <Parameter name="step_im" level="user" text="Saut inter-images" type="integer" range="[1,inf[" show="spin" default="1"/>
+                <Parameter name="force_recompute" level="user" text="Forcer le recalcul" type="bool" show="check" default="0"/>
             </ParametersGroup>
             <ParametersGroup name="overlap_filtering_params" text="Parametres de filtrage">
                 <Parameter name="filter_overlap" level="expert" text="Flag de filtrage" type="bool" show="check" default="0"/>
-                <Parameter name="max_overlap" level="expert" text="Overlap max entre 2 images" type="double" range="[0,1]" precision="3" show="spin" default="0.9"/>
-                <Parameter name="min_overlap" level="expert" text="Overlap min entre 2 images" type="double" range="[0,1]" precision="3" show="spin" default="0.7"/>
+                <Parameter name="max_overlap" level="expert" text="Overlap max entre 2 images" type="double" range="[0,1]" precision="2" show="spin" default="0.9"/>
+                <Parameter name="min_overlap" level="expert" text="Overlap min entre 2 images" type="double" range="[0,1]" precision="2" show="spin" default="0.7"/>
 		<Parameter name="do_realtime_mosaicking" level="user" text="Activer le mosaiquage temps reel" type="bool" show="check" default="1"/>
             </ParametersGroup>
             <ParametersGroup name="bundle_adjustment_params" text="Ajustement de bundle">
@@ -34,6 +35,24 @@
                 <Parameter name="block_drawing" level="user" text="Dessin par bloc (meilleure utilisation de la memoire)" type="bool" show="check" default="0"/>
                 <Parameter name="block_width" level="user" text="Largeur moyenne de bloc" type="integer" range="]0,inf[" show="spin" default="7000"/>
                 <Parameter name="block_height" level="user" text="Hauteur moyenne de bloc" type="integer" range="]0,inf[" show="spin" default="7000"/>
+            </ParametersGroup>
+            <ParametersGroup name="compute_feature" text="Compute Features">
+                <Parameter name="describer_method" level="expert" text="Describer Method" type="string" range="{$DESCRIBER_METHOD}" show="combo" default="SIFT"/>
+                <Parameter name="describer_preset" level="expert" text="Describer Preset" type="string" range="{$DESCRIBER_PRESET}" show="combo" default="ULTRA"/>
+            </ParametersGroup>
+            <ParametersGroup name="compute_matches" text="Compute Matches">
+                <Parameter name="nearest_matching_method" level="expert" text="Nearest Matching Method" type="string" range="{$NEARESTMATCH_METHOD}" show="combo" default="FASTCASCADEHASHINGL2"/>
+                <Parameter name="video_mode_matching" level="expert" text="Video Mode Matching" type="integer" range="[2,100]" show="spin" default="5"/>
+            </ParametersGroup>
+            <ParametersGroup name="DensifyPointCloud" text="Densify Point Cloud">
+                <Parameter name="resolution_level" level="expert" text="Resolution Level" type="integer" range="[1,10]" show="spin" default="2"/>
+                <Parameter name="number_views_fuse" level="expert" text="Number Views Fuse" type="integer" range="[2,10]" show="spin" default="3"/>
+            </ParametersGroup>
+            <ParametersGroup name="ReconstructMesh" text="Reconstruct Mesh">
+                <Parameter name="decimate_factor" level="expert" text="Decimation Factor" type="double" range="]0,1]" precision="2" show="spin" default="1.0"/>
+            </ParametersGroup>
+            <ParametersGroup name="TexReCon" text="Texture Mesh">
+                <Parameter name="keep_unseen_faces" level="expert" text="Keep Unseen Faces" type="bool" show="check" default="0"/>
             </ParametersGroup>
         </Structure>
         <Structure name="vehic_param">
@@ -105,6 +124,24 @@
             <EnumValue name="no" text="no"/>
             <EnumValue name="feather" text="feather"/>
             <EnumValue name="multiband" text="multiband"/>
+        </Enum>
+        <Enum name="DESCRIBER_PRESET">
+            <EnumValue name="NORMAL" text="NORMAL"/>
+            <EnumValue name="HIGH" text="HIGH"/>
+            <EnumValue name="ULTRA" text="ULTRA"/>
+        </Enum>
+        <Enum name="DESCRIBER_METHOD">
+            <EnumValue name="SIFT" text="SIFT"/>
+            <EnumValue name="AKAZE_FLOAT" text="AKAZE_FLOAT"/>
+            <EnumValue name="AKAZE_MLDB" text="AKAZE_MLDB"/>
+        </Enum>
+        <Enum name="NEARESTMATCH_METHOD">
+            <EnumValue name="AUTO" text="AUTO"/>
+            <EnumValue name="BRUTEFORCEL2" text="BRUTEFORCEL2"/>
+            <EnumValue name="ANNL2" text="ANNL2"/>
+            <EnumValue name="CASCADEHASHINGL2" text="CASCADEHASHINGL2"/>
+            <EnumValue name="FASTCASCADEHASHINGL2" text="FASTCASCADEHASHINGL2"/>
+            <EnumValue name="BRUTEFORCEHAMMING" text="BRUTEFORCEHAMMING"/>
         </Enum>
     </Enums>
 </MatisseParametersDictionnary>
