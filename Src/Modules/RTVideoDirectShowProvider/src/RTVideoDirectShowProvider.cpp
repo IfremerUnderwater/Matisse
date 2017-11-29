@@ -55,6 +55,8 @@ bool RTVideoDirectShowProvider::configure()
 
 bool RTVideoDirectShowProvider::start()
 {
+    setOkStatus();
+
     qDebug() << logPrefix() << " Begin start";
 
     connect( _cvCaptureCam, SIGNAL(imageReady()), this, SLOT(captureImage()));

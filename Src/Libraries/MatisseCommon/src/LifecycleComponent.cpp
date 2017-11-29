@@ -37,6 +37,12 @@ bool LifecycleComponent::isStarted() const
     return _isStarted;
 }
 
+bool LifecycleComponent::isCancelled() const
+{
+    return _isCancelled;
+}
+
+
 bool LifecycleComponent::callConfigure(Context * context, MatisseParameters * matisseParameters)
 {
     qDebug() << logPrefix() << "configure";

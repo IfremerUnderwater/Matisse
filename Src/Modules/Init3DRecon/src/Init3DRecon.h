@@ -7,8 +7,8 @@
 using namespace MatisseCommon;
 
 /**
- * Module1
- * @brief  Exemple de module pour implementer un algorithme de traitement dans Matisse
+ * Init3DRecon
+ * @brief  Module de début pour implementer un algorithme de traitement dans Matisse
  */
 class Init3DRecon : public Processor
 {

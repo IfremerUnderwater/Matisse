@@ -41,6 +41,14 @@ public:
     bool setInputPortList(QList<ImageSetPort *> * inputPortList);
     bool setOutputPortList(QList<ImageSetPort *> * outputPortList);
 
+    bool okStatus() { return _okStatus; }
+
+    // A appeler obligatoirement dans start
+    // et éventuellement dans flush ou onNewImage
+    void setOkStatus(const bool status = true)
+    {
+        _okStatus = status;
+    }
 
 protected:
     ///
@@ -82,6 +90,7 @@ signals:
     void signal_processCompletion(quint8 percentComplete);
     void signal_showInformationMessage(QString title, QString text);
     void signal_showErrorMessage(QString title, QString text);
+    void signal_fatalError();
     void signal_show3DFileOnMainView(QString filepath_p);
     void signal_addRasterFileToMap(QString filepath_p);
     void signal_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
@@ -93,11 +102,13 @@ private:
     quint16 _inNumber;
     quint16 _outNumber;
 
-
 protected:
     QList<ImageSetPort *> * _inputPortList;
     QList<ImageSetPort *> * _outputPortList;
 
+    volatile bool _okStatus;
+
+    void fatalErrorExit(QString message);
 };
 }
 Q_DECLARE_INTERFACE(MatisseCommon::Processor, "Chrisar.Processor/1.1")

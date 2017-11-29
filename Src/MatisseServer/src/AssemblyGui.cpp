@@ -3726,12 +3726,22 @@ void AssemblyGui::slot_processCompletion(quint8 percentComplete)
 {
     qDebug() << "Received process completion signal : " << percentComplete;
 
-    if (percentComplete > 100) {
-        qWarning() << QString("Invalid process completion percentage value : %1").arg(percentComplete);
-        return;
+    if(percentComplete == (quint8)-1)
+    {
+        _ongoingProcessCompletion->setTextVisible(false);
+        _ongoingProcessCompletion->setValue(0);
     }
+    else
+    {
+        _ongoingProcessCompletion->setTextVisible(true);
 
-    _ongoingProcessCompletion->setValue(percentComplete);
+        if (percentComplete > 100) {
+            qWarning() << QString("Invalid process completion percentage value : %1").arg(percentComplete);
+            return;
+        }
+
+        _ongoingProcessCompletion->setValue(percentComplete);
+    }
 }
 
 void AssemblyGui::slot_showInformationMessage(QString title, QString message)

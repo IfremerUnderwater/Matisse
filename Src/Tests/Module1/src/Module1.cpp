@@ -62,6 +62,8 @@ void Module1::onNewImage(quint32 port, Image &image)
 
 bool Module1::start()
 {
+    setOkStatus();
+
     qDebug() << logPrefix() << "Enter start";
 
     MosaicData * pm = new MosaicData();

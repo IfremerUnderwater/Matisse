@@ -45,6 +45,8 @@ void Init2DMosaic::onNewImage(quint32 port, Image &image)
 
 bool Init2DMosaic::start()
 {
+    setOkStatus();
+
     return true;
 }
 

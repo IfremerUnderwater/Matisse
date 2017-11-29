@@ -6,17 +6,14 @@
 
 #include "Polygon.h"
 
+#include "Dim2FileReader.h"
 
-
+//#include "exifreader.hpp"
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
-
 #include "openMVG/exif/sensor_width_database/ParseDatabase.hpp"
-#include "openMVG/exif/exif_IO_EasyExif.hpp"
 #include "openMVG/geodesy/geodesy.hpp"
-
 #include "openMVG/image/image.hpp"
 #include "openMVG/stl/split.hpp"
-
 #include "openMVG/sfm/sfm.hpp"
 
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
@@ -35,15 +32,20 @@ using namespace openMVG::geodesy;
 //using namespace openMVG::image;
 using namespace openMVG::sfm;
 
+typedef enum
+{
+    DIM2,
+    EXIF,
+    NONE
+}NavMode;
 
 // Export de la classe InitMatchModule dans la bibliotheque de plugin InitMatchModule
 Q_EXPORT_PLUGIN2(Init3DRecon, Init3DRecon)
 
 
-
 /// Check that Kmatrix is a string like "f;0;ppx;0;f;ppy;0;0;1"
 /// With f,ppx,ppy as valid numerical value
-bool checkIntrinsicStringValidity(const std::string & Kmatrix, double & focal, double & ppx, double & ppy)
+static bool checkIntrinsicStringValidity(const std::string & Kmatrix, double & focal, double & ppx, double & ppy)
 {
     std::vector<std::string> vec_str;
     stl::split(Kmatrix, ';', vec_str);
@@ -67,36 +69,67 @@ bool checkIntrinsicStringValidity(const std::string & Kmatrix, double & focal, d
     return true;
 }
 
-std::pair<bool, Vec3> checkGPS
+static std::pair<bool, Vec3> checkGPS
 (
-  const std::string & filename
-)
+        const std::string & filename
+        )
 {
-  std::pair<bool, Vec3> val(false, Vec3::Zero());
-  std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
-  if (exifReader)
-  {
-    // Try to parse EXIF metada & check existence of EXIF data
-    if ( exifReader->open( filename ) && exifReader->doesHaveExifInfo() )
+    std::pair<bool, Vec3> val(false, Vec3::Zero());
+    std::unique_ptr<Exif_IO_EasyExif> exifReader(new Exif_IO_EasyExif);
+    if (exifReader)
     {
-      // Check existence of GPS coordinates
-      double latitude, longitude, altitude;
-      if ( exifReader->GPSLatitude( &latitude ) &&
-           exifReader->GPSLongitude( &longitude ) &&
-           exifReader->GPSAltitude( &altitude ) )
-      {
-        // Add ECEF XYZ position to the GPS position array
-        val.first = true;
-        val.second = lla_to_ecef( latitude, longitude, altitude );
-      }
+        // Try to parse EXIF metada & check existence of EXIF data
+        if ( exifReader->open( filename ) && exifReader->doesHaveExifInfo() )
+        {
+            // Check existence of GPS coordinates
+            double latitude, longitude, altitude;
+            if ( exifReader->GPSLatitude( &latitude ) &&
+                 exifReader->GPSLongitude( &longitude ) &&
+                 exifReader->GPSAltitude( &altitude ) )
+            {
+                // déjà traité par exifreader
+                //if(exifReader->GPSAltitudeRef() != 0)
+                //    altitude = -altitude; // dans ce cas, la valeur absolue est stockée dans le champ GPS altitude
+
+                // Add ECEF XYZ position to the GPS position array
+                val.first = true;
+                //val.second = lla_to_ecef( latitude, longitude, altitude );
+                // utiliser UTM
+                val.second = lla_to_utm( latitude, longitude, altitude );
+            }
+        }
     }
-  }
-  return val;
+    return val;
 }
 
+static std::pair<bool, Vec3> checkDIM2
+(
+        const std::string & filename,
+        Dim2FileReader *dim2Reader,
+        std::map<QString, int> &dim2FileMap
+        )
+{
+    QString fname = stlplus::filename_part(filename).c_str();
+
+    std::pair<bool, Vec3> val(false, Vec3::Zero());
+    if (dim2Reader && dim2Reader->isFileValid())
+    {
+        std::map<QString, int>::iterator it = dim2FileMap.find(fname);
+        if(it != dim2FileMap.end())
+        {
+            NavInfo nav = dim2Reader->getNavInfo(it->second);
+            val.first = true;
+            //val.second = lla_to_ecef( nav.latitude(), nav.longitude(), -nav.depth() );
+            // utiliser UTM
+            val.second = lla_to_utm( nav.latitude(), nav.longitude(), -nav.depth()  );
+            return val;
+        }
+    }
+    return val;
+}
 
 /// Check string of prior weights
-std::pair<bool, Vec3> checkPriorWeightsString
+static std::pair<bool, Vec3> checkPriorWeightsString
 (
         const std::string &sWeights
         )
@@ -126,11 +159,16 @@ std::pair<bool, Vec3> checkPriorWeightsString
 
 
 Init3DRecon::Init3DRecon() :
-    Processor(NULL, "Init3DRecon", "Init 2D mosaic Descriptor with navigation", 1, 1)
+    Processor(NULL, "Init3DRecon", "Init 3D mosaic Descriptor with navigation", 1, 1)
 {
 
     addExpectedParameter("dataset_param", "dataset_dir");
+    addExpectedParameter("dataset_param", "navFile");   // dim2 - défaut OTUS.dim2
+    addExpectedParameter("dataset_param", "navSource"); // AUTO, GPS, DIM2, NO_NAV
+    addExpectedParameter("dataset_param", "usePrior");
+
     addExpectedParameter("cam_param",  "K");
+
     // unused
     //addExpectedParameter("algo_param", "scale_factor");
     // unused
@@ -139,7 +177,6 @@ Init3DRecon::Init3DRecon() :
     //addExpectedParameter("algo_param","filter_overlap");
     //addExpectedParameter("algo_param","min_overlap");
     //addExpectedParameter("algo_param","max_overlap");
-
 }
 
 Init3DRecon::~Init3DRecon(){
@@ -157,16 +194,19 @@ void Init3DRecon::onNewImage(quint32 port, Image &image)
 
     // Forward image
     postImage(0, image);
-
 }
 
 bool Init3DRecon::start()
 {
+    setOkStatus();
+
+    std::cerr << "***********Init3DRecon start" << std::endl;
     return true;
 }
 
 bool Init3DRecon::stop()
 {
+    std::cerr << "\n***********Init3DRecon stop" << std::endl;
     return true;
 }
 
@@ -175,21 +215,27 @@ void Init3DRecon::onFlush(quint32 port)
     qDebug() << logPrefix() << "flush port " << port;
 
     emit signal_processCompletion(0);
-    emit signal_userInformation("Initializing 3D Mosaic...");
+    emit signal_userInformation("Init3DRecon - start");
+
+    std::ostringstream error_report_stream;
 
     std::string sImageDir,
-            sfileDatabase = "",
+            //sfileDatabase = "",
             sOutputDir = "",
             sKmatrix;
 
+    // On n'en a plus besoin : la matrice K est suffisante
+    //sfileDatabase = "/home/data/ThirdPartyLibs/openMVG/src/openMVG/exif/sensor_width_database/sensor_width_camera_database.txt";
     std::string sPriorWeights;
     std::pair<bool, Vec3> prior_w_info(false, Vec3(1.0,1.0,1.0));
 
     int i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
 
     bool b_Group_camera_model = true;
-    bool use_prior = false;
-
+    bool Ok;
+    bool use_prior = _matisseParameters->getBoolParamValue("dataset_param", "usePrior",Ok);
+    if(!Ok)
+        use_prior = false;
     //int i_GPS_XYZ_method = 0;
 
     double focal_pixels = -1.0;
@@ -203,58 +249,130 @@ void Init3DRecon::onFlush(quint32 port)
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
     sImageDir = rootDirnameStr.toStdString();
-    sOutputDir = sImageDir + "/matches";
+    QString QSep = QDir::separator();
+    std::string SEP = QSep.toStdString();
+    sOutputDir = sImageDir + SEP + "matches";
 
     if ( !stlplus::folder_exists( sImageDir ) )
     {
-        std::cerr << "\nThe input directory doesn't exist" << std::endl;
-        exit(EXIT_FAILURE);
+        //std::cerr << "\nThe input directory doesn't exist" << std::endl;
+        fatalErrorExit("The input directory doesn't exist");
+        return;
+    }
+
+    // source de navigation
+    QString navSource =  _matisseParameters->getStringParamValue("dataset_param", "navSource");
+    NavMode navMode = NONE;
+    if(navSource == "NO_NAV")
+        navMode = NONE;
+    else if(navSource == "GPS")
+        navMode = EXIF;
+    else if(navSource == "DIM2")
+        navMode = DIM2;
+    else
+        navMode = DIM2;
+
+    rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    QString navigationFile = _matisseParameters->getStringParamValue("dataset_param", "navFile");
+    std::string dim2FileName;
+    size_t sepPos = navigationFile.toStdString().find(SEP);
+
+    if(sepPos == 0 ) // TODO Windows : traiter C:\ etc..
+    {
+        // chemin absolu
+        dim2FileName = navigationFile.toStdString();
+    }
+    else
+    {
+        dim2FileName = rootDirnameStr.toStdString() + SEP + navigationFile.toStdString();
+    }
+
+    if( navMode == DIM2 && !stlplus::file_exists(dim2FileName))
+    {
+        if( navSource == "DIM2")
+        {
+            QString msg = "Dim2 file not found " + navigationFile;
+            emit signal_showInformationMessage(this->logPrefix(),msg);
+            navMode = NONE;
+        }
+        else
+            navMode = EXIF;
+
+        dim2FileName = "";
+    }
+
+    std::map<QString, int> dim2FileMap;
+    std::unique_ptr<Dim2FileReader> dim2FileReader(new Dim2FileReader(dim2FileName.c_str()));
+    if(navMode == DIM2 && dim2FileReader != NULL && dim2FileReader->isFileValid() )
+    {
+        for(int i=1; i<= dim2FileReader->getNumberOfImages(); i++ )
+        {
+            dim2FileMap.insert(std::make_pair(dim2FileReader->getImageFilename(i),i));
+        }
+
+    }
+    else if(navMode == DIM2 && dim2FileReader != NULL && !dim2FileReader->isFileValid() )
+    {
+        if( navSource == "DIM2")
+        {
+            QString msg = "Dim2 file invalid " + navigationFile;
+            emit signal_showInformationMessage(this->logPrefix(),msg);
+            navMode = NONE;
+        }
+        else
+            navMode = EXIF;
     }
 
     if (sOutputDir.empty())
     {
-        std::cerr << "\nInvalid output directory" << std::endl;
-        exit(EXIT_FAILURE);
+        //std::cerr << "\nInvalid output directory" << std::endl;
+        fatalErrorExit("Invalid output directory");
+        return;
     }
 
     if ( !stlplus::folder_exists( sOutputDir ) )
     {
         if ( !stlplus::folder_create( sOutputDir ))
         {
-            std::cerr << "\nCannot create output directory" << std::endl;
-            exit(EXIT_FAILURE);
+            //std::cerr << "\nCannot create output directory" << std::endl;
+            fatalErrorExit("Cannot create output directory");
+            return;
         }
     }
 
     // Check focal length string "f;0;ppx;0;f;ppy;0;0;1"
-    bool Ok;
     QMatrix3x3 qK = _matisseParameters->getMatrix3x3ParamValue("cam_param",  "K",  Ok);
     sKmatrix = std::to_string(qK(0,0)) + ";0;" + std::to_string(qK(0,2)) + ";0;" + std::to_string(qK(1,1)) + ";" + std::to_string(qK(1,2)) + ";0;0;1";
 
     if (sKmatrix.size() > 0 &&
             !checkIntrinsicStringValidity(sKmatrix, focal, ppx, ppy) )
     {
-        std::cerr << "\nInvalid K matrix input" << std::endl;
-        exit(EXIT_FAILURE);
+        //std::cerr << "\nInvalid K matrix input" << std::endl;
+        fatalErrorExit("Invalid K matrix input");
+        return;
     }
 
     if (sKmatrix.size() > 0 && focal_pixels != -1.0)
     {
-        std::cerr << "\nCannot combine -f and -k options" << std::endl;
-        exit(EXIT_FAILURE);
+        //std::cerr << "\nCannot combine -f and -k options" << std::endl;
+        fatalErrorExit("Cannot combine -f and -k options");
+        return;
     }
 
-    std::vector<Datasheet> vec_database;
-    if (!sfileDatabase.empty())
-    {
-        if ( !parseDatabase( sfileDatabase, vec_database ) )
-        {
-            std::cerr
-                    << "\nInvalid input database: " << sfileDatabase
-                    << ", please specify a valid file." << std::endl;
-            exit(EXIT_FAILURE);
-        }
-    }
+    //    std::vector<Datasheet> vec_database;
+    //    if (!sfileDatabase.empty())
+    //    {
+    //        if ( !parseDatabase( sfileDatabase, vec_database ) )
+    //        {
+    ////            std::cerr
+    ////                    << "\nInvalid input database: " << sfileDatabase
+    ////                    << ", please specify a valid file." << std::endl;
+    //            std::string msg = "Invalid input database: ";
+    //            msg += sfileDatabase +  "\n please specify a valid file.";
+    //            fatalErrorExit(msg.c_str());
+    //            return;
+    //        }
+    //    }
 
     // Check if prior weights are given
     if (!sPriorWeights.empty() && use_prior)
@@ -273,13 +391,12 @@ void Init3DRecon::onFlush(quint32 port)
     Views & views = sfm_data->views;
     Intrinsics & intrinsics = sfm_data->intrinsics;
 
-    C_Progress_display my_progress_bar( vec_image.size(),
-                                        std::cout, "\n- Image listing -\n" );
-    std::ostringstream error_report_stream;
+    //    C_Progress_display my_progress_bar( vec_image.size(),
+    //                                        std::cout, "\n- Image listing -\n" );
     int counter=0;
     for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin();
           iter_image != vec_image.end();
-          ++iter_image, ++my_progress_bar )
+          ++iter_image) //, ++my_progress_bar )
     {
         counter++;
         emit signal_processCompletion(100.0*(double)counter/(double)vec_image.size());
@@ -293,8 +410,9 @@ void Init3DRecon::onFlush(quint32 port)
         // Test if the image format is supported:
         if (openMVG::image::GetFormat(sImageFilename.c_str()) == openMVG::image::Unknown)
         {
-            error_report_stream
-                    << sImFilenamePart << ": Unkown image file format." << "\n";
+            // pas de message pour les fichiers de type log etc...
+            //            error_report_stream
+            //                    << sImFilenamePart << ": Unkown image file format." << "\n";
             continue; // image cannot be opened
         }
 
@@ -336,7 +454,7 @@ void Init3DRecon::onFlush(quint32 port)
         }
         else // If image contains meta data
         {
-            const std::string sCamModel = exifReader->getModel();
+            //const std::string sCamModel = exifReader->getModel();
 
             // Handle case where focal length is equal to 0
             if (exifReader->getFocal() == 0.0f)
@@ -348,20 +466,32 @@ void Init3DRecon::onFlush(quint32 port)
             else
                 // Create the image entry in the list file
             {
-                Datasheet datasheet;
-                if ( getInfo( sCamModel, vec_database, datasheet ))
+                // inutilisé
+                // pris dans la matrice K
+                if (sKmatrix.size() > 0) // Known user calibration K matrix
                 {
-                    // The camera model was found in the database so we can compute it's approximated focal length
-                    const double ccdw = datasheet.sensorSize_;
-                    focal = std::max ( width, height ) * exifReader->getFocal() / ccdw;
+                    if (!checkIntrinsicStringValidity(sKmatrix, focal, ppx, ppy))
+                        focal = -1.0;
                 }
-                else
-                {
-                    error_report_stream
-                            << stlplus::basename_part(sImageFilename)
-                            << "\" model \"" << sCamModel << "\" doesn't exist in the database" << "\n"
-                            << "Please consider add your camera model and sensor width in the database." << "\n";
-                }
+                else // User provided focal length value
+                    if (focal_pixels != -1 )
+                        focal = focal_pixels;
+
+                // TODO : utiliser la focale dans l'EXIF - cas de plusieurs APN
+                //                Datasheet datasheet;
+                //                if ( getInfo( sCamModel, vec_database, datasheet ))
+                //                {
+                //                    // The camera model was found in the database so we can compute it's approximated focal length
+                //                    const double ccdw = datasheet.sensorSize_;
+                //                    focal = std::max ( width, height ) * exifReader->getFocal() / ccdw;
+                //                }
+                //                else
+                //                {
+                //                    error_report_stream
+                //                            << stlplus::basename_part(sImageFilename)
+                //                            << "\" model \"" << sCamModel << "\" doesn't exist in the database" << "\n"
+                //                            << "Please consider add your camera model and sensor width in the database." << "\n";
+                //                }
             }
         }
 
@@ -394,13 +524,31 @@ void Init3DRecon::onFlush(quint32 port)
                         (width, height, focal, ppx, ppy, 0.0, 0.0, 0.0, 0.0); // setup no distortion as initial guess
                 break;
             default:
-                std::cerr << "Error: unknown camera model: " << (int) e_User_camera_model << std::endl;
-                exit(EXIT_FAILURE);
+                //std::cerr << "Error: unknown camera model: " << (int) e_User_camera_model << std::endl;
+                QString msg = "Error: unknown camera model: " +  QString::number((int) e_User_camera_model);
+                fatalErrorExit(msg);
+                return;
             }
         }
 
         // Build the view corresponding to the image
-        const std::pair<bool, Vec3> gps_info = checkGPS(sImageFilename);
+        // Navigation
+        //
+        std::pair<bool, Vec3> gps_info(false, Vec3::Zero());
+        if(navMode == EXIF)
+            gps_info = checkGPS(sImageFilename);
+        else if(navMode == DIM2)
+        {
+            gps_info = checkDIM2(sImageFilename, dim2FileReader.get(), dim2FileMap);
+            if(!gps_info.first)
+            {
+                // fichier existant, mais non présent dans le dim2
+                // non pris en compte dans le calcul
+                error_report_stream
+                        << stlplus::basename_part(sImageFilename) << " not present in DIM2 file" << std::endl;
+                continue;
+            }
+        }
         if (gps_info.first && use_prior)
         {
             ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
@@ -451,13 +599,13 @@ void Init3DRecon::onFlush(quint32 port)
         }
     }
 
-
     // Display saved warning & error messages if any.
     if (!error_report_stream.str().empty())
     {
-        std::cerr
-                << "\nWarning & Error messages:" << std::endl
-                << error_report_stream.str() << std::endl;
+        emit signal_showInformationMessage(this->logPrefix(),error_report_stream.str().c_str());
+        //        std::cerr
+        //                << "\nWarning & Error messages:" << std::endl
+        //                << error_report_stream.str() << std::endl;
     }
 
     // Group camera that share common properties if desired (leads to more faster & stable BA).
@@ -466,12 +614,16 @@ void Init3DRecon::onFlush(quint32 port)
         GroupSharedIntrinsics(*sfm_data);
     }
 
+    emit signal_userInformation("Init3DRecon - saving...");
     // Store SfM_Data views & intrinsic data
     if (!Save(  *sfm_data,
                 stlplus::create_filespec( sOutputDir, "sfm_data.json" ).c_str(),
                 ESfM_Data(VIEWS|INTRINSICS)))
     {
-        exit(EXIT_FAILURE);
+        fatalErrorExit("Error saving sfm_data.json");
+        delete sfm_data;
+
+        return;
     }
 
     std::cout << std::endl
@@ -480,12 +632,33 @@ void Init3DRecon::onFlush(quint32 port)
               << "usable #File(s) listed in sfm_data: " << sfm_data->GetViews().size() << "\n"
               << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data->GetIntrinsics().size() << std::endl;
 
+    if(sfm_data->GetViews().size() == 0)
+    {
+        fatalErrorExit("No valid images found");
+        delete sfm_data;
+
+        return;
+    }
+
+
     delete sfm_data;
 
-    emit signal_userInformation("3D Mosaic - ended");
+    emit signal_userInformation("Init3DRecon - end");
 
+    //    // test erreur
+    //    static int blublu = 1;
+    //    if(blublu++ %2)
+    //    {
+    //        fatalErrorExit("blublu error");
+    //        return;
+
+    //        // Flush next module port
+    //        //flush(0);
+    //    }
+    //    else
+    //    {
     // Flush next module port
     flush(0);
-
+    //    }
 }
 

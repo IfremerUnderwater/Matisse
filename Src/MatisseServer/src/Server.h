@@ -59,6 +59,7 @@ public slots:
     void slot_showImageOnMainView(Image *image);
     void slot_userInformation(QString userText);
     void slot_processCompletion(quint8 percentComplete);
+    void slot_fatalError();
 
 private:
     AssemblyGui* _mainGui;
@@ -71,9 +72,6 @@ private:
     MatisseParameters *_assemblyParameters;
     QStringList _resultFileNames;
     volatile bool _isCancelled;
-
-
-
 };
 
 class Server : public QObject
@@ -138,8 +136,9 @@ private:
     QHash<QString, QList<MatisseParameter> > _expectedParametersByModule;
     QString _messageStr;
     bool _errorFlag;
-
 };
+
+
 }
 
 #endif // SERVER_H

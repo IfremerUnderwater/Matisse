@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MatisseParametersDictionnary xmlns="Matisse" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="Matisse ../schemas/MatisseParametersDictionnary.xsd ">
-    <Structures publicationTimestamp="2017-11-22T17:58:26">
+    <Structures publicationTimestamp="2017-11-27T16:34:21">
         <Structure name="algo_param">
             <ParametersGroup name="general_algo_params">
                 <Parameter name="sift_code" level="expert" text="Code a executer pour le sift" type="string" range= "{$SIFT_CODE}" show="combo" default="GPU_sift"/>
@@ -93,6 +93,8 @@
               <Parameter name="output_dir" level="user" text="Chemin du resultat" type="string" show="dir" default="./Geotiff_data"/>
               <Parameter name="output_filename" level="user" text="Prefixe du fichier de sortie" type="string" show="line" default="mosaic-output"/>
               <Parameter name="navFile" level="user" text="Fichier de navigation" type="string" show="file" default="OTUS.dim2"/>
+              <Parameter name="navSource" level="user" text="Source de Navigation"  type="string" range="{$NAV_SOURCES}" show="combo" default="AUTO"/>
+              <Parameter name="usePrior" level="advanced" text="Use View's Motion Prior" type="bool" show="check" default="1"/>
               <Parameter name="utm_zone" level="user" text="Zone UTM" type="integer" range="[1,60]" show="spin" default="31"/>
               <Parameter name="utm_hemisphere" level="user" text="Hemisphere UTM" type="string" range="{N,S}" show="combo" default="N"/>
             </ParametersGroup>
@@ -142,6 +144,12 @@
             <EnumValue name="CASCADEHASHINGL2" text="CASCADEHASHINGL2"/>
             <EnumValue name="FASTCASCADEHASHINGL2" text="FASTCASCADEHASHINGL2"/>
             <EnumValue name="BRUTEFORCEHAMMING" text="BRUTEFORCEHAMMING"/>
+        </Enum>
+        <Enum name="NAV_SOURCES">
+            <EnumValue name="AUTO" text="AUTO"/>
+            <EnumValue name="GPS" text="GPS"/>
+            <EnumValue name="DIM2" text="DIM2"/>
+            <EnumValue name="NO_NAV" text="NO_NAV"/>
         </Enum>
     </Enums>
 </MatisseParametersDictionnary>

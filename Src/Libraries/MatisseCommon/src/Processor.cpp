@@ -10,11 +10,10 @@ Processor::Processor(QObject *parent, QString name, QString comment, quint16 inN
     _inNumber(inNumber),
     _outNumber(outNumber),
     _inputPortList(NULL),
-    _outputPortList(NULL)
+    _outputPortList(NULL),
+    _okStatus(true)
 {
 }
-
-
 
 void Processor::postImage(quint32 port, Image &image)
 {
@@ -68,5 +67,12 @@ bool Processor::setOutputPortList(QList<ImageSetPort *> * outputPortList)
     return true;
 }
 
+void Processor::fatalErrorExit(QString message)
+{
+      askToStop(true);
+      emit signal_showErrorMessage(logPrefix(), message);
+      _okStatus = false;
+      emit signal_fatalError();
+}
 
 

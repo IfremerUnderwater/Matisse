@@ -19,6 +19,7 @@ bool Dim2FileReader::readDim2File(quint32 firstLine, quint32 lastLine, quint32 s
 {
 
     Q_ASSERT( (firstLine>0) && (firstLine<=lastLine) );
+    _fileIsValid = false;
 
     if (_filename.isEmpty()) {
         return false;
@@ -38,7 +39,7 @@ bool Dim2FileReader::readDim2File(quint32 firstLine, quint32 lastLine, quint32 s
     QTextStream reader(&fi);
 
     // lecture du fichier et remplissage des listes
-   _fileIsValid = false;
+   _fileIsValid = true;
    _dim2Lines.clear();
    quint32 lineCount = 0;
            // on suppose que la premiere ligne, correspondant à l'index est 1
@@ -129,7 +130,6 @@ QString Dim2FileReader::getFilename()
 
 bool Dim2FileReader::addDim2Line(QString datasLine)
 {
-    // TODO: decodage fichier....
     datasLine = datasLine.simplified();
     if (datasLine.isEmpty()) {
         return false;

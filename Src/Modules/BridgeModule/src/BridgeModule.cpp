@@ -35,6 +35,7 @@ void BridgeModule::onNewImage(quint32 port, Image &image)
 
 bool BridgeModule::start()
 {
+    setOkStatus();
     return true;
 }
 

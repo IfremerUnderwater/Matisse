@@ -41,6 +41,8 @@ void Module2::onNewImage(quint32 port, Image &image)
 
 bool Module2::start()
 {
+    setOkStatus();
+
     qDebug() << logPrefix() << "Enter start";
     QVariant *object = _context->getObject("MosaicData");
     if (object) {

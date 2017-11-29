@@ -192,6 +192,9 @@ void Server::setMessageStr(QString messageStr, bool error)
 
 void Server::slot_currentJobProcessed()
 {
+    if(_currentJob == NULL)
+        return;
+
     JobDefinition jobDefinition = _currentJob->jobDefinition();
     bool isCancelled=_currentJob->isCancelled();
     QString jobName = jobDefinition.name();
@@ -218,7 +221,6 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     RasterProvider* rasterProvider = NULL;
 
     qDebug() << "Verification de l'assemblage";
-
 
 
     // Verifier si les paramètres attendus sont présents pour la source
@@ -342,7 +344,6 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
         inPort->imageSet=outPort->imageSet;
 
 
-
         outProcessorPorts->append(outPort);
         inProcessorPorts->append(inPort);
     }
@@ -393,8 +394,6 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
         inPort->imageSet->setOutPort(inPort);
         inPort->imageListener = rasterProvider;
     }
-
-
 
 
     _currentJob = new JobTask(imageProvider, processorList, rasterProvider, jobDefinition, matisseParameters);
@@ -569,7 +568,6 @@ JobTask::JobTask(ImageProvider* imageProvider, QList<Processor*> processors, Ras
       _matParameters(parameters),
       _isCancelled(false)
 {
-
 }
 
 JobTask::~JobTask()
@@ -591,8 +589,6 @@ void JobTask::stop(bool cancel)
 
     qDebug() << "Demande d'arret du raster provider";
     _rasterProvider->askToStop(cancel);
-
-
 }
 
 void JobTask::slot_start()
@@ -627,6 +623,7 @@ void JobTask::slot_start()
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
         connect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
         connect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
+        connect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
         connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
         connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
         connect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
@@ -711,8 +708,50 @@ void JobTask::slot_stop()
             _resultFileNames << rasterInfo.absoluteFilePath();
         }
     }
-    delete _context;
-    emit signal_jobStopped();
+
+    // déconnecter tout
+    disconnect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
+    disconnect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    disconnect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
+    disconnect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
+    disconnect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
+    disconnect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
+    disconnect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+    disconnect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+    disconnect(_imageProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+
+    foreach (Processor* processor, _processors) {
+        if(!processor->okStatus())
+            _isCancelled = true;
+        disconnect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
+        disconnect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
+        disconnect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+        disconnect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
+        disconnect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
+        disconnect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
+        disconnect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
+        disconnect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
+        disconnect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+        disconnect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+        disconnect(processor, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+    }
+
+    disconnect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    disconnect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+
+    if(_context != NULL)
+    {
+        delete _context;
+        _context = NULL;
+        emit signal_jobStopped();
+    }
 }
 
 bool JobTask::isCancelled() const
@@ -734,19 +773,25 @@ void JobTask::slot_processCompletion(quint8 percentComplete)
 {
     emit signal_processCompletion(percentComplete);
 }
+
+void JobTask::slot_fatalError()
+{
+    _isCancelled = true;
+    stop(true);
+    _isCancelled = true;
+    emit signal_jobStopped();
+    slot_stop();
+}
+
 void JobTask::setMainGui(AssemblyGui *mainGui)
 {
     _mainGui = mainGui;
 }
 
-
-
 QStringList JobTask::resultFileNames() const
 {
     return _resultFileNames;
 }
-
-
 
 JobDefinition &JobTask::jobDefinition() const
 {
