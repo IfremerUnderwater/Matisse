@@ -69,10 +69,7 @@ static bool checkIntrinsicStringValidity(const std::string & Kmatrix, double & f
     return true;
 }
 
-static std::pair<bool, Vec3> checkGPS
-(
-        const std::string & filename
-        )
+static std::pair<bool, Vec3> checkGPS(const std::string & filename)
 {
     std::pair<bool, Vec3> val(false, Vec3::Zero());
     std::unique_ptr<Exif_IO_EasyExif> exifReader(new Exif_IO_EasyExif);
@@ -91,11 +88,9 @@ static std::pair<bool, Vec3> checkGPS
                 //if(exifReader->GPSAltitudeRef() != 0)
                 //    altitude = -altitude; // dans ce cas, la valeur absolue est stockée dans le champ GPS altitude
 
-                // Add ECEF XYZ position to the GPS position array
+                // Add position to the GPS position array
                 val.first = true;
-                //val.second = lla_to_ecef( latitude, longitude, altitude );
-                // utiliser UTM
-                val.second = lla_to_utm( latitude, longitude, altitude );
+                val.second = Vec3(latitude, longitude, altitude);
             }
         }
     }
@@ -119,9 +114,7 @@ static std::pair<bool, Vec3> checkDIM2
         {
             NavInfo nav = dim2Reader->getNavInfo(it->second);
             val.first = true;
-            //val.second = lla_to_ecef( nav.latitude(), nav.longitude(), -nav.depth() );
-            // utiliser UTM
-            val.second = lla_to_utm( nav.latitude(), nav.longitude(), -nav.depth()  );
+            val.second = Vec3( nav.latitude(), nav.longitude(), -nav.depth()  );
             return val;
         }
     }
@@ -241,6 +234,10 @@ void Init3DRecon::onFlush(quint32 port)
     double focal_pixels = -1.0;
 
 
+    Vec3 firstImagePos = Vec3::Zero();
+    Vec3 firstImagePosUtm = Vec3::Zero();
+    bool firstImage = true;
+
     // Expected properties for each image
     double width = -1, height = -1, focal = -1, ppx = -1,  ppy = -1;
 
@@ -255,7 +252,6 @@ void Init3DRecon::onFlush(quint32 port)
 
     if ( !stlplus::folder_exists( sImageDir ) )
     {
-        //std::cerr << "\nThe input directory doesn't exist" << std::endl;
         fatalErrorExit("The input directory doesn't exist");
         return;
     }
@@ -325,7 +321,6 @@ void Init3DRecon::onFlush(quint32 port)
 
     if (sOutputDir.empty())
     {
-        //std::cerr << "\nInvalid output directory" << std::endl;
         fatalErrorExit("Invalid output directory");
         return;
     }
@@ -334,7 +329,6 @@ void Init3DRecon::onFlush(quint32 port)
     {
         if ( !stlplus::folder_create( sOutputDir ))
         {
-            //std::cerr << "\nCannot create output directory" << std::endl;
             fatalErrorExit("Cannot create output directory");
             return;
         }
@@ -347,14 +341,12 @@ void Init3DRecon::onFlush(quint32 port)
     if (sKmatrix.size() > 0 &&
             !checkIntrinsicStringValidity(sKmatrix, focal, ppx, ppy) )
     {
-        //std::cerr << "\nInvalid K matrix input" << std::endl;
         fatalErrorExit("Invalid K matrix input");
         return;
     }
 
     if (sKmatrix.size() > 0 && focal_pixels != -1.0)
     {
-        //std::cerr << "\nCannot combine -f and -k options" << std::endl;
         fatalErrorExit("Cannot combine -f and -k options");
         return;
     }
@@ -364,9 +356,9 @@ void Init3DRecon::onFlush(quint32 port)
     //    {
     //        if ( !parseDatabase( sfileDatabase, vec_database ) )
     //        {
-    ////            std::cerr
-    ////                    << "\nInvalid input database: " << sfileDatabase
-    ////                    << ", please specify a valid file." << std::endl;
+    //            std::cerr
+    //                    << "\nInvalid input database: " << sfileDatabase
+    //                    << ", please specify a valid file." << std::endl;
     //            std::string msg = "Invalid input database: ";
     //            msg += sfileDatabase +  "\n please specify a valid file.";
     //            fatalErrorExit(msg.c_str());
@@ -391,12 +383,10 @@ void Init3DRecon::onFlush(quint32 port)
     Views & views = sfm_data->views;
     Intrinsics & intrinsics = sfm_data->intrinsics;
 
-    //    C_Progress_display my_progress_bar( vec_image.size(),
-    //                                        std::cout, "\n- Image listing -\n" );
     int counter=0;
     for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin();
           iter_image != vec_image.end();
-          ++iter_image) //, ++my_progress_bar )
+          ++iter_image)
     {
         counter++;
         emit signal_processCompletion(100.0*(double)counter/(double)vec_image.size());
@@ -524,7 +514,6 @@ void Init3DRecon::onFlush(quint32 port)
                         (width, height, focal, ppx, ppy, 0.0, 0.0, 0.0, 0.0); // setup no distortion as initial guess
                 break;
             default:
-                //std::cerr << "Error: unknown camera model: " << (int) e_User_camera_model << std::endl;
                 QString msg = "Error: unknown camera model: " +  QString::number((int) e_User_camera_model);
                 fatalErrorExit(msg);
                 return;
@@ -549,8 +538,20 @@ void Init3DRecon::onFlush(quint32 port)
                 continue;
             }
         }
+
+        // ramener tout relatif à la première image (en UTM)
+        if(firstImage)
+        {
+            firstImage = false;
+            // lat, lon, alt
+            firstImagePos = gps_info.second;
+            // UTM x, y, alt
+            firstImagePosUtm = lla_to_utm( gps_info.second[0], gps_info.second[1], gps_info.second[2] );
+        }
+
         if (gps_info.first && use_prior)
         {
+            // utiliser la nav
             ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
 
             // Add intrinsic related to the image (if any)
@@ -567,7 +568,10 @@ void Init3DRecon::onFlush(quint32 port)
             }
 
             v.b_use_pose_center_ = true;
-            v.pose_center_ = gps_info.second;
+            // utm
+            gps_info.second = lla_to_utm( gps_info.second[0], gps_info.second[1], gps_info.second[2] );
+            v.pose_center_ = gps_info.second - firstImagePosUtm;
+
             // prior weights
             if (prior_w_info.first == true)
             {
@@ -603,9 +607,6 @@ void Init3DRecon::onFlush(quint32 port)
     if (!error_report_stream.str().empty())
     {
         emit signal_showInformationMessage(this->logPrefix(),error_report_stream.str().c_str());
-        //        std::cerr
-        //                << "\nWarning & Error messages:" << std::endl
-        //                << error_report_stream.str() << std::endl;
     }
 
     // Group camera that share common properties if desired (leads to more faster & stable BA).
@@ -626,11 +627,45 @@ void Init3DRecon::onFlush(quint32 port)
         return;
     }
 
-    std::cout << std::endl
-              << "SfMInit_ImageListing report:\n"
-              << "listed #File(s): " << vec_image.size() << "\n"
-              << "usable #File(s) listed in sfm_data: " << sfm_data->GetViews().size() << "\n"
-              << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data->GetIntrinsics().size() << std::endl;
+    // sauvegarder la position de la première image
+    // firstImagePos : en Lat, Lon, Alt
+    QString coords = QString::number(firstImagePos[0],'f',6) +";"
+            + QString::number(firstImagePos[1],'f',6) + ";"
+            + QString::number(firstImagePos[2],'f',3);
+    QString geoFileName = stlplus::create_filespec(rootDirnameStr.toStdString(),"georefpos.txt").c_str();
+    QFile geoFile(geoFileName);
+    if( !geoFile.open(QIODevice::WriteOnly) )
+    {
+        fatalErrorExit("Error saving " + geoFileName);
+    }
+
+    // Save the pos
+    QTextStream outputGeoStream(&geoFile);
+    outputGeoStream << coords;
+    geoFile.close();
+
+    // firstImagePosUtm : en UTM x, y, Alt
+    QString utmcoords = QString::number(firstImagePosUtm[0],'f',3) +";"
+            + QString::number(firstImagePosUtm[1],'f',3) + ";"
+            + QString::number(firstImagePosUtm[2],'f',3);
+    QString fileName = stlplus::create_filespec(rootDirnameStr.toStdString(),"utmrefpos.txt").c_str();
+    QFile utmFile(fileName);
+    if( !utmFile.open(QIODevice::WriteOnly) )
+    {
+        fatalErrorExit("Error saving " + fileName);
+    }
+
+    // Save the pos
+    QTextStream outputStream(&utmFile);
+
+    outputStream << utmcoords;
+    utmFile.close();
+
+    qDebug() << "\n"
+             << "SfMInit_ImageListing report:\n"
+             << "listed #File(s): " << vec_image.size() << "\n"
+             << "usable #File(s) listed in sfm_data: " << sfm_data->GetViews().size() << "\n"
+             << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data->GetIntrinsics().size() << "\n";
 
     if(sfm_data->GetViews().size() == 0)
     {
@@ -645,20 +680,6 @@ void Init3DRecon::onFlush(quint32 port)
 
     emit signal_userInformation("Init3DRecon - end");
 
-    //    // test erreur
-    //    static int blublu = 1;
-    //    if(blublu++ %2)
-    //    {
-    //        fatalErrorExit("blublu error");
-    //        return;
-
-    //        // Flush next module port
-    //        //flush(0);
-    //    }
-    //    else
-    //    {
-    // Flush next module port
     flush(0);
-    //    }
 }
 
