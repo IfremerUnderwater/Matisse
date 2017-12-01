@@ -55,7 +55,7 @@ bool RTVideoDirectShowProvider::configure()
 
 bool RTVideoDirectShowProvider::start()
 {
-    setOkStatus();
+    //setOkStatus();
 
     qDebug() << logPrefix() << " Begin start";
 

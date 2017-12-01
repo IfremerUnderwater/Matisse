@@ -91,7 +91,7 @@ SOURCES += \
     src/NavPhotoInfoTcpListener.cpp \
     src/StringUtils.cpp
 
-OTHER_FILES += src/proto/*.*
+OTHER_FILES += src/proto/*.proto
 
 
 

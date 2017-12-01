@@ -8,12 +8,18 @@
 
 #include "Dim2FileReader.h"
 
+#define PROGRESS
+#define PROGRESS_DISPLAY
+
+#define OPENMVG_SFM_SFM_REGIONS_PROVIDER_HPP
+#define OPENMVG_SFM_SFM_REGIONS_PROVIDER_CACHE_HPP
+
 //#include "exifreader.hpp"
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
-#include "openMVG/exif/sensor_width_database/ParseDatabase.hpp"
+//#include "openMVG/exif/sensor_width_database/ParseDatabase.hpp"
 #include "openMVG/geodesy/geodesy.hpp"
-#include "openMVG/image/image.hpp"
-#include "openMVG/stl/split.hpp"
+//#include "openMVG/image/image.hpp"
+//#include "openMVG/stl/split.hpp"
 #include "openMVG/sfm/sfm.hpp"
 
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"

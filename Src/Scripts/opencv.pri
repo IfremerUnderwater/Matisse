@@ -10,14 +10,15 @@ win32 {
         else {
                 LIBEXT=$${LIBEXT}""
         }
+        LIBS  *= -L$$(OPENCV_DIR)/lib
 }
 
 unix {
         LIBEXT=""
 }
 
-
 LibsAddLibrary(highgui$$LIBEXT)
 LibsAddLibrary(core$$LIBEXT)
 LibsAddLibrary(stitching$$LIBEXT)
 LibsAddLibrary(imgproc$$LIBEXT)
+

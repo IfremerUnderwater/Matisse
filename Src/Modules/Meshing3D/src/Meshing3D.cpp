@@ -58,7 +58,10 @@ static double getPctVal(QString message, QString key)
 
 
 //TODO : Windows
-#ifndef WIN32
+#ifdef WIN32
+static const char* DensifyPointCloudExe = "DensifyPointCloud.exe";
+static const char* ReconstructMeshExe = "ReconstructMesh.exe";
+#else
 static const char* DensifyPointCloudExe = "/usr/local/bin/OpenMVS/DensifyPointCloud";
 static const char* ReconstructMeshExe = "/usr/local/bin/OpenMVS/ReconstructMesh";
 #endif

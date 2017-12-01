@@ -32,6 +32,8 @@ include(../../Scripts/qgis.pri)
 
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Modules/imageProviders
+    LIBS *= "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Samples\multimedia\DirectShow\baseclasses\Release\strmbase.lib"
+
 }
 unix {
     DESTDIR = $${BUILD_DIR}/Modules/imageProviders

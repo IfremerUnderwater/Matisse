@@ -5,6 +5,13 @@
 #include "FileImage.h"
 #include "GeoTransform.h"
 
+//#ifdef WIN32
+// TODO : hack windows dll....
+//*******************************************
+#include "NavPhotoInfoTcpListener.h"
+//*******************************************
+//#endif
+
 #define D2R (3.14159265358979323846 / 180.0)
 
 Q_EXPORT_PLUGIN2(RTStillCameraProvider, RTStillCameraProvider)

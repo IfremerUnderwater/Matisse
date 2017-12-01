@@ -25,7 +25,7 @@ protobuf_decl.name = protobuf headers
 protobuf_decl.input = PROTOS
 protobuf_decl.output = ${QMAKE_FILE_IN_PATH}/${QMAKE_FILE_BASE}.pb.h
 win32{
-protobuf_decl.commands = protoc.exe --cpp_out=${QMAKE_FILE_IN_PATH} --proto_path=${QMAKE_FILE_IN_PATH} ${QMAKE_FILE_NAME}
+protobuf_decl.commands = $$(PROTOBUF_DIR)/bin/protoc.exe --cpp_out=dllexport_decl=LIBMATISSECOMMONSHARED_EXPORT:${QMAKE_FILE_IN_PATH} --proto_path=${QMAKE_FILE_IN_PATH} ${QMAKE_FILE_NAME}
 }
 else{
 protobuf_decl.commands = protoc --cpp_out=${QMAKE_FILE_IN_PATH} --proto_path=${QMAKE_FILE_IN_PATH} ${QMAKE_FILE_NAME}

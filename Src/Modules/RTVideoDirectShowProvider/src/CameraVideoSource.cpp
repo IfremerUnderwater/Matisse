@@ -35,7 +35,7 @@ bool CameraVideoSource::configure()
 
 bool CameraVideoSource::start()
 {
-    setOkStatus();
+    //setOkStatus();
 
     return true;
 }

@@ -1,5 +1,6 @@
 #include "NavPhotoInfoTcpListener.h"
 #include <QThread>
+#include "proto/nav_photo_info.pb.cc"
 
 NavPhotoInfoTcpListener::NavPhotoInfoTcpListener() : QObject(), _connectionAllowed(false)
 {
