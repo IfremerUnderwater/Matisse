@@ -9,7 +9,7 @@
 #include <qgsmaprenderersequentialjob.h>
 
 
-//using namespace cv;
+using namespace cv;
 
 
 UserFormWidget::UserFormWidget(QWidget *parent) :
@@ -742,24 +742,34 @@ void UserFormWidget::exportMapViewToImage(QString imageFilePath)
 
     // Qgis 2.99
     //QgsMapRenderer renderer;
-    QgsMapRendererSequentialJob renderer;
+    QgsMapSettings settings;
     QList<QgsMapLayer *> layers = _ui->_GRV_map->layers();
 
     QStringList layerIds;
 
-    foreach (QgsMapLayer *layer, layers) {
-        layerIds << layer->id();
-    }
-
-    renderer.setLayerSet(layerIds);
+    // Qgis 2.99
+//    foreach (QgsMapLayer *layer, layers) {
+//        layerIds << layer->id();
+//    }
+//    renderer.setLayerSet(layerIds);
+    settings.setLayers(layers);
 
     /* user current canvas extent to render image */
     QgsRectangle rect(_ui->_GRV_map->extent());
-    renderer.setExtent(rect);
+    //Qgis 2.99
+    //renderer.setExtent(rect);
+    settings.setExtent(rect);
 
-    renderer.setOutputSize(image.size(), image.logicalDpiX());
+    //Qgis 2.99
+    //renderer.setOutputSize(image.size(), image.logicalDpiX());
+    settings.setOutputSize(image.size());
+    settings.setOutputDpi(image.logicalDpiX());
 
-    renderer.render(&painter);
+    //Qgis 2.99
+    //renderer.render(&painter);
+    QgsMapRendererSequentialJob renderer(settings);
+    renderer.start();
+
     image.save(imageFilePath, "png");
 }
 
@@ -773,7 +783,10 @@ void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString p
     int i;
 
     if (findLayerIndexFromName(layerName_p, i)){
-        pointsLayer = (QgsVectorLayer *)_layers.at(i).layer();
+        // Qgis 2.99
+        //pointsLayer = (QgsVectorLayer *)_layers.at(i).layer();
+        pointsLayer = (QgsVectorLayer *)_players.at(i);
+
         layerAlreadyExists = true;
     }else{
         pointsLayer = new QgsVectorLayer("Point", layerName_p, "memory");
@@ -785,7 +798,9 @@ void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString p
     // Fill feats with points
     foreach (QgsPoint point, pointsList_p) {
         QgsFeature feat;
-        feat.setGeometry(QgsGeometry::fromPoint( point ));
+        // Qgis 2.99
+        //feat.setGeometry(QgsGeometry::fromPoint( point ));
+        feat.setGeometry(QgsGeometry::fromPointXY( point ));
         feats.append(feat);
     }
 
@@ -796,15 +811,27 @@ void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString p
     QgsStringMap props;
     props.insert("name", "square");
     props.insert("color", pointsColor_p);
-    QgsMarkerSymbolV2 *symbol = QgsMarkerSymbolV2::createSimple(props);
-    QgsFeatureRendererV2 *pointsLayerr = new QgsSingleSymbolRendererV2(symbol);
+    // Qgis 2.99
+    //QgsMarkerSymbolV2 *symbol = QgsMarkerSymbolV2::createSimple(props);
+    QgsMarkerSymbol *symbol = QgsMarkerSymbol::createSimple(props);
+    // Qgis 2.99
+    //QgsFeatureRendererV2 *pointsLayerr = new QgsSingleSymbolRendererV2(symbol);
+    QgsFeatureRenderer *pointsLayerr = new QgsSingleSymbolRenderer(symbol);
 
-    pointsLayer->setRendererV2(pointsLayerr);
+    // Qgis 2.99
+    //pointsLayer->setRendererV2(pointsLayerr);
+    pointsLayer->setRenderer(pointsLayerr);
 
-    QgsMapLayerRegistry::instance()->addMapLayer(pointsLayer, TRUE);
+    // Qgis 2.99
+    //QgsMapLayerRegistry::instance()->addMapLayer(pointsLayer, TRUE);
+    QgsProject::instance()->addMapLayer(pointsLayer, TRUE);
 
     if (!layerAlreadyExists)
-        _layers.append(QgsMapCanvasLayer(pointsLayer, TRUE));
+    {
+        // Qgis 2.99
+        //_layers.append(QgsMapCanvasLayer(pointsLayer, TRUE));
+        _players.append(pointsLayer);
+    }
 
     this->updateMapCanvasAndExtent(pointsLayer);
 
@@ -831,7 +858,10 @@ void UserFormWidget::loadTestVectorLayer()
     v1->updateFields();*/
 
     QgsFeature feat1;
-    feat1.setGeometry(QgsGeometry::fromPoint(QgsPoint(10,10)));
+    //Qgis 2.99
+    //feat1.setGeometry(QgsGeometry::fromPoint(QgsPoint(10,10)));
+    feat1.setGeometry(QgsGeometry::fromPointXY(QgsPoint(10,10)));
+
     /*QgsAttributes attrs;
     attrs.append("Johny");
     attrs.append(2);
@@ -839,7 +869,9 @@ void UserFormWidget::loadTestVectorLayer()
     feat.setAttributes(attrs);*/
 
     QgsFeature feat2;
-    feat2.setGeometry(QgsGeometry::fromPoint(QgsPoint(20,20)));
+    //Qgis 2.99
+    //feat2.setGeometry(QgsGeometry::fromPoint(QgsPoint(20,20)));
+    feat2.setGeometry(QgsGeometry::fromPointXY(QgsPoint(20,20)));
 
     QgsFeatureList feats;
     feats.append(feat1);
@@ -853,16 +885,25 @@ void UserFormWidget::loadTestVectorLayer()
     QgsStringMap props;
     props.insert("name", "square");
     props.insert("color", "red");
-    QgsMarkerSymbolV2 *symbol = QgsMarkerSymbolV2::createSimple(props);
+    //Qgis 2.99
+    //QgsMarkerSymbolV2 *symbol = QgsMarkerSymbolV2::createSimple(props);
+    QgsMarkerSymbol *symbol = QgsMarkerSymbol::createSimple(props);
 
-    QgsFeatureRendererV2 *v1r = new QgsSingleSymbolRendererV2(symbol);
-    //v1r->setSymbol(symbol);
+    //Qgis 2.99
+    //QgsFeatureRendererV2 *v1r = new QgsSingleSymbolRendererV2(symbol);
+    QgsFeatureRenderer *v1r = new QgsSingleSymbolRenderer(symbol);
 
-    v1->setRendererV2(v1r);
+    //Qgis 2.99
+    //v1->setRendererV2(v1r);
+    v1->setRenderer(v1r);
 
-    QgsMapLayerRegistry::instance()->addMapLayer(v1, TRUE);
+    //Qgis 2.99
+    //QgsMapLayerRegistry::instance()->addMapLayer(v1, TRUE);
+    QgsProject::instance()->addMapLayer(v1, TRUE);
 
-    _layers.append(QgsMapCanvasLayer(v1, TRUE));
+    //Qgis 2.99
+   // _layers.append(QgsMapCanvasLayer(v1, TRUE));
+    _players.append(v1);
 
     this->updateMapCanvasAndExtent(NULL);
 
@@ -888,7 +929,10 @@ void UserFormWidget::updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p)
     QgsMapCanvas* mapCanvas = _ui->_GRV_map;
 
     // Merge extents
-    QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
+    // Qgis 2.99
+    //QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
+    QMap<QString, QgsMapLayer*> layers = QgsProject::instance()->mapLayers();
+
     QgsRectangle finalExtent, extent;
     int i=0;
 
@@ -900,7 +944,9 @@ void UserFormWidget::updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p)
             }
             else {
                 extent = layer->extent();
-                finalExtent.combineExtentWith(&extent);
+                // Qgis 2.99
+                //finalExtent.combineExtentWith(&extent);
+                finalExtent.combineExtentWith(extent);
             }
             i++;
         }
@@ -929,7 +975,9 @@ void UserFormWidget::updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p)
         // do nothing
     }
 
-    mapCanvas->setLayerSet(_layers);
+    // Qgis 2.99
+    //mapCanvas->setLayerSet(_layers);
+    mapCanvas->setLayers(_players);
 
     if (currentLayer_p != NULL)
         mapCanvas->setCurrentLayer(currentLayer_p);
@@ -950,8 +998,11 @@ bool UserFormWidget::findLayerIndexFromName(const QString &layerName_p, int &idx
 {
     int i=0;
 
-    foreach (QgsMapCanvasLayer currentLayer, _layers){
-        if(currentLayer.layer()->name() == layerName_p){
+    // Qgis 2.99
+//    foreach (QgsMapCanvasLayer currentLayer, _layers){
+//        if(currentLayer.layer()->name() == layerName_p){
+    foreach (QgsMapLayer *currentLayer, _players){
+        if(currentLayer->name() == layerName_p){
             idx_p = i;
             return true;
         }

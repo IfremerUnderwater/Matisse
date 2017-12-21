@@ -55,10 +55,16 @@ int main(int argc, char *argv[])
 #ifdef WIN32
     QProcessEnvironment env;
     QString oswgeo4w = env.systemEnvironment().value("OSGEO4W_ROOT");
-    QgsApplication::setPrefixPath(oswgeo4w+"\\apps\\qgis", true);
+    //QgsApplication::setPrefixPath(oswgeo4w+"\\apps\\qgis", true);
+    //************************TEST
+    QgsApplication::setPrefixPath("C:\\Program Files\\qgis2.99.0",true);
+
 #ifdef QT_DEBUG
     qDebug() << "Load Debug versions of plugins";
-    QgsApplication::setPluginPath(oswgeo4w+"\\apps\\qgis\\pluginsd");
+    //************************TEST
+    //QgsApplication::setPluginPath(oswgeo4w+"\\apps\\qgis\\pluginsd");
+    //QgsApplication::setPluginPath(oswgeo4w+"\\apps\\qgis\\plugins");
+    QgsApplication::setPluginPath("C:\\Program Files\\qgis2.99.0\\plugins");
 #endif
 #else
     qDebug() << "else";

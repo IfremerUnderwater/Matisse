@@ -1,9 +1,9 @@
 win32 {
     CONFIG(debug, debug|release) {
-        LIBEXT="d"
+        LIBEXT="5d"
     }
     else {
-        LIBEXT=""
+        LIBEXT="5"
     }
 }
 

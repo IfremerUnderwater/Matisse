@@ -64,7 +64,7 @@ system("$$COPY_DIR \"$$CONFIG_DIR/xml\" \"$$RUN_DIR/xml\"")
 system("$$COPY_DIR \"$$BUILD_DIR/Libraries/dll\" \"$$RUN_DIR/Libraries\"")
 
 # Deploy icon files
-system("$$COPY \"$$MATISSE_SERVER_SOURCE_DIR/ui/icons\*.svg\" \"$$RUN_DIR/lnf\icons"")
+system("$$COPY \"$$MATISSE_SERVER_SOURCE_DIR/ui/icons\*.svg\" \"$$RUN_DIR/lnf\icons\"")
 
 # Copy linguist files
 #system("echo $$CHDIR \"$$SERVER_SOURCE_DIR\"")
