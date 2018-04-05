@@ -12,14 +12,14 @@ TARGET = Flusher
 CONFIG += plugin
 
 
-win32 {
-    QMAKE_CXXFLAGS += /wd4100 /wd4996
-    DEFINES += _USE_MATH_DEFINES
-}
+#win32 {
+#    QMAKE_CXXFLAGS += /wd4100 /wd4996
+#    DEFINES += _USE_MATH_DEFINES
+#}
 
-unix {
+#unix {
 QMAKE_CXXFLAGS += -std=c++11
-}
+#}
 
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
@@ -34,9 +34,8 @@ CONFIG(release, debug|release) {
 
 include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/opencv.pri)
-include(../../Scripts/qgis.pri)
 include(../../Scripts/BasicProcessing.pri)
-include(../../Scripts/qgis.pri)
+#include(../../Scripts/qgis.pri)
 
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Modules/imageProviders

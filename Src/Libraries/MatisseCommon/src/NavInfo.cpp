@@ -3,10 +3,10 @@
 
 using namespace std;
 // NAN is not defined in math.h (as normally required by C99) by VSC++
-#ifdef WIN32
-      int isnan(double x) { return x != x; }
-      int isinf(double x) { return !isnan(x) && isnan(x - x); }
-#endif
+//#ifdef WIN32
+//      int isnan(double x) { return x != x; }
+//      int isinf(double x) { return !isnan(x) && isnan(x - x); }
+//#endif
 
 using namespace MatisseCommon;
 

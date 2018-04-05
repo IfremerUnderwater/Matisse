@@ -16,6 +16,7 @@
 
 //#include "exifreader.hpp"
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
+
 //#include "openMVG/exif/sensor_width_database/ParseDatabase.hpp"
 #include "openMVG/geodesy/geodesy.hpp"
 #include "openMVG/image/image_io.hpp"

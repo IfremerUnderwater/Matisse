@@ -2242,11 +2242,11 @@ void AssemblyGui::slot_addPolylineToMap(basicproc::Polygon polygon_p, QString po
     _userFormWidget->addPolylineToMap(polygon_p, polyColor_p, layerName_p);
 }
 
-void AssemblyGui::slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p)
-{
-    _userFormWidget->addQGisPointsToMap(pointsList_p, pointsColor_p, layerName_p);
+//void AssemblyGui::slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p)
+//{
+//    _userFormWidget->addQGisPointsToMap(pointsList_p, pointsColor_p, layerName_p);
 
-}
+//}
 
 void AssemblyGui::saveAssemblyAndReload(AssemblyDefinition *assembly)
 {

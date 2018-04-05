@@ -7,14 +7,14 @@ CONFIG += plugin
 TEMPLATE = lib
 
 
-win32 {
-    QMAKE_CXXFLAGS += /wd4100 /wd4996
+#win32 {
+#    QMAKE_CXXFLAGS += /wd4100 /wd4996
 
-}
+#}
 
-unix {
+#unix {
 QMAKE_CXXFLAGS += -std=c++11
-}
+#}
 
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
@@ -31,7 +31,7 @@ include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/BasicProcessing.pri)
 include(../../Scripts/OpticalMapping.pri)
 include(../../Scripts/opencv.pri)
-include(../../Scripts/qgis.pri)
+#include(../../Scripts/qgis.pri)
 
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Modules/rasterProviders

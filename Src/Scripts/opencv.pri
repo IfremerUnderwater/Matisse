@@ -1,21 +1,31 @@
 include(libsOpenCVAddLibrary.pri)
 
-win32 {
-	INCLUDEPATH *=  $$(OPENCV_DIR)/../../include
-#	LIBEXT=248
-        LIBEXT=331
+#win32 {
 
-        CONFIG(debug, debug|release) {
-                LIBEXT=$${LIBEXT}d
-        }
-        else {
-                LIBEXT=$${LIBEXT}""
-        }
-#        LIBS  *= -L$$(OPENCV_DIR)/lib
-        LIBS  *= /LIBPATH:$$(OPENCV_DIR)/lib
+#systemconf = $$(MSYSTEM)
+#isEmpty ( systemconf ) {
+#    message("OPENCV Win $$(MSYSTEM)")
 
-        message("OPENCV $$(OPENCV_DIR)")
-}
+#	INCLUDEPATH *=  $$(OPENCV_DIR)/../../include
+##	LIBEXT=248
+#        LIBEXT=331
+
+#        CONFIG(debug, debug|release) {
+#                LIBEXT=$${LIBEXT}d
+#        }
+#        else {
+#                LIBEXT=$${LIBEXT}""
+#        }
+##        LIBS  *= -L$$(OPENCV_DIR)/lib
+#        LIBS  *= /LIBPATH:$$(OPENCV_DIR)/lib
+
+#        message("OPENCV $$(OPENCV_DIR)")
+#}
+#else {
+# message("OPENCV $$(MSYSTEM)")
+#}
+
+#}
 
 unix {
         LIBEXT=""
@@ -30,6 +40,5 @@ unix {
 }
 
 win32 {
-#OpenCV 3.3.1
-    LibsAddLibrary(world$$LIBEXT)
+LIBS *= -lopencv_highgui  -lopencv_core  -lopencv_stitching  -lopencv_imgproc -lopencv_imgcodecs
 }

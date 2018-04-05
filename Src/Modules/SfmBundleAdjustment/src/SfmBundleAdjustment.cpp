@@ -1,6 +1,6 @@
 ﻿#include "SfmBundleAdjustment.h"
 //#include "MosaicContext.h"
-#include "NavImage.h"
+//#include "NavImage.h"
 
 #include <QProcess>
 

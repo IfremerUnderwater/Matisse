@@ -1,14 +1,14 @@
 
 QT += core xml network widgets
 
-win32{
-    QMAKE_CXXFLAGS += /wd4100 /wd4996
-    DEFINES += _USE_MATH_DEFINES
-}
+#win32{
+#    QMAKE_CXXFLAGS += /wd4100 /wd4996
+#    DEFINES += _USE_MATH_DEFINES
+#}
 
-unix {
+#unix {
 QMAKE_CXXFLAGS += -std=c++11
-}
+#}
 
 TARGET = RTStillCameraProvider
 CONFIG += plugin
@@ -31,7 +31,7 @@ include(../../Scripts/MatisseTools.pri)
 include(../../Scripts/opencv.pri)
 include(../../Scripts/BasicProcessing.pri)
 include(../../Scripts/ProtoBuf.pri)
-include(../../Scripts/qgis.pri)
+#include(../../Scripts/qgis.pri)
 
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Modules/imageProviders

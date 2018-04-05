@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fr_FR">
+<TS version="2.1" language="fr_FR">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -8,7 +8,7 @@
         <source>Dialog</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="ui/AboutDialog.ui" line="82"/>
         <source>&lt;table&gt;					&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;h1&gt;MATISSE %1&lt;/h1&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;em&gt;Support technique:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
@@ -1197,12 +1197,12 @@ Voulez-vous enregistrer le parametrage de la tache ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/AssemblyGui.cpp" line="3767"/>
+        <location filename="src/AssemblyGui.cpp" line="3777"/>
         <source>Travail %1 annule...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/AssemblyGui.cpp" line="3781"/>
+        <location filename="src/AssemblyGui.cpp" line="3791"/>
         <source>Travail %1 termine...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1384,54 +1384,54 @@ Voulez vous le remplacer?</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="229"/>
+        <location filename="src/Server.cpp" line="231"/>
         <source>Module source introuvable: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="237"/>
-        <location filename="src/Server.cpp" line="266"/>
-        <location filename="src/Server.cpp" line="296"/>
+        <location filename="src/Server.cpp" line="239"/>
+        <location filename="src/Server.cpp" line="268"/>
+        <location filename="src/Server.cpp" line="298"/>
         <source>Parametre requis manquant dans l&apos;assemblage: (%1, %2) pour %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="252"/>
+        <location filename="src/Server.cpp" line="254"/>
         <source>Processeur defini avec un ordre incorrect: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="259"/>
+        <location filename="src/Server.cpp" line="261"/>
         <source>Module processeur introuvable: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="278"/>
+        <location filename="src/Server.cpp" line="280"/>
         <source>Destination non definie</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="284"/>
+        <location filename="src/Server.cpp" line="286"/>
         <source>Destination definie avec un ordre incorrect: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="290"/>
+        <location filename="src/Server.cpp" line="292"/>
         <source>Module de destination introuvable: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="427"/>
+        <location filename="src/Server.cpp" line="426"/>
         <source>Fichier de parametres invalide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="437"/>
+        <location filename="src/Server.cpp" line="436"/>
         <source>Impossible de charger l&apos;assemblage %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="442"/>
+        <location filename="src/Server.cpp" line="441"/>
         <source>Echec d&apos;execution de l&apos;assemblage</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1526,12 +1526,12 @@ Voulez vous le remplacer?</oldsource>
 </context>
 <context>
     <name>ParametersDialog</name>
-    <message utf8="true">
+    <message>
         <location filename="ui/ParametersDialog.ui" line="20"/>
         <source>Sauvegarde des paramètres</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="ui/ParametersDialog.ui" line="53"/>
         <source>Version du modèle:</source>
         <translation type="unfinished"></translation>
@@ -1668,7 +1668,7 @@ Voulez vous le remplacer?</oldsource>
         <source>Port:</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="ui/ServerDialog.ui" line="119"/>
         <source>Client connecté</source>
         <translation type="unfinished"></translation>
@@ -1685,42 +1685,42 @@ Voulez vous le remplacer?</oldsource>
 <context>
     <name>UserFormWidget</name>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="24"/>
+        <location filename="src/UserFormWidget.cpp" line="32"/>
         <source>Ajustement auto a l&apos;emprise</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="28"/>
+        <location filename="src/UserFormWidget.cpp" line="36"/>
         <source>Suivre le dernier ajout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="32"/>
+        <location filename="src/UserFormWidget.cpp" line="40"/>
         <source>Deplacement manuel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="86"/>
+        <location filename="src/UserFormWidget.cpp" line="94"/>
         <source>Deplacer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="95"/>
+        <location filename="src/UserFormWidget.cpp" line="103"/>
         <source>Zoom AV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="104"/>
+        <location filename="src/UserFormWidget.cpp" line="112"/>
         <source>Zoom AR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="113"/>
+        <location filename="src/UserFormWidget.cpp" line="121"/>
         <source>Recentrer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="141"/>
+        <location filename="src/UserFormWidget.cpp" line="152"/>
         <source>Supprimer</source>
         <translation type="unfinished"></translation>
     </message>

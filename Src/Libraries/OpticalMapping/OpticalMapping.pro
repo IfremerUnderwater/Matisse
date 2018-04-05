@@ -4,9 +4,9 @@
 #
 #-------------------------------------------------
 
-unix {
+#unix {
 QMAKE_CXXFLAGS += -std=c++11
-}
+#}
 
 
 #QT       -= gui
@@ -34,7 +34,7 @@ TARGET = OpticalMapping$$BUILD_EXT
 include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/MatisseTools.pri)
 include(../../Scripts/opencv.pri)
-include(../../Scripts/qgis.pri)
+#include(../../Scripts/qgis.pri)
 include(../../Scripts/QuaZIP.pri)
 include(../../Scripts/BasicProcessing.pri)
 

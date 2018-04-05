@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.1" language="en_US">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -8,7 +8,7 @@
         <source>Dialog</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="ui/AboutDialog.ui" line="82"/>
         <source>&lt;table&gt;					&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;h1&gt;MATISSE %1&lt;/h1&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;em&gt;Support technique:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
@@ -1505,13 +1505,13 @@ Voulez-vous enregistrer le parametrage de la tache ?</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="src/AssemblyGui.cpp" line="3767"/>
+        <location filename="src/AssemblyGui.cpp" line="3777"/>
         <source>Travail %1 annule...</source>
         <oldsource>Travail %1 annulé...</oldsource>
         <translation>Job %1 cancelled...</translation>
     </message>
     <message>
-        <location filename="src/AssemblyGui.cpp" line="3781"/>
+        <location filename="src/AssemblyGui.cpp" line="3791"/>
         <source>Travail %1 termine...</source>
         <oldsource>Travail %1 terminé...</oldsource>
         <translation>Job %1 finished...</translation>
@@ -1725,59 +1725,59 @@ Do you want to replace it?</translation>
         <translation>Cannot find parameters file: %1</translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="229"/>
+        <location filename="src/Server.cpp" line="231"/>
         <source>Module source introuvable: %1</source>
         <translation>Cannot find source module: %1</translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="237"/>
-        <location filename="src/Server.cpp" line="266"/>
-        <location filename="src/Server.cpp" line="296"/>
+        <location filename="src/Server.cpp" line="239"/>
+        <location filename="src/Server.cpp" line="268"/>
+        <location filename="src/Server.cpp" line="298"/>
         <source>Parametre requis manquant dans l&apos;assemblage: (%1, %2) pour %3</source>
         <oldsource>Paramètre requis manquant dans l&apos;assemblage: (%1, %2) pour %3</oldsource>
         <translation>Required parameter is missing: (%1,%2) for %3</translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="252"/>
+        <location filename="src/Server.cpp" line="254"/>
         <source>Processeur defini avec un ordre incorrect: %1</source>
         <oldsource>Processeur défini avec un ordre incorrect: %1</oldsource>
         <translation>Invalid order for processor: %1</translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="259"/>
+        <location filename="src/Server.cpp" line="261"/>
         <source>Module processeur introuvable: %1</source>
         <translation>Cannot find processor module: %1</translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="278"/>
+        <location filename="src/Server.cpp" line="280"/>
         <source>Destination non definie</source>
         <oldsource>Destination non définie</oldsource>
         <translation>Undefined destination</translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="284"/>
+        <location filename="src/Server.cpp" line="286"/>
         <source>Destination definie avec un ordre incorrect: %1</source>
         <oldsource>Destination définie avec un ordre incorrect: %1</oldsource>
         <translation>Invalid order for destination: %1</translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="290"/>
+        <location filename="src/Server.cpp" line="292"/>
         <source>Module de destination introuvable: %1</source>
         <translation>Cannot find destination module: %1</translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="427"/>
+        <location filename="src/Server.cpp" line="426"/>
         <source>Fichier de parametres invalide</source>
         <oldsource>Fichier de paramètres invalide</oldsource>
         <translation>Invalid parameters file</translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="437"/>
+        <location filename="src/Server.cpp" line="436"/>
         <source>Impossible de charger l&apos;assemblage %1</source>
         <translation>Unable to load processing chain: %1</translation>
     </message>
     <message>
-        <location filename="src/Server.cpp" line="442"/>
+        <location filename="src/Server.cpp" line="441"/>
         <source>Echec d&apos;execution de l&apos;assemblage</source>
         <translation>Job process failed</translation>
     </message>
@@ -1872,12 +1872,12 @@ Do you want to replace it?</translation>
 </context>
 <context>
     <name>ParametersDialog</name>
-    <message utf8="true">
+    <message>
         <location filename="ui/ParametersDialog.ui" line="20"/>
         <source>Sauvegarde des paramètres</source>
         <translation>Parameters Save</translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="ui/ParametersDialog.ui" line="53"/>
         <source>Version du modèle:</source>
         <translation>Model version:</translation>
@@ -2014,7 +2014,7 @@ Do you want to replace it?</translation>
         <source>Port:</source>
         <translation>Port:</translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="ui/ServerDialog.ui" line="119"/>
         <source>Client connecté</source>
         <translation>Connected client</translation>
@@ -2048,42 +2048,42 @@ Do you want to replace it?</translation>
         <translation type="obsolete">Parameters sets</translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="24"/>
+        <location filename="src/UserFormWidget.cpp" line="32"/>
         <source>Ajustement auto a l&apos;emprise</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="28"/>
+        <location filename="src/UserFormWidget.cpp" line="36"/>
         <source>Suivre le dernier ajout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="32"/>
+        <location filename="src/UserFormWidget.cpp" line="40"/>
         <source>Deplacement manuel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="86"/>
+        <location filename="src/UserFormWidget.cpp" line="94"/>
         <source>Deplacer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="95"/>
+        <location filename="src/UserFormWidget.cpp" line="103"/>
         <source>Zoom AV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="104"/>
+        <location filename="src/UserFormWidget.cpp" line="112"/>
         <source>Zoom AR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="113"/>
+        <location filename="src/UserFormWidget.cpp" line="121"/>
         <source>Recentrer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/UserFormWidget.cpp" line="141"/>
+        <location filename="src/UserFormWidget.cpp" line="152"/>
         <source>Supprimer</source>
         <translation type="unfinished">Delete</translation>
     </message>

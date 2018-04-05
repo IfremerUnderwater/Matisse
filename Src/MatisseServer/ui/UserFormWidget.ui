@@ -62,7 +62,7 @@
       <number>0</number>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="_WID_pageQGis">
       <property name="sizePolicy">
@@ -93,28 +93,6 @@
        <property name="spacing">
         <number>0</number>
        </property>
-       <item row="0" column="0">
-        <widget class="QgsMapCanvas" name="_GRV_map">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>100</horstretch>
-           <verstretch>100</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>580</width>
-           <height>710</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="lineWidth">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="_WID_pageImage">
@@ -182,11 +160,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>QgsMapCanvas</class>
-   <extends>QGraphicsView</extends>
-   <header>qgsmapcanvas.h</header>
-  </customwidget>
   <customwidget>
    <class>OSGWidget</class>
    <extends>QWidget</extends>

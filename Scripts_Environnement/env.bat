@@ -10,7 +10,7 @@ rem -- Configure path section --
 rem @set OPENCV_DIR=F:\ThirdPartyLibs\opencv248\opencv\build\x64\vc10
 @set OPENCV_DIR=F:\ThirdPartyLibs\opencv331\opencv\build\x64\vc14
 @set OPENCV_VERSION=331
-@set OSG_DIR=F:\ThirdPartyLibs\OpenSceneGraph-3.0.1
+@set OSG_DIR=F:\ThirdPartyLibs\OpenSceneGraph-3.4.1
 rem @set OSG_DIR=F:\ThirdPartyLibs\OpenSceneGraph
 rem @set OSG_3RD_PARTIES=F:\ThirdPartyLibs\OSG3rdParties
 @set PROTOBUF_DIR=F:\ThirdPartyLibs\protobuf

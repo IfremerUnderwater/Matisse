@@ -3,7 +3,7 @@
 
 #include "libmatissecommon_global.h"
 
-#ifdef  _MSC_VER
+#ifdef  WIN32
 #include <cpl_vsi.h>
 #include <cpl_conv.h>
 #include <cpl_string.h>

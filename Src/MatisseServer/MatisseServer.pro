@@ -9,29 +9,30 @@ TEMPLATE = app
 
 QT       += core gui network sql xml xmlpatterns script opengl printsupport widgets
 
-win32 {
-    RC_FILE = MatisseServer.rc
-    QMAKE_CXXFLAGS += /wd4100 /wd4129 /wd4996
-#    CONFIG(debug, debug|release) {
-#        QMAKE_CXXFLAGS += /MDd
-#    }
+#win32 {
+#    RC_FILE = MatisseServer.rc
+#    QMAKE_CXXFLAGS += /wd4100 /wd4129 /wd4996
+##    CONFIG(debug, debug|release) {
+##        QMAKE_CXXFLAGS += /MDd
+##    }
 
-    DEFINES += GUI_EXPORT=__declspec(dllimport) CORE_EXPORT=__declspec(dllimport)
-    DEFINES += _USE_MATH_DEFINES
-}
-else {
-    message ("Set include...")
-    QMAKE_CXXFLAGS = -fpermissive -Wno-reorder
+#    DEFINES += GUI_EXPORT=__declspec(dllimport) CORE_EXPORT=__declspec(dllimport)
+#    DEFINES += _USE_MATH_DEFINES
+#     LIBS*= -lKernel32
+#}
+#else {
+#    message ("Set include...")
+#    QMAKE_CXXFLAGS = -fpermissive -Wno-reorder
 
-}
+#}
 
-unix {
+#unix {
 QMAKE_CXXFLAGS += -std=c++11
-}
+#}
 
-unix{
+#unix{
 INCLUDEPATH *= $$PWD/src
-}
+#}
 
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
@@ -51,16 +52,16 @@ DESTDIR = $${RUN_DIR}
 include(../Scripts/MatisseCommon.pri)
 include(../Scripts/MatisseTools.pri)
 include(../Scripts/opencv.pri)
-include(../Scripts/qgis.pri)
+#include(../Scripts/qgis.pri)
 include(../Scripts/QuaZIP.pri)
 include(../Scripts/BasicProcessing.pri)
 
 
 win32{
-    CONFIG(release, debug|release) {
-        include(../Scripts/OpenSceneGraph.pri)
-        DEFINES *= WITH_OSG
-    }
+#    CONFIG(release, debug|release) {
+#        include(../Scripts/OpenSceneGraph.pri)
+#        DEFINES *= WITH_OSG
+#    }
 }
 unix{
     include(../Scripts/OpenSceneGraph.pri)

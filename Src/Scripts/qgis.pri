@@ -1,10 +1,10 @@
 win32 {
     INCLUDEPATH *= $$(OSGEO4W_ROOT)/include
-#    INCLUDEPATH *= $$(OSGEO4W_ROOT)/apps/qgis/include
-    INCLUDEPATH *= "C:\Program Files\qgis2.99.0"/include
+    INCLUDEPATH *= $$(OSGEO4W_ROOT)/apps/qgis/include
+#    INCLUDEPATH *= "C:\Program Files\qgis2.99.0"/include
     LIBS *= -L$$(OSGEO4W_ROOT)/lib
-#    LIBS *= -L$$(OSGEO4W_ROOT)/apps/qgis/lib
-    LIBS *= -L"C:\Program Files\qgis2.99.0"/lib
+    LIBS *= -L$$(OSGEO4W_ROOT)/apps/qgis/lib
+#    LIBS *= -L"C:\Program Files\qgis2.99.0"/lib
     DEFINES += GUI_EXPORT=__declspec(dllimport) CORE_EXPORT=__declspec(dllimport)
     message("OSGEO4W_ROOT/lib = $$(OSGEO4W_ROOT)/lib")
 
