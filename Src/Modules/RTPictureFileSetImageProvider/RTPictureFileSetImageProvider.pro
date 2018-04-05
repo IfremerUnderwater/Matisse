@@ -4,13 +4,16 @@
 #
 #-------------------------------------------------
 
-QT += core xml network
+QT += core xml network widgets
 
 win32{
-QMAKE_CXXFLAGS += /wd4100 /wd4996
+    QMAKE_CXXFLAGS += /wd4100 /wd4996
+    DEFINES += _USE_MATH_DEFINES
 }
 
+unix {
 QMAKE_CXXFLAGS += -std=c++11
+}
 
 TARGET = RTPictureFileSetImageProvider
 CONFIG += plugin

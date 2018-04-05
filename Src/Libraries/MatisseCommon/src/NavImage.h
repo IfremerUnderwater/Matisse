@@ -31,7 +31,7 @@ public:
     /// \param imageData
     /// \param navInfo
     ///
-    NavImage(int id, Mat * imageData, NavInfo navInfo);
+    NavImage(int id, cv::Mat * imageData, NavInfo navInfo);
 
 
     void setNavInfo( NavInfo navInfo);

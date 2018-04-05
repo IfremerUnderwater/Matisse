@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS = DTPictureFileSetImageProvider \
-          RTVideoDirectShowProvider \
+#          RTVideoDirectShowProvider \
           RTPictureFileSetImageProvider \
           Flusher \
           Init2DMosaic \

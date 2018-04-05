@@ -21,7 +21,7 @@
 using namespace MatisseServer;
 using namespace MatisseTools;
 
-void myMessageOutput(QtMsgType type, const char *msg)
+void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
     switch (type) {
     case QtDebugMsg:
@@ -46,8 +46,11 @@ void myMessageOutput(QtMsgType type, const char *msg)
 int main(int argc, char *argv[])
 {
     // Define log handler
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+     qInstallMessageHandler(myMessageOutput);
+#else
     qInstallMsgHandler(myMessageOutput);
-
+#endif
     // Init QGIS
 #ifdef WIN32
     QProcessEnvironment env;

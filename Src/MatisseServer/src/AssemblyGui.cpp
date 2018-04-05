@@ -3672,7 +3672,7 @@ void AssemblyGui::slot_launchJob()
 void AssemblyGui::slot_stopJob()
 {
     QString jobName = _lastJobLaunchedItem->data(0, Qt::UserRole).toString();
-    qDebug() << "Arrêt du job " << jobName.toAscii();
+    qDebug() << "Arrêt du job " << jobName.toLatin1();
 
 
     QString msg1=tr("Arret du travail en cours.");

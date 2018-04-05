@@ -1,4 +1,4 @@
-QT       += core xml
+QT       += core xml widgets
 
 TARGET = Matching3D
 CONFIG += plugin
@@ -8,9 +8,12 @@ TEMPLATE = lib
 
 win32 {
     QMAKE_CXXFLAGS += /wd4100 /wd4996
+    DEFINES += _USE_MATH_DEFINES
 }
 
+unix {
 QMAKE_CXXFLAGS += -std=c++11
+}
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../
@@ -31,9 +34,11 @@ include(../../Scripts/qgis.pri)
 
 # temp ------------------------------------------------
 
+unix {
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_CXXFLAGS+= -fopenmp -ffast-math
 QMAKE_LFLAGS +=  -fopenmp
+}
 
 unix {
 

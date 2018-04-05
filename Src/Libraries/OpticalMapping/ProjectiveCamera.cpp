@@ -1,6 +1,8 @@
 #include "ProjectiveCamera.h"
 #include <QDebug>
 
+using namespace cv;
+
 ProjectiveCamera::ProjectiveCamera():_scalingFactor(1),_scalingFactorIsSet(false),
     _KIsSet(false)
 {
@@ -93,7 +95,7 @@ void ProjectiveCamera::projectPtOnMosaickingPlane(const Mat camPlanePt_p, Mat &m
     }
 }
 
-void ProjectiveCamera::projectImageOnMosaickingPlane(Mat &mosaicPlaneImage_p, Mat &mosaicPlaneMask_p, cv::Point & corner_p)
+void ProjectiveCamera::projectImageOnMosaickingPlane(UMat &mosaicPlaneImage_p, UMat &mosaicPlaneMask_p, cv::Point & corner_p)
 {
 
 

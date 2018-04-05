@@ -6,8 +6,9 @@
 
 #include "Polygon.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(BridgeModule, BridgeModule)
-
+#endif
 
 BridgeModule::BridgeModule() :
     Processor(NULL, "BridgeModule", "This bridge does nothing for the moment", 1, 1)

@@ -2,8 +2,9 @@
 
 #include "RTSurveyPlotter.h"
 
-
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(RTSurveyPlotter, RTSurveyPlotter)
+#endif
 
 RTSurveyPlotter::RTSurveyPlotter(QObject *parent):
     RasterProvider(NULL, "RTSurveyPlotter", "", 1)
@@ -191,7 +192,7 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
 
     // Project Image
     if (_doRealTimeMosaicking){
-        cv::Mat warpedImage, warpedImageMask;
+        cv::UMat warpedImage, warpedImageMask;
         cv::Point corner_p;
         _pCams->at(navImage->id())->projectImageOnMosaickingPlane(warpedImage, warpedImageMask, corner_p);
 
@@ -215,7 +216,7 @@ void RTSurveyPlotter::onNewImage(quint32 port, Image &image)
         cv::Mat warpedImageTransparent;
         split(warpedImage, rasterChannels);
         rasterChannels.pop_back();
-        rasterChannels.push_back(warpedImageMask);
+        rasterChannels.push_back(warpedImageMask.getMat(ACCESS_READ));
         merge(rasterChannels, warpedImageTransparent);
 
         cv::imwrite(imgFileTmp.toStdString(),warpedImageTransparent);

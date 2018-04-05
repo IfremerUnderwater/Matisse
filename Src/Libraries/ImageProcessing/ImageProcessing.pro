@@ -4,9 +4,8 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
+#QT       -= gui
 
-TARGET = ImageProcessing
 TEMPLATE = lib
 
 DEFINES += IMAGEPROCESSING_LIBRARY

@@ -1,13 +1,16 @@
 TARGET = MatisseCommon
 TEMPLATE = lib
 
-QT += core xml network
+QT += core xml network widgets
 
 win32 {
     QMAKE_CXXFLAGS += /wd4100 /wd4996
 }
 
+unix {
 QMAKE_CXXFLAGS += -std=c++11
+}
+
 
 DEFINES += LIBMATISSECOMMON_LIBRARY
 

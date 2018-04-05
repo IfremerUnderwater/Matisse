@@ -1,7 +1,10 @@
 ﻿#include <QDir>
 
 #include "DTPictureFileSetImageProvider.h"
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(DTPictureFileSetImageProvider, DTPictureFileSetImageProvider)
+#endif
 
 DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *parent):
     ImageProvider(NULL, "DTPictureFileSetImageProvider", "", 1),

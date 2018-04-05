@@ -24,20 +24,20 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 #include <qgsvectorlayer.h>
 #include <qgsmapcanvas.h>
 #include <qgsrasterlayer.h>
-#include <qgsmaplayerregistry.h>
+//#include <qgsmaplayerregistry.h>
 
 #include <qgsvectordataprovider.h>
 #include <qgsgeometry.h>
-#include <qgsmarkersymbollayerv2.h>
-#include <qgssinglesymbolrendererv2.h>
-#include <qgsrendererv2.h>
+//#include <qgsmarkersymbollayerv2.h>
+//#include <qgssinglesymbolrendererv2.h>
+//#include <qgsrendererv2.h>
 #include <qgsproject.h>
 #include <qgsmapcanvas.h>
 #include <qgsmaptoolpan.h>
 #include <qgsmaptoolzoom.h>
 #include <qgscomposition.h>
 
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 
 #include "Image.h"
 #include "Polygon.h"
@@ -149,7 +149,10 @@ private:
     bool findLayerIndexFromName(const QString &layerName_p, int &idx_p);
 
     Ui::UserFormWidget *_ui;
-    QList<QgsMapCanvasLayer> _layers;
+    //QList<QgsMapCanvasLayer> _layers;
+    // QGis 2.99
+    QList<QgsMapLayer*> _players;
+    // attention : pointeur - delete à faire
 
     bool _isToolBarDisplayed;
 

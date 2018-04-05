@@ -8,13 +8,16 @@ TARGET = MatisseTools
 TEMPLATE = lib
 CONFIG += staticlib
 
-QT       += script xml xmlpatterns network gui
+QT       += script xml xmlpatterns network gui widgets
 
 win32 {
     QMAKE_CXXFLAGS += /wd4100 /wd4996
 }
 
+unix {
 QMAKE_CXXFLAGS += -std=c++11
+}
+
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../

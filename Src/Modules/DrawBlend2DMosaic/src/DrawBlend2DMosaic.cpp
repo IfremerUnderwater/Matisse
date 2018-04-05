@@ -1,4 +1,9 @@
-﻿#include "MosaicContext.h"
+﻿#if _MSC_VER
+#define _USE_MATH_DEFINES
+#include <math.h>
+#endif
+
+#include "MosaicContext.h"
 #include "MosaicDrawer.h"
 #include "NavImage.h"
 #include "DrawBlend2DMosaic.h"
@@ -6,9 +11,12 @@
 #include "RasterGeoreferencer.h"
 #include "MosaicDescriptor.h"
 
-// Export de la classe DrawAndWriteModule dans la bibliotheque de plugin DrawAndWriteModule
-Q_EXPORT_PLUGIN2(DrawBlend2DMosaic, DrawBlend2DMosaic)
+using namespace cv;
 
+// Export de la classe DrawAndWriteModule dans la bibliotheque de plugin DrawAndWriteModule
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+Q_EXPORT_PLUGIN2(DrawBlend2DMosaic, DrawBlend2DMosaic)
+#endif
 
 
 DrawBlend2DMosaic::DrawBlend2DMosaic() :
@@ -126,8 +134,8 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     QFileInfo outputFileInfo;
 
     if (!blockDraw){
-
-        cv::Mat mosaicImage,mosaicMask;
+        // opencv331
+        cv::UMat mosaicImage,mosaicMask;
         mosaicDrawer.drawAndBlend(*pMosaicD, mosaicImage, mosaicMask);
 
         emit signal_processCompletion(50);
@@ -136,9 +144,9 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
         Mat maskCopy;
         mosaicMask.copyTo(maskCopy);
         mosaicMask.release();
-
+        Mat matMosaicImage = mosaicImage.getMat(ACCESS_READ);
         // Write geofile
-        pMosaicD->writeToGeoTiff(mosaicImage,maskCopy,_outputDirnameStr + QDir::separator() + outputFilename + ".tiff");
+        pMosaicD->writeToGeoTiff(matMosaicImage,maskCopy,_outputDirnameStr + QDir::separator() + outputFilename + ".tiff");
 
         outputFileInfo.setFile(QDir(_outputDirnameStr), outputFilename+ ".tiff");
         _rastersInfo << outputFileInfo;

@@ -14,7 +14,9 @@
 
 #define D2R (3.14159265358979323846 / 180.0)
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(RTStillCameraProvider, RTStillCameraProvider)
+#endif
 
 RTStillCameraProvider::RTStillCameraProvider(QObject *parent)
     : ImageProvider(NULL, "RTStillCameraProvider", "", 1),

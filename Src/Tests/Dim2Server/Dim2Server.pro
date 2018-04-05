@@ -10,6 +10,9 @@ QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+win32 {
+    DEFINES += _USE_MATH_DEFINES
+}
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../
 CONFIG(debug, debug|release) {

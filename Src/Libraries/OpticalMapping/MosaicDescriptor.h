@@ -9,14 +9,15 @@
 #include <QString>
 
 using namespace MatisseCommon;
+//using namespace cv;
 
 
 // Positionning and scaling parameters
 struct MosaicSizesAndExtent {
-    Point3d _mosaicOrigin;
-    Point2d _pixelSize;
-    Point2d _mosaicSize;
-    Mat _mosaic_ullr;
+    cv::Point3d _mosaicOrigin;
+    cv::Point2d _pixelSize;
+    cv::Point2d _mosaicSize;
+    cv::Mat _mosaic_ullr;
     QString _utmHemisphere;
     int _utmZone;
 };
@@ -31,14 +32,14 @@ public:
 
     // ******** Attributes setters & getters ********
 
-    Point3d mosaicOrigin() const;
-    void setMosaicOrigin(const Point3d &mosaicOrigin);
+    cv::Point3d mosaicOrigin() const;
+    void setMosaicOrigin(const cv::Point3d &mosaicOrigin);
 
-    Point2d pixelSize() const;
-    void setPixelSize(const Point2d &pixelSize);
+    cv::Point2d pixelSize() const;
+    void setPixelSize(const cv::Point2d &pixelSize);
 
-    Point2d mosaicSize() const;
-    void setMosaicSize(const Point2d &mosaicSize);
+    cv::Point2d mosaicSize() const;
+    void setMosaicSize(const cv::Point2d &mosaicSize);
 
     QString utmHemisphere() const;
     void setUtmHemisphere(const QString &utmHemisphere);
@@ -46,8 +47,8 @@ public:
     int utmZone() const;
     void setUtmZone(int utmZone);
 
-    Mat mosaic_ullr() const;
-    void setMosaic_ullr(const Mat &mosaic_ullr);
+    cv::Mat mosaic_ullr() const;
+    void setMosaic_ullr(const cv::Mat &mosaic_ullr);
 
     QVector<ProjectiveCamera *> cameraNodes() const;
 
@@ -82,7 +83,7 @@ public:
     /// \param rasterMask_p raster mask image obtained from mosaicDrawer
     /// \param filePath_p output file path
     ///
-    void writeToGeoTiff(Mat &raster_p, Mat &rasterMask_p, QString filePath_p);
+    void writeToGeoTiff(cv::Mat &raster_p, cv::Mat &rasterMask_p, QString filePath_p);
 
     ///
     /// \brief decimateImagesFromOverlap This function removes images that have to much overlap with each others
@@ -95,11 +96,11 @@ public:
 protected:
 
     // Positionning and scaling parameters
-    Point3d _mosaicOrigin;
-    Point2d _pixelSize;
-    Point2d _mosaicSize;
-    Mat _mosaic_ullr;
-    Mat _Hs; // ScalingMatrix
+    cv::Point3d _mosaicOrigin;
+    cv::Point2d _pixelSize;
+    cv::Point2d _mosaicSize;
+    cv::Mat _mosaic_ullr;
+    cv::Mat _Hs; // ScalingMatrix
     QString _utmHemisphere;
     int _utmZone;
 

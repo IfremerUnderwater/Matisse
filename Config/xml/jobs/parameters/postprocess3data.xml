@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<JobParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../schemas/JobParameters.xsd">
+    <Structure name="algo_param">
+        <!--general_algo_params-->
+        <Parameter name="sift_code">GPU_sift</Parameter>
+        <Parameter name="min_matches">10</Parameter>
+        <Parameter name="max_matches">inf</Parameter>
+        <!--overlap_filtering_params-->
+        <Parameter name="max_overlap">0,000</Parameter>
+        <!--bundle_adjustment_params-->
+        <Parameter name="max_Pitch">inf</Parameter>
+        <Parameter name="ba_method">Ferrer_without_nav</Parameter>
+        <!--blending_displaying_params-->
+    </Structure>
+    <Structure name="cam_param">
+        <!--advanced_camera_params-->
+    </Structure>
+    <Structure name="dataset_param">
+        <!--output_and_geo_params-->
+        <Parameter name="dataset_dir">/home/data/DATA/3D_DATASETS/Morph</Parameter>
+        <Parameter name="output_dir">./results</Parameter>
+        <Parameter name="output_filename">3dPostPro.jpeg</Parameter>
+        <Parameter name="navFile">vortex.dim2</Parameter>
+    </Structure>
+    <Structure name="dim2_param">
+        <!--network_nav_input_params-->
+    </Structure>
+    <Structure name="vehic_param">
+        <!--vehicle_params-->
+    </Structure>
+    <Structure name="video_input_param">
+        <!--video_input_params-->
+    </Structure>
+</JobParameters>

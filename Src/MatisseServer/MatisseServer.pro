@@ -7,7 +7,7 @@
 TARGET = MatisseServer
 TEMPLATE = app
 
-QT       += core gui network sql xml xmlpatterns script opengl
+QT       += core gui network sql xml xmlpatterns script opengl printsupport widgets
 
 win32 {
     RC_FILE = MatisseServer.rc
@@ -17,6 +17,7 @@ win32 {
 #    }
 
     DEFINES += GUI_EXPORT=__declspec(dllimport) CORE_EXPORT=__declspec(dllimport)
+    DEFINES += _USE_MATH_DEFINES
 }
 else {
     message ("Set include...")
@@ -24,8 +25,9 @@ else {
 
 }
 
+unix {
 QMAKE_CXXFLAGS += -std=c++11
-
+}
 
 unix{
 INCLUDEPATH *= $$PWD/src

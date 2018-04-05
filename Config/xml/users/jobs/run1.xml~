@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="run1" assembly="NavigationBasedMosaic" version="1.0">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="run1"/>
+	<Execution executed="true" executionDate="21/12/2015 13:02">
+	</Execution>
+</MatisseJob>

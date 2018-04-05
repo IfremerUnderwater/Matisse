@@ -9,7 +9,7 @@
 //#include <opencv/cv.h>
 #include <opencv2/opencv.hpp>
 
-using namespace cv;
+//using namespace cv;
 
 namespace MatisseCommon {
 
@@ -35,7 +35,7 @@ public:
     /// \param id
     /// \param imageData
     ///
-    Image(int id, Mat * imageData = 0);
+    Image(int id, cv::Mat * imageData = 0);
 
     ///
     /// \brief Destructeur. Détruit l'image OpenCV sous-jacente
@@ -49,7 +49,7 @@ public:
     /// \brief Retourne l'image OpenCV associée
     /// \return
     ///
-    virtual Mat * imageData() { return _imageData;}
+    virtual cv::Mat * imageData() { return _imageData;}
     void releaseImageData();
 
     ///
@@ -72,7 +72,7 @@ public:
 protected:
     //QExplicitlySharedDataPointer<ImageData> _imageData;
     int _id;
-    Mat * _imageData;
+    cv::Mat * _imageData;
 };
 
 

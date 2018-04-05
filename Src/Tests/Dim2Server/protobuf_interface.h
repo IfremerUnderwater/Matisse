@@ -6,6 +6,7 @@
 #include <QMap>
 #include <QList>
 
+#include "libmatissecommon_global.h"
 #include "proto/nav_photo_info.pb.h"
 
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="test" assembly="Test3DDisplay" version="">
+	<Comments></Comments>
+	<Execution executed="true" executionDate="20/03/2016 19:09">
+		<Result filename="/home/data/Projects/MatisseWorkspace/Run/Debug/3DTestData/wallMeshTex.obj"/>
+	</Execution>
+</MatisseJob>

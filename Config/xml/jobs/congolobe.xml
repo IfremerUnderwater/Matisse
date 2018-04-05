@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="congolobe" assembly="NavigationBasedMosaic" version="1.0">
+	<Comments>Essai pour validation sur jeu congolobe coeur</Comments>
+	<Execution executed="true" executionDate="31/03/2016 07:49">
+		<Result filename="F:/DATA/MOSAIC_DATASETS/Congolobe/OTUS_ColC_487_LIGHT_CORR_COEUR/Geotiff_data/MaMosaiqueBis_0000.tiff"/>
+	</Execution>
+</MatisseJob>

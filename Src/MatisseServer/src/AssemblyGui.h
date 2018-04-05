@@ -298,7 +298,7 @@ private:
     void showStatusMessage(QString message = "", MessageIndicatorLevel level = IDLE);
 
     void initLanguages();
-    void updateLanguage(QString language, bool forceRetranslation = FALSE);
+    void updateLanguage(QString language, bool forceRetranslation = false);
     void retranslate();
     
     bool loadResultToCartoView(QString resultFile_p);

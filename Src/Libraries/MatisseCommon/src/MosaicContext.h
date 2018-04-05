@@ -10,7 +10,7 @@
 
 class ProjectiveCamera;
 class MosaicDescriptor;
-using namespace cv;
+//using namespace cv;
 
 //structure Matching
 
@@ -18,8 +18,8 @@ struct Matching2Images {
 
     int indexes[2];
 
-    QVector<Point2d> pointsImage1;
-    QVector<Point2d> pointsImage2;
+    QVector<cv::Point2d> pointsImage1;
+    QVector<cv::Point2d> pointsImage2;
 
 };
 
@@ -29,10 +29,10 @@ typedef QVector<Matching2Images> MatchingData;
 struct MosaicInit {
 
  QString filename;
- Point3d mosaicOrigin;
- Point2d pixelSize;
- Point2d mosaicSize;
- Mat mosaic_ullr;
+ cv::Point3d mosaicOrigin;
+ cv::Point2d pixelSize;
+ cv::Point2d mosaicSize;
+ cv::Mat mosaic_ullr;
  QString utmHemisphere;
 
  int utmZone;
@@ -43,16 +43,16 @@ struct Homography {
 
     QString model;
     QString type;
-    Mat matrix;
-    Mat covar;
+    cv::Mat matrix;
+    cv::Mat covar;
 
 };
 
 struct Pose {
 
     QString type;
-    Mat matrix;
-    Mat covar;
+    cv::Mat matrix;
+    cv::Mat covar;
 
 };
 

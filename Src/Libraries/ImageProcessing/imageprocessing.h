@@ -13,7 +13,7 @@
 /// \param _low_high_out output range
 /// \param _stretched_img streched image
 ///
-void histogramStretch(cv::Mat &_in_img, cv::Mat &_in_mask, cv::Point _low_high_in, cv::Point _low_high_out,  cv::Mat &_stretched_img);
+void IMAGEPROCESSINGSHARED_EXPORT histogramStretch(cv::Mat &_in_img, cv::Mat &_in_mask, cv::Point _low_high_in, cv::Point _low_high_out,  cv::Mat &_stretched_img);
 
 ///
 /// \brief histogramQuantileStretch
@@ -22,7 +22,7 @@ void histogramStretch(cv::Mat &_in_img, cv::Mat &_in_mask, cv::Point _low_high_i
 /// \param _saturation_percentage
 /// \param _stretched_img
 ///
-void histogramQuantileStretch(cv::Mat &_in_img, cv::Mat &_in_mask, double _saturation_percentage,  cv::Mat &_stretched_img);
+void IMAGEPROCESSINGSHARED_EXPORT histogramQuantileStretch(cv::Mat &_in_img, cv::Mat &_in_mask, double _saturation_percentage,  cv::Mat &_stretched_img);
 
 
 #endif // IMAGEPROCESSING_H

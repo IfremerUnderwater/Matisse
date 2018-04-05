@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MatisseAssembly name="RTSurveyPlotter" isRealTime="1" usable="0">
+	<DescriptorFields>
+		<Author>
+			A.A
+		</Author>
+		<Version>
+			0.1
+		</Version>
+		<Comments>
+			Aide au survey d'image
+		</Comments>
+		<Date>
+			23/03/2016
+		</Date>
+	</DescriptorFields>
+	<Parameters id="99" model="" name=""/>
+
+	<Source id="99" name="RTStillCameraProvider" order="0"/>
+
+	<Processors>
+		<Processor id="99" name="BridgeModule" order="1"/>
+	</Processors>
+
+	<Destination id="99" name="RTSurveyPlotter" order="2"/>
+
+	<Connections>
+		<Connection startOrder="0" startLine="0" endOrder="1" endLine="0" color="4288716964"/>
+		<Connection startOrder="1" startLine="0" endOrder="2" endLine="0" color="4290822336"/>
+	</Connections>
+</MatisseAssembly>

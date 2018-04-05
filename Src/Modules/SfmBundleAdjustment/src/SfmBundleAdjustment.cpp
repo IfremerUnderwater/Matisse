@@ -1,5 +1,5 @@
 ﻿#include "SfmBundleAdjustment.h"
-#include "MosaicContext.h"
+//#include "MosaicContext.h"
 #include "NavImage.h"
 
 #include <QProcess>
@@ -12,7 +12,9 @@
 #include <vector>
 
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(SfmBundleAdjustment, SfmBundleAdjustment)
+#endif
 
 // traiter les étoiles (total 51 étoiles pour 100 %)
 // 0%   10   20   30   40   50   60   70   80   90   100%

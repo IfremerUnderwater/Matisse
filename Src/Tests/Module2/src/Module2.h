@@ -1,6 +1,9 @@
 ﻿#ifndef MODULE2_H
 #define MODULE2_H
 
+#include <QList>
+#include <QVariant>
+#include <QtDebug>
 
 #include "Processor.h"
 
@@ -15,6 +18,9 @@ class Module2 : public Processor
     Q_OBJECT
     Q_INTERFACES(MatisseCommon::Processor)
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    Q_PLUGIN_METADATA(IID "Module2")
+#endif
 public:
     Module2();
     virtual bool configure();

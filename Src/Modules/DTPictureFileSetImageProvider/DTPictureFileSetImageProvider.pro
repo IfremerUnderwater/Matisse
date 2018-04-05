@@ -5,17 +5,20 @@
 #-------------------------------------------------
 TEMPLATE = lib
 
-QT       += core xml
+QT       += core xml widgets
 
 TARGET = DTPictureFileSetImageProvider
 CONFIG += plugin
 
 
 win32 {
-    QMAKE_CXXFLAGS += /wd4100 /wd4996
+    QMAKE_CXXFLAGS += /wd4100 /wd4996 /std:c++14
+    DEFINES += _USE_MATH_DEFINES
 }
 
-QMAKE_CXXFLAGS += -std=c++11
+unix {
+    QMAKE_CXXFLAGS += -std=c++11
+}
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../

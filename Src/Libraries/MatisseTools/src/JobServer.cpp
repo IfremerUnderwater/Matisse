@@ -99,8 +99,13 @@ bool JobServer::sendCmd(QString data) {
     bool ret = false;
     if (_socket && _socket->isOpen()) {
         data.append("^");
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+        if (_socket->write(data.toLatin1()) == data.size()){
+            qDebug() << "Send:" << data.toLatin1();
+#else
         if (_socket->write(data.toAscii()) == data.size()){
             qDebug() << "Send:" << data.toAscii();
+#endif
             ret = _socket->flush();
         }
     }

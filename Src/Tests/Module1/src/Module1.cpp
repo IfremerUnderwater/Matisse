@@ -9,13 +9,14 @@
 
 #include "Polygon.h"
 
-#ifdef WIN32
-#include <windows.h>
-#endif
+//#ifdef WIN32
+//#include <windows.h>
+//#endif
 
 // Exportation de la classe Module1 dans la bibliotheque de plugin TestModule1
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(Module1, Module1)
-
+#endif
 
 Module1::Module1() :
     Processor(NULL, "Module1", "Module d'essai", 1, 2)
@@ -119,7 +120,7 @@ void Module1::onFlush(quint32 port)
     QString filePath("F:\\DATA\\3D_DATASETS\\Morph\\rock02_corr\\rock02_dense.nvm.cmvs\\00\\models\\wallMeshTex.obj");
     qDebug() << logPrefix() << filePath;
     emit signal_show3DFileOnMainView(filePath);
-    Sleep(60000);
+    QThread::sleep(60000); //Sleep(60000);
 #else
     emit signal_show3DFileOnMainView("./3DTestData/wallMeshTex.obj");
     sleep(60);

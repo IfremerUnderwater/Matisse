@@ -7,8 +7,9 @@
 #include "Polygon.h"
 
 // Export de la classe InitMatchModule dans la bibliotheque de plugin InitMatchModule
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(Init2DMosaic, Init2DMosaic)
-
+#endif
 
 Init2DMosaic::Init2DMosaic() :
     Processor(NULL, "Init2DMosaic", "Init 2D mosaic Descriptor with navigation", 1, 1)

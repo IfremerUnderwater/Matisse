@@ -10,6 +10,16 @@
 #define UI_PARAMETERSWIDGETSKELETON_H
 
 #include <QtCore/QVariant>
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QSpacerItem>
+#include <QVBoxLayout>
+#include <QWidget>
+#else
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
@@ -18,7 +28,7 @@
 #include <QtGui/QSpacerItem>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
-
+#endif
 QT_BEGIN_NAMESPACE
 
 class Ui_ParametersWidgetSkeleton
@@ -71,7 +81,11 @@ public:
 
     void retranslateUi(QWidget *ParametersWidgetSkeleton)
     {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+        ParametersWidgetSkeleton->setWindowTitle(QApplication::translate("ParametersWidgetSkeleton", "Form", 0));
+#else
         ParametersWidgetSkeleton->setWindowTitle(QApplication::translate("ParametersWidgetSkeleton", "Form", 0, QApplication::UnicodeUTF8));
+#endif
     } // retranslateUi
 
 };

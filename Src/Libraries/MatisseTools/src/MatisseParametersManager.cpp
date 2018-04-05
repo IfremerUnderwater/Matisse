@@ -101,8 +101,11 @@ void MatisseParametersManager::checkDictionnaryComplete()
         QStringList expected = _datasetParamNames.values();
         QString fullMessage = QString("Dataset parameters were not all found in the dictionnary\nExpected: ")
                 .append(expected.join(",")).append("\nFound: ").append(found.join(","));
-
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+        qFatal("%s\n",fullMessage.toLatin1().constData());
+#else
         qFatal("%s\n",fullMessage.toAscii().constData());
+#endif
     }
 }
 

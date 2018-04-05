@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<JobParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../schemas/JobParameters.xsd">
+    <Structure name="algo_param">
+        <!--general_algo_params-->
+        <Parameter name="scale_factor">1,000</Parameter>
+        <!--overlap_filtering_params-->
+        <!--bundle_adjustment_params-->
+        <!--blending_displaying_params-->
+    </Structure>
+    <Structure name="cam_param">
+        <!--advanced_camera_params-->
+        <Parameter name="K">540.677;0;199.9878;0;539.5830;143.9180;0;0;1</Parameter>
+        <Parameter name="V_Pose_C">-1.1000;0.2500;-0.1500;0;0;-1.5708</Parameter>
+        <Parameter name="still_camera_port">5600</Parameter>
+        <Parameter name="still_camera_address">192.168.1.104</Parameter>
+    </Structure>
+    <Structure name="dataset_param">
+        <!--output_and_geo_params-->
+    </Structure>
+    <Structure name="dim2_param">
+        <!--network_nav_input_params-->
+    </Structure>
+    <Structure name="vehic_param">
+        <!--vehicle_params-->
+        <Parameter name="alt_setpoint">3,000</Parameter>
+    </Structure>
+    <Structure name="video_input_param">
+        <!--video_input_params-->
+    </Structure>
+</JobParameters>
