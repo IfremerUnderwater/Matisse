@@ -338,7 +338,11 @@ bool FileUtils::createTempDirectory(QString & tempDirPath, QString prefix)
 {
     qDebug() << "Creating new temp directories...";
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    QString tempRootLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+#else
     QString tempRootLocation = QDesktopServices::storageLocation(QDesktopServices::TempLocation);
+#endif
     QString timestampFormat = QString(TEMP_DIR_TEMPLATE_FORMAT).arg(prefix);
 
     bool done = false;
@@ -384,7 +388,11 @@ void FileUtils::removeAllTempDirectories(QString prefix)
 {
     qDebug() << "Removing all temp directories...";
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    QString tempRootLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+#else
     QString tempRootLocation = QDesktopServices::storageLocation(QDesktopServices::TempLocation);
+#endif
     QDir tempRootDir(tempRootLocation);
 
     QString nameFilter = prefix + "*";

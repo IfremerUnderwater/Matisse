@@ -8,6 +8,7 @@
 #include "Polygon.h"
 
 using namespace basicproc;
+using namespace cv;
 
 MosaicDescriptor::MosaicDescriptor():_mosaicOrigin(0,0,0),
     _pixelSize(0,0),_mosaicSize(0,0), _utmHemisphere("UNDEF"),

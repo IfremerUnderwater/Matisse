@@ -8,19 +8,18 @@
 
 #include "Dim2FileReader.h"
 
-#ifdef WIN32
-#define PROGRESS
-#define PROGRESS_DISPLAY
+//#define PROGRESS
+//#define PROGRESS_DISPLAY
 
 #define OPENMVG_SFM_SFM_REGIONS_PROVIDER_HPP
 #define OPENMVG_SFM_SFM_REGIONS_PROVIDER_CACHE_HPP
-#endif
 
 //#include "exifreader.hpp"
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
+
 //#include "openMVG/exif/sensor_width_database/ParseDatabase.hpp"
 #include "openMVG/geodesy/geodesy.hpp"
-#include "openMVG/image/image.hpp"
+#include "openMVG/image/image_io.hpp"
 #include "openMVG/stl/split.hpp"
 #include "openMVG/sfm/sfm.hpp"
 
@@ -48,8 +47,9 @@ typedef enum
 }NavMode;
 
 // Export de la classe InitMatchModule dans la bibliotheque de plugin InitMatchModule
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(Init3DRecon, Init3DRecon)
-
+#endif
 
 /// Check that Kmatrix is a string like "f;0;ppx;0;f;ppy;0;0;1"
 /// With f,ppx,ppy as valid numerical value

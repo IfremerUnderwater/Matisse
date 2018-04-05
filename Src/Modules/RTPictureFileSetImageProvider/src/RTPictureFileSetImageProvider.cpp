@@ -6,7 +6,9 @@
 #include "FileImage.h"
 
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(RTPictureFileSetImageProvider, RTPictureFileSetImageProvider)
+#endif
 
 RTPictureFileSetImageProvider::RTPictureFileSetImageProvider(QObject *parent)
     : ImageProvider(NULL, "RTPictureFileSetImageProvider", "", 1),

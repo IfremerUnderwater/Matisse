@@ -5,7 +5,6 @@
 
 #include "PlatformComponent.h"
 
-#include "osg/Version"
 
 namespace MatisseTools {
 

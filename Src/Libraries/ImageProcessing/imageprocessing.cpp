@@ -3,7 +3,7 @@
 
 using namespace cv;
 
-void histogramStretch(Mat &_in_img, Mat &_in_mask, Point _low_high_in, Point _low_high_out,  Mat &_stretched_img)
+void IMAGEPROCESSINGSHARED_EXPORT histogramStretch(Mat &_in_img, Mat &_in_mask, Point _low_high_in, Point _low_high_out,  Mat &_stretched_img)
 {
 
 
@@ -49,7 +49,7 @@ void histogramStretch(Mat &_in_img, Mat &_in_mask, Point _low_high_in, Point _lo
 
 
 
-void histogramQuantileStretch(Mat &_in_img, Mat &_in_mask, double _saturation_ratio, Mat &_stretched_img)
+void IMAGEPROCESSINGSHARED_EXPORT histogramQuantileStretch(Mat &_in_img, Mat &_in_mask, double _saturation_ratio, Mat &_stretched_img)
 {
 
     int ch_num = _in_img.channels();

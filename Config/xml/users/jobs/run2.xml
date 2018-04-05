@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseJob name="run2" assembly="NavigationBasedMosaic" version="1.0">
+	<Comments></Comments>
+	<Parameters model="V1.0" name="run2"/>
+	<Execution executed="true" executionDate="19/01/2016 16:06">
+		<Result filename="/home/data/DATA/MOSAIC_DATASETS/Congolobe/OTUS_ColC_487_LIGHT_CORR_COEUR/Geotiff_data/MosaicOut.tiff"/>
+	</Execution>
+</MatisseJob>

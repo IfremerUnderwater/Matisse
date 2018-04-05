@@ -3,6 +3,7 @@
 #include "Image.h"
 
 using namespace MatisseCommon;
+using namespace cv;
 
 Image::Image():_id(-1),
     _imageData(0)

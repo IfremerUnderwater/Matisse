@@ -14,6 +14,10 @@ class Flusher : public ImageProvider
 {
     Q_OBJECT
     Q_INTERFACES(MatisseCommon::ImageProvider)
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    Q_PLUGIN_METADATA(IID "Flusher")
+#endif
 public:
     explicit Flusher(QObject *parent = 0);
     virtual ~Flusher();

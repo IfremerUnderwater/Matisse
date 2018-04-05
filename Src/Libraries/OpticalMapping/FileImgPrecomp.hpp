@@ -54,8 +54,9 @@
 #include <sstream>
 #include <cmath>
 #include "opencv2/core/core.hpp"
-#include "opencv2/core/internal.hpp"
-#include "opencv2/stitching/stitcher.hpp"
+// opencv 332
+//#include "opencv2/core/internal.hpp"
+//#include "opencv2/stitching/stitcher.hpp"
 #include "opencv2/stitching/detail/autocalib.hpp"
 #include "opencv2/stitching/detail/blenders.hpp"
 #include "opencv2/stitching/detail/camera.hpp"

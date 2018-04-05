@@ -1,7 +1,9 @@
 ﻿#include <QDir>
 
 #include "Flusher.h"
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(Flusher, Flusher)
+#endif
 
 Flusher::Flusher(QObject *parent):
     ImageProvider(NULL, "Flusher", "Flusher", 1),

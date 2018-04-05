@@ -20,24 +20,25 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 
 #endif
 
+#if 0
 #include <qgsmapcanvas.h>
 #include <qgsvectorlayer.h>
 #include <qgsmapcanvas.h>
 #include <qgsrasterlayer.h>
-#include <qgsmaplayerregistry.h>
+//#include <qgsmaplayerregistry.h>
 
 #include <qgsvectordataprovider.h>
 #include <qgsgeometry.h>
-#include <qgsmarkersymbollayerv2.h>
-#include <qgssinglesymbolrendererv2.h>
-#include <qgsrendererv2.h>
+//#include <qgsmarkersymbollayerv2.h>
+//#include <qgssinglesymbolrendererv2.h>
+//#include <qgsrendererv2.h>
 #include <qgsproject.h>
 #include <qgsmapcanvas.h>
 #include <qgsmaptoolpan.h>
 #include <qgsmaptoolzoom.h>
 #include <qgscomposition.h>
-
-#include <opencv2/opencv.hpp>
+#endif
+//#include <opencv2/opencv.hpp>
 
 #include "Image.h"
 #include "Polygon.h"
@@ -105,7 +106,7 @@ public:
     void loadImageFile(QString filename);
     void saveQgisProject(QString filename);
     void loadTestVectorLayer();
-    void addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString pointsColor_p, QString layerName_p);
+    //void addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString pointsColor_p, QString layerName_p);
     void addPolygonToMap(basicproc::Polygon &polygon_p, QString polyInsideColor_p, QString layerName_p);
     void addPolylineToMap(basicproc::Polygon &polygon_p, QString polyInsideColor_p, QString layerName_p);
     void exportMapViewToImage(QString imageFilePath);
@@ -135,7 +136,7 @@ protected slots:
     void slot_activateZoomInTool();
     void slot_activateZoomOutTool();
     void slot_recenterMap();
-    void slot_layerWasAdded(QgsMapLayer *layer);
+    //void slot_layerWasAdded(QgsMapLayer *layer);
     void slot_layerWasRemoved(QString layerId);
     void slot_layerItemChanged();
     void slot_removeLayer();
@@ -145,11 +146,14 @@ signals:
     void signal_load3DSceneFromFile(QString filename_p = "");
 
 private:
-    void updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p);
+    //void updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p);
     bool findLayerIndexFromName(const QString &layerName_p, int &idx_p);
 
     Ui::UserFormWidget *_ui;
-    QList<QgsMapCanvasLayer> _layers;
+    //QList<QgsMapCanvasLayer> _layers;
+    // QGis 2.99
+   // QList<QgsMapLayer*> _players;
+    // attention : pointeur - delete à faire
 
     bool _isToolBarDisplayed;
 
@@ -176,9 +180,9 @@ private:
     RepaintBehaviorState _repaintBehaviorState;
     QToolBar *_mapToolBar;
 
-    QgsMapTool *_panTool;
-    QgsMapTool *_zoomInTool;
-    QgsMapTool *_zoomOutTool;
+    //QgsMapTool *_panTool;
+    //QgsMapTool *_zoomInTool;
+    //QgsMapTool *_zoomOutTool;
 
     QListWidget *_layersWidget;
 };

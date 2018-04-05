@@ -1,6 +1,6 @@
 #include "PlatformInspector.h"
 
-#include "PlatformQgisComponent.h"
+//#include "PlatformQgisComponent.h"
 #include "PlatformOpencvComponent.h"
 #include "PlatformOsgComponent.h"
 
@@ -28,7 +28,7 @@ void PlatformInspector::init()
     if (!_dump) {
         _dump = new PlatformDump();
 
-        _components.append(new PlatformQGisComponent());
+        //_components.append(new PlatformQGisComponent());
         _components.append(new PlatformOpencvComponent());
 #ifdef WITH_OSG
         _components.append(new PlatformOsgComponent());

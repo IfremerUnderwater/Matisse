@@ -9,7 +9,7 @@ PlatformQGisComponent::PlatformQGisComponent() :
 
 QString PlatformQGisComponent::getVersionInfo()
 {
-    QString version = QGis::QGIS_VERSION;
+    QString version = Qgis::QGIS_VERSION;
     return version;
 }
 

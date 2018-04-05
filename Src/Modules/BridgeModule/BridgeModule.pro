@@ -1,5 +1,5 @@
 
-QT       += core xml
+QT       += core xml widgets
 
 TARGET = BridgeModule
 CONFIG += plugin
@@ -7,12 +7,15 @@ CONFIG += plugin
 TEMPLATE = lib
 
 
-win32 {
-    QMAKE_CXXFLAGS += /wd4100 /wd4996
+#win32 {
+#    QMAKE_CXXFLAGS += /wd4100 /wd4996
+#    DEFINES += _USE_MATH_DEFINES
+#}
 
-}
-
+#unix {
 QMAKE_CXXFLAGS += -std=c++11
+#}
+
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../
@@ -28,7 +31,7 @@ include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/BasicProcessing.pri)
 include(../../Scripts/OpticalMapping.pri)
 include(../../Scripts/opencv.pri)
-include(../../Scripts/qgis.pri)
+#include(../../Scripts/qgis.pri)
 
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Modules/processors

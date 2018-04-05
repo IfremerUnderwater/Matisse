@@ -1,13 +1,16 @@
 TARGET = MatisseCommon
 TEMPLATE = lib
 
-QT += core xml network
+QT += core xml network widgets
 
-win32 {
-    QMAKE_CXXFLAGS += /wd4100 /wd4996
-}
+#win32 {
+#    QMAKE_CXXFLAGS += /wd4100 /wd4996
+#}
 
+#unix {
 QMAKE_CXXFLAGS += -std=c++11
+#}
+
 
 DEFINES += LIBMATISSECOMMON_LIBRARY
 
@@ -23,12 +26,14 @@ CONFIG(release, debug|release) {
 }
 
 include(../../Scripts/opencv.pri)
-include(../../Scripts/qgis.pri)
+#include(../../Scripts/qgis.pri)
 include(../../Scripts/BasicProcessing.pri)
 
-PROTOS = src/proto/nav_photo_info.proto
-include(../../Scripts/ProtoBuf.pri)
+#PROTOS = src/proto/nav_photo_info.proto
+#include(../../Scripts/ProtoBuf.pri)
 include(../../Scripts/QuaZIP.pri)
+
+LIBS*= -lproj -lgdal
 
 TARGET = MatisseCommon$$BUILD_EXT
 # ------------------------------------------------------------------------
@@ -65,7 +70,7 @@ HEADERS += \
     src/RasterGeoreferencer.h \
     src/GraphicalCharter.h \
     src/FileUtils.h \
-    src/NavPhotoInfoTcpListener.h \
+    #src/NavPhotoInfoTcpListener.h \
     src/matissemetatypes.h \
     src/StringUtils.h \
     src/libmatissecommon_global.h
@@ -88,10 +93,10 @@ SOURCES += \
     src/GeoTransform.cpp \
     src/RasterGeoreferencer.cpp \
     src/FileUtils.cpp \
-    src/NavPhotoInfoTcpListener.cpp \
+    #src/NavPhotoInfoTcpListener.cpp \
     src/StringUtils.cpp
 
-OTHER_FILES += src/proto/*.proto
+#OTHER_FILES += src/proto/*.proto
 
 
 

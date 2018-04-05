@@ -6,8 +6,14 @@
 #include <QDateTime>
 #include <QStringList>
 
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
+#endif
+
 #include <math.h>
+#ifndef M_PI_2
+#define M_PI_2		1.57079632679489661923
+#endif
 
 // NAN is not defined in math.h (as normally required by C99) by VSC++
 #ifdef WIN32

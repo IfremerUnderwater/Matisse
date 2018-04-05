@@ -7,7 +7,7 @@
 #include "Dim2FileReader.h"
 #include "protobuf_interface.h"
 
-#define _USE_MATH_DEFINES
+//#define _USE_MATH_DEFINES
 #include "math.h"
 
 #define D2R (3.14159265358979323846 / 180.0)
@@ -109,7 +109,7 @@ void MainWindow::timerEvent(QTimerEvent *event )
 
         qDebug() << " load image " << newLine;
         QHostAddress address(QHostAddress::Broadcast);
-        _udpSocket->writeDatagram(newLine.toAscii(), address, _port);
+        _udpSocket->writeDatagram(newLine.toLatin1(), address, _port);
         _udpSocket->flush();
         }else{
             Dim2 dim2(newLine);

@@ -52,7 +52,7 @@ public:
     /// \param mosaicImage_p Blended mosaic image
     /// \param mosaicImageMask_p Blended mosaic mask (0 for non mosaic areas)
     ///
-    void drawAndBlend(const MosaicDescriptor & mosaicD_p, cv::Mat & mosaicImage_p , cv::Mat & mosaicImageMask_p);
+    void drawAndBlend(const MosaicDescriptor & mosaicD_p, cv::UMat & mosaicImage_p , cv::UMat & mosaicImageMask_p);
 
     ///
     /// \brief drawAndBlend draw & blend mosaic in a single memory image using list of images, masks and corners_p
@@ -62,11 +62,11 @@ public:
     /// \param mosaicImage_p Blended mosaic image
     /// \param mosaicImageMask_p Blended mosaic mask (0 for non mosaic areas)
     ///
-    void drawAndBlend(std::vector<Mat> & imagesWarped_p,
-                      std::vector<Mat> & masksWarped_p,
-                      std::vector<Point> & corners_p,
-                      cv::Mat & mosaicImage_p,
-                      cv::Mat & mosaicImageMask_p);
+    void drawAndBlend(std::vector<cv::UMat> & imagesWarped_p,
+                      std::vector<cv::UMat> & masksWarped_p,
+                      std::vector<cv::Point> & corners_p,
+                      cv::UMat & mosaicImage_p,
+                      cv::UMat & mosaicImageMask_p);
 
     ///
     /// \brief blockDrawBlendAndWrite This function draw a mosaic by block in order to optimize the memory used for drawing
@@ -76,7 +76,7 @@ public:
     /// \return list of output filenames
     ///
     QStringList blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p,
-                                Point2d blockSize_p,
+                                cv::Point2d blockSize_p,
                                 QString writingPath_p,
                                 QString prefix_p);
 

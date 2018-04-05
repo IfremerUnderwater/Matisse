@@ -25,7 +25,9 @@ CONFIG(release, debug|release) {
     BUILD_DIR=$${SOURCE_DIR}../Build/Release
 }
 
+unix {
 QMAKE_CXXFLAGS += -std=c++11
+}
 
 # ------------------------------------------------------------------------
 

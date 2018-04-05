@@ -14,10 +14,10 @@
 
 #ifdef WIN32
 
-#include "quazip.h"
-#include "quazipfile.h"
-#include "quazipnewinfo.h"
-#include "JlCompress.h"
+#include "quazip5/quazip.h"
+#include "quazip5/quazipfile.h"
+#include "quazip5/quazipnewinfo.h"
+#include "quazip5/JlCompress.h"
 
 #else
 

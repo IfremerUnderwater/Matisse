@@ -8,13 +8,16 @@ TARGET = MatisseTools
 TEMPLATE = lib
 CONFIG += staticlib
 
-QT       += script xml xmlpatterns network gui
+QT       += script xml xmlpatterns network gui widgets
 
-win32 {
-    QMAKE_CXXFLAGS += /wd4100 /wd4996
-}
+#win32 {
+#    QMAKE_CXXFLAGS += /wd4100 /wd4996
+#}
 
+#unix {
 QMAKE_CXXFLAGS += -std=c++11
+#}
+
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../
@@ -28,15 +31,15 @@ CONFIG(release, debug|release) {
 
 include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/opencv.pri)
-include(../../Scripts/qgis.pri)
-include(../../Scripts/ProtoBuf.pri)
+#include(../../Scripts/qgis.pri)
+#include(../../Scripts/ProtoBuf.pri)
 include(../../Scripts/QuaZIP.pri)
 
 win32{
-    CONFIG(release, debug|release) {
-        include(../../Scripts/OpenSceneGraph.pri)
-        DEFINES *= WITH_OSG
-    }
+#    CONFIG(release, debug|release) {
+#        include(../../Scripts/OpenSceneGraph.pri)
+#        DEFINES *= WITH_OSG
+#}
 }
 unix{
     include(../../Scripts/OpenSceneGraph.pri)
@@ -72,7 +75,7 @@ SOURCES +=\
     src/PlatformComponent.cpp \
     src/PlatformInspector.cpp \
     src/PlatformDump.cpp \
-    src/PlatformQgisComponent.cpp \
+    #src/PlatformQgisComponent.cpp \
     src/PlatformOpencvComponent.cpp \
     src/platformOsgComponent.cpp \
     src/PlatformComparisonStatus.cpp \
@@ -114,7 +117,7 @@ HEADERS +=\
     src/PlatformComponent.h \
     src/PlatformInspector.h \
     src/PlatformDump.h \
-    src/PlatformQgisComponent.h \
+    #src/PlatformQgisComponent.h \
     src/PlatformOpencvComponent.h \
     src/PlatformOsgComponent.h \
     src/PlatformComparisonStatus.h \

@@ -2,11 +2,14 @@
 #include "MosaicContext.h"
 #include "NavImage.h"
 #include "FileImage.h"
-#include "Sleeper.h"
+//#include "Sleeper.h"
+#include <QThread>
+#include "MosaicDescriptor.h"
 
 // Exportation de la classe Module2 dans la bibliotheque de plugin TestModule2
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(Module2, Module2)
-
+#endif
 
 Module2::Module2() :
     Processor(NULL, "Module2", "Module d'essai", 2, 1)
@@ -74,7 +77,7 @@ void Module2::onFlush(quint32 port)
                 if (!isStarted())
                     break;
 
-                Sleeper::sleep(1);
+                QThread::sleep(1); //Sleeper::sleep(1);
 
             }
             break;

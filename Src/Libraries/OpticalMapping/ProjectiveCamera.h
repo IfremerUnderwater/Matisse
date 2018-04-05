@@ -52,7 +52,7 @@ public:
     /// \param camPlanePt_p camera plane point
     /// \param mosaicPlanePt_p mosaic plane point
     ///
-    void projectImageOnMosaickingPlane(cv::Mat & mosaicPlaneImage_p, cv::Mat & mosaicPlaneMask_p, cv::Point & corner_p);
+    void projectImageOnMosaickingPlane(cv::UMat & mosaicPlaneImage_p, cv::UMat & mosaicPlaneMask_p, cv::Point & corner_p);
 
     ///
     /// \brief computeImageExtent compute image origin and size

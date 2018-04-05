@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.1" language="en_US">
 <context>
     <name>MatisseTools::EnrichedFileChooser</name>
     <message>
@@ -367,11 +367,21 @@
     </message>
     <message>
         <location filename="src/MatisseDictionnaryLabels.h" line="149"/>
+        <source>Source de Navigation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/MatisseDictionnaryLabels.h" line="150"/>
+        <source>Use View&apos;s Motion Prior</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/MatisseDictionnaryLabels.h" line="151"/>
         <source>Zone UTM</source>
         <translation>UTM area</translation>
     </message>
     <message>
-        <location filename="src/MatisseDictionnaryLabels.h" line="150"/>
+        <location filename="src/MatisseDictionnaryLabels.h" line="152"/>
         <source>Hemisphere UTM</source>
         <translation>UTM hemisphere</translation>
     </message>
@@ -379,17 +389,17 @@
 <context>
     <name>MatisseTools::MatisseParametersManager</name>
     <message>
-        <location filename="src/MatisseParametersManager.cpp" line="743"/>
+        <location filename="src/MatisseParametersManager.cpp" line="746"/>
         <source>Parametres utilisateur</source>
         <translation>User parameters</translation>
     </message>
     <message>
-        <location filename="src/MatisseParametersManager.cpp" line="746"/>
+        <location filename="src/MatisseParametersManager.cpp" line="749"/>
         <source>Parametres avances</source>
         <translation>Advanced parameters</translation>
     </message>
     <message>
-        <location filename="src/MatisseParametersManager.cpp" line="749"/>
+        <location filename="src/MatisseParametersManager.cpp" line="752"/>
         <source>Parametres mode expert</source>
         <translation>Expert parameters</translation>
     </message>

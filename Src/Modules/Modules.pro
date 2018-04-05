@@ -1,14 +1,14 @@
 TEMPLATE = subdirs
 
 SUBDIRS = DTPictureFileSetImageProvider \
-          RTVideoDirectShowProvider \
+#          RTVideoDirectShowProvider \
           RTPictureFileSetImageProvider \
           Flusher \
           Init2DMosaic \
           DrawBlend2DMosaic \
           GeoTiffImageWriter \
-	  RTStillCameraProvider \
-	  RTSurveyPlotter \
+#	  RTStillCameraProvider \
+#	  RTSurveyPlotter \
           BridgeModule \
           Init3DRecon \
           Matching3D \

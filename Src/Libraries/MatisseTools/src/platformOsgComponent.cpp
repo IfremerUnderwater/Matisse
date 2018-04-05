@@ -1,6 +1,8 @@
 #include "PlatformOsgComponent.h"
 
 #ifdef WITH_OSG
+#include <OpenThreads/Version>
+#include <osg/Version>
 
 using namespace MatisseTools;
 

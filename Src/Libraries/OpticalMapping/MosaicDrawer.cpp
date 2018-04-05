@@ -126,11 +126,11 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
     return 0;
 }
 
-void MosaicDrawer::drawAndBlend(const MosaicDescriptor &mosaicD_p, Mat &mosaicImage_p, Mat &mosaicImageMask_p)
+void MosaicDrawer::drawAndBlend(const MosaicDescriptor &mosaicD_p, UMat &mosaicImage_p, UMat &mosaicImageMask_p)
 {
 
-    std::vector<Mat> imagesWarped;
-    std::vector<Mat> masksWarped;
+    std::vector<UMat> imagesWarped;
+    std::vector<UMat> masksWarped;
     std::vector<Point> corners;
 
     int camNum = mosaicD_p.cameraNodes().size();
@@ -153,7 +153,7 @@ void MosaicDrawer::drawAndBlend(const MosaicDescriptor &mosaicD_p, Mat &mosaicIm
 
 }
 
-void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Mat> &masksWarped_p, std::vector<Point> &corners_p, Mat &mosaicImage_p, Mat &mosaicImageMask_p)
+void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<UMat> &masksWarped_p, std::vector<Point> &corners_p, UMat &mosaicImage_p, UMat &mosaicImageMask_p)
 {
 
     bool colored_images = true;
@@ -176,10 +176,11 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
     if (colored_images){// Process 3 Channels separatly
 
         // Init Separated channels
-        vector<Mat> red_images(num_images);
-        vector<Mat> green_images(num_images);
-        vector<Mat> blue_images(num_images);
-        vector<Mat> TempRGB(3);
+        // opencv331
+        vector<UMat> red_images(num_images);
+        vector<UMat> green_images(num_images);
+        vector<UMat> blue_images(num_images);
+        vector<UMat> TempRGB(3);
 
         for (int i=0; i<num_images; i++){
 
@@ -334,8 +335,8 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
     }
 
     // Convert images for seam processing *********************************************************************
-    vector<Mat> imagesWarped_p_f(num_images);
-    vector<Mat> masksWarped_p_seam(num_images);
+    vector<UMat> imagesWarped_p_f(num_images);
+    vector<UMat> masksWarped_p_seam(num_images);
     vector<Point> corners_p_seam(num_images);
     double seam_scale;
 
@@ -418,8 +419,8 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
     t = getTickCount();
 #endif
 
-    Mat img_warped_s;
-    Mat dilated_mask, seam_mask, mask_warped;
+    UMat img_warped_s;
+    UMat dilated_mask, seam_mask, mask_warped;
     Ptr<Blender> blender;
 
     // Initialize the blender
@@ -452,7 +453,8 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
             dilate(masksWarped_p_seam[img_idx], dilated_mask, Mat());
             //dilate(masksWarped_p[img_idx], dilated_mask, Mat());
             resize(dilated_mask, seam_mask, masksWarped_p[img_idx].size());
-            mask_warped = seam_mask & masksWarped_p[img_idx];
+            Mat mmaskWarped = seam_mask.getMat(ACCESS_READ) & masksWarped_p[img_idx].getMat(ACCESS_READ);
+            mask_warped = mmaskWarped.getUMat(ACCESS_READ);
 
             // Blend the current image
             blender->feed(img_warped_s, mask_warped, corners_p[img_idx]);
@@ -467,10 +469,11 @@ void MosaicDrawer::drawAndBlend(std::vector<Mat> &imagesWarped_p, std::vector<Ma
 
     blender->blend(mosaicImage_p, mosaicImageMask_p);
 
+#if ENABLE_LOG
     LOGLN("Compositing, time: " << ((getTickCount() - t) / getTickFrequency()) << " sec");
 
     LOGLN("Finished, total time: " << ((getTickCount() - app_start_time) / getTickFrequency()) << " sec");
-
+#endif
     // Convert result to 8U
     mosaicImage_p.convertTo(mosaicImage_p,CV_8U);
 
@@ -700,10 +703,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
     // Blend blocks independantly
     for (unsigned int k=0; k < vpEffBlocksPoly.size(); k++){
-        std::vector<Mat> imagesWarped;
-        std::vector<Mat> masksWarped;
+        std::vector<UMat> imagesWarped;
+        std::vector<UMat> masksWarped;
         std::vector<Point> corners;
-        Mat mosaicImage, mosaicImageMask;
+        UMat mosaicImage, mosaicImageMask;
 
         int camNum = vvBlocksImgIndexes[k]->size();
 
@@ -723,7 +726,7 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
                 Cam->projectImageOnMosaickingPlane(imagesWarped[l], masksWarped[l], corners[l]);
 
             }else{
-                Mat tempImgWarped,tempMaskWarped;
+                UMat tempImgWarped,tempMaskWarped;
                 Cam->projectImageOnMosaickingPlane(tempImgWarped, tempMaskWarped, corners[l]);
 
                 // Get useful image part
@@ -768,10 +771,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
     for (unsigned int k=0; k < vpEffBlocksPoly.size()-1; k++){
 
-        std::vector<Mat> blocksToBeBlended;
-        std::vector<Mat> blocksToBeBlendedMasks;
+        std::vector<UMat> blocksToBeBlended;
+        std::vector<UMat> blocksToBeBlendedMasks;
         std::vector<Point> corners;
-        Mat blendedBlocksImg, blendedBlocksImgMask;
+        UMat blendedBlocksImg, blendedBlocksImgMask;
 
         blocksToBeBlended.resize(2);
         blocksToBeBlendedMasks.resize(2);
@@ -791,10 +794,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
                 // Open first block and mask & get corner
                 imgFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-                blocksToBeBlended[0] = imread(imgFilePath1.toStdString().c_str());
+                blocksToBeBlended[0] = imread(imgFilePath1.toStdString().c_str()).getUMat(ACCESS_READ);
 
                 mosaicMaskFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-                blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath1.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+                blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath1.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE).getUMat(ACCESS_READ);
 
                 vpEffBlocksPoly[k]->getBoundingBox(tl_x1,tl_y1,br_x1,br_y1);
                 corners[0].x = (int) tl_x1;
@@ -802,10 +805,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
                 // Open second block and mask
                 imgFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
-                blocksToBeBlended[1] = imread(imgFilePath2.toStdString().c_str());
+                blocksToBeBlended[1] = imread(imgFilePath2.toStdString().c_str()).getUMat(ACCESS_READ);
 
                 mosaicMaskFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
-                blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath2.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+                blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath2.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE).getUMat(ACCESS_READ);
 
                 vpEffBlocksPoly[l]->getBoundingBox(tl_x2,tl_y2,br_x2,br_y2);
                 corners[1].x = (int) tl_x2;
@@ -912,11 +915,11 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
 
             // Fill blocks to be blended *****************************************
-            std::vector<Mat> blocksToBeBlended;
-            std::vector<Mat> blocksToBeBlendedMasks;
+            std::vector<UMat> blocksToBeBlended;
+            std::vector<UMat> blocksToBeBlendedMasks;
             std::vector<Point> tlCorners, brCorners, tlBlocksCorners;
             std::vector<int> blocksToBeBlendedIndexes;
-            Mat blendedBlocksImg, blendedBlocksImgMask;
+            UMat blendedBlocksImg, blendedBlocksImgMask;
 
             double tl_x_min,tl_y_min;
 
@@ -931,17 +934,17 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
 
                     // Open block and mask & get corner
-                    Mat imgTemp;
+                    UMat imgTemp;
 
                     vpEffBlocksPoly[l]->getBoundingBox(tlBlock_x, tlBlock_y, brBlock_x, brBlock_y);
                     blockJunctionInter->getBoundingBox( tl_x,tl_y,br_x,br_y );
 
                     imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
-                    imgTemp = imread(imgBlockFilePath.toStdString().c_str());
+                    imgTemp = imread(imgBlockFilePath.toStdString().c_str()).getUMat(ACCESS_READ);
                     blocksToBeBlended.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1)) );
 
                     imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
-                    imgTemp = imread(imgBlockMaskFilePath.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+                    imgTemp = imread(imgBlockMaskFilePath.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE).getUMat(ACCESS_READ);
                     blocksToBeBlendedMasks.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1))  );
 
                     // Store corners values
@@ -976,15 +979,15 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
                 imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
                 imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
 
-                Mat blockImg = imread(imgBlockFilePath.toStdString().c_str());
-                Mat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str());
+                UMat blockImg = imread(imgBlockFilePath.toStdString().c_str()).getUMat(ACCESS_READ);
+                UMat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str()).getUMat(ACCESS_READ);
 
 
                 // Part of the matrix we are interested in
-                Mat blockImgRoi(blockImg, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
+                UMat blockImgRoi(blockImg, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
                                                brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
                 // This submatrix will be a REFERENCE to PART of full matrix, NOT a copy
-                Mat blockImgMaskRoi(blockImgMask, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
+                UMat blockImgMaskRoi(blockImgMask, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
                                                        brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
 
                 blockImgRoi = blendedBlocksImg( Rect(tlCorners[i].x-tl_x_min, tlCorners[i].y-tl_y_min, brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1 ) );

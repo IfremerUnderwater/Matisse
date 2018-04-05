@@ -59,15 +59,17 @@ Ptr<FileImgExposureCompensator> FileImgExposureCompensator::createDefault(int ty
     if (type == GAIN)
         return new FileImgGainCompensator();
     CV_Error(CV_StsBadArg, "unsupported exposure compensation method");
-    return NULL;
+
+    return (Ptr<FileImgExposureCompensator>)((FileImgExposureCompensator*)(NULL));
+//    return NULL;
 }
 /*(const vector<Point> &corners, const std::vector<Mat> &images,
                            const std::vector<std::pair<Mat, uchar> > &masks)*/
 
 void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & infoFilename_p)
 {
-    LOGLN("Exposure compensation...");
 #if ENABLE_LOG
+    LOGLN("Exposure compensation...");
     int64 t = getTickCount();
 #endif
 
@@ -191,7 +193,9 @@ void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & 
 
     solve(A, b, gains_);
 
+#if ENABLE_LOG
     LOGLN("Exposure compensation, time: " << ((getTickCount() - t) / getTickFrequency()) << " sec");
+#endif
 }
 
 

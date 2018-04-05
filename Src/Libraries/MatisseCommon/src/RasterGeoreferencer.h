@@ -3,17 +3,26 @@
 
 #include "libmatissecommon_global.h"
 
+#ifdef  WIN32
+#include <cpl_vsi.h>
+#include <cpl_conv.h>
+#include <cpl_string.h>
+#include <gdal_priv.h>
+#include <ogr_spatialref.h>
+#include <vrtdataset.h>
+#else
 #include <gdal/cpl_vsi.h>
 #include <gdal/cpl_conv.h>
 #include <gdal/cpl_string.h>
 #include <gdal/gdal_priv.h>
 #include <gdal/ogr_spatialref.h>
 #include <gdal/vrtdataset.h>
+#endif
 #include <opencv2/opencv.hpp>
 #include <QString>
 #include <QStringList>
 
-using namespace cv;
+//using namespace cv;
 
 namespace MatisseCommon {
 
@@ -33,7 +42,7 @@ public:
     /// \param cmdLineOptions gdal options as would be provided to gdal_translate function (see gdal doc for exhaustive list)
     /// \return 0 on success
     ///
-    int WriteGeoFile(Mat &raster, Mat &rasterMask, QString outputFile, QString cmdLineOptions);
+    int WriteGeoFile(cv::Mat &raster, cv::Mat &rasterMask, QString outputFile, QString cmdLineOptions);
 
 private:
 
