@@ -40,5 +40,5 @@ unix {
 }
 
 win32 {
-LIBS *= -lopencv_highgui  -lopencv_core  -lopencv_stitching  -lopencv_imgproc -lopencv_imgcodecs
+LIBS *= -lopencv_highgui -lopencv_stitching  -lopencv_imgproc -lopencv_imgcodecs  -lopencv_core
 }

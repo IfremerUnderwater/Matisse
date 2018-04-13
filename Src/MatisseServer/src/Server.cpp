@@ -10,7 +10,8 @@ Server::Server(QObject *parent) :
     _processDataManager(NULL),
     _jobServer(NULL),
     _currentJob(NULL),
-    _mainGui(NULL)
+    _mainGui(NULL),
+    _thread(NULL)
 {
 
 }
@@ -20,6 +21,10 @@ Server::~Server()
     if (_jobServer) {
         delete _jobServer;
     }
+    if(_thread)
+        _thread->exit();
+    if(_currentJob)
+        _currentJob->stop(true);
 }
 
 //bool Server::setSettingsFile(QString settings)
@@ -519,7 +524,25 @@ void Server::init(){
             _processors.insert(newInstance->name(), newInstance);
 
         } else {
+            QString problem = loader.errorString();
+            qDebug() <<  "Plugin load problem: " << problem;
             qCritical() << "Could not load DLL " << fileName;
+            if(loader.isLoaded())
+            {
+                QObject *pluginObject = loader.instance();
+                if(pluginObject)
+                {
+                    Processor* newInstance = qobject_cast<Processor *>(pluginObject); // On réinterprète alors notre QObject
+                    qDebug() << "Processor DLL " << newInstance->name() << " loaded.";
+                    _processors.insert(newInstance->name(), newInstance);
+
+                }
+                else
+                {
+                    QString problem = loader.errorString();
+                    qDebug() <<  "Plugin load problem retry: " << problem;
+                }
+            }
         }
 
     }
@@ -535,7 +558,12 @@ void Server::init(){
             qDebug() << "ImageProvider DLL " << newInstance->name() << " loaded.";
             _imageProviders.insert(newInstance->name(), newInstance);
 
+        } else {
+            QString problem = loader.errorString();
+            qDebug() <<  "Plugin load problem: " << problem;
+            qCritical() << "Could not load DLL " << fileName;
         }
+
     }
 
     // Load rasterProviders
@@ -550,7 +578,12 @@ void Server::init(){
             qDebug() << "RasterProvider DLL " << newInstance->name() << " loaded.";
             _rasterProviders.insert(newInstance->name(), newInstance);
 
+        } else {
+            QString problem = loader.errorString();
+            qDebug() <<  "Plugin load problem: " << problem;
+            qCritical() << "Could not load DLL " << fileName;
         }
+
     }
 
 }
@@ -606,7 +639,7 @@ void JobTask::slot_start()
     connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
     connect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
     connect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-    connect(_imageProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+//    connect(_imageProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
 
     ok = _imageProvider->callConfigure(_context, _matParameters);
     if (!ok) {
@@ -628,7 +661,7 @@ void JobTask::slot_start()
         connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
         connect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
         connect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-        connect(processor, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+//        connect(processor, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
         processor->callConfigure(_context, _matParameters);
     }
 
@@ -641,7 +674,7 @@ void JobTask::slot_start()
     connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
     connect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
     connect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-    connect(_rasterProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+//    connect(_rasterProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
     ok = _rasterProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -718,7 +751,7 @@ void JobTask::slot_stop()
     disconnect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
     disconnect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
     disconnect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-    disconnect(_imageProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+ //   disconnect(_imageProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
 
     foreach (Processor* processor, _processors) {
         if(!processor->okStatus())
@@ -733,7 +766,7 @@ void JobTask::slot_stop()
         disconnect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
         disconnect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
         disconnect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-        disconnect(processor, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+//        disconnect(processor, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
     }
 
     disconnect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
@@ -744,7 +777,7 @@ void JobTask::slot_stop()
     disconnect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
     disconnect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
     disconnect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+//    disconnect(_rasterProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
 
     if(_context != NULL)
     {

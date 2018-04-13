@@ -2193,8 +2193,14 @@ void AssemblyGui::slot_showApplicationMode(ApplicationMode mode)
         doFoldUnfoldParameters(false);
 
         show();
-    }
 
+        // hack with QT 5.10......
+        QSize sz = this->size();
+        sz.setWidth((sz.width()+1));
+        resize(sz);
+        sz.setWidth((sz.width()-1));
+        resize(sz);
+   }
 }
 
 void AssemblyGui::slot_goHome()

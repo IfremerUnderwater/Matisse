@@ -16,7 +16,7 @@
 #include "Context.h"
 #include "MatisseParameters.h"
 #include "AssemblyGui.h"
-#include "WelcomeDialog.h"
+//#include "WelcomeDialog.h"
 #include "SystemDataManager.h"
 #include "ProcessDataManager.h"
 

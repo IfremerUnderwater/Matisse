@@ -2,6 +2,9 @@
 #include "UserFormWidget.h"
 #include "ui_UserFormWidget.h"
 
+#include "WheelGraphicsView.h"
+
+
 // Qgis 2.99
 //#include <qgssymbol.h>
 //#include <qgssinglesymbolrenderer.h>
@@ -58,7 +61,8 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
 #endif
 
     connect(this,SIGNAL(signal_loadRasterFromFile(QString)),&_resultLoadingTask,SLOT(slot_loadRasterFromFile(QString)),Qt::QueuedConnection);
-    connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(QgsRasterLayer*)),this,SLOT(slot_addRasterToCartoView(QgsRasterLayer*)),Qt::QueuedConnection);
+    connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(CartoImage *)), this,SLOT(slot_addRasterToCartoView(CartoImage*)),Qt::QueuedConnection);
+    connect(&_resultLoadingTask,SIGNAL(signal_addRasterToImageView(Image *)),this,SLOT(slot_addRasterToImageView(Image *)),Qt::QueuedConnection);
     connect(this,SIGNAL(signal_load3DSceneFromFile(QString)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString)),Qt::QueuedConnection);
 #ifdef WITH_OSG
     connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),Qt::QueuedConnection);
@@ -70,10 +74,23 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(slot_showMapContextMenu(const QPoint&)));
 
+    // WheelGraphicsView replace standard GraphicsView
+    WheelGraphicsView *gv = new WheelGraphicsView((QWidget*)_ui->_GV_view->parent());
+    gv->resize(_ui->_GV_view->width(), _ui->_GV_view->height());
+    delete _ui->_GV_view;
+    _ui->_GV_view = gv;
+
+    // handled by WheelGraphicsView
+    //_ui->_GV_view->setDragMode(QGraphicsView::ScrollHandDrag);
+    _ui->_GV_view->setScene(&_scene);
 }
 
 UserFormWidget::~UserFormWidget()
 {
+    // QT 5.10 : to avoid message on exit : "QThread: Destroyed while thread is still running"
+    _resultLoadingThread.exit();
+    QThread::sleep(1);
+
 //    delete _panTool;
 //    delete _zoomInTool;
 //    delete _zoomOutTool;
@@ -106,6 +123,13 @@ void UserFormWidget::initMapToolBar()
 //    _zoomInTool = new QgsMapToolZoom(_ui->_GRV_map, false);
 //    _zoomInTool->setAction(zoomInAction);
 
+       QAction *zoomInAction = new QAction(this);
+       IconizedActionWrapper *zoomInActionWrapper = new IconizedActionWrapper(zoomInAction);
+      _iconFactory->attachIcon(zoomInActionWrapper, "lnf/icons/carte-zoom-in.svg", false, false);
+       zoomInAction->setIconText(tr("Zoom AV"));
+      _mapToolBar->addAction(zoomInAction);
+       connect(zoomInAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomInTool()));
+
 //    QAction *zoomOutAction = new QAction(this);
 //    IconizedActionWrapper *zoomOutActionWrapper = new IconizedActionWrapper(zoomOutAction);
 //    _iconFactory->attachIcon(zoomOutActionWrapper, "lnf/icons/carte-zoom-out.svg", false, false);
@@ -114,6 +138,13 @@ void UserFormWidget::initMapToolBar()
 //    connect(zoomOutAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomOutTool()));
 //    _zoomOutTool = new QgsMapToolZoom(_ui->_GRV_map, true);
 //    _zoomOutTool->setAction(zoomOutAction);
+
+      QAction *zoomOutAction = new QAction(this);
+      IconizedActionWrapper *zoomOutActionWrapper = new IconizedActionWrapper(zoomOutAction);
+      _iconFactory->attachIcon(zoomOutActionWrapper, "lnf/icons/carte-zoom-out.svg", false, false);
+      zoomOutAction->setIconText(tr("Zoom AR"));
+      _mapToolBar->addAction(zoomOutAction);
+      connect(zoomOutAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomOutTool()));
 
     QAction *recenterAction = new QAction(this);
     IconizedActionWrapper *recenterActionWrapper = new IconizedActionWrapper(recenterAction);
@@ -223,17 +254,28 @@ void UserFormWidget::slot_activatePanTool()
 void UserFormWidget::slot_activateZoomInTool()
 {
 //    _ui->_GRV_map->setMapTool(_zoomInTool);
+    qreal zoom = ((WheelGraphicsView*)_ui->_GV_view)->zoomfactor();
+    ((WheelGraphicsView*)_ui->_GV_view)->setZoomFactor(zoom*1.25);
+    _ui->_GV_view->repaint();
 }
 
 void UserFormWidget::slot_activateZoomOutTool()
 {
 //    _ui->_GRV_map->setMapTool(_zoomOutTool);
+    qreal zoom = ((WheelGraphicsView*)_ui->_GV_view)->zoomfactor();
+    ((WheelGraphicsView*)_ui->_GV_view)->setZoomFactor(zoom*0.80);
+    _ui->_GV_view->repaint();
 }
 
 void UserFormWidget::slot_recenterMap()
 {
-    /* resize options ? */
-    slot_onAutoResizeTrigger();
+    // reset zoom...
+    _ui->_GV_view->resetMatrix();
+    ((WheelGraphicsView*)_ui->_GV_view)->fitInView( _scene.sceneRect(), Qt::KeepAspectRatio );
+    QMatrix m = _ui->_GV_view->matrix();
+    ((WheelGraphicsView*)_ui->_GV_view)->setZoomFactor(m.m11());
+    _ui->_GV_view->repaint();
+
 }
 
 //void UserFormWidget::slot_layerWasAdded(QgsMapLayer *layer)
@@ -376,6 +418,10 @@ void UserFormWidget::clear()
 #ifdef WITH_OSG
     _ui->_OSG_viewer->clearSceneData();
 #endif
+
+    // clear carto view
+    _scene.clearScene();
+    _scene.setParentSize(_ui->_GV_view->size());
 }
 
 void UserFormWidget::resetJobForm()
@@ -392,24 +438,41 @@ void UserFormWidget::loadRasterFile(QString filename) {
 
 }
 
-void UserFormWidget::slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p) {
+//void UserFormWidget::slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p) {
+
+//    if (_currentViewType!=QGisMapLayer)
+//        switchCartoViewTo(QGisMapLayer);
+
+////    // Add the raster Layer to the Layer Registry
+////    // QGis 2.99
+////    //QgsMapLayerRegistry::instance()->addMapLayer(rasterLayer_p, TRUE, TRUE);
+////    QgsProject::instance()->addMapLayer(rasterLayer_p, TRUE, TRUE);
+
+////    // Add the layer to the Layer Set
+////    // QGis 2.99
+////    //_layers.append(QgsMapCanvasLayer(rasterLayer_p, TRUE));//bool visibility
+////    _players.append(rasterLayer_p);//bool visibility
+
+////    this->updateMapCanvasAndExtent(NULL);
+
+//}
+
+void UserFormWidget::slot_addRasterToCartoView(CartoImage * image_p) {
 
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
 
-//    // Add the raster Layer to the Layer Registry
-//    // QGis 2.99
-//    //QgsMapLayerRegistry::instance()->addMapLayer(rasterLayer_p, TRUE, TRUE);
-//    QgsProject::instance()->addMapLayer(rasterLayer_p, TRUE, TRUE);
-
-//    // Add the layer to the Layer Set
-//    // QGis 2.99
-//    //_layers.append(QgsMapCanvasLayer(rasterLayer_p, TRUE));//bool visibility
-//    _players.append(rasterLayer_p);//bool visibility
-
-//    this->updateMapCanvasAndExtent(NULL);
-
+    displayCartoImage(image_p);
 }
+
+void UserFormWidget::slot_addRasterToImageView(Image * image_p)
+{
+    if (_currentViewType!=QImageView)
+        switchCartoViewTo(QImageView);
+
+    displayImage(image_p);
+}
+
 
 void UserFormWidget::slot_showLayersWidgetContextMenu(const QPoint &pos)
 {
@@ -506,6 +569,7 @@ void UserFormWidget::slot_onAutoResizeTrigger()
 
 //    this->updateMapCanvasAndExtent(NULL);
 //    _ui->_GRV_map->refresh();
+
 }
 
 void UserFormWidget::slot_onFollowLastItem()
@@ -837,11 +901,11 @@ void UserFormWidget::exportMapViewToImage(QString imageFilePath)
 
 //}
 
-void UserFormWidget::loadTestVectorLayer()
-{
+//void UserFormWidget::loadTestVectorLayer()
+//{
 
-    if (_currentViewType!=QGisMapLayer)
-        switchCartoViewTo(QGisMapLayer);
+//    if (_currentViewType!=QGisMapLayer)
+//        switchCartoViewTo(QGisMapLayer);
 
 
 //    //QList<QgsMapCanvasLayer> layers;
@@ -909,13 +973,12 @@ void UserFormWidget::loadTestVectorLayer()
 
 //    qDebug() << "RENDER VECTOR LAYER !";
 
-}
+//}
 
 void UserFormWidget::loadImageFile(QString filename){
 
     if (_currentViewType!=QImageView)
         switchCartoViewTo(QImageView);
-
 
     QImage result(filename);
     const QPixmap pix = QPixmap::fromImage(result);
@@ -1028,23 +1091,26 @@ CartoViewType UserFormWidget::currentViewType() const
 {
     return _currentViewType;
 }
+
 QStringList UserFormWidget::supportedRasterFormat() const
 {
     return _supportedRasterFormat;
 }
+
 QStringList UserFormWidget::supportedVectorFormat() const
 {
     return _supportedVectorFormat;
 }
+
 QStringList UserFormWidget::supported3DFileFormat() const
 {
     return _supported3DFileFormat;
 }
+
 QStringList UserFormWidget::supportedImageFormat() const
 {
     return _supportedImageFormat;
 }
-
 
 void UserFormWidget::displayImage(Image *image ){
 
@@ -1064,6 +1130,15 @@ void UserFormWidget::displayImage(Image *image ){
 
 }
 
+void UserFormWidget::displayCartoImage(CartoImage *image ){
+
+    if (_currentViewType!=QGisMapLayer)
+        switchCartoViewTo(QGisMapLayer);
+
+    //qDebug()<< "Channels " << image->imageData()->channels();
+    _scene.addCartoImage(image);
+}
+
 // Threaded result file loading task
 
 resultLoadingTask::resultLoadingTask()
@@ -1081,7 +1156,11 @@ void resultLoadingTask::slot_loadRasterFromFile(QString filename_p)
     if (filename_p.isEmpty()) {
         return;
     }
-    QFileInfo fileInfo(filename_p);
+
+    CartoImage *image = new CartoImage();
+    image->loadFile(filename_p);
+
+    emit signal_addRasterToCartoView(image);
 
 //    QgsRasterLayer * rasterLayer = new QgsRasterLayer(filename_p, fileInfo.fileName());
 
