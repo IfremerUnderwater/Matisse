@@ -57,6 +57,7 @@ class UserFormWidget;
 }
 //class QgsRasterLayer;
 
+class QLabel;
 
 enum CartoViewType { QGisMapLayer, QImageView, OpenSceneGraphView };
 
@@ -86,7 +87,6 @@ private:
 
 
 };
-
 
 class UserFormWidget : public QWidget
 {
@@ -140,14 +140,20 @@ protected slots:
     void slot_onManualMove();
     void slot_updateColorPalette(QMap<QString,QString>);
     void slot_showHideToolbar();
-    void slot_activatePanTool();
+    //void slot_activatePanTool();
     void slot_activateZoomInTool();
     void slot_activateZoomOutTool();
     void slot_recenterMap();
+    void slot_showImagesRect(bool);
+
     //void slot_layerWasAdded(QgsMapLayer *layer);
-    void slot_layerWasRemoved(QString layerId);
+    //void slot_layerWasRemoved(QString layerId);
     void slot_layerItemChanged();
     void slot_removeLayer();
+
+    void slot_updateMapCoords(QPointF p);
+    void slot_mapZoomChanged(qreal z);
+    void slot_mapPanChanged();
 
 signals:
     void signal_loadRasterFromFile(QString filename_p = "");
@@ -189,6 +195,7 @@ private:
 
     RepaintBehaviorState _repaintBehaviorState;
     QToolBar *_mapToolBar;
+    QLabel *_coords;
 
     //QgsMapTool *_panTool;
     //QgsMapTool *_zoomInTool;

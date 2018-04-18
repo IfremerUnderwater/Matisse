@@ -88,8 +88,10 @@ int main(int argc, char *argv[])
 //     qDebug() << "plugins:" << plugins;
 //      qDebug() << "base:" <<base;
 //#endif
-
+    // set all locales to avoid numbers with , instead of .
     setlocale(LC_ALL, "C");
+    QLocale::setDefault(QLocale::C);
+    std::setlocale(LC_ALL, "C");
 
     QApplication a(argc,argv);
 

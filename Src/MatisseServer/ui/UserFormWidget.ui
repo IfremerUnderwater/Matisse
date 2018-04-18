@@ -94,32 +94,7 @@
         <number>0</number>
        </property>
        <item row="0" column="0">
-        <widget class="QGraphicsView" name="_GV_view">
-         <property name="minimumSize">
-          <size>
-           <width>580</width>
-           <height>710</height>
-          </size>
-         </property>
-         <property name="acceptDrops">
-          <bool>false</bool>
-         </property>
-         <property name="backgroundBrush">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>85</red>
-            <green>85</green>
-            <blue>127</blue>
-           </color>
-          </brush>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-         <property name="renderHints">
-          <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
-         </property>
-        </widget>
+        <widget class="WheelGraphicsView" name="_GV_view"/>
        </item>
       </layout>
      </widget>
@@ -193,6 +168,11 @@
    <extends>QWidget</extends>
    <header>OSGWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WheelGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>WheelGraphicsView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -7,7 +7,8 @@
 
 void WheelGraphicsView::setZoomFactor(qreal zoom, const QPoint * optMousePos)
  {
-    if ((zoom != _zoom)&&(zoom >= 0.02f)&&(zoom <= 1000000.0f))
+    // limits for zooming
+    if ((zoom != _zoom)&&(zoom >= 0.01f)&&(zoom <= 100.0f))
     {
        QPointF oldPos;
        if (optMousePos) oldPos = mapToScene(*optMousePos);
@@ -25,6 +26,7 @@ void WheelGraphicsView::setZoomFactor(qreal zoom, const QPoint * optMousePos)
           horizontalScrollBar()->setValue(move.x() + horizontalScrollBar()->value());
           verticalScrollBar()->setValue(move.y() + verticalScrollBar()->value());
        }
+       emit signal_zoomChanged(_zoom);
     }
  }
 
@@ -33,6 +35,8 @@ void WheelGraphicsView::setZoomFactor(qreal zoom, const QPoint * optMousePos)
     QPoint pos = event->pos();
     setZoomFactor(_zoom*pow(1.2, event->delta() / 240.0), &pos);
     event->accept();
+    // not needed : already done in setZoomFactor
+    //emit signal_zoomChanged(_zoom);
  }
 
  void WheelGraphicsView::mousePressEvent(QMouseEvent *event)
@@ -50,13 +54,20 @@ void WheelGraphicsView::setZoomFactor(qreal zoom, const QPoint * optMousePos)
 
  void WheelGraphicsView::mouseMoveEvent(QMouseEvent *event)
  {
+     // coords
+     QPointF pt = mapToScene(event->pos());
+     emit signal_updateCoords(pt);
+
      // pan the chart with a middle mouse drag
      if (event->buttons() & Qt::MiddleButton)
      {
-         QPointF move = _reference - mapToScene(event->pos());
+         QPointF move = _reference - pt;
          centerOn(_centerView + move);
          _centerView = mapToScene(this->viewport()->rect()).boundingRect().center();
          event->accept();
+
+         emit signal_panChanged();
+
          return;
      }
 

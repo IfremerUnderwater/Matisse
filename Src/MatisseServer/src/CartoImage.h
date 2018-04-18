@@ -43,6 +43,7 @@ public:
     // in rd
     qreal getRotationAngle();
 
+    QString fileName() const { return _fileName; }
 private:
     GeoTransform _adfGeoTransform;
     QString _fileName;
