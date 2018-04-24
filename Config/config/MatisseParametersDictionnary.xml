@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MatisseParametersDictionnary xmlns="Matisse" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="Matisse ../schemas/MatisseParametersDictionnary.xsd ">
-    <Structures publicationTimestamp="2018-04-05T15:37:05">
+    <Structures publicationTimestamp="2018-04-24T09:53:53">
         <Structure name="algo_param">
             <ParametersGroup name="general_algo_params">
                 <Parameter name="sift_code" level="expert" text="Code a executer pour le sift" type="string" range= "{$SIFT_CODE}" show="combo" default="GPU_sift"/>
@@ -37,7 +37,7 @@
                 <Parameter name="block_height" level="user" text="Hauteur moyenne de bloc" type="integer" range="]0,inf[" show="spin" default="7000"/>
             </ParametersGroup>
             <ParametersGroup name="compute_feature" text="Compute Features">
-                <Parameter name="describer_method" level="expert" text="Describer Method" type="string" range="{$DESCRIBER_METHOD}" show="combo" default="SIFT"/>
+                <Parameter name="describer_method" level="expert" text="Describer Method" type="string" range="{$DESCRIBER_METHOD}" show="combo" default="SIFT_ANATOMY"/>
                 <Parameter name="describer_preset" level="expert" text="Describer Preset" type="string" range="{$DESCRIBER_PRESET}" show="combo" default="ULTRA"/>
             </ParametersGroup>
             <ParametersGroup name="compute_matches" text="Compute Matches">
@@ -133,6 +133,7 @@
             <EnumValue name="ULTRA" text="ULTRA"/>
         </Enum>
         <Enum name="DESCRIBER_METHOD">
+            <EnumValue name="SIFT_ANATOMY" text="SIFT_ANATOMY"/>
             <EnumValue name="SIFT" text="SIFT"/>
             <EnumValue name="AKAZE_FLOAT" text="AKAZE_FLOAT"/>
             <EnumValue name="AKAZE_MLDB" text="AKAZE_MLDB"/>

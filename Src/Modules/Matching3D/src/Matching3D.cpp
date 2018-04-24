@@ -92,6 +92,11 @@ void Matching3D::onFlush(quint32 port)
     QString threadsParam = " -n ";
     threadsParam += QString::number(nbthreads);
 
+    // describer method parameter
+    QString methodParam = " -m ";
+    QString methodParamval = _matisseParameters->getStringParamValue("algo_param", "describer_method");
+    methodParam += methodParamval;
+
     // describer preset parameter
     QString presetParam = " -p ";
     QString presetParamval = _matisseParameters->getStringParamValue("algo_param", "describer_preset");
@@ -104,6 +109,7 @@ void Matching3D::onFlush(quint32 port)
         commandLine += " -f 1";
     commandLine += threadsParam;
     commandLine += presetParam;
+    commandLine += methodParam;
 
     // Compute Features
     QProcess computeFeatureProcess;

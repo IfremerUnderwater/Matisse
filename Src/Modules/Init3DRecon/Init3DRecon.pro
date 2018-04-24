@@ -64,6 +64,7 @@ win32 {
 #unix {
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_CXXFLAGS+= -fopenmp -ffast-math
+
 QMAKE_LFLAGS +=  -fopenmp
 ##QMAKE_CXXFLAGS+= -rdynamic
 #}

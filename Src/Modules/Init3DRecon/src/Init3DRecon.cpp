@@ -388,8 +388,8 @@ void Init3DRecon::onFlush(quint32 port)
     // Configure an empty scene with Views and their corresponding cameras
     SfM_Data *sfm_data = new SfM_Data();
     sfm_data->s_root_path = sImageDir; // Setup main image root_path
-    Views & views = sfm_data->views;
-    Intrinsics & intrinsics = sfm_data->intrinsics;
+    //Views & views = sfm_data->views;
+    //Intrinsics & intrinsics = sfm_data->intrinsics;
 
     int counter=0;
     for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin();
@@ -560,7 +560,7 @@ void Init3DRecon::onFlush(quint32 port)
         if (gps_info.first && use_prior)
         {
             // utiliser la nav
-            ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
+            ViewPriors v(*iter_image, sfm_data->views.size(), sfm_data->views.size(), sfm_data->views.size(), width, height);
 
             // Add intrinsic related to the image (if any)
             if (intrinsic == NULL)
@@ -572,7 +572,7 @@ void Init3DRecon::onFlush(quint32 port)
             else
             {
                 // Add the defined intrinsic to the sfm_container
-                intrinsics[v.id_intrinsic] = intrinsic;
+                sfm_data->intrinsics[v.id_intrinsic] = intrinsic;
             }
 
             v.b_use_pose_center_ = true;
@@ -587,11 +587,11 @@ void Init3DRecon::onFlush(quint32 port)
             }
 
             // Add the view to the sfm_container
-            views[v.id_view] = std::make_shared<ViewPriors>(v);
+            sfm_data->views[v.id_view] = std::make_shared<ViewPriors>(v);
         }
         else
         {
-            View v(*iter_image, views.size(), views.size(), views.size(), width, height);
+            View v(*iter_image, sfm_data->views.size(), sfm_data->views.size(), sfm_data->views.size(), width, height);
 
             // Add intrinsic related to the image (if any)
             if (intrinsic == NULL)
@@ -603,11 +603,11 @@ void Init3DRecon::onFlush(quint32 port)
             else
             {
                 // Add the defined intrinsic to the sfm_container
-                intrinsics[v.id_intrinsic] = intrinsic;
+                sfm_data->intrinsics[v.id_intrinsic] = intrinsic;
             }
 
             // Add the view to the sfm_container
-            views[v.id_view] = std::make_shared<View>(v);
+            sfm_data->views[v.id_view] = std::make_shared<View>(v);
         }
     }
 
@@ -683,8 +683,18 @@ void Init3DRecon::onFlush(quint32 port)
         return;
     }
 
+    // do not crash...
+    //delete sfm_data;
 
-    delete sfm_data;
+    sfm_data->poses.clear();
+    sfm_data->control_points.clear();
+    sfm_data->views.clear();
+    std::shared_ptr<IntrinsicBase> intrinsic (NULL);
+    sfm_data->intrinsics[0] = intrinsic;
+    sfm_data->s_root_path = "";
+    //crash
+    //sfm_data->intrinsics.clear();
+
 
     emit signal_userInformation("Init3DRecon - end");
 
