@@ -57,11 +57,9 @@ static double getPctVal(QString message, QString key)
         return -1;
 }
 
-//TODO : Windows
-#define EXEPATH "F:\\DATA\\3D_DATASETS\\StatueVeryVerySmall.win\\bin\\openMVS_sample-0.7a\\"
-#ifdef WIN32
-static const char* DensifyPointCloudExe = EXEPATH "DensifyPointCloud.exe";
-static const char* ReconstructMeshExe = EXEPATH "ReconstructMesh.exe";
+#ifdef _WIN32
+static const char* DensifyPointCloudExe = "DensifyPointCloud.exe";
+static const char* ReconstructMeshExe = "ReconstructMesh.exe";
 #else
 static const char* DensifyPointCloudExe = "/usr/local/bin/OpenMVS/DensifyPointCloud";
 static const char* ReconstructMeshExe = "/usr/local/bin/OpenMVS/ReconstructMesh";
