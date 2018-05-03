@@ -17,7 +17,7 @@ GeoTiffImageWriter::GeoTiffImageWriter(QObject *parent):
 
 GeoTiffImageWriter::~GeoTiffImageWriter()
 {
-    qDebug() << logPrefix() << "Destroy GeoTiffImageWriter";
+    //qDebug() << logPrefix() << "Destroy GeoTiffImageWriter";
 }
 
 bool GeoTiffImageWriter::configure()

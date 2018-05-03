@@ -47,6 +47,7 @@ AssemblyGui::AssemblyGui(QWidget *parent) :
 {
     _ui->setupUi(this);
     _server.setMainGui(this);
+
 }
 
 AssemblyGui::~AssemblyGui()
@@ -309,13 +310,13 @@ void AssemblyGui::initMapFeatures()
     _userFormWidget->setLayersWidget(_ui->_LW_mapLayers);
     _userFormWidget->initCanvas();
     _userFormWidget->initLayersWidget();
-    _userFormWidget->initMapToolBar();    
+    _userFormWidget->initMapToolBar();
 
-//    for (int i=0; i < 20 ; i++) {
-//        QListWidgetItem *layer = new QListWidgetItem("Layer " + QString::number(i));
-//        layer->setCheckState(Qt::Checked);
-//        _ui->_LW_mapLayers->addItem(layer);
-//    }
+    //    for (int i=0; i < 20 ; i++) {
+    //        QListWidgetItem *layer = new QListWidgetItem("Layer " + QString::number(i));
+    //        layer->setCheckState(Qt::Checked);
+    //        _ui->_LW_mapLayers->addItem(layer);
+    //    }
 
 
 }
@@ -759,8 +760,8 @@ bool AssemblyGui::promptAssemblyNotSaved() {
         QString newAssemblyName = getActualNewAssemblyName();
 
         int userResponse = QMessageBox::question(this, tr("Nouvel assemblage..."),
-                                        tr("L'assemblage '%1' n'a pas encore ete enregistre.\nContinuer sans enregistrer ?\n(Supprimera le nouvel assemblage)")
-                                        .arg(newAssemblyName), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+                                                 tr("L'assemblage '%1' n'a pas encore ete enregistre.\nContinuer sans enregistrer ?\n(Supprimera le nouvel assemblage)")
+                                                 .arg(newAssemblyName), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
         if (userResponse==QMessageBox::Yes) {
             deleteAssemblyAndReload(false);
@@ -811,7 +812,7 @@ void AssemblyGui::checkAndSelectAssembly(QString selectedAssemblyName)
 
             /* reset modification flag */
             _isAssemblyModified = false;
-            return;        
+            return;
         }
 
         QString currentAssemblyName = _currentAssembly->name();
@@ -1038,7 +1039,7 @@ void AssemblyGui::slot_showAboutBox()
         return;
     }
 
-//    AboutWebView webDialog(this);
+    //    AboutWebView webDialog(this);
     //    webDialog.exec();
 }
 
@@ -1148,7 +1149,7 @@ void AssemblyGui::slot_archiveJob()
 
     } else {
         QMessageBox::critical(this, tr("Echec archivage"), tr("La tache '%1' n'a pas pu etre archivee.")
-                                 .arg(_currentJob->name()));
+                              .arg(_currentJob->name()));
     }
 }
 
@@ -1207,7 +1208,7 @@ void AssemblyGui::slot_duplicateJob()
                                  .arg(jobName));
     } else {
         QMessageBox::critical(this, tr("Echec duplication"), tr("La tache '%1' n'a pas pu etre dupliquee.")
-                                 .arg(jobName));
+                              .arg(jobName));
     }
 }
 
@@ -1239,7 +1240,7 @@ void AssemblyGui::slot_duplicateAssembly()
                                  .arg(assemblyName));
     } else {
         QMessageBox::critical(this, tr("Echec duplication"), tr("La chaine de traitement '%1' n'a pas pu etre dupliquee.")
-                                 .arg(assemblyName));
+                              .arg(assemblyName));
     }
 
 }
@@ -1740,7 +1741,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
                         this,
                         importTitle,
                         tr("Vous essayez d'importer une archive exportee a partir d'une plateforme differente (voir ci-dessous).\n").append(areYouSureContinueMessage)
-                            .append("\n").append(platformGapMessagesStack),
+                        .append("\n").append(platformGapMessagesStack),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
                 return;
@@ -1854,7 +1855,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
                         this,
                         importTitle,
                         tr("La tache %1 existe deja sur ce poste.\n")
-                            .arg(jobName).append(areYouSureReplaceMessage),
+                        .arg(jobName).append(areYouSureReplaceMessage),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
                 return;
@@ -1894,7 +1895,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
                         this,
                         importTitle,
                         tr("La chaine de traitement %1 contenue dans l'archive est differente de celle presente sur ce poste.\n")
-                            .arg(_currentAssembly->name()).append(areYouSureReplaceMessage),
+                        .arg(_currentAssembly->name()).append(areYouSureReplaceMessage),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
                 return;
@@ -1913,7 +1914,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
                             this,
                             importTitle,
                             tr("Le parametrage de la chaine de traitement %1 contenu dans l'archive est different de celui present sur ce poste.\n")
-                                .arg(_currentAssembly->name()).append(areYouSureReplaceMessage),
+                            .arg(_currentAssembly->name()).append(areYouSureReplaceMessage),
                             QMessageBox::Yes,
                             QMessageBox::No)) {
                     return;
@@ -1929,7 +1930,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
                         this,
                         importTitle,
                         tr("La chaine de traitement %1 existe sur ce poste mais n'a pas de fichier de parametrage.\n")
-                            .arg(_currentAssembly->name()).append(areYouSureReplaceMessage),
+                        .arg(_currentAssembly->name()).append(areYouSureReplaceMessage),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
                 return;
@@ -1948,7 +1949,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
                         this,
                         importTitle,
                         tr("La chaine de traitement %1 existe deja sur ce poste.\n")
-                            .arg(assemblyName).append(areYouSureReplaceMessage),
+                        .arg(assemblyName).append(areYouSureReplaceMessage),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
                 return;
@@ -2090,12 +2091,12 @@ void AssemblyGui::doFoldUnfoldParameters(bool doUnfold, bool isExplicitAction)
 {
     if (doUnfold) {
         qDebug() << "Unfolding parameters";
-       _parametersDock->show();
-       _ui->_PB_parameterFold->setToolTip(tr("Replier la fenetre de parametrage"));
+        _parametersDock->show();
+        _ui->_PB_parameterFold->setToolTip(tr("Replier la fenetre de parametrage"));
     } else {
-       qDebug() << "Folding parameters";
-       _parametersDock->hide();
-       _ui->_PB_parameterFold->setToolTip(tr("Deplier la fenetre de parametrage"));
+        qDebug() << "Folding parameters";
+        _parametersDock->hide();
+        _ui->_PB_parameterFold->setToolTip(tr("Deplier la fenetre de parametrage"));
     }
 
     if (!isExplicitAction) {
@@ -2200,7 +2201,7 @@ void AssemblyGui::slot_showApplicationMode(ApplicationMode mode)
         resize(sz);
         sz.setWidth((sz.width()-1));
         resize(sz);
-   }
+    }
 }
 
 void AssemblyGui::slot_goHome()
@@ -2296,20 +2297,20 @@ void AssemblyGui::slot_saveAssembly()
         // WORFLOW OPTION DO NOT REMOVE
         // Review assembly properties before saving
 
-//        QString assemblyName = getActualNewAssemblyName();
+        //        QString assemblyName = getActualNewAssemblyName();
 
-//        KeyValueList *props = _assembliesProperties.value(assemblyName);
-//        AssemblyDialog dialog(this, assemblyName, *props, false, true);
-//        dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-//        if (dialog.exec() != QDialog::Accepted) {
-//            return;
-//        }
+        //        KeyValueList *props = _assembliesProperties.value(assemblyName);
+        //        AssemblyDialog dialog(this, assemblyName, *props, false, true);
+        //        dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+        //        if (dialog.exec() != QDialog::Accepted) {
+        //            return;
+        //        }
 
-//        _newAssembly->setName(assemblyName);
-//        _newAssembly->setAuthor(props->getValue("Author"));
-//        _newAssembly->setVersion(props->getValue("Version"));
-//        _newAssembly->setUsable(props->getValue("Valid").toInt());
-//        _newAssembly->setComment(props->getValue("Comments"));
+        //        _newAssembly->setName(assemblyName);
+        //        _newAssembly->setAuthor(props->getValue("Author"));
+        //        _newAssembly->setVersion(props->getValue("Version"));
+        //        _newAssembly->setUsable(props->getValue("Valid").toInt());
+        //        _newAssembly->setComment(props->getValue("Comments"));
 
         // END WORKFLOW OPTION
 
@@ -2361,11 +2362,11 @@ void AssemblyGui::slot_saveAssembly()
 
     }
 
-//    _createAssemblyAct->setEnabled(true);
+    //    _createAssemblyAct->setEnabled(true);
 
-//    // activer / désactiver menus contextuels
-//    _cloneAssemblyAct->setVisible(true);
-//    _updateAssemblyPropertiesAct->setVisible(true);
+    //    // activer / désactiver menus contextuels
+    //    _cloneAssemblyAct->setVisible(true);
+    //    _updateAssemblyPropertiesAct->setVisible(true);
 }
 
 
@@ -2877,7 +2878,7 @@ void AssemblyGui::slot_saveJob()
             qCritical() << QString("Item for job '%1' is not of type MatisseTreeItem, cannot display icon").arg(_currentJob->name());
         }
 
-//        item->setIcon(0, *greyLedIcon);
+        //        item->setIcon(0, *greyLedIcon);
         _userFormWidget->clear();
     }
 
@@ -2986,7 +2987,7 @@ void AssemblyGui::slot_assemblyContextMenuRequested(const QPoint &pos)
             return;
         }
 
-        contextMenu->addAction(_executeJobAct);        
+        contextMenu->addAction(_executeJobAct);
         if (_currentJob->executionDefinition()->executed()) {
             // show only if job was executed
             contextMenu->addAction(_goToResultsAct);
@@ -3316,13 +3317,13 @@ void AssemblyGui::slot_newAssembly()
     // activer vue graphique
     _expertFormWidget->getGraphicsView()->setEnabled(true);
 
-//    // activer / désactiver menus
-//    _createAssemblyAct->setEnabled(false);
-//    _saveAssemblyAct->setEnabled(true);
+    //    // activer / désactiver menus
+    //    _createAssemblyAct->setEnabled(false);
+    //    _saveAssemblyAct->setEnabled(true);
 
-//    // activer / désactiver menus contextuels
-//    _cloneAssemblyAct->setVisible(false);
-//    _updateAssemblyPropertiesAct->setVisible(false);
+    //    // activer / désactiver menus contextuels
+    //    _cloneAssemblyAct->setVisible(false);
+    //    _updateAssemblyPropertiesAct->setVisible(false);
 }
 
 void AssemblyGui::enableActions()
@@ -3445,13 +3446,13 @@ void AssemblyGui::slot_swapMapOrCreationView()
             promptJobNotSaved();
         }
 
-        qDebug() << "Swapping to creation view";        
+        qDebug() << "Swapping to creation view";
 
-        _isMapView = false;                
+        _isMapView = false;
         if (_activeApplicationMode == PROGRAMMING) {
             _activeViewOrModeLabel->setText(tr("Vue : Creation"));
         }
-//        _visuModeButton->setIcon(_creationVisuModeIcon);
+        //        _visuModeButton->setIcon(_creationVisuModeIcon);
         _iconFactory->attachIcon(_visuModeButtonWrapper, "lnf/icons/Clef.svg", false, false);
         _visuModeButton->setToolTip(tr("Basculer sur la vue Cartographie"));
 
@@ -3485,7 +3486,7 @@ void AssemblyGui::slot_swapMapOrCreationView()
         if (_activeApplicationMode == PROGRAMMING) {
             _activeViewOrModeLabel->setText(tr("Vue : Cartographie"));
         }
-//        _visuModeButton->setIcon(_mapVisuModeIcon);
+        //        _visuModeButton->setIcon(_mapVisuModeIcon);
         _iconFactory->attachIcon(_visuModeButtonWrapper, "lnf/icons/Cartographie.svg", false, false);
         _visuModeButton->setToolTip(tr("Basculer sur la vue Creation"));
 
@@ -3570,10 +3571,10 @@ void AssemblyGui::slot_launchJob()
     QString assemblyName = _currentJob->assemblyName();
 
     // on teste si des valeurs de parametres ont ete modifiees
-//    bool paramValuesModified = false;
-//    if (_parametersWidget->hasModifiedValues()) {
-//        paramValuesModified = true;
-//    }
+    //    bool paramValuesModified = false;
+    //    if (_parametersWidget->hasModifiedValues()) {
+    //        paramValuesModified = true;
+    //    }
 
     if (_currentJob->executionDefinition()->executed()) {
         if (QMessageBox::No == QMessageBox::question(this, tr("Travail execute..."),
@@ -3804,8 +3805,8 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
         foreach (QString resultFile, jobDef->executionDefinition()->resultFileNames()) {
 
             if (jobDef->executionDefinition()->executed() && (!resultFile.isEmpty())) {
-//                QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Image resultat:") << resultFile);
-//                item->setToolTip(1, resultFile);
+                //                QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Image resultat:") << resultFile);
+                //                item->setToolTip(1, resultFile);
                 // affichage de l'image
                 loadResultToCartoView(resultFile);
             }
@@ -3820,7 +3821,7 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
 
 void AssemblyGui::slot_assembliesReload()
 {
-    loadAssembliesAndJobsLists(_isMapView);        
+    loadAssembliesAndJobsLists(_isMapView);
 
     if (_isMapView) {
         _userFormWidget->clear();
@@ -3870,7 +3871,7 @@ void AssemblyGui::slot_modifiedAssembly()
 
     _isAssemblyModified = true;
     handleAssemblyModified();
-//    _createAssemblyAct->setEnabled(false);
+    //    _createAssemblyAct->setEnabled(false);
 
     _context.setLastActionPerformed(MODIFY_ASSEMBLY);
     enableActions();
@@ -3881,7 +3882,7 @@ void AssemblyGui::slot_assemblyComplete(bool isComplete)
     qDebug() << "Received assembly completeness flag : " << isComplete;
 
     _isAssemblyComplete = isComplete;
-//    _saveAssemblyAct->setEnabled(isComplete); // assembly can be saved only if assembly is complete
+    //    _saveAssemblyAct->setEnabled(isComplete); // assembly can be saved only if assembly is complete
 }
 
 void AssemblyGui::handleJobModified()

@@ -155,6 +155,8 @@ int main(int argc, char *argv[])
     ProcessDataManager processDataManager(dataRootDir, userDataPath);
 
     /* Create main window */
+    GraphicalCharter &abc = GraphicalCharter::instance();
+    std::cout << abc.dpi();
     AssemblyGui w;
     w.setObjectName("_MW_assemblyGui");
     w.setSystemDataManager(&systemDataManager);

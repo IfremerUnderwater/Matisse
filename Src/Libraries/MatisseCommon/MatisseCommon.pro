@@ -68,12 +68,12 @@ HEADERS += \
     src/Dim2UdpListener.h \
     src/GeoTransform.h \
     src/RasterGeoreferencer.h \
-    src/GraphicalCharter.h \
     src/FileUtils.h \
     #src/NavPhotoInfoTcpListener.h \
     src/matissemetatypes.h \
     src/StringUtils.h \
-    src/libmatissecommon_global.h
+    src/libmatissecommon_global.h \
+    src/GraphicalCharter.h
 
 SOURCES += \
     src/Processor.cpp \
@@ -94,7 +94,8 @@ SOURCES += \
     src/RasterGeoreferencer.cpp \
     src/FileUtils.cpp \
     #src/NavPhotoInfoTcpListener.cpp \
-    src/StringUtils.cpp
+    src/StringUtils.cpp \
+    src/GraphicalCharter.cpp
 
 #OTHER_FILES += src/proto/*.proto
 

@@ -1,9 +1,10 @@
 #ifndef GRAPHICALCHARTER_H
 #define GRAPHICALCHARTER_H
 
+#include "libmatissecommon_global.h"
+
 /* COLORS */
 #define MATISSE_BLACK           "#252a31"
-
 
 /* FONTS */
 #define MATISSE_FONT_TYPE               "Montserrat"
@@ -24,6 +25,34 @@
 
 #define ASSEMBLY_PROPS_LABEL_WIDTH      140
 
+namespace MatisseCommon {
+
+class LIBMATISSECOMMONSHARED_EXPORT GraphicalCharter
+{
+public:
+    static GraphicalCharter& instance();
+
+    GraphicalCharter(GraphicalCharter const&) = delete;        // Don't forget to disable copy
+    void operator=(GraphicalCharter const&) = delete;   // Don't forget to disable copy
+
+    double ptToPx(double pt) {
+        return pt/72*m_dpi;
+    }
+
+    double pxToPt(double px)
+    {
+        return px*72/m_dpi;
+    }
+
+
+    double dpi() const;
+
+private:
+    GraphicalCharter();       // forbid create instance outside
+    ~GraphicalCharter();      // forbid to delete instance outside
+    double m_dpi;
+};
+
+}
 
 #endif // GRAPHICALCHARTER_H
-
