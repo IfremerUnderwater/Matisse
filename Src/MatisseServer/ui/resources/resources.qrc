@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/png">
         <file>ifremer-grand.png</file>
-        <file>20x20_cst_rvb_300dpi.png</file>
     </qresource>
     <qresource prefix="/jpg"/>
     <qresource prefix="/"/>
