@@ -1,5 +1,5 @@
-﻿#ifndef InitMatchModule_H
-#define InitMatchModule_H
+﻿#ifndef Init2DMosaicModule_H
+#define Init2DMosaicModule_H
 
 
 #include "Processor.h"
@@ -7,8 +7,8 @@
 using namespace MatisseCommon;
 
 /**
- * Module1
- * @brief  Exemple de module pour implementer un algorithme de traitement dans Matisse
+ * Init2DMosaic
+ * @brief
  */
 class Init2DMosaic : public Processor
 {
@@ -29,4 +29,5 @@ public:
     virtual void onNewImage(quint32 port, Image &image);
 };
 
-#endif // InitMatchModule_H
+#endif // Init2DMosaicModule_H
+

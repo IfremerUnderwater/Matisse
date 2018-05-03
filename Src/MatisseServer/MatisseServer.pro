@@ -34,6 +34,7 @@ QMAKE_CXXFLAGS += -std=c++11
 INCLUDEPATH *= $$PWD/src
 #}
 
+LIBS*= -lproj -lgdal
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../
@@ -100,7 +101,10 @@ SOURCES += src/main.cpp\
     src/OSGWidget.cpp \
     src/DuplicateDialog.cpp \
     src/RestoreJobsDialog.cpp \
-    src/NetworkCheckDialog.cpp
+    src/NetworkCheckDialog.cpp \
+    src/CartoScene.cpp \
+    src/CartoImage.cpp \
+    src/WheelGraphicsView.cpp
 
 HEADERS  += \
     src/AssemblyGui.h \
@@ -134,7 +138,10 @@ HEADERS  += \
     src/OSGWidget.h \
     src/DuplicateDialog.h \
     src/RestoreJobsDialog.h \
-    src/NetworkCheckDialog.h
+    src/NetworkCheckDialog.h \
+    src/CartoScene.h \
+    src/CartoImage.h \
+    src/WheelGraphicsView.h
 
 FORMS    += \
     ui/AssemblyGui.ui \

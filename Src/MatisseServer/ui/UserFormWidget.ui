@@ -62,7 +62,7 @@
       <number>0</number>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="_WID_pageQGis">
       <property name="sizePolicy">
@@ -93,6 +93,9 @@
        <property name="spacing">
         <number>0</number>
        </property>
+       <item row="0" column="0">
+        <widget class="WheelGraphicsView" name="_GV_view"/>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="_WID_pageImage">
@@ -165,6 +168,11 @@
    <extends>QWidget</extends>
    <header>OSGWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WheelGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>WheelGraphicsView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

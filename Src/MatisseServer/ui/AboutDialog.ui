@@ -19,19 +19,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string notr="true">&lt;i&gt;Powered by:&lt;/i&gt;</string>
-       </property>
-       <property name="textFormat">
-        <enum>Qt::AutoText</enum>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="2">
       <widget class="QLabel" name="label_3">
        <property name="sizePolicy">
@@ -52,56 +39,24 @@
          <height>80</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="text">
-        <string/>
+        <string>Ifremer</string>
        </property>
        <property name="pixmap">
-        <pixmap resource="resources/resources.qrc">:/png/20x20_cst_rvb_300dpi.png</pixmap>
+        <pixmap>:/png/20x20_cst_rvb_300dpi.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
        </property>
-      </widget>
-     </item>
-     <item row="2" column="3">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="3">
-      <widget class="QLabel" name="_LA_aboutMainText">
-       <property name="text">
-        <string>&lt;table&gt;					&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;h1&gt;MATISSE %1&lt;/h1&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;em&gt;Support technique:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Tél.:&lt;/td&gt;&lt;td&gt;+33(0)4 94 30 44 35&lt;/td&gt;&lt;/tr&gt;			&lt;tr&gt;&lt;td&gt;Courriel:&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;mailto:aurelien.arnaubec@ifremer.fr&quot;&gt;aurelien.arnaubec@ifremer.fr&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;/table&gt; 
-</string>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
-     </item>
-     <item row="2" column="1">
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>10</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
      <item row="0" column="0" colspan="3">
       <widget class="QLabel" name="label">
@@ -119,6 +74,59 @@
        </property>
        <property name="scaledContents">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLabel" name="_LA_aboutMainText">
+       <property name="text">
+        <string>&lt;table&gt;					&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;h1&gt;MATISSE %1&lt;/h1&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;em&gt;Support technique:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Tél.:&lt;/td&gt;&lt;td&gt;+33(0)4 94 30 44 35&lt;/td&gt;&lt;/tr&gt;			&lt;tr&gt;&lt;td&gt;Courriel:&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;mailto:aurelien.arnaubec@ifremer.fr&quot;&gt;aurelien.arnaubec@ifremer.fr&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt; 
+</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="2" column="1">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string notr="true">&lt;i&gt;Powered by:&lt;/i&gt;</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>

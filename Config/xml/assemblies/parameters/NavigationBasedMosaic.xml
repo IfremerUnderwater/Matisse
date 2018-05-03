@@ -2,7 +2,7 @@
 <JobParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../schemas/JobParameters.xsd">
     <Structure name="algo_param">
         <!--general_algo_params-->
-        <Parameter name="scale_factor">1,000</Parameter>
+        <Parameter name="scale_factor">1.000</Parameter>
         <Parameter name="First_processed_image">1</Parameter>
         <Parameter name="Last_processed_image">inf</Parameter>
         <Parameter name="step_im">1</Parameter>

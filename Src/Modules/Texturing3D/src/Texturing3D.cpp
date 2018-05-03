@@ -11,6 +11,16 @@
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
+static const char* TexreconExe = "texrecon.exe";
+#define MVE_EMBEDDED "MVE==undistorted "
+#else
+static const char* TexreconExe = "texrecon";
+#define MVE_EMBEDDED "MVE::undistorted "
+#endif
+
+
+
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(Texturing3D, Texturing3D)
 #endif
@@ -123,12 +133,12 @@ void Texturing3D::onFlush(quint32 port)
     // Texture model
     emit signal_userInformation("Texturing3D texturing");
 
-    QString cmdLine = "texrecon";
+    QString cmdLine = TexreconExe;
     bool ok = false;
     bool keep_unseen_faces = _matisseParameters->getBoolParamValue("algo_param", "keep_unseen_faces", ok);
     if(ok && keep_unseen_faces)
         cmdLine += " --keep_unseen_faces";
-    cmdLine += " ."+SEP+"outReconstruction"+SEP+"MVE::undistorted ";
+    cmdLine += " ."+SEP+"outReconstruction"+SEP+ MVE_EMBEDDED;
     cmdLine += "."+SEP+"outReconstruction"+SEP+fileNamePrefixStr + "_dense_mesh.ply ";
     cmdLine += "."+SEP+"outReconstruction"+SEP+fileNamePrefixStr + "_texrecon";
     QProcess textureProc;

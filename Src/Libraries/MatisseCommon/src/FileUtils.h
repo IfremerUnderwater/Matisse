@@ -12,7 +12,7 @@
 #include <QDesktopServices>
 #include <QThread>
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #include "quazip5/quazip.h"
 #include "quazip5/quazipfile.h"

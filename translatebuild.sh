@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECTDIR=/home/data/Projects/MatisseWorkspace
+PROJECTDIR=./
 
 cd $PROJECTDIR/Src/Libraries/MatisseTools
 lupdate ./MatisseTools.pro

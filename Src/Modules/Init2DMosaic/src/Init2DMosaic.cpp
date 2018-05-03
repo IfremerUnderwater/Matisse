@@ -6,7 +6,6 @@
 
 #include "Polygon.h"
 
-// Export de la classe InitMatchModule dans la bibliotheque de plugin InitMatchModule
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(Init2DMosaic, Init2DMosaic)
 #endif
@@ -172,6 +171,7 @@ void Init2DMosaic::onFlush(quint32 port)
     _context->addObject("MosaicDescriptor", pMosaicDStocker);
 
     emit signal_processCompletion(100);
+
 
     // Flush next module port
     flush(0);
