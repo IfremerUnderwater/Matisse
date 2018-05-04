@@ -99,8 +99,6 @@ int main(int argc, char *argv[])
     /* Create main window and set params */
     AssemblyGui w;
 
-    w.setMinimumWidth(GraphicalCharter::instance().dpiScaled(MAIN_WINDOW_MIN_WIDTH));
-    w.setMinimumHeight(GraphicalCharter::instance().dpiScaled(MAIN_WINDOW_MIN_HEIGHT));
     w.setObjectName("_MW_assemblyGui");
     w.setSystemDataManager(&systemDataManager);
     w.setProcessDataManager(&processDataManager);

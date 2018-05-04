@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
+    <width>1282</width>
     <height>60</height>
    </rect>
   </property>
@@ -98,7 +98,7 @@
      <item>
       <widget class="MatisseVersionWidget" name="matisseVersionWidget">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -129,7 +129,7 @@
      <item>
       <widget class="VisuModeWidget" name="visuModeWidget">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>20</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -163,7 +163,7 @@
         <bool>true</bool>
        </property>
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>100</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -194,7 +194,7 @@
      <item>
       <widget class="OngoingProcessWidget" name="ongoingProcessWidget">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>

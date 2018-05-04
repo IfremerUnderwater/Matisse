@@ -66,7 +66,7 @@
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>60</height>
+        <height>16777215</height>
        </size>
       </property>
       <property name="frameShape">
@@ -86,7 +86,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QSplitter" name="splitter">
+       <widget class="QSplitter" name="_SPLIT_leftMenu">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -101,7 +101,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>280</width>
+          <width>16777215</width>
           <height>16777215</height>
          </size>
         </property>
@@ -128,7 +128,7 @@
           <item>
            <widget class="QTreeWidget" name="_TRW_assemblies">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -141,7 +141,7 @@
             </property>
             <property name="maximumSize">
              <size>
-              <width>280</width>
+              <width>16777215</width>
               <height>16777215</height>
              </size>
             </property>
@@ -219,7 +219,7 @@
         </widget>
         <widget class="QStackedWidget" name="_SW_helperTabSets">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -232,7 +232,7 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>280</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
@@ -240,11 +240,11 @@
           <number>0</number>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="_WID_mapViewTabSet">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -257,7 +257,7 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>280</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -280,7 +280,7 @@
            <item row="0" column="0">
             <widget class="MatisseTabWidget" name="_TW_mapViewTabs">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -305,7 +305,7 @@
              </property>
              <widget class="QWidget" name="_TABW_properties">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -318,7 +318,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>280</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -344,7 +344,7 @@
                <item row="0" column="0">
                 <widget class="QTreeWidget" name="_TRW_assemblyInfo">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -357,7 +357,7 @@
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>280</width>
+                   <width>16777215</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -416,7 +416,7 @@
              </widget>
              <widget class="QWidget" name="_TABW_mapLayers">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -429,7 +429,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>280</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -455,7 +455,7 @@
                <item row="0" column="1">
                 <widget class="QListWidget" name="_LW_mapLayers">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -468,7 +468,7 @@
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>280</width>
+                   <width>16777215</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -488,7 +488,7 @@
          </widget>
          <widget class="QWidget" name="_WID_creationViewTabSet">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -501,7 +501,7 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>280</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -524,7 +524,7 @@
            <item row="0" column="0">
             <widget class="MatisseTabWidget" name="_TW_creationViewTabs">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -537,7 +537,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>280</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -549,7 +549,7 @@
              </property>
              <widget class="QWidget" name="_TABW_inputs">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -562,7 +562,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>280</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -588,7 +588,7 @@
                <item row="0" column="0">
                 <widget class="QListWidget" name="_LW_inputs">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -601,7 +601,7 @@
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>280</width>
+                   <width>16777215</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -647,7 +647,7 @@
              </widget>
              <widget class="QWidget" name="_TABW_processors">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -660,7 +660,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>280</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -686,7 +686,7 @@
                <item row="0" column="0">
                 <widget class="QListWidget" name="_LW_processors">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -699,7 +699,7 @@
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>280</width>
+                   <width>16777215</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -758,7 +758,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>280</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -896,7 +896,7 @@
             <number>0</number>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="UserFormWidget" name="_WID_mapViewSceneContainer">
             <property name="sizePolicy">
@@ -1057,8 +1057,8 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="icons.qrc"/>
   <include location="resources/resources.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>

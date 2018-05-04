@@ -14,8 +14,19 @@
 #define REF_DPI                         98
 
 /* WIDGET SIZES AND MARGINS FOR A REFERENCE DPI (then adapted to other dpi) */
+
+// Main window
 #define MAIN_WINDOW_MIN_WIDTH          1280
 #define MAIN_WINDOW_MIN_HEIGHT          800
+
+// ControlBar
+#define CONTROLLBAR_HEIGHT              60
+#define CB_HOME_BUTTON_WIDTH            60
+#define CB_HOME_BUTTON_ICON             36
+#define CB_VISU_SWAP_ICON               36
+#define CB_VERSION_WIDTH                220
+#define CB_VISU_INFO_WIDTH              160
+
 #define PARAM_LABEL_WIDTH_NOWRAP        180
 #define PARAM_LABEL_WIDTH_WRAP          360
 #define PARAM_SPINBOX_WIDTH             90

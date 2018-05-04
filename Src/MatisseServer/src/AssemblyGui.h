@@ -261,6 +261,7 @@ private:
     QAction* _goToResultsAct;
 
 private:
+    void dpiScaleWidgets();
     void initMainMenu();
     void initIconFactory();
     void initStylesheetSelection();

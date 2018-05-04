@@ -1,5 +1,7 @@
 ﻿#include "AssemblyGui.h"
 #include "ui_AssemblyGui.h"
+#include "MatisseVersionWidget.h"
+#include "VisuModeWidget.h"
 
 using namespace MatisseTools;
 using namespace MatisseServer;
@@ -321,8 +323,37 @@ void AssemblyGui::initMapFeatures()
 
 }
 
+void AssemblyGui::dpiScaleWidgets()
+{
+    GraphicalCharter &graph_charter = GraphicalCharter::instance();
+
+    // Adjust main window size
+    this->setMinimumWidth(graph_charter.dpiScaled(MAIN_WINDOW_MIN_WIDTH));
+    this->setMinimumHeight(graph_charter.dpiScaled(MAIN_WINDOW_MIN_HEIGHT));
+
+    // Main control bar scaling
+    _ui->_MCB_controllBar->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+
+    _homeWidget->setFixedWidth(graph_charter.dpiScaled(CB_HOME_BUTTON_WIDTH));
+    _homeWidget->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    _homeButton->setFixedWidth(graph_charter.dpiScaled(CB_HOME_BUTTON_WIDTH));
+    _homeButton->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    _homeButton->setIconSize(QSize(graph_charter.dpiScaled(CB_HOME_BUTTON_ICON),graph_charter.dpiScaled(CB_HOME_BUTTON_ICON)));
+    _visuModeButton->setIconSize(QSize(graph_charter.dpiScaled(CB_VISU_SWAP_ICON),graph_charter.dpiScaled(CB_HOME_BUTTON_ICON)));
+
+    findChild<MatisseVersionWidget*>(QString("matisseVersionWidget"))->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    findChild<MatisseVersionWidget*>(QString("matisseVersionWidget"))->setFixedWidth(graph_charter.dpiScaled(CB_VERSION_WIDTH));
+    _matisseVersionlabel->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+
+    findChild<VisuModeWidget*>(QString("visuModeWidget"))->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    findChild<VisuModeWidget*>(QString("visuModeWidget"))->setFixedWidth(graph_charter.dpiScaled(CB_VISU_INFO_WIDTH));
+    _activeViewOrModeLabel->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT/2));
+    _currentDateTimeLabel->setFixedHeight(1+graph_charter.dpiScaled(CONTROLLBAR_HEIGHT/2));
+}
+
 void AssemblyGui::init()
 {
+
     initLanguages();
 
     initIconFactory();
@@ -330,6 +361,8 @@ void AssemblyGui::init()
     initStatusBar();
 
     lookupChildWidgets();
+
+    dpiScaleWidgets();
 
     initStylesheetSelection();
 
