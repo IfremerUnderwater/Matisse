@@ -23,20 +23,7 @@
 using namespace MatisseServer;
 using namespace MatisseTools;
 
-//extern "C" void __stdcall OutputDebugStringA(
-//  const char *lpOutputString
-//);
 
-//extern "C" int __stdcall  SetEnvironmentVariableA(
-//  const char * lpName,
-//  const char * lpValue
-//);
-
-//extern "C" int __stdcall  GetEnvironmentVariableA(
-//   const char * lpName,
-//   char *  lpBuffer,
-//  int   nSize
-//);
 
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
@@ -75,19 +62,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &
 
 int main(int argc, char *argv[])
 {
-//#ifdef WIN32
-//    //SetEnvironmentVariableA("QT_PLUGIN_PATH","C:\\Program Files\\qgis2.99.0\\plugins");
 
-//    char plugins[1024];
-//    char base[1024];
-//    GetEnvironmentVariableA("OSGEO4W_ROOT", base, sizeof(base));
-//    strcpy(plugins,base);
-//    strcat(base,"apps\\qgis");
-//    strcat(plugins,"apps\\qgis\\plugins");
-//    SetEnvironmentVariableA("QT_PLUGIN_PATH",plugins);
-//     qDebug() << "plugins:" << plugins;
-//      qDebug() << "base:" <<base;
-//#endif
     // set all locales to avoid numbers with , instead of .
     setlocale(LC_ALL, "C");
     QLocale::setDefault(QLocale::C);
@@ -101,39 +76,6 @@ int main(int argc, char *argv[])
 #else
     qInstallMsgHandler(myMessageOutput);
 #endif
-
-    // Init QGIS
-    //QgsApplication a(argc, argv, true);
-    //QgsApplication::initQgis();
-
-#ifdef WIN32
-    //QProcessEnvironment env;
-    //QString oswgeo4w = env.systemEnvironment().value("OSGEO4W_ROOT");
-    //QgsApplication::setPluginPath(oswgeo4w+"\\apps\\qgis\\plugins");
-
-//    //QgsApplication::setPrefixPath(oswgeo4w+"\\apps\\qgis", true);
-//    //************************TEST
-    // Instantiate Provider Registry
-    //QgsProviderRegistry::instance("C:\\Program Files\\qgis2.99.0\\plugins");
-    //QgsProviderRegistry::instance(oswgeo4w+"\\apps\\qgis\\plugins");
-
-    //QgsApplication::setPrefixPath("C:\\Program Files\\qgis2.99.0",true);
-    //QgsApplication::setPrefixPath(oswgeo4w+"\\apps\\qgis",true);
-
-//#ifdef QT_DEBUG
-//    qDebug() << "Load Debug versions of plugins";
-//    //************************TEST
-//    //QgsApplication::setPluginPath(oswgeo4w+"\\apps\\qgis\\pluginsd");
-//    //QgsApplication::setPluginPath(oswgeo4w+"\\apps\\qgis\\plugins");
-//    QgsApplication::setPluginPath("C:\\Program Files\\qgis2.99.0\\bin\\plugins");
-//#endif
-
-#else
-//    qDebug() << "else";
-//    QgsApplication::setPrefixPath("/usr", true);
-
-#endif
-
 
     qRegisterMetaType< basicproc::Polygon >();
 
@@ -154,10 +96,11 @@ int main(int argc, char *argv[])
     QString userDataPath = systemDataManager.getUserDataPath();
     ProcessDataManager processDataManager(dataRootDir, userDataPath);
 
-    /* Create main window */
-    GraphicalCharter &abc = GraphicalCharter::instance();
-    std::cout << abc.dpi();
+    /* Create main window and set params */
     AssemblyGui w;
+
+    w.setMinimumWidth(GraphicalCharter::instance().dpiScaled(MAIN_WINDOW_MIN_WIDTH));
+    w.setMinimumHeight(GraphicalCharter::instance().dpiScaled(MAIN_WINDOW_MIN_HEIGHT));
     w.setObjectName("_MW_assemblyGui");
     w.setSystemDataManager(&systemDataManager);
     w.setProcessDataManager(&processDataManager);
@@ -166,7 +109,5 @@ int main(int argc, char *argv[])
     w.setWindowFlags(Qt::FramelessWindowHint);
 
     int ret = a.exec();
-//    int ret = a.exec();
-//    QgsApplication::exitQgis();
     return ret;
 }

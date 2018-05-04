@@ -10,7 +10,12 @@
 #define MATISSE_FONT_TYPE               "Montserrat"
 #define MATISSE_FONT_DEFAULT_SIZE_PT    12
 
-/* WIDGET SIZES AND MARGINS */
+/* dpi value used as reference for scaling */
+#define REF_DPI                         98
+
+/* WIDGET SIZES AND MARGINS FOR A REFERENCE DPI (then adapted to other dpi) */
+#define MAIN_WINDOW_MIN_WIDTH          1280
+#define MAIN_WINDOW_MIN_HEIGHT          800
 #define PARAM_LABEL_WIDTH_NOWRAP        180
 #define PARAM_LABEL_WIDTH_WRAP          360
 #define PARAM_SPINBOX_WIDTH             90
@@ -35,17 +40,18 @@ public:
     GraphicalCharter(GraphicalCharter const&) = delete;        // Don't forget to disable copy
     void operator=(GraphicalCharter const&) = delete;   // Don't forget to disable copy
 
-    double ptToPx(double pt) {
-        return pt/72*m_dpi;
+    double ptToPx(double _pt) {
+        return _pt/72*m_dpi;
     }
 
-    double pxToPt(double px)
+    double pxToPt(double _px)
     {
-        return px*72/m_dpi;
+        return _px*72/m_dpi;
     }
-
 
     double dpi() const;
+
+    int dpiScaled(int _ref_pixel_size);
 
 private:
     GraphicalCharter();       // forbid create instance outside
