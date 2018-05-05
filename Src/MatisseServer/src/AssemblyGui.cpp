@@ -348,7 +348,11 @@ void AssemblyGui::dpiScaleWidgets()
     findChild<VisuModeWidget*>(QString("visuModeWidget"))->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
     findChild<VisuModeWidget*>(QString("visuModeWidget"))->setFixedWidth(graph_charter.dpiScaled(CB_VISU_INFO_WIDTH));
     _activeViewOrModeLabel->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT/2));
-    _currentDateTimeLabel->setFixedHeight(1+graph_charter.dpiScaled(CONTROLLBAR_HEIGHT/2));
+    _currentDateTimeLabel->setFixedHeight(1+graph_charter.dpiScaled(CONTROLLBAR_HEIGHT/2)); // +1 is for the rounding
+
+    findChild<QWidget*>(QString("mainMenuWidget"))->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    findChild<QMenuBar*>(QString("_MBA_mainMenuBar"))->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT/2));
+
 }
 
 void AssemblyGui::init()
@@ -361,8 +365,6 @@ void AssemblyGui::init()
     initStatusBar();
 
     lookupChildWidgets();
-
-    dpiScaleWidgets();
 
     initStylesheetSelection();
 
@@ -402,6 +404,9 @@ void AssemblyGui::init()
     initDateTimeDisplay();
 
     initWelcomeDialog();
+
+    dpiScaleWidgets();
+
 }
 
 void AssemblyGui::initIconFactory()
@@ -552,15 +557,14 @@ void AssemblyGui::initMainMenu()
     _helpMenu->addAction(_aboutAct);
 
     QMenuBar* mainMenuBar = findChild<QMenuBar*>(QString("_MBA_mainMenuBar"));
-    mainMenuBar->setMinimumHeight(_helpMenu->height());
-    mainMenuBar->setMaximumHeight(_helpMenu->height());
-    mainMenuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    //mainMenuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     mainMenuBar->addMenu(_fileMenu);
     mainMenuBar->addMenu(_displayMenu);
     mainMenuBar->addMenu(_processMenu);
     mainMenuBar->addMenu(_toolMenu);
     mainMenuBar->addMenu(_helpMenu);
+
 }
 
 void AssemblyGui::initContextMenus()

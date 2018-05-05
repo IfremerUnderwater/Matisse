@@ -315,6 +315,7 @@ private:
     void promptJobNotSaved();
 
     void deleteAssemblyAndReload(bool promptUser);
+
     void createExportDir();
     void createImportDir();
     void executeImportWorkflow(bool isJobImportAction = false);

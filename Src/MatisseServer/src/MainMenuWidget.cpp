@@ -1,10 +1,13 @@
 #include "MainMenuWidget.h"
 #include "ui_MainMenuWidget.h"
+#include "GraphicalCharter.h"
 
 #include <QVBoxLayout>
 #include <QMenuBar>
 #include <QMenu>
 #include <QVBoxLayout>
+
+using namespace MatisseCommon;
 
 MainMenuWidget::MainMenuWidget(QWidget *parent) :
     QFrame(parent),
@@ -13,17 +16,14 @@ MainMenuWidget::MainMenuWidget(QWidget *parent) :
     ui->setupUi(this);
 
     QVBoxLayout *boxLayout = new QVBoxLayout(this); // Main layout of widget
-    boxLayout->setAlignment(Qt::AlignCenter);
+    boxLayout->setAlignment(Qt::AlignVCenter);
     boxLayout->setContentsMargins(0,0,0,0);
     setLayout(boxLayout);
 
     QMenuBar* menuBar = new QMenuBar(this);
-//    menuBar->setMinimumHeight(60);
-//    menuBar->setMaximumHeight(60);
-//    menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     menuBar->setObjectName("_MBA_mainMenuBar");
     this->layout()->addWidget(menuBar);
-//    boxLayout->addWidget(menuBar);
 
 }
 
