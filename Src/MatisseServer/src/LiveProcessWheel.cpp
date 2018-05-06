@@ -1,12 +1,20 @@
 #include "LiveProcessWheel.h"
+#include "GraphicalCharter.h"
 
 using namespace MatisseServer;
+using namespace MatisseCommon;
 
 LiveProcessWheel::LiveProcessWheel(QWidget *parent) : QWidget(parent),
-    _wheelRadius(25.0), _innerRadius(13.0), _rayWidth(2.0), _state(INACTIVE),
-    _currentHour(0), _firstRound(true), _msForOneHourClockTurn(80)
+    _state(INACTIVE), _currentHour(0), _firstRound(true), _msForOneHourClockTurn(80)
 {
-    _center = new QPointF(30.0, 30.0);
+    GraphicalCharter &graph_charter = GraphicalCharter::instance();
+
+    _wheelRadius = (double)graph_charter.dpiScaled(25);
+    _innerRadius = (double)graph_charter.dpiScaled(13);
+    _rayWidth = (double)graph_charter.dpiScaled(2);
+
+    double center = (double)graph_charter.dpiScaled(30);
+    _center = new QPointF(center, center);
 
     /* widget is not aware of graphical chart, using default colors */
     inactiveColor = new QColor(Qt::gray);

@@ -2,6 +2,7 @@
 #include "ui_AssemblyGui.h"
 #include "MatisseVersionWidget.h"
 #include "VisuModeWidget.h"
+#include "OngoingProcessWidget.h"
 
 using namespace MatisseTools;
 using namespace MatisseServer;
@@ -326,33 +327,45 @@ void AssemblyGui::initMapFeatures()
 void AssemblyGui::dpiScaleWidgets()
 {
     GraphicalCharter &graph_charter = GraphicalCharter::instance();
+    int dpi_cb_height = graph_charter.dpiScaled(CONTROLLBAR_HEIGHT);
 
     // Adjust main window size
     this->setMinimumWidth(graph_charter.dpiScaled(MAIN_WINDOW_MIN_WIDTH));
     this->setMinimumHeight(graph_charter.dpiScaled(MAIN_WINDOW_MIN_HEIGHT));
 
     // Main control bar scaling
-    _ui->_MCB_controllBar->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    _ui->_MCB_controllBar->setFixedHeight(dpi_cb_height);
 
     _homeWidget->setFixedWidth(graph_charter.dpiScaled(CB_HOME_BUTTON_WIDTH));
-    _homeWidget->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    _homeWidget->setFixedHeight(dpi_cb_height);
     _homeButton->setFixedWidth(graph_charter.dpiScaled(CB_HOME_BUTTON_WIDTH));
-    _homeButton->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    _homeButton->setFixedHeight(dpi_cb_height);
     _homeButton->setIconSize(QSize(graph_charter.dpiScaled(CB_HOME_BUTTON_ICON),graph_charter.dpiScaled(CB_HOME_BUTTON_ICON)));
     _visuModeButton->setIconSize(QSize(graph_charter.dpiScaled(CB_VISU_SWAP_ICON),graph_charter.dpiScaled(CB_HOME_BUTTON_ICON)));
 
-    findChild<MatisseVersionWidget*>(QString("matisseVersionWidget"))->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    findChild<MatisseVersionWidget*>(QString("matisseVersionWidget"))->setFixedHeight(dpi_cb_height);
     findChild<MatisseVersionWidget*>(QString("matisseVersionWidget"))->setFixedWidth(graph_charter.dpiScaled(CB_VERSION_WIDTH));
-    _matisseVersionlabel->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    _matisseVersionlabel->setFixedHeight(dpi_cb_height);
 
-    findChild<VisuModeWidget*>(QString("visuModeWidget"))->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    findChild<VisuModeWidget*>(QString("visuModeWidget"))->setFixedHeight(dpi_cb_height);
     findChild<VisuModeWidget*>(QString("visuModeWidget"))->setFixedWidth(graph_charter.dpiScaled(CB_VISU_INFO_WIDTH));
     _activeViewOrModeLabel->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT/2));
     _currentDateTimeLabel->setFixedHeight(1+graph_charter.dpiScaled(CONTROLLBAR_HEIGHT/2)); // +1 is for the rounding
 
-    findChild<QWidget*>(QString("mainMenuWidget"))->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT));
+    findChild<QWidget*>(QString("mainMenuWidget"))->setFixedHeight(dpi_cb_height);
     findChild<QMenuBar*>(QString("_MBA_mainMenuBar"))->setFixedHeight(graph_charter.dpiScaled(CONTROLLBAR_HEIGHT/2));
 
+    OngoingProcessWidget* proc_wid = findChild<OngoingProcessWidget*>(QString("ongoingProcessWidget"));
+    proc_wid->setFixedHeight(dpi_cb_height);
+    proc_wid->setFixedWidth(graph_charter.dpiScaled(CB_ON_PROCESS_WIDTH));
+    proc_wid->dpiScale();
+
+    // Right panel
+    _ui->_PB_parameterFold->setFixedWidth(dpi_cb_height/3);
+    _parametersDock->setFixedWidth(graph_charter.dpiScaled(CB_ON_PROCESS_WIDTH)-_ui->_PB_parameterFold->width());
+
+    // Left panel
+    _ui->_SPLIT_leftMenu->setFixedWidth(graph_charter.dpiScaled(CB_HOME_BUTTON_WIDTH+CB_VERSION_WIDTH));
 }
 
 void AssemblyGui::init()

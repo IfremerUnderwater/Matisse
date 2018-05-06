@@ -26,6 +26,8 @@
 #define CB_VISU_SWAP_ICON               36
 #define CB_VERSION_WIDTH                220
 #define CB_VISU_INFO_WIDTH              160
+#define CB_ON_PROCESS_WIDTH             420
+#define CB_STOP_BUTTON_ICON             36
 
 #define PARAM_LABEL_WIDTH_NOWRAP        180
 #define PARAM_LABEL_WIDTH_WRAP          360

@@ -13,6 +13,7 @@ class OngoingProcessWidget : public QFrame
 
 public:
     explicit OngoingProcessWidget(QWidget *parent = 0);
+    void dpiScale();
     ~OngoingProcessWidget();
 
 protected:
