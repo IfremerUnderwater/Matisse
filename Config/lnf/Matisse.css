@@ -213,9 +213,9 @@ QTabWidget::pane {
     padding: 0;
 }
 
-QTabWidget::tab-bar {
-    width: 280px; /* expanding tabbar to max available width */
-}
+/*QTabWidget::tab-bar {
+    width: 350px;
+}*/
 
 QTabBar::tab {
     background: transparent;
@@ -224,16 +224,16 @@ QTabBar::tab {
     font-weight: bold;
     border: none;
     margin: 0;
-    padding: 7px 2px 7px 2px;
+    padding: 7px 5px 7px 5px;
 }
 
-QTabBar#_TW_creationViewTabs-tabbar::tab {
-    width: 89px; /* max width for 3 tabs */
-}
+/*QTabBar#_TW_creationViewTabs-tabbar::tab {
+    width: 89px;
+}*/
 
-QTabBar#_TW_mapViewTabs-tabbar::tab {
-    width: 136px; /* max width for 2 tabs */
-}
+/*QTabBar#_TW_mapViewTabs-tabbar::tab {
+    width: 200px;
+}*/
 
 
 QTabBar::tab:hover {

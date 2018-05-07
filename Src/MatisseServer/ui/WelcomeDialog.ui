@@ -10,6 +10,12 @@
     <height>340</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>Accueil Matisse</string>
   </property>
@@ -35,7 +41,7 @@
     <item row="1" column="0">
      <widget class="QPushButton" name="configModeLauncherButton">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -60,7 +66,7 @@
     <item row="0" column="1">
      <widget class="QPushButton" name="realTimeModeLauncherButton">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -89,7 +95,7 @@
     <item row="0" column="0">
      <widget class="QPushButton" name="progModeLauncherButton">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -102,8 +108,8 @@
       </property>
       <property name="maximumSize">
        <size>
-        <width>150</width>
-        <height>150</height>
+        <width>100000</width>
+        <height>100000</height>
        </size>
       </property>
       <property name="text">
@@ -115,7 +121,7 @@
     <item row="1" column="1">
      <widget class="QPushButton" name="deferredTimeModeLauncherButton">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>

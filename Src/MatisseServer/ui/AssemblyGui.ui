@@ -87,6 +87,9 @@
       </property>
       <item>
        <widget class="QSplitter" name="_SPLIT_leftMenu">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -293,12 +296,12 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>280</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <property name="elideMode">
               <enum>Qt::ElideNone</enum>
@@ -745,7 +748,7 @@
              </widget>
              <widget class="QWidget" name="_TABW_outputs">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -791,7 +794,7 @@
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>280</width>
+                   <width>16777215</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -1057,8 +1060,8 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources/resources.qrc"/>
   <include location="icons.qrc"/>
+  <include location="resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

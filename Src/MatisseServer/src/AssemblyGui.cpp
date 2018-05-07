@@ -366,6 +366,10 @@ void AssemblyGui::dpiScaleWidgets()
 
     // Left panel
     _ui->_SPLIT_leftMenu->setFixedWidth(graph_charter.dpiScaled(CB_HOME_BUTTON_WIDTH+CB_VERSION_WIDTH));
+
+    //findChild<QTabBar*>(QString("_TW_mapViewTabs-tabbar"))->setFixedWidth(graph_charter.dpiScaled(136));
+    //findChild<QTabBar*>(QString("_TW_creationViewTabs-tabbar"))->setFixedWidth(graph_charter.dpiScaled(89));
+
 }
 
 void AssemblyGui::init()

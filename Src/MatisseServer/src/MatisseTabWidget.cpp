@@ -26,7 +26,6 @@ MatisseTabWidget::~MatisseTabWidget()
 void MatisseTabWidget::setObjectName(const QString &name)
 {
     QObject::setObjectName(name);
-    qDebug() << "Setting MatisseTabWidget name " << name;
     tabBar()->setObjectName(name + "-tabbar");
 }
 
