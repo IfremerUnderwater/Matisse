@@ -13,5 +13,6 @@
         <file>icons/reinittaille.svg</file>
         <file>icons/Message-orange.svg</file>
         <file>icons/Main_orange.svg</file>
+        <file>icons/blank_button.svg</file>
     </qresource>
 </RCC>

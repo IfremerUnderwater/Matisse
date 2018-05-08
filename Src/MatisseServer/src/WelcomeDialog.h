@@ -21,6 +21,7 @@ public:
     explicit WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory, bool isProgrammingModeEnabled);
     ~WelcomeDialog();
     void enableProgrammingMode(bool isProgrammingModeEnabled);
+    void dpiScale();
 
 signals:
     void signal_launchApplication(ApplicationMode mode);
@@ -35,8 +36,9 @@ protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 
 private:
-    void createOverlayLabel();
+    void fillOverlayLabel();
     Ui::WelcomeDialog *ui;
+    QLabel* _matisseWelcomeLabel;
 };
 }
 

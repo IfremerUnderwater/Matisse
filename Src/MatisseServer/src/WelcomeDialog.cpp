@@ -2,6 +2,7 @@
 
 #include "WelcomeDialog.h"
 #include "ui_WelcomeDialog.h"
+#include "GraphicalCharter.h"
 
 #include <QLabel>
 
@@ -13,7 +14,8 @@ WelcomeDialog::WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory, b
 {
     ui->setupUi(this);
 
-    createOverlayLabel();
+    _matisseWelcomeLabel = new QLabel(this);
+    dpiScale();
 
     ui->progModeLauncherButton->setEnabled(isProgrammingModeEnabled);
 
@@ -27,6 +29,7 @@ WelcomeDialog::WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory, b
 WelcomeDialog::~WelcomeDialog()
 {
     delete ui;
+    delete _matisseWelcomeLabel;
 }
 
 void WelcomeDialog::enableProgrammingMode(bool isProgrammingModeEnabled)
@@ -34,15 +37,28 @@ void WelcomeDialog::enableProgrammingMode(bool isProgrammingModeEnabled)
     ui->progModeLauncherButton->setEnabled(isProgrammingModeEnabled);
 }
 
-void WelcomeDialog::createOverlayLabel()
+void WelcomeDialog::dpiScale()
 {
-    QLabel* matisseWelcomeLabel = new QLabel(this->ui->gridLayoutWidget);
-    matisseWelcomeLabel->setObjectName("_LA_matisseWelcomeLabel");
-    matisseWelcomeLabel->setText("MATISSE");
-    matisseWelcomeLabel->resize(150, 60);
-    matisseWelcomeLabel->move(95,140);
-    matisseWelcomeLabel->setAlignment(Qt::AlignCenter);
-    matisseWelcomeLabel->raise();
+    GraphicalCharter &graph_charter = GraphicalCharter::instance();
+
+    fillOverlayLabel();
+    this->setFixedSize(graph_charter.dpiScaled(340),graph_charter.dpiScaled(340));
+    ui->_TBU_welcomeCloseButton->setFixedSize(graph_charter.dpiScaled(28),graph_charter.dpiScaled(28));
+    ui->_TBU_welcomeCloseButton->setIconSize(QSize(graph_charter.dpiScaled(20),graph_charter.dpiScaled(20)));
+    ui->_TBU_welcomeEmptyButton->setFixedSize(graph_charter.dpiScaled(28),graph_charter.dpiScaled(28));
+
+}
+
+void WelcomeDialog::fillOverlayLabel()
+{
+    GraphicalCharter &graph_charter = GraphicalCharter::instance();
+
+    _matisseWelcomeLabel->setObjectName("_LA_matisseWelcomeLabel");
+    _matisseWelcomeLabel->setText("MATISSE");
+    _matisseWelcomeLabel->resize(graph_charter.dpiScaled(150), graph_charter.dpiScaled(60));
+    _matisseWelcomeLabel->move(graph_charter.dpiScaled(95),graph_charter.dpiScaled(140));
+    _matisseWelcomeLabel->setAlignment(Qt::AlignCenter);
+    _matisseWelcomeLabel->raise();
 }
 
 void WelcomeDialog::on_progModeLauncherButton_clicked()
