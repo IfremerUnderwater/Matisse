@@ -1,10 +1,9 @@
-﻿
+﻿#include <QStyle>
+#include <QDesktopWidget>
 #include <QList>
 #include <QtDebug>
 #include <QTranslator>
 #include <QStyleFactory>
-//#include <qgsapplication.h>
-//#include <qgsproviderregistry.h>
 #include <QApplication>
 
 #include "FileUtils.h"
@@ -72,7 +71,7 @@ int main(int argc, char *argv[])
 
     // Define log handler
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-     qInstallMessageHandler(myMessageOutput);
+    qInstallMessageHandler(myMessageOutput);
 #else
     qInstallMsgHandler(myMessageOutput);
 #endif
@@ -82,9 +81,9 @@ int main(int argc, char *argv[])
     /* Define default encoding for all text streaming */
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
-//    qDebug() << "**********************************";
-//    qDebug() << QgsApplication::showSettings();
-//    qDebug() << "**********************************";
+    //    qDebug() << "**********************************";
+    //    qDebug() << QgsApplication::showSettings();
+    //    qDebug() << "**********************************";
 
     /* Clean all temp directories created during previous sessions */
     FileUtils::removeAllTempDirectories();
@@ -98,6 +97,15 @@ int main(int argc, char *argv[])
 
     /* Create main window and set params */
     AssemblyGui w;
+
+    w.setGeometry(
+                QStyle::alignedRect(
+                    Qt::LeftToRight,
+                    Qt::AlignCenter,
+                    w.size(),
+                    qApp->desktop()->availableGeometry()
+                    )
+                );
 
     w.setObjectName("_MW_assemblyGui");
     w.setSystemDataManager(&systemDataManager);
