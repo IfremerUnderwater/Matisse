@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<MatisseJob name="postprocess3data" assembly="Post processing Treatment" version="0.1">
-	<Comments></Comments>
-	<Execution executed="true" executionDate="06/03/2016 08:02">
-		<Result filename="/home/data/DATA/3D_DATASETS/Morph/results/3dPostPro.jpeg"/>
-	</Execution>
-</MatisseJob>

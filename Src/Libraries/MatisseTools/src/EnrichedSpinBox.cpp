@@ -1,5 +1,5 @@
 ﻿#include <QDebug>
-
+#include "GraphicalCharter.h"
 #include "EnrichedSpinBox.h"
 
 using namespace MatisseTools;
@@ -7,8 +7,10 @@ using namespace MatisseTools;
 EnrichedSpinBox::EnrichedSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue):
     EnrichedFormWidget(parent)
 {
+    MatisseCommon::GraphicalCharter &graph_chart = MatisseCommon::GraphicalCharter::instance();
+
     _spin = new QSpinBox(this);
-    _spin->setFixedWidth(PARAM_SPINBOX_WIDTH);
+    _spin->setFixedWidth(graph_chart.dpiScaled(PARAM_SPINBOX_WIDTH));
     minValue = minValue.trimmed().toLower();
     maxValue = maxValue.trimmed().toLower();
     QString specialValue;

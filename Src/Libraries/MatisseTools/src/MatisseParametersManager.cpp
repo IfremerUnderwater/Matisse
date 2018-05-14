@@ -1,4 +1,5 @@
 #include "MatisseParametersManager.h"
+#include "GraphicalCharter.h"
 
 using namespace MatisseCommon;
 using namespace MatisseTools;
@@ -575,6 +576,8 @@ ParametersWidgetSkeleton *MatisseParametersManager::generateParametersWidget(QWi
 
 void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel level)
 {
+    GraphicalCharter &graph_chart = GraphicalCharter::instance();
+
     ParametersHeaderButton *levelHeaderButton = new ParametersHeaderButton(_fullParametersWidget, level);
     levelHeaderButton->setObjectName("_PB_levelHeaderButton");
     _fullParametersWidget->addWidget(levelHeaderButton);
@@ -620,7 +623,7 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
             //currentGroup = new QGroupBox(group._text, _fullParametersWidget);
             currentGroup = new QGroupBox(groupLabel, _fullParametersWidget);
             QVBoxLayout* currentGroupLayout = new QVBoxLayout();
-            currentGroupLayout->setContentsMargins(0, PARAM_GROUP_MARGIN_TOP, 0, PARAM_GROUP_MARGIN_BOTTOM);
+            currentGroupLayout->setContentsMargins(0, graph_chart.dpiScaled(PARAM_GROUP_MARGIN_TOP), 0, graph_chart.dpiScaled(PARAM_GROUP_MARGIN_BOTTOM));
 
             currentGroup->setLayout(currentGroupLayout);
             levelContainerLayout->addWidget(currentGroup);

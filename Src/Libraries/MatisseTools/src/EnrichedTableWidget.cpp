@@ -6,15 +6,17 @@
 #include <QScrollBar>
 
 #include "EnrichedTableWidget.h"
+#include "GraphicalCharter.h"
 
 using namespace MatisseTools;
 
 EnrichedTableWidget::EnrichedTableWidget(QWidget *parent, QString label, quint8 cols, quint8 rows, QStringList defaultValues, QString formatTemplate) :
     EnrichedDecimalValueWidget(parent)
 {
-    quint32 colWidth = PARAM_TABLE_COL_WIDTH_MAX;
+    MatisseCommon::GraphicalCharter &graph_chart = MatisseCommon::GraphicalCharter::instance();
+    quint32 colWidth = graph_chart.dpiScaled(PARAM_TABLE_COL_WIDTH_MAX);
     if (!formatTemplate.isEmpty()) {
-        colWidth = getTextFieldWidth(formatTemplate) + PARAM_TABLE_CELL_PADDING;
+        colWidth = getTextFieldWidth(formatTemplate) + graph_chart.dpiScaled(PARAM_TABLE_CELL_PADDING);
     }
 
     _table = new QTableWidget(this);
@@ -30,7 +32,7 @@ EnrichedTableWidget::EnrichedTableWidget(QWidget *parent, QString label, quint8 
         _table->setColumnWidth(noCol, colWidth);
     }
     for (int noRow=0; noRow < rows; noRow++) {
-        _table->setRowHeight(noRow, PARAM_TABLE_ROW_HEIGHT);
+        _table->setRowHeight(noRow, graph_chart.dpiScaled(PARAM_TABLE_ROW_HEIGHT));
     }
 
     int index = 0;
@@ -42,7 +44,7 @@ EnrichedTableWidget::EnrichedTableWidget(QWidget *parent, QString label, quint8 
     }
 
     quint16 tableWidth = cols * colWidth;
-    quint16 tableHeight = rows * PARAM_TABLE_ROW_HEIGHT;
+    quint16 tableHeight = rows * graph_chart.dpiScaled(PARAM_TABLE_ROW_HEIGHT);
 
 
     _table->setMinimumSize(tableWidth, tableHeight);
@@ -50,7 +52,7 @@ EnrichedTableWidget::EnrichedTableWidget(QWidget *parent, QString label, quint8 
 
     _defaultValue = defaultValues.join(";");
 
-    bool widgetWrap = tableWidth > PARAM_TABLE_WIDTH_NOWRAP_MAX;
+    bool widgetWrap = tableWidth > graph_chart.dpiScaled(PARAM_TABLE_WIDTH_NOWRAP_MAX);
     setWidget(label, _table, widgetWrap);
 
     connect(_table, SIGNAL(cellChanged(int,int)), this, SLOT(slot_valueChanged()));

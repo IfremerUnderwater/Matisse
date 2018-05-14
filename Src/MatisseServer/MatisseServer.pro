@@ -57,17 +57,8 @@ include(../Scripts/opencv.pri)
 include(../Scripts/QuaZIP.pri)
 include(../Scripts/BasicProcessing.pri)
 
-
-win32{
-#    CONFIG(release, debug|release) {
-#        include(../Scripts/OpenSceneGraph.pri)
-#        DEFINES *= WITH_OSG
-#    }
-}
-unix{
-    include(../Scripts/OpenSceneGraph.pri)
-    DEFINES *= WITH_OSG
-}
+include(../Scripts/OpenSceneGraph.pri)
+DEFINES *= WITH_OSG
 
 SOURCES += src/main.cpp\
     src/AssemblyGui.cpp \

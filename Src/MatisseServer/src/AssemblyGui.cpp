@@ -6,6 +6,7 @@
 #include "MatisseVersionWidget.h"
 #include "VisuModeWidget.h"
 #include "OngoingProcessWidget.h"
+#include "GraphicalCharter.h"
 
 using namespace MatisseTools;
 using namespace MatisseServer;
@@ -2436,6 +2437,8 @@ void AssemblyGui::slot_saveAssembly()
 
 void AssemblyGui::displayAssemblyProperties(AssemblyDefinition *selectedAssembly)
 {
+    GraphicalCharter &graph_chart = GraphicalCharter::instance();
+
     _ui->_TRW_assemblyInfo->clear();
 
     /* allocate items */
@@ -2470,7 +2473,7 @@ void AssemblyGui::displayAssemblyProperties(AssemblyDefinition *selectedAssembly
     _ui->_TRW_assemblyInfo->addTopLevelItem(_assemblyCommentPropertyHeaderItem);
     _ui->_TRW_assemblyInfo->addTopLevelItem(_assemblyCommentPropertyItem);
 
-    _ui->_TRW_assemblyInfo->header()->resizeSection(0, ASSEMBLY_PROPS_LABEL_WIDTH);
+    _ui->_TRW_assemblyInfo->header()->resizeSection(0, graph_chart.dpiScaled(ASSEMBLY_PROPS_LABEL_WIDTH));
     _assemblyCommentPropertyHeaderItem->setFirstColumnSpanned(true);
     _assemblyCommentPropertyItem->setFirstColumnSpanned(true);
     _ui->_TRW_assemblyInfo->setItemWidget(_assemblyCommentPropertyItem, 0, _assemblyCommentPropertyItemText);
@@ -2528,6 +2531,8 @@ void AssemblyGui::displayAssembly(QString assemblyName) {
 // TODO Verif modif chrisar & ifremer simultanee (bug reload)
 void AssemblyGui::displayJob(QString jobName, bool forceReload)
 {
+    GraphicalCharter &graph_chart = GraphicalCharter::instance();
+
     _ui->_TRW_assemblyInfo->clear();
     if(_userFormWidget) {
         _userFormWidget->clear();
@@ -2634,7 +2639,7 @@ void AssemblyGui::displayJob(QString jobName, bool forceReload)
     }
 
     /* resize first column */
-    _ui->_TRW_assemblyInfo->header()->resizeSection(0, ASSEMBLY_PROPS_LABEL_WIDTH);
+    _ui->_TRW_assemblyInfo->header()->resizeSection(0, graph_chart.dpiScaled(ASSEMBLY_PROPS_LABEL_WIDTH));
     if (jobCommentItem) {
         jobCommentLabelItem->setFirstColumnSpanned(true);
         jobCommentItem->setFirstColumnSpanned(true);
