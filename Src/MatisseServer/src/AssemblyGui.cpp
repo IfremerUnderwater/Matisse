@@ -630,7 +630,7 @@ void AssemblyGui::initVersionDisplay()
     QString major = versionItems.at(1);
     QString minor = versionItems.at(2);
 
-    QString templateLabel = "MATISSE %1\nV%1.%2.%3";
+    QString templateLabel = "MATISSE 3D\nV%1.%2.%3";
     QString fullVersionLabel = templateLabel.arg(productSerie).arg(major).arg(minor);
 
     _matisseVersionlabel->setText(fullVersionLabel);

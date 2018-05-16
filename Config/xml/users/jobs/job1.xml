@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<MatisseJob name="job1" assembly="DebugOpticalMapping" version="">
-	<Comments></Comments>
-	<Parameters model="V1.0" name="job1"/>
-	<Execution executed="true" executionDate="28/05/2015 15:12">
-		<Result filename="/home/data/DATA/MOSAIC_DATASETS/BICOSE/OTUS_CORR/Geotiff_data/MosaicOut.tiff"/>
-	</Execution>
-</MatisseJob>

@@ -4,17 +4,16 @@
     <!-- Application version : must conform to the 'X.Y.Z' pattern  -->
     <!-- X : product serie ; Y : major version ; Z : minor version  -->
     <!-- To be incremented for each product release                 -->
-    <!--Version>3.2.8</Version-->
-    <Version>3.2.9</Version>
+    <Version>1.0.0</Version>
     <!-- Application version date -->
     <!-- Date>13/06/2016</Date-->
-    <Date>22/11/2017</Date>
+    <Date>16/05/2018</Date>
 
     <DllRootDir>./Modules</DllRootDir>
     <XmlRootDir>./xml</XmlRootDir>
     <Port>8888</Port>
     <DataRootDir>.</DataRootDir>
-    <PlatformDir>./platform</PlatformDir>
+    <PlatformDir>./platforms</PlatformDir>
     <ExternalTools>
         <ExternalTool name="exposureTool" exePath="gswin32c.exe"/>
         <ExternalTool name="videoToImageTool" exePath="linguist.exe"/>
