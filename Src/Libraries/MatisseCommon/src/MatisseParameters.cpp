@@ -75,6 +75,7 @@ bool MatisseParameters::loadFile(QString xmlFilename)
                     // on defini un parametre
                     QXmlStreamAttributes attributes = reader.attributes();
                     paramName = attributes.value("name").toString();
+                    _hashValues[structName].insert(paramName, ""); // allow empty param to be added
                     level = 3;
                 }
                     break;
@@ -98,7 +99,7 @@ bool MatisseParameters::loadFile(QString xmlFilename)
                 // si autre cas, on traitera le moment venu...
                 QString value = reader.text().toString();
                 QString oldValue = "";
-                if (_hashValues[structName].contains(paramName)) {
+                if (!_hashValues[structName].value(paramName, "").isEmpty()) {
                     oldValue = _hashValues[structName].value(paramName, "") + ", ";
                 }
                 _hashValues[structName].insert(paramName, oldValue + value);

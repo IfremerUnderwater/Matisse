@@ -2,6 +2,7 @@
 SOURCE_DIR=$$PWD/..
 SERVER_SOURCE_DIR=$${SOURCE_DIR}/MatisseServer
 MATISSE_TOOLS_SOURCE_DIR=$${SOURCE_DIR}/Libraries/MatisseTools
+MATISSE_SERVER_SOURCE_DIR=$${SOURCE_DIR}/MatisseServer
 CONFIG_DIR=$${SOURCE_DIR}/../Config
 message("CONFIG_DIR = $$CONFIG_DIR")
 BUILD_DIR=$${SOURCE_DIR}/../Build/Release
@@ -50,6 +51,7 @@ system("$$COPY_DIR $$BUILD_DIR/Libraries/dll/* $$RUN_DIR/Libraries")
 system("$$COPY_DIR $$CONFIG_DIR/schemas $$RUN_DIR")
 
 # Deploy icon files
+system("echo $$COPY_DIR $$MATISSE_SERVER_SOURCE_DIR/ui/icons/*.svg $$RUN_DIR/lnf/icons")
 system("$$COPY_DIR $$MATISSE_SERVER_SOURCE_DIR/ui/icons/*.svg $$RUN_DIR/lnf/icons")
 
 # Copy linguist files
