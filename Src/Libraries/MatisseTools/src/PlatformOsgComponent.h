@@ -1,7 +1,6 @@
 #ifndef PLATFORMOSGCOMPONENT_H
 #define PLATFORMOSGCOMPONENT_H
 
-#ifdef WITH_OSG
 
 #include "PlatformComponent.h"
 
@@ -17,6 +16,5 @@ public:
 
 }
 
-#endif
 
 #endif // PLATFORMOSGCOMPONENT_H

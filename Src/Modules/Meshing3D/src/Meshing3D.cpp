@@ -61,8 +61,8 @@ static double getPctVal(QString message, QString key)
 static const char* DensifyPointCloudExe = "DensifyPointCloud.exe";
 static const char* ReconstructMeshExe = "ReconstructMesh.exe";
 #else
-static const char* DensifyPointCloudExe = "/usr/local/bin/OpenMVS/DensifyPointCloud";
-static const char* ReconstructMeshExe = "/usr/local/bin/OpenMVS/ReconstructMesh";
+static const char* DensifyPointCloudExe = "DensifyPointCloud";
+static const char* ReconstructMeshExe = "ReconstructMesh";
 #endif
 
 Meshing3D::Meshing3D() :

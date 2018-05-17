@@ -14,10 +14,10 @@ using namespace MatisseServer;
 const QString AssemblyGui::PREFERENCES_FILEPATH = QString("config/MatissePreferences.xml");
 const QString AssemblyGui::ASSEMBLY_EXPORT_PREFIX = QString("assembly_export_");
 const QString AssemblyGui::JOB_EXPORT_PREFIX = QString("job_export_");
-const QString AssemblyGui::DEFAULT_EXCHANGE_PATH = QString("data/exchange");
-const QString AssemblyGui::DEFAULT_ARCHIVE_PATH = QString("data/archive");
-const QString AssemblyGui::DEFAULT_RESULT_PATH = QString("data/result");
-const QString AssemblyGui::DEFAULT_MOSAIC_PREFIX = QString("MaMosaique");
+const QString AssemblyGui::DEFAULT_EXCHANGE_PATH = QString("exchange");
+const QString AssemblyGui::DEFAULT_ARCHIVE_PATH = QString("archive");
+const QString AssemblyGui::DEFAULT_RESULT_PATH = QString("outReconstruction");
+const QString AssemblyGui::DEFAULT_MOSAIC_PREFIX = QString("MyProcess");
 
 AssemblyGui::AssemblyGui(QWidget *parent) :
 
@@ -1051,6 +1051,8 @@ void AssemblyGui::slot_updatePreferences()
     doFoldUnfoldParameters(false);
 
     PreferencesDialog dialog(this, _iconFactory, _preferences, false);
+    dialog.setFixedHeight(GraphicalCharter::instance().dpiScaled(PD_HEIGHT));
+    dialog.setFixedWidth(GraphicalCharter::instance().dpiScaled(PD_WIDTH));
     dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
 
     /* new preferences are saved if modified */
@@ -2860,6 +2862,8 @@ void AssemblyGui::slot_newJob()
     QStringList archivedJobNames = _processDataManager->getArchivedJobNames();
 
     JobDialog dialog(this, _iconFactory, &kvl, jobsBasePath, jobNames, archivedJobNames);
+    dialog.setFixedHeight(GraphicalCharter::instance().dpiScaled(JD_HEIGHT));
+    dialog.setFixedWidth(GraphicalCharter::instance().dpiScaled(JD_WIDTH));
     dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     if (dialog.exec() != QDialog::Accepted) {
         return;

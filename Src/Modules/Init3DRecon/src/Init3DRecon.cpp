@@ -278,6 +278,10 @@ void Init3DRecon::onFlush(quint32 port)
 
     rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
     QString navigationFile = _matisseParameters->getStringParamValue("dataset_param", "navFile");
+
+    if (navigationFile.isEmpty())
+        navigationFile = QString("noNav.dim2");
+
     std::string dim2FileName;
     size_t sepPos = navigationFile.toStdString().find(SEP);
 

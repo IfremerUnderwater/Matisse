@@ -1,6 +1,4 @@
 #include "PlatformOsgComponent.h"
-
-#ifdef WITH_OSG
 #include <OpenThreads/Version>
 #include <osg/Version>
 
@@ -16,5 +14,3 @@ QString MatisseTools::PlatformOsgComponent::getVersionInfo()
     QString version = osgGetVersion();
     return version;
 }
-
-#endif

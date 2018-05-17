@@ -56,17 +56,14 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     connect(_manualMove, SIGNAL(triggered()), this, SLOT(slot_onManualMove()));
 
     // Init loading thread
-#ifdef WITH_OSG
     qRegisterMetaType< osg::ref_ptr<osg::Node> >();
-#endif
 
     connect(this,SIGNAL(signal_loadRasterFromFile(QString)),&_resultLoadingTask,SLOT(slot_loadRasterFromFile(QString)),Qt::QueuedConnection);
     connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(CartoImage *)), this,SLOT(slot_addRasterToCartoView(CartoImage*)),Qt::QueuedConnection);
     connect(&_resultLoadingTask,SIGNAL(signal_addRasterToImageView(Image *)),this,SLOT(slot_addRasterToImageView(Image *)),Qt::QueuedConnection);
     connect(this,SIGNAL(signal_load3DSceneFromFile(QString)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString)),Qt::QueuedConnection);
-#ifdef WITH_OSG
     connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),Qt::QueuedConnection);
-#endif
+
     _resultLoadingTask.moveToThread(&_resultLoadingThread);
     _resultLoadingThread.start();
 
@@ -450,9 +447,7 @@ void UserFormWidget::clear()
 //    _ui->_GRV_map->refresh();
 
     // Clear OSG Widget
-#ifdef WITH_OSG
     _ui->_OSG_viewer->clearSceneData();
-#endif
 
     // clear carto view
     _scene.clearScene();
@@ -557,17 +552,13 @@ void UserFormWidget::load3DFile(QString filename_p)
 {
     if (_currentViewType!=OpenSceneGraphView)
         switchCartoViewTo(OpenSceneGraphView);
-#ifdef WITH_OSG
     emit signal_load3DSceneFromFile(filename_p);
-#endif
 }
 
-#ifdef WITH_OSG
 void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p)
 {
     _ui->_OSG_viewer->setSceneData(sceneData_p);
 }
-#endif
 
 void UserFormWidget::slot_showMapContextMenu(const QPoint &pos_p)
 {
@@ -1238,7 +1229,6 @@ void resultLoadingTask::slot_loadRasterFromFile(QString filename_p)
 
 void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p)
 {
-#ifdef WITH_OSG
     // load the data
     setlocale(LC_ALL, "C");
     //_loadedModel = osgDB::readRefNodeFile(sceneFile_p, new osgDB::Options("noTriStripPolygons"));
@@ -1255,7 +1245,6 @@ void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p)
     optimizer.optimize(sceneData.get());
 
     emit signal_add3DSceneToCartoView(sceneData);
-#endif
 }
 
 

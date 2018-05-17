@@ -49,6 +49,7 @@ CONFIG(release, debug|release) {
 # ------------------------------------------------------------------------
 
 DESTDIR = $${RUN_DIR}
+DEFINES *= WITH_OSG
 
 include(../Scripts/MatisseCommon.pri)
 include(../Scripts/MatisseTools.pri)
@@ -58,7 +59,7 @@ include(../Scripts/QuaZIP.pri)
 include(../Scripts/BasicProcessing.pri)
 
 include(../Scripts/OpenSceneGraph.pri)
-DEFINES *= WITH_OSG
+
 
 SOURCES += src/main.cpp\
     src/AssemblyGui.cpp \

@@ -10,7 +10,6 @@
 #include <QListWidget>
 
 
-#ifdef WITH_OSG
 #include <osg/ref_ptr>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
@@ -18,7 +17,6 @@
 
 Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 
-#endif
 
 #if 0
 #include <qgsmapcanvas.h>
@@ -75,9 +73,8 @@ signals:
 //    void signal_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
     void signal_addRasterToCartoView(CartoImage  * image_p);
     void signal_addRasterToImageView(Image  * image_p);
-#ifdef WITH_OSG
     void signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
-#endif
+
 public slots:
     void slot_loadRasterFromFile(QString filename_p = "");
     void slot_load3DSceneFromFile(QString filename_p = "");
@@ -130,9 +127,7 @@ protected slots:
     //void slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
     void slot_addRasterToCartoView(CartoImage *image_p);
     void slot_addRasterToImageView(Image *image_p);
-#ifdef WITH_OSG
     void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
-#endif
     void slot_showLayersWidgetContextMenu(const QPoint &pos);
     void slot_showMapContextMenu(const QPoint& pos_p);
     void slot_onAutoResizeTrigger();

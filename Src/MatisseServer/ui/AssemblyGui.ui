@@ -98,7 +98,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>280</width>
+          <width>0</width>
           <height>678</height>
          </size>
         </property>
@@ -138,7 +138,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>278</width>
+              <width>0</width>
               <height>200</height>
              </size>
             </property>
@@ -229,7 +229,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>280</width>
+           <width>0</width>
            <height>200</height>
           </size>
          </property>
@@ -243,7 +243,7 @@
           <number>0</number>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="_WID_mapViewTabSet">
           <property name="sizePolicy">
@@ -254,7 +254,7 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>280</width>
+            <width>0</width>
             <height>200</height>
            </size>
           </property>
@@ -290,7 +290,7 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>280</width>
+               <width>0</width>
                <height>200</height>
               </size>
              </property>
@@ -301,7 +301,7 @@
               </size>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <property name="elideMode">
               <enum>Qt::ElideNone</enum>
@@ -315,7 +315,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>280</width>
+                <width>0</width>
                 <height>150</height>
                </size>
               </property>
@@ -354,7 +354,7 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>280</width>
+                   <width>0</width>
                    <height>150</height>
                   </size>
                  </property>
@@ -426,7 +426,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>280</width>
+                <width>0</width>
                 <height>150</height>
                </size>
               </property>
@@ -498,7 +498,7 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>280</width>
+            <width>0</width>
             <height>200</height>
            </size>
           </property>
@@ -534,7 +534,7 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>280</width>
+               <width>0</width>
                <height>200</height>
               </size>
              </property>
@@ -545,7 +545,7 @@
               </size>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>2</number>
              </property>
              <property name="elideMode">
               <enum>Qt::ElideNone</enum>
@@ -559,7 +559,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>280</width>
+                <width>0</width>
                 <height>150</height>
                </size>
               </property>
@@ -598,7 +598,7 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>280</width>
+                   <width>0</width>
                    <height>150</height>
                   </size>
                  </property>
@@ -657,7 +657,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>280</width>
+                <width>0</width>
                 <height>150</height>
                </size>
               </property>
@@ -696,7 +696,7 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>280</width>
+                   <width>0</width>
                    <height>150</height>
                   </size>
                  </property>
@@ -755,7 +755,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>280</width>
+                <width>0</width>
                 <height>150</height>
                </size>
               </property>
@@ -788,7 +788,7 @@
                 <widget class="QListWidget" name="_LW_outputs">
                  <property name="minimumSize">
                   <size>
-                   <width>280</width>
+                   <width>0</width>
                    <height>150</height>
                   </size>
                  </property>
@@ -1060,8 +1060,8 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="icons.qrc"/>
   <include location="resources/resources.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>

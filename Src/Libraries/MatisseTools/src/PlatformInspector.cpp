@@ -30,9 +30,7 @@ void PlatformInspector::init()
 
         //_components.append(new PlatformQGisComponent());
         _components.append(new PlatformOpencvComponent());
-#ifdef WITH_OSG
         _components.append(new PlatformOsgComponent());
-#endif
     }
 }
 
