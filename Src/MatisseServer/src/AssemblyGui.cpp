@@ -16,7 +16,7 @@ const QString AssemblyGui::ASSEMBLY_EXPORT_PREFIX = QString("assembly_export_");
 const QString AssemblyGui::JOB_EXPORT_PREFIX = QString("job_export_");
 const QString AssemblyGui::DEFAULT_EXCHANGE_PATH = QString("exchange");
 const QString AssemblyGui::DEFAULT_ARCHIVE_PATH = QString("archive");
-const QString AssemblyGui::DEFAULT_RESULT_PATH = QString("outReconstruction");
+const QString AssemblyGui::DEFAULT_RESULT_PATH = QString("./outReconstruction");
 const QString AssemblyGui::DEFAULT_MOSAIC_PREFIX = QString("MyProcess");
 
 AssemblyGui::AssemblyGui(QWidget *parent) :
@@ -3752,7 +3752,6 @@ void AssemblyGui::slot_stopJob()
 {
     QString jobName = _lastJobLaunchedItem->data(0, Qt::UserRole).toString();
     qDebug() << "Arrêt du job " << jobName.toLatin1();
-
 
     QString msg1=tr("Arret du travail en cours.");
     QString msg2=tr("Voulez vous arreter ou annuler le travail?");

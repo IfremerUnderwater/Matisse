@@ -37,6 +37,7 @@ SfmBundleAdjustment::SfmBundleAdjustment() :
     Processor(NULL, "SfmBundleAdjustment", "Estimate camera position and 3D sparse points", 1, 1)
 {
     addExpectedParameter("dataset_param", "dataset_dir");
+    addExpectedParameter("dataset_param", "output_dir");
     addExpectedParameter("dataset_param", "usePrior");
 }
 
@@ -78,6 +79,10 @@ void SfmBundleAdjustment::onFlush(quint32 port)
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
 
+    QString outDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    if(outDirnameStr.isEmpty())
+        outDirnameStr = "outReconstruction";
+
     bool Ok;
     bool use_prior = _matisseParameters->getBoolParamValue("dataset_param", "usePrior",Ok);
     if(!Ok)
@@ -94,7 +99,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
     QProcess sfmProc;
     sfmProc.setWorkingDirectory(rootDirnameStr);
     sfmProc.start("openMVG_main_IncrementalSfM -i ."+SEP+ "matches"+SEP+ "sfm_data.json -m ."
-                  +SEP+ "matches"+SEP+ " -o ."+SEP+ "outReconstruction" + prior_arg);
+                  +SEP+ "matches"+SEP+ " -o ."+SEP+ outDirnameStr + prior_arg);
 
     int starcount = 0;
     int lastpct = 0;

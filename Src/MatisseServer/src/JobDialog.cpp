@@ -37,14 +37,14 @@ JobDialog::JobDialog(QWidget *parent, MatisseIconFactory *iconFactory, KeyValueL
     connect(_ui->_PB_save, SIGNAL(clicked()), this, SLOT(slot_close()));
     connect(_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(slot_close()));
     connect(_ui->_PB_dataPath, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
-    connect(_ui->_PB_resultPath, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
+    //connect(_ui->_PB_resultPath, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
     connect(_ui->_PB_navigationFile, SIGNAL(clicked()), this, SLOT(slot_selectFile()));
 
     IconizedButtonWrapper *dataPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_dataPath);
     iconFactory->attachIcon(dataPathButtonWrapper, "lnf/icons/Dossier.svg");
 
-    IconizedButtonWrapper *resultPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_resultPath);
-    iconFactory->attachIcon(resultPathButtonWrapper, "lnf/icons/Dossier.svg");
+    //IconizedButtonWrapper *resultPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_resultPath);
+    //iconFactory->attachIcon(resultPathButtonWrapper, "lnf/icons/Dossier.svg");
 
     IconizedButtonWrapper *navFileButtonWrapper = new IconizedButtonWrapper(_ui->_PB_navigationFile);
     iconFactory->attachIcon(navFileButtonWrapper, "lnf/icons/File.svg");
@@ -149,7 +149,7 @@ void JobDialog::slot_selectDir()
         fieldText = _ui->_LE_dataPath->text();
 
     } else {
-        caption = tr("Selectionner chemin du resultat");
+        caption = tr("Nom du dossier resultat");
         fieldText = _ui->_LE_resultPath->text();
     }
 

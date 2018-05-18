@@ -70,6 +70,7 @@ Meshing3D::Meshing3D() :
 {
 
     addExpectedParameter("dataset_param", "dataset_dir");
+    addExpectedParameter("dataset_param", "output_dir");
     addExpectedParameter("dataset_param", "output_filename");
 
     addExpectedParameter("algo_param", "resolution_level");
@@ -119,14 +120,18 @@ void Meshing3D::onFlush(quint32 port)
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
 
+    QString outDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    if(outDirnameStr.isEmpty())
+        outDirnameStr = "outReconstruction";
+
     QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
     // convert
     emit signal_userInformation("Meshing3D - convert");
     emit signal_processCompletion(0);
 
-    QString cmdline = "openMVG_main_openMVG2openMVS -i ."+SEP+"outReconstruction"+SEP+ "sfm_data.bin -o ";
-    cmdline += "."+SEP+ "outReconstruction"+SEP+ fileNamePrefixStr + ".mvs";
+    QString cmdline = "openMVG_main_openMVG2openMVS -i ."+SEP+ outDirnameStr +SEP+ "sfm_data.bin -o ";
+    cmdline += "."+SEP+ outDirnameStr +SEP+ fileNamePrefixStr + ".mvs";
     QProcess cvtProc;
     cvtProc.setWorkingDirectory(rootDirnameStr);
     cvtProc.start(cmdline);
@@ -168,7 +173,7 @@ void Meshing3D::onFlush(quint32 port)
     if(ok)
         cmdline += " --number-views-fuse " + QString::number(nbviewfuse);
 
-    cmdline += " ."+SEP+ "outReconstruction"+SEP+ fileNamePrefixStr + ".mvs";
+    cmdline += " ."+SEP+ outDirnameStr +SEP+ fileNamePrefixStr + ".mvs";
     QProcess denseProc;
     denseProc.setWorkingDirectory(rootDirnameStr);
     denseProc.start(cmdline);
@@ -231,7 +236,7 @@ void Meshing3D::onFlush(quint32 port)
     if(ok)
         cmdline += " --decimate " + QString::number(decimatearg);
 
-    cmdline +=  " ."+SEP+ "outReconstruction"+SEP+ fileNamePrefixStr + "_dense.mvs";
+    cmdline +=  " ."+SEP+ outDirnameStr +SEP+ fileNamePrefixStr + "_dense.mvs";
     QProcess meshProc;
     meshProc.setWorkingDirectory(rootDirnameStr);
     meshProc.start(cmdline);

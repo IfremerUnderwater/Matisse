@@ -47,6 +47,7 @@ Texturing3D::Texturing3D() :
 {
 
     addExpectedParameter("dataset_param", "dataset_dir");
+    addExpectedParameter("dataset_param", "output_dir");
     addExpectedParameter("dataset_param", "output_filename");
 
     addExpectedParameter("algo_param", "keep_unseen_faces");
@@ -92,6 +93,11 @@ void Texturing3D::onFlush(quint32 port)
 
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+
+    QString outDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    if(outDirnameStr.isEmpty())
+        outDirnameStr = "outReconstruction";
+
     QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
     // Convert model to mve
@@ -99,7 +105,7 @@ void Texturing3D::onFlush(quint32 port)
 
     QProcess featuresProc;
     featuresProc.setWorkingDirectory(rootDirnameStr);
-    featuresProc.start("openMVG_main_openMVG2MVE2 -i ."+SEP+"outReconstruction"+SEP+"sfm_data.bin -o ."+SEP+"outReconstruction"+SEP);
+    featuresProc.start("openMVG_main_openMVG2MVE2 -i ."+SEP+ outDirnameStr +SEP+"sfm_data.bin -o ."+SEP+ outDirnameStr +SEP);
 
     int starcount = 0;
     int lastpct = 0;
@@ -138,9 +144,9 @@ void Texturing3D::onFlush(quint32 port)
     bool keep_unseen_faces = _matisseParameters->getBoolParamValue("algo_param", "keep_unseen_faces", ok);
     if(ok && keep_unseen_faces)
         cmdLine += " --keep_unseen_faces";
-    cmdLine += " ."+SEP+"outReconstruction"+SEP+ MVE_EMBEDDED;
-    cmdLine += "."+SEP+"outReconstruction"+SEP+fileNamePrefixStr + "_dense_mesh.ply ";
-    cmdLine += "."+SEP+"outReconstruction"+SEP+fileNamePrefixStr + "_texrecon";
+    cmdLine += " ."+SEP+ outDirnameStr +SEP+ MVE_EMBEDDED;
+    cmdLine += "."+SEP+ outDirnameStr +SEP+fileNamePrefixStr + "_dense_mesh.ply ";
+    cmdLine += "."+SEP+ outDirnameStr +SEP+fileNamePrefixStr + "_texrecon";
     QProcess textureProc;
     textureProc.setWorkingDirectory(rootDirnameStr);
     textureProc.start(cmdLine);

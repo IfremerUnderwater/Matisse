@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MatisseParametersDictionnary xmlns="Matisse" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="Matisse ../schemas/MatisseParametersDictionnary.xsd ">
-    <Structures publicationTimestamp="2018-04-24T09:53:53">
+    <Structures publicationTimestamp="2018-05-18T11:51:10">
         <Structure name="algo_param">
             <ParametersGroup name="general_algo_params">
                 <Parameter name="sift_code" level="expert" text="Code a executer pour le sift" type="string" range= "{$SIFT_CODE}" show="combo" default="GPU_sift"/>
@@ -68,7 +68,7 @@
         </Structure>
         <Structure name="cam_param">
             <ParametersGroup name="advanced_camera_params" text="Parametres reglages camera">
-                <Parameter name="K" level="advanced" text="Matrice de la camera" type="double" size="(3,3)" range="]-inf,inf[" precision="2" formatTemplate="9999.99" show="table" default="540.677; 0; 199.9878; 0; 539.5830; 143.9180; 0; 0; 1"/>
+                <Parameter name="K" level="advanced" text="Matrice de la camera" type="double" size="(3,3)" range="]-inf,inf[" precision="2" formatTemplate="9999.99" show="table" default="1440; 0; 960; 0; 1440; 540; 0; 0; 1"/>
                 <Parameter name="V_Pose_C" level="advanced" text="Position de la camera / centre de nav" type="double" size="(6,1)" range="]-inf,inf[" precision="3" formatTemplate="-9.999" show="table" default="-1.1000; 0.2500; -0.1500; 0; 0; -1.5708"/>
 		<Parameter name="still_camera_port" level="user" text="Port TCP APN" type="integer" range="[1000,99999]" show="spin" default="5600"/>
                 <Parameter name="still_camera_address" level="user" text="Adresse APN" type="string" show="line" default="192.168.1.104"/>
@@ -90,9 +90,9 @@
         <Structure name="dataset_param">
             <ParametersGroup name="output_and_geo_params">
               <Parameter name="dataset_dir" level="user" text="Chemin des donnees" type="string" show="dir" default ="./"/>
-              <Parameter name="output_dir" level="user" text="Chemin du resultat" type="string" show="dir" default="./Geotiff_data"/>
+              <Parameter name="output_dir" level="user" text="Nom du resultat" type="string" show="line" default="outReconstruction"/>
               <Parameter name="output_filename" level="user" text="Prefixe du fichier de sortie" type="string" show="line" default="mosaic-output"/>
-              <Parameter name="navFile" level="user" text="Fichier de navigation" type="string" show="file" default="OTUS.dim2"/>
+              <Parameter name="navFile" level="user" text="Fichier de navigation" type="string" show="file" default="nav_file.dim2"/>
               <Parameter name="navSource" level="user" text="Source de Navigation"  type="string" range="{$NAV_SOURCES}" show="combo" default="AUTO"/>
               <Parameter name="usePrior" level="advanced" text="Use View's Motion Prior" type="bool" show="check" default="1"/>
               <Parameter name="utm_zone" level="user" text="Zone UTM" type="integer" range="[1,60]" show="spin" default="31"/>
