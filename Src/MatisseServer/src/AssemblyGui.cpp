@@ -1,5 +1,6 @@
 ﻿#include <QStyle>
 #include <QDesktopWidget>
+#include <QMessageBox>
 
 #include "AssemblyGui.h"
 #include "ui_AssemblyGui.h"
@@ -1183,7 +1184,8 @@ void AssemblyGui::slot_importJob()
 
 void AssemblyGui::slot_goToResult()
 {
-    QString resultPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
+    QString datasetPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_DATASET_DIR);
+    QString resultPath = datasetPath + QDir::separator()  +_server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
     QDir resultDir(resultPath);
     if (!resultDir.exists()) {
         QMessageBox::critical(this, tr("Chemin introuvable"), tr("Le chemin parametre comme emplacement du resultat '%1' n'existe pas.").arg(resultPath));
@@ -2635,8 +2637,12 @@ void AssemblyGui::displayJob(QString jobName, bool forceReload)
                 continue;
             }
 
-            // display image
-            loadResultToCartoView(resultFile);
+            // display result
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, tr("Load result ?"), tr("Do you want to load result in Matisse (can take time for big reconstructions) ?"),
+                                          QMessageBox::Yes|QMessageBox::No);
+            if (reply == QMessageBox::Yes)
+                loadResultToCartoView(resultFile);
         }
     }
 
@@ -3835,7 +3841,7 @@ void AssemblyGui::slot_showErrorMessage(QString title, QString message)
 
 void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
     qDebug() << "Job done : " << name;
-    _userFormWidget->switchCartoViewTo(QGisMapLayer);
+    //_userFormWidget->switchCartoViewTo(QGisMapLayer);
 
     if (!_server.errorFlag()) {
         JobDefinition *jobDef = _processDataManager->getJob(name);
@@ -3876,10 +3882,13 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
         foreach (QString resultFile, jobDef->executionDefinition()->resultFileNames()) {
 
             if (jobDef->executionDefinition()->executed() && (!resultFile.isEmpty())) {
-                //                QTreeWidgetItem *item = new QTreeWidgetItem(_ui->_TRW_assemblyInfo, QStringList() << tr("Image resultat:") << resultFile);
-                //                item->setToolTip(1, resultFile);
-                // affichage de l'image
-                loadResultToCartoView(resultFile);
+
+                // display result
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::question(this, tr("Load result ?"), tr("Do you want to load result in Matisse (can take time for big reconstructions) ?"),
+                                              QMessageBox::Yes|QMessageBox::No);
+                if (reply == QMessageBox::Yes)
+                    loadResultToCartoView(resultFile);
             }
         }
 

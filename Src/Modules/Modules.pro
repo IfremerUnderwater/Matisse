@@ -7,6 +7,7 @@ SUBDIRS = DTPictureFileSetImageProvider \
           Init2DMosaic \
           DrawBlend2DMosaic \
           GeoTiffImageWriter \
+          ReconstructionLister \
 #	  RTStillCameraProvider \
 #	  RTSurveyPlotter \
           BridgeModule \
