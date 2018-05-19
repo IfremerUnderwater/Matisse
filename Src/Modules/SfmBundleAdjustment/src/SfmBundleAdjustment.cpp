@@ -1,6 +1,4 @@
 ﻿#include "SfmBundleAdjustment.h"
-//#include "MosaicContext.h"
-//#include "NavImage.h"
 
 #include <QProcess>
 
@@ -58,9 +56,40 @@ void SfmBundleAdjustment::onNewImage(quint32 port, Image &image)
     postImage(0, image);
 }
 
+void SfmBundleAdjustment::checkForNewFiles()
+{
+    QDir export_folder(m_out_complete_path_str);
+    export_folder.setNameFilters(QStringList()<<"*.ply");
+    QStringList file_list = export_folder.entryList();
+
+    foreach(QString ply_file,file_list)
+    {
+        QFileInfo ply_file_info(m_out_complete_path_str+QDir::separator()+ply_file);
+        QDateTime ply_last_mod = ply_file_info.lastModified();
+        if (ply_last_mod>m_start_time && ply_last_mod>m_last_ply_time)
+        {
+            emit signal_show3DFileOnMainView(ply_file_info.absoluteFilePath());
+            m_last_ply_time = ply_last_mod;
+        }
+    }
+}
+
 bool SfmBundleAdjustment::start()
 {
     setOkStatus();
+    m_start_time = QDateTime::currentDateTime();
+    m_last_ply_time = m_start_time;
+
+    static const QString SEP = QDir::separator();
+
+    // Dir checks
+    m_root_dirname_str = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+
+    m_out_dirname_str = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    if(m_out_dirname_str.isEmpty())
+        m_out_dirname_str = "outReconstruction";
+
+    m_out_complete_path_str = m_root_dirname_str + SEP + m_out_dirname_str;
 
     return true;
 }
@@ -76,13 +105,6 @@ void SfmBundleAdjustment::onFlush(quint32 port)
 
     static const QString SEP = QDir::separator();
 
-    // Dir checks
-    QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-
-    QString outDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
-    if(outDirnameStr.isEmpty())
-        outDirnameStr = "outReconstruction";
-
     bool Ok;
     bool use_prior = _matisseParameters->getBoolParamValue("dataset_param", "usePrior",Ok);
     if(!Ok)
@@ -97,9 +119,9 @@ void SfmBundleAdjustment::onFlush(quint32 port)
         prior_arg = QString(" -P");
 
     QProcess sfmProc;
-    sfmProc.setWorkingDirectory(rootDirnameStr);
+    sfmProc.setWorkingDirectory(m_root_dirname_str);
     sfmProc.start("openMVG_main_IncrementalSfM -i ."+SEP+ "matches"+SEP+ "sfm_data.json -m ."
-                  +SEP+ "matches"+SEP+ " -o ."+SEP+ outDirnameStr + prior_arg);
+                  +SEP+ "matches"+SEP+ " -o ."+SEP+ m_out_dirname_str + prior_arg);
 
     int starcount = 0;
     int lastpct = 0;
@@ -152,7 +174,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
             // uniquement affichage du n° de la vue traitée (ordre quelconque)
             signal_userInformation("Compute Sfm bndl : view " + substr);
         }
-
+        checkForNewFiles();
         qDebug() << output;
     }
 

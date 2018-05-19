@@ -1,7 +1,8 @@
 ﻿#ifndef InitMatchModule_H
 #define InitMatchModule_H
 
-
+#include <QFileSystemWatcher>
+#include <QDateTime>
 #include "Processor.h"
 
 using namespace MatisseCommon;
@@ -27,6 +28,15 @@ public:
     virtual bool stop();
     virtual void onFlush(quint32 port);
     virtual void onNewImage(quint32 port, Image &image);
+
+private:
+    QDateTime m_start_time;
+    QDateTime m_last_ply_time;
+    QString m_root_dirname_str;
+    QString m_out_dirname_str;
+    QString m_out_complete_path_str;
+    void checkForNewFiles();
+
 };
 
 #endif // InitMatchModule_H
