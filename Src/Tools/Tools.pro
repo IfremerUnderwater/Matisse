@@ -1,5 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS = MatisseDictionnaryValidator
+SUBDIRS = MatisseDictionnaryValidator \
+    DataPreprocessingWizard
 
 
