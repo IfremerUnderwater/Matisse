@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>855</width>
-    <height>488</height>
+    <width>859</width>
+    <height>574</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,6 +35,30 @@
       </item>
       <item>
        <widget class="QPushButton" name="select_path">
+        <property name="text">
+         <string>Select Path</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_7">
+      <property name="text">
+       <string>Output path :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <property name="bottomMargin">
+       <number>20</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="out_data_path_line"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="select_out_path">
         <property name="text">
          <string>Select Path</string>
         </property>
@@ -153,7 +177,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="extract_rate_sb"/>
+       <widget class="QDoubleSpinBox" name="extract_rate_sb">
+        <property name="minimum">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>3.000000000000000</double>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -173,6 +204,9 @@
        <widget class="QCheckBox" name="limit_res_cb">
         <property name="text">
          <string>Limit resolution to (Mpx)</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
