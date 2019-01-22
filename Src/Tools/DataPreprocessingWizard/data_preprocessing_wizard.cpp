@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QProcess>
 #include <QRegExp>
+#include <QProgressDialog>
+#include <cmath>
 
 DataPreprocessingWizard::DataPreprocessingWizard(QWidget *parent) :
     QWizard(parent),
@@ -185,10 +187,32 @@ void DataPreprocessingWizard::video2Images()
         qDebug() << command_line;
         ffmpeg_process.start(command_line);
 
+        QProgressDialog progress("Extracting images files...", "Abort extraction", 0, 100, this);
+        progress.setWindowModality(Qt::WindowModal);
+
+        QRegExp duration_rex(".+Duration: (\\d+):(\\d+):(\\d+).+");
+        QRegExp current_time_rex(".+time=(\\d+):(\\d+):(\\d+).+");
+        double total_duration=-1,current_time=-1;
+
         while(ffmpeg_process.waitForReadyRead(-1)){
 
             //QString output = ffmpeg_process.readAllStandardOutput();
             QString output = ffmpeg_process.readAllStandardError();
+
+            if (output.contains(duration_rex))
+            {
+                total_duration = duration_rex.cap(1).toDouble()*3600+duration_rex.cap(2).toDouble()*60+duration_rex.cap(3).toDouble();
+            }
+
+            if (output.contains(current_time_rex))
+            {
+                current_time = current_time_rex.cap(1).toDouble()*3600+current_time_rex.cap(2).toDouble()*60+current_time_rex.cap(3).toDouble();
+                progress.setValue(round(100*current_time/total_duration));
+            }
+
+            if (progress.wasCanceled())
+                ffmpeg_process.kill();
+
             qDebug() << output;
         }
 
