@@ -2,6 +2,7 @@
 #define DATA_PREPROCESSING_WIZARD_H
 
 #include <QWizard>
+#include "nav_file_reader.h"
 
 namespace Ui {
 class DataPreprocessingWizard;
@@ -35,6 +36,8 @@ private:
     QString m_data_path;
     QString m_data_type;
     QStringList m_found_files;
+
+    NavFileReader *m_nav_file;
 };
 
 #endif // DATA_PREPROCESSING_WIZARD_H

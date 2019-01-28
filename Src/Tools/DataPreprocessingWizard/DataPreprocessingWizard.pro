@@ -25,10 +25,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-    data_preprocessing_wizard.cpp
+    data_preprocessing_wizard.cpp \
+    interpolator.cpp \
+    angle_interpolator.cpp \
+    nav_file_reader.cpp
 
 HEADERS += \
-    data_preprocessing_wizard.h
+    data_preprocessing_wizard.h \
+    interpolator.h \
+    angle_interpolator.h \
+    nav_file_reader.h
 
 FORMS += \
     data_preprocessing_wizard.ui
