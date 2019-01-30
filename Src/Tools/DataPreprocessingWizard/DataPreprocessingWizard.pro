@@ -22,6 +22,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+# Workaround to be removed in qt5 with qmake.conf and shadowed function --
+SOURCE_DIR=$$PWD/../../
+CONFIG(debug, debug|release) {
+    BUILD_DIR=$${SOURCE_DIR}../Build/Debug
+    BUILD_EXT="d"
+}
+CONFIG(release, debug|release) {
+    BUILD_DIR=$${SOURCE_DIR}../Build/Release
+    BUILD_EXT=""
+}
+
+include(../../Scripts/opencv.pri)
+include(../../Scripts/BasicProcessing.pri)
+include(../../Scripts/ImageProcessing.pri)
+
 
 SOURCES += \
         main.cpp \

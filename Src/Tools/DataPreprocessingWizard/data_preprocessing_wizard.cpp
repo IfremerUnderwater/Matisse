@@ -14,6 +14,11 @@
 #include <QDate>
 #include <QTime>
 #include <QDateTime>
+#include <QImageReader>
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/opencv.hpp"
+#include "imageprocessing.h"
 
 double RAD2DEG=180/M_PI;
 
@@ -214,8 +219,8 @@ void DataPreprocessingWizard::video2Images()
         qDebug() << command_line;
         ffmpeg_process.start(command_line);
 
-        QProgressDialog progress(QString("Extracting images files for video %1/%2").arg(i+1).arg(m_found_files.size()), "Abort extraction", 0, 100, this);
-        progress.setWindowModality(Qt::WindowModal);
+        QProgressDialog ffmpeg_progress(QString("Extracting images files for video %1/%2").arg(i+1).arg(m_found_files.size()), "Abort extraction", 0, 100, this);
+        ffmpeg_progress.setWindowModality(Qt::WindowModal);
 
         QRegExp duration_rex(".+Duration: (\\d+):(\\d+):(\\d+).+");
         QRegExp current_time_rex(".+time=(\\d+):(\\d+):(\\d+).+");
@@ -235,16 +240,16 @@ void DataPreprocessingWizard::video2Images()
             if (output.contains(current_time_rex))
             {
                 current_time = current_time_rex.cap(1).toDouble()*3600+current_time_rex.cap(2).toDouble()*60+current_time_rex.cap(3).toDouble();
-                progress.setValue(round(100*current_time/total_duration));
+                ffmpeg_progress.setValue(round(100*current_time/total_duration));
             }
 
-            if (progress.wasCanceled())
+            if (ffmpeg_progress.wasCanceled())
                 ffmpeg_process.kill();
 
             qDebug() << output;
         }
 
-        // Check video filename format and rename images accordingly
+        // Check video filename format, rename images accordingly and preprocess
         QRegExp video_stamped_rex("(.+)_(.+)_(\\d+)_(\\d+)\\.(.+)");
 
         if (m_found_files[i].contains(video_stamped_rex))
@@ -262,6 +267,11 @@ void DataPreprocessingWizard::video2Images()
                 QStringList nameFilter = {"*.jpg"};
                 QDir processed_directory(ui->out_data_path_line->text());
                 QStringList images_files = processed_directory.entryList(nameFilter);
+
+                // progressbar for preprocessing
+                QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, this);
+                prepro_progress.setWindowModality(Qt::WindowModal);
+                int j=1;
 
                 // Check images files corresponding to video
                 foreach (QString image_file, images_files) {
@@ -284,7 +294,11 @@ void DataPreprocessingWizard::video2Images()
                         // rename image with date and time format (iso)
                         QString new_file_name = QString("%1T%2Z.jpg").arg(date.toString("yyyyMMdd")).arg(time.toString("hhmmss.zzz"));
                         QFile image_qfile(processed_directory.absoluteFilePath(image_file));
+                        image_qfile.remove(processed_directory.absoluteFilePath(new_file_name));
                         image_qfile.rename(processed_directory.absoluteFilePath(new_file_name));
+
+                        // preprocess if needed
+                        preprocessImage(processed_directory.absoluteFilePath(new_file_name));
 
                         // if nav_file write out_nav_file
                         if (nav_out_file.isOpen())
@@ -305,11 +319,59 @@ void DataPreprocessingWizard::video2Images()
                             nav_out_file_stream << dim2_line;
                         }
                     }
+                    prepro_progress.setValue(round(100*j/images_files.size()));
+                    j++;
                 }
             }
         }
         if (nav_out_file.isOpen())
             nav_out_file.close();
+    }
+}
+
+void DataPreprocessingWizard::preprocessImage(QString _image_path)
+{
+    if(ui->correct_colors_cb->isChecked() || ui->res_limit_cb->isChecked())
+    {
+        QImageReader qimg(_image_path);
+        if (qimg.canRead())
+        {
+            cv::Mat cv_img;
+
+            // reduce image if needed
+            if(ui->res_limit_cb->isChecked()){
+                int width = qimg.size().width();
+                int height = qimg.size().height();
+                double img_mpx = (double)(width*height)/1e6;
+
+                if (img_mpx > ui->res_limit_sb->value())
+                {
+                    cv::Mat cv_temp_img = cv::imread(_image_path.toStdString());
+                    cv::Size dst_size;
+                    double mpx_ratio_sqrt = sqrt(ui->res_limit_sb->value()/img_mpx);
+                    dst_size.width = round(mpx_ratio_sqrt*cv_temp_img.cols);
+                    dst_size.height = round(mpx_ratio_sqrt*cv_temp_img.rows);
+                    cv::resize(cv_temp_img,cv_img,dst_size);
+
+                    if(!ui->correct_colors_cb->isChecked())
+                        cv::imwrite(_image_path.toStdString(),cv_img);
+                }
+            }
+
+            // color correct if needed
+            if(ui->correct_colors_cb->isChecked())
+            {
+                cv::Mat cv_out_img,empty_mask;
+
+                if(cv_img.empty())
+                    cv_img = cv::imread(_image_path.toStdString());
+
+                histogramQuantileStretch(cv_img, empty_mask, 0.0005,  cv_out_img);
+
+                cv::imwrite(_image_path.toStdString(),cv_out_img);
+            }
+
+        }
     }
 }
 
