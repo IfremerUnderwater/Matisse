@@ -277,6 +277,9 @@ void DataPreprocessingWizard::video2Images()
                 foreach (QString image_file, images_files) {
                     QRegExp img_file_rex(".+_(\\d+)");
 
+                    if (prepro_progress.wasCanceled())
+                        return;
+
                     if (image_file.contains(img_file_rex))
                     {
                         // base time
@@ -298,7 +301,8 @@ void DataPreprocessingWizard::video2Images()
                         image_qfile.rename(processed_directory.absoluteFilePath(new_file_name));
 
                         // preprocess if needed
-                        preprocessImage(processed_directory.absoluteFilePath(new_file_name));
+                        preprocessImage(processed_directory.absoluteFilePath(new_file_name),
+                                        processed_directory.absoluteFilePath(new_file_name));
 
                         // if nav_file write out_nav_file
                         if (nav_out_file.isOpen())
@@ -324,12 +328,86 @@ void DataPreprocessingWizard::video2Images()
                 }
             }
         }
-        if (nav_out_file.isOpen())
-            nav_out_file.close();
     }
+    if (nav_out_file.isOpen())
+        nav_out_file.close();
 }
 
-void DataPreprocessingWizard::preprocessImage(QString _image_path)
+void DataPreprocessingWizard::preprocessImages()
+{
+    QStringList nameFilter = {"*.jpg"};
+    QDir data_dir(ui->data_path_line->text());
+    QDir out_data_dir(ui->out_data_path_line->text());
+    QStringList images_files = data_dir.entryList(nameFilter);
+
+    QFile nav_out_file;
+    QTextStream nav_out_file_stream;
+
+    if(m_nav_file->isValid())
+    {
+        QFileInfo nav_in_file(ui->nav_file_line->text());
+        QString nav_out_filename = ui->out_data_path_line->text() + QDir::separator()
+                + nav_in_file.baseName() + QString(".dim2");
+        nav_out_file.setFileName(nav_out_filename);
+        if (nav_out_file.open(QIODevice::WriteOnly))
+            nav_out_file_stream.setDevice(&nav_out_file);
+    }
+
+    // progressbar for preprocessing
+    QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, this);
+    prepro_progress.setWindowModality(Qt::WindowModal);
+    int j=1;
+
+    // process images
+    foreach (QString image_file, images_files) {
+
+        if (prepro_progress.wasCanceled())
+            return;
+
+        // preprocess if needed
+        preprocessImage(data_dir.absoluteFilePath(image_file),
+                        out_data_dir.absoluteFilePath(image_file));
+
+        // regenerate nav if needed and possible
+        // if nav_file write out_nav_file
+        if (nav_out_file.isOpen())
+        {
+
+            QRegExp photo_stamped_rex("(\\d+)T(\\d+)\\.(\\d+)Z\\.(.+)");
+            if (image_file.contains(photo_stamped_rex))
+            {
+                if ( photo_stamped_rex.captureCount() == 4 )
+                {
+                    QDate date = QDate::fromString(photo_stamped_rex.cap(1),"yyyyMMdd");
+                    QTime time = QTime::fromString(photo_stamped_rex.cap(2)+"."+photo_stamped_rex.cap(3).mid(0,3),"hhmmss.zzz");
+                    QDateTime date_time(date,time);
+
+                    double date_time_double = ((double)date_time.toMSecsSinceEpoch());
+
+                    QString dim2_line("0;%1;%2;video;video;%3;%4;%5;%6;-99;%7;%8;%9;;;;;;;;;;;;;;;;;\n");
+                    dim2_line = dim2_line.arg(date.toString("dd/MM/yyyy"))
+                            .arg(time.toString("hh:mm:ss.zzz"))
+                            .arg(image_file)
+                            .arg(m_nav_file->latAtTime(date_time_double),0,'f',10)
+                            .arg(m_nav_file->lonAtTime(date_time_double),0,'f',10)
+                            .arg(m_nav_file->depthAtTime(date_time_double),0,'f',3)
+                            .arg(m_nav_file->yawAtTime(date_time_double)*RAD2DEG,0,'f',2)
+                            .arg(m_nav_file->rollAtTime(date_time_double)*RAD2DEG,0,'f',2)
+                            .arg(m_nav_file->pitchAtTime(date_time_double)*RAD2DEG,0,'f',2);
+                    nav_out_file_stream << dim2_line;
+                }
+            }
+        }
+        prepro_progress.setValue(round(100*j/images_files.size()));
+        j++;
+    }
+
+    if (nav_out_file.isOpen())
+        nav_out_file.close();
+
+}
+
+void DataPreprocessingWizard::preprocessImage(QString _image_path, QString _out_image_path)
 {
     if(ui->correct_colors_cb->isChecked() || ui->res_limit_cb->isChecked())
     {
@@ -354,7 +432,7 @@ void DataPreprocessingWizard::preprocessImage(QString _image_path)
                     cv::resize(cv_temp_img,cv_img,dst_size);
 
                     if(!ui->correct_colors_cb->isChecked())
-                        cv::imwrite(_image_path.toStdString(),cv_img);
+                        cv::imwrite(_out_image_path.toStdString(),cv_img);
                 }
             }
 
@@ -368,7 +446,7 @@ void DataPreprocessingWizard::preprocessImage(QString _image_path)
 
                 histogramQuantileStretch(cv_img, empty_mask, 0.0005,  cv_out_img);
 
-                cv::imwrite(_image_path.toStdString(),cv_out_img);
+                cv::imwrite(_out_image_path.toStdString(),cv_out_img);
             }
 
         }
@@ -381,13 +459,23 @@ void DataPreprocessingWizard::sl_finished(int _state)
 
     if (_state == 1)
     {
+        QDir outdir(ui->out_data_path_line->text());
+        if(!outdir.exists())
+            outdir.mkpath(outdir.absolutePath());
+
         QString nav_file_path = ui->nav_file_line->text();
         if(!nav_file_path.isEmpty())
             m_nav_file = new NavFileReader(nav_file_path);
+        else
+            m_nav_file = new NavFileReader("");
 
         if (m_data_type == "Video")
         {
             video2Images(); // transform video to images
+        }
+        if (m_data_type == "Photo")
+        {
+            preprocessImages();
         }
     }
 }
