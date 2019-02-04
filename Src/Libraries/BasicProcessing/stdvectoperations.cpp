@@ -1,7 +1,7 @@
 #include "stdvectoperations.h"
 #include <algorithm>
+#include <math.h>
 #ifdef WIN32
-#include <math.h> // pour round
 #ifndef round
 inline double round(double number)
 {

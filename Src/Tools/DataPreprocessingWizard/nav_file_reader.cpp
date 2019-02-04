@@ -60,29 +60,28 @@ bool NavFileReader::loadFileToMemory()
             if (index >headerlines)
             {
                 std::pair<double, double> pair;
-                QStringList datetime_list = fields[0].split(' ');
-                QDate date = QDate::fromString(datetime_list[0],"dd/MM/yyyy");
-                QTime time = QTime::fromString(datetime_list[1].mid(0,12),"hh:mm:ss.zzz");
+                QDate date = QDate::fromString(fields[0],"dd/MM/yyyy");
+                QTime time = QTime::fromString(fields[1].mid(0,12),"hh:mm:ss.zzz");
                 QDateTime date_time(date,time);
                 m_datetime.push_back((double)date_time.toMSecsSinceEpoch());
                 pair.first = (double)date_time.toMSecsSinceEpoch();
 
-                pair.second = fields[1].toDouble();
+                pair.second = fields[2].toDouble();
                 m_lat.push_back(pair);
 
-                pair.second = fields[2].toDouble();
+                pair.second = fields[3].toDouble();
                 m_lon.push_back(pair);
 
-                pair.second = -fields[3].toDouble(); // depth is reversed for phins
+                pair.second = -fields[4].toDouble(); // depth is reversed for phins
                 m_depth.push_back(pair);
 
-                pair.second = DEG2RAD*fields[4].toDouble();
+                pair.second = DEG2RAD*fields[5].toDouble();
                 m_yaw.push_back(pair);
 
-                pair.second = DEG2RAD*fields[5].toDouble();
+                pair.second = DEG2RAD*fields[6].toDouble();
                 m_pitch.push_back(pair);
 
-                pair.second = DEG2RAD*fields[6].toDouble();
+                pair.second = DEG2RAD*fields[7].toDouble();
                 m_roll.push_back(pair);
 
             }

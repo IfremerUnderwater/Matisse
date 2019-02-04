@@ -12,21 +12,10 @@
 #include <QDesktopServices>
 #include <QThread>
 
-#ifdef _WIN32
-
 #include "quazip5/quazip.h"
 #include "quazip5/quazipfile.h"
 #include "quazip5/quazipnewinfo.h"
 #include "quazip5/JlCompress.h"
-
-#else
-
-#include "quazip/quazip.h"
-#include "quazip/quazipfile.h"
-#include "quazip/quazipnewinfo.h"
-#include "quazip/JlCompress.h"
-
-#endif
 
 #include "StringUtils.h"
 

@@ -213,8 +213,12 @@ void DataPreprocessingWizard::video2Images()
         QString input_file_path = m_data_path+QDir::separator()+m_found_files[i];
         QFileInfo video_file_info(m_found_files[i]);
         QString output_path = ui->out_data_path_line->text()+QDir::separator()+video_file_info.baseName()+"_%05d.jpg";
-        command_line="C:\\ffmpeg\\bin\\ffmpeg.exe -i %1 -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 %4";
 
+#ifdef WIN32
+        command_line="C:\\ffmpeg\\bin\\ffmpeg.exe -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
+#else
+        command_line="ffmpeg -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
+#endif
         command_line = command_line.arg(input_file_path).arg(fps).arg(start_time).arg(output_path);
         qDebug() << command_line;
         ffmpeg_process.start(command_line);
@@ -230,7 +234,7 @@ void DataPreprocessingWizard::video2Images()
         while(ffmpeg_process.waitForReadyRead(-1)){
 
             //QString output = ffmpeg_process.readAllStandardOutput();
-            QString output = ffmpeg_process.readAllStandardError();
+            QString output = ffmpeg_process.readAllStandardOutput() + ffmpeg_process.readAllStandardError();
 
             if (output.contains(duration_rex))
             {

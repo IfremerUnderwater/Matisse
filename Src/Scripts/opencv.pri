@@ -37,6 +37,7 @@ unix {
     LibsAddLibrary(core$$LIBEXT)
     LibsAddLibrary(stitching$$LIBEXT)
     LibsAddLibrary(imgproc$$LIBEXT)
+    LibsAddLibrary(imgcodecs$$LIBEXT)
 }
 
 win32 {

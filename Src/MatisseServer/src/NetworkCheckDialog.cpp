@@ -1,5 +1,6 @@
 #include "NetworkCheckDialog.h"
 #include "ui_NetworkCheckDialog.h"
+#include <QRegExpValidator>
 
 NetworkCheckDialog::NetworkCheckDialog(QWidget *parent) :
     QDialog(parent),
