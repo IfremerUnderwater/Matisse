@@ -1,6 +1,10 @@
 #include "CartoImage.h"
 
+#ifdef _WIN32
+#include "gdal_priv.h"
+#else
 #include "gdal/gdal_priv.h"
+#endif
 //#include "cpl_conv.h" // for CPLMalloc()
 
 #include <QFileInfo>
