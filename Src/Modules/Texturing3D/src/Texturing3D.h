@@ -26,6 +26,10 @@ public:
     virtual bool stop();
     virtual void onFlush(quint32 port);
     virtual void onNewImage(quint32 port, Image &image);
+
+private:
+
+    void writeKml(QString model_path, QString model_prefix);
 };
 
 #endif // InitMatchModule_H

@@ -1,8 +1,7 @@
 ﻿#include "Init3DRecon.h"
-#include "MosaicContext.h"
 #include "NavImage.h"
 
-#include "MosaicDescriptor.h"
+#include "reconstructioncontext.h"
 
 #include "Polygon.h"
 
@@ -213,6 +212,8 @@ bool Init3DRecon::stop()
 
 void Init3DRecon::onFlush(quint32 port)
 {
+    reconstructionContext *reconstruction_context = new reconstructionContext();
+
     qDebug() << logPrefix() << "flush port " << port;
 
     emit signal_processCompletion(0);
@@ -639,7 +640,15 @@ void Init3DRecon::onFlush(quint32 port)
         return;
     }
 
-    // sauvegarder la position de la première image
+    // Add origin to reconstruction context
+    reconstruction_context->lat_origin = firstImagePos[0];
+    reconstruction_context->lon_origin = firstImagePos[1];
+    reconstruction_context->alt_origin = firstImagePos[2];
+    QVariant * reconstruction_context_stocker = new QVariant();
+    reconstruction_context_stocker->setValue(reconstruction_context);
+    _context->addObject("reconstruction_context",reconstruction_context_stocker);
+
+    // Backup first image position to file
     // firstImagePos : en Lat, Lon, Alt
     QString coords = QString::number(firstImagePos[0],'f',6) +";"
             + QString::number(firstImagePos[1],'f',6) + ";"
@@ -656,7 +665,7 @@ void Init3DRecon::onFlush(quint32 port)
     outputGeoStream << coords;
     geoFile.close();
 
-    // firstImagePosUtm : en UTM x, y, Alt
+    // firstImagePosUtm : in UTM x, y, Alt
     QString utmcoords = QString::number(firstImagePosUtm[0],'f',3) +";"
             + QString::number(firstImagePosUtm[1],'f',3) + ";"
             + QString::number(firstImagePosUtm[2],'f',3);

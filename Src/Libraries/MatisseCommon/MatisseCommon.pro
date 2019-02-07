@@ -73,7 +73,8 @@ HEADERS += \
     src/matissemetatypes.h \
     src/StringUtils.h \
     src/libmatissecommon_global.h \
-    src/GraphicalCharter.h
+    src/GraphicalCharter.h \
+    src/reconstructioncontext.h
 
 SOURCES += \
     src/Processor.cpp \

@@ -1,7 +1,8 @@
 ﻿#include "Texturing3D.h"
-//#include "MosaicContext.h"
+#include "reconstructioncontext.h"
 #include "NavImage.h"
 
+#include <QFile>
 #include <QProcess>
 
 #include <iostream>
@@ -70,6 +71,52 @@ void Texturing3D::onNewImage(quint32 port, Image &image)
     postImage(0, image);
 }
 
+void Texturing3D::writeKml(QString model_path, QString model_prefix)
+{
+    // Write kml for model
+    QVariant *object = _context->getObject("reconstruction_context");
+    if (object) {
+        reconstructionContext * rc = object->value<reconstructionContext*>();
+        QFile kml_file(model_path+QDir::separator()+model_prefix+QString(".kml"));
+        if( !kml_file.open(QIODevice::WriteOnly) )
+        {
+            fatalErrorExit("Error saving " + model_prefix);
+        }
+
+        // Save kml info
+        QTextStream outputGeoStream(&kml_file);
+
+        outputGeoStream << QString("<kml>\n");
+        outputGeoStream << QString("  <Placemark>\n");
+        outputGeoStream << QString("    <name>%1</name>\n").arg(model_prefix);
+        outputGeoStream << QString("    <Model>\n");
+        outputGeoStream << QString("      <altitudeMode>absolute</altitudeMode>\n");
+        outputGeoStream << QString("      <Location>\n");
+        outputGeoStream << QString("        <longitude>%1</longitude>\n").arg(QString::number(rc->lat_origin, 'f', 8));
+        outputGeoStream << QString("        <latitude>%1</latitude>\n").arg(QString::number(rc->lon_origin, 'f', 8));
+        outputGeoStream << QString("        <altitude>%1</altitude>\n").arg(QString::number(rc->alt_origin, 'f', 3));
+        outputGeoStream << QString("      </Location>\n");
+        outputGeoStream << QString("      <Orientation>\n");
+        outputGeoStream << QString("        <heading>0</heading>\n");
+        outputGeoStream << QString("        <tilt>0</tilt>\n");
+        outputGeoStream << QString("        <roll>0</roll>\n");
+        outputGeoStream << QString("      </Orientation>\n");
+        outputGeoStream << QString("      <Scale>\n");
+        outputGeoStream << QString("        <x>1</x>\n");
+        outputGeoStream << QString("        <y>1</y>\n");
+        outputGeoStream << QString("        <z>1</z>\n");
+        outputGeoStream << QString("      </Scale>\n");
+        outputGeoStream << QString("      <Link>\n");
+        outputGeoStream << QString("        <href>%1.obj</href>\n").arg(model_prefix);
+        outputGeoStream << QString("      </Link>\n");
+        outputGeoStream << QString("    </Model>\n");
+        outputGeoStream << QString("  </Placemark>\n");
+        outputGeoStream << QString("</kml>\n");
+
+        kml_file.close();
+    }
+}
+
 bool Texturing3D::start()
 {
     setOkStatus();
@@ -97,6 +144,8 @@ void Texturing3D::onFlush(quint32 port)
     QString outDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
     if(outDirnameStr.isEmpty())
         outDirnameStr = "outReconstruction";
+
+    QString completeOutPath = rootDirnameStr + SEP + outDirnameStr;
 
     QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
@@ -247,9 +296,11 @@ void Texturing3D::onFlush(quint32 port)
             emit signal_userInformation("texrecon : build objmodel...");
         }
 
-
         qDebug() << output;
     }
+
+    // Write kml associated to model
+    writeKml(completeOutPath, fileNamePrefixStr);
 
     emit signal_processCompletion(100);
     emit signal_userInformation("Texturing3D end");
