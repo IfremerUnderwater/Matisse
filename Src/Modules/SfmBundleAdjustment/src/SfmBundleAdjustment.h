@@ -35,7 +35,10 @@ private:
     QString m_root_dirname_str;
     QString m_out_dirname_str;
     QString m_out_complete_path_str;
+    QString m_splitted_matches_path;
+    QStringList m_matches_files_list;
     void checkForNewFiles();
+    void splitMatchesFiles();
 
 };
 

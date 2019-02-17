@@ -1,5 +1,5 @@
 ﻿#include "SfmBundleAdjustment.h"
-
+#include "reconstructioncontext.h"
 #include <QProcess>
 
 #include <iostream>
@@ -74,6 +74,34 @@ void SfmBundleAdjustment::checkForNewFiles()
     }
 }
 
+void SfmBundleAdjustment::splitMatchesFiles()
+{
+    static const QString SEP = QDir::separator();
+    QDir splitted_matches_path_dir(m_splitted_matches_path);
+
+    // Check if path exists
+    if(!splitted_matches_path_dir.exists())
+        splitted_matches_path_dir.mkpath(splitted_matches_path_dir.absolutePath());
+
+    QProcess split_matches_proc;
+    split_matches_proc.setWorkingDirectory(m_root_dirname_str);
+
+    split_matches_proc.start("openMVG_main_SplitMatchFileIntoMatchFiles.exe -i ."+SEP+ "matches"+SEP+ "sfm_data.json -m ."
+                             +SEP+ "matches"+SEP+"matches.f.bin -n 5 -o ."+SEP+"splitted_matches"+SEP+"matches_list.txt");
+
+    // run process
+    while(split_matches_proc.waitForReadyRead(-1))
+    {
+        QString output = split_matches_proc.readAllStandardOutput() + split_matches_proc.readAllStandardError();
+        qDebug() << output;
+    }
+
+    // get resulting matches files
+    QStringList name_filter = {"*.bin"};
+    m_matches_files_list = splitted_matches_path_dir.entryList(name_filter);
+
+}
+
 bool SfmBundleAdjustment::start()
 {
     setOkStatus();
@@ -89,7 +117,7 @@ bool SfmBundleAdjustment::start()
     if(m_out_dirname_str.isEmpty())
         m_out_dirname_str = "outReconstruction";
 
-    m_out_complete_path_str = m_root_dirname_str + SEP + m_out_dirname_str;
+    m_splitted_matches_path = m_root_dirname_str + SEP + QString("splitted_matches");
 
     return true;
 }
@@ -104,82 +132,124 @@ void SfmBundleAdjustment::onFlush(quint32 port)
     Q_UNUSED(port)
 
     static const QString SEP = QDir::separator();
+    QDir splitted_matches_path_dir(m_splitted_matches_path);
+    QDir matches_path_dir(m_root_dirname_str + SEP + "matches");
 
     bool Ok;
     bool use_prior = _matisseParameters->getBoolParamValue("dataset_param", "usePrior",Ok);
     if(!Ok)
-        use_prior = false;
+        use_prior = true;
 
-    emit signal_processCompletion(0);
-    emit signal_userInformation("Compute Sfm bundle adj");
+    // Split matches into matches files
+    splitMatchesFiles();
 
-    // Compute Sfm bundle adjustment
-    QString prior_arg("");
-    if(use_prior)
-        prior_arg = QString(" -P");
+    // Get context
+    QVariant *object = _context->getObject("reconstruction_context");
+    reconstructionContext * rc=NULL;
+    if (object)
+        rc = object->value<reconstructionContext*>();
 
-    QProcess sfmProc;
-    sfmProc.setWorkingDirectory(m_root_dirname_str);
-    sfmProc.start("openMVG_main_IncrementalSfM -i ."+SEP+ "matches"+SEP+ "sfm_data.json -m ."
-                  +SEP+ "matches"+SEP+ " -o ."+SEP+ m_out_dirname_str + prior_arg);
-
-    int starcount = 0;
-    int lastpct = 0;
-    while(sfmProc.waitForReadyRead(-1))
+    // Reconstruct sparse for each connected components
+    for (int i=0; i<m_matches_files_list.size(); i++)
     {
-        if(!isStarted())
+
+        // Get match file id
+        QRegExp match_file_rex(".+_(\\d+)_(\\d+)");
+
+        if (m_matches_files_list[i].contains(match_file_rex))
         {
-            sfmProc.kill();
-            fatalErrorExit("Compute Sfm bundle adj Cancelled");
+            rc->components_ids.push_back(match_file_rex.cap(1).toInt());
+        }
+        else
+        {
+            fatalErrorExit("Match file not valid");
             return;
         }
 
-        // détecter les étapes
-        QString output = sfmProc.readAllStandardOutput();
-        if(output.contains("- Features Loading -"))
+        if (matches_path_dir.exists("matches.f.bin"))
         {
-            emit signal_userInformation("Sfm bndl adj : EXTRACT FEATURES");
-            starcount = 0;
-        }
-        if(output.contains("Automatic selection of an initial pair:"))
-        {
-            emit signal_userInformation("Sfm bndl adj : sel. init pair");
-            starcount = 0;
+            QFile::remove(matches_path_dir.absoluteFilePath("matches.f.bin"));
         }
 
-        // traiter les étoiles
-        int pct = progressStarCountPct(output, starcount);
-        if(pct != lastpct)
+        // Copy to current match file
+        QFile::copy(splitted_matches_path_dir.absoluteFilePath(m_matches_files_list[i]),
+                    matches_path_dir.absoluteFilePath("matches.f.bin"));
+
+        emit signal_processCompletion(0);
+        emit signal_userInformation(QString("Sfm bundle adj %1/%2").arg(i+1).arg(m_matches_files_list.size()));
+
+        // Fill out path
+        m_out_complete_path_str = m_root_dirname_str + SEP + m_out_dirname_str+QString("_%1").arg(rc->components_ids[i]);
+
+        // Compute Sfm bundle adjustment
+        QString prior_arg("");
+        if(use_prior)
+            prior_arg = QString(" -P");
+
+        QProcess sfmProc;
+        sfmProc.setWorkingDirectory(m_root_dirname_str);
+        sfmProc.start("openMVG_main_IncrementalSfM -i ."+SEP+ "matches"+SEP+ "sfm_data.json -m ."
+                      +SEP+ "matches"+SEP+ " -o ."+SEP+ m_out_dirname_str+QString("_%1").arg(rc->components_ids[i]) + prior_arg);
+
+        int starcount = 0;
+        int lastpct = 0;
+        while(sfmProc.waitForReadyRead(-1))
         {
-            emit signal_processCompletion(pct);
-            lastpct = pct;
+            if(!isStarted())
+            {
+                sfmProc.kill();
+                fatalErrorExit("Sfm bundle adj Cancelled");
+                return;
+            }
+
+            // detect steps
+            QString output = sfmProc.readAllStandardOutput();
+            if(output.contains("- Features Loading -"))
+            {
+                emit signal_userInformation("Sfm bndl adj : EXTRACT FEATURES");
+                starcount = 0;
+            }
+            if(output.contains("Automatic selection of an initial pair:"))
+            {
+                emit signal_userInformation("Sfm bndl adj : sel. init pair");
+                starcount = 0;
+            }
+
+            // traiter les étoiles
+            int pct = progressStarCountPct(output, starcount);
+            if(pct != lastpct)
+            {
+                emit signal_processCompletion(pct);
+                lastpct = pct;
+            }
+
+            if(output.contains("MSE Residual InitialPair"))
+            {
+                // init
+                emit signal_processCompletion((qint8)-1);
+            }
+            if(output.contains("-- Robust Resection of view:"))
+            {
+                int pos = output.indexOf("-- Robust Resection of view:");
+                QString substr = output.mid(pos);
+                pos = substr.indexOf("\n");
+                if(pos != -1)
+                    substr = substr.left(pos);
+                pos = substr.indexOf(":");
+                if(pos != -1)
+                    substr = substr.mid(pos);
+                // how to get the number of views ???? - no more progression.
+                // showing the n° of the view
+                signal_userInformation("Sfm bndl : view " + substr);
+            }
+            checkForNewFiles();
+            qDebug() << output;
         }
 
-        if(output.contains("MSE Residual InitialPair"))
-        {
-            // init
-            emit signal_processCompletion((qint8)-1);
-        }
-        if(output.contains("-- Robust Resection of view:"))
-        {
-            int pos = output.indexOf("-- Robust Resection of view:");
-            QString substr = output.mid(pos);
-            pos = substr.indexOf("\n");
-            if(pos != -1)
-                substr = substr.left(pos);
-            pos = substr.indexOf(":");
-            if(pos != -1)
-                substr = substr.mid(pos);
-            // comment avoir le nombre de vues ici ???? - on ne fait plus de progression.
-            // uniquement affichage du n° de la vue traitée (ordre quelconque)
-            signal_userInformation("Compute Sfm bndl : view " + substr);
-        }
-        checkForNewFiles();
-        qDebug() << output;
+        emit signal_processCompletion(100);
+        emit signal_userInformation("Sfm bundle adj. ended");
+
     }
-
-    emit signal_processCompletion(100);
-    emit signal_userInformation("Compute Sfm bundle adj. ended");
 
     // Flush next module port
     flush(0);

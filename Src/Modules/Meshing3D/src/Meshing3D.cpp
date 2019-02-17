@@ -1,5 +1,5 @@
 ﻿#include "Meshing3D.h"
-//#include "MosaicContext.h"
+#include "reconstructioncontext.h"
 #include "NavImage.h"
 
 #include <QProcess>
@@ -126,177 +126,188 @@ void Meshing3D::onFlush(quint32 port)
 
     QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
-    // convert
-    emit signal_userInformation("Meshing3D - convert");
-    emit signal_processCompletion(0);
+    // Get context
+    QVariant *object = _context->getObject("reconstruction_context");
+    reconstructionContext * rc=NULL;
+    if (object)
+        rc = object->value<reconstructionContext*>();
 
-    QString cmdline = "openMVG_main_openMVG2openMVS -i ."+SEP+ outDirnameStr +SEP+ "sfm_data.bin -o ";
-    cmdline += "."+SEP+ outDirnameStr +SEP+ fileNamePrefixStr + ".mvs";
-    QProcess cvtProc;
-    cvtProc.setWorkingDirectory(rootDirnameStr);
-    cvtProc.start(cmdline);
+    for (unsigned int i=0; i<rc->components_ids.size(); i++)
+    {
 
-    int starcount = 0;
-    int lastpct = 0;
-    while(cvtProc.waitForReadyRead(-1)){
+        // convert
+        emit signal_userInformation("Meshing3D - convert");
+        emit signal_processCompletion(0);
 
-        if(!isStarted())
-        {
-            cvtProc.kill();
-            fatalErrorExit("openMVG2openMVS Cancelled");
-            return;
+        QString cmdline = "openMVG_main_openMVG2openMVS -i ."+SEP+ outDirnameStr+QString("_%1").arg(rc->components_ids[i]) +SEP+ "sfm_data.bin -o ";
+        cmdline += "."+SEP+ outDirnameStr+QString("_%1").arg(rc->components_ids[i]) +SEP+ fileNamePrefixStr+QString("_%1").arg(rc->components_ids[i]) + ".mvs";
+        QProcess cvtProc;
+        cvtProc.setWorkingDirectory(rootDirnameStr);
+        cvtProc.start(cmdline);
+
+        int starcount = 0;
+        int lastpct = 0;
+        while(cvtProc.waitForReadyRead(-1)){
+
+            if(!isStarted())
+            {
+                cvtProc.kill();
+                fatalErrorExit("openMVG2openMVS Cancelled");
+                return;
+            }
+
+            QString output = cvtProc.readAllStandardOutput();
+
+            // traiter les étoiles
+            int pct = progressStarCountPct(output, starcount);
+            if(pct != lastpct)
+            {
+                emit signal_processCompletion(pct);
+                lastpct = pct;
+            }
+
+            qDebug() << output;
         }
 
-        QString output = cvtProc.readAllStandardOutput();
+        // densify
+        emit signal_userInformation("Meshing3D - Densify");
+        emit signal_processCompletion(0);
 
-        // traiter les étoiles
-        int pct = progressStarCountPct(output, starcount);
-        if(pct != lastpct)
-        {
-            emit signal_processCompletion(pct);
-            lastpct = pct;
+        cmdline = DensifyPointCloudExe;
+        bool ok = true;
+        int reslevel = _matisseParameters->getIntParamValue("algo_param", "resolution_level", ok);
+        if(ok)
+            cmdline += " --resolution-level " + QString::number(reslevel);
+        int nbviewfuse =  _matisseParameters->getIntParamValue("algo_param", "number_views_fuse", ok);
+        if(ok)
+            cmdline += " --number-views-fuse " + QString::number(nbviewfuse);
+
+        cmdline += " ."+SEP+ outDirnameStr+QString("_%1").arg(rc->components_ids[i]) +SEP+ fileNamePrefixStr+QString("_%1").arg(rc->components_ids[i]) + ".mvs";
+        QProcess denseProc;
+        denseProc.setWorkingDirectory(rootDirnameStr);
+        denseProc.start(cmdline);
+
+        while(denseProc.waitForReadyRead(-1)){
+
+            if(!isStarted())
+            {
+                denseProc.kill();
+                fatalErrorExit("DensifyPointCloud Cancelled");
+                return;
+            }
+
+            QString output = denseProc.readAllStandardOutput();
+
+            // étape "Estimated depth-maps"
+            if(output.contains("Estimated depth-maps"))
+            {
+                double val = getPctVal(output,"Estimated depth-maps");
+                if(val >= 0)
+                {
+                    emit signal_userInformation("Densify - Estimated depth-maps");
+                    emit signal_processCompletion((int)val);
+                }
+            }
+
+            // étape "Filtered depth-maps"
+            if(output.contains("Filtered depth-maps"))
+            {
+                double val = getPctVal(output,"Filtered depth-maps");
+                if(val >= 0)
+                {
+                    emit signal_userInformation("Densify - Filtered depth-maps");
+                    emit signal_processCompletion((int)val);
+                }
+            }
+
+            // étape "Fused depth-maps"
+            if(output.contains("Fused depth-maps"))
+            {
+                double val = getPctVal(output,"Fused depth-maps");
+                if(val >= 0)
+                {
+                    emit signal_userInformation("Densify - Fused depth-maps");
+                    emit signal_processCompletion((int)val);
+                }
+            }
+
+            qDebug() << output;
+
         }
 
-        qDebug() << output;
+
+        // Compute Mesh
+        emit signal_userInformation("Meshing3D - Compute Mesh");
+        emit signal_processCompletion(0);
+
+        cmdline = ReconstructMeshExe;
+        double decimatearg = _matisseParameters->getDoubleParamValue("algo_param", "decimate_factor", ok);
+        if(ok)
+            cmdline += " --decimate " + QString::number(decimatearg);
+
+        cmdline +=  " ."+SEP+ outDirnameStr+QString("_%1").arg(rc->components_ids[i]) +SEP+ fileNamePrefixStr+QString("_%1").arg(rc->components_ids[i]) + "_dense.mvs";
+        QProcess meshProc;
+        meshProc.setWorkingDirectory(rootDirnameStr);
+        meshProc.start(cmdline);
+
+        while(meshProc.waitForReadyRead(-1)){
+
+            if(!isStarted())
+            {
+                meshProc.kill();
+                fatalErrorExit("ReconstructMesh Cancelled");
+                return;
+            }
+
+            QString output = meshProc.readAllStandardOutput();
+
+            // étape "Points inserted "
+            if(output.contains("Points inserted "))
+            {
+                double val = getPctVal(output,"Points inserted ");
+                if(val >= 0)
+                {
+                    emit signal_userInformation("Rec. Mesh - Points inserted");
+                    emit signal_processCompletion((int)val);
+                }
+            }
+
+            // étape "Points weighted "
+            if(output.contains("Points weighted "))
+            {
+                double val = getPctVal(output,"Points weighted ");
+                if(val >= 0)
+                {
+                    emit signal_userInformation("Rec. Mesh - Points weighted");
+                    emit signal_processCompletion((int)val);
+                }
+            }
+
+            if(output.contains("Delaunay tetrahedras weighting completed:"))
+            {
+                emit signal_processCompletion((quint8)-1);
+                emit signal_userInformation("Rec. Mesh - tetra. weighting");
+            }
+
+            if(output.contains("Delaunay tetrahedras graph-cut completed"))
+            {
+                emit signal_processCompletion((quint8)-1);
+                emit signal_userInformation("Rec. Mesh - tetra. graph-cut");
+            }
+
+            if(output.contains("Mesh reconstruction completed:"))
+            {
+                emit signal_processCompletion((quint8)-1);
+                emit signal_userInformation("Rec. Mesh - reconstr. complete");
+            }
+
+            qDebug() << output;
+        }
+
+        emit signal_userInformation("Meshing3D - end");
+        emit signal_processCompletion(100);
+
     }
-
-    // densify
-    emit signal_userInformation("Meshing3D - Densify");
-    emit signal_processCompletion(0);
-
-    cmdline = DensifyPointCloudExe;
-    bool ok = true;
-    int reslevel = _matisseParameters->getIntParamValue("algo_param", "resolution_level", ok);
-    if(ok)
-        cmdline += " --resolution-level " + QString::number(reslevel);
-    int nbviewfuse =  _matisseParameters->getIntParamValue("algo_param", "number_views_fuse", ok);
-    if(ok)
-        cmdline += " --number-views-fuse " + QString::number(nbviewfuse);
-
-    cmdline += " ."+SEP+ outDirnameStr +SEP+ fileNamePrefixStr + ".mvs";
-    QProcess denseProc;
-    denseProc.setWorkingDirectory(rootDirnameStr);
-    denseProc.start(cmdline);
-
-    while(denseProc.waitForReadyRead(-1)){
-
-        if(!isStarted())
-        {
-            denseProc.kill();
-            fatalErrorExit("DensifyPointCloud Cancelled");
-            return;
-        }
-
-        QString output = denseProc.readAllStandardOutput();
-
-        // étape "Estimated depth-maps"
-        if(output.contains("Estimated depth-maps"))
-        {
-            double val = getPctVal(output,"Estimated depth-maps");
-            if(val >= 0)
-            {
-                emit signal_userInformation("Densify - Estimated depth-maps");
-                emit signal_processCompletion((int)val);
-            }
-        }
-
-        // étape "Filtered depth-maps"
-        if(output.contains("Filtered depth-maps"))
-        {
-            double val = getPctVal(output,"Filtered depth-maps");
-            if(val >= 0)
-            {
-                emit signal_userInformation("Densify - Filtered depth-maps");
-                emit signal_processCompletion((int)val);
-            }
-        }
-
-        // étape "Fused depth-maps"
-        if(output.contains("Fused depth-maps"))
-        {
-            double val = getPctVal(output,"Fused depth-maps");
-            if(val >= 0)
-            {
-                emit signal_userInformation("Densify - Fused depth-maps");
-                emit signal_processCompletion((int)val);
-            }
-        }
-
-        qDebug() << output;
-
-    }
-
-
-    // Compute Mesh
-    emit signal_userInformation("Meshing3D - Compute Mesh");
-    emit signal_processCompletion(0);
-
-    cmdline = ReconstructMeshExe;
-    double decimatearg = _matisseParameters->getDoubleParamValue("algo_param", "decimate_factor", ok);
-    if(ok)
-        cmdline += " --decimate " + QString::number(decimatearg);
-
-    cmdline +=  " ."+SEP+ outDirnameStr +SEP+ fileNamePrefixStr + "_dense.mvs";
-    QProcess meshProc;
-    meshProc.setWorkingDirectory(rootDirnameStr);
-    meshProc.start(cmdline);
-
-    while(meshProc.waitForReadyRead(-1)){
-
-        if(!isStarted())
-        {
-            meshProc.kill();
-            fatalErrorExit("ReconstructMesh Cancelled");
-            return;
-        }
-
-        QString output = meshProc.readAllStandardOutput();
-
-        // étape "Points inserted "
-        if(output.contains("Points inserted "))
-        {
-            double val = getPctVal(output,"Points inserted ");
-            if(val >= 0)
-            {
-                emit signal_userInformation("Rec. Mesh - Points inserted");
-                emit signal_processCompletion((int)val);
-            }
-        }
-
-        // étape "Points weighted "
-        if(output.contains("Points weighted "))
-        {
-            double val = getPctVal(output,"Points weighted ");
-            if(val >= 0)
-            {
-                emit signal_userInformation("Rec. Mesh - Points weighted");
-                emit signal_processCompletion((int)val);
-            }
-        }
-
-        if(output.contains("Delaunay tetrahedras weighting completed:"))
-        {
-            emit signal_processCompletion((quint8)-1);
-            emit signal_userInformation("Rec. Mesh - tetra. weighting");
-        }
-
-        if(output.contains("Delaunay tetrahedras graph-cut completed"))
-        {
-            emit signal_processCompletion((quint8)-1);
-            emit signal_userInformation("Rec. Mesh - tetra. graph-cut");
-        }
-
-        if(output.contains("Mesh reconstruction completed:"))
-        {
-            emit signal_processCompletion((quint8)-1);
-            emit signal_userInformation("Rec. Mesh - reconstr. complete");
-        }
-
-        qDebug() << output;
-    }
-
-    emit signal_userInformation("Meshing3D - end");
-    emit signal_processCompletion(100);
 
     // Flush next module port
     flush(0);
