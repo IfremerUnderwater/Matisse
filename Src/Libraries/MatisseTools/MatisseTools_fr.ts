@@ -349,9 +349,9 @@
     </message>
     <message>
         <location filename="src/MatisseDictionnaryLabels.h" line="146"/>
-        <source>Chemin du resultat</source>
-        <oldsource>Chemin de sortie</oldsource>
-        <translation>Chemin du résultat</translation>
+        <source>Nom du resultat</source>
+        <oldsource>Chemin du resultat</oldsource>
+        <translation type="unfinished">Chemin du résultat</translation>
     </message>
     <message>
         <location filename="src/MatisseDictionnaryLabels.h" line="147"/>
@@ -389,17 +389,17 @@
 <context>
     <name>MatisseTools::MatisseParametersManager</name>
     <message>
-        <location filename="src/MatisseParametersManager.cpp" line="746"/>
+        <location filename="src/MatisseParametersManager.cpp" line="749"/>
         <source>Parametres utilisateur</source>
         <translation>Paramètres utilisateur</translation>
     </message>
     <message>
-        <location filename="src/MatisseParametersManager.cpp" line="749"/>
+        <location filename="src/MatisseParametersManager.cpp" line="752"/>
         <source>Parametres avances</source>
         <translation>Paramètres avancés</translation>
     </message>
     <message>
-        <location filename="src/MatisseParametersManager.cpp" line="752"/>
+        <location filename="src/MatisseParametersManager.cpp" line="755"/>
         <source>Parametres mode expert</source>
         <translation>Paramètres mode expert</translation>
     </message>

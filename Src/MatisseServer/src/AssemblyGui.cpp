@@ -260,8 +260,8 @@ void AssemblyGui::initUserActions()
     connect(_exportProjectQGisAct, SIGNAL(triggered()), this, SLOT(slot_exportMapToQgisProject()));
     connect(_loadShapefileAct, SIGNAL(triggered()), this, SLOT(slot_loadShapeFile()));
     connect(_loadRasterAct, SIGNAL(triggered()), this, SLOT(slot_loadRasterFile()));
-    connect(_exposureToolAct, SIGNAL(triggered()), this, SLOT(slot_launchExposureTool()));
-    connect(_videoToImageToolAct, SIGNAL(triggered()), this, SLOT(slot_launchVideoToImageTool()));
+    connect(_preprocessingTool, SIGNAL(triggered()), this, SLOT(slot_launchPreprocessingTool()));
+    //connect(_videoToImageToolAct, SIGNAL(triggered()), this, SLOT(slot_launchVideoToImageTool()));
 
     // Menus contextuels
     connect(_createJobAct, SIGNAL(triggered()), this, SLOT(slot_newJob()));
@@ -554,8 +554,8 @@ void AssemblyGui::initMainMenu()
     _toolMenu = new MatisseMenu(menuContainer);
 
     _appConfigAct = new QAction(this);
-    _exposureToolAct = new QAction(this);
-    _videoToImageToolAct = new QAction(this);
+    _preprocessingTool = new QAction(this);
+    //_videoToImageToolAct = new QAction(this);
     _checkNetworkRxAct = new QAction(this);
 
     /* Sous-menu Cartographie */
@@ -564,8 +564,8 @@ void AssemblyGui::initMainMenu()
 
     _toolMenu->addAction(_appConfigAct);
     _toolMenu->addSeparator();
-    _toolMenu->addAction(_exposureToolAct);
-    _toolMenu->addAction(_videoToImageToolAct);
+    _toolMenu->addAction(_preprocessingTool);
+    //_toolMenu->addAction(_videoToImageToolAct);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_checkNetworkRxAct);
 
@@ -1407,21 +1407,21 @@ void AssemblyGui::slot_loadRasterFile()
     _userFormWidget->loadRasterFile(rasterFilePath);
 }
 
-void AssemblyGui::slot_launchExposureTool()
+void AssemblyGui::slot_launchPreprocessingTool()
 {
     QMap<QString, QString> externalTools = _systemDataManager->getExternalTools();
-    if (!externalTools.contains("exposureTool")) {
-        qCritical() << "Exposure tool not defined in settings";
-        QMessageBox::critical(this, tr("Configuration systeme incomplete"), tr("L'outil de correction d'illumination n'est pas defini dans la configuration systeme"));
+    if (!externalTools.contains("preprocessingTool")) {
+        qCritical() << "preprocessingTool tool not defined in settings";
+        QMessageBox::critical(this, tr("Configuration systeme incomplete"), tr("L'outil de pretraitements n'est pas defini dans la configuration systeme"));
         return;
     }
 
-    QString toolPath = externalTools.value("exposureTool");
+    QString toolPath = externalTools.value("preprocessingTool");
     QFileInfo toolPathFile(toolPath);
 
     if (!toolPathFile.exists()) {
         qCritical() << QString("Could not find exposure tool exe file '%1'").arg(toolPath);
-        QMessageBox::critical(this, tr("Outil non trouve"), tr("Impossible de trouver le fichier executable de l'outil de correction d'illumination '%1'").arg(toolPath));
+        QMessageBox::critical(this, tr("Outil non trouve"), tr("Impossible de trouver le fichier executable de l'outil de pretraitement '%1'").arg(toolPath));
         return;
     }
 
@@ -1429,27 +1429,27 @@ void AssemblyGui::slot_launchExposureTool()
     QDesktopServices::openUrl(url);
 }
 
-void AssemblyGui::slot_launchVideoToImageTool()
-{
-    QMap<QString, QString> externalTools = _systemDataManager->getExternalTools();
-    if (!externalTools.contains("videoToImageTool")) {
-        qCritical() << "Video to image tool not defined in settings";
-        QMessageBox::critical(this, tr("Configuration systeme incomplete"), tr("L'outil de transformation de video en image n'est pas defini dans la configuration systeme"));
-        return;
-    }
+//void AssemblyGui::slot_launchVideoToImageTool()
+//{
+//    QMap<QString, QString> externalTools = _systemDataManager->getExternalTools();
+//    if (!externalTools.contains("videoToImageTool")) {
+//        qCritical() << "Video to image tool not defined in settings";
+//        QMessageBox::critical(this, tr("Configuration systeme incomplete"), tr("L'outil de transformation de video en image n'est pas defini dans la configuration systeme"));
+//        return;
+//    }
 
-    QString toolPath = externalTools.value("videoToImageTool");
-    QFileInfo toolPathFile(toolPath);
+//    QString toolPath = externalTools.value("videoToImageTool");
+//    QFileInfo toolPathFile(toolPath);
 
-    if (!toolPathFile.exists()) {
-        qCritical() << QString("Could not find video to image tool exe file '%1'").arg(toolPath);
-        QMessageBox::critical(this, tr("Outil non trouve"), tr("Impossible de trouver le fichier executable de l'outil de transformation de video en image '%1'").arg(toolPath));
-        return;
-    }
+//    if (!toolPathFile.exists()) {
+//        qCritical() << QString("Could not find video to image tool exe file '%1'").arg(toolPath);
+//        QMessageBox::critical(this, tr("Outil non trouve"), tr("Impossible de trouver le fichier executable de l'outil de transformation de video en image '%1'").arg(toolPath));
+//        return;
+//    }
 
-    QUrl url = QUrl::fromLocalFile(toolPathFile.absoluteFilePath());
-    QDesktopServices::openUrl(url);
-}
+//    QUrl url = QUrl::fromLocalFile(toolPathFile.absoluteFilePath());
+//    QDesktopServices::openUrl(url);
+//}
 
 void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
     if (_exportPath.isEmpty()) {
@@ -3242,8 +3242,8 @@ void AssemblyGui::retranslate()
     /* MENU OUTILS */
     _toolMenu->setTitle(tr("OUTILS"));
     _appConfigAct->setText(tr("Configurer les parametres de l'application"));
-    _exposureToolAct->setText(tr("Lancer outil rognage et correction d'illumination"));
-    _videoToImageToolAct->setText(tr("Lancer outil transformation de videos en jeux d'image"));
+    _preprocessingTool->setText(tr("Lancer outil outil de pretraitement"));
+    //_videoToImageToolAct->setText(tr("Lancer outil transformation de videos en jeux d'image"));
     _checkNetworkRxAct->setText(tr("Verifier reception reseau"));
 
     /* Sous-menu Cartographie */
@@ -3412,8 +3412,8 @@ void AssemblyGui::enableActions()
     _exportMapViewAct->setEnabled(_isMapView);
     _exportProjectQGisAct->setEnabled(_isMapView);
     _mapToolbarAct->setEnabled(_isMapView);
-    _exposureToolAct->setEnabled(_isMapView);
-    _videoToImageToolAct->setEnabled(_isMapView);
+    _preprocessingTool->setEnabled(_isMapView);
+    //_videoToImageToolAct->setEnabled(_isMapView);
     _loadShapefileAct->setEnabled(_isMapView);
     _loadRasterAct->setEnabled(_isMapView);
     //_createAssemblyAct->setEnabled(!_isMapView);

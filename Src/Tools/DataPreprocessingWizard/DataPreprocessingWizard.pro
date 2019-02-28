@@ -26,12 +26,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCE_DIR=$$PWD/../../
 CONFIG(debug, debug|release) {
     BUILD_DIR=$${SOURCE_DIR}../Build/Debug
-    BUILD_EXT="d"
+    RUN_DIR=$${SOURCE_DIR}../Run/Debug
 }
 CONFIG(release, debug|release) {
     BUILD_DIR=$${SOURCE_DIR}../Build/Release
-    BUILD_EXT=""
+    RUN_DIR=$${SOURCE_DIR}../Run/Release
 }
+
+DESTDIR = $${RUN_DIR}
 
 include(../../Scripts/opencv.pri)
 include(../../Scripts/BasicProcessing.pri)

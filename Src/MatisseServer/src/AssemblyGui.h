@@ -235,7 +235,7 @@ private:
     QAction* _importAssemblyAct;
     QAction* _exportAssemblyAct;
     QAction* _appConfigAct;
-    QAction* _exposureToolAct;
+    QAction* _preprocessingTool;
     QAction* _videoToImageToolAct;
     QAction* _checkNetworkRxAct;
     QAction* _loadShapefileAct;
@@ -374,8 +374,8 @@ protected slots:
     void slot_exportMapToQgisProject();
     void slot_loadShapeFile();
     void slot_loadRasterFile();
-    void slot_launchExposureTool();
-    void slot_launchVideoToImageTool();
+    void slot_launchPreprocessingTool();
+    //void slot_launchVideoToImageTool();
 
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);

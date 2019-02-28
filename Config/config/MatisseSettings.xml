@@ -15,7 +15,6 @@
     <DataRootDir>.</DataRootDir>
     <PlatformDir>./platforms</PlatformDir>
     <ExternalTools>
-        <ExternalTool name="exposureTool" exePath="gswin32c.exe"/>
-        <ExternalTool name="videoToImageTool" exePath="linguist.exe"/>
+        <ExternalTool name="preprocessingTool" exePath="DataPreprocessingWizard.exe"/>
     </ExternalTools>
 </MatisseSettings>
