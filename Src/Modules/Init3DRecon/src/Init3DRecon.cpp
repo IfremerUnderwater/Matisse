@@ -284,9 +284,8 @@ void Init3DRecon::onFlush(quint32 port)
         navigationFile = QString("noNav.dim2");
 
     std::string dim2FileName;
-    size_t sepPos = navigationFile.toStdString().find(SEP);
 
-    if(sepPos == 0 ) // TODO Windows : traiter C:\ etc..
+    if(navigationFile.contains(":/") || navigationFile.startsWith(QSep) ) // TODO Windows : traiter C:\ etc..
     {
         // chemin absolu
         dim2FileName = navigationFile.toStdString();
@@ -542,18 +541,10 @@ void Init3DRecon::onFlush(quint32 port)
         else if(navMode == DIM2)
         {
             gps_info = checkDIM2(sImageFilename, dim2FileReader.get(), dim2FileMap);
-            if(!gps_info.first)
-            {
-                // fichier existant, mais non présent dans le dim2
-                // non pris en compte dans le calcul
-                error_report_stream
-                        << stlplus::basename_part(sImageFilename) << " not present in DIM2 file" << std::endl;
-                continue;
-            }
         }
 
-        // ramener tout relatif à la première image (en UTM)
-        if(firstImage)
+        // get first image info for relative shift (in UTM)
+        if(gps_info.first && firstImage)
         {
             firstImage = false;
             // lat, lon, alt
