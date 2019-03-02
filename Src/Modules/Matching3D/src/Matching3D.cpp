@@ -41,6 +41,7 @@ Matching3D::Matching3D() :
     addExpectedParameter("algo_param", "describer_preset");
     addExpectedParameter("algo_param", "nearest_matching_method");
     addExpectedParameter("algo_param", "video_mode_matching");
+    addExpectedParameter("algo_param", "video_mode_matching_enable");
 }
 
 Matching3D::~Matching3D(){
@@ -163,8 +164,11 @@ void Matching3D::onFlush(quint32 port)
     ok = true;
     int vmmParamVal = _matisseParameters->getIntParamValue("algo_param", "video_mode_matching", ok);
     vmmParam +=  QString::number(vmmParamVal);
-    if(ok)
-        commandLine += vmmParam;
+    if(ok){
+        bool video_mode_matching_enable = _matisseParameters->getBoolParamValue("algo_param", "video_mode_matching_enable", ok);
+        if (ok && video_mode_matching_enable)
+            commandLine += vmmParam;
+    }
 
     QProcess matchingProcess;
     matchingProcess.setWorkingDirectory(rootDirnameStr);
