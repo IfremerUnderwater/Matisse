@@ -19,6 +19,9 @@ class Init3DRecon : public Processor
     Q_PLUGIN_METADATA(IID "Init3DRecon")
 #endif
 
+private:
+    bool getCameraIntrinsics(double &focal, double &ppx, double &ppy, const double &width, const double &height);
+
 public:
     Init3DRecon();
     ~Init3DRecon();

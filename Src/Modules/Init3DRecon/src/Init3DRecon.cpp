@@ -50,30 +50,111 @@ typedef enum
 Q_EXPORT_PLUGIN2(Init3DRecon, Init3DRecon)
 #endif
 
-/// Check that Kmatrix is a string like "f;0;ppx;0;f;ppy;0;0;1"
+/// Get camera matrix "f;0;ppx;0;f;ppy;0;0;1"
 /// With f,ppx,ppy as valid numerical value
-static bool checkIntrinsicStringValidity(const std::string & Kmatrix, double & focal, double & ppx, double & ppy)
+bool Init3DRecon::getCameraIntrinsics(double & focal, double & ppx, double & ppy, const double &width, const double &height)
 {
-    std::vector<std::string> vec_str;
-    stl::split(Kmatrix, ';', vec_str);
-    if (vec_str.size() != 9)  {
-        std::cerr << "\n Missing ';' character" << std::endl;
-        return false;
-    }
-    // Check that all K matrix value are valid numbers
-    for (size_t i = 0; i < vec_str.size(); ++i) {
-        double readvalue = 0.0;
-        std::stringstream ss;
-        ss.str(vec_str[i]);
-        if (! (ss >> readvalue) )  {
-            std::cerr << "\n Used an invalid not a number character" << std::endl;
-            return false;
+    QString camera_preset =  _matisseParameters->getStringParamValue("cam_param", "camera_preset");
+
+    double scaling_factor;
+
+    // Custom case
+    if (camera_preset=="Custom")
+    {
+        bool Ok=false;
+        QMatrix3x3 qK = _matisseParameters->getMatrix3x3ParamValue("cam_param",  "K",  Ok);
+        double full_sensor_width=width;
+        if(Ok)
+            full_sensor_width=(double)_matisseParameters->getIntParamValue("cam_param","sensor_width",Ok);
+
+        if(Ok)
+        {
+            scaling_factor = width/full_sensor_width;
+            focal = scaling_factor*(qK(0,0)+qK(1,1))/2;
+            ppx = scaling_factor*qK(0,2);
+            ppy = scaling_factor*qK(1,2);
+            return true;
         }
-        if (i==0) focal = readvalue;
-        if (i==2) ppx = readvalue;
-        if (i==5) ppy = readvalue;
+        else
+        {
+            camera_preset="Unknown";
+        }
     }
-    return true;
+
+    if (camera_preset=="Victor HD")
+    {
+        scaling_factor=width/1920.0;
+        focal = scaling_factor*1430;
+        ppx = width / 2.0;
+        ppy = height / 2.0;
+        return true;
+    }
+
+     if (camera_preset=="Ariane Princ.")
+     {
+         scaling_factor=width/1920.0;
+         focal = scaling_factor*1170;
+         ppx = width / 2.0;
+         ppy = height / 2.0;
+         return true;
+     }
+
+    if (camera_preset=="Victor 4K" || camera_preset=="Nautile 4K")
+    {
+        scaling_factor=width/3840.0;
+        focal = scaling_factor*2370;
+        ppx = width / 2.0;
+        ppy = height / 2.0;
+        return true;
+    }
+
+    if (camera_preset=="Otus 2" || camera_preset=="Ariane Still camera")
+    {
+        scaling_factor=width/6000.0;
+        focal = scaling_factor*6700;
+        ppx = width / 2.0;
+        ppy = height / 2.0;
+        return true;
+    }
+
+    if (camera_preset=="Nautile Still camera")
+    {
+        scaling_factor=width/6000.0;
+        focal = scaling_factor*5875.0;
+        ppx = width / 2.0;
+        ppy = height / 2.0;
+        return true;
+    }
+
+    if (camera_preset=="Ariane Science." || camera_preset=="Scampi HD" || camera_preset=="Nautile HD")
+    {
+        scaling_factor=width/1920.0;
+        focal = scaling_factor*1880;
+        ppx = width / 2.0;
+        ppy = height / 2.0;
+        return true;
+    }
+
+    if (camera_preset=="Vortex still camera")
+    {
+        scaling_factor=width/6000.0;
+        focal = scaling_factor*6000;
+        ppx = width / 2.0;
+        ppy = height / 2.0;
+        return true;
+    }
+
+    // Unkown case
+    if (camera_preset=="Unknown")
+    {
+        focal = width; // approx in case we don't know
+        ppx = width / 2.0;
+        ppy = height / 2.0;
+        return true;
+    }
+
+    return false;
+
 }
 
 static std::pair<bool, Vec3> checkGPS(const std::string & filename)
@@ -168,6 +249,8 @@ Init3DRecon::Init3DRecon() :
     addExpectedParameter("dataset_param", "usePrior");
 
     addExpectedParameter("cam_param",  "K");
+    addExpectedParameter("cam_param",  "camera_preset");
+    addExpectedParameter("cam_param",  "sensor_width");
 
     // unused
     //addExpectedParameter("algo_param", "scale_factor");
@@ -223,11 +306,8 @@ void Init3DRecon::onFlush(quint32 port)
 
     std::string sImageDir,
             //sfileDatabase = "",
-            sOutputDir = "",
-            sKmatrix;
+            sOutputDir = "";
 
-    // On n'en a plus besoin : la matrice K est suffisante
-    //sfileDatabase = "/home/data/ThirdPartyLibs/openMVG/src/openMVG/exif/sensor_width_database/sensor_width_camera_database.txt";
     std::string sPriorWeights;
     std::pair<bool, Vec3> prior_w_info(false, Vec3(1.0,1.0,1.0));
 
@@ -239,9 +319,6 @@ void Init3DRecon::onFlush(quint32 port)
     if(!Ok)
         use_prior = false;
     //int i_GPS_XYZ_method = 0;
-
-    double focal_pixels = -1.0;
-
 
     Vec3 firstImagePos = Vec3::Zero();
     Vec3 firstImagePosUtm = Vec3::Zero();
@@ -265,12 +342,12 @@ void Init3DRecon::onFlush(quint32 port)
         return;
     }
 
-    // source de navigation
+    // Navigation source
     QString navSource =  _matisseParameters->getStringParamValue("dataset_param", "navSource");
     NavMode navMode = NONE;
     if(navSource == "NO_NAV")
         navMode = NONE;
-    else if(navSource == "GPS")
+    else if(navSource == "EXIF")
         navMode = EXIF;
     else if(navSource == "DIM2")
         navMode = DIM2;
@@ -285,7 +362,7 @@ void Init3DRecon::onFlush(quint32 port)
 
     std::string dim2FileName;
 
-    if(navigationFile.contains(":/") || navigationFile.startsWith(QSep) ) // TODO Windows : traiter C:\ etc..
+    if(navigationFile.contains(":/") || navigationFile.startsWith(QSep) )
     {
         // chemin absolu
         dim2FileName = navigationFile.toStdString();
@@ -346,37 +423,12 @@ void Init3DRecon::onFlush(quint32 port)
         }
     }
 
-    // Check focal length string "f;0;ppx;0;f;ppy;0;0;1"
-    QMatrix3x3 qK = _matisseParameters->getMatrix3x3ParamValue("cam_param",  "K",  Ok);
-    sKmatrix = std::to_string(qK(0,0)) + ";0;" + std::to_string(qK(0,2)) + ";0;" + std::to_string(qK(1,1)) + ";" + std::to_string(qK(1,2)) + ";0;0;1";
-
-    if (sKmatrix.size() > 0 &&
-            !checkIntrinsicStringValidity(sKmatrix, focal, ppx, ppy) )
+    /*if (!getCameraIntrinsics(focal, ppx, ppy) )
     {
-        fatalErrorExit("Invalid K matrix input");
+        fatalErrorExit("Invalid camera matrix input");
         return;
-    }
+    }*/
 
-    if (sKmatrix.size() > 0 && focal_pixels != -1.0)
-    {
-        fatalErrorExit("Cannot combine -f and -k options");
-        return;
-    }
-
-    //    std::vector<Datasheet> vec_database;
-    //    if (!sfileDatabase.empty())
-    //    {
-    //        if ( !parseDatabase( sfileDatabase, vec_database ) )
-    //        {
-    //            std::cerr
-    //                    << "\nInvalid input database: " << sfileDatabase
-    //                    << ", please specify a valid file." << std::endl;
-    //            std::string msg = "Invalid input database: ";
-    //            msg += sfileDatabase +  "\n please specify a valid file.";
-    //            fatalErrorExit(msg.c_str());
-    //            return;
-    //        }
-    //    }
 
     // Check if prior weights are given
     if (!sPriorWeights.empty() && use_prior)
@@ -412,9 +464,6 @@ void Init3DRecon::onFlush(quint32 port)
         // Test if the image format is supported:
         if (openMVG::image::GetFormat(sImageFilename.c_str()) == openMVG::image::Unknown)
         {
-            // pas de message pour les fichiers de type log etc...
-            //            error_report_stream
-            //                    << sImFilenamePart << ": Unkown image file format." << "\n";
             continue; // image cannot be opened
         }
 
@@ -438,64 +487,8 @@ void Init3DRecon::onFlush(quint32 port)
         std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
         exifReader->open( sImageFilename );
 
-        const bool bHaveValidExifMetadata =
-                exifReader->doesHaveExifInfo()
-                && !exifReader->getModel().empty();
-
-        // Consider the case where the focal is provided manually
-        if ( !bHaveValidExifMetadata || focal_pixels != -1)// || sKmatrix.size()>0)
-        {
-            if (sKmatrix.size() > 0) // Known user calibration K matrix
-            {
-                if (!checkIntrinsicStringValidity(sKmatrix, focal, ppx, ppy))
-                    focal = -1.0;
-            }
-            else // User provided focal length value
-                if (focal_pixels != -1 )
-                    focal = focal_pixels;
-        }
-        else // If image contains meta data
-        {
-            //const std::string sCamModel = exifReader->getModel();
-
-            // Handle case where focal length is equal to 0
-            if (exifReader->getFocal() == 0.0f)
-            {
-                error_report_stream
-                        << stlplus::basename_part(sImageFilename) << ": Focal length is missing." << "\n";
-                focal = -1.0;
-            }
-            else
-                // Create the image entry in the list file
-            {
-                // inutilisé
-                // pris dans la matrice K
-                if (sKmatrix.size() > 0) // Known user calibration K matrix
-                {
-                    if (!checkIntrinsicStringValidity(sKmatrix, focal, ppx, ppy))
-                        focal = -1.0;
-                }
-                else // User provided focal length value
-                    if (focal_pixels != -1 )
-                        focal = focal_pixels;
-
-                // TODO : utiliser la focale dans l'EXIF - cas de plusieurs APN
-                //                Datasheet datasheet;
-                //                if ( getInfo( sCamModel, vec_database, datasheet ))
-                //                {
-                //                    // The camera model was found in the database so we can compute it's approximated focal length
-                //                    const double ccdw = datasheet.sensorSize_;
-                //                    focal = std::max ( width, height ) * exifReader->getFocal() / ccdw;
-                //                }
-                //                else
-                //                {
-                //                    error_report_stream
-                //                            << stlplus::basename_part(sImageFilename)
-                //                            << "\" model \"" << sCamModel << "\" doesn't exist in the database" << "\n"
-                //                            << "Please consider add your camera model and sensor width in the database." << "\n";
-                //                }
-            }
-        }
+        // Get camera intrinsics
+        getCameraIntrinsics(focal, ppx, ppy, width, height);
 
         // Build intrinsic parameter related to the view
         std::shared_ptr<IntrinsicBase> intrinsic (NULL);
