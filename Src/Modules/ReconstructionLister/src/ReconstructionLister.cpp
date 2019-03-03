@@ -1,5 +1,6 @@
 ﻿#include <QDir>
 
+#include "reconstructioncontext.h"
 #include "ReconstructionLister.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
@@ -24,7 +25,7 @@ bool ReconstructionLister::configure()
 {
     qDebug() << logPrefix() << "configure";
 
-    QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    /*QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
     QString outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
     QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
@@ -45,7 +46,7 @@ bool ReconstructionLister::configure()
     }
     outputFileInfo.setFile(QDir(outputDirnameStr), outputFilename + "_texrecon.obj");
     _rastersInfo.clear();
-    _rastersInfo << outputFileInfo;
+    _rastersInfo << outputFileInfo;*/
 
     return true;
 }
@@ -59,6 +60,33 @@ void ReconstructionLister::onNewImage(quint32 port, Image &image)
 void ReconstructionLister::onFlush(quint32 port)
 {
     qDebug() << logPrefix() << "Flush on port " << port;
+
+    _rastersInfo.clear();
+
+    static const QString SEP = QDir::separator();
+
+    // Dir checks
+    QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+
+    QString outDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    if(outDirnameStr.isEmpty())
+        outDirnameStr = "outReconstruction";
+
+    QString completeOutPath = rootDirnameStr + SEP + outDirnameStr;
+
+    QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+
+    // Get context
+    QVariant *object = _context->getObject("reconstruction_context");
+    reconstructionContext * rc=NULL;
+    if (object)
+        rc = object->value<reconstructionContext*>();
+
+    for(unsigned int i=0; i<rc->components_ids.size(); i++)
+    {
+        QDir outPathDir(QString("%1_%2").arg(completeOutPath).arg(rc->components_ids[i]));
+        _rastersInfo << outPathDir.absoluteFilePath(QString("%1_%2_texrecon.obj").arg(fileNamePrefixStr).arg(rc->components_ids[i]));
+    }
 }
 
 bool ReconstructionLister::start()
