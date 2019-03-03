@@ -4,6 +4,7 @@
 
 #include "Processor.h"
 #include "openMVG/numeric/eigen_alias_definition.hpp"
+#include <GeographicLib/LocalCartesian.hpp>
 
 using namespace MatisseCommon;
 
@@ -23,6 +24,8 @@ class Init3DRecon : public Processor
 private:
     bool getCameraIntrinsics(double &focal, double &ppx, double &ppy, const double &width, const double &height);
     std::pair<bool, openMVG::Vec3> getPriorWeights();
+
+    GeographicLib::LocalCartesian m_ltp_proj;
 
 public:
     Init3DRecon();

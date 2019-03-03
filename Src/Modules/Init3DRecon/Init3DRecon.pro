@@ -59,7 +59,7 @@ message("Init3DRecon...")
 message($${INCLUDEPATH}))
 message("...Init3DRecon")
 
-LIBS *= -lopenMVG_image -lopenMVG_sfm  -lopenMVG_multiview -leasyexif -lstlplus -ljpeg -lpng -ltiff
+LIBS *= -lopenMVG_image -lopenMVG_sfm  -lopenMVG_multiview -leasyexif -lstlplus -ljpeg -lpng -ltiff -lGeographic
 
 
 win32 {

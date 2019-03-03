@@ -31,6 +31,8 @@
 #include <string>
 #include <vector>
 
+
+
 using namespace openMVG;
 using namespace openMVG::cameras;
 using namespace openMVG::exif;
@@ -311,7 +313,7 @@ void Init3DRecon::onFlush(quint32 port)
     //int i_GPS_XYZ_method = 0;
 
     Vec3 firstImagePos = Vec3::Zero();
-    Vec3 firstImagePosUtm = Vec3::Zero();
+    Vec3 firstImagePosLC = Vec3::Zero();
     bool firstImage = true;
 
     // Expected properties for each image
@@ -517,14 +519,19 @@ void Init3DRecon::onFlush(quint32 port)
             gps_info = checkDIM2(sImageFilename, dim2FileReader.get(), dim2FileMap);
         }
 
-        // get first image info for relative shift (in UTM)
+        // get first image info for relative shift (in LC)
         if(gps_info.first && firstImage)
         {
             firstImage = false;
             // lat, lon, alt
             firstImagePos = gps_info.second;
-            // UTM x, y, alt
-            firstImagePosUtm = lla_to_utm( gps_info.second[0], gps_info.second[1], gps_info.second[2] );
+            // localcartesian x, y, alt reset
+            m_ltp_proj.Reset(gps_info.second[0], gps_info.second[1], gps_info.second[2]);
+
+            // proj first image pos
+            double N,E,U;
+            m_ltp_proj.Forward(gps_info.second[0], gps_info.second[1], gps_info.second[2], E, N, U);
+            firstImagePosLC = Vec3(E, N, U);
         }
 
         if (gps_info.first && use_prior)
@@ -546,9 +553,11 @@ void Init3DRecon::onFlush(quint32 port)
             }
 
             v.b_use_pose_center_ = true;
-            // utm
-            gps_info.second = lla_to_utm( gps_info.second[0], gps_info.second[1], gps_info.second[2] );
-            v.pose_center_ = gps_info.second - firstImagePosUtm;
+            // local cartesian proj
+            double N,E,U;
+            m_ltp_proj.Forward(gps_info.second[0], gps_info.second[1], gps_info.second[2], E, N, U);
+            gps_info.second = Vec3(E, N, U);
+            v.pose_center_ = gps_info.second - firstImagePosLC;
 
             // prior weights
             if (prior_w_info.first == true)
@@ -630,22 +639,22 @@ void Init3DRecon::onFlush(quint32 port)
     outputGeoStream << coords;
     geoFile.close();
 
-    // firstImagePosUtm : in UTM x, y, Alt
-    QString utmcoords = QString::number(firstImagePosUtm[0],'f',3) +";"
-            + QString::number(firstImagePosUtm[1],'f',3) + ";"
-            + QString::number(firstImagePosUtm[2],'f',3);
-    QString fileName = stlplus::create_filespec(rootDirnameStr.toStdString(),"utmrefpos.txt").c_str();
-    QFile utmFile(fileName);
-    if( !utmFile.open(QIODevice::WriteOnly) )
+    // firstImagePosLC : in LC x, y, Alt
+    QString lccoords = QString::number(firstImagePosLC[0],'f',3) +";"
+            + QString::number(firstImagePosLC[1],'f',3) + ";"
+            + QString::number(firstImagePosLC[2],'f',3);
+    QString fileName = stlplus::create_filespec(rootDirnameStr.toStdString(),"lcrefpos.txt").c_str();
+    QFile lc_file(fileName);
+    if( !lc_file.open(QIODevice::WriteOnly) )
     {
         fatalErrorExit("Error saving " + fileName);
     }
 
     // Save the pos
-    QTextStream outputStream(&utmFile);
+    QTextStream outputStream(&lc_file);
 
-    outputStream << utmcoords;
-    utmFile.close();
+    outputStream << lccoords;
+    lc_file.close();
 
     qDebug() << "\n"
              << "SfMInit_ImageListing report:\n"
