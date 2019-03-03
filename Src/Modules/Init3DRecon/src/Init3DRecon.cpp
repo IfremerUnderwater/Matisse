@@ -14,6 +14,7 @@
 #define OPENMVG_SFM_SFM_REGIONS_PROVIDER_CACHE_HPP
 
 //#include "exifreader.hpp"
+
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
 
 //#include "openMVG/exif/sensor_width_database/ParseDatabase.hpp"
@@ -21,7 +22,6 @@
 #include "openMVG/image/image_io.hpp"
 #include "openMVG/stl/split.hpp"
 #include "openMVG/sfm/sfm.hpp"
-
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 
 #include <iostream>
@@ -172,9 +172,6 @@ static std::pair<bool, Vec3> checkGPS(const std::string & filename)
                  exifReader->GPSLongitude( &longitude ) &&
                  exifReader->GPSAltitude( &altitude ) )
             {
-                // déjà traité par exifreader
-                //if(exifReader->GPSAltitudeRef() != 0)
-                //    altitude = -altitude; // dans ce cas, la valeur absolue est stockée dans le champ GPS altitude
 
                 // Add position to the GPS position array
                 val.first = true;
@@ -210,31 +207,20 @@ static std::pair<bool, Vec3> checkDIM2
 }
 
 /// Check string of prior weights
-static std::pair<bool, Vec3> checkPriorWeightsString
-(
-        const std::string &sWeights
-        )
+std::pair<bool, Vec3> Init3DRecon::getPriorWeights
+()
 {
     std::pair<bool, Vec3> val(true, Vec3::Zero());
-    std::vector<std::string> vec_str;
-    stl::split(sWeights, ';', vec_str);
-    if (vec_str.size() != 3)
-    {
-        std::cerr << "\n Missing ';' character in prior weights" << std::endl;
-        val.first = false;
-    }
-    // Check that all weight values are valid numbers
-    for (size_t i = 0; i < vec_str.size(); ++i)
-    {
-        double readvalue = 0.0;
-        std::stringstream ss;
-        ss.str(vec_str[i]);
-        if (! (ss >> readvalue) )  {
-            std::cerr << "\n Used an invalid not a number character in local frame origin" << std::endl;
-            val.first = false;
-        }
-        val.second[i] = readvalue;
-    }
+    bool ok=false; // there is always a default value, no need to check ok bool
+    double reproj_std = _matisseParameters->getDoubleParamValue("vehic_param","reproj_std",ok);
+    double X_std = _matisseParameters->getDoubleParamValue("vehic_param","X_std",ok);
+    double Y_std = _matisseParameters->getDoubleParamValue("vehic_param","Y_std",ok);
+    double depth_std = _matisseParameters->getDoubleParamValue("vehic_param","depth_std",ok);
+
+    val.second[0]=(reproj_std*reproj_std)/(X_std*X_std);
+    val.second[1]=(reproj_std*reproj_std)/(Y_std*Y_std);
+    val.second[2]=(reproj_std*reproj_std)/(depth_std*depth_std);
+
     return val;
 }
 
@@ -251,6 +237,11 @@ Init3DRecon::Init3DRecon() :
     addExpectedParameter("cam_param",  "K");
     addExpectedParameter("cam_param",  "camera_preset");
     addExpectedParameter("cam_param",  "sensor_width");
+
+    addExpectedParameter("vehic_param",  "reproj_std");
+    addExpectedParameter("vehic_param",  "X_std");
+    addExpectedParameter("vehic_param",  "Y_std");
+    addExpectedParameter("vehic_param",  "depth_std");
 
     // unused
     //addExpectedParameter("algo_param", "scale_factor");
@@ -308,7 +299,6 @@ void Init3DRecon::onFlush(quint32 port)
             //sfileDatabase = "",
             sOutputDir = "";
 
-    std::string sPriorWeights;
     std::pair<bool, Vec3> prior_w_info(false, Vec3(1.0,1.0,1.0));
 
     int i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
@@ -423,19 +413,10 @@ void Init3DRecon::onFlush(quint32 port)
         }
     }
 
-    /*if (!getCameraIntrinsics(focal, ppx, ppy) )
-    {
-        fatalErrorExit("Invalid camera matrix input");
-        return;
-    }*/
-
-
     // Check if prior weights are given
-    if (!sPriorWeights.empty() && use_prior)
+    if (use_prior)
     {
-        prior_w_info = checkPriorWeightsString(sPriorWeights);
-    }else if (use_prior){
-        prior_w_info.first = true;
+        prior_w_info = getPriorWeights();
     }
 
     std::vector<std::string> vec_image = stlplus::folder_files( sImageDir );
@@ -548,7 +529,7 @@ void Init3DRecon::onFlush(quint32 port)
 
         if (gps_info.first && use_prior)
         {
-            // utiliser la nav
+            // use nav
             ViewPriors v(*iter_image, sfm_data->views.size(), sfm_data->views.size(), sfm_data->views.size(), width, height);
 
             // Add intrinsic related to the image (if any)
