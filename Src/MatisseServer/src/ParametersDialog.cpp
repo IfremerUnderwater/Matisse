@@ -89,22 +89,22 @@ void ParametersDialog::slot_save()
     // verification existence fichier
     _filename = _ui->_LE_name->text().trimmed().replace(" ", "_") + ".xml";
     QFileInfo info(_path, _filename);
-    QString unableToSaveMsg = tr("Enregistrement impossible");
+    QString unableToSaveMsg = tr("Cannot save");
     if (info.exists()) {
         if (info.isWritable()) {
-            QString msg1 = tr("Confirmation d'enregistrement");
-            QString msg2 = tr("Le fichier %1 existe deja.\nVoulez vous le remplacer ?").arg(_filename);
+            QString msg1 = tr("Saving confirmation");
+            QString msg2 = tr("File %1 already exists.\nDo you want to replace it ?").arg(_filename);
             if (QMessageBox::No == QMessageBox::question(this, msg1, msg2, QMessageBox::Yes, QMessageBox::No)) {
                 return;
             }
         } else {
 
-            QString msg2 = tr("Le fichier %1 existe deja et ne peut etre ecrase !").arg(_filename);
+            QString msg2 = tr("File %1 already exists and cannot be replaced !").arg(_filename);
             QMessageBox::warning(this, unableToSaveMsg, msg2);
             return;
         }
     } else if (!QFileInfo(_path,"").isWritable()) {
-        QMessageBox::warning(this, unableToSaveMsg, tr("Impossible d'ecrire dans le repertoire de sauvegarde !"));
+        QMessageBox::warning(this, unableToSaveMsg, tr("Cannot write in destination folder ! (permission ?)"));
         return;
     }
     accept();

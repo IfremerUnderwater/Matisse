@@ -124,7 +124,7 @@ PlatformComparisonStatus *PlatformComparator::compare(PlatformDump *localPlatfor
         osCompare._versionCompare = DIFFERENT;
         osMatch = false;
 
-        QString platformGapMessage = tr("Types d'OS differents. Pf distante: %1 --- Pf locale: %2");
+        QString platformGapMessage = tr("OS differents. Pf distant: %1 --- Pf local: %2");
         platformGapMessage.arg(remoteOsName).arg(localOsName);
         _status->addPlaformGapMessage(platformGapMessage);
     } else {
@@ -143,7 +143,7 @@ PlatformComparisonStatus *PlatformComparator::compare(PlatformDump *localPlatfor
             osCompare._versionCompare = DIFFERENT;
             osMatch = false;
 
-            QString platformGapMessage = tr("Versions d'OS differentes. Pf distante: %1 --- Pf locale: %2");
+            QString platformGapMessage = tr("OS version differents. Pf distant: %1 --- Pf local: %2");
             platformGapMessage.arg(remoteOsVersion).arg(localOsVersion);
             _status->addPlaformGapMessage(platformGapMessage);
         }
@@ -184,7 +184,7 @@ PlatformComparisonStatus *PlatformComparator::compare(PlatformDump *localPlatfor
             if (!componentCompare._doesMatch) {
                 componentsMatch = false;
 
-                QString platformGapMessage = tr("Versions differentes pour le composant '%1'. Pf distante: %2 --- Pf locale: %3");
+                QString platformGapMessage = tr("Different versions for component '%1'. Pf distant: %2 --- Pf local: %3");
                 platformGapMessage.arg(componentName).arg(remoteComponentVersion).arg(localComponentVersion);
                 _status->addPlaformGapMessage(platformGapMessage);
             }
@@ -197,7 +197,7 @@ PlatformComparisonStatus *PlatformComparator::compare(PlatformDump *localPlatfor
              * For this reason, it is considered as platform mismatch */
             componentsMatch = false;
 
-            QString platformGapMessage = tr("Composant '%1' absent de la plateforme distante.");
+            QString platformGapMessage = tr("Component '%1' not present on distant platform.");
             platformGapMessage.arg(componentName);
             _status->addPlaformGapMessage(platformGapMessage);
         }
@@ -214,7 +214,7 @@ PlatformComparisonStatus *PlatformComparator::compare(PlatformDump *localPlatfor
             componentCompare._foundInLocalPlatform = false;
             _status->addComponentCompared(remoteComponentName, componentCompare);
 
-            QString platformGapMessage = tr("Composant '%1' present sur la plateforme distante mais absent de la plateforme locale.");
+            QString platformGapMessage = tr("Component '%1' present on distant platform but absent on local one.");
             platformGapMessage.arg(remoteComponentName);
             _status->addPlaformGapMessage(platformGapMessage);
         }

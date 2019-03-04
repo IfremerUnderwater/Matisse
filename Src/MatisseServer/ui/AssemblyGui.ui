@@ -243,7 +243,7 @@
           <number>0</number>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="_WID_mapViewTabSet">
           <property name="sizePolicy">
@@ -282,6 +282,9 @@
            </property>
            <item row="0" column="0">
             <widget class="MatisseTabWidget" name="_TW_mapViewTabs">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -306,6 +309,9 @@
              <property name="elideMode">
               <enum>Qt::ElideNone</enum>
              </property>
+             <property name="tabBarAutoHide">
+              <bool>false</bool>
+             </property>
              <widget class="QWidget" name="_TABW_properties">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -326,7 +332,7 @@
                </size>
               </property>
               <attribute name="title">
-               <string>Commentaire</string>
+               <string>Comment</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_3">
                <property name="leftMargin">
@@ -437,7 +443,7 @@
                </size>
               </property>
               <attribute name="title">
-               <string>Cartographie</string>
+               <string>Cartography</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_7">
                <property name="leftMargin">
@@ -668,7 +674,7 @@
                </size>
               </property>
               <attribute name="title">
-               <string>Processeurs</string>
+               <string>Processors</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_5">
                <property name="leftMargin">
@@ -766,7 +772,7 @@
                </size>
               </property>
               <attribute name="title">
-               <string>Destination</string>
+               <string>Destinations</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_6">
                <property name="leftMargin">
@@ -1060,8 +1066,8 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources/resources.qrc"/>
   <include location="icons.qrc"/>
+  <include location="resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

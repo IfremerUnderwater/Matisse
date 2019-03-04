@@ -20,7 +20,7 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Serveur</string>
+      <string>Server</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -42,7 +42,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Adresse:</string>
+         <string>Address:</string>
         </property>
        </widget>
       </item>
@@ -116,7 +116,7 @@
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Client connecté</string>
+      <string>Connected client</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

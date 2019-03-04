@@ -160,7 +160,7 @@
           </size>
          </property>
          <property name="text">
-          <string>PROGRAMMATION
+          <string>EXPERT
 </string>
          </property>
         </widget>
@@ -186,7 +186,7 @@
           </size>
          </property>
          <property name="text">
-          <string>TEMPS REEL
+          <string>REALTIME
 </string>
          </property>
          <property name="autoRepeatInterval">
@@ -209,7 +209,7 @@
           </size>
          </property>
          <property name="text">
-          <string>DEPOUILLEMENT</string>
+          <string>POSTPROCESSING</string>
          </property>
         </widget>
        </item>

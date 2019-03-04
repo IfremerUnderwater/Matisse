@@ -19,7 +19,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="_LA_udpPort">
        <property name="text">
-        <string>Saisir le port UDP :</string>
+        <string>UDP port :</string>
        </property>
       </widget>
      </item>
@@ -94,7 +94,7 @@
      <item>
       <widget class="QPushButton" name="_PB_reinit">
        <property name="text">
-        <string>Effacer</string>
+        <string>Erase</string>
        </property>
       </widget>
      </item>
@@ -147,7 +147,7 @@
      <item>
       <widget class="QPushButton" name="_PB_close">
        <property name="text">
-        <string>Fermer</string>
+        <string>Close</string>
        </property>
       </widget>
      </item>

@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Nouvelle chaine de traitement...</string>
+   <string>New processing chain</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources/resources.qrc">
@@ -44,7 +44,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Nom :</string>
+        <string>Name :</string>
        </property>
       </widget>
      </item>
@@ -83,7 +83,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Utilisation :</string>
+        <string>Usage :</string>
        </property>
       </widget>
      </item>
@@ -114,7 +114,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Depouillement</string>
+         <string>Post processing</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -130,7 +130,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>Temps reel</string>
+         <string>Realtime</string>
         </property>
        </widget>
       </widget>
@@ -187,7 +187,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Valide :</string>
+        <string>Validity :</string>
        </property>
       </widget>
      </item>
@@ -233,7 +233,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Auteur :</string>
+        <string>Author :</string>
        </property>
       </widget>
      </item>
@@ -254,7 +254,7 @@
      <item>
       <widget class="QLabel" name="_LA_comments">
        <property name="text">
-        <string>Commentaires :</string>
+        <string>Comment :</string>
        </property>
       </widget>
      </item>
@@ -281,7 +281,7 @@
      <item>
       <widget class="QPushButton" name="_PB_save">
        <property name="text">
-        <string>Creer</string>
+        <string>Create</string>
        </property>
       </widget>
      </item>
@@ -301,7 +301,7 @@
      <item>
       <widget class="QPushButton" name="_PB_cancel">
        <property name="text">
-        <string>Annuler</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>

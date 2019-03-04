@@ -3,5 +3,7 @@
         <file>ifremer-grand.png</file>
     </qresource>
     <qresource prefix="/jpg"/>
-    <qresource prefix="/"/>
+    <qresource prefix="/">
+        <file>ifremer-grand.ico</file>
+    </qresource>
 </RCC>

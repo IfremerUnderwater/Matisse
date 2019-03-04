@@ -790,9 +790,9 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
 
     // affichage du mode pour TR/TD (sinon affichage de la vue)
     if (mode == REAL_TIME) {
-        _activeViewOrModeLabel->setText(tr("Mode : Temps reel"));
+        _activeViewOrModeLabel->setText(tr("Mode : Real time"));
     } else if(mode == DEFERRED_TIME){
-        _activeViewOrModeLabel->setText(tr("Mode : Depouillement"));
+        _activeViewOrModeLabel->setText(tr("Mode : Post-processing"));
     }
 
     // always init application mode with map view
@@ -800,7 +800,7 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
         slot_swapMapOrCreationView();
     } else {
         if (_activeApplicationMode == PROGRAMMING) {
-            _activeViewOrModeLabel->setText(tr("Vue : Cartographie"));
+            _activeViewOrModeLabel->setText(tr("View : Cartography"));
         }
 
         _context.setLastActionPerformed(CHANGE_APP_MODE);
@@ -824,8 +824,8 @@ bool AssemblyGui::promptAssemblyNotSaved() {
 
         QString newAssemblyName = getActualNewAssemblyName();
 
-        int userResponse = QMessageBox::question(this, tr("Nouvel assemblage..."),
-                                                 tr("L'assemblage '%1' n'a pas encore ete enregistre.\nContinuer sans enregistrer ?\n(Supprimera le nouvel assemblage)")
+        int userResponse = QMessageBox::question(this, tr("New assembly..."),
+                                                 tr("Assembly '%1' not yet saved.\nContinue anyway ?\n(Will delete the current assembly)")
                                                  .arg(newAssemblyName), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
         if (userResponse==QMessageBox::Yes) {
@@ -845,7 +845,7 @@ bool AssemblyGui::promptAssemblyNotSaved() {
 
         QString currentAssemblyName = _currentAssembly->name();
 
-        int userResponse = QMessageBox::question(this, tr("Assemblage modifie..."), tr("L'assemblage '%1' a ete modifie.\nContinuer sans enregistrer les modifications ?").arg(currentAssemblyName), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        int userResponse = QMessageBox::question(this, tr("Assembly modified..."), tr("Assembly '%1' changed.\nContinue anyway ?").arg(currentAssemblyName), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
         if (userResponse == QMessageBox::No) {
             confirmAction = false;
@@ -917,7 +917,7 @@ void AssemblyGui::promptJobNotSaved()
         } else {
             QString currentJobName = _currentJob->name();
 
-            int userResponse = QMessageBox::question(this, tr("Modification de parametres..."), tr("Les parametres de la tache '%1' ont ete modifies.\nEnregistrer les modifications avant de continuer ?").arg(currentJobName), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+            int userResponse = QMessageBox::question(this, tr("Parameters modification..."), tr("Parameters from task '%1' were modified.\nSave mods before going on ?").arg(currentJobName), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 
             if (userResponse == QMessageBox::Yes) {
                 // save job parameters
@@ -1086,7 +1086,7 @@ void AssemblyGui::slot_showUserManual()
     QFileInfo userManualFile(userManualFileName);
 
     if (!userManualFile.exists()) {
-        QMessageBox::warning(this, tr("Manuel Utilisateur"), tr("Le fichier du manuel utilisateur '%1' n'existe pas")
+        QMessageBox::warning(this, tr("User manual"), tr("User manual file '%1' does not exist")
                              .arg(userManualFile.absoluteFilePath()));
         return;
     }
@@ -1188,7 +1188,7 @@ void AssemblyGui::slot_goToResult()
     QString resultPath = datasetPath + QDir::separator()  +_server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
     QDir resultDir(resultPath);
     if (!resultDir.exists()) {
-        QMessageBox::critical(this, tr("Chemin introuvable"), tr("Le chemin parametre comme emplacement du resultat '%1' n'existe pas.").arg(resultPath));
+        QMessageBox::critical(this, tr("Path invalid"), tr("Result path '%1' does not exist.").arg(resultPath));
         return;
     }
 
@@ -1209,14 +1209,14 @@ void AssemblyGui::slot_archiveJob()
     bool archived = _processDataManager->archiveJobFiles(_currentJob->name(), _archivePath);
 
     if (archived) {
-        QMessageBox::information(this, tr("Archivage"), tr("La tache '%1' a bien ete archivee")
+        QMessageBox::information(this, tr("Backup"), tr("Task '%1' has been backed up")
                                  .arg(_currentJob->name()));
 
         // reload assembly tree
         slot_assembliesReload();
 
     } else {
-        QMessageBox::critical(this, tr("Echec archivage"), tr("La tache '%1' n'a pas pu etre archivee.")
+        QMessageBox::critical(this, tr("Backup failure"), tr("Task '%1' couldn't be backed up.")
                               .arg(_currentJob->name()));
     }
 }
@@ -1272,10 +1272,10 @@ void AssemblyGui::slot_duplicateJob()
     if (duplicated) {
         // reload assembly tree
         slot_assembliesReload();
-        QMessageBox::information(this, tr("Duplication de tache"), tr("La tache '%1' a bien ete dupliquee")
+        QMessageBox::information(this, tr("Task copy"), tr("Task '%1' copied")
                                  .arg(jobName));
     } else {
-        QMessageBox::critical(this, tr("Echec duplication"), tr("La tache '%1' n'a pas pu etre dupliquee.")
+        QMessageBox::critical(this, tr("Copy failure"), tr("Task '%1' was not copied.")
                               .arg(jobName));
     }
 }
@@ -1304,10 +1304,10 @@ void AssemblyGui::slot_duplicateAssembly()
     if (duplicated) {
         // reload assembly tree
         slot_assembliesReload();
-        QMessageBox::information(this, tr("Duplication de traitement"), tr("La chaine de traitement '%1' a bien ete dupliquee")
+        QMessageBox::information(this, tr("Processing chain copy"), tr("Processing chain '%1' copied")
                                  .arg(assemblyName));
     } else {
-        QMessageBox::critical(this, tr("Echec duplication"), tr("La chaine de traitement '%1' n'a pas pu etre dupliquee.")
+        QMessageBox::critical(this, tr("Processing chain copy failed"), tr("Processing chain '%1' copy failed.")
                               .arg(assemblyName));
     }
 
@@ -1347,7 +1347,7 @@ void AssemblyGui::slot_exportMapToImage()
         createExportDir();
     }
 
-    QString imageFilePath = QFileDialog::getSaveFileName(this, tr("Export de la vue cartographie en image..."), _exportPath, tr("Fichier image (*.png)"));
+    QString imageFilePath = QFileDialog::getSaveFileName(this, tr("Export current view to image..."), _exportPath, tr("Image file (*.png)"));
 
     if (imageFilePath.isEmpty()) {
         /* cancel */
@@ -1358,8 +1358,8 @@ void AssemblyGui::slot_exportMapToImage()
 
     QMessageBox::information(
                 this,
-                tr("Export de la vue carto en image"),
-                tr("La vue cartographique a bien ete exportee dans le fichier image %1").arg(imageFilePath));
+                tr("Export view to image"),
+                tr("View has been exported in file %1").arg(imageFilePath));
 }
 
 void AssemblyGui::slot_exportMapToQgisProject()
@@ -1368,7 +1368,7 @@ void AssemblyGui::slot_exportMapToQgisProject()
         createExportDir();
     }
 
-    QString qgisProjectFilePath = QFileDialog::getSaveFileName(this, tr("Export du projet QGIS..."), _exportPath, tr("Fichier projet (*.qgs)"));
+    QString qgisProjectFilePath = QFileDialog::getSaveFileName(this, tr("Export QGIS project..."), _exportPath, tr("Project file (*.qgs)"));
 
     if (qgisProjectFilePath.isEmpty()) {
         /* cancel */
@@ -1379,13 +1379,13 @@ void AssemblyGui::slot_exportMapToQgisProject()
 
     QMessageBox::information(
                 this,
-                tr("Export du projet QGIS"),
-                tr("La vue cartographique a bien ete exportee sous forme de projet QGIS dans le fichier %1").arg(qgisProjectFilePath));
+                tr("Export QGIS project"),
+                tr("Viex exported to QGis project file %1").arg(qgisProjectFilePath));
 }
 
 void AssemblyGui::slot_loadShapeFile()
 {
-    QString shapeFilePath = QFileDialog::getOpenFileName(this, tr("Ouverture fichier shapefile..."), _exportPath, tr("Fichier shapefile (*.shp)"));
+    QString shapeFilePath = QFileDialog::getOpenFileName(this, tr("Open shapefile..."), _exportPath, tr("Shapefile (*.shp)"));
 
     if (shapeFilePath.isEmpty()) {
         /* cancel */
@@ -1397,7 +1397,7 @@ void AssemblyGui::slot_loadShapeFile()
 
 void AssemblyGui::slot_loadRasterFile()
 {
-    QString rasterFilePath = QFileDialog::getOpenFileName(this, tr("Ouverture fichier raster..."), _exportPath, tr("Fichier raster (*.tif *.tiff)"));
+    QString rasterFilePath = QFileDialog::getOpenFileName(this, tr("Open raster..."), _exportPath, tr("Raster file (*.tif *.tiff)"));
 
     if (rasterFilePath.isEmpty()) {
         /* cancel */
@@ -1412,7 +1412,7 @@ void AssemblyGui::slot_launchPreprocessingTool()
     QMap<QString, QString> externalTools = _systemDataManager->getExternalTools();
     if (!externalTools.contains("preprocessingTool")) {
         qCritical() << "preprocessingTool tool not defined in settings";
-        QMessageBox::critical(this, tr("Configuration systeme incomplete"), tr("L'outil de pretraitements n'est pas defini dans la configuration systeme"));
+        QMessageBox::critical(this, tr("Incomplete system configuration"), tr("Preprocessing tool not defined in system configuration"));
         return;
     }
 
@@ -1421,7 +1421,7 @@ void AssemblyGui::slot_launchPreprocessingTool()
 
     if (!toolPathFile.exists()) {
         qCritical() << QString("Could not find exposure tool exe file '%1'").arg(toolPath);
-        QMessageBox::critical(this, tr("Outil non trouve"), tr("Impossible de trouver le fichier executable de l'outil de pretraitement '%1'").arg(toolPath));
+        QMessageBox::critical(this, tr("Tool not found"), tr("Preprocessing tool not found in file '%1'").arg(toolPath));
         return;
     }
 
@@ -1476,11 +1476,11 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
     }
 
     /* common translated labels */
-    QString exportFailedTitle = tr("Echec de l'export");
-    QString noEntitySelectedMessage = (isJobExportAction) ? tr("Aucune tache n'est selectionnee.") : tr("Aucune chaine de traitement n'est selectionnee.");
-    QString exportTitle = (isJobExportAction) ? tr("Export d'une tache") : tr("Export d'une chaine de traitement");
-    QString successMessage = (isJobExportAction) ? tr("La tache '%1' a bien ete exportee dans '%2'") : tr("La chaine de traitement '%1' a bien ete exportee dans '%2'");
-    QString operationFailedMessage = tr("L'operation a echoue.");
+    QString exportFailedTitle = tr("Export failure");
+    QString noEntitySelectedMessage = (isJobExportAction) ? tr("No task selected.") : tr("No processing chain were selected.");
+    QString exportTitle = (isJobExportAction) ? tr("Taks export") : tr("Export processing chain");
+    QString successMessage = (isJobExportAction) ? tr("Task '%1' exported in '%2'") : tr("Processing chain '%1' exported in '%2'");
+    QString operationFailedMessage = tr("Operation failed.");
 
     /* check that an assembly/job is selected */
     bool selected = (isJobExportAction) ? (_currentJob != NULL) : (_currentAssembly != NULL);
@@ -1522,7 +1522,7 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
         QFileInfo jobFile(_processDataManager->getJobsBasePath() + QDir::separator() + entityFileName);
         if (!jobFile.exists()) {
             qCritical() << QString("File not found for job '%1'. Job could not be exported.").arg(_currentAssembly->name());
-            QMessageBox::critical(this, exportFailedTitle, tr("Le fichier de la tache '%1' n'existe pas.\n").arg(jobFile.absoluteFilePath()).append(operationFailedMessage));
+            QMessageBox::critical(this, exportFailedTitle, tr("Task file '%1' does not exist.\n").arg(jobFile.absoluteFilePath()).append(operationFailedMessage));
             return;
         }
 
@@ -1531,7 +1531,7 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
         QFileInfo jobParametersFile(_processDataManager->getJobParametersFilePath(_currentJob->name()));
         if (!jobParametersFile.exists()) {
             qCritical() << QString("Parameters file not found for job '%1'. Job could not be exported.").arg(_currentJob->name());
-            QMessageBox::critical(this, exportFailedTitle, tr("Le fichier de parametrage de la tache '%1' n'existe pas.\n").arg(jobParametersFile.absoluteFilePath())
+            QMessageBox::critical(this, exportFailedTitle, tr("Task parameter file '%1' does not exist.\n").arg(jobParametersFile.absoluteFilePath())
                                   .append(operationFailedMessage));
             return;
         }
@@ -1543,7 +1543,7 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
         assembly = _processDataManager->getAssembly(assemblyName);
         if (!assembly) {
             qCritical() << QString("Assembly '%1' could not be found in local repository").arg(assemblyName);
-            QMessageBox::critical(this, exportFailedTitle, tr("Impossible de charger l'assemblage '%1' parent de la tache '%2'.\n").arg(assemblyName).arg(entityName)
+            QMessageBox::critical(this, exportFailedTitle, tr("Cannot load assembly '%1' parent from task '%2'.\n").arg(assemblyName).arg(entityName)
                                   .append(operationFailedMessage));
             return;
         }
@@ -1557,7 +1557,7 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
     QFileInfo assemblyFile(_processDataManager->getAssembliesPath() + QDir::separator() + assemblyFilename);
     if (!assemblyFile.exists()) {
         qCritical() << QString("File not found for assembly '%1'. Assembly/Job could not be exported.").arg(assemblyName);
-        QMessageBox::critical(this, exportFailedTitle, tr("Le fichier d'assemblage' '%1' n'existe pas.\n").arg(assemblyFile.absoluteFilePath())
+        QMessageBox::critical(this, exportFailedTitle, tr("Assembly file' '%1' does not exist.\n").arg(assemblyFile.absoluteFilePath())
                               .append(operationFailedMessage));
         return;
     }
@@ -1610,8 +1610,8 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
     }
 
     /* PROMPT USER FOR FILE TO IMPORT */
-    QString fileDialogTitle = (isJobImportAction) ? tr("Importer une tache...") : tr("Importer un assemblage...");
-    QString importFilePath = QFileDialog::getOpenFileName(this, fileDialogTitle, _importPath, tr("Fichier export (*.zip)"));
+    QString fileDialogTitle = (isJobImportAction) ? tr("Import a task...") : tr("Import assembly...");
+    QString importFilePath = QFileDialog::getOpenFileName(this, fileDialogTitle, _importPath, tr("Export file (*.zip)"));
 
     if (importFilePath.isEmpty()) {
         // cancelling import operation
@@ -1654,14 +1654,14 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
     bool foundJobParametersFile = false;
     bool foundPlatformFile = false;
 
-    QString importFailedTitle = tr("Echec de l'import");
-    QString importTitle = (isJobImportAction) ? tr("Import d'une tache") : tr("Import d'une chaine de traitement");
-    QString areYouSureContinueMessage = tr("Etes-vous sur de vouloir continuer ?");
-    QString areYouSureReplaceMessage = tr("Etes-vous sur de vouloir l'ecraser ?");
-    QString operationFailedMessage = tr("L'operation a echoue.");
-    QString operationTemporarilyFailedMessage = tr("L'operation a temporairement echoue.\n");
-    QString tryAgainLaterMessage = tr("Reessayer ulterieurement.");
-    QString removeFileManually = tr("Supprimer le fichier manuellement ou reessayer ulterieurement.");
+    QString importFailedTitle = tr("Import failed");
+    QString importTitle = (isJobImportAction) ? tr("Task import") : tr("Processing chain import");
+    QString areYouSureContinueMessage = tr("Sure to continue ?");
+    QString areYouSureReplaceMessage = tr("Sure you want to erase ?");
+    QString operationFailedMessage = tr("Operation failed.");
+    QString operationTemporarilyFailedMessage = tr("Operation temporary failed.\n");
+    QString tryAgainLaterMessage = tr("Try again later.");
+    QString removeFileManually = tr("Delete manually or try again later.");
 
     // Parsing archive files to verify that all expected files are present
     QStringList filesList = FileUtils::getZipEntries(importFilePath);
@@ -1700,32 +1700,32 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
     if (isJobImportAction) {
         if (!foundJobFile) {
             qCritical() << "Job file could not be found in the export archive " + importFilePath;
-            QMessageBox::critical(this, importFailedTitle, tr("Le fichier que vous essayez d'importer ne contient pas de fichier de definition d'une tache."));
+            QMessageBox::critical(this, importFailedTitle, tr("Job file could not be found in the export archive."));
             return;
         }
 
         if (!foundJobParametersFile) {
             qCritical() << "Job parameters file could not be found in the export archive " + importFilePath;
-            QMessageBox::critical(this, importFailedTitle, tr("Le fichier que vous essayez d'importer ne contient pas de fichier de parametrage de la tache."));
+            QMessageBox::critical(this, importFailedTitle, tr("Job parameters file could not be found in the export archive."));
             return;
         }
     }
 
     if (!foundAssemblyFile) {
         qCritical() << "Assembly file could not be found in the export archive " + importFilePath;
-        QMessageBox::critical(this, importFailedTitle, tr("Le fichier que vous essayez d'importer ne contient pas de fichier de definition d'une chaine de traitement."));
+        QMessageBox::critical(this, importFailedTitle, tr("Assembly file could not be found in the export archive."));
         return;
     }
 
     if (!foundAssemblyParametersFile) {
         qCritical() << "Assembly parameters file could not be found in the export archive " + importFilePath;
-        QMessageBox::critical(this, importFailedTitle, tr("Le fichier que vous essayez d'importer ne contient pas de fichier de parametrage d'une chaine de traitement."));
+        QMessageBox::critical(this, importFailedTitle, tr("Assembly parameters file could not be found in the export archive ."));
         return;
     }
 
     if (!foundPlatformFile) {
         qCritical() << "Remote platform summary file could not be found in the export archive " + importFilePath;
-        QMessageBox::critical(this, importFailedTitle, tr("Le fichier que vous essayez d'importer ne contient pas d'information sur la plateforme a l'origine de l'export."));
+        QMessageBox::critical(this, importFailedTitle, tr("Remote platform summary file could not be found in the export archive."));
         return;
     }
 
@@ -1745,7 +1745,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
 
     if (!unzipped) {
         qCritical() << QString("Could not unzip file '%1' to temporary importation dir '%2'.").arg(importFilePath).arg(tempImportDirPath);
-        QMessageBox::critical(this, importFailedTitle, tr("Impossible d'extraire le contenu de l'archive '%1'.\n")
+        QMessageBox::critical(this, importFailedTitle, tr("Could not unzip file '%1'.\n")
                               .arg(importFilePath).append(tryAgainLaterMessage));
         return;
     }
@@ -1755,14 +1755,14 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
 
     bool read = _systemDataManager->readRemotePlatformSummary(tempRemotePlatformFile);
     if (!read) {
-        QMessageBox::critical(this, importFailedTitle, tr("Le fichier d'import est invalide.\n").append(operationFailedMessage));
+        QMessageBox::critical(this, importFailedTitle, tr("Import file invalid.\n").append(operationFailedMessage));
         return;
     }
 
     PlatformComparisonStatus *comparisonStatus = _systemDataManager->compareRemoteAndLocalPlatform();
 
     if (!comparisonStatus) {
-        QMessageBox::critical(this, importFailedTitle, tr("Aucune information n'est disponible sur la plateforme distante.\n").append(operationFailedMessage));
+        QMessageBox::critical(this, importFailedTitle, tr("No information available on distant platform.\n").append(operationFailedMessage));
         return;
     }
 
@@ -1774,16 +1774,16 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
         /* Comparing remote and local Matisse versions */
 
         if (comparisonStatus->matisseCompared()._versionCompare == DIFFERENT) {
-            QMessageBox::critical(this, importFailedTitle, tr("Les versions de Matisse distante et locale n'ont pas pu etre comparees.\n").append(operationFailedMessage));
+            QMessageBox::critical(this, importFailedTitle, tr("Distant and local Matisse version couldn't be compared.\n").append(operationFailedMessage));
             return;
         } else if (comparisonStatus->matisseCompared()._versionCompare == NEWER) {
-            QMessageBox::critical(this, importFailedTitle, tr("L'archive a ete exportee a partir d'une version de Matisse plus recente.\n").append(operationFailedMessage));
+            QMessageBox::critical(this, importFailedTitle, tr("Archive comes from newer Matisse version than this one.\n").append(operationFailedMessage));
             return;
         } else if (comparisonStatus->matisseCompared()._versionCompare == OLDER) {
             if (QMessageBox::No == QMessageBox::question(
                         this,
                         importTitle,
-                        tr("Vous essayez d'importer une archive exportee a partir d'une version plus ancienne de Matisse.\n").append(areYouSureContinueMessage),
+                        tr("You are trying to import from an older version of Matisse. Sure to continue ?\n").append(areYouSureContinueMessage),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
                 return;
@@ -1808,7 +1808,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
             if (QMessageBox::No == QMessageBox::question(
                         this,
                         importTitle,
-                        tr("Vous essayez d'importer une archive exportee a partir d'une plateforme differente (voir ci-dessous).\n").append(areYouSureContinueMessage)
+                        tr("You are trying to import a file from a different system version (see below).\n").append(areYouSureContinueMessage)
                         .append("\n").append(platformGapMessagesStack),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
@@ -1851,7 +1851,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
 
         if (!read) {
             qCritical() << QString("The job file contained in export archive is invalid.");
-            QMessageBox::critical(this, importFailedTitle, tr("Le fichier de tache contenu dans l'archive est invalide.\n")
+            QMessageBox::critical(this, importFailedTitle, tr("Task file in archive is invalid.\n")
                                   .append(operationFailedMessage));
             return;
         }
@@ -1876,7 +1876,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
 
         if (assemblyName != _currentAssembly->name()) {
             qCritical() << QString("The job file contained in export archive is invalid.").arg(sourceJobFilePath);
-            QMessageBox::critical(this, importFailedTitle, tr("La tache que vous essayez d'importer ne correspond pas a l'assemblage selectionne.\n")
+            QMessageBox::critical(this, importFailedTitle, tr("The task you're trying to import does not match the selected assembly.\n")
                                   .append(operationFailedMessage));
             return;
         }
@@ -1922,7 +1922,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
             if (QMessageBox::No == QMessageBox::question(
                         this,
                         importTitle,
-                        tr("La tache %1 existe deja sur ce poste.\n")
+                        tr("Task %1 already exists.\n")
                         .arg(jobName).append(areYouSureReplaceMessage),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
@@ -1962,7 +1962,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
             if (QMessageBox::No == QMessageBox::question(
                         this,
                         importTitle,
-                        tr("La chaine de traitement %1 contenue dans l'archive est differente de celle presente sur ce poste.\n")
+                        tr("Processing chain %1 in archive is different from the one on your computer.\n")
                         .arg(_currentAssembly->name()).append(areYouSureReplaceMessage),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
@@ -1981,7 +1981,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
                 if (QMessageBox::No == QMessageBox::question(
                             this,
                             importTitle,
-                            tr("Le parametrage de la chaine de traitement %1 contenu dans l'archive est different de celui present sur ce poste.\n")
+                            tr("Parameters from processing chain %1 in archive is different from the one on your computer.\n")
                             .arg(_currentAssembly->name()).append(areYouSureReplaceMessage),
                             QMessageBox::Yes,
                             QMessageBox::No)) {
@@ -1997,7 +1997,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
             if (QMessageBox::No == QMessageBox::question(
                         this,
                         importTitle,
-                        tr("La chaine de traitement %1 existe sur ce poste mais n'a pas de fichier de parametrage.\n")
+                        tr("Processing chain %1 exists on this computer but has no parameters file.\n")
                         .arg(_currentAssembly->name()).append(areYouSureReplaceMessage),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
@@ -2016,7 +2016,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
             if (QMessageBox::No == QMessageBox::question(
                         this,
                         importTitle,
-                        tr("La chaine de traitement %1 existe deja sur ce poste.\n")
+                        tr("Processing chain %1 already exists on this computer.\n")
                         .arg(assemblyName).append(areYouSureReplaceMessage),
                         QMessageBox::Yes,
                         QMessageBox::No)) {
@@ -2046,7 +2046,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
     if (removeTargetJobFile) {
         if (!targetJobFile.remove()) {
             qCritical() << QString("Could not remove existing job file '%1'.").arg(targetJobFilePath);
-            QMessageBox::critical(this, importFailedTitle, tr("Impossible de supprimer le fichier de tache existant '%1'.\n")
+            QMessageBox::critical(this, importFailedTitle, tr("Could not remove existing job file '%1'.\n")
                                   .arg(targetJobFilePath).append(removeFileManually));
             return;
         }
@@ -2055,7 +2055,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
     if (removeTargetJobParametersFile) {
         if (!targetJobParametersFile.remove()) {
             qCritical() << QString("Could not remove existing job parameters file '%1'.").arg(targetJobParametersFilePath);
-            QMessageBox::critical(this, importFailedTitle, tr("Impossible de supprimer le fichier de parametrage de tache existant '%1'.\n")
+            QMessageBox::critical(this, importFailedTitle, tr("Could not remove existing job parameters file '%1'.\n")
                                   .arg(targetJobParametersFilePath).append(removeFileManually));
             return;
         }
@@ -2064,7 +2064,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
     if (removeTargetAssemblyFile) {
         if (!targetAssemblyFile.remove()) {
             qCritical() << QString("Could not remove existing assembly file '%1'.").arg(targetAssemblyFilePath);
-            QMessageBox::critical(this, importFailedTitle, tr("Impossible de supprimer le fichier de definition d'assemblage existant '%1'.\n")
+            QMessageBox::critical(this, importFailedTitle, tr("Could not remove existing assembly file '%1'.\n")
                                   .arg(targetAssemblyFilePath).append(removeFileManually));
             return;
         }
@@ -2073,7 +2073,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
     if (removeTargetAssemblyParametersFile) {
         if (!targetAssemblyParametersFile.remove()) {
             qCritical() << QString("Could not remove existing assembly parameters file '%1'.").arg(targetAssemblyParametersFilePath);
-            QMessageBox::critical(this, importFailedTitle, tr("Impossible de supprimer le fichier de parametrage d'assemblage existant '%1'.\n")
+            QMessageBox::critical(this, importFailedTitle, tr("Could not remove existing assembly parameters file '%1'.\n")
                                   .arg(targetAssemblyParametersFilePath).append(removeFileManually));
             return;
         }
@@ -2088,7 +2088,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
         qDebug() << "Copying job file...";
         if (!sourceJobFile.copy(targetJobFilePath)) {
             qCritical() << QString("Could not copy job file '%1' to '%2'.").arg(sourceJobFilePath).arg(targetJobFilePath);
-            QMessageBox::critical(this, importFailedTitle, tr("Impossible de copier le fichier de definition de la tache"));
+            QMessageBox::critical(this, importFailedTitle, tr("Could not copy job file"));
             return;
         } else {
             qDebug() << "... done";
@@ -2100,7 +2100,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
         qDebug() << "Copying job parameters file...";
         if (!sourceJobParametersFile.copy(targetJobParametersFilePath)) {
             qCritical() << QString("Could not copy job parameters file '%1' to '%2'.").arg(sourceJobFilePath).arg(targetJobFilePath);
-            QMessageBox::critical(this, importFailedTitle, tr("Impossible de copier le fichier de parametrage de la tache"));
+            QMessageBox::critical(this, importFailedTitle, tr("Could not copy job parameters file"));
             return;
         } else {
             qDebug() << "... done";
@@ -2112,7 +2112,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
         qDebug() << "Copying assembly file...";
         if (!sourceAssemblyFile.copy(targetAssemblyFilePath)) {
             qCritical() << QString("Could not copy assembly file '%1' to '%2'.").arg(sourceAssemblyFilePath).arg(targetAssemblyFilePath);
-            QMessageBox::critical(this, importFailedTitle, tr("Impossible de copier le fichier de definition de la chaine de traitement"));
+            QMessageBox::critical(this, importFailedTitle, tr("Could not copy assembly file"));
             return;
         } else {
             qDebug() << "... done";
@@ -2121,7 +2121,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
         qDebug() << "Copying assembly parameters file...";
         if (!sourceAssemblyParametersFile.copy(targetAssemblyParametersFilePath)) {
             qCritical() << QString("Could not copy assembly parameters file '%1' to '%2'.").arg(sourceAssemblyFilePath).arg(targetAssemblyFilePath);
-            QMessageBox::critical(this, importFailedTitle, tr("Impossible de copier le fichier de parametrage de la chaine de traitement"));
+            QMessageBox::critical(this, importFailedTitle, tr("Could not copy assembly parameters file"));
             return;
         } else {
             qDebug() << "... done";
@@ -2139,13 +2139,13 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
             jobName = _processDataManager->getJobNameByFilePath(sourceJobFilePath);
         }
 
-        successMessage = tr("La tache '%1' a bien ete importee.").arg(jobName);
+        successMessage = tr("Task '%1' successfully imported.").arg(jobName);
     } else {
         if (assemblyName.isEmpty()) {
             assemblyName = _processDataManager->getAssemblyNameByFilePath(sourceAssemblyFilePath);
         }
 
-        successMessage = tr("La chaine de traitement '%1' a bien ete importee.").arg(assemblyName);
+        successMessage = tr("Processing chain '%1' successfully imported.").arg(assemblyName);
     }
 
     QMessageBox::information(
@@ -2160,11 +2160,11 @@ void AssemblyGui::doFoldUnfoldParameters(bool doUnfold, bool isExplicitAction)
     if (doUnfold) {
         qDebug() << "Unfolding parameters";
         _parametersDock->show();
-        _ui->_PB_parameterFold->setToolTip(tr("Replier la fenetre de parametrage"));
+        _ui->_PB_parameterFold->setToolTip(tr("Fold parameters window"));
     } else {
         qDebug() << "Folding parameters";
         _parametersDock->hide();
-        _ui->_PB_parameterFold->setToolTip(tr("Deplier la fenetre de parametrage"));
+        _ui->_PB_parameterFold->setToolTip(tr("Unfold parameters window"));
     }
 
     if (!isExplicitAction) {
@@ -2210,7 +2210,7 @@ bool AssemblyGui::checkArchivePathChange()
 
             if (hasArchivedFiles) {
                 QString fullArchivePath = archiveDir.absolutePath();
-                QMessageBox::critical(this, tr("Dossier d'archivage"), tr("Le dossier d'archivage '%1' contient deja des taches archivees et ne peut pas etre modifie.")
+                QMessageBox::critical(this, tr("Archive folder"), tr("Archive folder '%1' already contains task(s) and cannot be modified.")
                                       .arg(fullArchivePath));
                 /* restoring previous archive path */
                 _preferences->setArchivePath(_archivePath);
@@ -2460,13 +2460,13 @@ void AssemblyGui::displayAssemblyProperties(AssemblyDefinition *selectedAssembly
     _assemblyVersionPropertyItem->setText(0, tr("Version:"));
     _assemblyVersionPropertyItem->setText(1, selectedAssembly->version());
 
-    _assemblyCreationDatePropertyItem->setText(0, tr("Date de création:"));
+    _assemblyCreationDatePropertyItem->setText(0, tr("Creation date:"));
     _assemblyCreationDatePropertyItem->setText(1, selectedAssembly->date());
 
-    _assemblyAuthorPropertyItem->setText(0, tr("Auteur:"));
+    _assemblyAuthorPropertyItem->setText(0, tr("Author:"));
     _assemblyAuthorPropertyItem->setText(1, selectedAssembly->author());
 
-    _assemblyCommentPropertyHeaderItem->setText(0, tr("Commentaire:"));
+    _assemblyCommentPropertyHeaderItem->setText(0, tr("Comment:"));
 
     _assemblyCommentPropertyItemText->setText(selectedAssembly->comment());
     _assemblyCommentPropertyItemText->setToolTip(selectedAssembly->comment()); // to ensure full comment display
@@ -2588,7 +2588,7 @@ void AssemblyGui::displayJob(QString jobName, bool forceReload)
 
     if (comments != "") {
         jobCommentLabelItem = new QTreeWidgetItem();
-        jobCommentLabelItem->setText(0, tr("Commentaire:"));
+        jobCommentLabelItem->setText(0, tr("Comment:"));
         _ui->_TRW_assemblyInfo->addTopLevelItem(jobCommentLabelItem);
 
         jobCommentItem = new QTreeWidgetItem();
@@ -2607,13 +2607,13 @@ void AssemblyGui::displayJob(QString jobName, bool forceReload)
 
     if (_currentJob->executionDefinition() && _currentJob->executionDefinition()->executed()) {
         QTreeWidgetItem *jobExecutionDateItem = new QTreeWidgetItem();
-        jobExecutionDateItem->setText(0, tr("Date d'execution:"));
+        jobExecutionDateItem->setText(0, tr("Execution date:"));
         QString executionDateStr = _currentJob->executionDefinition()->executionDate().toString(tr("dd/MM/yyyy HH:mm"));
         jobExecutionDateItem->setText(1, executionDateStr);
         _ui->_TRW_assemblyInfo->addTopLevelItem(jobExecutionDateItem);
 
         jobResultLabelItem = new QTreeWidgetItem();
-        jobResultLabelItem->setText(0, tr("Images resultat:"));
+        jobResultLabelItem->setText(0, tr("Result file:"));
         _ui->_TRW_assemblyInfo->addTopLevelItem(jobResultLabelItem);
 
 
@@ -2745,12 +2745,12 @@ void AssemblyGui::deleteAssemblyAndReload(bool promptUser)
     QString assemblyName = getActualAssemblyOrJobName(selectedItem);
 
     if (_processDataManager->assemblyHasArchivedJob(assemblyName)) {
-        QMessageBox::critical(this, tr("Chemin introuvable"), tr("La chaine de traitement a des taches archivees et ne peut pas etre supprimee.").arg(assemblyName));
+        QMessageBox::critical(this, tr("Invalid path"), tr("Processing chain has archived task and cannot be removed.").arg(assemblyName));
         return;
     }
 
     if (promptUser) {
-        int ret = QMessageBox::question(this, tr("Supprimer l'assemblage"), tr("Voulez vous supprimer l'assemblage %1 ?").arg(assemblyName), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+        int ret = QMessageBox::question(this, tr("Delete assembly"), tr("Do you want to delete assembly %1 ?").arg(assemblyName), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
         if (ret==QMessageBox::Cancel) {
             return;
         }
@@ -2937,8 +2937,8 @@ void AssemblyGui::slot_saveJob()
 
     // modif logique: on peut enregistrer un job deja execute: on enleve l'etat executed et on ecrase...
     if (_currentJob->executionDefinition()->executed()) {
-        if (QMessageBox::No == QMessageBox::question(this, tr("Travail execute..."),
-                                                     tr("Le travail a deja ete execute.\nVoulez-vous l'ecraser ?"),
+        if (QMessageBox::No == QMessageBox::question(this, tr("Processed job..."),
+                                                     tr("Job already processed.\n Do you still want to reprocess ?"),
                                                      QMessageBox::Yes,
                                                      QMessageBox::No)) {
             return;
@@ -2963,7 +2963,7 @@ void AssemblyGui::slot_saveJob()
 
     /* save job and parameters */
     if (!_processDataManager->writeJobFile(_currentJob, true)) {
-        showError(tr("Fichier de travail..."), tr("Le fichier %1 n'a pu etre ecrit...").arg(_currentJob->name() + ".xml"));
+        showError(tr("Job file..."), tr("File %1 could not be write...").arg(_currentJob->name() + ".xml"));
         return;
     }
 
@@ -2994,7 +2994,7 @@ void AssemblyGui::slot_deleteJob()
 
     QString jobName = getActualAssemblyOrJobName(selectedItem);
 
-    int ret = QMessageBox::question(this, tr("Supprimer le travail"), tr("Voulez vous supprimer le travail %1?").arg(jobName), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+    int ret = QMessageBox::question(this, tr("Delete Job"), tr("Do you want to delete Job %1?").arg(jobName), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
     if (ret==QMessageBox::Cancel) {
         return;
     }
@@ -3222,57 +3222,57 @@ void AssemblyGui::retranslate()
     qDebug() << "Translating static and contextual menu items...";
 
     /* MENU FICHIER */
-    _fileMenu->setTitle(tr("FICHIER"));
-    _exportMapViewAct->setText(tr("Exporter la vue carto en image"));
-    _exportProjectQGisAct->setText(tr("Exporter le projet en fichier QGIS"));
-    _closeAct->setText(tr("Fermer"));
+    _fileMenu->setTitle(tr("FILE"));
+    _exportMapViewAct->setText(tr("Export view to image"));
+    _exportProjectQGisAct->setText(tr("Export project to QGIS file"));
+    _closeAct->setText(tr("Close"));
 
     /* MENU AFFICHAGE */
-    _displayMenu->setTitle(tr("AFFICHAGE"));
-    _dayNightModeAct->setText(tr("Mode jour/nuit"));
-    _mapToolbarAct->setText(tr("Barres d'outils"));
+    _displayMenu->setTitle(tr("DISPLAY"));
+    _dayNightModeAct->setText(tr("Day/night mode"));
+    _mapToolbarAct->setText(tr("Toolbar"));
 
     /* MENU TRAITEMENTS */
-    _processMenu->setTitle(tr("TRAITEMENTS"));
-    _createAssemblyAct->setText(tr("Creer"));
-    _saveAssemblyAct->setText(tr("Enregistrer"));
-    _importAssemblyAct->setText(tr("Importer"));
-    _exportAssemblyAct->setText(tr("Exporter"));
+    _processMenu->setTitle(tr("PROCESSING"));
+    _createAssemblyAct->setText(tr("Create"));
+    _saveAssemblyAct->setText(tr("Save"));
+    _importAssemblyAct->setText(tr("Import"));
+    _exportAssemblyAct->setText(tr("Export"));
 
     /* MENU OUTILS */
-    _toolMenu->setTitle(tr("OUTILS"));
-    _appConfigAct->setText(tr("Configurer les parametres de l'application"));
-    _preprocessingTool->setText(tr("Lancer outil outil de pretraitement"));
+    _toolMenu->setTitle(tr("TOOLS"));
+    _appConfigAct->setText(tr("Configure settings for application"));
+    _preprocessingTool->setText(tr("Launch preprocessing tool"));
     //_videoToImageToolAct->setText(tr("Lancer outil transformation de videos en jeux d'image"));
-    _checkNetworkRxAct->setText(tr("Verifier reception reseau"));
+    _checkNetworkRxAct->setText(tr("Check network reception"));
 
     /* Sous-menu Cartographie */
-    _mapMenu->setTitle(tr("Cartographie"));
-    _loadShapefileAct->setText(tr("Charger un shapefile"));
-    _loadRasterAct->setText(tr("Charger un raster"));
+    _mapMenu->setTitle(tr("Cartography"));
+    _loadShapefileAct->setText(tr("Load shapefile"));
+    _loadRasterAct->setText(tr("Load raster"));
 
     /* MENU AIDE */
-    _helpMenu->setTitle(tr("AIDE"));
-    _userManualAct->setText(tr("Manuel utilisateur"));
-    _aboutAct->setText(tr("A propos"));
+    _helpMenu->setTitle(tr("HELP"));
+    _userManualAct->setText(tr("User manual"));
+    _aboutAct->setText(tr("About"));
 
 
     /* Menu contextuel Traitement */
-    _createJobAct->setText(tr("Creer une nouvelle tache"));
-    _importJobAct->setText(tr("Importer une nouvelle tache"));
-    _cloneAssemblyAct->setText(tr("Dupliquer"));
-    _deleteAssemblyAct->setText(tr("Supprimer la chaine de traitement"));
-    _restoreJobAct->setText(tr("Restaurer"));
-    _updateAssemblyPropertiesAct->setText(tr("Mettre a jour les proprietes"));
+    _createJobAct->setText(tr("Create new task"));
+    _importJobAct->setText(tr("Import task"));
+    _cloneAssemblyAct->setText(tr("Copy"));
+    _deleteAssemblyAct->setText(tr("Delete processing chain"));
+    _restoreJobAct->setText(tr("Restore"));
+    _updateAssemblyPropertiesAct->setText(tr("Update properties"));
 
     /* Menu contextuel Tâche */
-    _executeJobAct->setText(tr("Executer"));
-    _saveJobAct->setText(tr("Enregistrer"));
-    _cloneJobAct->setText(tr("Dupliquer"));
-    _exportJobAct->setText(tr("Exporter"));
-    _deleteJobAct->setText(tr("Supprimer"));
-    _archiveJobAct->setText(tr("Archiver"));
-    _goToResultsAct->setText(tr("Ouvrir emplacement du resultat"));
+    _executeJobAct->setText(tr("Run"));
+    _saveJobAct->setText(tr("Save"));
+    _cloneJobAct->setText(tr("Copy"));
+    _exportJobAct->setText(tr("Export"));
+    _deleteJobAct->setText(tr("Delete"));
+    _archiveJobAct->setText(tr("Archive"));
+    _goToResultsAct->setText(tr("Open reconstruction folder"));
 }
 
 
@@ -3293,11 +3293,11 @@ void AssemblyGui::slot_maximizeOrRestore()
     if (isMaximized()) {
         showNormal();
         _iconFactory->attachIcon(_maxOrRestoreButtonWrapper, "lnf/icons/agrandir.svg", false, false);
-        _maximizeOrRestoreButton->setToolTip(tr("Agrandir la fenetre principale"));
+        _maximizeOrRestoreButton->setToolTip(tr("Maximize main window"));
     } else {
         showMaximized();
         _iconFactory->attachIcon(_maxOrRestoreButtonWrapper, "lnf/icons/reinittaille.svg", false, false);
-        _maximizeOrRestoreButton->setToolTip(tr("Restaurer la taille initiale"));
+        _maximizeOrRestoreButton->setToolTip(tr("Restore window size"));
     }
 }
 
@@ -3528,11 +3528,11 @@ void AssemblyGui::slot_swapMapOrCreationView()
 
         _isMapView = false;
         if (_activeApplicationMode == PROGRAMMING) {
-            _activeViewOrModeLabel->setText(tr("Vue : Creation"));
+            _activeViewOrModeLabel->setText(tr("View : Creation"));
         }
         //        _visuModeButton->setIcon(_creationVisuModeIcon);
         _iconFactory->attachIcon(_visuModeButtonWrapper, "lnf/icons/Clef.svg", false, false);
-        _visuModeButton->setToolTip(tr("Basculer sur la vue Cartographie"));
+        _visuModeButton->setToolTip(tr("Switch view to cartography"));
 
         // swap view (1: creation view)
         _ui->_SW_viewStack->setCurrentIndex(1);
@@ -3562,11 +3562,11 @@ void AssemblyGui::slot_swapMapOrCreationView()
         qDebug() << "Swapping to map view";
         _isMapView = true;
         if (_activeApplicationMode == PROGRAMMING) {
-            _activeViewOrModeLabel->setText(tr("Vue : Cartographie"));
+            _activeViewOrModeLabel->setText(tr("View : Cartography"));
         }
         //        _visuModeButton->setIcon(_mapVisuModeIcon);
         _iconFactory->attachIcon(_visuModeButtonWrapper, "lnf/icons/Cartographie.svg", false, false);
-        _visuModeButton->setToolTip(tr("Basculer sur la vue Creation"));
+        _visuModeButton->setToolTip(tr("Switch view to Creation"));
 
         /* Reset visible parameters */
         _server.parametersManager()->clearExpectedParameters();
@@ -3608,7 +3608,7 @@ void AssemblyGui::slot_launchJob()
     qDebug() << "Launching job...";
 
 
-    // On test assemblage ou job
+    // On teste assemblage ou job
     // Le bouton est actif si le job est selectionnable
     // cad si l'image n'a pas été produite...
     // ou si on a selectionné un assemblage
@@ -3655,8 +3655,8 @@ void AssemblyGui::slot_launchJob()
     //    }
 
     if (_currentJob->executionDefinition()->executed()) {
-        if (QMessageBox::No == QMessageBox::question(this, tr("Travail execute..."),
-                                                     tr("Le travail a deja ete execute.\nVoulez-vous le relancer?"),
+        if (QMessageBox::No == QMessageBox::question(this, tr("Job already processed..."),
+                                                     tr("Job already processed.\n Process again ?"),
                                                      QMessageBox::Yes,
                                                      QMessageBox::No)) {
             return;
@@ -3666,8 +3666,8 @@ void AssemblyGui::slot_launchJob()
 
     // If a parameter was modified, the user is prompted for saving parameter values
     if (_jobParameterModified) {
-        if (QMessageBox::No == QMessageBox::question(this, tr("Modification de parametres..."),
-                                                     tr("Un ou plusieurs parametres ont ete modifies.\nVoulez-vous enregistrer le parametrage de la tache ?"),
+        if (QMessageBox::No == QMessageBox::question(this, tr("Parameters changed..."),
+                                                     tr("One or more parameters were modified.\nDo you want to save task parameters ?"),
                                                      QMessageBox::Yes,
                                                      QMessageBox::No)) {
 
@@ -3686,8 +3686,8 @@ void AssemblyGui::slot_launchJob()
 
     AssemblyDefinition * assemblyDef = _processDataManager->getAssembly(assemblyName);
     if (!assemblyDef) {
-        qCritical() << "Erreur recup assemblage" << assemblyName;
-        showStatusMessage(tr("Erreur sur l'assemblage"), ERROR);
+        qCritical() << "Assembly error" << assemblyName;
+        showStatusMessage(tr("Assembly error"), ERROR);
         return;
     }
 
@@ -3695,10 +3695,10 @@ void AssemblyGui::slot_launchJob()
 
     _userFormWidget->switchCartoViewTo(QImageView);
 
-    qDebug() << "Execute le job " << jobName;
+    qDebug() << "Running job " << jobName;
 
-    QString msg1=tr("Fichier introuvable.");
-    QString msg2=tr("Le fichier de travail %1 n'a pu etre lance").arg(jobName);
+    QString msg1=tr("File not found.");
+    QString msg2=tr("Job file %1 could not be launched").arg(jobName);
 
     // on recharge le fichier...
     if (!_processDataManager->readJobFile(jobFilename)) {
@@ -3732,7 +3732,7 @@ void AssemblyGui::slot_launchJob()
     }
 
 
-    QString msg = tr("Travail %1 en cours...").arg(jobName);
+    QString msg = tr("Job %1 running...").arg(jobName);
     showStatusMessage(msg, IDLE);
 
     doFoldUnfoldParameters(false);
@@ -3744,7 +3744,7 @@ void AssemblyGui::slot_launchJob()
     bool runSuccess = _server.processJob(*_currentJob);
 
     if (!runSuccess) {
-        QString msg = tr("Erreur %1: %2").arg(jobName).arg(_server.messageStr());
+        QString msg = tr("Error %1: %2").arg(jobName).arg(_server.messageStr());
         showStatusMessage(msg, ERROR);
         _stopButton->setEnabled(false);
     }else{
@@ -3757,14 +3757,14 @@ void AssemblyGui::slot_launchJob()
 void AssemblyGui::slot_stopJob()
 {
     QString jobName = _lastJobLaunchedItem->data(0, Qt::UserRole).toString();
-    qDebug() << "Arrêt du job " << jobName.toLatin1();
+    qDebug() << "Stopping job " << jobName.toLatin1();
 
-    QString msg1=tr("Arret du travail en cours.");
-    QString msg2=tr("Voulez vous arreter ou annuler le travail?");
+    QString msg1=tr("Stopping running job.");
+    QString msg2=tr("Do you want to stop or cancel the job?");
     QMessageBox msgBox;
     msgBox.setText(msg1);
     msgBox.setInformativeText(msg2);
-    QPushButton *stopButton = msgBox.addButton(tr("Arret"), QMessageBox::AcceptRole);
+    QPushButton *stopButton = msgBox.addButton(tr("Stop"), QMessageBox::AcceptRole);
     QPushButton *discardButton = msgBox.addButton(QMessageBox::Discard);
     msgBox.addButton(QMessageBox::Cancel);
 
@@ -3858,12 +3858,12 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
                     qCritical() << QString("Item for job '%1' is not of type MatisseTreeItem, cannot display icon").arg(name);
                 }
 
-                QString msg = tr("Travail %1 annule...").arg(jobDef->name());
+                QString msg = tr("Job %1 cancelled...").arg(jobDef->name());
                 showStatusMessage(msg, OK);
-                // TODO Nettoyage image?
+                // TODO Image cleaning ?
             }
             else  {
-                // mise a jour de la led...
+                // led update...
                 if (_lastJobLaunchedItem->type() == MatisseTreeItem::Type) {
                     MatisseTreeItem *lastJobLaunchedIconItem = static_cast<MatisseTreeItem *>(_lastJobLaunchedItem);
                     IconizedWidgetWrapper *itemWrapper = new IconizedTreeItemWrapper(lastJobLaunchedIconItem, 0);
@@ -3872,7 +3872,7 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
                     qCritical() << QString("Item for job '%1' is not of type MatisseTreeItem, cannot display icon").arg(name);
                 }
 
-                QString msg = tr("Travail %1 termine...").arg(jobDef->name());
+                QString msg = tr("Job %1 finished...").arg(jobDef->name());
                 showStatusMessage(msg, OK);
 
                 selectJob(jobDef->name());

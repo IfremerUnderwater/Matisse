@@ -36,20 +36,20 @@ void DuplicateDialog::slot_close()
         name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_+|~=`{}\\[\\]:\";'<>?,.\\\\/]")));
 
         if (name.isEmpty()) {
-            QMessageBox::warning(this, tr("Duplication impossible..."), tr("Un nom doit obligatoirement etre fourni pour la tache"));
+            QMessageBox::warning(this, tr("Cannot copy..."), tr("No name given"));
             return;
         }
 
         if (name == _originalName) {
-            QMessageBox::warning(this, tr("Duplication impossible..."), tr("Le nouveau nom doit obligatoirement etre different du nom de la tache dupliquee"));
+            QMessageBox::warning(this, tr("Cannot copy..."), tr("Name has to be different than previous one"));
             return;
         }
 
         if (_existingElementNames.contains(name)) {
             if (_isAssembly) {
-                QMessageBox::warning(this, tr("Duplication impossible..."), tr("Le nom de chaine de traitement '%1' est deja utilise.").arg(name));
+                QMessageBox::warning(this, tr("Cannot copy..."), tr("Name '%1' is already used.").arg(name));
             } else {
-                QMessageBox::warning(this, tr("Duplication impossible..."), tr("Le nom de tache '%1' est deja utilise.").arg(name));
+                QMessageBox::warning(this, tr("Cannot copy..."), tr("Name '%1' is already used.").arg(name));
             }
 
             return;
@@ -57,7 +57,7 @@ void DuplicateDialog::slot_close()
 
         if (!_isAssembly) {
             if (_archivedJobs.contains(name)) {
-                QMessageBox::warning(this, tr("Duplication impossible..."), tr("Le nom '%1' est deja utilise par une tache archivee.").arg(name));
+                QMessageBox::warning(this, tr("Cannot copy..."), tr("Name '%1' is used by an archived task.").arg(name));
                 return;
             }
         }

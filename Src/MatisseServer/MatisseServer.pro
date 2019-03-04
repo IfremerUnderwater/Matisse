@@ -180,3 +180,6 @@ OTHER_FILES += \
 DISTFILES += \
     ../../Config/xml/models/MatisseAssembly.xsd \
     ../../Config/schemas/MatisseParametersDictionnary.xsd
+
+
+RC_ICONS = ./ui/resources/ifremer-grand.ico

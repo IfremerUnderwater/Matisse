@@ -9,8 +9,12 @@ Component.prototype.createOperations = function()
 
     if (systemInfo.productType === "windows") {
         component.addOperation("CreateShortcut", "@TargetDir@/Matisse.bat", "@StartMenuDir@/Matisse3D.lnk",
-            "workingDirectory=@TargetDir@","iconPath=%SystemRoot%/system32/SHELL32.dll",
-            "iconId=80");
+            "workingDirectory=@TargetDir@","iconPath=@TargetDir@/MatisseServer.exe",
+            "iconId=0");
+			
+	    component.addOperation("CreateShortcut", "@TargetDir@/DataPreprocessingWizard.bat", "@StartMenuDir@/MatissePreprocessing.lnk",
+            "workingDirectory=@TargetDir@","iconPath=@TargetDir@/MatisseServer.exe",
+            "iconId=0");
 		
 		component.addOperation("CreateShortcut", "@TargetDir@/maintenancetool.exe", "@StartMenuDir@/MatisseUninstall.lnk",
             "workingDirectory=@TargetDir@","iconPath=%SystemRoot%/system32/SHELL32.dll",

@@ -212,7 +212,7 @@ void LiveProcessWheel::slot_processRunning()
     }
     _clockTimer->start(_msForOneHourClockTurn);
     _state = RUNNING;
-    setToolTip(tr("Traitement en cours..."));
+    setToolTip(tr("Process running..."));
 }
 
 void LiveProcessWheel::slot_processStopped()
@@ -223,7 +223,7 @@ void LiveProcessWheel::slot_processStopped()
     }
     _state = INACTIVE;
     inactivateWheel();
-    setToolTip(tr("Pas de traitement en cours"));
+    setToolTip(tr("No process running"));
     repaint();
 }
 
@@ -232,7 +232,7 @@ void LiveProcessWheel::slot_processFrozen()
     qDebug() << QString("Live process wheel state change %1 -> %2").arg(_state).arg(QString::number(FROZEN));
     _clockTimer->stop();
     _state = FROZEN;
-    setToolTip(tr("Traitement fige"));
+    setToolTip(tr("Frozen processing"));
 }
 
 void LiveProcessWheel::slot_updateWheelColors(QString colors)

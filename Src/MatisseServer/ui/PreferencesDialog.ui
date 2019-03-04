@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Fenetre configuration de l'application</string>
+   <string>Configuration</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources/resources.qrc">
@@ -87,14 +87,14 @@
        <item row="6" column="1">
         <widget class="QLabel" name="_LA_language">
          <property name="text">
-          <string>Langue (EN/FR) :</string>
+          <string>Language (EN/FR) :</string>
          </property>
         </widget>
        </item>
        <item row="4" column="1" colspan="6">
         <widget class="QLabel" name="_LA_DefaultMosaicPrefix">
          <property name="text">
-          <string>Prefixe nom du fichier mosaique par defaut :</string>
+          <string>Default output name:</string>
          </property>
         </widget>
        </item>
@@ -128,7 +128,7 @@
        <item row="5" column="1" colspan="3">
         <widget class="QLabel" name="_LA_enableProgrammingMode">
          <property name="text">
-          <string>Activation mode programmation :  </string>
+          <string>Enable expert mode</string>
          </property>
         </widget>
        </item>
@@ -138,7 +138,7 @@
        <item row="0" column="1" colspan="2">
         <widget class="QLabel" name="_LA_importExport">
          <property name="text">
-          <string>Chemin import/export :</string>
+          <string>Import/Export directory</string>
          </property>
         </widget>
        </item>
@@ -164,7 +164,7 @@
        <item row="1" column="1" colspan="2">
         <widget class="QLabel" name="_LA_archivePath">
          <property name="text">
-          <string>Chemin d'archivage :</string>
+          <string>Archive directory :</string>
          </property>
         </widget>
        </item>
@@ -187,7 +187,7 @@
        <item row="2" column="1" colspan="3">
         <widget class="QLabel" name="_LA_defaultResultPath">
          <property name="text">
-          <string>Chemin des resultats par defaut :</string>
+          <string>Default output directory :</string>
          </property>
         </widget>
        </item>
@@ -214,7 +214,7 @@
        <item>
         <widget class="QPushButton" name="_PB_save">
          <property name="text">
-          <string>Enregistrer</string>
+          <string>Save</string>
          </property>
         </widget>
        </item>
@@ -234,7 +234,7 @@
        <item>
         <widget class="QPushButton" name="_PB_cancel">
          <property name="text">
-          <string>Annuler</string>
+          <string>Cancel</string>
          </property>
         </widget>
        </item>
@@ -245,8 +245,8 @@
   </layout>
  </widget>
  <resources>
-  <include location="resources/resources.qrc"/>
   <include location="icons.qrc"/>
+  <include location="resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -32,15 +32,15 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     _supportedImageFormat << "jpg" << "jpeg" << "png";
 
     // Init QAction & Menu
-    _extentAutoResize = new QAction(tr("Ajustement auto a l'emprise"),this);
+    _extentAutoResize = new QAction(tr("Auto adjust to footprint"),this);
     _extentAutoResize->setCheckable(true);
     _extentAutoResize->setChecked(true);
 
-    _followLastItem = new QAction(tr("Suivre le dernier ajout"),this);
+    _followLastItem = new QAction(tr("Follow last item"),this);
     _followLastItem->setCheckable(false);
     _followLastItem->setChecked(false);
 
-    _manualMove = new QAction(tr("Deplacement manuel"),this);
+    _manualMove = new QAction(tr("Manual move"),this);
     _manualMove->setCheckable(false);
     _manualMove->setChecked(false);
 
@@ -126,7 +126,7 @@ void UserFormWidget::initMapToolBar()
        QAction *zoomInAction = new QAction(this);
        IconizedActionWrapper *zoomInActionWrapper = new IconizedActionWrapper(zoomInAction);
       _iconFactory->attachIcon(zoomInActionWrapper, "lnf/icons/carte-zoom-in.svg", false, false);
-       zoomInAction->setIconText(tr("Zoom AV"));
+       zoomInAction->setIconText(tr("Zoom in"));
       _mapToolBar->addAction(zoomInAction);
        connect(zoomInAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomInTool()));
 
@@ -142,14 +142,14 @@ void UserFormWidget::initMapToolBar()
       QAction *zoomOutAction = new QAction(this);
       IconizedActionWrapper *zoomOutActionWrapper = new IconizedActionWrapper(zoomOutAction);
       _iconFactory->attachIcon(zoomOutActionWrapper, "lnf/icons/carte-zoom-out.svg", false, false);
-      zoomOutAction->setIconText(tr("Zoom AR"));
+      zoomOutAction->setIconText(tr("Zoom out"));
       _mapToolBar->addAction(zoomOutAction);
       connect(zoomOutAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomOutTool()));
 
     QAction *recenterAction = new QAction(this);
     IconizedActionWrapper *recenterActionWrapper = new IconizedActionWrapper(recenterAction);
     _iconFactory->attachIcon(recenterActionWrapper, "lnf/icons/carte-afficher-tout.svg", false, false);
-    recenterAction->setIconText(tr("Recentrer"));
+    recenterAction->setIconText(tr("Recenter"));
     _mapToolBar->addAction(recenterAction);
     connect(recenterAction, SIGNAL(triggered(bool)), this, SLOT(slot_recenterMap()));
 

@@ -77,7 +77,7 @@
       </size>
      </property>
      <property name="text">
-      <string>Vue : Cartographie</string>
+      <string>View : Cartography</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignBottom|Qt::AlignHCenter</set>

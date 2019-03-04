@@ -45,7 +45,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Ifremer</string>
+        <string/>
        </property>
        <property name="pixmap">
         <pixmap>:/png/20x20_cst_rvb_300dpi.png</pixmap>
@@ -80,11 +80,7 @@
      <item row="0" column="3">
       <widget class="QLabel" name="_LA_aboutMainText">
        <property name="text">
-        <string>&lt;table&gt;					&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;h1&gt;MATISSE %1&lt;/h1&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;em&gt;Support technique:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Tél.:&lt;/td&gt;&lt;td&gt;+33(0)4 94 30 44 35&lt;/td&gt;&lt;/tr&gt;			&lt;tr&gt;&lt;td&gt;Courriel:&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;mailto:aurelien.arnaubec@ifremer.fr&quot;&gt;aurelien.arnaubec@ifremer.fr&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;/table&gt; 
-</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;MATISSE %1&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Technical support:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p&gt;Tél.:&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;+33(0)4 94 30 44 35&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p&gt;Mail:&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;&lt;a href=&quot;mailto:aurelien.arnaubec@ifremer.fr&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;aurelien.arnaubec@ifremer.fr&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
@@ -143,7 +139,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Fermer</string>
+        <string>Close</string>
        </property>
       </widget>
      </item>

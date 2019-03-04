@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="_LA_jobsToRestore">
      <property name="text">
-      <string>Taches archivees pour l'assemblage %1 :</string>
+      <string>Archived tasks for assembly %1 :</string>
      </property>
     </widget>
    </item>
@@ -64,7 +64,7 @@
      <item>
       <widget class="QPushButton" name="_PB_save">
        <property name="text">
-        <string>Restaurer</string>
+        <string>Restore</string>
        </property>
       </widget>
      </item>
@@ -84,7 +84,7 @@
      <item>
       <widget class="QPushButton" name="_PB_cancel">
        <property name="text">
-        <string>Annuler</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>

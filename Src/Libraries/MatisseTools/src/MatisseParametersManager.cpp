@@ -746,13 +746,13 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
 void MatisseParametersManager::translateHeaderButtons()
 {
     ParametersHeaderButton *userHeaderButton = _headerButtonsByLevel.value(USER);
-    userHeaderButton->setText(tr("Parametres utilisateur"));
+    userHeaderButton->setText(tr("User parameters"));
 
     ParametersHeaderButton *advancedHeaderButton = _headerButtonsByLevel.value(ADVANCED);
-    advancedHeaderButton->setText(tr("Parametres avances"));
+    advancedHeaderButton->setText(tr("Advanced parameters"));
 
     ParametersHeaderButton *expertHeaderButton = _headerButtonsByLevel.value(EXPERT);
-    expertHeaderButton->setText(tr("Parametres mode expert"));
+    expertHeaderButton->setText(tr("Expert parameters"));
 }
 
 void MatisseParametersManager::slot_translateParameters()

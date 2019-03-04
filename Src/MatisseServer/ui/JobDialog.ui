@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Nouvelle tache</string>
+   <string>New task</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources/resources.qrc">
@@ -50,7 +50,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Nom :</string>
+        <string>Name :</string>
        </property>
       </widget>
      </item>
@@ -64,7 +64,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Commentaires :</string>
+        <string>Comment :</string>
        </property>
       </widget>
      </item>
@@ -110,21 +110,21 @@
      <item row="1" column="0">
       <widget class="QLabel" name="_LA_resultPath">
        <property name="text">
-        <string>Nom du dossier resultat :</string>
+        <string>Output path :</string>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="_LA_outputFile">
        <property name="text">
-        <string>Prefixe du fichier de sortie :</string>
+        <string>Output name :</string>
        </property>
       </widget>
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="_LA_navigationFile">
        <property name="text">
-        <string>Fichier de navigation :</string>
+        <string>Navigation file :</string>
        </property>
       </widget>
      </item>
@@ -134,7 +134,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="_LA_dataPath">
        <property name="text">
-        <string>Chemin des donnees :</string>
+        <string>Data path :</string>
        </property>
       </widget>
      </item>
@@ -204,7 +204,7 @@
      <item>
       <widget class="QPushButton" name="_PB_save">
        <property name="text">
-        <string>Enregistrer</string>
+        <string>Save</string>
        </property>
       </widget>
      </item>
@@ -224,7 +224,7 @@
      <item>
       <widget class="QPushButton" name="_PB_cancel">
        <property name="text">
-        <string>Annuler</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>

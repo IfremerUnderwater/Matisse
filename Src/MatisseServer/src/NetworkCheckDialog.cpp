@@ -34,7 +34,7 @@ void NetworkCheckDialog::slot_connect(bool checked)
     int udpPort = udpPortText.toInt(&isPortValid);
 
     if (!isPortValid) {
-        QMessageBox::critical(this, tr("Connexion impossible..."), tr("Le port saisi est invalide."));
+        QMessageBox::critical(this, tr("Connection impossible..."), tr("Invalid port."));
         return;
     }
 
@@ -43,7 +43,7 @@ void NetworkCheckDialog::slot_connect(bool checked)
     _clientSocket = new QUdpSocket(this);
     bool connected = _clientSocket->bind(udpPort);
     if (!connected) {
-        QMessageBox::critical(this, tr("Connexion impossible..."), tr("Impossible de se connecter sur le port selectionne."));
+        QMessageBox::critical(this, tr("Connection impossible..."), tr("No connection on given port."));
         clearSocket();
         return;
     }

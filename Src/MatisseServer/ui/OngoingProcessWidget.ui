@@ -94,7 +94,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Explication sur le traitement en cours</string>
+        <string>Currrent process info</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

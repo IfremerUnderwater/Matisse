@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="_LA_newNamePrompt">
        <property name="text">
-        <string>Saisir un nouveau nom :</string>
+        <string>Name :</string>
        </property>
       </widget>
      </item>
@@ -46,7 +46,7 @@
      <item>
       <widget class="QPushButton" name="_PB_save">
        <property name="text">
-        <string>Dupliquer</string>
+        <string>Copy</string>
        </property>
       </widget>
      </item>
@@ -66,7 +66,7 @@
      <item>
       <widget class="QPushButton" name="_PB_cancel">
        <property name="text">
-        <string>Annuler</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>

@@ -167,14 +167,14 @@ void AssemblyGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         if (!(event->buttons() & Qt::LeftButton)) {
             // affichage popup suppression
             QMenu menu;
-            QAction * delItemAct = menu.addAction(tr("Supprimer"));
+            QAction * delItemAct = menu.addAction(tr("Delete"));
             QAction * delSrcAct = NULL;
             QAction * delDestAct =NULL;
             if ((eltType == ProcessorType) || (eltType == DestinationType)) {
-                delSrcAct = menu.addAction(tr("Supprimer les connexions entrantes"));
+                delSrcAct = menu.addAction(tr("Delete incoming connexions"));
             }
             if (eltType != DestinationType) {
-                delDestAct = menu.addAction(tr("Supprimer les connexions sortantes"));
+                delDestAct = menu.addAction(tr("Delete outgoing connexions"));
             }
 
             QAction * cmd = menu.exec(event->screenPos());
@@ -644,7 +644,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     AssemblyDefinition * assembly = _processDataManager->getAssembly(assemblyName);
     if (!assembly) {
-        QMessageBox::warning(_messageTargetWidget, tr("Assemblage invalide"), tr("L'assemblage ne peut etre charge..."));
+        QMessageBox::warning(_messageTargetWidget, tr("Invalid assembly"), tr("Assembly cannot be loaded..."));
         return false;
     }
 
@@ -656,7 +656,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     bool continueLoad = true;
 //    bool paramOk = true;
-    QString partialLoadMessage = tr("L'assemblage sera partiellement charge...\nContinuer ?");
+    QString partialLoadMessage = tr("Assembly will only be partialy loaded...\nContinue ?");
 
     // recherche source
     bool srcOk = false;
@@ -678,7 +678,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
     if (!srcOk){
         qWarning() << "Source NOK";
         if (!continueLoad) {
-            continueLoad = (QMessageBox::question(_messageTargetWidget, tr("Source invalide"),
+            continueLoad = (QMessageBox::question(_messageTargetWidget, tr("Invalid source"),
                                                   partialLoadMessage,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)
@@ -716,7 +716,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
         } else {
             if (!continueLoad) {
-                continueLoad = (QMessageBox::question(_messageTargetWidget, tr("Processeur invalide"),
+                continueLoad = (QMessageBox::question(_messageTargetWidget, tr("Invalid processor"),
                                                       partialLoadMessage,
                                                       QMessageBox::Yes,
                                                       QMessageBox::No)
@@ -747,7 +747,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 
     if (!destOk){
         if (!continueLoad) {
-            continueLoad = (QMessageBox::question(_messageTargetWidget, tr("Destination invalide"),
+            continueLoad = (QMessageBox::question(_messageTargetWidget, tr("Invalid destination"),
                                                   partialLoadMessage,
                                                   QMessageBox::Yes,
                                                   QMessageBox::No)

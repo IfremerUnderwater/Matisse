@@ -92,20 +92,20 @@ void JobDialog::slot_close()
         name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_+|~=`{}\\[\\]:\";'<>?,.\\\\/]")));
 
         if (name.isEmpty()) {
-            QMessageBox::warning(this, tr("Enregistrement impossible..."), tr("Un nom doit obligatoirement etre fourni pour la tache."));
+            QMessageBox::warning(this, tr("Cannot save..."), tr("You must give a name."));
             return;
         }
 
 
         if (_existingJobNames.contains(name)) {
-            QMessageBox::warning(this, tr("Enregistrement impossible..."),
-                                 tr("Le nom de tache '%1' est deja utilise.").arg(name));
+            QMessageBox::warning(this, tr("Cannot save..."),
+                                 tr("Name '%1' is already used.").arg(name));
             return;
         }
 
         if (_archivedJobNames.contains(name)) {
-            QMessageBox::warning(this, tr("Enregistrement impossible..."),
-                                 tr("Le nom '%1' est deja utilise par une tache archivee.").arg(name));
+            QMessageBox::warning(this, tr("Cannot save..."),
+                                 tr("Name '%1' is used b an archived task.").arg(name));
             return;
         }
 
@@ -116,7 +116,7 @@ void JobDialog::slot_close()
             /* Technically inconsistent state */
             qCritical() << QString("The file %1 was found, could not create job %2").arg(info.absoluteFilePath()).arg(name);
             // Le nom est déjà utilisé
-            QMessageBox::critical(this, tr("Enregistrement impossible..."), tr("Le fichier '%1' existe deja.").arg(info.absoluteFilePath()));
+            QMessageBox::critical(this, tr("Cannot save..."), tr("File '%1' already exists.").arg(info.absoluteFilePath()));
             return;
         }
 
@@ -145,11 +145,11 @@ void JobDialog::slot_selectDir()
     bool isDataPath = (sender() == _ui->_PB_dataPath);
 
     if (isDataPath) {
-        caption = tr("Selectionner chemin des donnees");
+        caption = tr("Select data path");
         fieldText = _ui->_LE_dataPath->text();
 
     } else {
-        caption = tr("Nom du dossier resultat");
+        caption = tr("Output folder");
         fieldText = _ui->_LE_resultPath->text();
     }
 
@@ -204,7 +204,7 @@ void JobDialog::slot_selectFile()
         }
     }
 
-    selFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Selectionner fichier de navigation"), currentPath, "Nav files (*.dim2 *.txt)");
+    selFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Select navigation file"), currentPath, "Nav files (*.dim2 *.txt)");
 
     if (selFile.isEmpty()) {
         return;

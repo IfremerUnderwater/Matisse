@@ -166,7 +166,7 @@ MatisseParameters* Server::buildMatisseParameters(JobDefinition &job) {
     if (QFile::exists(file)) {
         parameters = new MatisseParameters(file);
     } else {
-        setMessageStr(tr("Fichier de parametres introuvable: %1").arg(file));
+        setMessageStr(tr("Cannot find parameters file: %1").arg(file));
     }
 
     return parameters;
@@ -225,7 +225,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     QList<Processor*> processorList;
     RasterProvider* rasterProvider = NULL;
 
-    qDebug() << "Verification de l'assemblage";
+    qDebug() << "Check assembly";
 
 
     // Verifier si les paramètres attendus sont présents pour la source
@@ -233,7 +233,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     qDebug() << "Verification présence de la source" << sourceName;
     imageProvider = _imageProviders.value(sourceName);
     if (!imageProvider) {
-        setMessageStr(tr("Module source introuvable: %1").arg(sourceName));
+        setMessageStr(tr("Source modul not found: %1").arg(sourceName));
         return false;
     }
 
@@ -241,7 +241,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     QList<MatisseParameter> expectedParams = imageProvider->expectedParameters();
     foreach (MatisseParameter mp, expectedParams) {
         if (!matisseParameters->containsParam(mp.structure, mp.param)) {
-            setMessageStr(tr("Parametre requis manquant dans l'assemblage: (%1, %2) pour %3").arg(mp.structure, mp.param, sourceName));
+            setMessageStr(tr("Required parameter not found: (%1, %2) for %3").arg(mp.structure, mp.param, sourceName));
             return false;
         }
     }
@@ -256,21 +256,21 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
         QString processorName = procDef->name();
         qDebug() << "Processeur" << processorName;
         if (order==0) {
-            setMessageStr(tr("Processeur defini avec un ordre incorrect: %1").arg(processorName));
+            setMessageStr(tr("Processor defined in wrong order: %1").arg(processorName));
             // impossible :source
             return false;
         }
         else {
             Processor *processor = _processors.value(processorName ,NULL);
             if (!processor) {
-                setMessageStr(tr("Module processeur introuvable: %1").arg(processorName));
+                setMessageStr(tr("Cannot find processor module: %1").arg(processorName));
                 return false;
             }
 
             expectedParams = processor->expectedParameters();
             foreach (MatisseParameter mp, expectedParams) {
                 if (!matisseParameters->containsParam(mp.structure, mp.param)) {
-                    setMessageStr(tr("Parametre requis manquant dans l'assemblage: (%1, %2) pour %3").arg(mp.structure, mp.param, processorName));
+                    setMessageStr(tr("Required parameter not found in assembly: (%1, %2) for %3").arg(mp.structure, mp.param, processorName));
                     return false;
                 }
             }
@@ -282,25 +282,25 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     qDebug() << "Verification présence destination";
     DestinationDefinition * destinationDef= assembly.destinationDefinition();
     if (!destinationDef) {
-         setMessageStr(tr("Destination non definie"));
+         setMessageStr(tr("Destination not defined"));
         return false;
     }
     quint32 order = destinationDef->order();
     QString destinationName = destinationDef->name();
     if (order <= maxOrder) {
-        setMessageStr(tr("Destination definie avec un ordre incorrect: %1").arg(destinationName));
+        setMessageStr(tr("Destination defined with wrong order: %1").arg(destinationName));
         return false;
     }
     else {
         rasterProvider = _rasterProviders.value(destinationName);
         if (!rasterProvider) {
-            setMessageStr(tr("Module de destination introuvable: %1").arg(destinationName));
+            setMessageStr(tr("Cannot find destionation module: %1").arg(destinationName));
             return false;
         }
         expectedParams = rasterProvider->expectedParameters();
         foreach (MatisseParameter mp, expectedParams) {
             if (!matisseParameters->containsParam(mp.structure, mp.param)) {
-                setMessageStr(tr("Parametre requis manquant dans l'assemblage: (%1, %2) pour %3").arg(mp.structure, mp.param, destinationName));
+                setMessageStr(tr("Cannot find required parameter for assembly: (%1, %2) for %3").arg(mp.structure, mp.param, destinationName));
                 return false;
             }
         }
@@ -428,7 +428,7 @@ bool Server::processJob(JobDefinition &jobDefinition)
 
 
     if (!parameters) {
-        setMessageStr(tr("Fichier de parametres invalide"));
+        setMessageStr(tr("Invalid parameters file"));
         return false;
     }
 
@@ -438,12 +438,12 @@ bool Server::processJob(JobDefinition &jobDefinition)
     AssemblyDefinition * assemblyDefinition = _processDataManager->getAssembly(assemblyName);
 
     if (!assemblyDefinition) {
-        setMessageStr(tr("Impossible de charger l'assemblage %1").arg(assemblyName));
+        setMessageStr(tr("Cannot load assembly %1").arg(assemblyName));
         return false;
     }
 
     if (!buildJobTask(*assemblyDefinition, jobDefinition, parameters)) {
-        setMessageStr(tr("Echec d'execution de l'assemblage"));
+        setMessageStr(tr("Running assembly failed"));
         return false;
     }
 

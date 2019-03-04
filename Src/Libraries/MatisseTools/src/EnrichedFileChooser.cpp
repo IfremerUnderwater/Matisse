@@ -57,9 +57,9 @@ void EnrichedFileChooser::restoreDefaultValue()
 void EnrichedFileChooser::slot_clicked() {
     QString retFile;
     if ((_type == FILE_SELECTOR_RELATIVE) || (_type == FILE_SELECTOR_ABSOLUTE)) {
-        retFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Choix d'un fichier..."));
+        retFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Choose file..."));
     } else {
-        retFile = QFileDialog::getExistingDirectory(qobject_cast<QWidget *>(sender()), tr("Choix d'un repertoire..."));
+        retFile = QFileDialog::getExistingDirectory(qobject_cast<QWidget *>(sender()), tr("Choose directory..."));
     }
     if (!retFile.isEmpty()) {
         if ((_type == FILE_SELECTOR_RELATIVE) || (_type == DIR_SELECTOR_RELATIVE)) {
