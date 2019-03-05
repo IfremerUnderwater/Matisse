@@ -215,10 +215,15 @@ void DataPreprocessingWizard::video2Images()
         QString output_path = ui->out_data_path_line->text()+QDir::separator()+video_file_info.baseName()+"_%05d.jpg";
 
 #ifdef WIN32
-        //command_line="C:\\ffmpeg\\bin\\ffmpeg.exe -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
-        command_line="ffmpeg.exe -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
+        if(ui->deinterlace_video_cb->isChecked())
+            command_line="ffmpeg.exe -i \"%1\" -vf \"yadif=0,fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
+        else
+            command_line="ffmpeg.exe -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
 #else
-        command_line="ffmpeg -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
+        if(ui->deinterlace_video_cb->isChecked())
+            command_line="ffmpeg -i \"%1\" -vf \"yadif=0,fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
+        else
+            command_line="ffmpeg -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
 #endif
         command_line = command_line.arg(input_file_path).arg(fps).arg(start_time).arg(output_path);
         qDebug() << command_line;

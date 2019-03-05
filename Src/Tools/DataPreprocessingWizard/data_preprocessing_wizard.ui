@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
+    <width>852</width>
     <height>578</height>
    </rect>
   </property>
@@ -189,9 +189,19 @@
      </layout>
     </item>
     <item>
+     <widget class="QCheckBox" name="deinterlace_video_cb">
+      <property name="text">
+       <string>Deinterlace video</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QCheckBox" name="correct_colors_cb">
       <property name="text">
        <string>Correct colors for underwater attenuation</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
