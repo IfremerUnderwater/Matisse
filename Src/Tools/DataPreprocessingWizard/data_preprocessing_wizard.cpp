@@ -79,7 +79,7 @@ void DataPreprocessingWizard::sl_selectOutputPath()
 void DataPreprocessingWizard::sl_selectNavFile()
 {
     QString nav_file = QFileDialog::getOpenFileName(this,
-                                                    tr("Open nav file"), "./", tr("Nav Files (*.txt)"));
+                                                    tr("Open nav file"), "./", tr("Nav Files (*.txt *.csv)"));
 
     if (!nav_file.isEmpty())
     {
@@ -137,7 +137,7 @@ void DataPreprocessingWizard::sl_deselectAllFiles()
 
 void DataPreprocessingWizard::checkAndFillVideoFiles(QString _dataPath)
 {
-    QStringList nameFilter = {"*.avi", "*.mp4", "*.ts", "*.mpg"};
+    QStringList nameFilter = {"*.avi", "*.mp4", "*.ts", "*.mpg", "*.mov"};
     QDir directory(_dataPath);
     m_found_files = directory.entryList(nameFilter);
 
@@ -146,7 +146,7 @@ void DataPreprocessingWizard::checkAndFillVideoFiles(QString _dataPath)
     {
         this->back();
         QMessageBox::critical(this, tr("Alert"),
-                              tr("No video file (*.avi, *.mp4, *.ts, *.mpg) found in this path"));
+                              tr("No video file (*.avi, *.mp4, *.ts, *.mpg, *.mov) found in this path"));
     }
     else
     {
@@ -215,7 +215,8 @@ void DataPreprocessingWizard::video2Images()
         QString output_path = ui->out_data_path_line->text()+QDir::separator()+video_file_info.baseName()+"_%05d.jpg";
 
 #ifdef WIN32
-        command_line="C:\\ffmpeg\\bin\\ffmpeg.exe -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
+        //command_line="C:\\ffmpeg\\bin\\ffmpeg.exe -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
+        command_line="ffmpeg.exe -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
 #else
         command_line="ffmpeg -i \"%1\" -vf \"fps=fps=%2:start_time=-%3:round=near\" -qscale 1 -qmin 1 -y  -f image2 \"%4\"";
 #endif
@@ -253,83 +254,107 @@ void DataPreprocessingWizard::video2Images()
             qDebug() << output;
         }
 
-        // Check video filename format, rename images accordingly and preprocess
-        QRegExp video_stamped_rex("(.+)_(.+)_(\\d+)_(\\d+)\\.(.+)");
+        // Check video filename formats, rename images accordingly and preprocess
+        QRegExp video_stamped_format1_rex("(.+)_(.+)_(\\d+)_(\\d+)\\.(.+)");
+        QRegExp video_stamped_format2_rex("(.+)T(.+)Z.(.+)");
+        bool valid_video_stamp1 = false;
+        bool valid_video_stamp2 = false;
 
-        if (m_found_files[i].contains(video_stamped_rex))
+        if (m_found_files[i].contains(video_stamped_format1_rex))
+            valid_video_stamp1=true;
+        if (m_found_files[i].contains(video_stamped_format2_rex))
+            valid_video_stamp2=true;
+
+        if (valid_video_stamp1 || valid_video_stamp2)
         {
-            if ( video_stamped_rex.captureCount() == 5 )
+            // base time
+            QDate base_date;
+            QTime base_time;
+            QDateTime base_date_time;
+
+            if (valid_video_stamp1)
             {
-                QString date_time = video_stamped_rex.cap(3);
-                int yyyy = 2000 + date_time.mid(0,2).toInt();
-                int mm = date_time.mid(2,2).toInt();
-                int dd = date_time.mid(4,2).toInt();
-                int HH = date_time.mid(6,2).toInt();
-                int MM = date_time.mid(8,2).toInt();
-                int SS = date_time.mid(10,2).toInt();
+                QString string_date_time = video_stamped_format1_rex.cap(3);
+                int yyyy = 2000 + string_date_time.mid(0,2).toInt();
+                int mm = string_date_time.mid(2,2).toInt();
+                int dd = string_date_time.mid(4,2).toInt();
+                int HH = string_date_time.mid(6,2).toInt();
+                int MM = string_date_time.mid(8,2).toInt();
+                int SS = string_date_time.mid(10,2).toInt();
 
-                QStringList nameFilter = {"*.jpg"};
-                QDir processed_directory(ui->out_data_path_line->text());
-                QStringList images_files = processed_directory.entryList(nameFilter);
+                base_date.setDate(yyyy,mm,dd);
+                base_time.setHMS(HH,MM,SS);
+            }
+            else
+            {
+                base_date = QDate::fromString(video_stamped_format2_rex.cap(1),"yyyyMMdd");
+                base_time = QTime::fromString(video_stamped_format2_rex.cap(2),"hhmmss.zzz");
+            }
 
-                // progressbar for preprocessing
-                QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, this);
-                prepro_progress.setWindowModality(Qt::WindowModal);
-                int j=1;
+            // set base date time
+            base_date_time.setDate(base_date);
+            base_date_time.setTime(base_time);
 
-                // Check images files corresponding to video
-                foreach (QString image_file, images_files) {
-                    QRegExp img_file_rex(".+_(\\d+)");
+            QStringList nameFilter = {"*.jpg"};
+            QDir processed_directory(ui->out_data_path_line->text());
+            QStringList images_files = processed_directory.entryList(nameFilter);
 
-                    if (prepro_progress.wasCanceled())
-                        return;
+            // progressbar for preprocessing
+            QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, this);
+            prepro_progress.setWindowModality(Qt::WindowModal);
+            int j=1;
 
-                    if (image_file.contains(img_file_rex))
+            // Check images files corresponding to video
+            foreach (QString image_file, images_files) {
+                QRegExp img_file_rex(".+_(\\d+)");
+
+                if (prepro_progress.wasCanceled())
+                    return;
+
+                if (image_file.contains(img_file_rex))
+                {
+                    // add elapsed time
+                    double image_nb = img_file_rex.cap(1).toDouble();
+                    double past_SS =(image_nb-1)*ui->extract_rate_sb->value();
+                    double past_SS_trun = floor(past_SS);
+                    double past_MS = (past_SS-past_SS_trun)*1000;
+                    QDateTime date_time_img=base_date_time.addSecs((int)past_SS_trun);
+                    date_time_img=date_time_img.addMSecs((int)past_MS);
+
+                    // update date and time
+                    QDate date_img=date_time_img.date();
+                    QTime time_img=date_time_img.time();
+
+                    // rename image with date and time format (iso)
+                    QString new_file_name = QString("%1T%2Z.jpg").arg(date_img.toString("yyyyMMdd")).arg(time_img.toString("hhmmss.zzz"));
+                    QFile image_qfile(processed_directory.absoluteFilePath(image_file));
+                    image_qfile.remove(processed_directory.absoluteFilePath(new_file_name));
+                    image_qfile.rename(processed_directory.absoluteFilePath(new_file_name));
+
+                    // preprocess if needed
+                    preprocessImage(processed_directory.absoluteFilePath(new_file_name),
+                                    processed_directory.absoluteFilePath(new_file_name));
+
+                    // if nav_file write out_nav_file
+                    if (nav_out_file.isOpen())
                     {
-                        // base time
-                        QDate date(yyyy,mm,dd);
-                        QTime time( HH,MM,SS );
+                        double date_time_double = ((double)date_time_img.toMSecsSinceEpoch());
 
-                        // add elapsed time
-                        double image_nb = img_file_rex.cap(1).toDouble();
-                        double past_SS =(image_nb-1)*ui->extract_rate_sb->value();
-                        double past_SS_trun = floor(past_SS);
-                        double past_MS = (past_SS-past_SS_trun)*1000;
-                        time=time.addSecs((int)past_SS_trun);
-                        time=time.addMSecs((int)past_MS);
-
-                        // rename image with date and time format (iso)
-                        QString new_file_name = QString("%1T%2Z.jpg").arg(date.toString("yyyyMMdd")).arg(time.toString("hhmmss.zzz"));
-                        QFile image_qfile(processed_directory.absoluteFilePath(image_file));
-                        image_qfile.remove(processed_directory.absoluteFilePath(new_file_name));
-                        image_qfile.rename(processed_directory.absoluteFilePath(new_file_name));
-
-                        // preprocess if needed
-                        preprocessImage(processed_directory.absoluteFilePath(new_file_name),
-                                        processed_directory.absoluteFilePath(new_file_name));
-
-                        // if nav_file write out_nav_file
-                        if (nav_out_file.isOpen())
-                        {
-                            QDateTime date_time(date,time);
-                            double date_time_double = ((double)date_time.toMSecsSinceEpoch());
-
-                            QString dim2_line("0;%1;%2;video;video;%3;%4;%5;%6;-99;%7;%8;%9;;;;;;;;;;;;;;;;;\n");
-                            dim2_line = dim2_line.arg(date.toString("dd/MM/yyyy"))
-                                    .arg(time.toString("hh:mm:ss.zzz"))
-                                    .arg(new_file_name)
-                                    .arg(m_nav_file->latAtTime(date_time_double),0,'f',10)
-                                    .arg(m_nav_file->lonAtTime(date_time_double),0,'f',10)
-                                    .arg(m_nav_file->depthAtTime(date_time_double),0,'f',3)
-                                    .arg(m_nav_file->yawAtTime(date_time_double)*RAD2DEG,0,'f',2)
-                                    .arg(m_nav_file->rollAtTime(date_time_double)*RAD2DEG,0,'f',2)
-                                    .arg(m_nav_file->pitchAtTime(date_time_double)*RAD2DEG,0,'f',2);
-                            nav_out_file_stream << dim2_line;
-                        }
+                        QString dim2_line("0;%1;%2;video;video;%3;%4;%5;%6;-99;%7;%8;%9;;;;;;;;;;;;;;;;;\n");
+                        dim2_line = dim2_line.arg(date_img.toString("dd/MM/yyyy"))
+                                .arg(time_img.toString("hh:mm:ss.zzz"))
+                                .arg(new_file_name)
+                                .arg(m_nav_file->latAtTime(date_time_double),0,'f',10)
+                                .arg(m_nav_file->lonAtTime(date_time_double),0,'f',10)
+                                .arg(m_nav_file->depthAtTime(date_time_double),0,'f',3)
+                                .arg(m_nav_file->yawAtTime(date_time_double)*RAD2DEG,0,'f',2)
+                                .arg(m_nav_file->rollAtTime(date_time_double)*RAD2DEG,0,'f',2)
+                                .arg(m_nav_file->pitchAtTime(date_time_double)*RAD2DEG,0,'f',2);
+                        nav_out_file_stream << dim2_line;
                     }
-                    prepro_progress.setValue(round(100*j/images_files.size()));
-                    j++;
                 }
+                prepro_progress.setValue(round(100*j/images_files.size()));
+                j++;
             }
         }
     }
