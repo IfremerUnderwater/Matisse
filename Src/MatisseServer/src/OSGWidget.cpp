@@ -106,7 +106,7 @@ OSGWidget::OSGWidget( QWidget* parent,
 #endif
 
     osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
-    //manipulator->setAllowThrow( false );
+    manipulator->setAllowThrow( false );
 
     view->setCameraManipulator( manipulator );
 

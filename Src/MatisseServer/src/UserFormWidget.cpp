@@ -23,8 +23,8 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
 {
     _ui->setupUi(this);
 
-    // Default view is QImageView
-    switchCartoViewTo(QImageView);
+    // Default view is OpenSceneGraphView
+    switchCartoViewTo(OpenSceneGraphView);
 
     _supportedRasterFormat << "tif" << "tiff";
     _supportedVectorFormat << "shp";

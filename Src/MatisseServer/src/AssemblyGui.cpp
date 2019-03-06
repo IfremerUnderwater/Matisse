@@ -1185,7 +1185,7 @@ void AssemblyGui::slot_importJob()
 void AssemblyGui::slot_goToResult()
 {
     QString datasetPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_DATASET_DIR);
-    QString resultPath = datasetPath + QDir::separator()  +_server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
+    QString resultPath = datasetPath; //+ QDir::separator()  +_server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
     QDir resultDir(resultPath);
     if (!resultDir.exists()) {
         QMessageBox::critical(this, tr("Path invalid"), tr("Result path '%1' does not exist.").arg(resultPath));
@@ -3693,7 +3693,7 @@ void AssemblyGui::slot_launchJob()
 
     QString jobFilename = _currentJob->filename();
 
-    _userFormWidget->switchCartoViewTo(QImageView);
+    //_userFormWidget->switchCartoViewTo(QImageView);
 
     qDebug() << "Running job " << jobName;
 
