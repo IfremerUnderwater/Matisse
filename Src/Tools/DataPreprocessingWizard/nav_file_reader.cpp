@@ -64,36 +64,48 @@ bool NavFileReader::loadFileToMemory()
                 if (fields_tab.size()>=8)
                 {
 
-                std::pair<double, double> pair;
-                QDate date = QDate::fromString(fields_tab[0],"dd/MM/yyyy");
-                QTime time = QTime::fromString(fields_tab[1].mid(0,12),"hh:mm:ss.zzz");
-                QDateTime date_time(date,time);
-                m_datetime.push_back((double)date_time.toMSecsSinceEpoch());
-                pair.first = (double)date_time.toMSecsSinceEpoch();
+                    std::pair<double, double> pair;
 
-                pair.second = fields_tab[2].toDouble();
-                m_lat.push_back(pair);
+                    QDate date= QDate::fromString(fields_tab[0],"dd/MM/yyyy");
+                    QTime time = QTime::fromString(fields_tab[1].mid(0,12),"hh:mm:ss.zzz");
+                    QDateTime date_time(date,time);
+                    m_datetime.push_back((double)date_time.toMSecsSinceEpoch());
+                    pair.first = (double)date_time.toMSecsSinceEpoch();
 
-                pair.second = fields_tab[3].toDouble();
-                m_lon.push_back(pair);
+                    pair.second = fields_tab[2].toDouble();
+                    m_lat.push_back(pair);
 
-                pair.second = -fields_tab[4].toDouble(); // depth is reversed for phins
-                m_depth.push_back(pair);
+                    pair.second = fields_tab[3].toDouble();
+                    m_lon.push_back(pair);
 
-                pair.second = DEG2RAD*fields_tab[5].toDouble();
-                m_yaw.push_back(pair);
+                    pair.second = -fields_tab[4].toDouble(); // depth is reversed for phins
+                    m_depth.push_back(pair);
 
-                pair.second = DEG2RAD*fields_tab[6].toDouble();
-                m_pitch.push_back(pair);
+                    pair.second = DEG2RAD*fields_tab[5].toDouble();
+                    m_yaw.push_back(pair);
 
-                pair.second = DEG2RAD*fields_tab[7].toDouble();
-                m_roll.push_back(pair);
+                    pair.second = DEG2RAD*fields_tab[6].toDouble();
+                    m_pitch.push_back(pair);
+
+                    pair.second = DEG2RAD*fields_tab[7].toDouble();
+                    m_roll.push_back(pair);
 
                 }
                 else if(fields_com.size()>=8)
                 {
                     std::pair<double, double> pair;
-                    QDate date = QDate::fromString(fields_com[0],"yyyy/MM/dd");
+                    QRegExp english_date("[0-9]{4}/.+");
+
+                    QDate date;
+
+                    if (fields_com[0].contains(english_date))
+                    {
+                        date = QDate::fromString(fields_com[0],"yyyy/MM/dd");
+                    }else
+                    {
+                        date = QDate::fromString(fields_com[0],"dd/MM/yyyy");
+                    }
+
                     QTime time = QTime::fromString(fields_com[1].mid(0,8),"hh:mm:ss");
                     QDateTime date_time(date,time);
                     m_datetime.push_back((double)date_time.toMSecsSinceEpoch());

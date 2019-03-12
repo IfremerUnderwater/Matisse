@@ -137,7 +137,7 @@ void DataPreprocessingWizard::sl_deselectAllFiles()
 
 void DataPreprocessingWizard::checkAndFillVideoFiles(QString _dataPath)
 {
-    QStringList nameFilter = {"*.avi", "*.mp4", "*.ts", "*.mpg", "*.mov"};
+    QStringList nameFilter = {"*.avi", "*.mp4", "*.ts", "*.mpg", "*.mov", "*.mxf"};
     QDir directory(_dataPath);
     m_found_files = directory.entryList(nameFilter);
 
@@ -146,10 +146,11 @@ void DataPreprocessingWizard::checkAndFillVideoFiles(QString _dataPath)
     {
         this->back();
         QMessageBox::critical(this, tr("Alert"),
-                              tr("No video file (*.avi, *.mp4, *.ts, *.mpg, *.mov) found in this path"));
+                              tr("No video file (*.avi, *.mp4, *.ts, *.mpg, *.mov, *.mxf) found in this path"));
     }
     else
     {
+        ui->files_list->clear();
         ui->files_list->addItems(m_found_files);
         for (int i = 0; i < ui->files_list->count(); i++) {
             QListWidgetItem *item = ui->files_list->item(i);
@@ -162,7 +163,7 @@ void DataPreprocessingWizard::checkAndFillVideoFiles(QString _dataPath)
 
 void DataPreprocessingWizard::checkAndFillPhotoFiles(QString _dataPath)
 {
-    QStringList nameFilter = {"*.jpg","*.jpeg","*.png"};
+    QStringList nameFilter = {"*.jpg","*.jpeg","*.png", "*.tiff", "*.tif"};
     QDir directory(_dataPath);
     m_found_files = directory.entryList(nameFilter);
 
@@ -170,10 +171,11 @@ void DataPreprocessingWizard::checkAndFillPhotoFiles(QString _dataPath)
     {
         this->back();
         QMessageBox::critical(this, tr("Alert"),
-                              tr("No photo file (*.jpg , *.jpeg , *.png) found in this path"));
+                              tr("No photo file (*.jpg , *.jpeg , *.png, *.tiff, *.tif) found in this path"));
     }
     else
     {
+        ui->files_list->clear();
         ui->files_list->addItems(m_found_files);
         for (int i = 0; i < ui->files_list->count(); i++) {
             QListWidgetItem *item = ui->files_list->item(i);
@@ -362,6 +364,10 @@ void DataPreprocessingWizard::video2Images()
                 j++;
             }
         }
+        else
+        {
+            QMessageBox::information(this,"Video file naming","The video file you provided does not match any of the supported naming rules. Your model won't be georeferenced and scaled if you use those images");
+        }
     }
     if (nav_out_file.isOpen())
         nav_out_file.close();
@@ -512,4 +518,9 @@ void DataPreprocessingWizard::sl_finished(int _state)
             preprocessImages();
         }
     }
+
+    QMessageBox::information(this, tr("End"),
+                          tr("Preprocessing ended"));
+    QApplication::quit();
+
 }
