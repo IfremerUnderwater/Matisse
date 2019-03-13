@@ -4,10 +4,10 @@
     <!-- Application version : must conform to the 'X.Y.Z' pattern  -->
     <!-- X : product serie ; Y : major version ; Z : minor version  -->
     <!-- To be incremented for each product release                 -->
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <!-- Application version date -->
     <!-- Date>13/06/2016</Date-->
-    <Date>16/05/2018</Date>
+    <Date>13/03/2019</Date>
 
     <DllRootDir>./Modules</DllRootDir>
     <XmlRootDir>./xml</XmlRootDir>

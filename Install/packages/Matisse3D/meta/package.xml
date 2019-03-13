@@ -2,8 +2,8 @@
 <Package>
     <DisplayName>Matisse 3D</DisplayName>
     <Description>Matisse is a signal processing software, the 3D version interfaces with Sfm Motion algorithm</Description>
-    <Version>1.0.0</Version>
-    <ReleaseDate>2019-03-04</ReleaseDate>
+    <Version>1.0.1</Version>
+    <ReleaseDate>2019-03-13</ReleaseDate>
     <Default>true</Default>
     <Script>installscript.qs</Script>
 </Package>
