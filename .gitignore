@@ -1,14 +1,16 @@
-Makefile
+Makefile*
 
-Makefile.Debug
+Makefile.Debug*
 
-Makefile.Release
+Makefile.Release*
 
-*.user
+*.user*
 
 *.obj
 
 /main/qt/MatisseCommon/tmp
+
+/Doc
 
 *.exe
 
@@ -24,3 +26,7 @@ Makefile.Release
 
 *.exp
 *.manifest
+*.autosave
+/Build/
+/BuildWin/
+/Run/

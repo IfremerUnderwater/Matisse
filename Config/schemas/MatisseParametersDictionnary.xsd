@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="Matisse" xmlns="Matisse">
+
+    <xs:simpleType name="Level" final="restriction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="user"/>
+            <xs:enumeration value="advanced"/>
+            <xs:enumeration value="expert"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Type" final="restriction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="integer"/>
+            <xs:enumeration value="float"/>
+            <xs:enumeration value="double"/>
+            <xs:enumeration value="string"/>
+            <xs:enumeration value="bool"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Show" final="restriction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="line"/>
+            <xs:enumeration value="spin"/>
+            <xs:enumeration value="combo"/>
+            <xs:enumeration value="check"/>
+            <xs:enumeration value="table"/>
+            <xs:enumeration value="dir"/>
+            <xs:enumeration value="file"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Parameter">
+        <xs:attribute name="name" type="xs:NCName" use="required"/>
+        <xs:attribute name="level" type="Level" use="required"/>
+        <xs:attribute name="text" type="xs:string" use="required"/>
+        <xs:attribute name="suffix" type="xs:string" use="optional"/>
+        <xs:attribute name="type" type="Type" use="required"/>
+        <xs:attribute name="size" type="xs:string" use="optional"/>
+        <xs:attribute name="range" type="xs:string" use="optional"/>
+        <xs:attribute name="precision" type="xs:unsignedByte" use="optional"/>
+        <xs:attribute name="formatTemplate" type="xs:string" use="optional"/>
+        <xs:attribute name="show" type="Show" use="required"/>
+        <xs:attribute name="default" type="xs:string" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="ParametersGroup">
+        <xs:sequence>
+            <xs:element name="Parameter" type="Parameter" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:NCName" use="required"/>
+        <xs:attribute name="text" type="xs:string" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="Structure">
+        <xs:sequence>
+            <xs:element name="ParametersGroup" type="ParametersGroup" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:NCName" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="EnumValue">
+        <xs:attribute name="name" type="xs:NCName" use="required"/>
+        <xs:attribute name="text" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="Enum">
+        <xs:sequence>
+            <xs:element name="EnumValue" type="EnumValue" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:NCName" use="required"/>
+    </xs:complexType>
+
+    <xs:element name="MatisseParametersDictionnary">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Structures" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Structure" type="Structure" minOccurs="1" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:attribute name="publicationTimestamp" type="xs:dateTime" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Enums" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Enum" type="Enum" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+        <!-- unique constraint not supported in Qt 4.8 -->
+        <xs:unique name="uniqueStructureName" >
+            <xs:selector xpath="Structure" />
+            <xs:field xpath="@name" />
+        </xs:unique>
+        <xs:unique name="uniqueGroupName" >
+            <xs:selector xpath="ParametersGroup" />
+            <xs:field xpath="@name" />
+        </xs:unique>
+        <xs:unique name="uniqueParameterName" >
+            <xs:selector xpath="Parameter" />
+            <xs:field xpath="@name" />
+        </xs:unique>
+    </xs:element>
+
+</xs:schema>

@@ -1,0 +1,21 @@
+#-------------------------------------------------
+#
+# Processor plugin:
+
+#   $PROCESSOR_NAME
+#   $PROCESSOR_ID
+#   $DATE
+#
+#-------------------------------------------------
+
+QT       -= gui
+
+TARGET = $PROCESSOR_ID
+TEMPLATE = lib
+
+CONFIG += plugin
+
+SOURCES += $PROCESSOR_ID.cpp
+
+HEADERS += PluginInterface.h \
+    $PROCESSOR_ID.h

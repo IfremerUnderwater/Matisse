@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/testtca" >
-        <file>ifremer-grand.jpg</file>
-    </qresource>
-</RCC>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatissePreferences>
+    <LastUpdate>03/05/2018 08:40</LastUpdate>
+    <ImportExportPath>exchange</ImportExportPath>
+    <ArchivePath>archive</ArchivePath>
+    <DefaultResultPath>outReconstruction</DefaultResultPath>
+    <DefaultMosaicFilenamePrefix>MyProcessing</DefaultMosaicFilenamePrefix>
+    <ProgrammingModeEnabled>false</ProgrammingModeEnabled>
+    <Language>EN</Language>
+</MatissePreferences>

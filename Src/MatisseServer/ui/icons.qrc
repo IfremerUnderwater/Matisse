@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/qss_icons">
+        <file>icons/Cartographie.svg</file>
+        <file>icons/Clef.svg</file>
+        <file>icons/Dossier.svg</file>
+        <file>icons/File.svg</file>
+        <file>icons/Maison.svg</file>
+        <file>icons/Roue.svg</file>
+        <file>icons/agrandir.svg</file>
+        <file>icons/fermer.svg</file>
+        <file>icons/reduire.svg</file>
+        <file>icons/trash.svg</file>
+        <file>icons/reinittaille.svg</file>
+        <file>icons/Message-orange.svg</file>
+        <file>icons/Main_orange.svg</file>
+        <file>icons/blank_button.svg</file>
+    </qresource>
+</RCC>

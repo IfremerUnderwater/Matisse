@@ -1,0 +1,536 @@
+/*
+*
+* GLOBAL STYLESHEET FOR MATISSE
+* Generic styles (application mode independent)
+*
+*/
+
+/************************/
+/*** Generic Widgets ***/
+/************************/
+QWidget{
+   background-color: <%color.grey.darker%>;
+   font-family: "Montserrat";
+   font-size: 11pt;
+   font-weight: normal;
+   border: none;
+}
+
+QLabel
+{
+  background-color: none;
+  border: none;
+  font-family: "Montserrat";
+  font-size: 11pt;
+  font-weight: normal;
+  color: <%color.white%>; 
+}
+
+QPushButton {
+  background-color: <%color.grey.darker%>;
+  border: none;
+  color: <%color.white%>;
+  min-height: 26px;
+}
+
+/* WELCOME DIALOG */
+QWidget#progModeLauncherButton {
+    background-color: <%color.orange2%>;
+    color: black;
+    border: none;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+QWidget#progModeLauncherButton:disabled {
+    color: <%color.grey%>;
+}
+
+QWidget#realTimeModeLauncherButton {
+    background-color: <%color.blue2%>;
+    color: black;
+    border: none;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+QWidget#configModeLauncherButton {
+    background-color: <%color.grey.dark%>;
+    color: black;
+    border: none;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+QWidget#deferredTimeModeLauncherButton {
+    background-color: <%color.mauve2%>;
+    color: black;
+    border: none;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+QWidget#_TBU_welcomeCloseButton {
+    border: none;
+}
+
+QWidget#_LA_matisseWelcomeLabel {
+    background-color: <%color.grey.darker%>;
+    color: <%color.white%>;
+    font-size: 20pt;
+}
+
+
+/* MAIN CONTROLL BAR */
+QWidget#_LAB_matisseVersion {
+    color: <%color.white%>;
+    font-size: 12pt;
+    font-weight: bold;
+}
+
+QWidget#visuModeWidget QWidget {
+    background-color: <%color.black%>;
+}
+
+QWidget#ongoingProcessWidget {
+    background-color: <%color.black%>;
+}
+
+QWidget#ongoingProcessWidget QWidget {
+    background-color: <%color.black%>;
+}
+
+/* Main menu bar */
+QMenuBar {
+    color: <%color.white%>;
+    font-size: 10pt;
+    font-weight: bold;
+    padding-top: 4px; /* center the menu bar content vertically */
+}
+
+/* Contextual and static menu popups */
+QMenu {
+    background-color: <%color.grey.darkest%>;
+    margin: 5px; /* impossible to set margins individually */
+}
+
+QMenu::item {
+    background-color: <%color.grey.darkest%>;
+    padding: 1px 20px 1px 20px;
+    color: <%color.white%>;
+    border: 2px solid <%color.grey.darkest%>; /* border is merged with background 
+												to avoid the 2px offset on selection */
+}
+
+QMenu::separator {
+    height: 2px;
+    background: <%color.white%>;
+    margin-left: 20px;
+    margin-right: 0px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+QMenu::item:disabled {
+    color: #7c828c;
+}
+
+QMenu::item:disabled:selected {
+    border: 2px solid <%color.grey.darkest%>; /* border is invisible because merged with the background */
+}
+
+/* Ongoing process Progress bar */
+QWidget #_PB_ongoingProcessCompletion {
+    border: 1px solid <%color.white%>;
+    padding: 2px;
+}
+
+QProgressBar {
+    text-align: right;
+    color: <%color.white%>;
+    font-size: 10pt;
+}
+
+/* STOP button */
+QWidget#_TBU_stopButton {
+    border: none;
+}
+
+/* ASSEMBLY AND JOB TREE */
+QTreeView {
+   alternate-background-color: <%color.grey.darker%>;
+   color: <%color.white%>;
+}
+
+QWidget#_TRW_assemblies {
+    border: 0;
+}
+
+QWidget#_TRW_assemblyInfo {
+    border: 0;
+}
+
+QScrollBar, QScrollbar:disabled {
+    background: <%color.grey.darkest%>;
+}
+
+QScrollBar::sub-page, QScrollBar::add-page {
+    background: <%color.grey.dark%>;
+}
+
+QSplitter::handle {
+    border: 1px solid <%color.grey%>;
+}
+
+
+QSplitter::handle:vertical {
+    height: 0px;
+}
+
+
+/* MAP VIEW */
+/* Background color for ongoing work image */
+/* Background color for map layer is defined in UserFormWidget.cpp */
+QWidget#_LA_resultImage {
+    background-color: <%color.black%>;
+}
+
+
+/* CREATION VIEW */
+/* Assembly canvas background color */
+QWidget#_GRW_assembly {
+    background: <%color.black%>;
+}
+
+
+/* Tabs and tabbars */
+QWidget#_SW_helperTabSets {
+    border: none;
+    margin: 0;
+}
+
+QTabWidget::pane {
+    padding: 0;
+}
+
+/*QTabWidget::tab-bar {
+    width: 350px;
+}*/
+
+QTabBar::tab {
+    background: transparent;
+    color: <%color.grey%>;
+    font-size: 9.5pt;
+    font-weight: bold;
+    border: none;
+    margin: 0;
+    padding: 7px 5px 7px 5px;
+}
+
+/*QTabBar#_TW_creationViewTabs-tabbar::tab {
+    width: 89px;
+}*/
+
+/*QTabBar#_TW_mapViewTabs-tabbar::tab {
+    width: 200px;
+}*/
+
+
+QTabBar::tab:hover {
+    color: <%color.white%>;
+}
+
+/* Alternating colors in elements lists */
+QListWidget {
+    alternate-background-color: <%color.grey%>;
+    color: <%color.white%>; 
+}
+
+/* STATUS BAR */
+QStatusBar {
+    border: none;
+}
+
+QStatusBar::item {
+    border: none; /* allows to remove the trailing separator (following StatusMessageWidget) */
+}
+
+QWidget#_PB_resetMessages {
+    margin: 0;
+    border: none;
+}
+
+QWidget#_CB_messages {
+    margin: 0;
+    border: none;
+}
+
+QWidget#_LA_messagesPicto {
+    margin: 0;
+    border: none;
+}
+
+/* Parametering file select button */
+QPushButton#_PB_paramFileSelect {
+    padding: 0;
+    icon-size: 24px;
+}
+
+/* Other buttons */
+QPushButton:hover {
+   border: 1px solid <%color.grey%>;
+}
+
+QPushButton#_PB_cancel, QPushButton#_PB_save, QPushButton#_PB_connect, QPushButton#_PB_reinit, QPushButton#_PB_close, QMessageBox QPushButton {
+    border: 1px solid <%color.grey%>;
+    padding: 0px 10px 0px 10px;
+}
+
+QPushButton:hover#_PB_cancel, QPushButton:hover#_PB_save, QPushButton:hover#_PB_connect, QPushButton:hover#_PB_reinit, QPushButton:hover#_PB_close, QMessageBox QPushButton:hover {
+    border: 1px solid <%color.white%>;
+    padding: 0px 10px 0px 10px;
+}
+
+QPushButton#_PB_levelHeaderButton {
+    text-align: left;
+    padding: 0px 0px 0px 10px;
+    border:none;
+    font-weight: bold;
+}
+
+QPushButton:hover#_PB_levelHeaderButton {
+    border:none;
+}
+
+
+/* GroupBox */
+QGroupBox {
+     background-color: <%color.grey.darker%>;
+     border: none;
+     /* font attributes for the ::title part */
+     font-weight: bold;
+     padding-top: 15;
+ }
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left; /* position at the top left */
+    padding-top: 2;
+    padding-left: 0;
+    /* Font attributes are defined
+     * for the groupbox widget
+     * Do not work for the ::title part */
+    color: <%color.grey%>;
+ }
+
+QGroupBox#_GB_userModeSelection {
+    background: transparent;
+    padding: 0;
+}
+
+
+/* Used ? */
+Line {
+  color: <%color.grey%>;
+  border: none;
+}
+
+/* Combo boxes */
+QComboBox
+{
+    background-color: <%color.black%>;
+    border: 1px solid <%color.grey%>;
+    padding: 2px;
+    min-width: 75px;
+    color: <%color.white%>;
+}
+
+QComboBox:hover,QPushButton:hover,QAbstractSpinBox:hover,QLineEdit:hover,QTextEdit:hover,QPlainTextEdit:hover,QAbstractView:hover,QTreeView:hover
+{
+    border: 1px solid <%color.grey%>;
+    color: <%color.white%>;
+}
+
+QComboBox:on
+{
+    background-color: <%color.grey.dark%>;
+    padding-top: 3px;
+    padding-left: 4px;
+    selection-background-color: <%color.grey.darker%>;
+}
+
+QComboBox QAbstractItemView
+{
+    background-color: <%color.black%>;
+    border: 1px solid <%color.grey%>;
+    color: <%color.white%>;
+}
+
+QComboBox::drop-down
+{
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+
+    border-left-width: 0px;
+    border-left-color: darkgray;
+    border-left-style: solid;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow
+{
+    image: url(:/qss_icons/rc/down_arrow_disabled.png);
+}
+
+QComboBox::down-arrow:on, QComboBox::down-arrow:hover,
+QComboBox::down-arrow:focus
+{
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+
+/* Table widgets (matrix parameters) */
+QTableWidget {
+    color: <%color.white%>;
+    background: <%color.black%>;
+    gridline-color: <%color.grey%>;
+}
+
+QLineEdit, QTextEdit
+{
+    background-color: <%color.black%>;
+    padding: 2px;
+    border: 1px solid <%color.grey%>;
+    color: <%color.white%>;
+}
+
+/* Spin boxes (parameters) */
+QAbstractSpinBox {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border: 1px solid <%color.grey%>;
+    background-color: <%color.black%>;
+    color: <%color.white%>;
+}
+
+QAbstractSpinBox:up-button
+{
+    background-color: transparent;
+    subcontrol-origin: border;
+    subcontrol-position: center right;
+}
+
+QAbstractSpinBox:down-button
+{
+    background-color: transparent;
+    subcontrol-origin: border;
+    subcontrol-position: center left;
+}
+
+QAbstractSpinBox::up-arrow {
+    image: url(:/qss_icons/rc/up_arrow_disabled.png);
+    width: 10px;
+    height: 10px;
+}
+
+QAbstractSpinBox::up-arrow:disabled,QAbstractSpinBox::up-arrow:off {
+    image: url(:/qss_icons/rc/up_arrow_disabled.png);
+}
+
+
+QAbstractSpinBox::up-arrow:hover
+{
+    image: url(:/qss_icons/rc/up_arrow.png);
+}
+
+
+QAbstractSpinBox::down-arrow,QAbstractSpinBox::down-arrow:disabled,QAbstractSpinBox::down-arrow:off
+{
+    image: url(:/qss_icons/rc/down_arrow_disabled.png);
+    width: 10px;
+    height: 10px;
+}
+QAbstractSpinBox::down-arrow:hover
+{
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+/* Check boxes and radio buttons */
+QCheckBox:disabled
+{
+    color: <%color.grey.darker%>;
+}
+
+QCheckBox, QRadioButton
+{
+    padding: 3px;
+    outline: none;
+}
+
+QRadioButton {
+    color: <%color.white%>;
+}
+
+
+QCheckBox::indicator, QGroupBox::indicator, QListView::indicator, QMenu::indicator:non-exclusive{
+    color: <%color.grey%>;
+    background-color: <%color.black%>;
+    border: 1px solid <%color.grey%>;
+}
+
+QCheckBox::indicator {
+    width: 12px;
+    height: 12px;
+}
+
+/*QCheckBox::indicator,*/ QMenu::indicator:non-exclusive{
+    width: 12px;
+    height: 12px;
+    background-color: <%color.grey.darker%>;
+}
+
+
+
+QRadioButton::indicator
+{
+    border-radius: 5px;
+    width: 12px;
+    height: 12px;
+    background-color: <%color.black%>;
+    border: 1px solid <%color.grey%>;
+}
+
+QRadioButton::indicator:checked {
+    image:url(:/qss_icons/rc/radio_checked.svg);
+}
+
+
+
+QCheckBox::indicator:pressed
+{
+    border: 1px solid <%color.grey%>;
+}
+
+QRadioButton::indicator:hover, QCheckBox::indicator:hover
+{
+    border: 1px solid <%color.grey%>;
+}
+
+QCheckBox::indicator:checked, QGroupBox::indicator:checked, QListView::indicator:checked, QMenu::indicator:non-exclusive:checked
+{
+    image:url(:/qss_icons/rc/checkbox.png);
+}
+
+QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
+{
+    border: 1px solid <%color.grey.darker%>;
+}
+
+QCheckBox::indicator:indeterminate {
+    image: url(:/qss_icons/rc/checkbox_indeterminate.png);
+}
+
+
+

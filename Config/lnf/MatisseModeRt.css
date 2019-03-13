@@ -1,0 +1,107 @@
+/*
+*
+* REAL TIME mode specific stylesheet
+*
+/
+
+/* MAIN CONTROLL BAR */
+QWidget#homeWidget QWidget {
+   background-color: <%color.blue2%>;
+   border: none;
+}
+
+
+QWidget#matisseVersionWidget {
+    background-color: <%color.blue%>;
+}
+
+QWidget#matisseVersionWidget QWidget {
+    background-color: <%color.blue%>;
+    border: none;
+}
+
+QWidget#mainMenuWidget {
+    background-color: <%color.blue%>;    
+}
+
+QProgressBar::chunk {
+    background-color: <%color.blue%>;
+    width: 10px;
+    border-radius: 2px;
+    margin: 0.5px;
+}
+
+/* Parameters fold/unfold widget */
+QWidget#_PB_parameterFold {
+    background-color: <%color.blue%>;
+    border: none;
+}
+
+
+/* Customisation des menus et menus contextuels */
+QMenuBar {
+    background-color: <%color.blue%>;
+}
+
+QMenuBar::item {
+    background: <%color.blue%>;
+}
+
+QMenu::item:selected {
+    border: 2px solid <%color.blue%>;
+}
+
+/* SELECTION COLORS : trees, lists and combos */
+QTreeView::item:selected, QTreeView::item:hover, QListWidget::item:selected, QListWidget::item:hover {
+    border: 1px solid rgb(<%color.blue.rgb%>);
+    padding-left: -1px;
+    color: <%color.white%>;
+}
+
+QTreeView::item:selected:active, QListWidget::item:selected:active {
+    background: rgba(<%color.blue.rgb%>,60%);
+}
+
+QTreeView::item:selected:!active, QListWidget::item:selected:!active {
+    background: rgba(<%color.blue.rgb%>,45%);
+}
+
+QTreeView::item:hover, QListWidget::item:hover {
+    background: rgba(<%color.blue.rgb%>,20%);
+}
+
+QComboBox
+{
+    selection-background-color: <%color.blue%>;
+}
+
+QComboBox QAbstractItemView
+{
+    selection-background-color: <%color.blue%>;
+}
+
+/* BUTTONS */
+QPushButton:pressed {
+  background-color: <%color.blue%>;
+  border: none;
+}
+
+QPushButton:checked {
+  background-color: <%color.blue%>;
+  border: none;
+}
+
+QPushButton:flat {
+     border: 2px solid <%color.blue%>;
+}
+
+
+
+
+/* ONGLETS */
+QTabBar::tab:selected {
+    margin: 0;
+    background: <%color.blue%>;
+    color: <%color.white%>;
+}
+

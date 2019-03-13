@@ -1,0 +1,104 @@
+/*
+*
+* PROGRAMMING mode specific stylesheet
+*
+/
+
+/* MAIN CONTROLL BAR */
+QWidget#homeWidget QWidget {
+   background-color: <%color.orange2%>;
+   border: none;
+}
+
+QWidget#matisseVersionWidget {
+    background-color: <%color.orange%>;
+}
+
+QWidget#matisseVersionWidget QWidget {
+    background-color: <%color.orange%>;
+    border: none;
+}
+
+
+QWidget#mainMenuWidget {
+    background-color: <%color.orange%>;    
+}
+
+QProgressBar::chunk {
+    background-color: <%color.orange%>;
+    width: 10px;
+    border-radius: 2px;
+    margin: 0.5px;
+}
+
+/* Parameters fold/unfold widget */
+QWidget#_PB_parameterFold {
+    background-color: <%color.orange%>;
+    border: none;
+}
+
+
+/* Customizing main menu bar and drop down menus */
+QMenuBar {
+    background-color: <%color.orange%>;
+}
+
+QMenuBar::item {
+    background: <%color.orange%>;
+}
+
+QMenu::item:selected {
+    border: 2px solid <%color.orange%>;
+}
+
+/* SELECTION COLORS : trees, lists and combos */
+QTreeView::item:selected, QTreeView::item:hover, QListWidget::item:selected, QListWidget::item:hover {
+    border: 1px solid rgb(<%color.orange.rgb%>);
+    padding-left: -1px;
+    color: <%color.white%>;
+}
+
+QTreeView::item:selected:active, QListWidget::item:selected:active {
+    background: rgba(<%color.orange.rgb%>,60%);
+}
+
+QTreeView::item:selected:!active, QListWidget::item:selected:!active {
+    background: rgba(<%color.orange.rgb%>,45%);
+}
+
+QTreeView::item:hover, QListWidget::item:hover {
+    background: rgba(<%color.orange.rgb%>,20%);
+}
+
+QComboBox
+{
+    selection-background-color: <%color.orange%>;
+}
+
+QComboBox QAbstractItemView
+{
+    selection-background-color: <%color.orange%>;
+}
+
+/* BUTTONS */
+QPushButton:pressed {
+  background-color: <%color.orange%>;
+  border: none;
+}
+
+QPushButton:checked {
+  background-color: <%color.orange%>;
+  border: none;
+}
+
+QPushButton:flat {
+     border: 2px solid <%color.orange%>;
+}
+
+
+/* ONGLETS */
+QTabBar::tab:selected {
+    margin: 0;
+    background: <%color.orange%>;
+    color: <%color.white%>;
+}
