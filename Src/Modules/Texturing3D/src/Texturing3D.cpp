@@ -87,13 +87,14 @@ void Texturing3D::writeKml(QString model_path, QString model_prefix)
         QTextStream outputGeoStream(&kml_file);
 
         outputGeoStream << QString("<kml>\n");
+        outputGeoStream << QString("  <!--Generated with MATISSE 3D -->\n");
         outputGeoStream << QString("  <Placemark>\n");
         outputGeoStream << QString("    <name>%1</name>\n").arg(model_prefix);
         outputGeoStream << QString("    <Model>\n");
         outputGeoStream << QString("      <altitudeMode>absolute</altitudeMode>\n");
         outputGeoStream << QString("      <Location>\n");
-        outputGeoStream << QString("        <longitude>%1</longitude>\n").arg(QString::number(rc->lat_origin, 'f', 8));
-        outputGeoStream << QString("        <latitude>%1</latitude>\n").arg(QString::number(rc->lon_origin, 'f', 8));
+        outputGeoStream << QString("        <longitude>%1</longitude>\n").arg(QString::number(rc->lon_origin, 'f', 8));
+        outputGeoStream << QString("        <latitude>%1</latitude>\n").arg(QString::number(rc->lat_origin, 'f', 8));
         outputGeoStream << QString("        <altitude>%1</altitude>\n").arg(QString::number(rc->alt_origin, 'f', 3));
         outputGeoStream << QString("      </Location>\n");
         outputGeoStream << QString("      <Orientation>\n");
