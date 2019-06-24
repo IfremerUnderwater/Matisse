@@ -68,6 +68,10 @@ bool NavFileReader::loadFileToMemory()
 
                     QDate date= QDate::fromString(fields_tab[0],"dd/MM/yyyy");
                     QTime time = QTime::fromString(fields_tab[1].mid(0,12),"hh:mm:ss.zzz");
+                    if( !time.isValid() )
+                    {
+                        time = QTime::fromString(fields_tab[1],"hh:mm:ss");
+                    }
                     QDateTime date_time(date,time);
                     m_datetime.push_back((double)date_time.toMSecsSinceEpoch());
                     pair.first = (double)date_time.toMSecsSinceEpoch();
