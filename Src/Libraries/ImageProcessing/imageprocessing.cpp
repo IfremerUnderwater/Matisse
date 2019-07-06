@@ -26,7 +26,7 @@ void IMAGEPROCESSINGSHARED_EXPORT histogramStretch(Mat &_in_img, Mat &_in_mask, 
                         process_pixel = false;
                 }
 
-                if (process_pixel) {
+                if (process_pixel & (abs(_low_high_in.y - _low_high_in.x) >=1) ) {
                     if (ch_num == 3){
                         _stretched_img.at<Vec3b>(y,x)[c] =
                                 saturate_cast<uchar>( (_low_high_out.y - _low_high_out.x)*( _in_img.at<Vec3b>(y,x)[c] - _low_high_in.x )/(_low_high_in.y - _low_high_in.x) + _low_high_out.x );
