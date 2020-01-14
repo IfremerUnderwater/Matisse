@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
     <Name>Matisse 3D</Name>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Title>Matisse 3D</Title>
     <Publisher>IFREMER</Publisher>
     <StartMenuDir>Matisse 3D</StartMenuDir>

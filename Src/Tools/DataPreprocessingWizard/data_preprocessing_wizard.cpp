@@ -354,13 +354,14 @@ void DataPreprocessingWizard::video2Images()
                         {
                             double date_time_double = ((double)date_time_img.toMSecsSinceEpoch());
 
-                            QString dim2_line("0;%1;%2;video;video;%3;%4;%5;%6;-99;%7;%8;%9;;;;;;;;;;;;;;;;;\n");
+                            QString dim2_line("0;%1;%2;video;video;%3;%4;%5;%6;%7;%8;%9;%10;;;;;;;;;;;;;;;;;\n");
                             dim2_line = dim2_line.arg(date_img.toString("dd/MM/yyyy"))
                                     .arg(time_img.toString("hh:mm:ss.zzz"))
                                     .arg(new_file_name)
                                     .arg(m_nav_file->latAtTime(date_time_double),0,'f',10)
                                     .arg(m_nav_file->lonAtTime(date_time_double),0,'f',10)
                                     .arg(m_nav_file->depthAtTime(date_time_double),0,'f',3)
+                                    .arg(m_nav_file->altAtTime(date_time_double),0,'f',3)
                                     .arg(m_nav_file->yawAtTime(date_time_double)*RAD2DEG,0,'f',2)
                                     .arg(m_nav_file->rollAtTime(date_time_double)*RAD2DEG,0,'f',2)
                                     .arg(m_nav_file->pitchAtTime(date_time_double)*RAD2DEG,0,'f',2);
