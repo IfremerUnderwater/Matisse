@@ -16,6 +16,7 @@
 #include "stdvectoperations.h"
 #include "FileUtils.h"
 #include <math.h>
+#include "gdal_translate_wrapper.h"
 
 using namespace std;
 using namespace cv;
@@ -29,7 +30,7 @@ MosaicDrawer::MosaicDrawer(QString drawingOptions)
     // Default command line args
     dOptions.tryGpu = false;
     dOptions.seamMegapix = 0.1;
-    dOptions.exposCompType = ExposureCompensator::GAIN;
+    dOptions.exposCompType = ExposureCompensator::GAIN_BLOCKS;
     dOptions.gainBlock = true;
     dOptions.seamFindType = "gc_color";
     dOptions.blendType = Blender::MULTI_BAND;
@@ -1018,13 +1019,6 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
     // Write all geotiff files from temp files
     for (unsigned int k=0; k<vpEffBlocksPoly.size(); k++){
 
-
-        QString blockImgFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-        Mat blockImg = imread(blockImgFilePath.toStdString().c_str());
-
-        QString blockImgMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
-
         QString utmProjParam, utmHemisphereOption,utmZoneString;
 
         // Construct utm proj param options
@@ -1058,8 +1052,30 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
         outputFiles << prefix_p + QString("_%1.tiff").arg(k, 4, 'g', -1, '0');
         QString geoRefBlockImgFilePath = writingPath_p + QDir::separator() + outputFiles.at(outputFiles.size()-1);
 
-        RasterGeoreferencer rasterGeoref;
-        rasterGeoref.WriteGeoFile(blockImg, blockImgMask, geoRefBlockImgFilePath,gdalOptions);
+        // Read files
+        QString blockImgFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+        Mat blockImg = imread(blockImgFilePath.toStdString().c_str());
+
+        QString blockImgMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+
+        std::vector<cv::Mat> blockImgChannels;
+        cv::split(blockImg, blockImgChannels);
+
+        // create alpha channel
+        blockImgChannels.push_back(blockImgMask);
+
+        // create tempBlock
+        QString tempBlockImgFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + QString("Temp.png");
+        cv::Mat_<cv::Vec4b> dst;
+        cv::merge(blockImgChannels, dst);
+        cv::imwrite(tempBlockImgFilePath.toStdString(),dst);
+
+        GdalTranslateWrapper gdalTranslate;
+        gdalTranslate.geoReferenceFile(tempBlockImgFilePath,geoRefBlockImgFilePath,gdalOptions);
+
+        //RasterGeoreferencer rasterGeoref;
+        //rasterGeoref.WriteGeoFile(blockImg, blockImgMask, geoRefBlockImgFilePath,gdalOptions);
 
     }
 

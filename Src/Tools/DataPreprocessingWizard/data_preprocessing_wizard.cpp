@@ -137,7 +137,7 @@ void DataPreprocessingWizard::sl_deselectAllFiles()
 
 void DataPreprocessingWizard::checkAndFillVideoFiles(QString _dataPath)
 {
-    QStringList nameFilter = {"*.avi", "*.mp4", "*.ts", "*.mpg", "*.mov", "*.mxf"};
+    QStringList nameFilter = {"*.avi", "*.mp4", "*.ts", "*.mpg", "*.mov", "*.mxf", "*.mkv"};
     QDir directory(_dataPath);
     m_found_files = directory.entryList(nameFilter);
 
@@ -146,7 +146,7 @@ void DataPreprocessingWizard::checkAndFillVideoFiles(QString _dataPath)
     {
         this->back();
         QMessageBox::critical(this, tr("Alert"),
-                              tr("No video file (*.avi, *.mp4, *.ts, *.mpg, *.mov, *.mxf) found in this path"));
+                              tr("No video file (*.avi, *.mp4, *.ts, *.mpg, *.mov, *.mxf , *.mkv) found in this path"));
     }
     else
     {
