@@ -8,7 +8,7 @@ class LIBMATISSECOMMONSHARED_EXPORT GdalTranslateWrapper
 {
 public:
     GdalTranslateWrapper();
-    geoReferenceFile(QString _input_file, QString _outpout_file, QString _gdal_options);
+    void geoReferenceFile(QString _input_file, QString _outpout_file, QString _gdal_options);
 };
 
 #endif // GDAL_TRANSLATE_WRAPPER_H

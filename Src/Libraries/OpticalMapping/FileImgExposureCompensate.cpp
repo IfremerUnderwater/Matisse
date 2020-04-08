@@ -58,7 +58,7 @@ Ptr<FileImgExposureCompensator> FileImgExposureCompensator::createDefault(int ty
         return new FileImgNoExposureCompensator();
     if (type == GAIN)
         return new FileImgGainCompensator();
-    CV_Error(CV_StsBadArg, "unsupported exposure compensation method");
+    CV_Error(cv::Error::StsBadArg, "unsupported exposure compensation method");
 
     return (Ptr<FileImgExposureCompensator>)((FileImgExposureCompensator*)(NULL));
 //    return NULL;
@@ -125,7 +125,7 @@ void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & 
             imagemask_i_path += imagesMaskName[i];
 
             image_i = imread(image_i_path.toStdString().c_str());
-            imagemask_i = imread(imagemask_i_path.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+            imagemask_i = imread(imagemask_i_path.toStdString().c_str(),IMREAD_GRAYSCALE);
 
             Rect roi;
             if (overlapRoi(corners[i], corners[j], imgsizes[i], imgsizes[j], roi))
@@ -137,7 +137,7 @@ void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & 
                 imagemask_j_path += imagesMaskName[j];
 
                 image_j = imread(image_j_path.toStdString().c_str());
-                imagemask_j = imread(imagemask_j_path.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+                imagemask_j = imread(imagemask_j_path.toStdString().c_str(),IMREAD_GRAYSCALE);
 
 //qDebug() << "sub1 x, y = " << (roi.tl() - corners[i]).x << ", " << (roi.tl() - corners[i]).y << ", " << (roi.br() - corners[i]).x << ", " << (roi.br() - corners[i]).y;
 //qDebug() << "sub2 x, y = " << (roi.tl() - corners[j]).x << ", " << (roi.tl() - corners[j]).y << ", " << (roi.br() - corners[j]).x << ", " << (roi.br() - corners[j]).y;

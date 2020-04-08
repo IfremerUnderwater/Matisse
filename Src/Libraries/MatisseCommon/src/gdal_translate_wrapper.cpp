@@ -7,7 +7,7 @@ GdalTranslateWrapper::GdalTranslateWrapper()
 
 }
 
-GdalTranslateWrapper::geoReferenceFile(QString _input_file, QString _outpout_file, QString _gdal_options)
+void GdalTranslateWrapper::geoReferenceFile(QString _input_file, QString _outpout_file, QString _gdal_options)
 {
     QProcess gdal_translate_proc;
     //gdal_translate_proc.setWorkingDirectory(m_root_dirname_str);

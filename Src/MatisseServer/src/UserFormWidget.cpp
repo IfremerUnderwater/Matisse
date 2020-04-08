@@ -1148,7 +1148,7 @@ void UserFormWidget::displayImage(Image *image ){
 
     qDebug()<< "Channels " << image->imageData()->channels();
 
-    cvtColor(*(image->imageData()), dest,CV_BGR2RGB);
+    cvtColor(*(image->imageData()), dest,COLOR_BGR2RGB);
 
     QImage result((uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
     const QPixmap pix = QPixmap::fromImage(result);

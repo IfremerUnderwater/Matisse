@@ -51,7 +51,8 @@ LIBS+= -L/usr/local/lib /usr/local/lib/libopenMVG_image.so /usr/local/lib/libope
 win32 {
 INCLUDEPATH += "C:/msys64/mingw64/include"
 INCLUDEPATH += "C:/msys64/mingw64/include/OpenMVG"
-INCLUDEPATH += "C:/msys64/mingw64/include/OpenMVG/third_party/eigen"
+#INCLUDEPATH += "C:/msys64/mingw64/include/OpenMVG/third_party/eigen"
+INCLUDEPATH += C:\msys64\mingw64\include\eigen3
 #LIBS+= -LC:/msys64/mingw64/lib
 }
 
@@ -59,7 +60,7 @@ message("Init3DRecon...")
 message($${INCLUDEPATH}))
 message("...Init3DRecon")
 
-LIBS *= -lopenMVG_image -lopenMVG_sfm  -lopenMVG_multiview -leasyexif -lstlplus -ljpeg -lpng -ltiff -lGeographic
+LIBS *= -lopenMVG_image -lopenMVG_sfm  -lopenMVG_multiview -lopenMVG_exif -lopenMVG_stlplus -ljpeg -lpng -ltiff -lGeographic
 
 
 win32 {

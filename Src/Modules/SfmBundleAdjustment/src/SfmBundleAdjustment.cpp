@@ -87,7 +87,7 @@ void SfmBundleAdjustment::splitMatchesFiles()
     split_matches_proc.setWorkingDirectory(m_root_dirname_str);
 
     split_matches_proc.start("openMVG_main_SplitMatchFileIntoMatchFiles.exe -i ."+SEP+ "matches"+SEP+ "sfm_data.json -m ."
-                             +SEP+ "matches"+SEP+"matches.f.bin -n 30 -o ."+SEP+"splitted_matches"+SEP+"matches_list.txt");
+                             +SEP+ "matches"+SEP+"matches.f.bin -n 5 -o ."+SEP+"splitted_matches"+SEP+"matches_list.txt");
 
     // run process
     while(split_matches_proc.waitForReadyRead(-1))
@@ -188,7 +188,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
 
         QProcess sfmProc;
         sfmProc.setWorkingDirectory(m_root_dirname_str);
-        sfmProc.start("openMVG_main_IncrementalSfM -i ."+SEP+ "matches"+SEP+ "sfm_data.json -m ."
+        sfmProc.start("openMVG_main_IncrementalSfM2 -i ."+SEP+ "matches"+SEP+ "sfm_data.json -m ."
                       +SEP+ "matches"+SEP+ " -o ."+SEP+ m_out_dirname_str+QString("_%1").arg(rc->components_ids[i]) + prior_arg);
 
         int starcount = 0;
