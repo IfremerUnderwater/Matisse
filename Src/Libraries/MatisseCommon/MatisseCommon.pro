@@ -74,7 +74,8 @@ HEADERS += \
     src/StringUtils.h \
     src/libmatissecommon_global.h \
     src/GraphicalCharter.h \
-    src/reconstructioncontext.h
+    src/reconstructioncontext.h \
+    src/gdal_translate_wrapper.h
 
 SOURCES += \
     src/Processor.cpp \
@@ -96,7 +97,8 @@ SOURCES += \
     src/FileUtils.cpp \
     #src/NavPhotoInfoTcpListener.cpp \
     src/StringUtils.cpp \
-    src/GraphicalCharter.cpp
+    src/GraphicalCharter.cpp \
+    src/gdal_translate_wrapper.cpp
 
 #OTHER_FILES += src/proto/*.proto
 

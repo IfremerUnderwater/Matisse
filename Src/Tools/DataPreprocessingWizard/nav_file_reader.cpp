@@ -22,6 +22,8 @@ NavFileReader::~NavFileReader()
         delete m_lon_interpolator;
     if(m_depth_interpolator)
         delete m_depth_interpolator;
+    if(m_alt_interpolator)
+        delete m_alt_interpolator;
     if(m_roll_interpolator)
         delete m_roll_interpolator;
     if(m_pitch_interpolator)
@@ -36,6 +38,7 @@ bool NavFileReader::loadFileToMemory()
     m_lat.clear();
     m_lon.clear();
     m_depth.clear();
+    m_alt.clear();
     m_roll.clear();
     m_pitch.clear();
     m_yaw.clear();
@@ -68,6 +71,10 @@ bool NavFileReader::loadFileToMemory()
 
                     QDate date= QDate::fromString(fields_tab[0],"dd/MM/yyyy");
                     QTime time = QTime::fromString(fields_tab[1].mid(0,12),"hh:mm:ss.zzz");
+                    if( !time.isValid() )
+                    {
+                        time = QTime::fromString(fields_tab[1],"hh:mm:ss");
+                    }
                     QDateTime date_time(date,time);
                     m_datetime.push_back((double)date_time.toMSecsSinceEpoch());
                     pair.first = (double)date_time.toMSecsSinceEpoch();
@@ -80,6 +87,9 @@ bool NavFileReader::loadFileToMemory()
 
                     pair.second = -fields_tab[4].toDouble(); // depth is reversed for phins
                     m_depth.push_back(pair);
+
+                    pair.second = -99.0; // alt not given by this format
+                    m_alt.push_back(pair);
 
                     pair.second = DEG2RAD*fields_tab[5].toDouble();
                     m_yaw.push_back(pair);
@@ -106,7 +116,17 @@ bool NavFileReader::loadFileToMemory()
                         date = QDate::fromString(fields_com[0],"dd/MM/yyyy");
                     }
 
-                    QTime time = QTime::fromString(fields_com[1].mid(0,8),"hh:mm:ss");
+                    QRegExp time_format_rex("(.+):(.+):(.+).(.+)");
+                    QTime time;
+                    if (fields_com[1].contains(time_format_rex))
+                    {
+                        time = QTime::fromString(fields_com[1],"hh:mm:ss.zzz");
+                    }
+                    else
+                    {
+                        time = QTime::fromString(fields_com[1].mid(0,8),"hh:mm:ss");
+                    }
+
                     QDateTime date_time(date,time);
                     m_datetime.push_back((double)date_time.toMSecsSinceEpoch());
                     pair.first = (double)date_time.toMSecsSinceEpoch();
@@ -120,7 +140,10 @@ bool NavFileReader::loadFileToMemory()
                     pair.second = fields_com[4].toDouble();
                     m_depth.push_back(pair);
 
-                    pair.second = 0.0;
+                    pair.second = fields_com[5].toDouble();
+                    m_alt.push_back(pair);
+
+                    pair.second = DEG2RAD*fields_com[6].toDouble();;
                     m_yaw.push_back(pair);
 
                     pair.second = 0.0;
@@ -145,6 +168,7 @@ bool NavFileReader::loadFileToMemory()
         m_lat_interpolator = new Interpolator(m_lat);
         m_lon_interpolator = new Interpolator(m_lon);
         m_depth_interpolator = new Interpolator(m_depth);
+        m_alt_interpolator = new Interpolator(m_alt);
         m_yaw_interpolator = new AngleInterpolator(m_yaw);
         m_pitch_interpolator = new AngleInterpolator(m_pitch);
         m_roll_interpolator = new AngleInterpolator(m_roll);
@@ -175,6 +199,11 @@ double NavFileReader::lonAtTime(double &_time)
 double NavFileReader::depthAtTime(double &_time)
 {
     return m_depth_interpolator->findValue(_time);
+}
+
+double NavFileReader::altAtTime(double &_time)
+{
+    return m_alt_interpolator->findValue(_time);
 }
 
 double NavFileReader::rollAtTime(double &_time)

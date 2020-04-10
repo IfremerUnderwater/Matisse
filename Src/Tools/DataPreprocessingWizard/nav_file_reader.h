@@ -17,6 +17,7 @@ public:
     double latAtTime(double &_time);
     double lonAtTime(double & _time);
     double depthAtTime(double & _time);
+    double altAtTime(double & _time);
     double rollAtTime(double & _time);
     double pitchAtTime(double & _time);
     double yawAtTime(double & _time);
@@ -27,6 +28,7 @@ private:
     std::vector<std::pair<double, double>> m_lat;
     std::vector<std::pair<double, double>> m_lon;
     std::vector<std::pair<double, double>> m_depth;
+    std::vector<std::pair<double, double>> m_alt;
     std::vector<std::pair<double, double>> m_roll;
     std::vector<std::pair<double, double>> m_pitch;
     std::vector<std::pair<double, double>> m_yaw;
@@ -34,6 +36,7 @@ private:
     Interpolator* m_lat_interpolator;
     Interpolator* m_lon_interpolator;
     Interpolator* m_depth_interpolator;
+    Interpolator* m_alt_interpolator;
     AngleInterpolator* m_roll_interpolator;
     AngleInterpolator* m_pitch_interpolator;
     AngleInterpolator* m_yaw_interpolator;
