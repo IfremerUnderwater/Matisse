@@ -60,7 +60,7 @@ Mat *FileImage::imageData() {
             if (_scaleFactor < 1.0){
                 _imageData = new Mat();
                 Mat fullSizeImg = imread(filePath);
-                resize(fullSizeImg, *_imageData, cvSize(0, 0), _scaleFactor, _scaleFactor);
+                resize(fullSizeImg, *_imageData, cv::Size(0, 0), _scaleFactor, _scaleFactor);
             }else{
                 _imageData = new Mat(imread(filePath));
             }

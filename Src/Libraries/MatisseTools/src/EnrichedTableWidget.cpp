@@ -47,8 +47,9 @@ EnrichedTableWidget::EnrichedTableWidget(QWidget *parent, QString label, quint8 
     quint16 tableHeight = rows * graph_chart.dpiScaled(PARAM_TABLE_ROW_HEIGHT);
 
 
-    _table->setMinimumSize(tableWidth, tableHeight);
-    _table->setMaximumSize(tableWidth, tableHeight);
+    //_table->setMinimumSize(tableWidth, tableHeight);
+    //_table->setMaximumSize(tableWidth, tableHeight);
+    _table->setFixedSize(tableWidth+graph_chart.dpiScaled(5), tableHeight+graph_chart.dpiScaled(10));
 
     _defaultValue = defaultValues.join(";");
 
