@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 
     cv::Mat in_img, out_img, empty_mask;
 
-    in_img = cv::imread("/home/data/Test/20161012T113202.951596Z.jpg");
+    in_img = cv::imread("/home/data/Test/20161012T113202.951596Z.jpg",cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
 
     histogramQuantileStretch(in_img, empty_mask, 0.0005,  out_img);
 

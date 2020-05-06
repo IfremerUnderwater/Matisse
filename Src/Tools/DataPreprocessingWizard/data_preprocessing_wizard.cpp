@@ -474,7 +474,7 @@ void DataPreprocessingWizard::preprocessImage(QString _image_path, QString _out_
 
                 if (img_mpx > ui->res_limit_sb->value())
                 {
-                    cv::Mat cv_temp_img = cv::imread(_image_path.toStdString());
+                    cv::Mat cv_temp_img = cv::imread(_image_path.toStdString(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
                     cv::Size dst_size;
                     double mpx_ratio_sqrt = sqrt(ui->res_limit_sb->value()/img_mpx);
                     dst_size.width = round(mpx_ratio_sqrt*cv_temp_img.cols);
@@ -492,7 +492,7 @@ void DataPreprocessingWizard::preprocessImage(QString _image_path, QString _out_
                 cv::Mat cv_out_img,empty_mask;
 
                 if(cv_img.empty())
-                    cv_img = cv::imread(_image_path.toStdString());
+                    cv_img = cv::imread(_image_path.toStdString(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
 
                 histogramQuantileStretch(cv_img, empty_mask, 0.0005,  cv_out_img);
 

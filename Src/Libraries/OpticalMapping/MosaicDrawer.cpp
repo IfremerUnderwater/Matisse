@@ -796,10 +796,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
                 // Open first block and mask & get corner
                 imgFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-                blocksToBeBlended[0] = imread(imgFilePath1.toStdString().c_str()).getUMat(ACCESS_READ);
+                blocksToBeBlended[0] = imread(imgFilePath1.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
                 mosaicMaskFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-                blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath1.toStdString().c_str(),IMREAD_GRAYSCALE).getUMat(ACCESS_READ);
+                blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath1.toStdString().c_str(),IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
                 vpEffBlocksPoly[k]->getBoundingBox(tl_x1,tl_y1,br_x1,br_y1);
                 corners[0].x = (int) tl_x1;
@@ -807,10 +807,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
                 // Open second block and mask
                 imgFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
-                blocksToBeBlended[1] = imread(imgFilePath2.toStdString().c_str()).getUMat(ACCESS_READ);
+                blocksToBeBlended[1] = imread(imgFilePath2.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
                 mosaicMaskFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
-                blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath2.toStdString().c_str(),IMREAD_GRAYSCALE).getUMat(ACCESS_READ);
+                blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath2.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
                 vpEffBlocksPoly[l]->getBoundingBox(tl_x2,tl_y2,br_x2,br_y2);
                 corners[1].x = (int) tl_x2;
@@ -942,11 +942,11 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
                     blockJunctionInter->getBoundingBox( tl_x,tl_y,br_x,br_y );
 
                     imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
-                    imgTemp = imread(imgBlockFilePath.toStdString().c_str()).getUMat(ACCESS_READ);
+                    imgTemp = imread(imgBlockFilePath.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
                     blocksToBeBlended.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1)) );
 
                     imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
-                    imgTemp = imread(imgBlockMaskFilePath.toStdString().c_str(),IMREAD_GRAYSCALE).getUMat(ACCESS_READ);
+                    imgTemp = imread(imgBlockMaskFilePath.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
                     blocksToBeBlendedMasks.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1))  );
 
                     // Store corners values
@@ -981,8 +981,8 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
                 imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
                 imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
 
-                UMat blockImg = imread(imgBlockFilePath.toStdString().c_str()).getUMat(ACCESS_READ);
-                UMat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str()).getUMat(ACCESS_READ);
+                UMat blockImg = imread(imgBlockFilePath.toStdString().c_str(),cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                UMat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str(),cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
 
                 // Part of the matrix we are interested in
@@ -1055,10 +1055,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
         // Read files
         QString blockImgFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-        Mat blockImg = imread(blockImgFilePath.toStdString().c_str());
+        Mat blockImg = imread(blockImgFilePath.toStdString().c_str(),cv::IMREAD_IGNORE_ORIENTATION);
 
         QString blockImgMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),IMREAD_GRAYSCALE);
+        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
 
         std::vector<cv::Mat> blockImgChannels;
         cv::split(blockImg, blockImgChannels);

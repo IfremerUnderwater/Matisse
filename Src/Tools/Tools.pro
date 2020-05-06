@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS = MatisseDictionnaryValidator \
-    DataPreprocessingWizard
+    DataPreprocessingWizard \
+    ForceLookingDown
 
 
