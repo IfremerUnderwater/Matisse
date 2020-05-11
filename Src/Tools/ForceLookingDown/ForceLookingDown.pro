@@ -10,12 +10,12 @@ QMAKE_CXXFLAGS+= -march=skylake -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mavx -m
 
 QMAKE_LFLAGS +=  -fopenmp
 
-#win32 {
-#INCLUDEPATH += "C:/msys64/mingw64/include"
-#INCLUDEPATH += "C:/msys64/mingw64/include/OpenMVG"
-#INCLUDEPATH += C:\msys64\mingw64\include\eigen3
-#
-#}
+win32 {
+INCLUDEPATH += "C:/msys64/mingw64/include"
+INCLUDEPATH += "C:/msys64/mingw64/include/OpenMVG"
+INCLUDEPATH += C:\msys64\mingw64\include\eigen3
+
+}
 
 LIBS *= -lopenMVG_image -lopenMVG_sfm  -lopenMVG_multiview -lopenMVG_exif -lopenMVG_stlplus -lopenMVG_features -lopenMVG_geometry -ljpeg -lpng -ltiff
 
