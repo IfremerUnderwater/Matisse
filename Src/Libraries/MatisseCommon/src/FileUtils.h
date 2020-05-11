@@ -1,7 +1,7 @@
 ﻿#ifndef FILE_UTILS_H
 #define FILE_UTILS_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QtDebug>
 #include <QFile>
@@ -27,7 +27,7 @@
 
 namespace MatisseCommon {
 
-class LIBMATISSECOMMONSHARED_EXPORT FileUtils
+class FileUtils
 {
 public:
     static bool removeDir(const QString &dirName);

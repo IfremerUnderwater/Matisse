@@ -1,7 +1,7 @@
 ﻿#ifndef FILEIMAGE_H
 #define FILEIMAGE_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QSharedPointer>
 
@@ -15,7 +15,7 @@ namespace MatisseCommon {
 ///
 /// \brief The Image provenant d'un fichier
 ///
-class LIBMATISSECOMMONSHARED_EXPORT FileImage : public NavImage
+class FileImage : public NavImage
 {
 public:
 

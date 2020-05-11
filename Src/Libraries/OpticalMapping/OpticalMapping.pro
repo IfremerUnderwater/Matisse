@@ -14,8 +14,9 @@ QT       += core xml script xmlpatterns network
 
 
 TEMPLATE = lib
+CONFIG += staticlib
 
-DEFINES += LIBOPTICALMAPPING_LIBRARY
+#DEFINES += LIBOPTICALMAPPING_LIBRARY
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../
@@ -39,13 +40,13 @@ include(../../Scripts/QuaZIP.pri)
 include(../../Scripts/BasicProcessing.pri)
 
 
-win32 {
-    DLLDESTDIR = $${BUILD_DIR}/Libraries/dll
-}
+#win32 {
+#    DLLDESTDIR = $${BUILD_DIR}/Libraries/dll
+#}
 
-unix {
-    DESTDIR = $${BUILD_DIR}/Libraries/dll
-}
+#unix {
+#    DESTDIR = $${BUILD_DIR}/Libraries/dll
+#}
 
 SOURCES += \
     MosaicDrawer.cpp \

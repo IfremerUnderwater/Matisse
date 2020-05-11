@@ -1,9 +1,9 @@
 #ifndef MOSAICOPTIMIZER_H
 #define MOSAICOPTIMIZER_H
 
-#include "libopticalmapping_global.h"
 
-class LIBOPTICALMAPPINGSHARED_EXPORT MosaicOptimizer
+
+class MosaicOptimizer
 {
 public:
     MosaicOptimizer();

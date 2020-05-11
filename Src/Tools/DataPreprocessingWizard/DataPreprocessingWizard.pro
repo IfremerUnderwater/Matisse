@@ -35,10 +35,9 @@ CONFIG(release, debug|release) {
 
 DESTDIR = $${RUN_DIR}
 
-include(../../Scripts/opencv.pri)
 include(../../Scripts/BasicProcessing.pri)
 include(../../Scripts/ImageProcessing.pri)
-
+include(../../Scripts/opencv.pri)
 
 SOURCES += \
         main.cpp \

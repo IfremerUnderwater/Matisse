@@ -1,0 +1,2 @@
+add_subdirectory(BasicProcessing)
+add_subdirectory(ImageProcessing)
