@@ -23,5 +23,5 @@ target_link_libraries( MatisseCommon BasicProcessing ${OpenCV_LIBS} Qt5::Core Qt
 
 # state that anybody linking to us needs to include the current source dir
 target_include_directories(MatisseCommon
-          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src
           )

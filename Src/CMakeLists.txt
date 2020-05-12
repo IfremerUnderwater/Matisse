@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 configure_file(MatisseConfig.h.in MatisseConfig.h)
 
 # qt5 also required for Quazip
-find_package(Qt5 COMPONENTS Core Widgets Network Xml REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script REQUIRED)
 
 # opencv
 find_package( OpenCV REQUIRED )
