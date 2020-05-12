@@ -9,7 +9,6 @@
 #include "PictureFileSet.h"
 #include <QImageReader>
 
-using namespace cv;
 
 namespace MatisseCommon {
 ///
@@ -50,7 +49,7 @@ public:
     /// \brief Construction d'image Mat en lazy-loading
     /// \return
     ///
-    virtual Mat * imageData();
+    virtual cv::Mat * imageData();
 
     ///
     /// \brief Return width of _imageData without loading image file

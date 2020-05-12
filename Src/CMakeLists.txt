@@ -7,18 +7,23 @@ project(MatisseProject VERSION 1.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005")
+
 # configure a header file to pass some of the CMake settings
 # to the source code
 configure_file(MatisseConfig.h.in MatisseConfig.h)
 
 # qt5 also required for Quazip
-find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script OpenGL REQUIRED)
 
 # opencv
 find_package( OpenCV REQUIRED )
 
 # quazip
 find_package(QuaZip REQUIRED)
+
+# gdal
+find_package(GDAL)
 
 # qt
 set(CMAKE_AUTOMOC ON)
@@ -30,8 +35,8 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
 endif()
 
 add_subdirectory(Libraries)
-list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/BasicProcessing")
-list(APPEND EXTRA_LIBS BasicProcessing)
+
+add_subdirectory(MatisseServer)
 
 # add the executable
 #add_executable(Matisse main.cxx)

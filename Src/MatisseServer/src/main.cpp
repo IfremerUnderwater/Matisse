@@ -65,7 +65,9 @@ int main(int argc, char *argv[])
     // set all locales to avoid numbers with , instead of .
     setlocale(LC_ALL, "C");
     QLocale::setDefault(QLocale::C);
+#ifndef _MSC_VER
     std::setlocale(LC_ALL, "C");
+#endif // !1
 
     QApplication a(argc,argv);
 
