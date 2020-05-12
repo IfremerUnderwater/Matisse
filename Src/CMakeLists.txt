@@ -11,8 +11,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # to the source code
 configure_file(MatisseConfig.h.in MatisseConfig.h)
 
+# qt5 also required for Quazip
+find_package(Qt5 COMPONENTS Core Widgets Network Xml REQUIRED)
+
 # opencv
 find_package( OpenCV REQUIRED )
+
+# quazip
+find_package(QuaZip REQUIRED)
 
 # qt
 set(CMAKE_AUTOMOC ON)
@@ -22,10 +28,6 @@ set(CMAKE_AUTOUIC ON)
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
 endif()
-
-find_package(Qt5 COMPONENTS Core REQUIRED)
-
-add_definitions(-DIMAGEPROCESSING_LIBRARY)
 
 add_subdirectory(Libraries)
 list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/BasicProcessing")
