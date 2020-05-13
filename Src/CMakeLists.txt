@@ -7,8 +7,9 @@ project(MatisseProject VERSION 1.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+if(MSVC)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005")
-
+endif(MSVC)
 # configure a header file to pass some of the CMake settings
 # to the source code
 configure_file(MatisseConfig.h.in MatisseConfig.h)
@@ -24,6 +25,10 @@ find_package(QuaZip REQUIRED)
 
 # gdal
 find_package(GDAL)
+
+# osg
+find_package(OpenSceneGraph REQUIRED osgDB osgUtil osgGA osgViewer)
+# libOpenThreads & libosg automatically searched
 
 # qt
 set(CMAKE_AUTOMOC ON)

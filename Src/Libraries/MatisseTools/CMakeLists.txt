@@ -1,4 +1,5 @@
-add_library(MatisseTools    
+add_library(MatisseTools
+    src/MatisseDictionnaryLabels.h
     src/ParametersWidgetSkeleton.cpp
     src/KeyValueList.cpp
     src/AssemblyDefinition.cpp
@@ -23,7 +24,19 @@ add_library(MatisseTools
     src/ProcessDataManager.cpp
     src/PlatformComponent.cpp
     src/PlatformInspector.cpp
-    src/PlatformDump.cpp)
+    src/PlatformDump.cpp
+    src/PlatformOpencvComponent.cpp
+    src/platformOsgComponent.cpp
+    src/PlatformComparisonStatus.cpp
+    src/PlatformComparator.cpp
+    src/MatisseIconFactory.cpp
+    src/IconizedWidgetWrapper.cpp
+    src/IconizedLabelWrapper.cpp
+    src/IconizedButtonWrapper.cpp
+    src/IconizedComboBoxItemWrapper.cpp
+    src/MatisseTreeItem.cpp
+    src/IconizedTreeItemWrapper.cpp
+    src/IconizedActionWrapper.cpp)
 	
 #qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} MatisseTools_fr.ts MatisseTools_en.ts)
 
