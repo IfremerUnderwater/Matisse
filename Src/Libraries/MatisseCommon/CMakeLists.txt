@@ -22,7 +22,7 @@ add_library(MatisseCommon
 
 include_directories(${QUAZIP_INCLUDE_DIRS})
 
-target_link_libraries( MatisseCommon BasicProcessing ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml ${QUAZIP_LIBRARIES} GDAL::GDAL -lproj)
+target_link_libraries( MatisseCommon BasicProcessing ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml ${QUAZIP_LIBRARIES} GDAL::GDAL ${PROJ_LIBS})
 
 # state that anybody linking to us needs to include the current source dir
 target_include_directories(MatisseCommon

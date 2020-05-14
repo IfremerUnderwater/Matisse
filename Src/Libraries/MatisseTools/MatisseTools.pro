@@ -124,7 +124,7 @@ HEADERS +=\
     src/IconizedActionWrapper.h
 
 FORMS    += \
-            ParametersWidgetSkeleton.ui
+            src/ParametersWidgetSkeleton.ui
 
 TRANSLATIONS=MatisseTools_fr.ts \
         MatisseTools_en.ts

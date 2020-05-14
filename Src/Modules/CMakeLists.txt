@@ -1,0 +1,4 @@
+add_subdirectory(BridgeModule)
+add_subdirectory(DTPictureFileSetImageProvider)
+add_subdirectory(Init2DMosaic)
+add_subdirectory(DrawBlend2DMosaic)

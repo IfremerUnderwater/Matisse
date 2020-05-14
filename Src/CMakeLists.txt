@@ -9,6 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(MSVC)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005")
+set(PROJ_LIBS ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/proj.lib)
+elseif(MSVC)
+set(PROJ_LIBS "proj")
 endif(MSVC)
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -42,6 +45,8 @@ endif()
 add_subdirectory(Libraries)
 
 add_subdirectory(MatisseServer)
+
+add_subdirectory(Modules)
 
 # add the executable
 #add_executable(Matisse main.cxx)

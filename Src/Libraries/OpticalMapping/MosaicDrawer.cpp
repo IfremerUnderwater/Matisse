@@ -981,8 +981,8 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
                 imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
                 imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
 
-                UMat blockImg = imread(imgBlockFilePath.toStdString().c_str(),cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
-                UMat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str(),cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                UMat blockImg = imread(imgBlockFilePath.toStdString().c_str(),cv::IMREAD_COLOR|cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                UMat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str(),cv::IMREAD_GRAYSCALE|cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
 
                 // Part of the matrix we are interested in
@@ -1055,10 +1055,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
         // Read files
         QString blockImgFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-        Mat blockImg = imread(blockImgFilePath.toStdString().c_str(),cv::IMREAD_IGNORE_ORIENTATION);
+        Mat blockImg = imread(blockImgFilePath.toStdString().c_str(),cv::IMREAD_COLOR|cv::IMREAD_IGNORE_ORIENTATION);
 
         QString blockImgMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
+        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
 
         std::vector<cv::Mat> blockImgChannels;
         cv::split(blockImg, blockImgChannels);
