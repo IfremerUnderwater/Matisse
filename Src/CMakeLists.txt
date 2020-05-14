@@ -20,18 +20,20 @@ configure_file(MatisseConfig.h.in MatisseConfig.h)
 # qt5 also required for Quazip
 find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script OpenGL REQUIRED)
 
-# opencv
 find_package( OpenCV REQUIRED )
 
-# quazip
 find_package(QuaZip REQUIRED)
 
-# gdal
-find_package(GDAL)
+find_package(GDAL REQUIRED)
 
-# osg
+find_package(GeographicLib REQUIRED)
+
 find_package(OpenSceneGraph REQUIRED osgDB osgUtil osgGA osgViewer)
 # libOpenThreads & libosg automatically searched
+
+find_package(OpenMVG REQUIRED)
+find_package(cereal REQUIRED)
+find_package(ceres REQUIRED)
 
 # qt
 set(CMAKE_AUTOMOC ON)
