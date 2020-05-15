@@ -74,18 +74,8 @@ endif()
 add_subdirectory(Libraries)
 
 add_subdirectory(MatisseServer)
+add_subdirectory(MatisseCmd)
 
 add_subdirectory(Modules)
 
-# add the executable
-#add_executable(Matisse main.cxx)
-
-#target_link_libraries(Matisse PUBLIC ${EXTRA_LIBS})
-
-# add the binary tree to the search path for include files
-# so that we will find MatisseConfig.h
-
-#target_include_directories(Matisse PUBLIC
-#                           "${PROJECT_BINARY_DIR}"
-#						   ${EXTRA_INCLUDES}
-#                           )
+add_subdirectory(Tools)

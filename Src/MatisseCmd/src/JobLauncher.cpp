@@ -15,14 +15,14 @@ JobLauncher::JobLauncher(QObject *parent) :
     _processDataManager(NULL)
 {
     // useless but does not build otherwise -> ugly ..................
-    GraphicalCharter &graph_charter = GraphicalCharter::instance();
-    int a = graph_charter.dpiScaled(0);
-    QString b("");
-    FileUtils::createTempDirectory(b);
-    QString source;
-    QMap<QString,QString> properties;
-    StringUtils::substitutePlaceHolders(source, properties);
-    // ...............................................................
+//    GraphicalCharter &graph_charter = GraphicalCharter::instance();
+//    int a = graph_charter.dpiScaled(0);
+//    QString b("");
+//    FileUtils::createTempDirectory(b);
+//    QString source;
+//    QMap<QString,QString> properties;
+//    StringUtils::substitutePlaceHolders(source, properties);
+//    // ...............................................................
 
     _server.setMainGui(this);
 
