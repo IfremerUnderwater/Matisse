@@ -37,8 +37,8 @@ public:
 
     bool okStatus() { return _okStatus; }
 
-    // A appeler obligatoirement dans start
-    // et éventuellement dans flush ou onNewImage
+    // Must be called in start
+    // and eventually in flush or onNewImage
     void setOkStatus(const bool status = true)
     {
         _okStatus = status;

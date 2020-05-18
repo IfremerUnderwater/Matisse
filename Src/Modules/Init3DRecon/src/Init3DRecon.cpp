@@ -645,10 +645,10 @@ void Init3DRecon::onFlush(quint32 port)
     emit signal_userInformation("Init3DRecon - saving...");
     // Store SfM_Data views & intrinsic data
     if (!Save(  sfm_data,
-                stlplus::create_filespec( sOutputDir, "sfm_data.json" ).c_str(),
+                stlplus::create_filespec( sOutputDir, "sfm_data.bin" ).c_str(),
                 ESfM_Data(VIEWS|INTRINSICS)))
     {
-        fatalErrorExit("Error saving sfm_data.json");
+        fatalErrorExit("Error saving sfm_data.bin");
 
         return;
     }
