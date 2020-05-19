@@ -46,7 +46,7 @@ public:
     virtual void onFlush(quint32 port);
     virtual void onNewImage(quint32 port, MatisseCommon::Image &image);
 
-    /** @brief Initializer of the C_Progress_display class
+    /** @brief Initializer of the C_Progress class
 * @param expected_count The number of step of the process
 * @param msg updates the status string. Can be empty to keep the last one.
 **/
@@ -56,7 +56,11 @@ public:
     {
         C_Progress::restart(ulExpected_count, msg); //-- Initialize the base class
         if (!msg.empty())
+        {
+            QString qmsg = logPrefix() + QString::fromStdString(msg).remove('\n');
             emit signal_userInformation(QString::fromStdString(msg));
+        }
+
     } // restart
 
 private:

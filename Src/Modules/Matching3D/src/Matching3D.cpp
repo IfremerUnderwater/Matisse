@@ -122,7 +122,7 @@ bool Matching3D::computeFeatures()
     static const QString SEP = QDir::separator();
 
     emit signal_processCompletion(0);
-    emit signal_userInformation("Match 3D : Compute Features");
+    emit signal_userInformation("Matching : Compute Features");
 
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
@@ -144,7 +144,7 @@ bool Matching3D::computeFeatures()
     QString sOutDir = rootDirnameStr + SEP + "matches";
 
     if (sOutDir.isEmpty()) {
-        emit signal_fatalError();
+        fatalErrorExit("Matching : output dir is empty");
         return false;
     }
 
@@ -153,7 +153,7 @@ bool Matching3D::computeFeatures()
     {
         if (!stlplus::folder_create(sOutDir.toStdString()))
         {
-            emit signal_fatalError();
+            fatalErrorExit("Matching : impossible to create output dir (permissions ?)");
             return false;
         }
     }
@@ -165,7 +165,7 @@ bool Matching3D::computeFeatures()
     if (!Load(sfm_data, sSfM_Data_Filename.toStdString(), ESfM_Data(VIEWS | INTRINSICS))) {
         //std::cerr << std::endl
         //    << "The input file \"" << sSfM_Data_Filename << "\" cannot be read" << std::endl;
-        emit signal_fatalError();
+        fatalErrorExit("Matcching : input data cannot be read (sfm_data)");
         return false;
     }
 
@@ -183,7 +183,7 @@ bool Matching3D::computeFeatures()
         std::ifstream stream(sImage_describer.c_str());
         if (!stream.is_open())
         {
-            emit signal_fatalError();
+            fatalErrorExit("Matching : unable to open image describer");
             return false;
         }
 
@@ -195,7 +195,7 @@ bool Matching3D::computeFeatures()
         }
         catch (const cereal::Exception& e)
         {
-            emit signal_fatalError();
+            fatalErrorExit("Matching : unable to open image describer");
             return false;
         }
     }
@@ -228,7 +228,7 @@ bool Matching3D::computeFeatures()
                     }
         if (!image_describer)
         {
-            emit signal_fatalError();
+            fatalErrorExit("Matching : unable to open image describer");
             return false;
             //std::cerr << "Cannot create the designed Image_describer:"
             //    << methodParamval.toStdString() << "." << std::endl;
@@ -238,7 +238,7 @@ bool Matching3D::computeFeatures()
         {
             if (!image_describer->Set_configuration_preset(stringToEnum(presetParamval)))
             {
-                emit signal_fatalError();
+                fatalErrorExit("Matching : unable to set image describer");
                 return false;
             }
         }
@@ -249,7 +249,7 @@ bool Matching3D::computeFeatures()
             std::ofstream stream(sImage_describer.c_str());
             if (!stream.is_open())
             {
-                emit signal_fatalError();
+                fatalErrorExit("Matching : unable to save image describer");
                 return false;
             }
 
@@ -406,15 +406,14 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
     if (sPredefinedPairList.length()) {
         ePairmode = PAIR_FROM_FILE;
         if (iMatchingVideoMode > 0) {
-            emit signal_fatalError();
+            fatalErrorExit("Matching : incompatible videomode + pairlist");
             //std::cerr << "\nIncompatible options: --videoModeMatching and --pairList" << std::endl;
             return false;
         }
     }
 
     if (sMatchesDirectory.empty() || !stlplus::is_folder(sMatchesDirectory)) {
-        std::cerr << "\nIt is an invalid output directory" << std::endl;
-        emit signal_fatalError();
+        fatalErrorExit("Matching : invalid out dir");
         return false;
     }
 
@@ -440,8 +439,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
         sGeometricMatchesFilename = "matches.f.bin";
         break;
     default:
-        std::cerr << "Unknown geometric model" << std::endl;
-        emit signal_fatalError();
+        fatalErrorExit("Matching : Unknown geometric model");
         return false;
     }
 
@@ -459,7 +457,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
     if (!Load(sfm_data, sSfM_Data_Filename, ESfM_Data(VIEWS | INTRINSICS))) {
         std::cerr << std::endl
             << "The input SfM_Data file \"" << sSfM_Data_Filename << "\" cannot be read." << std::endl;
-        emit signal_fatalError();
+        fatalErrorExit("Matching : Unknown geometric model");
         return false;
     }
 
@@ -472,9 +470,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
     std::unique_ptr<Regions> regions_type = Init_region_type_from_file(sImage_describer);
     if (!regions_type)
     {
-        std::cerr << "Invalid: "
-            << sImage_describer << " regions type file." << std::endl;
-        emit signal_fatalError();
+        fatalErrorExit("Matching : invalid region type file");
         return false;
     }
 
@@ -501,8 +497,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
     C_Progress_display progress;
 
     if (!regions_provider->load(sfm_data, sMatchesDirectory, regions_type, this)) {
-        std::cerr << std::endl << "Invalid regions." << std::endl;
-        emit signal_fatalError();
+        fatalErrorExit("Matching : invalid regions");
         return false;
     }
 
@@ -536,8 +531,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
         if (!(Load(map_PutativesMatches, sMatchesDirectory + "/matches.putative.bin") ||
             Load(map_PutativesMatches, sMatchesDirectory + "/matches.putative.txt")))
         {
-            std::cerr << "Cannot load input matches file";
-            emit signal_fatalError();
+            fatalErrorExit("Matching : Cannot load input matches file");
             return false;
         }
         std::cout << "\t PREVIOUS RESULTS LOADED;"
@@ -607,8 +601,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
                                 }
         if (!collectionMatcher)
         {
-            std::cerr << "Invalid Nearest Neighbor method: " << sNearestMatchingMethod << std::endl;
-            emit signal_fatalError();
+            fatalErrorExit("Matching : Invalid Nearest Neighbor method");
             return false;
         }
         // Perform the matching
@@ -623,7 +616,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
             case PAIR_FROM_FILE:
                 if (!loadPairs(sfm_data.GetViews().size(), sPredefinedPairList, pairs))
                 {
-                    emit signal_fatalError();
+                    fatalErrorExit("Matching : cannot load pairs from file");
                     return false;
                 }
                 break;
@@ -635,10 +628,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
             //---------------------------------------
             if (!Save(map_PutativesMatches, std::string(sMatchesDirectory + "/matches.putative.bin")))
             {
-                std::cerr
-                    << "Cannot save computed matches in: "
-                    << std::string(sMatchesDirectory + "/matches.putative.bin");
-                emit signal_fatalError();
+                fatalErrorExit("Matching : Cannot save computed matches (permissions ?)");
                 return false;
             }
         }
@@ -752,10 +742,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
         if (!Save(map_GeometricMatches,
             std::string(sMatchesDirectory + "/" + sGeometricMatchesFilename)))
         {
-            std::cerr
-                << "Cannot save computed matches in: "
-                << std::string(sMatchesDirectory + "/" + sGeometricMatchesFilename);
-            emit signal_fatalError();
+            fatalErrorExit("Matching : Cannot save computed matches (permissions ?)");
             return false;
         }
 

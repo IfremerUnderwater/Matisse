@@ -63,6 +63,10 @@ find_package(OpenMVG REQUIRED)
 find_package(cereal)
 find_package(ceres REQUIRED)
 
+find_package(CGAL)
+FIND_PACKAGE(Boost COMPONENTS iostreams program_options system serialization)
+find_package(OpenMVS REQUIRED)
+
 # qt
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
