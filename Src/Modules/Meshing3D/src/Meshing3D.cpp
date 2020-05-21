@@ -16,6 +16,8 @@
 
 // for openMVS
 #define _USE_BOOST
+#include "boost/filesystem/operations.hpp"
+#include "boost/filesystem/path.hpp"
 #include "OpenMVS/MVS/Common.h"
 #include "OpenMVS/MVS/Scene.h"
 #include "omp.h"
@@ -168,13 +170,22 @@ QFileInfo scene_file_info(_scene_dir + QDir::separator() + _scene_file);
 
 QString fullpath_basename = scene_file_info.absoluteDir().absoluteFilePath(scene_file_info.baseName());
 
+// backup current path & set new one
+namespace fs = boost::filesystem;
+fs::path cur_working_dir(fs::current_path());
+fs::current_path(fs::path(_scene_dir.toStdString() ));
+
 Scene scene(OPT::nMaxThreads);
 
 // load and estimate a dense point-cloud
-if (!scene.Load( scene_file_info.absoluteFilePath().toStdString() ))
+if (!scene.Load(scene_file_info.absoluteFilePath().toStdString()))
+{
+    fs::current_path(cur_working_dir); // restore path
     return false;
+}
 
 if (scene.pointcloud.IsEmpty()) {
+    fs::current_path(cur_working_dir); // restore path
     return false;
 }
 if (OPT::thFilterPointCloud < 0) {
@@ -185,14 +196,19 @@ if (OPT::thFilterPointCloud < 0) {
     scene.Save((fullpath_basename + QString("_dense.mvs")).toStdString(), (ARCHIVE_TYPE)OPT::nArchiveType);
     scene.pointcloud.Save((fullpath_basename + QString("_dense.ply")).toStdString());
 
+    fs::current_path(cur_working_dir); // restore path
     return true;
 }
 if ((ARCHIVE_TYPE) OPT::nArchiveType != ARCHIVE_MVS) {
 
     if (!scene.DenseReconstruction(OPT::nFusionMode)) {
         if (ABS(OPT::nFusionMode) != 1)
+        {
+            fs::current_path(cur_working_dir); // restore path
             return false;
+        }
 
+        fs::current_path(cur_working_dir); // restore path
         return true;
     }
 }
@@ -205,6 +221,7 @@ scene.pointcloud.Save((fullpath_basename + QString("_dense.ply")).toStdString())
 scene.ExportCamerasMLP(baseFileName + _T(".mlp"), baseFileName + _T(".ply"));
 #endif
 
+    fs::current_path(cur_working_dir); // restore path
     return false;
 }
 
@@ -253,6 +270,9 @@ void Meshing3D::onFlush(quint32 port)
         return;
     }
 
+    // init densify
+    this->initDensify();
+
     // loop on all connected components
     for (unsigned int i=0; i<rc->components_ids.size(); i++)
     {
@@ -260,10 +280,10 @@ void Meshing3D::onFlush(quint32 port)
         //emit signal_userInformation("Meshing3D - convert");
         //emit signal_processCompletion(0);
 
-        QString out_dir_i = m_outdir + QString("_%1").arg(rc->components_ids[i]);
-        QString undist_out_dir_i = out_dir_i + SEP + "undist_imgs_for_mvs";
-        QString sfm_data_file = out_dir_i + SEP + "sfm_data.bin";
-        QString mvs_data_file = out_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + ".mvs";
+        QString scene_dir_i = m_outdir + QString("_%1").arg(rc->components_ids[i]);
+        QString undist_out_dir_i = scene_dir_i + SEP + "undist_imgs_for_mvs";
+        QString sfm_data_file = scene_dir_i + SEP + "sfm_data.bin";
+        QString mvs_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + ".mvs";
 
         // Read the input SfM scene
         SfM_Data sfm_data;
@@ -280,7 +300,9 @@ void Meshing3D::onFlush(quint32 port)
         ))
             continue;
 
-
+        // compute dense scene
+        if (!this->densifyPointCloud(scene_dir_i, m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + ".mvs") )
+            continue;
 
         //// Compute Mesh
         //emit signal_userInformation("Meshing3D - Compute Mesh");

@@ -64,7 +64,7 @@ find_package(cereal)
 find_package(ceres REQUIRED)
 
 find_package(CGAL)
-FIND_PACKAGE(Boost COMPONENTS iostreams program_options system serialization)
+FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serialization)
 find_package(OpenMVS REQUIRED)
 
 # qt

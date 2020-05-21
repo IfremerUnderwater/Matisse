@@ -31,7 +31,7 @@
 
 // set a default namespace name is none given
 #ifndef _INTERFACE_NAMESPACE
-#define _INTERFACE_NAMESPACE MVS
+#define _INTERFACE_NAMESPACE LOCAL_MVS
 #endif
 
 #define _USE_EIGEN
@@ -42,11 +42,6 @@
 #endif
 
 
-//using namespace openMVG;
-//using namespace openMVG::cameras;
-//using namespace openMVG::geometry;
-//using namespace openMVG::image;
-//using namespace openMVG::sfm;
 
 // S T R U C T S ///////////////////////////////////////////////////
 
@@ -531,7 +526,7 @@ bool exportToOpenMVS(
   }
 
   // Export data :
-  MVS::Interface scene;
+  LOCAL_MVS::Interface scene;
   size_t nPoses(0);
   const uint32_t nViews((uint32_t)sfm_data.GetViews().size());
 
@@ -548,9 +543,9 @@ bool exportToOpenMVS(
       const openMVG::cameras::Pinhole_Intrinsic * cam = dynamic_cast<const openMVG::cameras::Pinhole_Intrinsic*>(intrinsic.second.get());
       if (map_intrinsic.count(intrinsic.first) == 0)
         map_intrinsic.insert(std::make_pair(intrinsic.first, scene.platforms.size()));
-      MVS::Interface::Platform platform;
+	  LOCAL_MVS::Interface::Platform platform;
       // add the camera
-      MVS::Interface::Platform::Camera camera;
+	  LOCAL_MVS::Interface::Platform::Camera camera;
       camera.K = cam->K();
       // sub-pose
       camera.R = openMVG::Mat3::Identity();
@@ -565,11 +560,11 @@ bool exportToOpenMVS(
   for (const auto& view : sfm_data.GetViews())
   {
     map_view[view.first] = scene.images.size();
-    MVS::Interface::Image image;
+	LOCAL_MVS::Interface::Image image;
     const std::string srcImage = stlplus::create_filespec(sfm_data.s_root_path, view.second->s_Img_path);
     image.name = stlplus::create_filespec(sOutDir, view.second->s_Img_path);
     image.platformID = map_intrinsic.at(view.second->id_intrinsic);
-    MVS::Interface::Platform& platform = scene.platforms[image.platformID];
+	LOCAL_MVS::Interface::Platform& platform = scene.platforms[image.platformID];
     image.cameraID = 0;
     if (!stlplus::is_file(srcImage))
     {
@@ -578,7 +573,7 @@ bool exportToOpenMVS(
     }
     if (sfm_data.IsPoseAndIntrinsicDefined(view.second.get()))
     {
-      MVS::Interface::Platform::Pose pose;
+      LOCAL_MVS::Interface::Platform::Pose pose;
       image.poseID = platform.poses.size();
       const openMVG::geometry::Pose3 poseMVG(sfm_data.GetPoseOrDie(view.second.get()));
       pose.R = poseMVG.rotation();
@@ -685,13 +680,13 @@ bool exportToOpenMVS(
   for (const auto& vertex: sfm_data.GetLandmarks())
   {
     const openMVG::sfm::Landmark & landmark = vertex.second;
-    MVS::Interface::Vertex vert;
-    MVS::Interface::Vertex::ViewArr& views = vert.views;
+	LOCAL_MVS::Interface::Vertex vert;
+	LOCAL_MVS::Interface::Vertex::ViewArr& views = vert.views;
     for (const auto& observation: landmark.obs)
     {
       const auto it(map_view.find(observation.first));
       if (it != map_view.end()) {
-        MVS::Interface::Vertex::View view;
+		  LOCAL_MVS::Interface::Vertex::View view;
         view.imageID = it->second;
         view.confidence = 0;
         views.push_back(view);
@@ -701,7 +696,7 @@ bool exportToOpenMVS(
       continue;
     std::sort(
       views.begin(), views.end(),
-      [] (const MVS::Interface::Vertex::View& view0, const MVS::Interface::Vertex::View& view1)
+      [] (const LOCAL_MVS::Interface::Vertex::View& view0, const LOCAL_MVS::Interface::Vertex::View& view1)
       {
         return view0.imageID < view1.imageID;
       }
@@ -713,12 +708,12 @@ bool exportToOpenMVS(
   // normalize camera intrinsics
   for (size_t p=0; p<scene.platforms.size(); ++p)
   {
-    MVS::Interface::Platform& platform = scene.platforms[p];
+	  LOCAL_MVS::Interface::Platform& platform = scene.platforms[p];
     for (size_t c=0; c<platform.cameras.size(); ++c) {
-      MVS::Interface::Platform::Camera& camera = platform.cameras[c];
+		LOCAL_MVS::Interface::Platform::Camera& camera = platform.cameras[c];
       // find one image using this camera
-      MVS::Interface::Image* pImage(nullptr);
-      for (MVS::Interface::Image& image: scene.images)
+		LOCAL_MVS::Interface::Image* pImage(nullptr);
+      for (LOCAL_MVS::Interface::Image& image: scene.images)
       {
         if (image.platformID == p && image.cameraID == c && image.poseID != NO_ID)
         {
@@ -743,7 +738,7 @@ bool exportToOpenMVS(
   }
 
   // write OpenMVS data
-  if (!MVS::ARCHIVE::SerializeSave(scene, sOutFile))
+  if (!LOCAL_MVS::ARCHIVE::SerializeSave(scene, sOutFile))
     return false;
 
   std::cout

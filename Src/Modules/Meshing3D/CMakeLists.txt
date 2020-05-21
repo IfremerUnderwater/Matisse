@@ -19,7 +19,7 @@ target_link_libraries( Meshing3D
 	OpenMVG::openMVG_stlplus
     OpenMVG::openMVG_multiview
 	OpenMVG::openMVG_matching_image_collection
-	IO MVS Math Common CGAL::CGAL)
+	IO MVS Math Common CGAL::CGAL Boost::filesystem)
 
 set_target_properties(Meshing3D PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
 
