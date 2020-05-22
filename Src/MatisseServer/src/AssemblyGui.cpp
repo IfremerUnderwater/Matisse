@@ -8,6 +8,7 @@
 #include "VisuModeWidget.h"
 #include "OngoingProcessWidget.h"
 #include "GraphicalCharter.h"
+#include "RemoteJobManager.h"
 
 using namespace MatisseTools;
 using namespace MatisseServer;
@@ -15,8 +16,10 @@ using namespace MatisseServer;
 const QString AssemblyGui::PREFERENCES_FILEPATH = QString("config/MatissePreferences.xml");
 const QString AssemblyGui::ASSEMBLY_EXPORT_PREFIX = QString("assembly_export_");
 const QString AssemblyGui::JOB_EXPORT_PREFIX = QString("job_export_");
+const QString AssemblyGui::JOB_REMOTE_PREFIX = QString("job_remote_");
 const QString AssemblyGui::DEFAULT_EXCHANGE_PATH = QString("exchange");
 const QString AssemblyGui::DEFAULT_ARCHIVE_PATH = QString("archive");
+const QString AssemblyGui::DEFAULT_REMOTE_PATH = QString("remote");
 const QString AssemblyGui::DEFAULT_RESULT_PATH = QString("./outReconstruction");
 const QString AssemblyGui::DEFAULT_MOSAIC_PREFIX = QString("MyProcess");
 
@@ -51,10 +54,11 @@ AssemblyGui::AssemblyGui(QWidget *parent) :
     _visuModeButton(NULL),
     _resetMessagesButton(NULL),
     _maxOrRestoreButtonWrapper(NULL),
-    _visuModeButtonWrapper(NULL)
+    _visuModeButtonWrapper(NULL),
+    _server(NULL)
 {
     _ui->setupUi(this);
-    _server.setMainGui(this);
+    _server.setJobLauncher(this);
 
 }
 
@@ -91,6 +95,11 @@ void AssemblyGui::setSystemDataManager(SystemDataManager *systemDataManager)
 void AssemblyGui::setProcessDataManager(ProcessDataManager *processDataManager)
 {
     _processDataManager = processDataManager;
+}
+
+void AssemblyGui::setRemoteJobManager(RemoteJobManager *remoteJobManager)
+{
+    _remoteJobManager = remoteJobManager;
 }
 
 void AssemblyGui::initPreferences()
@@ -271,6 +280,7 @@ void AssemblyGui::initUserActions()
     connect(_cloneAssemblyAct, SIGNAL(triggered()), this, SLOT(slot_duplicateAssembly()));
 
     connect(_executeJobAct, SIGNAL(triggered()), this, SLOT(slot_launchJob()));
+    connect(_executeRemoteJobAct, SIGNAL(triggered()), this, SLOT(slot_launchRemoteJob()));
     connect(_goToResultsAct, SIGNAL(triggered()), this, SLOT(slot_goToResult()));
     connect(_deleteJobAct, SIGNAL(triggered()), this, SLOT(slot_deleteJob()));
     connect(_archiveJobAct, SIGNAL(triggered()), this, SLOT(slot_archiveJob()));
@@ -385,6 +395,15 @@ void AssemblyGui::dpiScaleWidgets()
 
 void AssemblyGui::init()
 {
+    // useless but does not build otherwise -> ugly ..................
+//    GraphicalCharter &graph_charter = GraphicalCharter::instance();
+//    int a = graph_charter.dpiScaled(0);
+//    QString b("");
+//    FileUtils::createTempDirectory(b);
+//    QString source;
+//    QMap<QString,QString> properties;
+//    StringUtils::substitutePlaceHolders(source, properties);
+
 
     initLanguages();
 
@@ -607,6 +626,7 @@ void AssemblyGui::initContextMenus()
 
     /* Actions pour menu contextuel Tâche */
     _executeJobAct = new QAction(this);
+    _executeRemoteJobAct = new QAction(this);
     _saveJobAct = new QAction(this);
     _cloneJobAct = new QAction(this);
     _exportJobAct = new QAction(this);
@@ -1162,9 +1182,29 @@ void AssemblyGui::checkArchiveDirCreated()
     }
 }
 
+void AssemblyGui::checkRemoteDirCreated()
+{
+    QString remoteRootPath = _systemDataManager->getDataRootDir() + QDir::separator() + DEFAULT_REMOTE_PATH;
+
+    _remoteOutputPath = remoteRootPath + QDir::separator() + "toServer";
+    _remoteInputPath = remoteRootPath + QDir::separator() + "fromServer";
+
+    QDir remoteOutputDir(_remoteOutputPath);
+    if (!remoteOutputDir.exists()) {
+        qDebug() << "Creating remote output directory " << _remoteOutputPath;
+        remoteOutputDir.mkpath(".");
+    }
+
+    QDir remoteInputDir(_remoteInputPath);
+    if (!remoteInputDir.exists()) {
+        qDebug() << "Creating remote input directory " << _remoteInputPath;
+        remoteInputDir.mkpath(".");
+    }
+}
+
 void AssemblyGui::slot_exportAssembly()
 {
-    executeExportWorkflow();
+    executeExportWorkflow(false);
 }
 
 void AssemblyGui::slot_importAssembly()
@@ -1451,10 +1491,12 @@ void AssemblyGui::slot_launchPreprocessingTool()
 //    QDesktopServices::openUrl(url);
 //}
 
-void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
-    if (_exportPath.isEmpty()) {
-        createExportDir();
+void AssemblyGui::executeExportWorkflow(bool isJobExportAction, bool isForRemoteExecution) {
+    if (isForRemoteExecution && ! isJobExportAction) {
+        qCritical() << "Unconsistent call cannot be executed : assembly export for remote execution";
+        return;
     }
+
 
     /* check unsaved assembly / job */
     bool confirmAction = true;
@@ -1473,6 +1515,14 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
 
     if (!confirmAction) {
         return;
+    }
+
+    if (isForRemoteExecution) {
+        checkRemoteDirCreated();
+    } else {
+        if (_exportPath.isEmpty()) {
+            createExportDir();
+        }
     }
 
     /* common translated labels */
@@ -1494,24 +1544,26 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
 
     QString entityName = "";
     QString entityFileName = "";
-    QString exportPrefix = "";
+    QString entityPrefix = "";
 
     if (isJobExportAction) {
         entityName = _currentJob->name();
         entityFileName = _currentJob->filename();
-        exportPrefix = JOB_EXPORT_PREFIX;
+        entityPrefix = (isForRemoteExecution) ? JOB_REMOTE_PREFIX : JOB_EXPORT_PREFIX;
 
     } else {
         entityName = _currentAssembly->name();
         entityFileName = _currentAssembly->filename();
-        exportPrefix = ASSEMBLY_EXPORT_PREFIX;
+        entityPrefix = ASSEMBLY_EXPORT_PREFIX;
     }
 
     qDebug() << QString("Exporting assembly/job '%1'...").arg(entityName);
 
+    QString exportPathRoot = (isForRemoteExecution) ? _remoteOutputPath : _exportPath;
+
     QString normalizedEntityName = entityFileName;
     normalizedEntityName.chop(4); // remove ".xml" suffix
-    QString exportFilename = _exportPath + QDir::separator() + exportPrefix + normalizedEntityName + ".zip";
+    QString exportFilename = exportPathRoot + QDir::separator() + entityPrefix + normalizedEntityName + ".zip";
 
     QStringList fileNames;
 
@@ -1580,10 +1632,16 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
     //FileUtils::zipFiles(exportFilename, ".", fileNames);
     FileUtils::zipFiles(exportFilename, _systemDataManager->getDataRootDir(), fileNames);
 
-    QMessageBox::information(
-                this,
-                exportTitle,
-                successMessage.arg(entityName).arg(QDir(_exportPath).absolutePath()));
+    if (isForRemoteExecution) {
+        /* Store path for later use */
+        _currentBundleForRemoteExecution = exportFilename;
+    } else {
+        /* Display export confirmation */
+        QMessageBox::information(
+                    this,
+                    exportTitle,
+                    successMessage.arg(entityName).arg(QDir(_exportPath).absolutePath()));
+    }
 }
 
 
@@ -3070,6 +3128,7 @@ void AssemblyGui::slot_assemblyContextMenuRequested(const QPoint &pos)
             // show only if job was executed
             contextMenu->addAction(_goToResultsAct);
         }
+        contextMenu->addAction(_executeRemoteJobAct);
         contextMenu->addSeparator();
         contextMenu->addAction(_saveJobAct);
         contextMenu->addAction(_cloneJobAct);
@@ -3267,6 +3326,7 @@ void AssemblyGui::retranslate()
 
     /* Menu contextuel Tâche */
     _executeJobAct->setText(tr("Run"));
+    _executeRemoteJobAct->setText(tr("Run on DATARMOR"));
     _saveJobAct->setText(tr("Save"));
     _cloneJobAct->setText(tr("Copy"));
     _exportJobAct->setText(tr("Export"));
@@ -3753,6 +3813,16 @@ void AssemblyGui::slot_launchJob()
 
     //setActionsStates(_lastJobLaunchedItem);
 }
+
+void AssemblyGui::slot_launchRemoteJob()
+{
+    qDebug() << "Launching remote job...";
+
+    executeExportWorkflow(true, true);
+
+    _remoteJobManager->uploadJobFiles(_currentBundleForRemoteExecution);
+}
+
 
 void AssemblyGui::slot_stopJob()
 {

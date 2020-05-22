@@ -26,7 +26,7 @@
 #include "DestinationWidget.h"
 #include "PipeWidget.h"
 #include "KeyValueList.h"
-#include "Server.h"
+#include "MatisseEngine.h"
 
 
 using namespace MatisseTools;
@@ -48,7 +48,7 @@ public:
     virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event){event->accept();}
     virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
     virtual bool event(QEvent *event);
-    void setServer(Server* server) { _server = server; }
+    void setServer(MatisseEngine* server) { _server = server; }
     void setElementWidgetProvider(ElementWidgetProvider * elementProvider);
     void reset();
 
@@ -69,7 +69,7 @@ private:
     ProcessDataManager *_processDataManager;
 
     ElementWidgetProvider * _elementProvider;
-    Server * _server;
+    MatisseEngine * _server;
     QPointer<SourceWidget> _sourceWidget;
     QMap<quint8, ProcessorWidget *> _processorsWidgets;
     QPointer<DestinationWidget> _destinationWidget;

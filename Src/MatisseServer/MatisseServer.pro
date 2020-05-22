@@ -56,14 +56,31 @@ include(../Scripts/MatisseTools.pri)
 include(../Scripts/opencv.pri)
 #include(../Scripts/qgis.pri)
 include(../Scripts/QuaZIP.pri)
+#include(../Scripts/qssh.pri)
 include(../Scripts/BasicProcessing.pri)
 
 include(../Scripts/OpenSceneGraph.pri)
 
+#INCLUDEPATH += \
+#    C:\msys64\home\aarnaube\QSsh\src \ # for <app/app_version.h>
+#    C:\msys64\home\aarnaube\QSsh\src\libs \
+#    C:\msys64\home\aarnaube\QSsh\src\libs\ssh
+
+#LIBS += -LC:\msys64\home\aarnaube\QSsh\build\release\lib
+#LIBS += -lBotan -lQSsh
+
+#INCLUDEPATH += \
+#    C:\msys64\home\blue\vcpkg\installed\libssh_x64-windows\include
+
+#LIBS += -LC:\msys64\home\blue\vcpkg\installed\libssh_x64-windows\bin
+#LIBS += -lssh
 
 SOURCES += src/main.cpp\
+    src/AbstractSshClient.cpp \
     src/AssemblyGui.cpp \
+    src/LibSshClient.cpp \
     src/ProcessorWidget.cpp \
+    src/RemoteJobManager.cpp \
     src/SourceWidget.cpp \
     src/ElementWidget.cpp \
     src/DestinationWidget.cpp \
@@ -71,6 +88,7 @@ SOURCES += src/main.cpp\
     src/PipeWidget.cpp \
     src/AssemblyDialog.cpp \
     src/ExpertFormWidget.cpp \
+    src/SshClientStub.cpp \
     src/UserFormWidget.cpp \
     src/ParametersDialog.cpp \
     src/Server.cpp \
@@ -99,8 +117,11 @@ SOURCES += src/main.cpp\
     src/WheelGraphicsView.cpp
 
 HEADERS  += \
+    src/AbstractSshClient.h \
     src/AssemblyGui.h \
+    src/LibSshClient.h \
     src/ProcessorWidget.h \
+    src/RemoteJobManager.h \
     src/SourceWidget.h \
     src/ElementWidget.h \
     src/DestinationWidget.h \
@@ -108,6 +129,7 @@ HEADERS  += \
     src/PipeWidget.h \
     src/AssemblyDialog.h \
     src/ExpertFormWidget.h \
+    src/SshClientStub.h \
     src/UserFormWidget.h \
     src/ParametersDialog.h \
     src/Server.h \

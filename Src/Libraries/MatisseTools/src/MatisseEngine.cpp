@@ -1,25 +1,21 @@
-﻿#include "Server.h"
-#include "AssemblyDefinition.h"
-#include "AssemblyGui.h"
+#include "MatisseEngine.h"
 
-using namespace MatisseServer;
+using namespace MatisseTools;
 
-// useless class but does not build otherwise -> ugly ............
-// ...............................................................
-
-DummyServer::DummyServer(QObject *parent) :
+MatisseEngine::MatisseEngine(QObject *parent) :
     QObject(parent),
+    _jobLauncher(NULL),
     _systemDataManager(NULL),
     _processDataManager(NULL),
     _jobServer(NULL),
     _currentJob(NULL),
-    _mainGui(NULL),
     _thread(NULL)
 {
 
 }
 
-DummyServer::~DummyServer()
+
+MatisseEngine::~MatisseEngine()
 {
     if (_jobServer) {
         delete _jobServer;
@@ -30,59 +26,21 @@ DummyServer::~DummyServer()
         _currentJob->stop(true);
 }
 
-//bool Server::setSettingsFile(QString settings)
-//{
-//    QString standardFile = "config/MatisseSettings.xml";
-//    setMessageStr();
-//    // lecture du fichier xml de settings
-//    if (settings == "") {
-//        settings = standardFile;
-//    }
-//    QFileInfo settingsFile(settings);
-//    if (!settingsFile.exists()) {
-//        //QMessageBox::critical(this, "Fichier de configuration introuvable", "Impossible de trouver le fichier:\n" + _settingsFile + "\nRelancez l'application avec un nom de fichier valide en paramètre\nou un fichier " + standardFile + " valide!");
-//        setMessageStr(tr("Fichier de configuration introuvable: %1").arg(settingsFile.absoluteFilePath()));
-//        return false;
-//    }
 
-//    if (!settingsFile.isReadable()) {
-//        //QMessageBox::critical(this, "Fichier de configuration illisible", "Impossible de lire le fichier:\n" + _settingsFile + "\nRelancez l'application avec un nom de fichier lisible en paramètre\nou rendez le fichier " + standardFile + " lisible!");
-//        setMessageStr(tr("Fichier de configuration illisible: %1").arg(settingsFile.absoluteFilePath()));
-//        return false;
-//    }
-
-//    _xmlTool.readMatisseGuiSettings(settings);
-//    if (( _xmlTool.getBasePath()) == "") {
-//        //QMessageBox::critical(this, "Fichier de configuration incorrect", "La valeur de XmlRootDir ne peut être déterminée.\nRelancez l'application avec un paramètre XmlRootDir valide\ndans le fichier de configuration!");
-//        setMessageStr(tr("XmlRootDir introuvable dans le fichier de configuration: %1").arg(settingsFile.absoluteFilePath()));
-//        return false;
-//    }
-
-//    if (( _xmlTool.getDllPath()) == "") {
-//        setMessageStr(tr("DllRootDir introuvable dans le fichier de configuration: %1").arg(settingsFile.absoluteFilePath()));
-//        return false;
-//    }
-
-
-//    _jobServer = new JobServer(_xmlTool.port(), &_xmlTool);
-
-//    return true;
-//}
-
-QList<Processor*> const DummyServer::getAvailableProcessors() {
+QList<Processor*> const MatisseEngine::getAvailableProcessors() {
     return _processors.values();
 }
 
-QList<ImageProvider*> const DummyServer::getAvailableImageProviders() {
+QList<ImageProvider*> const MatisseEngine::getAvailableImageProviders() {
     return _imageProviders.values();
 }
 
-const QList<RasterProvider *> DummyServer::getAvailableRasterProviders()
+const QList<RasterProvider *> MatisseEngine::getAvailableRasterProviders()
 {
     return _rasterProviders.values();
 }
 
-void DummyServer::addParametersForImageProvider(QString name)
+void MatisseEngine::addParametersForImageProvider(QString name)
 {
     qDebug() << "Loading parameters for image provider " << name;
 
@@ -102,7 +60,7 @@ void DummyServer::addParametersForImageProvider(QString name)
 
 }
 
-void DummyServer::addParametersForProcessor(QString name)
+void MatisseEngine::addParametersForProcessor(QString name)
 {
     qDebug() << "Loading parameters for Processor " << name;
 
@@ -122,7 +80,8 @@ void DummyServer::addParametersForProcessor(QString name)
 
 }
 
-void DummyServer::addParametersForRasterProvider(QString name)
+
+void MatisseEngine::addParametersForRasterProvider(QString name)
 {
     qDebug() << "Loading parameters for raster provider " << name;
 
@@ -142,7 +101,7 @@ void DummyServer::addParametersForRasterProvider(QString name)
 
 }
 
-bool DummyServer::removeModuleAndExpectedParameters(QString name)
+bool MatisseEngine::removeModuleAndExpectedParameters(QString name)
 {
     qDebug() << QString("Remove module '%1' from expected parameters list").arg(name);
 
@@ -159,7 +118,7 @@ bool DummyServer::removeModuleAndExpectedParameters(QString name)
     return true;
 }
 
-MatisseParameters* DummyServer::buildMatisseParameters(JobDefinition &job) {
+MatisseParameters* MatisseEngine::buildMatisseParameters(JobDefinition &job) {
 
 
     QString file = _processDataManager->getJobParametersFilePath(job.name());
@@ -176,7 +135,7 @@ MatisseParameters* DummyServer::buildMatisseParameters(JobDefinition &job) {
 
 }
 
-void DummyServer::setMessageStr(QString messageStr, bool error)
+void MatisseEngine::setMessageStr(QString messageStr, bool error)
 {
     _messageStr = messageStr;
     _errorFlag = error;
@@ -193,12 +152,7 @@ void DummyServer::setMessageStr(QString messageStr, bool error)
     }
 }
 
-//Xml& Server::xmlTool()
-//{
-//    return _xmlTool;
-//}
-
-void DummyServer::slot_currentJobProcessed()
+void MatisseEngine::slot_currentJobProcessed()
 {
     if(_currentJob == NULL)
         return;
@@ -222,7 +176,7 @@ void DummyServer::slot_currentJobProcessed()
     emit signal_jobProcessed(jobName, isCancelled);
 }
 
-bool DummyServer::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters)
+bool MatisseEngine::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters)
 {
     ImageProvider* imageProvider = NULL;
     QList<Processor*> processorList;
@@ -236,7 +190,7 @@ bool DummyServer::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobD
     qDebug() << "Verification présence de la source" << sourceName;
     imageProvider = _imageProviders.value(sourceName);
     if (!imageProvider) {
-        setMessageStr(tr("Source modul not found: %1").arg(sourceName));
+        setMessageStr(tr("Source module not found: %1").arg(sourceName));
         return false;
     }
 
@@ -404,8 +358,8 @@ bool DummyServer::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobD
     }
 
 
-    _currentJob = new DummyJobTask(imageProvider, processorList, rasterProvider, jobDefinition, matisseParameters);
-    _currentJob->setMainGui(_mainGui);
+    _currentJob = new JobTask(imageProvider, processorList, rasterProvider, jobDefinition, matisseParameters);
+    _currentJob->setJobLauncher(_jobLauncher);
 
     return true;
 
@@ -413,13 +367,12 @@ bool DummyServer::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobD
 
 
 
-bool DummyServer::processJob(JobDefinition &jobDefinition)
+bool MatisseEngine::processJob(JobDefinition &jobDefinition)
 {
     setMessageStr();
 
     if (_currentJob) {
         qDebug() << "A Thread is running";
-        // TODO Queue jobs?
         return false;
     }
 
@@ -469,12 +422,12 @@ bool DummyServer::processJob(JobDefinition &jobDefinition)
 
 }
 
-bool DummyServer::isProcessingJob()
+bool MatisseEngine::isProcessingJob()
 {
     return _currentJob!=NULL;
 }
 
-bool DummyServer::stopJob(bool cancel)
+bool MatisseEngine::stopJob(bool cancel)
 {
     if (_currentJob) {
         _currentJob->stop(cancel);
@@ -490,12 +443,12 @@ bool DummyServer::stopJob(bool cancel)
     return true;
 }
 
-bool DummyServer::errorFlag()
+bool MatisseEngine::errorFlag()
 {
     return _errorFlag;
 }
 
-QString DummyServer::messageStr()
+QString MatisseEngine::messageStr()
 {
     return _messageStr;
 }
@@ -506,7 +459,7 @@ QString DummyServer::messageStr()
 #define SHARED_DLL_EXT "*.so"
 #endif
 
-void DummyServer::init(){
+void MatisseEngine::init(){
 
     _jobServer = new JobServer(_systemDataManager->port(), _processDataManager);
 
@@ -592,10 +545,7 @@ void DummyServer::init(){
 }
 
 
-
-
-
-DummyJobTask::DummyJobTask(ImageProvider* imageProvider, QList<Processor*> processors, RasterProvider* rasterProvider,
+JobTask::JobTask(ImageProvider* imageProvider, QList<Processor*> processors, RasterProvider* rasterProvider,
                  JobDefinition &jobDefinition, MatisseParameters *parameters )
     : _imageProvider(imageProvider),
       _processors(processors),
@@ -606,12 +556,12 @@ DummyJobTask::DummyJobTask(ImageProvider* imageProvider, QList<Processor*> proce
 {
 }
 
-DummyJobTask::~DummyJobTask()
+JobTask::~JobTask()
 {
     delete _matParameters;
 }
 
-void DummyJobTask::stop(bool cancel)
+void JobTask::stop(bool cancel)
 {
     _isCancelled = cancel;
 
@@ -627,7 +577,7 @@ void DummyJobTask::stop(bool cancel)
     _rasterProvider->askToStop(cancel);
 }
 
-void DummyJobTask::slot_start()
+void JobTask::slot_start()
 {
     // TODO Ask for external creation of context!
     bool ok;
@@ -636,13 +586,12 @@ void DummyJobTask::slot_start()
     qDebug() << "Configuration de la source";
     connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    connect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-    connect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
-    connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-    connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-    connect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    connect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-//    connect(_imageProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+    connect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+    connect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+    connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+    connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+    connect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+    connect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
 
     ok = _imageProvider->callConfigure(_context, _matParameters);
     if (!ok) {
@@ -657,27 +606,25 @@ void DummyJobTask::slot_start()
         connect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
         connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-        connect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-        connect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
+        connect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+        connect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
         connect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
-        connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-        connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-        connect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-        connect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-//        connect(processor, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+        connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+        connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+        connect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+        connect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
         processor->callConfigure(_context, _matParameters);
     }
 
     qDebug() << "Configuration de la destination";
     connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    connect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-    connect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
-    connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-    connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-    connect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    connect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-//    connect(_rasterProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+    connect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+    connect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+    connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+    connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+    connect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+    connect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
     ok = _rasterProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -717,7 +664,7 @@ void DummyJobTask::slot_start()
 
 }
 
-void DummyJobTask::slot_stop()
+void JobTask::slot_stop()
 {
 
     qDebug() << "Arret du image provider";
@@ -748,13 +695,12 @@ void DummyJobTask::slot_stop()
     // déconnecter tout
     disconnect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     disconnect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    disconnect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-    disconnect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
-    disconnect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-    disconnect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-    disconnect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    disconnect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
- //   disconnect(_imageProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+    disconnect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+    disconnect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+    disconnect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+    disconnect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+    disconnect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+    disconnect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
 
     foreach (Processor* processor, _processors) {
         if(!processor->okStatus())
@@ -762,25 +708,23 @@ void DummyJobTask::slot_stop()
         disconnect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
         disconnect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         disconnect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-        disconnect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-        disconnect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
+        disconnect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+        disconnect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
         disconnect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
-        disconnect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-        disconnect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-        disconnect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-        disconnect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-//        disconnect(processor, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+        disconnect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+        disconnect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+        disconnect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+        disconnect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
     }
 
     disconnect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     disconnect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    disconnect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-//    disconnect(_rasterProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
 
     if(_context != NULL)
     {
@@ -790,27 +734,27 @@ void DummyJobTask::slot_stop()
     }
 }
 
-bool DummyJobTask::isCancelled() const
+bool JobTask::isCancelled() const
 {
     return _isCancelled;
 }
 
-void DummyJobTask::slot_showImageOnMainView(Image *image)
+void JobTask::slot_showImageOnMainView(Image *image)
 {
     emit signal_jobShowImageOnMainView(_jobDefinition.name(), image);
 }
 
-void DummyJobTask::slot_userInformation(QString userText)
+void JobTask::slot_userInformation(QString userText)
 {
     emit signal_userInformation(userText);
 }
 
-void DummyJobTask::slot_processCompletion(quint8 percentComplete)
+void JobTask::slot_processCompletion(quint8 percentComplete)
 {
     emit signal_processCompletion(percentComplete);
 }
 
-void DummyJobTask::slot_fatalError()
+void JobTask::slot_fatalError()
 {
     _isCancelled = true;
     stop(true);
@@ -819,23 +763,23 @@ void DummyJobTask::slot_fatalError()
     slot_stop();
 }
 
-void DummyJobTask::setMainGui(AssemblyGui *mainGui)
+void JobTask::setJobLauncher(QObject *jobLauncher)
 {
-    _mainGui = mainGui;
+    _jobLauncher = jobLauncher;
 }
 
-QStringList DummyJobTask::resultFileNames() const
+QStringList JobTask::resultFileNames() const
 {
     return _resultFileNames;
 }
 
-JobDefinition &DummyJobTask::jobDefinition() const
+JobDefinition &JobTask::jobDefinition() const
 {
     return _jobDefinition;
 }
 
 
-bool DummyServer::loadParametersDictionnary()
+bool MatisseEngine::loadParametersDictionnary()
 {
     QXmlSchema dictionnarySchema;
 
@@ -886,18 +830,18 @@ bool DummyServer::loadParametersDictionnary()
 
     return true;
 }
-void DummyServer::setProcessDataManager(ProcessDataManager *processDataManager)
+void MatisseEngine::setProcessDataManager(ProcessDataManager *processDataManager)
 {
     _processDataManager = processDataManager;
 }
 
-void DummyServer::setSystemDataManager(SystemDataManager *systemDataManager)
+void MatisseEngine::setSystemDataManager(SystemDataManager *systemDataManager)
 {
     _systemDataManager = systemDataManager;
 }
 
 
-void DummyServer::setMainGui(AssemblyGui *mainGui_p)
+void MatisseEngine::setJobLauncher(QObject *jobLauncher)
 {
-    _mainGui = mainGui_p;
+    _jobLauncher = jobLauncher;
 }

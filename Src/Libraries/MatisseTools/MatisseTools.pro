@@ -29,9 +29,9 @@ CONFIG(release, debug|release) {
 }
 # ------------------------------------------------------------------------
 
+include(../../Scripts/BasicProcessing.pri)
 include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/opencv.pri)
-#include(../../Scripts/qgis.pri)
 #include(../../Scripts/ProtoBuf.pri)
 include(../../Scripts/QuaZIP.pri)
 
@@ -42,6 +42,7 @@ DEFINES *= WITH_OSG
 INCLUDEPATH += src
 
 SOURCES +=\
+    src/MatisseEngine.cpp \
     src/ParametersWidgetSkeleton.cpp \
     src/KeyValueList.cpp \
     src/AssemblyDefinition.cpp \
@@ -82,6 +83,7 @@ SOURCES +=\
     src/IconizedActionWrapper.cpp
 
 HEADERS +=\
+    src/MatisseEngine.h \
     src/ParametersWidgetSkeleton.h \
     src/KeyValueList.h \
     src/AssemblyDefinition.h \

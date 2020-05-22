@@ -24,7 +24,7 @@
 #include "ElementWidgetProvider.h"
 #include "AssemblyGraphicsScene.h"
 #include "KeyValueList.h"
-#include "Server.h"
+#include "MatisseEngine.h"
 #include "GraphicalCharter.h"
 #include "AssemblyDialog.h"
 #include "JobDialog.h"
@@ -51,6 +51,7 @@
 #include "IconizedTreeItemWrapper.h"
 #include "MatisseTreeItem.h"
 #include "WelcomeDialog.h"
+#include "RemoteJobManager.h"
 
 namespace Ui {
 class AssemblyGui;
@@ -120,17 +121,19 @@ public:
 
     void setSystemDataManager(SystemDataManager *systemDataManager);
     void setProcessDataManager(ProcessDataManager *processDataManager);
+    void setRemoteJobManager(RemoteJobManager *remoteJobManager);
 
     void initMapFeatures();
 private:
     Ui::AssemblyGui *_ui;
     bool _isMapView;
-    Server _server;
+    MatisseEngine _server;
 //    bool _canShow;
     UserActionContext _context;
 
     SystemDataManager *_systemDataManager;
     ProcessDataManager *_processDataManager;
+    RemoteJobManager *_remoteJobManager;
 
 //    QString _settingsFile;
     QString _appVersion;
@@ -138,6 +141,8 @@ private:
     QString _exportPath;
     QString _importPath;
     QString _archivePath;
+    QString _remoteOutputPath;
+    QString _remoteInputPath;
 
     MatissePreferences* _preferences;
     QTranslator* _toolsTranslator_en;
@@ -153,8 +158,10 @@ private:
     static const QString PREFERENCES_FILEPATH;
     static const QString ASSEMBLY_EXPORT_PREFIX;
     static const QString JOB_EXPORT_PREFIX;
+    static const QString JOB_REMOTE_PREFIX;
     static const QString DEFAULT_EXCHANGE_PATH;
     static const QString DEFAULT_ARCHIVE_PATH;
+    static const QString DEFAULT_REMOTE_PATH;
     static const QString DEFAULT_RESULT_PATH;
     static const QString DEFAULT_MOSAIC_PREFIX;
 
@@ -167,6 +174,8 @@ private:
     QScrollArea * _parametersDock;
     ParametersWidgetSkeleton * _parametersWidget;
     QLabel* _messagesPicto;
+
+    QString _currentBundleForRemoteExecution;
 
     QTreeWidgetItem *_assemblyVersionPropertyItem;
     QTreeWidgetItem *_assemblyCreationDatePropertyItem;
@@ -253,6 +262,7 @@ private:
 
     /* job context menu */
     QAction* _executeJobAct;
+    QAction* _executeRemoteJobAct;
     QAction* _saveJobAct;
     QAction* _cloneJobAct;
     QAction* _exportJobAct;
@@ -319,8 +329,9 @@ private:
     void createExportDir();
     void createImportDir();
     void executeImportWorkflow(bool isJobImportAction = false);
-    void executeExportWorkflow(bool isJobExportAction = false);
+    void executeExportWorkflow(bool isJobExportAction, bool isForRemoteExecution = false);
     void checkArchiveDirCreated();
+    void checkRemoteDirCreated();
     bool checkArchivePathChange();
 
 protected:
@@ -342,6 +353,7 @@ protected slots:
     void slot_newAssembly();
     void slot_swapMapOrCreationView();
     void slot_launchJob();
+    void slot_launchRemoteJob();
     void slot_stopJob();
     void slot_jobShowImageOnMainView(QString name, Image *image);
     void slot_userInformation(QString userText);

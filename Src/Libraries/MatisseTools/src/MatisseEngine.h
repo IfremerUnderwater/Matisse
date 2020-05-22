@@ -1,5 +1,5 @@
-﻿#ifndef SERVER_H
-#define SERVER_H
+#ifndef MATISSEENGINE_H
+#define MATISSEENGINE_H
 
 #include <QString>
 #include <QTcpSocket>
@@ -19,29 +19,23 @@
 #include "ProcessDataManager.h"
 
 using namespace MatisseCommon;
-using namespace MatisseTools;
 
-namespace MatisseServer {
+namespace MatisseTools {
 
-// useless class but does not build otherwise -> ugly ............
-// ...............................................................
+enum ApplicationMode {
+    PROGRAMMING,
+    REAL_TIME,
+    DEFERRED_TIME,
+    APP_CONFIG
+};
 
-
-//enum ApplicationMode {
-//    PROGRAMMING,
-//    REAL_TIME,
-//    DEFERRED_TIME,
-//    APP_CONFIG
-//};
-
-class AssemblyGui;
-class DummyServer;
-class DummyJobTask : public QObject{
+class MatisseEngine;
+class JobTask : public QObject{
     Q_OBJECT
 
 public:
-    explicit DummyJobTask(ImageProvider *imageProvider, QList<Processor *> processors, RasterProvider *rasterProvider , JobDefinition &jobDefinition, MatisseParameters *parameters);
-    virtual ~DummyJobTask();
+    explicit JobTask(ImageProvider *imageProvider, QList<Processor *> processors, RasterProvider *rasterProvider , JobDefinition &jobDefinition, MatisseParameters *parameters);
+    virtual ~JobTask();
     void stop(bool cancel=false);
     JobDefinition &jobDefinition() const;
 
@@ -49,7 +43,7 @@ public:
 
     bool isCancelled() const;
 
-    void setMainGui(AssemblyGui *mainGui);
+    void setJobLauncher(QObject *jobLauncher);
 
 signals:
     void signal_jobShowImageOnMainView(QString jobName, Image *image);
@@ -66,7 +60,7 @@ public slots:
     void slot_fatalError();
 
 private:
-    AssemblyGui* _mainGui;
+    QObject* _jobLauncher;
     Context* _context;
     ImageProvider* _imageProvider;
     QList<Processor*> _processors;
@@ -78,17 +72,17 @@ private:
     volatile bool _isCancelled;
 };
 
-class DummyServer : public QObject
+class MatisseEngine : public QObject
 {
     Q_OBJECT
-    
+
 public:
-    explicit DummyServer(QObject *parent = 0);
-    virtual ~DummyServer();
+    explicit MatisseEngine(QObject *parent = 0);
+    virtual ~MatisseEngine();
 
     //bool setSettingsFile(QString settings = "");
     void init();
-    void setMainGui(AssemblyGui* mainGui_p);
+    void setJobLauncher(QObject* jobLauncher);
 
     QList<Processor*> const getAvailableProcessors();
     QList<ImageProvider*> const getAvailableImageProviders();
@@ -105,7 +99,6 @@ public:
     bool stopJob(bool cancel=false);
     bool errorFlag();
     QString messageStr();
-//    Xml& xmlTool();
     MatisseParametersManager * parametersManager() { return _dicoParamMgr; }
 
     void setSystemDataManager(SystemDataManager *systemDataManager);
@@ -126,11 +119,11 @@ private:
     void setMessageStr(QString messageStr = "", bool error = true);
     bool loadParametersDictionnary();
 
-    AssemblyGui* _mainGui;
+    QObject* _jobLauncher;
     SystemDataManager *_systemDataManager;
     ProcessDataManager *_processDataManager;
     JobServer *_jobServer;
-    DummyJobTask* _currentJob;
+    JobTask* _currentJob;
     QThread* _thread;
     //Xml _xmlTool;
     MatisseParametersManager* _dicoParamMgr;
@@ -142,7 +135,7 @@ private:
     bool _errorFlag;
 };
 
-
 }
 
-#endif // SERVER_H
+
+#endif // MATISSEENGINE_H

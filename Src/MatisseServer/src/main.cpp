@@ -1,4 +1,6 @@
-﻿#include <QStyle>
+﻿//#include "WinSocket.h"
+
+#include <QStyle>
 #include <QDesktopWidget>
 #include <QList>
 #include <QtDebug>
@@ -7,7 +9,6 @@
 #include <QApplication>
 
 #include "FileUtils.h"
-#include "Server.h"
 #include "FileImage.h"
 #include "ImageSet.h"
 #include "Dim2FileReader.h"
@@ -15,9 +16,12 @@
 #include "Context.h"
 #include "MatisseParameters.h"
 #include "AssemblyGui.h"
-//#include "WelcomeDialog.h"
 #include "SystemDataManager.h"
 #include "ProcessDataManager.h"
+#include "AbstractSshClient.h"
+#include "SshClientStub.h"
+#include "LibSshClient.h"
+#include "RemoteJobManager.h"
 
 using namespace MatisseServer;
 using namespace MatisseTools;
@@ -67,6 +71,8 @@ int main(int argc, char *argv[])
     QLocale::setDefault(QLocale::C);
     std::setlocale(LC_ALL, "C");
 
+    QLoggingCategory::setFilterRules("qtc.ssh.debug=false");
+
     QApplication a(argc,argv);
 
     // Define log handler
@@ -95,6 +101,18 @@ int main(int argc, char *argv[])
     QString userDataPath = systemDataManager.getUserDataPath();
     ProcessDataManager processDataManager(dataRootDir, userDataPath);
 
+    /* To retrieve from preferences */
+    QString host = "51.210.7.224";
+    QString username = "matisse";
+    QString password = "toto";
+    SshClientCredentials *creds = new SshClientCredentials(username, password);
+
+//    AbstractSshClient *sshClient = new SshClientStub(host, creds);
+    AbstractSshClient *sshClient = new LibSshClient(host, creds);
+    RemoteJobManager remoteJobManager;
+    remoteJobManager.setSshClient(sshClient);
+
+
     /* Create main window and set params */
     AssemblyGui w;
 
@@ -110,6 +128,7 @@ int main(int argc, char *argv[])
     w.setObjectName("_MW_assemblyGui");
     w.setSystemDataManager(&systemDataManager);
     w.setProcessDataManager(&processDataManager);
+    w.setRemoteJobManager(&remoteJobManager);
     w.init();
     w.loadDefaultStyleSheet();
     w.setWindowFlags(Qt::FramelessWindowHint);
