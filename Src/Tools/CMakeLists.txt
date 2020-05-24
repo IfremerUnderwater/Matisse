@@ -1,1 +1,3 @@
 add_subdirectory(gdal_translate)
+add_subdirectory(ForceLookingDown)
+add_subdirectory(DataPreprocessingWizard)

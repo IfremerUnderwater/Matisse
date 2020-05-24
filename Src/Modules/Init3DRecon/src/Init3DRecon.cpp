@@ -657,6 +657,9 @@ void Init3DRecon::onFlush(quint32 port)
     reconstruction_context->lat_origin = firstImagePos[0];
     reconstruction_context->lon_origin = firstImagePos[1];
     reconstruction_context->alt_origin = firstImagePos[2];
+    reconstruction_context->current_format = ReconFormat::openMVG;
+    reconstruction_context->out_file_suffix = QString("");
+
     QVariant * reconstruction_context_stocker = new QVariant();
     reconstruction_context_stocker->setValue(reconstruction_context);
     _context->addObject("reconstruction_context",reconstruction_context_stocker);

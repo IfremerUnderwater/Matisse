@@ -16,6 +16,8 @@
 
 // for openMVS
 #define _USE_BOOST
+#define _USE_OPENMP
+#define RECMESH_USE_OPENMP
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
 #include "OpenMVS/MVS/Common.h"
@@ -24,13 +26,6 @@
 #include <QFileInfo>
 
 using namespace MVS;
-
-namespace OPT {
-    int thFilterPointCloud;
-    int nFusionMode;
-    int nArchiveType;
-    unsigned nMaxThreads;
-} // namespace OPT
 
 using namespace openMVG;
 using namespace openMVG::cameras;
@@ -42,55 +37,25 @@ using namespace openMVG::sfm;
 Q_EXPORT_PLUGIN2(Meshing3D, Meshing3D)
 #endif
 
-// traiter les étoiles (total 51 étoiles pour 100 %)
-// 0%   10   20   30   40   50   60   70   80   90   100%
-// |----|----|----|----|----|----|----|----|----|----|
-// ***************************************************
-// entrée : message
-// mis à jour : starcount
-// retourne : le pourcentage d'avancement
-static int progressStarCountPct(QString message, int &starcount)
-{
-    int n = message.count("*");
-    starcount += n;
-    double pct = starcount / 51.0 * 100.0;
-    if(starcount > 51)
-        starcount %= 52;
-    return int(pct);
-}
 
-// type
-// "Estimated depth-maps 1 (6.25%, 499ms, ETA 7s)..."
-//
-static double getPctVal(QString message, QString key)
-{
-    int pos = message.indexOf(key);
-    QString substr = message.mid(pos);
-    pos = substr.indexOf("\n");
-    if(pos != -1)
-        substr = substr.left(pos);
-    pos = substr.indexOf("(");
-    if(pos != -1)
-        substr = substr.mid(pos+1);
-    pos = substr.indexOf("%");
-    if(pos != -1)
-        substr = substr.left(pos);
-    bool ok;
-    double val = substr.toDouble(&ok);
+namespace OPT {
+    float fDistInsert;
+    bool bUseConstantWeight;
+    bool bUseFreeSpaceSupport;
+    float fThicknessFactor;
+    float fQualityFactor;
+    float fDecimateMesh;
+    float fRemoveSpurious;
+    bool bRemoveSpikes;
+    unsigned nCloseHoles;
+    unsigned nSmoothMesh;
+    unsigned nArchiveType;
+    int nProcessPriority;
+    unsigned nMaxThreads;
+    String strExportType;
+    String strConfigFileName;
+} // namespace OPT
 
-    if(ok)
-        return val;
-    else
-        return -1;
-}
-
-#ifdef _WIN32
-static const char* DensifyPointCloudExe = "DensifyPointCloud.exe";
-static const char* ReconstructMeshExe = "ReconstructMesh.exe";
-#else
-static const char* DensifyPointCloudExe = "DensifyPointCloud";
-static const char* ReconstructMeshExe = "ReconstructMesh";
-#endif
 
 Meshing3D::Meshing3D() :
     Processor(NULL, "Meshing3D", "Create a mesh from 3D points", 1, 1)
@@ -100,8 +65,6 @@ Meshing3D::Meshing3D() :
     addExpectedParameter("dataset_param", "output_dir");
     addExpectedParameter("dataset_param", "output_filename");
 
-    addExpectedParameter("algo_param", "resolution_level");
-    addExpectedParameter("algo_param", "number_views_fuse");
     addExpectedParameter("algo_param", "decimate_factor");
 }
 
@@ -123,106 +86,90 @@ void Meshing3D::onNewImage(quint32 port, MatisseCommon::Image &image)
 
 }
 
-bool Meshing3D::initDensify()
+bool Meshing3D::initMeshing()
 {
-    // Default param init
-    OPTDENSE::init();
-    OPTDENSE::update();
-    OPTDENSE::nResolutionLevel = 1;
-    OPTDENSE::nMaxResolution = 3200;
-    OPTDENSE::nMinResolution = 640;
-    OPTDENSE::nNumViews = 5;
-    OPTDENSE::nMinViewsFuse = 3;
-    OPTDENSE::nOptimize = 7;
-    OPTDENSE::nEstimateColors = 2;
-    OPTDENSE::nEstimateNormals = 0;
+    OPT::fDistInsert=2.5f;
+    OPT::bUseConstantWeight=true;
+    OPT::bUseFreeSpaceSupport=false;
+    OPT::fThicknessFactor=1.f;
+    OPT::fQualityFactor=1.f;
+    OPT::fDecimateMesh=1.f;
+    OPT::fRemoveSpurious=20.f;
+    OPT::bRemoveSpikes=true;
+    OPT::nCloseHoles=30;
+    OPT::nSmoothMesh=2;
+    OPT::nArchiveType=2;
+    OPT::nMaxThreads=0;
+    OPT::strExportType="ply";
 
-    // Get user params
-    bool ok = true;
-    int reslevel = _matisseParameters->getIntParamValue("algo_param", "resolution_level", ok);
+    bool ok;
+    double decimatearg = _matisseParameters->getDoubleParamValue("algo_param", "decimate_factor", ok);
     if (ok)
-        OPTDENSE::nResolutionLevel = reslevel;
-
-    int nbviewfuse = _matisseParameters->getIntParamValue("algo_param", "number_views_fuse", ok);
-    if (ok)
-        OPTDENSE::nMinViewsFuse = nbviewfuse;
+        OPT::fDecimateMesh = decimatearg;
 
     // Set max threads
     OPT::nMaxThreads = omp_get_max_threads();
     omp_set_num_threads(OPT::nMaxThreads);
 
-    // Set arch type (2-compressed binary)
-    OPT::nArchiveType = 2;
-
-    OPT::nFusionMode = 0;
-    OPT::thFilterPointCloud = 0; // TODO : consider adding this as user param
-
     return true;
 }
 
-bool Meshing3D::densifyPointCloud(QString _scene_dir, QString _scene_file)
+bool Meshing3D::meshing(QString _mvs_data_file)
 {
+	QFileInfo mvs_file_info(_mvs_data_file);
 
-emit signal_userInformation("Meshing3D - Densify");
-emit signal_processCompletion(-1);
+	MVS::Scene scene(OPT::nMaxThreads);
+	// load project
+	if (!scene.Load(_mvs_data_file.toStdString()))
+		return false;
 
-QFileInfo scene_file_info(_scene_dir + QDir::separator() + _scene_file);
+	// reset image resolution to the original size and
+	// make sure the image neighbors are initialized before deleting the point-cloud
+	bool bAbort(false);
+#pragma omp parallel for
+	for (int_t idx = 0; idx < (int_t)scene.images.GetSize(); ++idx) {
+#pragma omp flush (bAbort)
+		if (bAbort)
+			continue;
+		const uint32_t idxImage((uint32_t)idx);
 
-QString fullpath_basename = scene_file_info.absoluteDir().absoluteFilePath(scene_file_info.baseName());
+		MVS::Image& imageData = scene.images[idxImage];
+		if (!imageData.IsValid())
+			continue;
+		// reset image resolution
+		if (!imageData.ReloadImage(0, false)) {
+			bAbort = true;
+#pragma omp flush (bAbort)
+			continue;
+		}
+		imageData.UpdateCamera(scene.platforms);
+		// select neighbor views
+		if (imageData.neighbors.IsEmpty()) {
+			IndexArr points;
+			scene.SelectNeighborViews(idxImage, points);
+		}
+	}
 
-// backup current path & set new one
-namespace fs = boost::filesystem;
-fs::path cur_working_dir(fs::current_path());
-fs::current_path(fs::path(_scene_dir.toStdString() ));
+	if (bAbort)
+		return false;
+	// reconstruct a coarse mesh from the given point-cloud
+	if (OPT::bUseConstantWeight)
+		scene.pointcloud.pointWeights.Release();
+	if (!scene.ReconstructMesh(OPT::fDistInsert, OPT::bUseFreeSpaceSupport, 4, OPT::fThicknessFactor, OPT::fQualityFactor))
+		return false;
 
-Scene scene(OPT::nMaxThreads);
+	// clean the mesh
+	scene.mesh.Clean(OPT::fDecimateMesh, OPT::fRemoveSpurious, OPT::bRemoveSpikes, OPT::nCloseHoles, OPT::nSmoothMesh, false);
+	scene.mesh.Clean(1.f, 0.f, OPT::bRemoveSpikes, OPT::nCloseHoles, 0, false); // extra cleaning trying to close more holes
+	scene.mesh.Clean(1.f, 0.f, false, 0, 0, true); // extra cleaning to remove non-manifold problems created by closing holes
 
-// load and estimate a dense point-cloud
-if (!scene.Load(scene_file_info.absoluteFilePath().toStdString()))
-{
-    fs::current_path(cur_working_dir); // restore path
-    return false;
-}
+	// save the final mesh
+    QString output_filename = mvs_file_info.dir().absoluteFilePath(mvs_file_info.baseName() + "_mesh");
+	scene.Save(output_filename.toStdString()+".mvs", (ARCHIVE_TYPE)OPT::nArchiveType);
+	scene.mesh.Save(output_filename.toStdString() +"." + OPT::strExportType);
 
-if (scene.pointcloud.IsEmpty()) {
-    fs::current_path(cur_working_dir); // restore path
-    return false;
-}
-if (OPT::thFilterPointCloud < 0) {
-    // filter point-cloud based on camera-point visibility intersections
-    scene.PointCloudFilter(OPT::thFilterPointCloud);
-    //const String baseFileName(MAKE_PATH_SAFE(Util::getFileFullName(OPT::strOutputFileName)) + _T("_filtered"));
- 
-    scene.Save((fullpath_basename + QString("_dense.mvs")).toStdString(), (ARCHIVE_TYPE)OPT::nArchiveType);
-    scene.pointcloud.Save((fullpath_basename + QString("_dense.ply")).toStdString());
 
-    fs::current_path(cur_working_dir); // restore path
-    return true;
-}
-if ((ARCHIVE_TYPE) OPT::nArchiveType != ARCHIVE_MVS) {
-
-    if (!scene.DenseReconstruction(OPT::nFusionMode)) {
-        if (ABS(OPT::nFusionMode) != 1)
-        {
-            fs::current_path(cur_working_dir); // restore path
-            return false;
-        }
-
-        fs::current_path(cur_working_dir); // restore path
-        return true;
-    }
-}
-
-// save the final mesh
-scene.Save((fullpath_basename + QString("_dense.mvs")).toStdString(), (ARCHIVE_TYPE)OPT::nArchiveType);
-scene.pointcloud.Save((fullpath_basename + QString("_dense.ply")).toStdString());
-
-#if 0
-scene.ExportCamerasMLP(baseFileName + _T(".mlp"), baseFileName + _T(".ply"));
-#endif
-
-    fs::current_path(cur_working_dir); // restore path
-    return false;
+	return true;
 }
 
 bool Meshing3D::start()
@@ -270,109 +217,58 @@ void Meshing3D::onFlush(quint32 port)
         return;
     }
 
-    // init densify
-    this->initDensify();
+    this->initMeshing();
 
     // loop on all connected components
     for (unsigned int i=0; i<rc->components_ids.size(); i++)
     {
 
-        //emit signal_userInformation("Meshing3D - convert");
-        //emit signal_processCompletion(0);
-
         QString scene_dir_i = m_outdir + QString("_%1").arg(rc->components_ids[i]);
-        QString undist_out_dir_i = scene_dir_i + SEP + "undist_imgs_for_mvs";
-        QString sfm_data_file = scene_dir_i + SEP + "sfm_data.bin";
-        QString mvs_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + ".mvs";
+        QString mvs_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".mvs";
 
-        // Read the input SfM scene
-        SfM_Data sfm_data;
-        if (!Load(sfm_data, sfm_data_file.toStdString(), ESfM_Data(ALL))) {
-            continue;
+        if (rc->current_format == ReconFormat::openMVG)
+        {
+
+            QString undist_out_dir_i = scene_dir_i + SEP + "undist_imgs_for_mvs";
+            QString sfm_data_file = scene_dir_i + SEP + "sfm_data.bin";
+
+            // Read the input SfM scene
+            SfM_Data sfm_data;
+            if (!Load(sfm_data, sfm_data_file.toStdString(), ESfM_Data(ALL))) {
+                continue;
+            }
+
+            // Convert from openMVG to openMVS
+            if (!exportToOpenMVS(sfm_data,
+                mvs_data_file.toStdString(),
+                undist_out_dir_i.toStdString(),
+                0,
+                this
+            ))
+                continue;
+
+
+        }
+        else if (rc->current_format != ReconFormat::openMVS)
+        {
+            fatalErrorExit("Input point Cloud is not in the right format. Only openMVG and openMVS supported for now");
         }
 
-        // Convert from openMVG to openMVS
-        if (!exportToOpenMVS(                    sfm_data,
-                              mvs_data_file.toStdString(),
-                           undist_out_dir_i.toStdString(),
-                                                        0,
-                                                      this
-        ))
-            continue;
-
         // compute dense scene
-        if (!this->densifyPointCloud(scene_dir_i, m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + ".mvs") )
+        if (!this->meshing(mvs_data_file) )
             continue;
 
         //// Compute Mesh
-        //emit signal_userInformation("Meshing3D - Compute Mesh");
-        //emit signal_processCompletion(0);
+        emit signal_userInformation("Meshing...");
+        emit signal_processCompletion(-1);
 
-        //cmdline = ReconstructMeshExe;
         //double decimatearg = _matisseParameters->getDoubleParamValue("algo_param", "decimate_factor", ok);
         //if(ok)
         //    cmdline += " --decimate " + QString::number(decimatearg);
 
         //cmdline +=  " ."+SEP+ m_outdir+QString("_%1").arg(rc->components_ids[i]) +SEP+ m_out_filename_prefix+QString("_%1").arg(rc->components_ids[i]) + "_dense.mvs";
-        //QProcess meshProc;
-        //meshProc.setWorkingDirectory(m_source_dir);
-        //meshProc.start(cmdline);
 
-        //while(meshProc.waitForReadyRead(-1)){
 
-        //    if(!isStarted())
-        //    {
-        //        meshProc.kill();
-        //        fatalErrorExit("ReconstructMesh Cancelled");
-        //        return;
-        //    }
-
-        //    QString output = meshProc.readAllStandardOutput();
-
-        //    // étape "Points inserted "
-        //    if(output.contains("Points inserted "))
-        //    {
-        //        double val = getPctVal(output,"Points inserted ");
-        //        if(val >= 0)
-        //        {
-        //            emit signal_userInformation("Rec. Mesh - Points inserted");
-        //            emit signal_processCompletion((int)val);
-        //        }
-        //    }
-
-        //    // étape "Points weighted "
-        //    if(output.contains("Points weighted "))
-        //    {
-        //        double val = getPctVal(output,"Points weighted ");
-        //        if(val >= 0)
-        //        {
-        //            emit signal_userInformation("Rec. Mesh - Points weighted");
-        //            emit signal_processCompletion((int)val);
-        //        }
-        //    }
-
-        //    if(output.contains("Delaunay tetrahedras weighting completed:"))
-        //    {
-        //        emit signal_processCompletion((quint8)-1);
-        //        emit signal_userInformation("Rec. Mesh - tetra. weighting");
-        //    }
-
-        //    if(output.contains("Delaunay tetrahedras graph-cut completed"))
-        //    {
-        //        emit signal_processCompletion((quint8)-1);
-        //        emit signal_userInformation("Rec. Mesh - tetra. graph-cut");
-        //    }
-
-        //    if(output.contains("Mesh reconstruction completed:"))
-        //    {
-        //        emit signal_processCompletion((quint8)-1);
-        //        emit signal_userInformation("Rec. Mesh - reconstr. complete");
-        //    }
-
-        //    qDebug() << output;
-        //}
-
-        emit signal_userInformation("Meshing3D - end");
         emit signal_processCompletion(100);
 
     }

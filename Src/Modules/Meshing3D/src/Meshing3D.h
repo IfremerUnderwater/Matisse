@@ -6,8 +6,8 @@
 #include "third_party/progress/progress.hpp"
 
 /**
- * Module1
- * @brief  Exemple de module pour implementer un algorithme de traitement dans Matisse
+ * Meshing3D
+ * @brief  This module create a 3D Mesh from sparse of dense 3D point cloud (both openMVG and openMVS formats are supported)
  */
 class Meshing3D : public MatisseCommon::Processor, public C_Progress
 {
@@ -55,8 +55,8 @@ private:
         emit signal_processCompletion((int)(_count / (float)_expected_count * 100 + .5));
     } // display_tic
 
-    bool initDensify();
-    bool densifyPointCloud(QString _scene_dir, QString _scene_file);
+    bool initMeshing();
+    bool meshing(QString _mvs_data_file);
 };
 
 #endif // InitMatchModule_H

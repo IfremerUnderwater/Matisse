@@ -414,7 +414,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
 
     // Get context
     QVariant *object = _context->getObject("reconstruction_context");
-    reconstructionContext * rc=NULL;
+    reconstructionContext * rc=nullptr;
     if (object)
         rc = object->value<reconstructionContext*>();
     else
@@ -453,6 +453,9 @@ void SfmBundleAdjustment::onFlush(quint32 port)
  
         emit signal_processCompletion(100);
     }
+
+    // set format
+    rc->current_format = ReconFormat::openMVG;
 
     // Flush next module port
     flush(0);

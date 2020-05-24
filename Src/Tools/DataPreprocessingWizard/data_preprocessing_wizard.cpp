@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <cmath>
 
 #include "data_preprocessing_wizard.h"
