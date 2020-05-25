@@ -1,4 +1,5 @@
 add_library(MatisseTools
+    src/MatisseEngine.cpp
     src/MatisseDictionnaryLabels.h
     src/ParametersWidgetSkeleton.cpp
     src/KeyValueList.cpp
