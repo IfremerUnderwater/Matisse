@@ -15,5 +15,6 @@ SUBDIRS = DTPictureFileSetImageProvider \
           Matching3D \
           SfmBundleAdjustment \
           Meshing3D \
-          MeshingSparse3D \
+          DensifyPointCloud \
+#          MeshingSparse3D \
           Texturing3D

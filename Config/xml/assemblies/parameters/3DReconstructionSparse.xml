@@ -14,12 +14,8 @@
         <Parameter name="video_mode_matching">5</Parameter>
         <Parameter name="video_mode_matching_enable">false</Parameter>
         <!--DensifyPointCloud-->
-        <Parameter name="resolution_level">2</Parameter>
-        <Parameter name="number_views_fuse">3</Parameter>
         <!--ReconstructMesh-->
-        <Parameter name="decimate_factor">1.00</Parameter>
         <!--TexReCon-->
-        <Parameter name="keep_unseen_faces">false</Parameter>
     </Structure>
     <Structure name="cam_param">
         <!--advanced_camera_params-->
