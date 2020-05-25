@@ -7,7 +7,7 @@
 TARGET = MatisseServer
 TEMPLATE = app
 
-QT       += core gui network sql xml xmlpatterns script opengl printsupport widgets
+QT       += core gui network xml xmlpatterns script opengl widgets
 
 #win32 {
 #    RC_FILE = MatisseServer.rc
@@ -158,35 +158,35 @@ HEADERS  += \
     src/WheelGraphicsView.h
 
 FORMS    += \
-    ui/AssemblyGui.ui \
-    ui/AssemblyDialog.ui \
-    ui/ExpertFormWidget.ui \
-    ui/UserFormWidget.ui \
-    ui/ParametersDialog.ui \
-    ui/ServerDialog.ui \
-    ui/JobDialog.ui \
-    ui/StatusMessageWidget.ui \
-    ui/WelcomeDialog.ui \
-    ui/HomeWidget.ui \
-    ui/VisuModeWidget.ui \
-    ui/MainMenuWidget.ui \
-    ui/OngoingProcessWidget.ui \
-    ui/MainControllBar.ui \
-    ui/MatisseVersionWidget.ui \
-    ui/PreferencesDialog.ui \
-    ui/AboutDialog.ui \
-    ui/DuplicateDialog.ui \
-    ui/RestoreJobsDialog.ui \
-    ui/NetworkCheckDialog.ui
+    src/AssemblyGui.ui \
+    src/AssemblyDialog.ui \
+    src/ExpertFormWidget.ui \
+    src/UserFormWidget.ui \
+    src/ParametersDialog.ui \
+    src/ServerDialog.ui \
+    src/JobDialog.ui \
+    src/StatusMessageWidget.ui \
+    src/WelcomeDialog.ui \
+    src/HomeWidget.ui \
+    src/VisuModeWidget.ui \
+    src/MainMenuWidget.ui \
+    src/OngoingProcessWidget.ui \
+    src/MainControllBar.ui \
+    src/MatisseVersionWidget.ui \
+    src/PreferencesDialog.ui \
+    src/AboutDialog.ui \
+    src/DuplicateDialog.ui \
+    src/RestoreJobsDialog.ui \
+    src/NetworkCheckDialog.ui
 
 
 TRANSLATIONS=MatisseServer_fr.ts \
              MatisseServer_en.ts
 
 RESOURCES += \
-    ui/resources/resources.qrc \
-    ui/style.qrc \
-    ui/icons.qrc
+    resources/resources.qrc \
+    style.qrc \
+    icons.qrc
 
 OTHER_FILES += \
     ../../Config/lnf/Matisse.css \
@@ -204,4 +204,4 @@ DISTFILES += \
     ../../Config/schemas/MatisseParametersDictionnary.xsd
 
 
-RC_ICONS = ./ui/resources/ifremer-grand.ico
+RC_ICONS = ./resources/ifremer-grand.ico

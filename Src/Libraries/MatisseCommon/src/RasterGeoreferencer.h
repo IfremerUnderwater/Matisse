@@ -1,7 +1,7 @@
 #ifndef RASTERGEOREFERENCER_H
 #define RASTERGEOREFERENCER_H
 
-#include "libmatissecommon_global.h"
+
 
 #ifdef  _WIN32
 #include <cpl_vsi.h>
@@ -28,7 +28,7 @@ namespace MatisseCommon {
 
 /*! This class is an encapsulation of gdal_translate code to create GeoTiff from a memory raster*/
 
-class LIBMATISSECOMMONSHARED_EXPORT RasterGeoreferencer
+class RasterGeoreferencer
 {
 public:
     RasterGeoreferencer();

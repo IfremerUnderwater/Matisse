@@ -645,10 +645,10 @@ void Init3DRecon::onFlush(quint32 port)
     emit signal_userInformation("Init3DRecon - saving...");
     // Store SfM_Data views & intrinsic data
     if (!Save(  sfm_data,
-                stlplus::create_filespec( sOutputDir, "sfm_data.json" ).c_str(),
+                stlplus::create_filespec( sOutputDir, "sfm_data.bin" ).c_str(),
                 ESfM_Data(VIEWS|INTRINSICS)))
     {
-        fatalErrorExit("Error saving sfm_data.json");
+        fatalErrorExit("Error saving sfm_data.bin");
 
         return;
     }
@@ -657,6 +657,9 @@ void Init3DRecon::onFlush(quint32 port)
     reconstruction_context->lat_origin = firstImagePos[0];
     reconstruction_context->lon_origin = firstImagePos[1];
     reconstruction_context->alt_origin = firstImagePos[2];
+    reconstruction_context->current_format = ReconFormat::openMVG;
+    reconstruction_context->out_file_suffix = QString("");
+
     QVariant * reconstruction_context_stocker = new QVariant();
     reconstruction_context_stocker->setValue(reconstruction_context);
     _context->addObject("reconstruction_context",reconstruction_context_stocker);

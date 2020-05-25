@@ -1,7 +1,7 @@
 ﻿#ifndef FILE_UTILS_H
 #define FILE_UTILS_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QtDebug>
 #include <QFile>
@@ -12,10 +12,17 @@
 #include <QDesktopServices>
 #include <QThread>
 
+#ifdef _MSC_VER
+#include "quazip.h"
+#include "quazipfile.h"
+#include "quazipnewinfo.h"
+#include "JlCompress.h"
+#else
 #include "quazip5/quazip.h"
 #include "quazip5/quazipfile.h"
 #include "quazip5/quazipnewinfo.h"
 #include "quazip5/JlCompress.h"
+#endif
 
 #include "StringUtils.h"
 
@@ -27,7 +34,7 @@
 
 namespace MatisseCommon {
 
-class LIBMATISSECOMMONSHARED_EXPORT FileUtils
+class FileUtils
 {
 public:
     static bool removeDir(const QString &dirName);

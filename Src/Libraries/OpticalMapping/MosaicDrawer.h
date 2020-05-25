@@ -1,7 +1,7 @@
 #ifndef MOSAICDRAWER_H
 #define MOSAICDRAWER_H
 
-#include "libopticalmapping_global.h"
+
 #include "MosaicDescriptor.h"
 
 
@@ -15,7 +15,7 @@ struct drawingOptions{
     float blendStrength;
 };
 
-class LIBOPTICALMAPPINGSHARED_EXPORT MosaicDrawer
+class MosaicDrawer
 {
 public:
 

@@ -1,11 +1,11 @@
 ﻿#ifndef SLEEPER_H
 #define SLEEPER_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QThread>
 
-class LIBMATISSECOMMONSHARED_EXPORT Sleeper : public QThread
+class Sleeper : public QThread
 {
 public:
     static void usleep(unsigned long usecs){QThread::usleep(usecs);}

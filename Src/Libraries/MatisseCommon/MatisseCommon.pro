@@ -1,5 +1,6 @@
 TARGET = MatisseCommon
 TEMPLATE = lib
+CONFIG += staticlib
 
 QT += core xml network widgets
 
@@ -12,7 +13,7 @@ QMAKE_CXXFLAGS += -std=c++11
 #}
 
 
-DEFINES += LIBMATISSECOMMON_LIBRARY
+#DEFINES += LIBMATISSECOMMON_LIBRARY
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../
@@ -38,13 +39,13 @@ LIBS*= -lproj -lgdal
 TARGET = MatisseCommon$$BUILD_EXT
 # ------------------------------------------------------------------------
 
-win32 {
-    DLLDESTDIR = $${BUILD_DIR}/Libraries/dll
-}
+#win32 {
+#    DLLDESTDIR = $${BUILD_DIR}/Libraries/dll
+#}
 
-unix {
-    DESTDIR = $${BUILD_DIR}/Libraries/dll
-}
+#unix {
+#    DESTDIR = $${BUILD_DIR}/Libraries/dll
+#}
 
 HEADERS += \
     src/Context.h \

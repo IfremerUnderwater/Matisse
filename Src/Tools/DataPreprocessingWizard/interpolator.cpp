@@ -1,6 +1,10 @@
 #include "interpolator.h"
 #include <algorithm>
 #include <stdexcept>
+#include <string>
+#include <sstream>
+#include <vector>
+
 
 Interpolator::Interpolator(const std::vector<std::pair<double, double>>& points)
   : _points(points) {
@@ -41,7 +45,7 @@ double Interpolator::findValue(double x) const {
 
   //If the caller's X value is less than the smallest X value in the table,
   //we can't interpolate.
-  if(iter == _points.cbegin() and x <= _points.cbegin()->first) {
+  if(iter == _points.cbegin() && x <= _points.cbegin()->first) {
     return _points.cbegin()->second;
   }
 

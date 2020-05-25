@@ -1,7 +1,7 @@
 ﻿#ifndef DIM2FILEREADER_H
 #define DIM2FILEREADER_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QString>
 #include <QHash>
@@ -22,7 +22,7 @@ namespace MatisseCommon {
 ///
 /// \brief Classe de chargement de chargement de fichier DIM2.
 ///
-class LIBMATISSECOMMONSHARED_EXPORT Dim2FileReader
+class Dim2FileReader
 {
 public:
     ///

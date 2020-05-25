@@ -1,7 +1,7 @@
 ﻿#ifndef MOSAICPARAMETERS_H
 #define MOSAICPARAMETERS_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QtCore>
 #include <QString>
@@ -26,7 +26,7 @@ typedef QGenericMatrix<6, 1, double> Matrix6x1;
 ///
 /// \brief Structure composite pour valeur de retour
 ///
-class LIBMATISSECOMMONSHARED_EXPORT MatisseParameter {
+class MatisseParameter {
 public:
     QString structure;
     QString param;
@@ -38,7 +38,7 @@ public:
 /// Cette classe permet d'accèder aux paramètres programmés par l'utilisateur ou l'expert depuis les instances de Processeurs ou celles d'ImageProvider.
 /// es parametres sont accessibles en lecture seule.
 ///
-class LIBMATISSECOMMONSHARED_EXPORT MatisseParameters
+class MatisseParameters
 {
 public:
     ///

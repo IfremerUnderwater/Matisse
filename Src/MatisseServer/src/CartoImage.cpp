@@ -71,7 +71,7 @@ bool CartoImage::loadFile(QString filename_p)
         GDALClose(poDataset);
     }
 
-    Mat readImage = imread(_fileName.toStdString().c_str(),IMREAD_UNCHANGED);
+    Mat readImage = imread(_fileName.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
     _imageData = new Mat(readImage);
 
     return true;

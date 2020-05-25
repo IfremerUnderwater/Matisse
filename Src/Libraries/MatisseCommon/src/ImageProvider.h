@@ -2,7 +2,7 @@
 #define IMAGEPROVIDER_H
 
 
-#include "libmatissecommon_global.h"
+
 
 #include <QObject>
 #include "ImageSet.h"
@@ -20,7 +20,7 @@ namespace MatisseCommon {
 /// Les methodes de cycle de vie virtuelles pures \ref configure(Context * , MatisseParameters *)\ref start() \ref stop() doivent être implémentées par les classes dérivées.
 /// Elles sont appelées par le moteur à chaque exécution d'un assemblage.
 ///
-class LIBMATISSECOMMONSHARED_EXPORT ImageProvider : public QObject, public LifecycleComponent
+class ImageProvider : public QObject, public LifecycleComponent
 {
     Q_OBJECT
     Q_INTERFACES(MatisseCommon::LifecycleComponent)
