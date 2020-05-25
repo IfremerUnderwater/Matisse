@@ -26,7 +26,7 @@
    <string>Matisse 3</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources/resources.qrc">
+   <iconset resource="../resources/resources.qrc">
     <normaloff>:/png/ifremer-grand.png</normaloff>:/png/ifremer-grand.png</iconset>
   </property>
   <property name="animated">
@@ -403,10 +403,10 @@
                  <attribute name="headerVisible">
                   <bool>false</bool>
                  </attribute>
-                 <attribute name="headerDefaultSectionSize">
+                 <attribute name="headerMinimumSectionSize">
                   <number>100</number>
                  </attribute>
-                 <attribute name="headerMinimumSectionSize">
+                 <attribute name="headerDefaultSectionSize">
                   <number>100</number>
                  </attribute>
                  <column>
@@ -905,7 +905,7 @@
             <number>0</number>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="UserFormWidget" name="_WID_mapViewSceneContainer">
             <property name="sizePolicy">
@@ -1002,7 +1002,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
+         <iconset resource="../icons.qrc">
           <normaloff>:/qss_icons/icons/Roue.svg</normaloff>:/qss_icons/icons/Roue.svg</iconset>
         </property>
        </widget>
@@ -1066,8 +1066,8 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="icons.qrc"/>
-  <include location="resources/resources.qrc"/>
+  <include location="../icons.qrc"/>
+  <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
