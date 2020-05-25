@@ -10,6 +10,7 @@ SUBDIRS = Libraries \
             Modules \
             Tests \
             MatisseServer \
+            MatisseCmd \
             Tools
 
 Modules.depends = Libraries

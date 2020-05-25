@@ -1,7 +1,7 @@
 #ifndef MOSAIC_H
 #define MOSAIC_H
 
-#include "libopticalmapping_global.h"
+
 #include "NavImage.h"
 #include "ProjectiveCamera.h"
 #include "GeoTransform.h"
@@ -23,7 +23,7 @@ struct MosaicSizesAndExtent {
 };
 
 
-class LIBOPTICALMAPPINGSHARED_EXPORT MosaicDescriptor
+class MosaicDescriptor
 {
 
 public:

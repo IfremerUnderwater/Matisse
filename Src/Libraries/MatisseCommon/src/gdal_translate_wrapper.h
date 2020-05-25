@@ -1,10 +1,10 @@
 #ifndef GDAL_TRANSLATE_WRAPPER_H
 #define GDAL_TRANSLATE_WRAPPER_H
 
-#include "libmatissecommon_global.h"
+
 #include <QString>
 
-class LIBMATISSECOMMONSHARED_EXPORT GdalTranslateWrapper
+class GdalTranslateWrapper
 {
 public:
     GdalTranslateWrapper();

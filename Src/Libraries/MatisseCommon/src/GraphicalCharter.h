@@ -1,7 +1,7 @@
 #ifndef GRAPHICALCHARTER_H
 #define GRAPHICALCHARTER_H
 
-#include "libmatissecommon_global.h"
+
 
 /* COLORS */
 #define MATISSE_BLACK           "#252a31"
@@ -54,7 +54,7 @@
 
 namespace MatisseCommon {
 
-class LIBMATISSECOMMONSHARED_EXPORT GraphicalCharter
+class GraphicalCharter
 {
 public:
     static GraphicalCharter& instance();

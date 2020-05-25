@@ -1,6 +1,7 @@
 ﻿#include "FileImage.h"
 #include <QDebug>
 
+using namespace cv;
 using namespace MatisseCommon;
 
 

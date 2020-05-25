@@ -1,14 +1,14 @@
 ﻿#ifndef INPUTSOURCE_H
 #define INPUTSOURCE_H
 
-#include "libmatissecommon_global.h"
+
 
 namespace MatisseCommon {
 
 ///
 /// \brief Classe de base des sources d'image.
 ///
-class LIBMATISSECOMMONSHARED_EXPORT InputSource
+class InputSource
 {
 public:
     InputSource() {}

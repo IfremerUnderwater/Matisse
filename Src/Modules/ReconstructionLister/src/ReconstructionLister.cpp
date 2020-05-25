@@ -120,12 +120,15 @@ bool ReconstructionLister::stop()
     QVariant *object = _context->getObject("reconstruction_context");
     reconstructionContext * rc=NULL;
     if (object)
+    {
         rc = object->value<reconstructionContext*>();
 
-    for(unsigned int i=0; i<rc->components_ids.size(); i++)
-    {
-        QDir outPathDir(QString("%1_%2").arg(completeOutPath).arg(rc->components_ids[i]));
-        _rastersInfo << outPathDir.absoluteFilePath(QString("%1_%2_texrecon.obj").arg(fileNamePrefixStr).arg(rc->components_ids[i]));
+        for (unsigned int i = 0; i < rc->components_ids.size(); i++)
+        {
+            QDir outPathDir(QString("%1_%2").arg(completeOutPath).arg(rc->components_ids[i]));
+            _rastersInfo << outPathDir.absoluteFilePath(QString("%1_%2_texrecon.obj").arg(fileNamePrefixStr).arg(rc->components_ids[i]));
+        }
+
     }
 
     return true;

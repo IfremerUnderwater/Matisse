@@ -1,0 +1,2 @@
+#define Matisse_VERSION_MAJOR @Matisse_VERSION_MAJOR@
+#define Matisse_VERSION_MINOR @Matisse_VERSION_MINOR@

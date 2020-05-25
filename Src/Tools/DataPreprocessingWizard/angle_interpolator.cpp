@@ -1,7 +1,11 @@
 #include "angle_interpolator.h"
 #include <algorithm>
 #include <stdexcept>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <cmath>
+#include <string>
+#include <sstream>
 
 AngleInterpolator::AngleInterpolator(const std::vector<std::pair<double, double>>& points)
   : _points(points) {
@@ -42,7 +46,7 @@ double AngleInterpolator::findValue(double x) const {
 
   //If the caller's X value is less than the smallest X value in the table,
   //we can't interpolate.
-  if(iter == _points.cbegin() and x <= _points.cbegin()->first) {
+  if(iter == _points.cbegin() && x <= _points.cbegin()->first) {
     return _points.cbegin()->second;
   }
 

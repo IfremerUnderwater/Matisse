@@ -1,14 +1,14 @@
 #ifndef PROJECTIVECAMERA_H
 #define PROJECTIVECAMERA_H
 
-#include "libopticalmapping_global.h"
+
 
 #include <opencv2/opencv.hpp>
 #include <NavImage.h>
 
 using namespace MatisseCommon;
 
-class LIBOPTICALMAPPINGSHARED_EXPORT ProjectiveCamera
+class ProjectiveCamera
 {
 public:
     ProjectiveCamera();

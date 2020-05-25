@@ -1,7 +1,7 @@
 ﻿#ifndef PROCESSOR_H
 #define PROCESSOR_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QList>
 #include <QtPlugin>
@@ -19,7 +19,7 @@ namespace MatisseCommon {
 ///
 /// \brief Classe de base des modules chargeables dans MatisseServer
 ///
-class LIBMATISSECOMMONSHARED_EXPORT Processor : public QObject, public ImageListener, public LifecycleComponent
+class Processor : public QObject, public ImageListener, public LifecycleComponent
 {
     Q_OBJECT
     Q_INTERFACES(MatisseCommon::ImageListener)
@@ -37,8 +37,8 @@ public:
 
     bool okStatus() { return _okStatus; }
 
-    // A appeler obligatoirement dans start
-    // et éventuellement dans flush ou onNewImage
+    // Must be called in start
+    // and eventually in flush or onNewImage
     void setOkStatus(const bool status = true)
     {
         _okStatus = status;
