@@ -1,6 +1,21 @@
 add_library(Texturing3D SHARED src/Texturing3D.cpp)
 
-target_link_libraries( Texturing3D MatisseCommon BasicProcessing OpticalMapping ${OpenCV_LIBS} Qt5::Core Qt5::Xml Qt5::Widgets ${QUAZIP_LIBRARIES} GDAL::GDAL ${PROJ_LIBS})
+target_link_libraries( Texturing3D
+	MatisseCommon
+	BasicProcessing
+	OpticalMapping
+	${OpenCV_LIBS}
+	Qt5::Core
+	Qt5::Xml
+	Qt5::Widgets
+	${QUAZIP_LIBRARIES}
+	GDAL::GDAL
+	${PROJ_LIBS}
+	OpenMVG::openMVG_system
+	OpenMVG::openMVG_image
+    OpenMVG::openMVG_features
+    OpenMVG::openMVG_sfm
+	OpenMVG::openMVG_stlplus)
 
 set_target_properties(Texturing3D PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
 
