@@ -253,7 +253,7 @@ void Texturing3D::onFlush(quint32 port)
             cmdLine += " --keep_unseen_faces";
         cmdLine += " " + undist_dir_i;
         cmdLine += " "+ mesh_data_file;
-        cmdLine += " "+ m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + "_texrecon";
+        cmdLine += " "+ m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + "_texrecon";
         QProcess textureProc;
         textureProc.setWorkingDirectory(scene_dir_i);
         textureProc.start(cmdLine);
@@ -358,7 +358,7 @@ void Texturing3D::onFlush(quint32 port)
         }
 
         // Write kml associated to model
-        writeKml(scene_dir_i, m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + "_texrecon");
+        writeKml(scene_dir_i, m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + "_texrecon");
 
         emit signal_processCompletion(100);
         emit signal_userInformation("Texturing3D end");
@@ -366,7 +366,7 @@ void Texturing3D::onFlush(quint32 port)
     }
 
     // update suffix
-    rc->out_file_suffix += "_texrecon";
+    rc->out_file_suffix = "_texrecon";
 
     // Flush next module port
     flush(0);

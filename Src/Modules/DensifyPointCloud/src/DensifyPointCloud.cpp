@@ -228,7 +228,7 @@ void DensifyPointCloud::onFlush(quint32 port)
         if (rc->current_format == ReconFormat::openMVG)
         {
 
-            QString undist_out_dir_i = scene_dir_i + SEP + "undist_imgs_for_mvs";
+            QString undist_out_dir_i = scene_dir_i + SEP + "undist_imgs";
             QString sfm_data_file = scene_dir_i + SEP + "sfm_data.bin";
             QString mvs_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".mvs";
 
