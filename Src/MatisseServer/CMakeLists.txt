@@ -1,6 +1,17 @@
 # add the executable
 add_executable(MatisseServer
     src/main.cpp
+	src/OSGWidget/kml_handler.cpp
+	src/OSGWidget/point3d.cpp
+	src/OSGWidget/osg_widget_tool.cpp
+    src/OSGWidget/osg_widget.cpp
+    src/OSGWidget/box_visitor.cpp
+    src/OSGWidget/area_computation_visitor.cpp
+    src/OSGWidget/measurement_picker_tool.cpp
+    src/OSGWidget/minmax_computation_visitor.cpp
+    src/OSGWidget/geometry_type_count_visitor.cpp
+    src/OSGWidget/shader_color.cpp
+    src/OSGWidget/overlay_widget.cpp
     src/AssemblyGui.cpp
     src/ProcessorWidget.cpp
     src/SourceWidget.cpp
@@ -29,7 +40,6 @@ add_executable(MatisseServer
     src/ParametersFoldButton.cpp
     src/ElementWidgetProvider.cpp
     src/AboutDialog.cpp
-    src/OSGWidget.cpp
     src/DuplicateDialog.cpp
     src/RestoreJobsDialog.cpp
     src/NetworkCheckDialog.cpp
@@ -58,7 +68,9 @@ target_link_libraries(MatisseServer PUBLIC
      Qt5::OpenGL
      GDAL::GDAL
      ${QUAZIP_LIBRARIES}
-     ${OPENSCENEGRAPH_LIBRARIES})
+     ${OPENSCENEGRAPH_LIBRARIES}
+	 ${GeographicLib_LIBRARIES}
+	 kmldom kmlbase)
 
 # add the binary tree to the search path for include files
 # so that we will find MatisseConfig.h

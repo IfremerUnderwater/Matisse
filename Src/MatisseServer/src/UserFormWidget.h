@@ -15,6 +15,7 @@
 #include <osgDB/WriteFile>
 #include <osgUtil/Optimizer>
 
+
 Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 
 
@@ -50,6 +51,8 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 using namespace MatisseCommon;
 using namespace MatisseTools;
 
+class OSGWidget;
+
 namespace Ui {
 class UserFormWidget;
 }
@@ -69,6 +72,8 @@ public:
     explicit resultLoadingTask();
     virtual ~resultLoadingTask();
 
+    void setOSGWidget(OSGWidget* _osgwidget) { m_osgwidget = _osgwidget; }
+
 signals:
 //    void signal_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
     void signal_addRasterToCartoView(CartoImage  * image_p);
@@ -80,7 +85,7 @@ public slots:
     void slot_load3DSceneFromFile(QString filename_p = "");
 
 private:
-
+    OSGWidget* m_osgwidget;
 
 
 };

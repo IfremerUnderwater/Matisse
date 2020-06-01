@@ -67,6 +67,8 @@ find_package(CGAL)
 FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serialization)
 find_package(OpenMVS REQUIRED)
 
+find_package(LibKML REQUIRED)
+
 # qt
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
