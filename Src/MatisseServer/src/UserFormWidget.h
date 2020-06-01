@@ -47,6 +47,7 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 
 #include "CartoScene.h"
 #include "CartoImage.h"
+#include <vector>
 
 using namespace MatisseCommon;
 using namespace MatisseTools;
@@ -78,11 +79,11 @@ signals:
 //    void signal_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
     void signal_addRasterToCartoView(CartoImage  * image_p);
     void signal_addRasterToImageView(Image  * image_p);
-    void signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
+    void signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool remove_previous_scenes_p);
 
 public slots:
     void slot_loadRasterFromFile(QString filename_p = "");
-    void slot_load3DSceneFromFile(QString filename_p = "");
+    void slot_load3DSceneFromFile(QString filename_p, bool remove_previous_scenes_p);
 
 private:
     OSGWidget* m_osgwidget;
@@ -110,7 +111,7 @@ public:
     void resetJobForm();
     void loadRasterFile(QString filename);
     void loadShapefile(QString filename);
-    void load3DFile(QString filename_p = "");
+    void load3DFile(QString filename_p, bool remove_previous_scenes_p=true);
     void loadImageFile(QString filename);
     void saveQgisProject(QString filename);
     //void loadTestVectorLayer();
@@ -132,7 +133,7 @@ protected slots:
     //void slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
     void slot_addRasterToCartoView(CartoImage *image_p);
     void slot_addRasterToImageView(Image *image_p);
-    void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p);
+    void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool _remove_previous_scenes=true);
     void slot_showLayersWidgetContextMenu(const QPoint &pos);
     void slot_showMapContextMenu(const QPoint& pos_p);
     void slot_onAutoResizeTrigger();
@@ -157,7 +158,7 @@ protected slots:
 
 signals:
     void signal_loadRasterFromFile(QString filename_p = "");
-    void signal_load3DSceneFromFile(QString filename_p = "");
+    void signal_load3DSceneFromFile(QString filename_p, bool remove_previous_scenes_p);
 
 private:
     //void updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p);
@@ -202,6 +203,9 @@ private:
     //QgsMapTool *_zoomOutTool;
 
     QListWidget *_layersWidget;
+
+    std::vector< osg::ref_ptr<osg::Node> > _osg_nodes;
+
 };
 
 

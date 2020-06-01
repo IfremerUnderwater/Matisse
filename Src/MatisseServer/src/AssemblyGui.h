@@ -302,7 +302,7 @@ private:
     void updateLanguage(QString language, bool forceRetranslation = false);
     void retranslate();
     
-    bool loadResultToCartoView(QString resultFile_p);
+    bool loadResultToCartoView(QString resultFile_p, bool remove_previous_scenes=true);
     
     void doFoldUnfoldParameters(bool doUnfold, bool isExplicitAction = false);
 

@@ -65,8 +65,8 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     connect(this,SIGNAL(signal_loadRasterFromFile(QString)),&_resultLoadingTask,SLOT(slot_loadRasterFromFile(QString)),Qt::QueuedConnection);
     connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(CartoImage *)), this,SLOT(slot_addRasterToCartoView(CartoImage*)),Qt::QueuedConnection);
     connect(&_resultLoadingTask,SIGNAL(signal_addRasterToImageView(Image *)),this,SLOT(slot_addRasterToImageView(Image *)),Qt::QueuedConnection);
-    connect(this,SIGNAL(signal_load3DSceneFromFile(QString)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString)),Qt::QueuedConnection);
-    connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),Qt::QueuedConnection);
+    connect(this,SIGNAL(signal_load3DSceneFromFile(QString,bool)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString,bool)),Qt::QueuedConnection);
+    connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool)),Qt::QueuedConnection);
 
     _resultLoadingTask.moveToThread(&_resultLoadingThread);
     _resultLoadingThread.start();
@@ -528,16 +528,23 @@ void UserFormWidget::loadShapefile(QString filename)
 //    QGis dep removed
 }
 
-void UserFormWidget::load3DFile(QString filename_p)
+void UserFormWidget::load3DFile(QString filename_p, bool remove_previous_scenes_p)
 {
     if (_currentViewType!=OpenSceneGraphView)
         switchCartoViewTo(OpenSceneGraphView);
-    emit signal_load3DSceneFromFile(filename_p);
+    emit signal_load3DSceneFromFile(filename_p, remove_previous_scenes_p);
 }
 
-void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p)
+void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool _remove_previous_scenes)
 {
     _ui->_OSG_viewer->addNodeToScene(sceneData_p);
+    if(_remove_previous_scenes)
+    {
+        for(int i=0; i<_osg_nodes.size(); i++)
+            _ui->_OSG_viewer->removeNodeFromScene(_osg_nodes[i]);
+        _osg_nodes.clear();
+    }
+    _osg_nodes.push_back(sceneData_p);
 }
 
 void UserFormWidget::slot_showMapContextMenu(const QPoint &pos_p)
@@ -819,12 +826,12 @@ void resultLoadingTask::slot_loadRasterFromFile(QString filename_p)
 
 }
 
-void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p)
+void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p, bool remove_previous_scenes_p)
 {
     // load the data
     setlocale(LC_ALL, "C");
 
     osg::ref_ptr<osg::Node> node = m_osgwidget->createNodeFromFile(filename_p.toStdString());
 
-    emit signal_add3DSceneToCartoView(node);
+    emit signal_add3DSceneToCartoView(node, remove_previous_scenes_p);
 }
