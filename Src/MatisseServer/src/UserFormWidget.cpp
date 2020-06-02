@@ -1,17 +1,13 @@
-﻿#define M_PI 3.1415926535
+﻿#ifndef M_PI
+#define M_PI 3.1415926535
+#endif
+
 #include "UserFormWidget.h"
 #include "ui_UserFormWidget.h"
 
 #include "WheelGraphicsView.h"
 
 #include "OSGWidget/osg_widget.h"
-
-// Qgis 2.99
-//#include <qgssymbol.h>
-//#include <qgssinglesymbolrenderer.h>
-//#include <qgsmaprendererjob.h>
-//#include <qgsmaprenderersequentialjob.h>
-
 
 using namespace cv;
 
