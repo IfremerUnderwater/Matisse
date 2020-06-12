@@ -48,7 +48,8 @@ add_executable(MatisseServer
     src/WheelGraphicsView.cpp
 	resources/resources.qrc
     style.qrc
-    icons.qrc)
+    icons.qrc
+	MatisseServer.rc)
 	
 	
 set_target_properties(MatisseServer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)

@@ -1,7 +1,9 @@
 @ECHO OFF
 
 rem This script generates the matisse installer. It has to be executed in its directory
-
+rem cmake -E rm "..\Run\Release\opencv_cuda*"
+del /s /q /f ..\Run\Release\opencv_cuda*
+ 
 rem remove any residual data
 rmdir /S /Q .\packages\Matisse3D\data
 

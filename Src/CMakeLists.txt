@@ -41,6 +41,12 @@ add_custom_target(copy_config ALL
  COMMENT "Copying config folder ..."
 )
 
+
+add_custom_target(copy_install ALL
+ COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../Install ${PROJECT_BINARY_DIR}/Install
+ COMMENT "Copying install folder ..."
+)
+
 # configure a header file to pass some of the CMake settings
 # to the source code
 configure_file(MatisseConfig.h.in MatisseConfig.h)
