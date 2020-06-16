@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name and version
-project(MatisseProject VERSION 1.1)
+project(MatisseProject VERSION 1.1.0)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 11)
@@ -16,6 +16,8 @@ else(MSVC)
 set(PROJ_LIBS "proj")
 set(D_EXT "so")
 endif(MSVC)
+
+string(TIMESTAMP BUILD_DATE "%Y-%m-%d")
 
 # define Runtime directories as config dependent folders (and create them)
 set(MATISSE_RUNTIME_ROOT ${PROJECT_BINARY_DIR}/Run/$<$<CONFIG:Release>:Release>$<$<CONFIG:Debug>:Debug>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>)
@@ -46,6 +48,15 @@ add_custom_target(copy_install ALL
  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../Install ${PROJECT_BINARY_DIR}/Install
  COMMENT "Copying install folder ..."
 )
+
+configure_file(../Install/generate_installer.bat.in Install/generate_installer.bat)
+configure_file(../Install/packages/Matisse3D/meta/package.xml.in Install/packages/Matisse3D/meta/package.xml)
+set(BINARYTOOL_HOMEDIR @HomeDir@)
+configure_file(../Install/config/config.xml.in Install/config/config.xml)
+configure_file(../Config/config/MatisseSettings.xml.in Run/Release/config/MatisseSettings.xml)
+configure_file(../Config/config/MatisseSettings.xml.in Run/RelWithDebInfo/config/MatisseSettings.xml)
+configure_file(../Config/config/MatisseSettings.xml.in Run/Debug/config/MatisseSettings.xml)
+
 
 # configure a header file to pass some of the CMake settings
 # to the source code
