@@ -15,15 +15,18 @@ target_link_libraries( Matching3D
 	${PROJ_LIBS}
 	OpenMVG::openMVG_system
 	OpenMVG::openMVG_image
-    OpenMVG::openMVG_features
+	OpenMVG::openMVG_features
 	OpenMVG::vlsift
-    OpenMVG::openMVG_sfm
-    OpenMVG::openMVG_exif
+	OpenMVG::openMVG_sfm
+	OpenMVG::openMVG_exif
 	OpenMVG::openMVG_stlplus
-    OpenMVG::openMVG_multiview
+	OpenMVG::openMVG_multiview
 	OpenMVG::openMVG_matching_image_collection)
 
+# linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(Matching3D PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(Matching3D PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(Matching3D PROPERTIES PREFIX "")
 
 add_custom_command(
  TARGET Matching3D POST_BUILD

@@ -13,8 +13,12 @@ set(PROJ_LIBS ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/proj.lib)
 set(OPENMVG_INSTALL_PATH ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET})
 set(D_EXT "dll")
 else(MSVC)
+list(APPEND CMAKE_MODULE_PATH /usr/share/quazip/)
+list(APPEND CMAKE_MODULE_PATH /usr/share/cmake/geographiclib/)
+list(APPEND CMAKE_MODULE_PATH /usr/lib/cmake/Ceres/)
 set(PROJ_LIBS "proj")
 set(D_EXT "so")
+set(OPENMVG_INSTALL_PATH "/usr/local")
 endif(MSVC)
 
 string(TIMESTAMP BUILD_DATE "%Y-%m-%d")
@@ -67,7 +71,12 @@ find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script OpenGL R
 
 find_package( OpenCV REQUIRED )
 
+if(MSVC)
 find_package(QuaZip REQUIRED)
+find_package(cereal)
+else(MSVC)
+find_package(QuaZip5 REQUIRED)
+endif(MSVC)
 
 find_package(GDAL REQUIRED)
 
@@ -77,8 +86,8 @@ find_package(OpenSceneGraph REQUIRED osgDB osgUtil osgGA osgViewer)
 # libOpenThreads & libosg automatically searched
 
 find_package(OpenMVG REQUIRED)
-find_package(cereal)
-find_package(ceres REQUIRED)
+
+find_package(Ceres REQUIRED)
 
 find_package(CGAL)
 FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serialization)
