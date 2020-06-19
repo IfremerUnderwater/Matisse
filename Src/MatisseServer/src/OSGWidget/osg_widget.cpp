@@ -314,6 +314,7 @@ OSGWidget::OSGWidget(QWidget* parent)
 
     m_viewer->addView( view );
     m_viewer->setThreadingModel( osgViewer::CompositeViewer::SingleThreaded );
+    m_viewer->setUseConfigureAffinity(false);
     m_viewer->realize();
 
     // This ensures that the widget will receive keyboard events. This focus
