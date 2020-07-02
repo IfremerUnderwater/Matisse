@@ -18,9 +18,9 @@
 #include "AssemblyGui.h"
 #include "SystemDataManager.h"
 #include "ProcessDataManager.h"
-#include "AbstractSshClient.h"
+#include "SshClient.h"
 #include "SshClientStub.h"
-#include "LibSshClient.h"
+#include "QSshClient.h"
 #include "RemoteJobManager.h"
 
 using namespace MatisseServer;
@@ -106,11 +106,12 @@ int main(int argc, char *argv[])
     /* To retrieve from preferences */
     QString host = "51.210.7.224";
     QString username = "matisse";
-    QString password = "toto";
+    QString password = "wdY16kbB";
     SshClientCredentials *creds = new SshClientCredentials(username, password);
 
-//    AbstractSshClient *sshClient = new SshClientStub(host, creds);
-    AbstractSshClient *sshClient = new LibSshClient(host, creds);
+//    SshClient *sshClient = new SshClientStub(host, creds);
+
+    SshClient* sshClient = new QSshClient(host, creds);
     RemoteJobManager remoteJobManager;
     remoteJobManager.setSshClient(sshClient);
 

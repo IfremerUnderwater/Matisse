@@ -43,7 +43,10 @@ add_library(MatisseTools
 
 include_directories(${QUAZIP_INCLUDE_DIRS} MatisseCommon)
 
-target_link_libraries( MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml Qt5::XmlPatterns Qt5::Script ${QUAZIP_LIBRARIES})
+#target_link_libraries( MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml Qt5::XmlPatterns Qt5::Script ${QUAZIP_LIBRARIES})
+target_link_libraries( MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml Qt5::XmlPatterns ${QUAZIP_LIBRARIES})
+
+
 
 # state that anybody linking to us needs to include the current source dir
 target_include_directories(MatisseTools

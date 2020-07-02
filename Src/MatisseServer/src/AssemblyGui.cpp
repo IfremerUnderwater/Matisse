@@ -280,8 +280,9 @@ void AssemblyGui::initUserActions()
     connect(_cloneAssemblyAct, SIGNAL(triggered()), this, SLOT(slot_duplicateAssembly()));
 
     connect(_executeJobAct, SIGNAL(triggered()), this, SLOT(slot_launchJob()));
-    connect(_executeRemoteJobAct, SIGNAL(triggered()), this, SLOT(slot_launchRemoteJob()));
     connect(_goToResultsAct, SIGNAL(triggered()), this, SLOT(slot_goToResult()));
+    connect(_executeRemoteJobAct, SIGNAL(triggered()), this, SLOT(slot_launchRemoteJob()));
+    connect(_uploadDataAct, SIGNAL(triggered()), this, SLOT(slot_uploadJobData()));
     connect(_deleteJobAct, SIGNAL(triggered()), this, SLOT(slot_deleteJob()));
     connect(_archiveJobAct, SIGNAL(triggered()), this, SLOT(slot_archiveJob()));
     connect(_cloneJobAct, SIGNAL(triggered()), this, SLOT(slot_duplicateJob()));
@@ -428,6 +429,8 @@ void AssemblyGui::init()
 
     initServer();
 
+    initRemoteJobManager();
+
     initVersionDisplay();
 
     initParametersWidget();
@@ -454,6 +457,12 @@ void AssemblyGui::init()
 
     dpiScaleWidgets();
 
+}
+
+void AssemblyGui::initRemoteJobManager()
+{
+    _remoteJobManager->setJobLauncher(this);
+    _remoteJobManager->init();
 }
 
 void AssemblyGui::initIconFactory()
@@ -627,6 +636,7 @@ void AssemblyGui::initContextMenus()
     /* Actions pour menu contextuel Tâche */
     _executeJobAct = new QAction(this);
     _executeRemoteJobAct = new QAction(this);
+    _uploadDataAct = new QAction(this);
     _saveJobAct = new QAction(this);
     _cloneJobAct = new QAction(this);
     _exportJobAct = new QAction(this);
@@ -2375,6 +2385,11 @@ void AssemblyGui::slot_addPolylineToMap(basicproc::Polygon polygon_p, QString po
     _userFormWidget->addPolylineToMap(polygon_p, polyColor_p, layerName_p);
 }
 
+void AssemblyGui::slot_sshTransferFinished()
+{
+    _remoteJobManager->scheduleJob();
+}
+
 //void AssemblyGui::slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p)
 //{
 //    _userFormWidget->addQGisPointsToMap(pointsList_p, pointsColor_p, layerName_p);
@@ -3128,6 +3143,8 @@ void AssemblyGui::slot_assemblyContextMenuRequested(const QPoint &pos)
             // show only if job was executed
             contextMenu->addAction(_goToResultsAct);
         }
+        contextMenu->addSeparator();
+        contextMenu->addAction(_uploadDataAct);
         contextMenu->addAction(_executeRemoteJobAct);
         contextMenu->addSeparator();
         contextMenu->addAction(_saveJobAct);
@@ -3327,6 +3344,7 @@ void AssemblyGui::retranslate()
     /* Menu contextuel Tâche */
     _executeJobAct->setText(tr("Run"));
     _executeRemoteJobAct->setText(tr("Run on DATARMOR"));
+    _uploadDataAct->setText(tr("Upload data to DATARMOR"));
     _saveJobAct->setText(tr("Save"));
     _cloneJobAct->setText(tr("Copy"));
     _exportJobAct->setText(tr("Export"));
@@ -3821,6 +3839,42 @@ void AssemblyGui::slot_launchRemoteJob()
     executeExportWorkflow(true, true);
 
     _remoteJobManager->uploadJobFiles(_currentBundleForRemoteExecution);
+}
+
+void AssemblyGui::slot_uploadJobData()
+{
+    qDebug() << "Uploading job data...";
+
+    QFileDialog dialog(this, tr("Select dataset to upload"));
+    dialog.setFileMode(QFileDialog::Directory);
+    
+    if (!dialog.exec()) {
+        qCritical() << "File dialog could no execute";
+        return;
+    }
+    
+    QStringList filenames = dialog.selectedFiles();
+    if (filenames.isEmpty()) {
+        qCritical() << "No dataset folder selected, upload could not be performed";
+        return;
+    }
+
+    QString datasetDirName = filenames.at(0);
+
+    if (datasetDirName.isEmpty()) {
+        qCritical() << "Selected dataset folder name is empty, upload could not be performed";
+        return;
+    }
+
+    QDir datasetDir(datasetDirName);
+    if (!datasetDir.exists()) {
+        qCritical() << QString("Dataset folder %1 does not exist, upload could not be performed").arg(datasetDirName);
+        return;
+    }
+
+    QString datasetDirFinal = datasetDir.canonicalPath();
+
+    _remoteJobManager->uploadDataset(datasetDirFinal);
 }
 
 

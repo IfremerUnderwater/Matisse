@@ -263,6 +263,7 @@ private:
     /* job context menu */
     QAction* _executeJobAct;
     QAction* _executeRemoteJobAct;
+    QAction* _uploadDataAct;
     QAction* _saveJobAct;
     QAction* _cloneJobAct;
     QAction* _exportJobAct;
@@ -287,6 +288,7 @@ private:
     void initProcessWheelSignalling();
     void initUserActions();
     void initServer();
+    void initRemoteJobManager();
     void initAssemblyCreationScene();
     void initWelcomeDialog();
     //bool getAssemblyValues(QString filename, QString  name, bool &valid, KeyValueList & assemblyValues);
@@ -354,6 +356,7 @@ protected slots:
     void slot_swapMapOrCreationView();
     void slot_launchJob();
     void slot_launchRemoteJob();
+    void slot_uploadJobData();
     void slot_stopJob();
     void slot_jobShowImageOnMainView(QString name, Image *image);
     void slot_userInformation(QString userText);
@@ -397,6 +400,7 @@ public slots:
     void slot_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
     void slot_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p);    
     //void slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p);
+    void slot_sshTransferFinished();
 
 signals:
     void signal_processRunning();

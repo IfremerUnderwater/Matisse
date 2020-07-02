@@ -10,8 +10,6 @@
 #include <QMap>
 #include <QHash>
 #include <QStringRef>
-#include <QScriptEngine>
-#include <QScriptValue>
 #include <QSize>
 #include <QRegExp>
 #include <QStringList>

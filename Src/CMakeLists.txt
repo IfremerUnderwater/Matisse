@@ -11,9 +11,11 @@ if(MSVC)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005")
 set(PROJ_LIBS ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/proj.lib)
 set(OPENMVG_INSTALL_PATH ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET})
+set(BOTAN_LIB ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/botan.lib)
 set(D_EXT "dll")
 else(MSVC)
 set(PROJ_LIBS "proj")
+set(BOTAN_LIB "-lbotan")
 set(D_EXT "so")
 endif(MSVC)
 
@@ -46,7 +48,8 @@ add_custom_target(copy_config ALL
 configure_file(MatisseConfig.h.in MatisseConfig.h)
 
 # qt5 also required for Quazip
-find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script OpenGL REQUIRED)
+#find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script OpenGL REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns OpenGL REQUIRED)
 
 find_package( OpenCV REQUIRED )
 
@@ -66,6 +69,7 @@ find_package(ceres REQUIRED)
 find_package(CGAL)
 FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serialization)
 find_package(OpenMVS REQUIRED)
+find_package(QSsh)
 
 # qt
 set(CMAKE_AUTOMOC ON)

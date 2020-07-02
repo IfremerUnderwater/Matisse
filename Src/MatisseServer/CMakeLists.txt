@@ -1,9 +1,10 @@
 # add the executable
 add_executable(MatisseServer
     src/main.cpp
-    src/AbstractSshClient.cpp
+    src/SshClient.cpp
+    src/SshAction.cpp
     src/AssemblyGui.cpp
-	src/LibSshClient.cpp
+    src/QSshClient.cpp
     src/ProcessorWidget.cpp
 	src/RemoteJobManager.cpp
     src/SourceWidget.cpp
@@ -58,9 +59,11 @@ target_link_libraries(MatisseServer PUBLIC
      Qt5::Network
      Qt5::Xml
      Qt5::XmlPatterns
-     Qt5::Script
+ #    Qt5::Script
      Qt5::OpenGL
      GDAL::GDAL
+     QSsh::QSsh
+     ${BOTAN_LIB}
      ${QUAZIP_LIBRARIES}
      ${OPENSCENEGRAPH_LIBRARIES})
 
