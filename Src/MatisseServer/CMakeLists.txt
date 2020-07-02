@@ -1,12 +1,9 @@
 # add the executable
 add_executable(MatisseServer
     src/main.cpp
-    src/SshClient.cpp
-    src/SshAction.cpp
     src/AssemblyGui.cpp
-    src/QSshClient.cpp
     src/ProcessorWidget.cpp
-	src/RemoteJobManager.cpp
+	src/RemoteJobHelper.cpp
     src/SourceWidget.cpp
     src/ElementWidget.cpp
     src/DestinationWidget.cpp
@@ -14,7 +11,6 @@ add_executable(MatisseServer
     src/PipeWidget.cpp
     src/AssemblyDialog.cpp
     src/ExpertFormWidget.cpp
-	src/SshClientStub.cpp
     src/UserFormWidget.cpp
     src/ParametersDialog.cpp
     src/Server.cpp

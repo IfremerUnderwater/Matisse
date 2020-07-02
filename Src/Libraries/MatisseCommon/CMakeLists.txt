@@ -17,12 +17,17 @@ add_library(MatisseCommon
     src/RasterGeoreferencer.cpp
     src/FileUtils.cpp
     src/StringUtils.cpp
+    src/SshClient.cpp
+    src/SshAction.cpp
+    src/SshClientStub.cpp
+    src/QSshClient.cpp
     src/GraphicalCharter.cpp
     src/gdal_translate_wrapper.cpp)
 
 include_directories(${QUAZIP_INCLUDE_DIRS})
 
-target_link_libraries( MatisseCommon BasicProcessing ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml ${QUAZIP_LIBRARIES} GDAL::GDAL ${PROJ_LIBS})
+target_link_libraries( MatisseCommon BasicProcessing ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml QSsh::QSsh
+     ${BOTAN_LIB} ${QUAZIP_LIBRARIES} GDAL::GDAL ${PROJ_LIBS})
 
 # state that anybody linking to us needs to include the current source dir
 target_include_directories(MatisseCommon

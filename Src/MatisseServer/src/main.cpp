@@ -19,12 +19,13 @@
 #include "SystemDataManager.h"
 #include "ProcessDataManager.h"
 #include "SshClient.h"
-#include "SshClientStub.h"
+//#include "SshClientStub.h"
 #include "QSshClient.h"
-#include "RemoteJobManager.h"
+#include "RemoteJobHelper.h"
 
 using namespace MatisseServer;
 using namespace MatisseTools;
+using namespace MatisseCommon;
 
 
 
@@ -104,16 +105,11 @@ int main(int argc, char *argv[])
     ProcessDataManager processDataManager(dataRootDir, userDataPath);
 
     /* To retrieve from preferences */
-    QString host = "51.210.7.224";
-    QString username = "matisse";
-    QString password = "wdY16kbB";
-    SshClientCredentials *creds = new SshClientCredentials(username, password);
+//    SshClient *sshClient = new SshClientStub();
 
-//    SshClient *sshClient = new SshClientStub(host, creds);
-
-    SshClient* sshClient = new QSshClient(host, creds);
-    RemoteJobManager remoteJobManager;
-    remoteJobManager.setSshClient(sshClient);
+    SshClient* sshClient = new QSshClient();
+    RemoteJobHelper remoteJobHelper;
+    remoteJobHelper.setSshClient(sshClient);
 
 
     /* Create main window and set params */
@@ -131,7 +127,7 @@ int main(int argc, char *argv[])
     w.setObjectName("_MW_assemblyGui");
     w.setSystemDataManager(&systemDataManager);
     w.setProcessDataManager(&processDataManager);
-    w.setRemoteJobManager(&remoteJobManager);
+    w.setRemoteJobHelper(&remoteJobHelper);
     w.init();
     w.loadDefaultStyleSheet();
     w.setWindowFlags(Qt::FramelessWindowHint);

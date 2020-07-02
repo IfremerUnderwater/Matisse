@@ -8,7 +8,7 @@
 
 using namespace QSsh;
 
-namespace MatisseServer {
+namespace MatisseCommon {
 
     class QSshClient :
         public SshClient
@@ -16,7 +16,7 @@ namespace MatisseServer {
         Q_OBJECT
 
     public:
-        explicit QSshClient(QString host, MatisseServer::SshClientCredentials* creds, QObject* parent = nullptr);
+        explicit QSshClient(QObject* parent = nullptr);
 
         void connectToHost();
         void disconnectFromHost();

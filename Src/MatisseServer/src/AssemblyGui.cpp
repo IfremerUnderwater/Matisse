@@ -8,7 +8,7 @@
 #include "VisuModeWidget.h"
 #include "OngoingProcessWidget.h"
 #include "GraphicalCharter.h"
-#include "RemoteJobManager.h"
+#include "RemoteJobHelper.h"
 
 using namespace MatisseTools;
 using namespace MatisseServer;
@@ -97,9 +97,9 @@ void AssemblyGui::setProcessDataManager(ProcessDataManager *processDataManager)
     _processDataManager = processDataManager;
 }
 
-void AssemblyGui::setRemoteJobManager(RemoteJobManager *remoteJobManager)
+void AssemblyGui::setRemoteJobHelper(RemoteJobHelper *remoteJobHelper)
 {
-    _remoteJobManager = remoteJobManager;
+    _remoteJobHelper = remoteJobHelper;
 }
 
 void AssemblyGui::initPreferences()
@@ -461,8 +461,8 @@ void AssemblyGui::init()
 
 void AssemblyGui::initRemoteJobManager()
 {
-    _remoteJobManager->setJobLauncher(this);
-    _remoteJobManager->init();
+    _remoteJobHelper->setJobLauncher(this);
+    _remoteJobHelper->init();
 }
 
 void AssemblyGui::initIconFactory()
@@ -2387,7 +2387,7 @@ void AssemblyGui::slot_addPolylineToMap(basicproc::Polygon polygon_p, QString po
 
 void AssemblyGui::slot_sshTransferFinished()
 {
-    _remoteJobManager->scheduleJob();
+    _remoteJobHelper->scheduleJob();
 }
 
 //void AssemblyGui::slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p)
@@ -3838,7 +3838,7 @@ void AssemblyGui::slot_launchRemoteJob()
 
     executeExportWorkflow(true, true);
 
-    _remoteJobManager->uploadJobFiles(_currentBundleForRemoteExecution);
+    _remoteJobHelper->uploadJobFiles(_currentBundleForRemoteExecution);
 }
 
 void AssemblyGui::slot_uploadJobData()
@@ -3874,7 +3874,7 @@ void AssemblyGui::slot_uploadJobData()
 
     QString datasetDirFinal = datasetDir.canonicalPath();
 
-    _remoteJobManager->uploadDataset(datasetDirFinal);
+    _remoteJobHelper->uploadDataset(datasetDirFinal);
 }
 
 

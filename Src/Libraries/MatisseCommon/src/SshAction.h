@@ -3,7 +3,7 @@
 #include <QObject>
 #include "SshClient.h"
 
-namespace MatisseServer {
+namespace MatisseCommon {
 
 	class SshActionManager;
 

@@ -1,6 +1,6 @@
 #include "SshClient.h"
 
-using namespace MatisseServer;
+using namespace MatisseCommon;
 
 SshClientCredentials::SshClientCredentials(QString username, QString password)
 {
@@ -21,22 +21,19 @@ SshActionManager::SshActionManager() {
 
 }
 
-SshClient::SshClient(QString host, SshClientCredentials *creds, QObject *parent) :
+SshClient::SshClient(QObject *parent) :
     SshActionManager(),
-    _host(host),
     m_actionQueue(),
     _currentAction(NULL)
 {
-    _creds = creds;
-
 }
 
-void MatisseServer::SshClient::setConnectionListener(QObject* listener)
+void SshClient::setConnectionListener(QObject* listener)
 {
     _connectionListener = listener;
 }
 
-void MatisseServer::SshClient::addAction(SshAction *action)
+void SshClient::addAction(SshAction *action)
 {
     if (!action->isValid()) {
         qCritical() << "Action type " << action->type() << " cannot be performed, will be skipped";

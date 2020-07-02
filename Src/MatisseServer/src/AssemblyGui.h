@@ -51,7 +51,7 @@
 #include "IconizedTreeItemWrapper.h"
 #include "MatisseTreeItem.h"
 #include "WelcomeDialog.h"
-#include "RemoteJobManager.h"
+#include "RemoteJobHelper.h"
 
 namespace Ui {
 class AssemblyGui;
@@ -121,7 +121,7 @@ public:
 
     void setSystemDataManager(SystemDataManager *systemDataManager);
     void setProcessDataManager(ProcessDataManager *processDataManager);
-    void setRemoteJobManager(RemoteJobManager *remoteJobManager);
+    void setRemoteJobHelper(RemoteJobHelper *remoteJobHelper);
 
     void initMapFeatures();
 private:
@@ -133,7 +133,7 @@ private:
 
     SystemDataManager *_systemDataManager;
     ProcessDataManager *_processDataManager;
-    RemoteJobManager *_remoteJobManager;
+    RemoteJobHelper *_remoteJobHelper;
 
 //    QString _settingsFile;
     QString _appVersion;

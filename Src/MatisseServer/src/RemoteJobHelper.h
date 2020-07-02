@@ -10,6 +10,7 @@
 #include <QDialogButtonBox>
 #include "SshClient.h"
 
+using namespace MatisseCommon;
 
 namespace MatisseServer {
 
@@ -32,11 +33,11 @@ private:
     void setupUi();
 };
 
-class RemoteJobManager : public QObject
+class RemoteJobHelper : public QObject
 {
     Q_OBJECT
 public:
-    explicit RemoteJobManager(QObject *parent = nullptr);
+    explicit RemoteJobHelper(QObject *parent = nullptr);
 
     void init();
 

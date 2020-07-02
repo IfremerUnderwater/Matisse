@@ -6,7 +6,7 @@
 #include <QQueue>
 #include "SshAction.h"
 
-namespace MatisseServer {
+namespace MatisseCommon {
 
 class SshClientCredentials
 {
@@ -86,7 +86,7 @@ public:
 
     Q_ENUM(ErrorCode)
 
-    explicit SshClient(QString host, SshClientCredentials *creds, QObject *parent = nullptr);
+    explicit SshClient(QObject *parent = nullptr);
     virtual void connectToHost() = 0;
     virtual void disconnectFromHost() = 0;
 

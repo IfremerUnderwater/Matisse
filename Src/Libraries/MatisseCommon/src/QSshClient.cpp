@@ -1,10 +1,10 @@
 #include "QSshClient.h"
 #include <QFileInfo>
 
-using namespace MatisseServer;
+using namespace MatisseCommon;
 
-QSshClient::QSshClient(QString host, SshClientCredentials* creds, QObject* parent) :
-    SshClient(host, creds, parent)
+QSshClient::QSshClient(QObject* parent) :
+    SshClient(parent)
 {
 
 }
@@ -61,7 +61,7 @@ void QSshClient::init()
     
 }
 
-void MatisseServer::QSshClient::resume()
+void QSshClient::resume()
 {
     /* Try to reconnect after failed login */
     connectToRemoteHost();

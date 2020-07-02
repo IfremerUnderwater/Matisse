@@ -3,7 +3,7 @@
 #include <QtDebug>
 #include <QFileInfo>
 
-using namespace MatisseServer;
+using namespace MatisseCommon;
 
 SshAction::SshAction(SshActionManager* manager, SshActionType type)
 {
