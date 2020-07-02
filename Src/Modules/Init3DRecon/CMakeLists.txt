@@ -11,15 +11,19 @@ target_link_libraries( Init3DRecon PRIVATE
     ${QUAZIP_LIBRARIES}
     GDAL::GDAL
     ${PROJ_LIBS}
-    GeographicLib::GeographicLib
+    ${GeographicLib_LIBRARIES}
 	OpenMVG::openMVG_system
 	OpenMVG::openMVG_image
     OpenMVG::openMVG_features
     OpenMVG::openMVG_sfm
     OpenMVG::openMVG_exif
-	OpenMVG::openMVG_stlplus)
+	OpenMVG::openMVG_stlplus
+	OpenMVG::vlsift)
 
+# linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(Init3DRecon PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(Init3DRecon PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(Init3DRecon PROPERTIES PREFIX "")
 
 add_custom_command(
  TARGET Init3DRecon POST_BUILD

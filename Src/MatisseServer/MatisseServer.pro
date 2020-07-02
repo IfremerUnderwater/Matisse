@@ -78,7 +78,17 @@ include(../Scripts/OpenSceneGraph.pri)
 SOURCES += src/main.cpp\
     src/AbstractSshClient.cpp \
     src/AssemblyGui.cpp \
-    src/LibSshClient.cpp \
+    src/OSGWidget/area_computation_visitor.cpp \
+    src/OSGWidget/box_visitor.cpp \
+    src/OSGWidget/geometry_type_count_visitor.cpp \
+    src/OSGWidget/kml_handler.cpp \
+    src/OSGWidget/measurement_picker_tool.cpp \
+    src/OSGWidget/minmax_computation_visitor.cpp \
+    src/OSGWidget/osg_widget.cpp \
+    src/OSGWidget/osg_widget_tool.cpp \
+    src/OSGWidget/overlay_widget.cpp \
+    src/OSGWidget/point3d.cpp \
+    src/OSGWidget/shader_color.cpp \
     src/ProcessorWidget.cpp \
     src/RemoteJobManager.cpp \
     src/SourceWidget.cpp \
@@ -108,7 +118,6 @@ SOURCES += src/main.cpp\
     src/ParametersFoldButton.cpp \
     src/ElementWidgetProvider.cpp \
     src/AboutDialog.cpp \
-    src/OSGWidget.cpp \
     src/DuplicateDialog.cpp \
     src/RestoreJobsDialog.cpp \
     src/NetworkCheckDialog.cpp \
@@ -119,7 +128,18 @@ SOURCES += src/main.cpp\
 HEADERS  += \
     src/AbstractSshClient.h \
     src/AssemblyGui.h \
-    src/LibSshClient.h \
+    src/OSGWidget/area_computation_visitor.h \
+    src/OSGWidget/box_visitor.h \
+    src/OSGWidget/geometry_type_count_visitor.h \
+    src/OSGWidget/kml_handler.h \
+    src/OSGWidget/loading_mode.h \
+    src/OSGWidget/measurement_picker_tool.h \
+    src/OSGWidget/minmax_computation_visitor.h \
+    src/OSGWidget/osg_widget.h \
+    src/OSGWidget/osg_widget_tool.h \
+    src/OSGWidget/overlay_widget.h \
+    src/OSGWidget/point3d.h \
+    src/OSGWidget/shader_color.h \
     src/ProcessorWidget.h \
     src/RemoteJobManager.h \
     src/SourceWidget.h \
@@ -149,7 +169,6 @@ HEADERS  += \
     src/ParametersFoldButton.h \
     src/ElementWidgetProvider.h \
     src/AboutDialog.h \
-    src/OSGWidget.h \
     src/DuplicateDialog.h \
     src/RestoreJobsDialog.h \
     src/NetworkCheckDialog.h \

@@ -18,7 +18,10 @@ target_link_libraries( SfmBundleAdjustment
     OpenMVG::openMVG_multiview
 	OpenMVG::openMVG_matching_image_collection)
 
+# linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(SfmBundleAdjustment PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(SfmBundleAdjustment PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(SfmBundleAdjustment PROPERTIES PREFIX "")
 
 add_custom_command(
  TARGET SfmBundleAdjustment POST_BUILD

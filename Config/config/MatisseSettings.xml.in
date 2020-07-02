@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MatisseSettings>
+
+    <!-- Application version : must conform to the 'X.Y.Z' pattern  -->
+    <!-- X : product serie ; Y : major version ; Z : minor version  -->
+    <!-- To be incremented for each product release                 -->
+    <Version>@MatisseProject_VERSION_MAJOR@.@MatisseProject_VERSION_MINOR@.@MatisseProject_VERSION_PATCH@</Version>
+    <!-- Application version date -->
+    <!-- Date>13/06/2016</Date-->
+    <Date>@BUILD_DATE@</Date>
+
+    <DllRootDir>./Modules</DllRootDir>
+    <XmlRootDir>./xml</XmlRootDir>
+    <Port>8888</Port>
+    <DataRootDir>.</DataRootDir>
+    <PlatformDir>./platforms</PlatformDir>
+    <ExternalTools>
+        <ExternalTool name="preprocessingTool" exePath="DataPreprocessingWizard.exe"/>
+    </ExternalTools>
+</MatisseSettings>

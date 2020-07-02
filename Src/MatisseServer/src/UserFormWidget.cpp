@@ -1,16 +1,13 @@
-﻿#define M_PI 3.1415926535
+﻿#ifndef M_PI
+#define M_PI 3.1415926535
+#endif
+
 #include "UserFormWidget.h"
 #include "ui_UserFormWidget.h"
 
 #include "WheelGraphicsView.h"
 
-
-// Qgis 2.99
-//#include <qgssymbol.h>
-//#include <qgssinglesymbolrenderer.h>
-//#include <qgsmaprendererjob.h>
-//#include <qgsmaprenderersequentialjob.h>
-
+#include "OSGWidget/osg_widget.h"
 
 using namespace cv;
 
@@ -23,12 +20,15 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
 {
     _ui->setupUi(this);
 
+    // must be set to open osg files
+    _resultLoadingTask.setOSGWidget(_ui->_OSG_viewer);
+
     // Default view is OpenSceneGraphView
     switchCartoViewTo(OpenSceneGraphView);
 
     _supportedRasterFormat << "tif" << "tiff";
     _supportedVectorFormat << "shp";
-    _supported3DFileFormat << "obj" << "osg" << "ply" << "osgt";
+    _supported3DFileFormat << "obj" << "osg" << "ply" << "osgt" << "kml";
     _supportedImageFormat << "jpg" << "jpeg" << "png";
 
     // Init QAction & Menu
@@ -61,8 +61,8 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     connect(this,SIGNAL(signal_loadRasterFromFile(QString)),&_resultLoadingTask,SLOT(slot_loadRasterFromFile(QString)),Qt::QueuedConnection);
     connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(CartoImage *)), this,SLOT(slot_addRasterToCartoView(CartoImage*)),Qt::QueuedConnection);
     connect(&_resultLoadingTask,SIGNAL(signal_addRasterToImageView(Image *)),this,SLOT(slot_addRasterToImageView(Image *)),Qt::QueuedConnection);
-    connect(this,SIGNAL(signal_load3DSceneFromFile(QString)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString)),Qt::QueuedConnection);
-    connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>)),Qt::QueuedConnection);
+    connect(this,SIGNAL(signal_load3DSceneFromFile(QString,bool)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString,bool)),Qt::QueuedConnection);
+    connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool)),Qt::QueuedConnection);
 
     _resultLoadingTask.moveToThread(&_resultLoadingThread);
     _resultLoadingThread.start();
@@ -521,43 +521,26 @@ void UserFormWidget::loadShapefile(QString filename)
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
 
-//    QFileInfo fileInfo(filename);
-//    QString layerName = fileInfo.fileName();
-//    layerName.chop(4);
-//    QgsVectorLayer * mypLayer = new QgsVectorLayer(filename, layerName, "ogr");
-
-//    if (!mypLayer->isValid()) {
-//        qCritical() << QString("Layer '%1' is NOT valid").arg(layerName);
-//        return;
-//    }
-
-//    qDebug() << QString("Loading layer '%1'...").arg(layerName);
-
-////    mypLayer->setCoordinateSystem();
-
-//    // Add the Vector Layer to the Layer Registry
-//    // Qgis 2.99
-//    //QgsMapLayerRegistry::instance()->addMapLayer(mypLayer, TRUE, TRUE);
-//    QgsProject::instance()->addMapLayer(mypLayer, TRUE, TRUE);
-
-//    // Add the layer to the Layer Set
-//    // Qgis 2.99
-//    //_layers.append(QgsMapCanvasLayer(mypLayer, TRUE));//bool visibility
-//    _players.append(mypLayer);
-
-//    this->updateMapCanvasAndExtent(NULL);
+//    QGis dep removed
 }
 
-void UserFormWidget::load3DFile(QString filename_p)
+void UserFormWidget::load3DFile(QString filename_p, bool remove_previous_scenes_p)
 {
     if (_currentViewType!=OpenSceneGraphView)
         switchCartoViewTo(OpenSceneGraphView);
-    emit signal_load3DSceneFromFile(filename_p);
+    emit signal_load3DSceneFromFile(filename_p, remove_previous_scenes_p);
 }
 
-void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p)
+void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool _remove_previous_scenes)
 {
-    _ui->_OSG_viewer->setSceneData(sceneData_p);
+    _ui->_OSG_viewer->addNodeToScene(sceneData_p);
+    if(_remove_previous_scenes)
+    {
+        for(int i=0; i<_osg_nodes.size(); i++)
+            _ui->_OSG_viewer->removeNodeFromScene(_osg_nodes[i]);
+        _osg_nodes.clear();
+    }
+    _osg_nodes.push_back(sceneData_p);
 }
 
 void UserFormWidget::slot_showMapContextMenu(const QPoint &pos_p)
@@ -593,9 +576,6 @@ void UserFormWidget::slot_onAutoResizeTrigger()
             break;
         }
     }
-
-//    this->updateMapCanvasAndExtent(NULL);
-//    _ui->_GRV_map->refresh();
 
 }
 
@@ -663,9 +643,7 @@ void UserFormWidget::slot_onManualMove()
 
 void UserFormWidget::saveQgisProject(QString filename)
 {
-//    QgsProject * project = QgsProject::instance();
-//    project->setFileName(filename);
-//    project->write();
+//    QGis dep removed
 }
 
 void UserFormWidget::addPolygonToMap(basicproc::Polygon &polygon_p, QString polyInsideColor_p, QString layerName_p){
@@ -677,77 +655,6 @@ void UserFormWidget::addPolygonToMap(basicproc::Polygon &polygon_p, QString poly
 
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
-
-
-//    QgsVectorLayer *polygonLayer;
-//    bool layerAlreadyExists = false;
-//    int i;
-
-//    if (findLayerIndexFromName(layerName_p, i)){
-//        // QGis 2.99
-//        //polygonLayer = (QgsVectorLayer *)_layers.at(i).layer();
-//        polygonLayer = (QgsVectorLayer *)_players.at(i);
-
-//        layerAlreadyExists = true;
-//    }else{
-//        polygonLayer = new QgsVectorLayer("Polygon", layerName_p, "memory");
-//    }
-
-//    QgsVectorDataProvider* polygonLayerp = polygonLayer->dataProvider();
-//    QgsFeatureList feats;
-
-//    // QGis 2.99
-//    //QgsPolyline firstPolyline;
-//    QgsPolylineXY firstPolyline;
-
-//    // QGis 2.99
-//    //QgsPolygon qgsPolygon;
-//    QgsPolygonXY qgsPolygon;
-
-//    for(unsigned int j=0; j<polygon_p.contours()[0].x.size(); j++){
-//        // QGis 2.99
-//        //firstPolyline.append( QgsPoint(polygon_p.contours()[0].x[j],polygon_p.contours()[0].y[j]) );
-//        QgsPoint p(polygon_p.contours()[0].x[j],polygon_p.contours()[0].y[j]);
-//        firstPolyline.append( p );
-//    }
-
-//    qgsPolygon.append(firstPolyline);
-//    QgsFeature feat;
-//    // QGis 2.99
-//    //feat.setGeometry(QgsGeometry::fromPolygon( qgsPolygon ));
-//    feat.setGeometry(QgsGeometry::fromPolygonXY( qgsPolygon ));
-//    feats.append(feat);
-
-//    polygonLayerp->addFeatures(feats);
-//    polygonLayer->updateExtents();
-
-
-//    // Complete properties such as color
-//    QgsStringMap props;
-//    props.insert("color", polyInsideColor_p);
-//    // Qgis 2.99
-//    //QgsFillSymbolV2 *symbol = QgsFillSymbolV2::createSimple(props);
-//    QgsFillSymbol *symbol = QgsFillSymbol::createSimple(props);
-//    // Qgis 2.99
-//    //QgsFeatureRendererV2 *polygonLayerr = new QgsSingleSymbolRendererV2(symbol);
-//    QgsFeatureRenderer *polygonLayerr = new QgsSingleSymbolRenderer(symbol);
-
-//    // Qgis 2.99
-//    //polygonLayer->setRendererV2(polygonLayerr);
-//    polygonLayer->setRenderer(polygonLayerr);
-
-//    // Qgis 2.99
-//    //QgsMapLayerRegistry::instance()->addMapLayer(polygonLayer, TRUE);
-//    QgsProject::instance()->addMapLayer(polygonLayer, TRUE);
-
-//    if(!layerAlreadyExists)
-//    {
-//        // Qgis 2.99
-//        //_layers.append(QgsMapCanvasLayer(polygonLayer, TRUE));
-//        _players.append(polygonLayer);
-//    }
-
-//    this->updateMapCanvasAndExtent(polygonLayer);
 
 }
 
@@ -761,64 +668,6 @@ void UserFormWidget::addPolylineToMap(basicproc::Polygon &polygon_p, QString pol
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
 
-//    QgsVectorLayer *polylineLayer;
-//    bool layerAlreadyExists = false;
-//    int i;
-
-//    if (findLayerIndexFromName(layerName_p, i)){
-//        // Qgis 2.99
-//        //polylineLayer = (QgsVectorLayer *)_layers.at(i).layer();
-//        polylineLayer = (QgsVectorLayer *)_players.at(i);
-
-//        layerAlreadyExists = true;
-//    }else{
-//        polylineLayer = new QgsVectorLayer("LineString", layerName_p, "memory");
-//    }
-
-//    QgsVectorDataProvider* polylineLayerp = polylineLayer->dataProvider();
-//    QgsFeatureList feats;
-
-//    QgsPolyline qgsPolyline;
-
-//    for(unsigned int j=0; j<polygon_p.contours()[0].x.size(); j++){
-//        qgsPolyline.append( QgsPoint(polygon_p.contours()[0].x[j],polygon_p.contours()[0].y[j]) );
-//    }
-//    qgsPolyline.append( QgsPoint(polygon_p.contours()[0].x[0],polygon_p.contours()[0].y[0]) );
-
-//    QgsFeature feat;
-//    feat.setGeometry(QgsGeometry::fromPolyline( qgsPolyline ));
-//    feats.append(feat);
-
-//    polylineLayerp->addFeatures(feats);
-//    polylineLayer->updateExtents();
-
-
-//    // Complete properties such as color
-//    QgsStringMap props;
-//    props.insert("color", polyColor_p);
-//    // Qgis 2.99
-//    //QgsLineSymbolV2 *symbol = QgsLineSymbolV2::createSimple(props);
-//    QgsLineSymbol *symbol = QgsLineSymbol::createSimple(props);
-//    // Qgis 2.99
-//    //QgsFeatureRendererV2 *polygonLayerr = new QgsSingleSymbolRendererV2(symbol);
-//    QgsFeatureRenderer *polygonLayerr = new QgsSingleSymbolRenderer(symbol);
-
-//    // Qgis 2.99
-//    //polylineLayer->setRendererV2(polygonLayerr);
-//    polylineLayer->setRenderer(polygonLayerr);
-
-//    // Qgis 2.99
-//    //QgsMapLayerRegistry::instance()->addMapLayer(polylineLayer, TRUE);
-//    QgsProject::instance()->addMapLayer(polylineLayer, TRUE);
-
-//    if(!layerAlreadyExists)
-//    {
-//        // Qgis 2.99
-//        //_layers.append(QgsMapCanvasLayer(polylineLayer, TRUE));
-//        _players.append(polylineLayer);
-//    }
-
-//    this->updateMapCanvasAndExtent(polylineLayer);
 }
 
 void UserFormWidget::exportMapViewToImage(QString imageFilePath)
@@ -831,176 +680,9 @@ void UserFormWidget::exportMapViewToImage(QString imageFilePath)
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
 
-//    // Qgis 2.99
-//    //QgsMapRenderer renderer;
-//    QgsMapSettings settings;
-//    QList<QgsMapLayer *> layers = _ui->_GRV_map->layers();
-
-//    QStringList layerIds;
-
-//    // Qgis 2.99
-////    foreach (QgsMapLayer *layer, layers) {
-////        layerIds << layer->id();
-////    }
-////    renderer.setLayerSet(layerIds);
-//    settings.setLayers(layers);
-
-//    /* user current canvas extent to render image */
-//    QgsRectangle rect(_ui->_GRV_map->extent());
-//    //Qgis 2.99
-//    //renderer.setExtent(rect);
-//    settings.setExtent(rect);
-
-//    //Qgis 2.99
-//    //renderer.setOutputSize(image.size(), image.logicalDpiX());
-//    settings.setOutputSize(image.size());
-//    settings.setOutputDpi(image.logicalDpiX());
-
-//    //Qgis 2.99
-//    //renderer.render(&painter);
-//    QgsMapRendererSequentialJob renderer(settings);
-//    renderer.start();
-
     image.save(imageFilePath, "png");
 }
 
-//void UserFormWidget::addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString pointsColor_p, QString layerName_p){
-
-//    if (_currentViewType!=QGisMapLayer)
-//        switchCartoViewTo(QGisMapLayer);
-
-//    QgsVectorLayer *pointsLayer;
-//    bool layerAlreadyExists = false;
-//    int i;
-
-//    if (findLayerIndexFromName(layerName_p, i)){
-//        // Qgis 2.99
-//        //pointsLayer = (QgsVectorLayer *)_layers.at(i).layer();
-//        pointsLayer = (QgsVectorLayer *)_players.at(i);
-
-//        layerAlreadyExists = true;
-//    }else{
-//        pointsLayer = new QgsVectorLayer("Point", layerName_p, "memory");
-//    }
-
-//    QgsVectorDataProvider* pointsLayerp = pointsLayer->dataProvider();
-//    QgsFeatureList feats;
-
-//    // Fill feats with points
-//    foreach (QgsPoint point, pointsList_p) {
-//        QgsFeature feat;
-//        // Qgis 2.99
-//        //feat.setGeometry(QgsGeometry::fromPoint( point ));
-//        feat.setGeometry(QgsGeometry::fromPointXY( point ));
-//        feats.append(feat);
-//    }
-
-//    pointsLayerp->addFeatures(feats);
-//    pointsLayer->updateExtents();
-
-//    // Complete properties such as color
-//    QgsStringMap props;
-//    props.insert("name", "square");
-//    props.insert("color", pointsColor_p);
-//    // Qgis 2.99
-//    //QgsMarkerSymbolV2 *symbol = QgsMarkerSymbolV2::createSimple(props);
-//    QgsMarkerSymbol *symbol = QgsMarkerSymbol::createSimple(props);
-//    // Qgis 2.99
-//    //QgsFeatureRendererV2 *pointsLayerr = new QgsSingleSymbolRendererV2(symbol);
-//    QgsFeatureRenderer *pointsLayerr = new QgsSingleSymbolRenderer(symbol);
-
-//    // Qgis 2.99
-//    //pointsLayer->setRendererV2(pointsLayerr);
-//    pointsLayer->setRenderer(pointsLayerr);
-
-//    // Qgis 2.99
-//    //QgsMapLayerRegistry::instance()->addMapLayer(pointsLayer, TRUE);
-//    QgsProject::instance()->addMapLayer(pointsLayer, TRUE);
-
-//    if (!layerAlreadyExists)
-//    {
-//        // Qgis 2.99
-//        //_layers.append(QgsMapCanvasLayer(pointsLayer, TRUE));
-//        _players.append(pointsLayer);
-//    }
-
-//    this->updateMapCanvasAndExtent(pointsLayer);
-
-//}
-
-//void UserFormWidget::loadTestVectorLayer()
-//{
-
-//    if (_currentViewType!=QGisMapLayer)
-//        switchCartoViewTo(QGisMapLayer);
-
-
-//    //QList<QgsMapCanvasLayer> layers;
-//    QgsVectorLayer *v1 = new QgsVectorLayer("Point", "temporary_points", "memory");
-
-//    QgsVectorDataProvider* v1p = v1->dataProvider();
-
-//    /*QList<QgsField> fields;
-//    fields.append(QgsField("name", QVariant::String));
-//    fields.append(QgsField("age", QVariant::Int));
-//    fields.append(QgsField("size", QVariant::Double));
-
-//    v1p->addAttributes(fields);
-//    v1->updateFields();*/
-
-//    QgsFeature feat1;
-//    //Qgis 2.99
-//    //feat1.setGeometry(QgsGeometry::fromPoint(QgsPoint(10,10)));
-//    feat1.setGeometry(QgsGeometry::fromPointXY(QgsPoint(10,10)));
-
-//    /*QgsAttributes attrs;
-//    attrs.append("Johny");
-//    attrs.append(2);
-//    attrs.append(0.3);
-//    feat.setAttributes(attrs);*/
-
-//    QgsFeature feat2;
-//    //Qgis 2.99
-//    //feat2.setGeometry(QgsGeometry::fromPoint(QgsPoint(20,20)));
-//    feat2.setGeometry(QgsGeometry::fromPointXY(QgsPoint(20,20)));
-
-//    QgsFeatureList feats;
-//    feats.append(feat1);
-//    feats.append(feat2);
-//    v1p->addFeatures(feats);
-//    v1->updateExtents();
-
-//    //QgsFeatureRendererV2 *v1r = v1->rendererV2();
-
-
-//    QgsStringMap props;
-//    props.insert("name", "square");
-//    props.insert("color", "red");
-//    //Qgis 2.99
-//    //QgsMarkerSymbolV2 *symbol = QgsMarkerSymbolV2::createSimple(props);
-//    QgsMarkerSymbol *symbol = QgsMarkerSymbol::createSimple(props);
-
-//    //Qgis 2.99
-//    //QgsFeatureRendererV2 *v1r = new QgsSingleSymbolRendererV2(symbol);
-//    QgsFeatureRenderer *v1r = new QgsSingleSymbolRenderer(symbol);
-
-//    //Qgis 2.99
-//    //v1->setRendererV2(v1r);
-//    v1->setRenderer(v1r);
-
-//    //Qgis 2.99
-//    //QgsMapLayerRegistry::instance()->addMapLayer(v1, TRUE);
-//    QgsProject::instance()->addMapLayer(v1, TRUE);
-
-//    //Qgis 2.99
-//   // _layers.append(QgsMapCanvasLayer(v1, TRUE));
-//    _players.append(v1);
-
-//    this->updateMapCanvasAndExtent(NULL);
-
-//    qDebug() << "RENDER VECTOR LAYER !";
-
-//}
 
 void UserFormWidget::loadImageFile(QString filename){
 
@@ -1014,75 +696,6 @@ void UserFormWidget::loadImageFile(QString filename){
 
 }
 
-//void UserFormWidget::updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p)
-//{
-//    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
-
-//    // Merge extents
-//    // Qgis 2.99
-//    //QMap<QString, QgsMapLayer*> layers = QgsMapLayerRegistry::instance()->mapLayers();
-//    QMap<QString, QgsMapLayer*> layers = QgsProject::instance()->mapLayers();
-
-//    QgsRectangle finalExtent, extent;
-//    int i=0;
-
-//    if (_repaintBehaviorState == ExtentAutoResize){
-
-//        foreach (QgsMapLayer* layer, layers.values()) {
-//            if (i==0) {
-//                finalExtent = layer->extent();
-//            }
-//            else {
-//                extent = layer->extent();
-//                // Qgis 2.99
-//                //finalExtent.combineExtentWith(&extent);
-//                finalExtent.combineExtentWith(extent);
-//            }
-//            i++;
-//        }
-
-//        if (finalExtent.width()==0 && layers.size()==1){
-//            finalExtent.setXMinimum(finalExtent.xMinimum()-1.0);
-//            finalExtent.setYMinimum(finalExtent.yMinimum()-1.0);
-//            finalExtent.setXMaximum(finalExtent.xMaximum()+1.0);
-//            finalExtent.setYMaximum(finalExtent.yMaximum()+1.0);
-//        }
-//        mapCanvas->setExtent(finalExtent);
-//    }else if (_repaintBehaviorState == FollowLastItem){
-//        if (currentLayer_p !=NULL){
-//            extent = currentLayer_p->extent();
-
-//            if (extent.width()==0){
-//                extent.setXMinimum(extent.xMinimum()-1.0);
-//                extent.setYMinimum(extent.yMinimum()-1.0);
-//                extent.setXMaximum(extent.xMaximum()+1.0);
-//                extent.setYMaximum(extent.yMaximum()+1.0);
-//            }
-
-//            mapCanvas->setExtent(extent);
-//        }
-//    }else if (_repaintBehaviorState == ManualMove){
-//        // do nothing
-//    }
-
-//    // Qgis 2.99
-//    //mapCanvas->setLayerSet(_layers);
-//    mapCanvas->setLayers(_players);
-
-//    if (currentLayer_p != NULL)
-//        mapCanvas->setCurrentLayer(currentLayer_p);
-
-//    mapCanvas->refresh();
-
-//#ifdef WIN32
-//    mapCanvas->update();
-//#endif
-
-//    this->repaint();
-//    QApplication::processEvents();
-//    QApplication::flush();
-
-//}
 
 bool UserFormWidget::findLayerIndexFromName(const QString &layerName_p, int &idx_p)
 {
@@ -1162,7 +775,6 @@ void UserFormWidget::displayCartoImage(CartoImage *image ){
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
 
-    //qDebug()<< "Channels " << image->imageData()->channels();
     int nbobj = _scene.items().size();
     _scene.addCartoImage(image);
     if(nbobj == 0)
@@ -1185,8 +797,8 @@ void UserFormWidget::slot_mapPanChanged()
     _scene.reloadVisibleImageWithNewScaleFactor(_ui->_GV_view);
 }
 
-// Threaded result file loading task
 
+// Threaded result file loading task
 resultLoadingTask::resultLoadingTask()
 {
 }
@@ -1208,43 +820,14 @@ void resultLoadingTask::slot_loadRasterFromFile(QString filename_p)
 
     emit signal_addRasterToCartoView(image);
 
-//    QgsRasterLayer * rasterLayer = new QgsRasterLayer(filename_p, fileInfo.fileName());
-
-//    if(rasterLayer)
-//    {
-//        if (rasterLayer->isValid())
-//        {
-//            qDebug("QGis raster layer is valid");
-//            emit signal_addRasterToCartoView(rasterLayer);
-//        }
-//        else
-//        {
-//            qDebug("QGis raster layer is NOT valid");
-//            delete rasterLayer;
-//            return;
-//        }
-//    }
-
 }
 
-void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p)
+void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p, bool remove_previous_scenes_p)
 {
     // load the data
     setlocale(LC_ALL, "C");
-    //_loadedModel = osgDB::readRefNodeFile(sceneFile_p, new osgDB::Options("noTriStripPolygons"));
-    osg::ref_ptr<osg::Node> sceneData = osgDB::readRefNodeFile(filename_p.toStdString());
 
-    if (!sceneData)
-    {
-        std::cout << "No 3D data loaded" << std::endl;
-        return;
-    }
+    osg::ref_ptr<osg::Node> node = m_osgwidget->createNodeFromFile(filename_p.toStdString());
 
-    // optimize the scene graph, remove redundant nodes and state etc.
-    osgUtil::Optimizer optimizer;
-    optimizer.optimize(sceneData.get());
-
-    emit signal_add3DSceneToCartoView(sceneData);
+    emit signal_add3DSceneToCartoView(node, remove_previous_scenes_p);
 }
-
-

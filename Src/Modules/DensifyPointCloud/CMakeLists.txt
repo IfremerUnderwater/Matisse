@@ -21,7 +21,10 @@ target_link_libraries( DensifyPointCloud
 	OpenMVG::openMVG_matching_image_collection
 	IO MVS Math Common CGAL::CGAL Boost::filesystem)
 
+# linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(DensifyPointCloud PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(DensifyPointCloud PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(DensifyPointCloud PROPERTIES PREFIX "")
 
 add_custom_command(
  TARGET DensifyPointCloud POST_BUILD

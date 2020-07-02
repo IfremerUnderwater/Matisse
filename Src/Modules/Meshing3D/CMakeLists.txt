@@ -21,7 +21,10 @@ target_link_libraries( Meshing3D
 	OpenMVG::openMVG_matching_image_collection
 	IO MVS Math Common CGAL::CGAL Boost::filesystem)
 
+# linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(Meshing3D PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(Meshing3D PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(Meshing3D PROPERTIES PREFIX "")
 
 add_custom_command(
  TARGET Meshing3D POST_BUILD

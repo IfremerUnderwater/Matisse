@@ -229,7 +229,7 @@ void Meshing3D::onFlush(quint32 port)
         if (rc->current_format == ReconFormat::openMVG)
         {
 
-            QString undist_out_dir_i = scene_dir_i + SEP + "undist_imgs_for_mvs";
+            QString undist_out_dir_i = scene_dir_i + SEP + "undist_imgs";
             QString sfm_data_file = scene_dir_i + SEP + "sfm_data.bin";
 
             // Read the input SfM scene
@@ -262,16 +262,12 @@ void Meshing3D::onFlush(quint32 port)
         emit signal_userInformation("Meshing...");
         emit signal_processCompletion(-1);
 
-        //double decimatearg = _matisseParameters->getDoubleParamValue("algo_param", "decimate_factor", ok);
-        //if(ok)
-        //    cmdline += " --decimate " + QString::number(decimatearg);
-
-        //cmdline +=  " ."+SEP+ m_outdir+QString("_%1").arg(rc->components_ids[i]) +SEP+ m_out_filename_prefix+QString("_%1").arg(rc->components_ids[i]) + "_dense.mvs";
-
-
         emit signal_processCompletion(100);
 
     }
+
+    // complete current file suffix
+    rc->out_file_suffix += "_mesh";
 
     // Flush next module port
     flush(0);

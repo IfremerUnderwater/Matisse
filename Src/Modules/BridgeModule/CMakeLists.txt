@@ -1,8 +1,11 @@
 add_library(BridgeModule SHARED src/BridgeModule.cpp)
 
-target_link_libraries( BridgeModule MatisseCommon BasicProcessing OpticalMapping ${OpenCV_LIBS} Qt5::Core Qt5::Xml Qt5::Widgets ${QUAZIP_LIBRARIES})
-
+# linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(BridgeModule PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(BridgeModule PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(BridgeModule PROPERTIES PREFIX "")
+
+target_link_libraries( BridgeModule MatisseCommon BasicProcessing OpticalMapping ${OpenCV_LIBS} Qt5::Core Qt5::Xml Qt5::Widgets ${QUAZIP_LIBRARIES} GDAL::GDAL ${PROJ_LIBS})
 
 add_custom_command(
  TARGET BridgeModule POST_BUILD
