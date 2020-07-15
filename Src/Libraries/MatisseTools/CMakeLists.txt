@@ -37,7 +37,9 @@ add_library(MatisseTools
     src/IconizedComboBoxItemWrapper.cpp
     src/MatisseTreeItem.cpp
     src/IconizedTreeItemWrapper.cpp
-    src/IconizedActionWrapper.cpp)
+    src/IconizedActionWrapper.cpp
+    src/SshCommand.cpp
+    src/SshCommandPbsQsub.cpp)
 	
 #qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} MatisseTools_fr.ts MatisseTools_en.ts)
 

@@ -10,12 +10,12 @@ SshClientStub::SshClientStub(QObject *parent) :
 
 void SshClientStub::connectToHost()
 {
-    qDebug() << tr("Connecting to host %1 as %2 ...").arg(_host).arg(_creds->username());
+    qDebug() << tr("Connecting to host %1 as %2 ...").arg(m_host).arg(m_creds->username());
 }
 
 void SshClientStub::disconnectFromHost()
 {
-    qDebug() << tr("Disconnecting from host %1 ...").arg(_host);
+    qDebug() << tr("Disconnecting from host %1 ...").arg(m_host);
 }
 
 void SshClientStub::resume()

@@ -104,9 +104,7 @@ int main(int argc, char *argv[])
     QString userDataPath = systemDataManager.getUserDataPath();
     ProcessDataManager processDataManager(dataRootDir, userDataPath);
 
-    /* To retrieve from preferences */
 //    SshClient *sshClient = new SshClientStub();
-
     SshClient* sshClient = new QSshClient();
     RemoteJobHelper remoteJobHelper;
     remoteJobHelper.setSshClient(sshClient);

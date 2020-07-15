@@ -118,6 +118,16 @@ void AssemblyGui::initPreferences()
         _preferences->setProgrammingModeEnabled(false); // By default, programming mode is disabled
         _preferences->setLanguage("FR");
 
+        /* Retrieve local system username as default username for remote execution */
+        QString sysUsername = qEnvironmentVariable("USER");
+        if (sysUsername.isEmpty()) sysUsername = qEnvironmentVariable("USERNAME");
+
+        _preferences->setRemoteServerAddress(_systemDataManager->getDefaultRemoteServerAddress());
+        _preferences->setRemoteUsername(sysUsername);
+        _preferences->setRemoteQueueName(_systemDataManager->getDefaultRemoteQueueName());
+        _preferences->setRemoteDefaultDataPath(_systemDataManager->getDefaultRemoteDataPath());
+        _preferences->setRemoteResultPath(_systemDataManager->getDefaultRemoteResultPath());
+
         _systemDataManager->writeMatissePreferences(PREFERENCES_FILEPATH, *_preferences);
     } else {
         _systemDataManager->readMatissePreferences(PREFERENCES_FILEPATH, *_preferences);
@@ -429,14 +439,14 @@ void AssemblyGui::init()
 
     initServer();
 
-    initRemoteJobManager();
-
     initVersionDisplay();
 
     initParametersWidget();
 
     initPreferences();
 
+    initRemoteJobHelper();
+    
     initAssemblyCreationScene();
 
     initMapFeatures();
@@ -459,9 +469,10 @@ void AssemblyGui::init()
 
 }
 
-void AssemblyGui::initRemoteJobManager()
+void AssemblyGui::initRemoteJobHelper()
 {
     _remoteJobHelper->setJobLauncher(this);
+    _remoteJobHelper->setPreferences(_preferences);
     _remoteJobHelper->init();
 }
 
@@ -1096,6 +1107,9 @@ void AssemblyGui::slot_updatePreferences()
             // reset import / export path (will be reinitialized at runtime)
             _exportPath = "";
             _importPath = "";
+
+            /* recheck preferences for remote job execution */
+            _remoteJobHelper->init();
         }
     }
 

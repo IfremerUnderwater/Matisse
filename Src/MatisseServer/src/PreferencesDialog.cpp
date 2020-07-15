@@ -20,6 +20,12 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFa
     _ui->_LE_defaultMosaicPrefix->setText(_prefs->defaultMosaicFilenamePrefix());
     _ui->_CK_enableProgrammingMode->setChecked(_prefs->programmingModeEnabled());
 
+    _ui->_LE_remoteServerAddress->setText(_prefs->remoteServerAddress());
+    _ui->_LE_remoteUsername->setText(_prefs->remoteUsername());
+    _ui->_LE_remoteQueueName->setText(_prefs->remoteQueueName());
+    _ui->_LE_remoteDefaultDataPath->setText(_prefs->remoteDefaultDataPath());
+    _ui->_LE_remoteResultPath->setText(_prefs->remoteResultPath());
+
     if (!allowProgrammingModeActivation) {
         _ui->_LA_enableProgrammingMode->setEnabled(false);
         _ui->_CK_enableProgrammingMode->setEnabled(false);
@@ -86,6 +92,12 @@ void PreferencesDialog::slot_close()
         _prefs->setDefaultMosaicFilenamePrefix(newMosaicPrefix);
         _prefs->setProgrammingModeEnabled(_ui->_CK_enableProgrammingMode->isChecked());
         _prefs->setLanguage(_ui->_CB_languageSelect->currentText());
+
+        _prefs->setRemoteServerAddress(_ui->_LE_remoteServerAddress->text());
+        _prefs->setRemoteUsername(_ui->_LE_remoteUsername->text());
+        _prefs->setRemoteQueueName(_ui->_LE_remoteQueueName->text());
+        _prefs->setRemoteDefaultDataPath(_ui->_LE_remoteDefaultDataPath->text());
+        _prefs->setRemoteResultPath(_ui->_LE_remoteResultPath->text());
 
         accept();
     }

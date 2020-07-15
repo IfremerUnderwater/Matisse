@@ -1,4 +1,6 @@
-#pragma once
+#ifndef MATISSE_QSSH_CLIENT_H_
+#define MATISSE_QSSH_CLIENT_H_
+
 #include "SshClient.h"
 
 #include "sshconnection.h"
@@ -32,14 +34,6 @@ namespace MatisseCommon {
         void uploadDir(QString localDir, QString remoteBaseDir);
         void processAction();
 
-    private:
-        void connectToRemoteHost();
-        void createSftpChannel();
-        void createRemoteShell(QString& command);
-        void createRemoteProcess(QString& command);
-        void executeCommand();
-        void mapError(QSsh::SshError err);
-
     signals:
 
     protected slots:
@@ -63,16 +57,25 @@ namespace MatisseCommon {
         void onShellClosed(int exitStatus);
 
     private:
-        QString m_localPath;
-        QString m_remotePath;
-        QString m_shellCommand;
+        void connectToRemoteHost();
+        void createSftpChannel();
+        void createRemoteShell(QString& command);
+        void closeRemoteShell();
+        void createRemoteProcess(QString& command);
+        void executeCommand();
+        void mapError(QSsh::SshError err);
+
+        QString m_local_path;
+        QString m_remote_path;
+        QString m_shell_command;
         
         SftpChannel::Ptr m_channel;
         SshRemoteProcess::Ptr m_shell;
         SshConnection* m_connection;
         
-        bool m_isDirUpload;
+        bool m_is_dir_upload;
     };
 
 }
 
+#endif  // MATISSE_QSSH_CLIENT_H_

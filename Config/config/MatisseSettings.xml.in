@@ -14,7 +14,13 @@
     <Port>8888</Port>
     <DataRootDir>.</DataRootDir>
     <PlatformDir>./platforms</PlatformDir>
-    <ExternalTools>
+	<!-- Default preference values for remote execution -->
+	<RemoteServerAddress>51.210.7.224</RemoteServerAddress>
+    <RemoteQueueName>omp</RemoteQueueName>
+	<RemoteDataPath>/home/matisse/datasets</RemoteDataPath>
+	<RemoteResultPath>/home/matisse/results</RemoteResultPath>
+	<!-- External tools definition -->
+	<ExternalTools>
         <ExternalTool name="preprocessingTool" exePath="DataPreprocessingWizard.exe"/>
     </ExternalTools>
 </MatisseSettings>

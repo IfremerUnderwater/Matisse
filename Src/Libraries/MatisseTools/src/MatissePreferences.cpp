@@ -70,6 +70,57 @@ void MatissePreferences::setLastUpdate(const QDateTime &lastUpdate)
 {
     _lastUpdate = lastUpdate;
 }
+
+QString MatissePreferences::remoteServerAddress() const
+{
+    return _remoteServerAddress;
+}
+
+void MatissePreferences::setRemoteServerAddress(const QString& remoteServerAddress)
+{
+    _remoteServerAddress = remoteServerAddress;
+}
+
+QString MatissePreferences::remoteUsername() const
+{
+    return _remoteUsername;
+}
+
+void MatissePreferences::setRemoteUsername(const QString& remoteUsername)
+{
+    _remoteUsername = remoteUsername;
+}
+
+QString MatissePreferences::remoteQueueName() const
+{
+    return _remoteQueueName;
+}
+
+void MatissePreferences::setRemoteQueueName(const QString& remoteQueueName)
+{
+    _remoteQueueName = remoteQueueName;
+}
+
+QString MatissePreferences::remoteDefaultDataPath() const
+{
+    return _remoteDefaultDataPath;
+}
+
+void MatissePreferences::setRemoteDefaultDataPath(const QString& remoteDefaultDataPath)
+{
+    _remoteDefaultDataPath = remoteDefaultDataPath;
+}
+
+QString MatissePreferences::remoteResultPath() const
+{
+    return _remoteResultPath;
+}
+
+void MatissePreferences::setRemoteResultPath(const QString& remoteResultPath)
+{
+    _remoteResultPath = remoteResultPath;
+}
+
 MatissePreferences::MatissePreferences()
 {
     

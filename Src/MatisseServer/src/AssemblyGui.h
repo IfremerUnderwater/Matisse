@@ -288,7 +288,7 @@ private:
     void initProcessWheelSignalling();
     void initUserActions();
     void initServer();
-    void initRemoteJobManager();
+    void initRemoteJobHelper();
     void initAssemblyCreationScene();
     void initWelcomeDialog();
     //bool getAssemblyValues(QString filename, QString  name, bool &valid, KeyValueList & assemblyValues);

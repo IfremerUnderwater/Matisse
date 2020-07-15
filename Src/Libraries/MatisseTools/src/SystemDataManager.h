@@ -35,6 +35,11 @@ public:
     QString getDataRootDir() const;
     QMap<QString, QString> getExternalTools() const;
 
+    QString getDefaultRemoteServerAddress() const { return _defaultRemoteServerAddress; }
+    QString getDefaultRemoteQueueName() const { return _defaultRemoteQueueName; }
+    QString getDefaultRemoteDataPath() const { return _defaultRemoteDataPath; }
+    QString getDefaultRemoteResultPath() const { return _defaultRemoteResultPath; }
+
     bool readMatisseSettings(QString filename);
     bool readMatissePreferences(QString filename, MatissePreferences &prefs);
     bool writeMatissePreferences(QString filename, MatissePreferences &prefs);
@@ -52,6 +57,12 @@ private:
     QString _dataRootDir;
     QString _dllPath;
     QString _platformDumpPath;
+    
+    QString _defaultRemoteServerAddress;
+    QString _defaultRemoteQueueName;
+    QString _defaultRemoteDataPath;
+    QString _defaultRemoteResultPath;
+    
     int _port;
     QString _version;
     QString _platformSummaryFilePath;

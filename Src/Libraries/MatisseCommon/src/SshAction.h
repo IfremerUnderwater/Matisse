@@ -1,6 +1,8 @@
-#pragma once
+#ifndef MATISSE_SSH_ACTION_H_
+#define MATISSE_SSH_ACTION_H_
 
 #include <QObject>
+
 #include "SshClient.h"
 
 namespace MatisseCommon {
@@ -15,22 +17,25 @@ namespace MatisseCommon {
 		enum class SshActionType { UploadFile, DownloadFile, UploadDir, DownloadDir, SendCommand };
 		Q_ENUM(SshActionType)
 
-		SshAction(SshActionManager *manager, SshActionType type);
+		SshAction(SshActionManager *_manager, SshActionType _type);
 
-		SshActionType type() { return _type; }
-		bool isValid() { return _isValid; }
+		SshActionType type() { return m_type; }
+		bool isValid() { return m_is_valid; }
+    bool isTerminated() { return m_is_terminated; }
 
 		virtual void init() = 0;
 		virtual void execute() = 0;
-
-	private:
-		SshActionType _type;
+    void terminate();
 
 	protected:
-		bool _isValid = true;
-		SshActionManager *_manager;
+    virtual void doTerminate()=0;
+		
+		bool m_is_valid = true;
+		bool m_is_terminated = false;
+		SshActionManager *m_manager;
 
-
+	private:
+		SshActionType m_type;
 	};
 
 	class UploadFileAction : public SshAction
@@ -43,6 +48,9 @@ namespace MatisseCommon {
 		void execute();
 		QString localFilePath() { return _localFilePath; }
 		QString remotePath() { return _remotePath; }
+
+	protected:
+    void doTerminate();
 
 	private:
 		QString _localFilePath;
@@ -59,6 +67,9 @@ namespace MatisseCommon {
 		void execute();
 		QString localDir() { return _localDir; }
 		QString remoteBaseDir() { return _remoteBaseDir; }
+
+	protected:
+		void doTerminate();
 
 	private:
 		QString _localDir;
@@ -77,10 +88,14 @@ namespace MatisseCommon {
 		QString setResponse(QString response) { _response = response; }
 		QString response() { return _response; }
 
-	private:
+	protected:
+    void doTerminate();
+
+  private:
 		QString _command;
 		QString _response;
 	};
 
 }
 
+#endif  // MATISSE_SSH_ACTION_H_

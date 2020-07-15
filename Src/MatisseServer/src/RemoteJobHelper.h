@@ -1,36 +1,43 @@
-#ifndef REMOTEJOBMANAGER_H
-#define REMOTEJOBMANAGER_H
+#ifndef MATISSE_REMOTE_JOB_MANAGER_H_
+#define MATISSE_REMOTE_JOB_MANAGER_H_
 
-#include <QObject>
-#include <QtDebug>
-#include <QQueue>
 #include <QDialog>
+#include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QDialogButtonBox>
+#include <QObject>
+#include <QQueue>
+#include <QtDebug>
+
+#include "MatissePreferences.h"
 #include "SshClient.h"
+#include "SshCommand.h"
 
 using namespace MatisseCommon;
 
 namespace MatisseServer {
 
 class PasswordDialog : public QDialog {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit PasswordDialog(QWidget* parent = 0);
+  explicit PasswordDialog(QWidget* parent = 0);
+  void refreshUi();
+  void setUsername(QString _username) { m_username = _username; }
 
 protected slots:
-    void onLoginAccepted();
+  void sl_onLoginAccepted();
 
 signals:
-    void userLogin(QString password);
+  void si_userLogin(QString password);
 
 private:
-    QLabel* _lPassword;
-    QLineEdit* _lePassword;
-    QDialogButtonBox* _bbButtons;
+  QLabel* m_la_password;
+  QLineEdit* m_le_password;
+  QDialogButtonBox* m_bb_buttons;
 
-    void setupUi();
+  QString m_username = "noname";
+
+  void setupUi();
 };
 
 class RemoteJobHelper : public QObject
@@ -48,31 +55,35 @@ public:
 
     void setSshClient(SshClient *sshClient);
     void setJobLauncher(QWidget* jobLauncher);
+    void setPreferences(MatissePreferences *prefs);
 
 signals:
 
-
 private slots:
-    void onTransferFinished();
+  void sl_onTransferFinished();
+  void sl_onShellOutputReceived(SshAction* action, QByteArray output);
+  void sl_onShellErrorReceived(SshAction* action, QByteArray error);
 
 public slots:
-    void onUserLogin(QString password);
-    void onConnectionFailed(SshClient::ErrorCode err);
+  void sl_onUserLogin(QString password);
+  void sl_onConnectionFailed(SshClient::ErrorCode err);
 
 private:
-    QWidget* _jobLauncher = NULL;
-    bool _hostAndCredsKnown = false;
-    SshClient *_sshClient = NULL;
-    QString _host;
-    QString _username;
-    QQueue<SshAction*> m_pendingActionQueue;
+    QWidget* m_job_launcher = NULL;
+    PasswordDialog* m_password_dialog = NULL;
 
-    void _checkHostAndCredentials();
+    bool m_host_and_creds_known = false;
+    SshClient *m_ssh_client = NULL;
+    MatissePreferences* m_prefs = NULL;
+    bool m_is_remote_exec_on = true;
+    QQueue<SshAction*> m_pending_action_queue;
+    QMap<SshAction*, MatisseTools::SshCommand*> m_commands_by_action;
 
-    void _resumeAction();
-
+    void checkHostAndCredentials();
+    bool checkRemoteExecutionActive(QString &customMessage);
+    void resumeAction();
 };
 
 }
 
-#endif // REMOTEJOBMANAGER_H
+#endif // MATISSE_REMOTE_JOB_MANAGER_H_

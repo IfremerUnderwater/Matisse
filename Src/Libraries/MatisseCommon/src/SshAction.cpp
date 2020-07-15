@@ -3,71 +3,86 @@
 #include <QtDebug>
 #include <QFileInfo>
 
-using namespace MatisseCommon;
+namespace MatisseCommon {
 
-SshAction::SshAction(SshActionManager* manager, SshActionType type)
-{
-	_manager = manager;
-	_type = type;
+SshAction::SshAction(SshActionManager* manager, SshActionType type) {
+  m_manager = manager;
+  m_type = type;
 }
 
+void SshAction::terminate() 
+{ 
+  m_is_terminated = true;
 
-UploadFileAction::UploadFileAction(SshActionManager* manager, QString localFilePath, QString remotePath) :
-	SshAction(manager, SshActionType::UploadFile)
-{
-	QFileInfo info(localFilePath);
-
-	if (!info.exists()) {
-		qCritical() << QString("QSshClient: %1 cannot be uploaded : file does not exist").arg(localFilePath);
-		_isValid = false;
-	}
-
-	_localFilePath = info.canonicalFilePath();
-	_remotePath = remotePath + QLatin1Char('/') + info.fileName();
+  /* Command specific termination */
+  doTerminate();
 }
 
-void UploadFileAction::init() {
-	_manager->createSftpChannel();
+UploadFileAction::UploadFileAction(SshActionManager* manager,
+                                   QString localFilePath, QString remotePath)
+    : SshAction(manager, SshActionType::UploadFile) {
+  QFileInfo info(localFilePath);
+
+  if (!info.exists()) {
+    qCritical()
+        << QString("QSshClient: %1 cannot be uploaded : file does not exist")
+               .arg(localFilePath);
+    m_is_valid = false;
+  }
+
+  _localFilePath = info.canonicalFilePath();
+  _remotePath = remotePath + QLatin1Char('/') + info.fileName();
 }
+
+void UploadFileAction::init() { m_manager->createSftpChannel(); }
 
 void UploadFileAction::execute() {
-	_manager->upload(_localFilePath, _remotePath);
+  m_manager->upload(_localFilePath, _remotePath);
 }
 
-UploadDirAction::UploadDirAction(SshActionManager* manager, QString localDir, QString remoteBaseDir) :
-	SshAction(manager, SshActionType::UploadDir)
-{
-	QFileInfo info(localDir);
+void UploadFileAction::doTerminate() {}
 
-	if (!info.exists()) {
-		qCritical() << QString("QSshClient: %1 cannot be uploaded : dir does not exist").arg(localDir);
-		_isValid = false;
-	}
+UploadDirAction::UploadDirAction(SshActionManager* manager, QString localDir,
+                                 QString remoteBaseDir)
+    : SshAction(manager, SshActionType::UploadDir) {
+  QFileInfo info(localDir);
 
-	_localDir = info.canonicalFilePath();
-	_remoteBaseDir = remoteBaseDir;
+  if (!info.exists()) {
+    qCritical() << QString(
+                       "QSshClient: %1 cannot be uploaded : dir does not exist")
+                       .arg(localDir);
+    m_is_valid = false;
+  }
+
+  _localDir = info.canonicalFilePath();
+  _remoteBaseDir = remoteBaseDir;
 }
 
-void UploadDirAction::init() {
-	_manager->createSftpChannel();
-}
+void UploadDirAction::init() { m_manager->createSftpChannel(); }
 
 void UploadDirAction::execute() {
-	_manager->upload(_localDir, _remoteBaseDir, true);
+  m_manager->upload(_localDir, _remoteBaseDir, true);
 }
 
-SendCommandAction::SendCommandAction(SshActionManager* manager, QString commandString) :
-	SshAction(manager, SshActionType::SendCommand), 
-	_command(commandString)
-{
-}
+void UploadDirAction::doTerminate() {}
+
+SendCommandAction::SendCommandAction(SshActionManager* manager,
+                                     QString commandString)
+    : SshAction(manager, SshActionType::SendCommand), _command(commandString) {}
 
 void SendCommandAction::init() {
-	qDebug() << "SendCommandAction init";
-	_manager->createRemoteShell(_command);
+  qDebug() << "SendCommandAction init";
+  m_manager->createRemoteShell(_command);
 }
 
 void SendCommandAction::execute() {
-	qDebug() << "SendCommandAction execute";
-	_manager->executeCommand();
+  qDebug() << "SendCommandAction execute";
+  m_manager->executeCommand();
 }
+
+void SendCommandAction::doTerminate() {
+  qDebug() << "SendCommandAction closing remote shell";
+  m_manager->closeRemoteShell();
+}
+
+}  // namespace MatisseCommon

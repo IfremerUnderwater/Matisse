@@ -23,14 +23,9 @@ SshActionManager::SshActionManager() {
 
 SshClient::SshClient(QObject *parent) :
     SshActionManager(),
-    m_actionQueue(),
-    _currentAction(NULL)
+    m_action_queue(),
+    m_current_action(NULL)
 {
-}
-
-void SshClient::setConnectionListener(QObject* listener)
-{
-    _connectionListener = listener;
 }
 
 void SshClient::addAction(SshAction *action)
@@ -40,18 +35,18 @@ void SshClient::addAction(SshAction *action)
         return;
     }
 
-    m_actionQueue.enqueue(action);
-    if (!_currentAction) {
+    m_action_queue.enqueue(action);
+    if (!m_current_action) {
         processAction();
     }
 }
 
 void SshClient::setHost(QString host)
 {
-    _host = host;
+    m_host = host;
 }
 
 void SshClient::setCredentials(SshClientCredentials* creds)
 {
-    _creds = creds;
+    m_creds = creds;
 }

@@ -62,6 +62,24 @@ bool SystemDataManager::readMatisseSettings(QString filename)
                 _dataRootDir = reader.readElementText();
             }
 
+            /* Default preferences values for remote execution */
+            else if (elementName == "RemoteServerAddress") {
+                _defaultRemoteServerAddress = reader.readElementText();
+            }
+
+            else if (elementName == "RemoteQueueName") {
+                _defaultRemoteQueueName = reader.readElementText();
+            }
+
+            else if (elementName == "RemoteDataPath") {
+                _defaultRemoteDataPath = reader.readElementText();
+            }
+
+            else if (elementName == "RemoteResultPath") {
+                _defaultRemoteResultPath = reader.readElementText();
+            }
+
+            /* External tools definition */
             else if (elementName == "ExternalTool") {
                 QXmlStreamAttributes attributes = reader.attributes();
                 QString toolName = attributes.value("name").toString();
@@ -143,6 +161,22 @@ bool SystemDataManager::readMatissePreferences(QString filename, MatissePreferen
 
             } else if (elementName == "Language") {
                 prefs.setLanguage(reader.readElementText());
+
+            }
+            else if (elementName == "RemoteServerAddress") {
+                prefs.setRemoteServerAddress(reader.readElementText());
+            }
+            else if (elementName == "RemoteUsername") {
+                prefs.setRemoteUsername(reader.readElementText());
+            }
+            else if (elementName == "RemoteQueueName") {
+                prefs.setRemoteQueueName(reader.readElementText());
+            }
+            else if (elementName == "RemoteDefaultDataPath") {
+                prefs.setRemoteDefaultDataPath(reader.readElementText());
+            }
+            else if (elementName == "RemoteResultPath") {
+                prefs.setRemoteResultPath(reader.readElementText());
             }
         }
 
@@ -205,6 +239,26 @@ bool SystemDataManager::writeMatissePreferences(QString filename, MatissePrefere
 
     writer.writeStartElement("Language");
     writer.writeCharacters(prefs.language());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteServerAddress");
+    writer.writeCharacters(prefs.remoteServerAddress());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteUsername");
+    writer.writeCharacters(prefs.remoteUsername());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteQueueName");
+    writer.writeCharacters(prefs.remoteQueueName());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteDefaultDataPath");
+    writer.writeCharacters(prefs.remoteDefaultDataPath());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteResultPath");
+    writer.writeCharacters(prefs.remoteResultPath());
     writer.writeEndElement();
 
     writer.writeEndElement(); // ending start tag

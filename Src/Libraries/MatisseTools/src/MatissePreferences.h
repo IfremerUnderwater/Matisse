@@ -21,6 +21,13 @@ private:
    bool _programmingModeEnabled;
    QString _language;
 
+   /* Remote execution preferences */
+   QString _remoteServerAddress;
+   QString _remoteUsername;
+   QString _remoteQueueName;
+   QString _remoteDefaultDataPath;
+   QString _remoteResultPath;
+
 public:
     MatissePreferences();
     QString importExportPath() const;
@@ -37,6 +44,17 @@ public:
     void setLanguage(const QString &language);
     QDateTime lastUpdate() const;
     void setLastUpdate(const QDateTime &lastUpdate);
+
+    QString remoteServerAddress() const;
+    void setRemoteServerAddress(const QString& remoteServerAddress);
+    QString remoteUsername() const;
+    void setRemoteUsername(const QString& remoteUsername);
+    QString remoteQueueName() const;
+    void setRemoteQueueName(const QString& remoteQueueName);
+    QString remoteDefaultDataPath() const;
+    void setRemoteDefaultDataPath(const QString& remoteDefaultDataPath);
+    QString remoteResultPath() const;
+    void setRemoteResultPath(const QString& remoteResultPath);
 };
 
 #endif // MATISSEPREFERENCES_H
