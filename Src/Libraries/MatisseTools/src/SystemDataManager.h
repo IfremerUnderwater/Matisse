@@ -24,7 +24,7 @@ namespace MatisseTools {
 class SystemDataManager
 {
 public:
-    SystemDataManager();
+    SystemDataManager(QString _bin_root_dir = ".");
 
     int port() const { return _port; }
     QString getUserDataPath() const { return _userDataPath; }
@@ -33,6 +33,7 @@ public:
     QString getPlatformSummaryFilePath() const;
     QString getPlatformEnvDumpFilePath() const;
     QString getDataRootDir() const;
+    QString getBinRootDir() const { return m_bin_root_dir; }
     QMap<QString, QString> getExternalTools() const;
 
     QString getDefaultRemoteServerAddress() const { return _defaultRemoteServerAddress; }
@@ -55,6 +56,7 @@ private:
 
     QString _userDataPath;
     QString _dataRootDir;
+    QString m_bin_root_dir;
     QString _dllPath;
     QString _platformDumpPath;
     

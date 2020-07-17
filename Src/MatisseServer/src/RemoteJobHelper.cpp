@@ -4,6 +4,7 @@
 #include <QGridLayout>
 #include <QtWidgets\qmessagebox.h>
 
+#include "FileUtils.h"
 #include "SshAction.h"
 #include "SshCommandPbsQsub.h"
 
@@ -142,37 +143,81 @@ void RemoteJobHelper::uploadDataset(QString localDatasetDir) {
   SshAction* action = new UploadDirAction(m_ssh_client, localDatasetDir,
                                           "/home/matisse/datasets");
   m_pending_action_queue.enqueue(action);
-  //_sshClient->addAction(action);
   checkHostAndCredentials();
 }
 
-void RemoteJobHelper::uploadJobFiles(QString localJobBundleFile) {
+void RemoteJobHelper::scheduleJob(QString _jobName, QString _localJobBundleFile) {
   if (!checkRemoteExecutionActive(
           tr("cannot schedule job for remote execution."))) {
     return;
   }
 
+  QFileInfo bundle_info(_localJobBundleFile);
+  if (!bundle_info.exists()) 
+  {
+    qCritical() << QString(
+        "Job bundle file '%1' does not exist, cannot schedule job");
+    return;
+  }
+
+  /* Clean and create job export dir */
+  QString remote_out_path = bundle_info.absolutePath();
+  QString job_export_name =
+      _jobName + '_' + m_prefs->remoteUsername();
+  QString job_export_path =
+      remote_out_path + QDir::separator() + job_export_name;
+
+  QDir prev_export_dir(job_export_path);
+  if (prev_export_dir.exists()) 
+  {
+    FileUtils::removeDir(job_export_path);
+  }
+
+  QDir job_export_dir(job_export_path);  
+  job_export_dir.mkpath(job_export_path);
+
+  FileUtils::unzipFiles(_localJobBundleFile, job_export_path);
+
+  QString pbs_template_path =
+      QString("scripts") + QDir::separator() + "template_remote_job.pbs";
+  QFile pbs_template(pbs_template_path);
+
+  if (!pbs_template.exists()) 
+  {
+    qCritical() << QString(
+        "Could not find template PBS script '%1', could not generate script "
+        "for remote execution").arg(pbs_template_path);
+    return;
+  }
+
+  QString target_script_file_name = job_export_name + ".pbs";
+
+  QString target_script_path = 
+      QString(job_export_path) + QDir::separator() + target_script_file_name;
+  pbs_template.copy(target_script_path);
+
   qDebug() << "Uploading job files...";
 
-  /* Prepare action for job file upload  */
+  /* Enqueue action for job bundle upload  */
   SshAction* action =
-      new UploadFileAction(m_ssh_client, localJobBundleFile, "/home/matisse");
+      new UploadDirAction(m_ssh_client, job_export_path, "/home/matisse");
+
   m_pending_action_queue.enqueue(action);
 
   /* Create PBS qsub command */
+  QString remote_script_path =
+      QString("/home/matisse/") + '/' + job_export_name + '/' + target_script_file_name;
   SshCommandPbsQsub* qsub_cmd = new SshCommandPbsQsub();
-  qsub_cmd->arg("/home/matisse/aurelien.job");
+  qsub_cmd->arg(remote_script_path);
   QString qsub_cmd_text = qsub_cmd->fullCommandString();
 
-  /* Prepare action for qsub command */
+  /* Enqueue action for qsub command */
   SshAction* qsub_cmd_action = new SendCommandAction(m_ssh_client, qsub_cmd_text);
   m_commands_by_action.insert(qsub_cmd_action, qsub_cmd);
   m_pending_action_queue.enqueue(qsub_cmd_action);
 
   checkHostAndCredentials();
 }
-
-void RemoteJobHelper::scheduleJob() { qDebug() << "Scheduling job..."; }
 
 void RemoteJobHelper::setSshClient(SshClient* sshClient) {
   if (!sshClient) {

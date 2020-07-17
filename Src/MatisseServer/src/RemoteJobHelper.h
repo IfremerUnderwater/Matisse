@@ -49,8 +49,7 @@ public:
     void init();
 
     void uploadDataset(QString localDatasetDir);
-    void uploadJobFiles(QString localJobBundleFile);
-    void scheduleJob();
+    void scheduleJob(QString _jobName, QString _localJobBundleFile);
     void downloadDataset();
 
     void setSshClient(SshClient *sshClient);

@@ -785,7 +785,12 @@ bool MatisseEngine::loadParametersDictionnary()
 
     qDebug() << "Loading MatisseParametersDictionnary.xsd schema...";
 
-    QFile dicoXsdFile("schemas/MatisseParametersDictionnary.xsd");
+    QString dico_schema_path = _systemDataManager->getBinRootDir() +
+                    QDir::separator() + "schemas" + QDir::separator() +
+                    "MatisseParametersDictionnary.xsd";
+
+    //QFile dicoXsdFile("schemas/MatisseParametersDictionnary.xsd");
+    QFile dicoXsdFile(dico_schema_path);
 
     if (!dicoXsdFile.exists()) {
         qFatal("%s\n",QString("Error finding ").append(dicoXsdFile.fileName()).toStdString().c_str());
@@ -808,7 +813,11 @@ bool MatisseEngine::loadParametersDictionnary()
 
     qDebug() << "Loading dictionnary file...";
 
-    QFile dicoXmlFile("config/MatisseParametersDictionnary.xml");
+    QString dico_path = _systemDataManager->getBinRootDir() +
+                        QDir::separator() + "config" + QDir::separator() +
+                        "MatisseParametersDictionnary.xml";
+    //QFile dicoXmlFile("config/MatisseParametersDictionnary.xml");
+    QFile dicoXmlFile(dico_path);
 
     if (!dicoXmlFile.exists()) {
         qFatal("%s\n",QString("Error finding").append(dicoXmlFile.fileName()).toStdString().c_str());

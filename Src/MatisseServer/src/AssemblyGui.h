@@ -400,7 +400,6 @@ public slots:
     void slot_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
     void slot_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p);    
     //void slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p);
-    void slot_sshTransferFinished();
 
 signals:
     void signal_processRunning();

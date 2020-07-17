@@ -2,9 +2,10 @@
 
 using namespace MatisseTools;
 
-SystemDataManager::SystemDataManager() :
-    _platformDump(NULL),
-    _remotePlatformDump(NULL)
+SystemDataManager::SystemDataManager(QString _bin_root_dir) :
+  _platformDump(NULL),
+  _remotePlatformDump(NULL), 
+  m_bin_root_dir(_bin_root_dir) 
 {
 }
 

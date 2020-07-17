@@ -1,0 +1,7 @@
+#!/bin/bash
+#PBS -l mem=100mb,ncpus=1
+#PBS -q workq
+
+sleep 60
+###echo Hello world > output
+
