@@ -15,6 +15,7 @@
         <Parameter name="video_mode_matching_enable">false</Parameter>
         <!--DensifyPointCloud-->
         <!--ReconstructMesh-->
+        <Parameter name="decimate_factor">1.00</Parameter>
         <!--TexReCon-->
     </Structure>
     <Structure name="cam_param">

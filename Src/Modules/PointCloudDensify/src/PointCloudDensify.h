@@ -6,21 +6,21 @@
 #include "third_party/progress/progress.hpp"
 
 /**
- * DensifyPointCloud
+ * PointCloudDensify
  * @brief  This module get sparse point cloud and densify it using openMVS librarie
  */
-class DensifyPointCloud : public MatisseCommon::Processor, public C_Progress
+class PointCloudDensify : public MatisseCommon::Processor, public C_Progress
 {
     Q_OBJECT
     Q_INTERFACES(MatisseCommon::Processor)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    Q_PLUGIN_METADATA(IID "DensifyPointCloud")
+    Q_PLUGIN_METADATA(IID "PointCloudDensify")
 #endif
 
 public:
-    DensifyPointCloud();
-    ~DensifyPointCloud();
+    PointCloudDensify();
+    ~PointCloudDensify();
     virtual bool configure();
     virtual bool start();
     virtual bool stop();
@@ -56,7 +56,7 @@ private:
     } // display_tic
 
     bool initDensify();
-    bool densifyPointCloud(QString _scene_dir, QString _scene_file);
+    bool DensifyPointCloud(QString _scene_dir, QString _scene_file);
 };
 
 #endif // InitDensifyModule_H

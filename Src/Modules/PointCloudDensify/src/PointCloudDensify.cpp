@@ -1,4 +1,4 @@
-﻿#include "DensifyPointCloud.h"
+﻿#include "PointCloudDensify.h"
 #include "reconstructioncontext.h"
 #include "NavImage.h"
 
@@ -39,11 +39,11 @@ using namespace openMVG::image;
 using namespace openMVG::sfm;
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-Q_EXPORT_PLUGIN2(DensifyPointCloud, DensifyPointCloud)
+Q_EXPORT_PLUGIN2(PointCloudDensify, PointCloudDensify)
 #endif
 
-DensifyPointCloud::DensifyPointCloud() :
-    Processor(NULL, "DensifyPointCloud", "Densify a 3D sparse point cloud", 1, 1)
+PointCloudDensify::PointCloudDensify() :
+    Processor(NULL, "PointCloudDensify", "Densify a 3D sparse point cloud", 1, 1)
 {
 
     addExpectedParameter("dataset_param", "dataset_dir");
@@ -54,16 +54,16 @@ DensifyPointCloud::DensifyPointCloud() :
     addExpectedParameter("algo_param", "number_views_fuse");
 }
 
-DensifyPointCloud::~DensifyPointCloud(){
+PointCloudDensify::~PointCloudDensify(){
 
 }
 
-bool DensifyPointCloud::configure()
+bool PointCloudDensify::configure()
 {
     return true;
 }
 
-void DensifyPointCloud::onNewImage(quint32 port, MatisseCommon::Image &image)
+void PointCloudDensify::onNewImage(quint32 port, MatisseCommon::Image &image)
 {
     Q_UNUSED(port)
 
@@ -72,7 +72,7 @@ void DensifyPointCloud::onNewImage(quint32 port, MatisseCommon::Image &image)
 
 }
 
-bool DensifyPointCloud::initDensify()
+bool PointCloudDensify::initDensify()
 {
     // Default param init
     OPTDENSE::init();
@@ -109,10 +109,10 @@ bool DensifyPointCloud::initDensify()
     return true;
 }
 
-bool DensifyPointCloud::densifyPointCloud(QString _scene_dir, QString _scene_file)
+bool PointCloudDensify::DensifyPointCloud(QString _scene_dir, QString _scene_file)
 {
 
-emit signal_userInformation("DensifyPointCloud - Densify");
+emit signal_userInformation("PointCloudDensify - Densify");
 emit signal_processCompletion(-1);
 
 QFileInfo scene_file_info(_scene_dir + QDir::separator() + _scene_file);
@@ -174,7 +174,7 @@ scene.ExportCamerasMLP(baseFileName + _T(".mlp"), baseFileName + _T(".ply"));
     return false;
 }
 
-bool DensifyPointCloud::start()
+bool PointCloudDensify::start()
 {
     setOkStatus();
 
@@ -194,12 +194,12 @@ bool DensifyPointCloud::start()
     return true;
 }
 
-bool DensifyPointCloud::stop()
+bool PointCloudDensify::stop()
 {
     return true;
 }
 
-void DensifyPointCloud::onFlush(quint32 port)
+void PointCloudDensify::onFlush(quint32 port)
 {
     Q_UNUSED(port)
 
@@ -255,10 +255,10 @@ void DensifyPointCloud::onFlush(quint32 port)
         }
 
         emit signal_processCompletion(-1);
-        emit signal_userInformation("DensifyPointCloud");
+        emit signal_userInformation("PointCloudDensify");
 
         // compute dense scene
-        if (!this->densifyPointCloud(scene_dir_i, m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".mvs") )
+        if (!this->DensifyPointCloud(scene_dir_i, m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".mvs") )
             continue;
 
   
@@ -268,7 +268,7 @@ void DensifyPointCloud::onFlush(quint32 port)
     rc->current_format = ReconFormat::openMVS;
     rc->out_file_suffix = rc->out_file_suffix + "_dense";
 
-    emit signal_userInformation("DensifyPointCloud");
+    emit signal_userInformation("PointCloudDensify");
     emit signal_processCompletion(100);
 
     // Flush next module port
