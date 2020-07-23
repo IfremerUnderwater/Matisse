@@ -76,11 +76,11 @@ int main(int argc, char *argv[])
     /* Clean all temp directories created during previous sessions */
     FileUtils::removeAllTempDirectories();
 
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    if (!env.contains("MATISSE_PATH")) 
-    {
-      qFatal("Environment variable 'MATISSE_PATH' not set");
-    }
+    //QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    //if (!env.contains("MATISSE_PATH")) 
+    //{
+    //  qFatal("Environment variable 'MATISSE_PATH' not set");
+    //}
 
     //QString matisse_bin_path = env.value("MATISSE_PATH");
     QString matisse_bin_path = ".";
@@ -115,7 +115,8 @@ int main(int argc, char *argv[])
     QString settings_path = matisse_bin_path + QDir::separator() + "config" 
       + QDir::separator() + "MatisseSettings.xml";
 
-    SystemDataManager systemDataManager(matisse_bin_path);
+    //SystemDataManager systemDataManager(matisse_bin_path);
+    SystemDataManager systemDataManager;
     //systemDataManager.readMatisseSettings("config/MatisseSettings.xml");
     systemDataManager.readMatisseSettings(settings_path);
     //QString dataRootDir = systemDataManager.getDataRootDir();
