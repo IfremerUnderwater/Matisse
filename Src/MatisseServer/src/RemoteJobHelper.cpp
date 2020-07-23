@@ -2,7 +2,8 @@
 
 #include <QFileInfo>
 #include <QGridLayout>
-#include <QtWidgets\qmessagebox.h>
+//#include <QtWidgets\qmessagebox.h>
+#include <QMessageBox>
 
 #include "FileUtils.h"
 #include "SshAction.h"
