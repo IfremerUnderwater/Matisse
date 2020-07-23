@@ -11,7 +11,7 @@
         <Processor id="99" name="Init3DRecon" order="1"/>
         <Processor id="99" name="Matching3D" order="2"/>
         <Processor id="99" name="SfmBundleAdjustment" order="3"/>
-        <Processor id="99" name="DensifyPointCloud" order="4"/>
+        <Processor id="99" name="PointCloudDensify" order="4"/>
         <Processor id="99" name="Meshing3D" order="5"/>
         <Processor id="99" name="Texturing3D" order="6"/>
     </Processors>
@@ -20,9 +20,9 @@
         <Connection startOrder="0" startLine="0" endOrder="1" endLine="0" color="4288716964"/>
         <Connection startOrder="1" startLine="0" endOrder="2" endLine="0" color="4290822336"/>
         <Connection startOrder="2" startLine="0" endOrder="3" endLine="0" color="4294901760"/>
-        <Connection startOrder="3" startLine="0" endOrder="4" endLine="0" color="4278222848"/>
-        <Connection startOrder="4" startLine="0" endOrder="5" endLine="0" color="4278190208"/>
         <Connection startOrder="5" startLine="0" endOrder="6" endLine="0" color="4278222976"/>
         <Connection startOrder="6" startLine="0" endOrder="7" endLine="0" color="4286578816"/>
+        <Connection startOrder="3" startLine="0" endOrder="4" endLine="0" color="4286611584"/>
+        <Connection startOrder="4" startLine="0" endOrder="5" endLine="0" color="4288716964"/>
     </Connections>
 </MatisseAssembly>

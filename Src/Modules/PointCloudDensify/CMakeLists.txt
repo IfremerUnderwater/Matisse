@@ -1,6 +1,6 @@
-add_library(DensifyPointCloud SHARED src/DensifyPointCloud.cpp)
+add_library(PointCloudDensify SHARED src/PointCloudDensify.cpp)
 
-target_link_libraries( DensifyPointCloud
+target_link_libraries( PointCloudDensify
 	MatisseCommon
 	BasicProcessing
 	${OpenCV_LIBS}
@@ -22,13 +22,13 @@ target_link_libraries( DensifyPointCloud
 	IO MVS Math Common CGAL::CGAL Boost::filesystem)
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
-set_target_properties(DensifyPointCloud PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
-set_target_properties(DensifyPointCloud PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
-set_target_properties(DensifyPointCloud PROPERTIES PREFIX "")
+set_target_properties(PointCloudDensify PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(PointCloudDensify PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(PointCloudDensify PROPERTIES PREFIX "")
 
 add_custom_command(
- TARGET DensifyPointCloud POST_BUILD
- COMMAND ${CMAKE_COMMAND} -E copy ${MATISSE_RUNTIME_ROOT}/DensifyPointCloud.${D_EXT} ${MATISSE_RUNTIME_PROC_MODULES} 
+ TARGET PointCloudDensify POST_BUILD
+ COMMAND ${CMAKE_COMMAND} -E copy ${MATISSE_RUNTIME_ROOT}/PointCloudDensify.${D_EXT} ${MATISSE_RUNTIME_PROC_MODULES} 
  COMMENT "Copying plugin..."
 )
 
