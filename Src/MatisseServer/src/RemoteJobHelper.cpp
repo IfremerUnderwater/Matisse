@@ -256,7 +256,7 @@ void RemoteJobHelper::checkHostAndCredentials() {
   m_password_dialog->show();
 }
 
-bool RemoteJobHelper::checkRemoteExecutionActive(QString& customMessage) {
+bool RemoteJobHelper::checkRemoteExecutionActive(QString customMessage) {
   if (!m_is_remote_exec_on) {
     QMessageBox::warning(m_job_launcher, tr("Remote execution not activated"),
                          tr("Preferences for remote execution are not set, ")

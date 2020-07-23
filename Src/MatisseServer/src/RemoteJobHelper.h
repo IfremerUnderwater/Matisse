@@ -79,7 +79,7 @@ private:
     QMap<SshAction*, MatisseTools::SshCommand*> m_commands_by_action;
 
     void checkHostAndCredentials();
-    bool checkRemoteExecutionActive(QString &customMessage);
+    bool checkRemoteExecutionActive(QString customMessage);
     void resumeAction();
 };
 
