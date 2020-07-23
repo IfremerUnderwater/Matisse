@@ -82,7 +82,9 @@ int main(int argc, char *argv[])
       qFatal("Environment variable 'MATISSE_PATH' not set");
     }
 
-    QString matisse_bin_path = env.value("MATISSE_PATH");
+    //QString matisse_bin_path = env.value("MATISSE_PATH");
+    QString matisse_bin_path = ".";
+    qDebug() << "Bin path : " << QDir(matisse_bin_path).absolutePath();
 
     /* Checking arguments */
     if (argc < 3) 
