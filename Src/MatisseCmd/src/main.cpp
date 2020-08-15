@@ -76,34 +76,33 @@ int main(int argc, char *argv[])
     /* Clean all temp directories created during previous sessions */
     FileUtils::removeAllTempDirectories();
 
-    //QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    //if (!env.contains("MATISSE_PATH")) 
-    //{
-    //  qFatal("Environment variable 'MATISSE_PATH' not set");
-    //}
-
-    //QString matisse_bin_path = env.value("MATISSE_PATH");
     QString matisse_bin_path = ".";
-    qDebug() << "Bin path : " << QDir(matisse_bin_path).absolutePath();
+    qDebug() << "MatisseCmd bin path : " << QDir(matisse_bin_path).absolutePath();
 
     /* Checking arguments */
     if (argc < 3) 
     {
-      qFatal("Usage: MatisseCmd <job root path> <job name>");
+      qFatal("Usage: MatisseCmd <data root path> <job name>");
     }
 
     char *arg_root = argv[1];
-    QString job_root_path(arg_root);
-    QDir job_root_dir(job_root_path);
-    if (!job_root_dir.exists()) 
-    {
-      qFatal(QString("Job directory '%1 not found").arg(job_root_path).toLatin1());
-    }
+    QString data_root_path(arg_root);
+    qDebug() << QString("MatisseCmd arg 1 (data root path) : %1")
+                    .arg(data_root_path);
 
+    QDir data_root_dir(data_root_path);
+    if (!data_root_dir.exists()) 
+    {
+      qFatal(QString("Data root directory '%1 not found").arg(data_root_path).toLatin1());
+    }
+     
     char *arg_job = argv[2];
     QString job_name(arg_job);
-    QString job_xml_path = job_root_path + QDir::separator() + "xml";
-    QString job_file_path = job_xml_path + QDir::separator() + "jobs" +
+    qDebug() << QString("MatisseCmd arg 2 (job name) : %1")
+                    .arg(job_name);
+
+    QString data_xml_path = data_root_path + QDir::separator() + "xml";
+    QString job_file_path = data_xml_path + QDir::separator() + "jobs" +
                             QDir::separator() + job_name + ".xml";
     QFile job_file(job_file_path);
     if (!job_file.exists()) {
@@ -115,14 +114,9 @@ int main(int argc, char *argv[])
     QString settings_path = matisse_bin_path + QDir::separator() + "config" 
       + QDir::separator() + "MatisseSettings.xml";
 
-    //SystemDataManager systemDataManager(matisse_bin_path);
     SystemDataManager systemDataManager;
-    //systemDataManager.readMatisseSettings("config/MatisseSettings.xml");
     systemDataManager.readMatisseSettings(settings_path);
-    //QString dataRootDir = systemDataManager.getDataRootDir();
-    //QString userDataPath = systemDataManager.getUserDataPath();
-    //ProcessDataManager processDataManager(dataRootDir, userDataPath);
-    ProcessDataManager processDataManager(job_root_path, job_xml_path);
+    ProcessDataManager processDataManager(data_root_path, data_xml_path);
 
     /* Create main class and set params */
     JobLauncher jl;
@@ -131,7 +125,6 @@ int main(int argc, char *argv[])
     jl.setProcessDataManager(&processDataManager);
     jl.init();
 
-    //jl.launchJob("bibi");
     jl.launchJob(job_name);
 
     int ret = a.exec();
