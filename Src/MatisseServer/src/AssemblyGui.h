@@ -133,7 +133,7 @@ private:
 
     SystemDataManager *_systemDataManager;
     ProcessDataManager *_processDataManager;
-    RemoteJobHelper *_remoteJobHelper;
+    RemoteJobHelper *m_remote_job_helper;
 
 //    QString _settingsFile;
     QString _appVersion;

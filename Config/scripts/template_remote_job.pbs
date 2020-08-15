@@ -1,7 +1,8 @@
 #!/bin/bash
-#PBS -l mem=100mb,ncpus=1
 #PBS -q workq
+#PBS -l walltime=00:10:00
+#PBS -l mem=500mb
+#PBS -l ncpus=4
 
-sleep 60
-###echo Hello world > output
+singularity exec /home/matisse/singularity/matisse_img_v_1.1.sif /home/matisse/matisse.sh <%path.jobs.root%> <%job.name%>
 

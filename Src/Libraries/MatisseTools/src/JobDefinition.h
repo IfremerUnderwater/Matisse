@@ -31,6 +31,30 @@ private:
     QStringList _resultFileNames;
 };
 
+class RemoteJobDefinition {
+
+public:
+  RemoteJobDefinition() {}
+
+  bool isScheduled() const;
+  void setScheduled(bool _scheduled);
+
+  QString node() const;
+  void setNode(QString _node);
+
+  int jobId() const;
+  void setJobId(int _job_id);
+
+  QDateTime timestamp() const;
+  void setTimestamp(QDateTime _timestamp);
+
+private:
+  bool m_is_scheduled = false;
+  QString m_node;
+  int m_job_id = -1;
+  QDateTime m_timestamp;
+};
+
 class JobDefinition
 {
 public:
@@ -53,6 +77,9 @@ public:
     ExecutionDefinition *executionDefinition() const;
     void setExecutionDefinition(ExecutionDefinition *executionDefinition);
 
+    RemoteJobDefinition* remoteJobDefinition() const;
+    void setRemoteJobDefinition(RemoteJobDefinition* _remote_job_definition);
+
     JobDefinition *duplicate(QString newName, QString newFileName);
 
 private:
@@ -62,6 +89,7 @@ private:
     QString _assemblyName;
     QString _assemblyVersion;
     ExecutionDefinition *_executionDefinition;
+    RemoteJobDefinition* m_remote_job_definition;
 };
 }
 

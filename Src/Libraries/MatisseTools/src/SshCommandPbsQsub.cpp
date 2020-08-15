@@ -40,11 +40,15 @@ void SshCommandPbsQsub::checkExecuted()
         } 
 
         QString job_id_str = match.captured(1);
-        QString pbs_server = match.captured(2);
+        QString pbs_node = match.captured(2);
 
 				qDebug() << QString("Job scheduled with id %1 on server %2")
                         .arg(job_id_str)
-                        .arg(pbs_server);
+                        .arg(pbs_node);
+        
+        m_job_id = job_id_str.toInt();
+        m_node = pbs_node;
+        
         m_is_executed = true;
         break;
       }

@@ -2,7 +2,6 @@
 
 #include <QFileInfo>
 #include <QGridLayout>
-//#include <QtWidgets\qmessagebox.h>
 #include <QMessageBox>
 
 #include "FileUtils.h"
@@ -14,7 +13,7 @@ using namespace MatisseTools;
 
 namespace MatisseServer {
 
-PasswordDialog::PasswordDialog(QWidget* parent) : QDialog(parent) {
+PasswordDialog::PasswordDialog(QWidget* _parent) : QDialog(_parent) {
   setupUi();
   setWindowTitle(tr("Remote host login"));
   setModal(true);
@@ -58,8 +57,13 @@ void PasswordDialog::sl_onLoginAccepted() {
   accept();
 }
 
-RemoteJobHelper::RemoteJobHelper(QObject* parent)
-    : QObject(parent), m_pending_action_queue(), m_commands_by_action() {}
+RemoteJobHelper::RemoteJobHelper(QObject* _parent)
+    : QObject(_parent), 
+  m_pending_action_queue(), 
+  m_commands_by_action(),
+      m_jobs_by_command() 
+{
+}
 
 void RemoteJobHelper::init() {
   qDebug() << "RemoteJobHelper init";
@@ -133,27 +137,27 @@ void RemoteJobHelper::init() {
           SLOT(sl_onShellErrorReceived(SshAction*, QByteArray)));
 }
 
-void RemoteJobHelper::uploadDataset(QString localDatasetDir) {
+void RemoteJobHelper::uploadDataset(QString _local_dataset_dir) {
   if (!checkRemoteExecutionActive(
           tr("cannot upload dataset to remote server."))) {
     return;
   }
 
-  qDebug() << QString("Uploading dataset %1...").arg(localDatasetDir);
+  qDebug() << QString("Uploading dataset %1...").arg(_local_dataset_dir);
 
-  SshAction* action = new UploadDirAction(m_ssh_client, localDatasetDir,
+  SshAction* action = new UploadDirAction(m_ssh_client, _local_dataset_dir,
                                           "/home/matisse/datasets");
   m_pending_action_queue.enqueue(action);
   checkHostAndCredentials();
 }
 
-void RemoteJobHelper::scheduleJob(QString _jobName, QString _localJobBundleFile) {
+void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_file) {
   if (!checkRemoteExecutionActive(
           tr("cannot schedule job for remote execution."))) {
     return;
   }
 
-  QFileInfo bundle_info(_localJobBundleFile);
+  QFileInfo bundle_info(_local_job_bundle_file);
   if (!bundle_info.exists()) 
   {
     qCritical() << QString(
@@ -164,7 +168,7 @@ void RemoteJobHelper::scheduleJob(QString _jobName, QString _localJobBundleFile)
   /* Clean and create job export dir */
   QString remote_out_path = bundle_info.absolutePath();
   QString job_export_name =
-      _jobName + '_' + m_prefs->remoteUsername();
+      _job_name + '_' + m_prefs->remoteUsername();
   QString job_export_path =
       remote_out_path + QDir::separator() + job_export_name;
 
@@ -177,8 +181,9 @@ void RemoteJobHelper::scheduleJob(QString _jobName, QString _localJobBundleFile)
   QDir job_export_dir(job_export_path);  
   job_export_dir.mkpath(job_export_path);
 
-  FileUtils::unzipFiles(_localJobBundleFile, job_export_path);
+  FileUtils::unzipFiles(_local_job_bundle_file, job_export_path);
 
+  /* Creating PBS script file from template */
   QString pbs_template_path =
       QString("scripts") + QDir::separator() + "template_remote_job.pbs";
   QFile pbs_template(pbs_template_path);
@@ -197,6 +202,39 @@ void RemoteJobHelper::scheduleJob(QString _jobName, QString _localJobBundleFile)
       QString(job_export_path) + QDir::separator() + target_script_file_name;
   pbs_template.copy(target_script_path);
 
+  /* Substitute script variables */
+  QFile target_script_file(target_script_path);
+  if (!target_script_file.open(QIODevice::ReadOnly |
+                               QIODevice::Text)) {
+    qCritical()
+        << QString("Could not read PBS template script file %1").arg(target_script_path);
+    return;
+  }
+  QTextStream reader(&target_script_file);
+  QString template_text = reader.readAll();
+
+  target_script_file.close();
+
+  QString remote_job_root_path =
+      QString("/home/matisse") + '/' + job_export_name;//  +"xml/jobs";
+
+  QMap<QString, QString> variables;
+  variables.insert("path.jobs.root", remote_job_root_path);
+  variables.insert("job.name", _job_name);
+  QString custom_text = StringUtils::substitutePlaceHolders(template_text, variables);
+
+  /* Force Unix-syle writing (replace CRLF by LF) to ensure compatibility with PBS server */
+  custom_text.remove(QRegularExpression("[\\r]"));
+  if (!target_script_file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+    qCritical()
+        << QString("Could not edit PBS script file %1").arg(target_script_path);
+    return;
+  }
+  QTextStream writer(&target_script_file);
+  writer << custom_text;
+  writer.flush();
+  target_script_file.close();
+
   qDebug() << "Uploading job files...";
 
   /* Enqueue action for job bundle upload  */
@@ -207,10 +245,11 @@ void RemoteJobHelper::scheduleJob(QString _jobName, QString _localJobBundleFile)
 
   /* Create PBS qsub command */
   QString remote_script_path =
-      QString("/home/matisse/") + '/' + job_export_name + '/' + target_script_file_name;
+      QString("/home/matisse") + '/' + job_export_name + '/' + target_script_file_name;
   SshCommandPbsQsub* qsub_cmd = new SshCommandPbsQsub();
   qsub_cmd->arg(remote_script_path);
   QString qsub_cmd_text = qsub_cmd->fullCommandString();
+  m_jobs_by_command.insert(qsub_cmd, _job_name);
 
   /* Enqueue action for qsub command */
   SshAction* qsub_cmd_action = new SendCommandAction(m_ssh_client, qsub_cmd_text);
@@ -228,12 +267,17 @@ void RemoteJobHelper::setSshClient(SshClient* sshClient) {
   m_ssh_client = sshClient;
 }
 
-void RemoteJobHelper::setJobLauncher(QWidget* jobLauncher) {
-  m_job_launcher = jobLauncher;
+void RemoteJobHelper::setJobLauncher(QWidget* _job_launcher) {
+  m_job_launcher = _job_launcher;
 }
 
-void RemoteJobHelper::setPreferences(MatissePreferences* prefs) {
-  m_prefs = prefs;
+void RemoteJobHelper::setPreferences(MatissePreferences* _prefs) {
+  m_prefs = _prefs;
+}
+
+void RemoteJobHelper::setDataManager(ProcessDataManager* _data_manager) 
+{
+  m_data_manager = _data_manager;
 }
 
 void RemoteJobHelper::checkHostAndCredentials() {
@@ -256,11 +300,11 @@ void RemoteJobHelper::checkHostAndCredentials() {
   m_password_dialog->show();
 }
 
-bool RemoteJobHelper::checkRemoteExecutionActive(QString customMessage) {
+bool RemoteJobHelper::checkRemoteExecutionActive(QString _custom_message) {
   if (!m_is_remote_exec_on) {
     QMessageBox::warning(m_job_launcher, tr("Remote execution not activated"),
                          tr("Preferences for remote execution are not set, ")
-                             .append(customMessage));
+                             .append(_custom_message));
 
     return false;
   }
@@ -306,8 +350,45 @@ void RemoteJobHelper::sl_onShellOutputReceived(SshAction* _action,
   {
     qDebug() << QString("Command '%1' complete, terminating action.")
                     .arg(command->fullCommandString());
-    m_commands_by_action.remove(_action);
+
+    /* mark action as terminated now (avoids further signalling) */
     _action->terminate();
+
+    /* If qsub command : signal job scheduled */
+    SshCommandPbsQsub* qsub_cmd = qobject_cast<SshCommandPbsQsub*>(command);
+    if (qsub_cmd) {
+      QString job_name = m_jobs_by_command.value(qsub_cmd);
+
+      QDateTime timestamp = QDateTime::currentDateTime();
+
+      /* Update job file */
+      JobDefinition* job = m_data_manager->getJob(job_name);
+      if (!job) {
+        qCritical() << QString(
+                           "Job '%1' not found, could not update remote "
+                           "execution status")
+                           .arg(job_name);
+        return;
+      }
+
+      job->remoteJobDefinition()->setScheduled(true);
+      job->remoteJobDefinition()->setNode(qsub_cmd->node());
+      job->remoteJobDefinition()->setJobId(qsub_cmd->jobId());
+      job->remoteJobDefinition()->setTimestamp(timestamp);
+
+      m_data_manager->writeJobFile(job, true);
+
+      /* Notify user */
+      QMessageBox::information(
+        m_job_launcher, tr("Remote job scheduling"),
+        tr("Job '%1' has been scheduled for remote execution on node '%2'")
+        .arg(QString(job_name))
+        .arg(qsub_cmd->node()));
+
+      m_jobs_by_command.remove(qsub_cmd);
+    }
+
+    m_commands_by_action.remove(_action);
     delete command;
   }
 }
@@ -337,8 +418,8 @@ void RemoteJobHelper::sl_onShellErrorReceived(SshAction* _action,
   }
 }
 
-void RemoteJobHelper::sl_onConnectionFailed(SshClient::ErrorCode err) {
-  if (err == SshClient::ErrorCode::AuthenticationError) {
+void RemoteJobHelper::sl_onConnectionFailed(SshClient::ErrorCode _err) {
+  if (_err == SshClient::ErrorCode::AuthenticationError) {
     qWarning() << "Authentication to remote host failed, retry login...";
 
     /* Invalidate credentials */
@@ -347,7 +428,7 @@ void RemoteJobHelper::sl_onConnectionFailed(SshClient::ErrorCode err) {
     checkHostAndCredentials();
   }
 
-  QString sshErrorString = QVariant::fromValue(err).toString();
+  QString sshErrorString = QVariant::fromValue(_err).toString();
 
   QMessageBox::warning(
       m_job_launcher, tr("Connection error to remote host"),
@@ -356,10 +437,10 @@ void RemoteJobHelper::sl_onConnectionFailed(SshClient::ErrorCode err) {
           .arg(sshErrorString));
 }
 
-void RemoteJobHelper::sl_onUserLogin(QString password) {
+void RemoteJobHelper::sl_onUserLogin(QString _password) {
   qDebug() << "Login to remote host...";
   SshClientCredentials* creds =
-      new SshClientCredentials(m_prefs->remoteUsername(), password);
+      new SshClientCredentials(m_prefs->remoteUsername(), _password);
   m_ssh_client->setHost(m_prefs->remoteServerAddress());
   m_ssh_client->setCredentials(creds);
   m_host_and_creds_known = true;

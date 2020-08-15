@@ -7,12 +7,20 @@ namespace MatisseTools {
 
 class SshCommandPbsQsub : public SshCommand 
 {
+  Q_OBJECT
 public:
   explicit SshCommandPbsQsub();
+
+  int jobId() { return m_job_id; }
+  QString node() { return m_node; }
 
 protected:
   bool checkArguments();
   void checkExecuted();
+
+private:
+  int m_job_id = -1;
+  QString m_node;
 };
 
 }  // namespace MatisseTools

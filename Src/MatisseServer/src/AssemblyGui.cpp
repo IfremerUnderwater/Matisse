@@ -99,7 +99,7 @@ void AssemblyGui::setProcessDataManager(ProcessDataManager *processDataManager)
 
 void AssemblyGui::setRemoteJobHelper(RemoteJobHelper *remoteJobHelper)
 {
-    _remoteJobHelper = remoteJobHelper;
+    m_remote_job_helper = remoteJobHelper;
 }
 
 void AssemblyGui::initPreferences()
@@ -471,9 +471,10 @@ void AssemblyGui::init()
 
 void AssemblyGui::initRemoteJobHelper()
 {
-    _remoteJobHelper->setJobLauncher(this);
-    _remoteJobHelper->setPreferences(_preferences);
-    _remoteJobHelper->init();
+  m_remote_job_helper->setJobLauncher(this);
+  m_remote_job_helper->setDataManager(_processDataManager);
+  m_remote_job_helper->setPreferences(_preferences);
+  m_remote_job_helper->init();
 }
 
 void AssemblyGui::initIconFactory()
@@ -1109,7 +1110,7 @@ void AssemblyGui::slot_updatePreferences()
             _importPath = "";
 
             /* recheck preferences for remote job execution */
-            _remoteJobHelper->init();
+            m_remote_job_helper->init();
         }
     }
 
@@ -1492,6 +1493,7 @@ void AssemblyGui::slot_launchPreprocessingTool()
     QUrl url = QUrl::fromLocalFile(toolPathFile.absoluteFilePath());
     QDesktopServices::openUrl(url);
 }
+
 
 //void AssemblyGui::slot_launchVideoToImageTool()
 //{
@@ -2969,6 +2971,10 @@ void AssemblyGui::slot_newJob()
     executionDefinition.setExecuted(false);
     newJob.setExecutionDefinition(&executionDefinition);
 
+    RemoteJobDefinition remoteJobDefinition;
+    remoteJobDefinition.setScheduled(false);
+    newJob.setRemoteJobDefinition(&remoteJobDefinition);
+
     if (!_processDataManager->writeJobFile(&newJob)) {
         qCritical() << QString("Job definition file could not be created for new job '%1'").arg(jobName);
         return;
@@ -3848,7 +3854,7 @@ void AssemblyGui::slot_launchRemoteJob()
 
     executeExportWorkflow(true, true);
 
-    _remoteJobHelper->scheduleJob(_currentJob->name(), _currentBundleForRemoteExecution);
+    m_remote_job_helper->scheduleJob(_currentJob->name(), _currentBundleForRemoteExecution);
 }
 
 void AssemblyGui::slot_uploadJobData()
@@ -3884,7 +3890,7 @@ void AssemblyGui::slot_uploadJobData()
 
     QString datasetDirFinal = datasetDir.canonicalPath();
 
-    _remoteJobHelper->uploadDataset(datasetDirFinal);
+    m_remote_job_helper->uploadDataset(datasetDirFinal);
 }
 
 
