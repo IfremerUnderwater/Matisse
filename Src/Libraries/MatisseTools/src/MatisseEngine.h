@@ -44,6 +44,7 @@ public:
     bool isCancelled() const;
 
     void setJobLauncher(QObject *jobLauncher);
+    void setIsServerMode(bool _is_server_mode);
 
 signals:
     void signal_jobShowImageOnMainView(QString jobName, Image *image);
@@ -70,6 +71,7 @@ private:
     MatisseParameters *_assemblyParameters;
     QStringList _resultFileNames;
     volatile bool _isCancelled;
+    bool m_is_server_mode = false;
 };
 
 class MatisseEngine : public QObject
@@ -77,7 +79,7 @@ class MatisseEngine : public QObject
     Q_OBJECT
 
 public:
-    explicit MatisseEngine(QObject *parent = 0);
+    explicit MatisseEngine(QObject *parent = 0, bool _is_server_mode=false);
     virtual ~MatisseEngine();
 
     //bool setSettingsFile(QString settings = "");
@@ -119,6 +121,7 @@ private:
     void setMessageStr(QString messageStr = "", bool error = true);
     bool loadParametersDictionnary();
 
+    bool m_is_server_mode;
     QObject* _jobLauncher;
     SystemDataManager *_systemDataManager;
     ProcessDataManager *_processDataManager;

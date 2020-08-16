@@ -7,9 +7,8 @@ using namespace MatisseTools;
 
 namespace MatisseCmd {
 
-JobLauncher::JobLauncher(QObject *_parent)
-    :
-
+JobLauncher::JobLauncher(QObject *_parent) : 
+      m_engine(_parent, true), // initialize engine as server
       m_current_job(NULL),
       m_current_assembly(NULL),
       m_new_assembly(NULL),

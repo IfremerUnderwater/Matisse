@@ -2,8 +2,9 @@
 
 using namespace MatisseTools;
 
-MatisseEngine::MatisseEngine(QObject *parent) :
-    QObject(parent),
+MatisseEngine::MatisseEngine(QObject *_parent, bool _is_server_mode) :
+    QObject(_parent),
+    m_is_server_mode(_is_server_mode),
     _jobLauncher(NULL),
     _systemDataManager(NULL),
     _processDataManager(NULL),
@@ -359,6 +360,7 @@ bool MatisseEngine::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jo
 
 
     _currentJob = new JobTask(imageProvider, processorList, rasterProvider, jobDefinition, matisseParameters);
+     _currentJob->setIsServerMode(m_is_server_mode);
     _currentJob->setJobLauncher(_jobLauncher);
 
     return true;
@@ -586,17 +588,23 @@ void JobTask::slot_start()
     qDebug() << "Configuration de la source";
     connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    connect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
-    connect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
-    connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
-    connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
-    connect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    connect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+    if (!m_is_server_mode) {
+      connect(_imageProvider, SIGNAL(signal_showInformationMessage(QString, QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString, QString)));
+      connect(_imageProvider, SIGNAL(signal_showErrorMessage(QString, QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString, QString)));
+      connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+      connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+      connect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon, QString, QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon, QString, QString)));
+      connect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon, QString, QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon, QString, QString)));
+    }
 
     ok = _imageProvider->callConfigure(_context, _matParameters);
     if (!ok) {
-        qDebug() << "Error on raster provider configuration";
-        return;
+      /* Bad parameters or dataset not found */
+      qCritical() << "Error on raster provider configuration";
+      if (m_is_server_mode) { // for non-regression with client mode (is there a reason why the task should continue in that case ?) 
+          slot_fatalError();
+      }
+      return;
     }
 
 
@@ -606,25 +614,29 @@ void JobTask::slot_start()
         connect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
         connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-        connect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
-        connect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
         connect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
-        connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
-        connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
-        connect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-        connect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+        if (!m_is_server_mode) {
+          connect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+          connect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+          connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+          connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+          connect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+          connect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+        }
         processor->callConfigure(_context, _matParameters);
     }
 
     qDebug() << "Configuration de la destination";
     connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    connect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
-    connect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
-    connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
-    connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
-    connect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    connect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+    if (!m_is_server_mode) {
+      connect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+      connect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+      connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+      connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+      connect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+      connect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+    }
     ok = _rasterProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -695,12 +707,14 @@ void JobTask::slot_stop()
     // déconnecter tout
     disconnect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     disconnect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    disconnect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
-    disconnect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
-    disconnect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
-    disconnect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
-    disconnect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    disconnect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+    if (!m_is_server_mode) {
+      disconnect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+      disconnect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+      disconnect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+      disconnect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+      disconnect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+      disconnect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+    }
 
     foreach (Processor* processor, _processors) {
         if(!processor->okStatus())
@@ -708,23 +722,27 @@ void JobTask::slot_stop()
         disconnect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
         disconnect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         disconnect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-        disconnect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
-        disconnect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
         disconnect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
-        disconnect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
-        disconnect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
-        disconnect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-        disconnect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+        if (!m_is_server_mode) {
+          disconnect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+          disconnect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+          disconnect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+          disconnect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+          disconnect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+          disconnect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+        }
     }
 
     disconnect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     disconnect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    disconnect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+    if (!m_is_server_mode) {
+      disconnect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+      disconnect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+      disconnect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+      disconnect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+      disconnect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
+      disconnect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _jobLauncher, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
+    }
 
     if(_context != NULL)
     {
@@ -766,6 +784,11 @@ void JobTask::slot_fatalError()
 void JobTask::setJobLauncher(QObject *jobLauncher)
 {
     _jobLauncher = jobLauncher;
+}
+
+void JobTask::setIsServerMode(bool _is_server_mode) 
+{
+  m_is_server_mode = _is_server_mode;
 }
 
 QStringList JobTask::resultFileNames() const
