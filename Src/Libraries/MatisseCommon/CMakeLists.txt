@@ -19,7 +19,6 @@ add_library(MatisseCommon
     src/StringUtils.cpp
     src/SshClient.cpp
     src/SshAction.cpp
-    src/SshClientStub.cpp
     src/QSshClient.cpp
     src/GraphicalCharter.cpp
     src/gdal_translate_wrapper.cpp)

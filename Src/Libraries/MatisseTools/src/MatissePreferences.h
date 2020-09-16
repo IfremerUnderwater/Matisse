@@ -22,11 +22,12 @@ private:
    QString _language;
 
    /* Remote execution preferences */
-   QString _remoteServerAddress;
-   QString _remoteUsername;
-   QString _remoteQueueName;
-   QString _remoteDefaultDataPath;
-   QString _remoteResultPath;
+   QString m_remote_command_server;
+   QString m_remote_file_server;
+   QString m_remote_username;
+   QString m_remote_queue_name;
+   QString m_remote_default_data_path;
+   QString m_remote_result_path;
 
 public:
     MatissePreferences();
@@ -45,16 +46,18 @@ public:
     QDateTime lastUpdate() const;
     void setLastUpdate(const QDateTime &lastUpdate);
 
-    QString remoteServerAddress() const;
-    void setRemoteServerAddress(const QString& remoteServerAddress);
+    QString remoteCommandServer() const;
+    void setRemoteCommandServer(const QString& _remote_command_server);
+    QString remoteFileServer() const;
+    void setRemoteFileServer(const QString& _remote_file_server);
     QString remoteUsername() const;
-    void setRemoteUsername(const QString& remoteUsername);
+    void setRemoteUsername(const QString& _remote_username);
     QString remoteQueueName() const;
-    void setRemoteQueueName(const QString& remoteQueueName);
+    void setRemoteQueueName(const QString& _remote_queue_name);
     QString remoteDefaultDataPath() const;
-    void setRemoteDefaultDataPath(const QString& remoteDefaultDataPath);
+    void setRemoteDefaultDataPath(const QString& _remote_default_data_path);
     QString remoteResultPath() const;
-    void setRemoteResultPath(const QString& remoteResultPath);
+    void setRemoteResultPath(const QString& _remote_result_path);
 };
 
 #endif // MATISSEPREFERENCES_H

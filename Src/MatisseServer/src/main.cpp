@@ -97,6 +97,10 @@ int main(int argc, char *argv[])
     /* Clean all temp directories created during previous sessions */
     FileUtils::removeAllTempDirectories();
 
+    /* Check working directory path */
+    QString matisse_bin_path = ".";
+    qDebug() << "MatisseCmd bin path : " << QDir(matisse_bin_path).absolutePath();
+
     /* Create managers to be injected */
     SystemDataManager systemDataManager;
     systemDataManager.readMatisseSettings("config/MatisseSettings.xml");
@@ -104,11 +108,12 @@ int main(int argc, char *argv[])
     QString userDataPath = systemDataManager.getUserDataPath();
     ProcessDataManager processDataManager(dataRootDir, userDataPath);
 
-//    SshClient *sshClient = new SshClientStub();
-    SshClient* sshClient = new QSshClient();
+    /* Create remote process gateways and UI helper */
+    SshClient* ssh_client = new QSshClient();
+    SshClient* sftp_client = new QSshClient();
     RemoteJobHelper remoteJobHelper;
-    remoteJobHelper.setSshClient(sshClient);
-
+    remoteJobHelper.setSshClient(ssh_client);
+    remoteJobHelper.setSftpClient(sftp_client);
 
     /* Create main window and set params */
     AssemblyGui w;

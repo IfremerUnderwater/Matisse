@@ -1,6 +1,6 @@
 add_library(MatisseTools
-    src/MatisseEngine.cpp
     src/MatisseDictionnaryLabels.h
+    src/MatisseEngine.cpp
     src/ParametersWidgetSkeleton.cpp
     src/KeyValueList.cpp
     src/AssemblyDefinition.cpp
@@ -39,7 +39,9 @@ add_library(MatisseTools
     src/IconizedTreeItemWrapper.cpp
     src/IconizedActionWrapper.cpp
     src/SshCommand.cpp
-    src/SshCommandPbsQsub.cpp)
+    src/SshCommandPbsQsub.cpp
+    src/TreeItem.cpp
+    src/TreeModel.cpp)
 	
 #qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} MatisseTools_fr.ts MatisseTools_en.ts)
 

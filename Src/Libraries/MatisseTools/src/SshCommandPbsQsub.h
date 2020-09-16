@@ -8,6 +8,7 @@ namespace MatisseTools {
 class SshCommandPbsQsub : public SshCommand 
 {
   Q_OBJECT
+
 public:
   explicit SshCommandPbsQsub();
 

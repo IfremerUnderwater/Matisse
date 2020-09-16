@@ -141,8 +141,8 @@ private:
     QString _exportPath;
     QString _importPath;
     QString _archivePath;
-    QString _remoteOutputPath;
-    QString _remoteInputPath;
+    QString m_remote_output_path;
+    QString m_remote_input_path;
 
     MatissePreferences* _preferences;
     QTranslator* _toolsTranslator_en;
@@ -262,8 +262,10 @@ private:
 
     /* job context menu */
     QAction* _executeJobAct;
-    QAction* _executeRemoteJobAct;
-    QAction* _uploadDataAct;
+    QAction* m_execute_remote_job_act;
+    QAction* m_upload_data_act;
+    QAction* m_select_remote_data_act;
+    QAction* m_download_job_results_act;
     QAction* _saveJobAct;
     QAction* _cloneJobAct;
     QAction* _exportJobAct;
@@ -336,6 +338,9 @@ private:
     void checkRemoteDirCreated();
     bool checkArchivePathChange();
 
+    void updateJobStatus(QString _job_name, QTreeWidgetItem* _item,
+                         MessageIndicatorLevel _indicator, QString _message);
+
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
 
@@ -355,8 +360,11 @@ protected slots:
     void slot_newAssembly();
     void slot_swapMapOrCreationView();
     void slot_launchJob();
-    void slot_launchRemoteJob();
-    void slot_uploadJobData();
+    void sl_uploadJobData();
+    void sl_selectRemoteJobData();
+    void sl_launchRemoteJob();
+    void sl_downloadJobResults();
+    void sl_onRemoteJobResultsReceived(QString _job_name);
     void slot_stopJob();
     void slot_jobShowImageOnMainView(QString name, Image *image);
     void slot_userInformation(QString userText);

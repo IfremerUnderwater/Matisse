@@ -22,9 +22,11 @@ public:
   void appendOutputStream(QByteArray _output_stream);
   void appendErrorStream(QByteArray _error_stream);
   bool isExecuted();
+  bool isSuccessfull();
 
   QString output();
   QString error();
+  QString cmdErrorMessage();
 
 protected:
 
@@ -39,9 +41,12 @@ protected:
   bool m_is_valid = false;
   bool m_is_checked = false;
   bool m_is_executed = false;
+  bool m_is_successfull = false;
 
   int m_min_args;
   int m_max_args;
+
+  QString m_cmd_error_msg; // command specific error message (received on standard output channel)
 
 private:
   void checkCompletion();
@@ -54,7 +59,7 @@ private:
   QByteArray m_error_stream;
 
   QString m_output; // raw output string (contains ANSI esc codes)
-  QString m_error;
+  QString m_error; // raw error string received from shell standard error channel
 };
 
 }

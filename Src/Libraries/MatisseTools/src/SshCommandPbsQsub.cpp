@@ -21,6 +21,7 @@ void SshCommandPbsQsub::checkExecuted()
 {
   bool found_echo = false;
   QRegularExpression qsub_id_exp(QString::fromUtf8("^(\\d+)\\.(.*)$"));
+  QRegularExpression qsub_error_exp(QString::fromUtf8("^qsub:(.+)$"));
 
 	for (int i = 0; i < m_output_lines.count(); i++)
 	{
@@ -50,8 +51,30 @@ void SshCommandPbsQsub::checkExecuted()
         m_node = pbs_node;
         
         m_is_executed = true;
+        m_is_successfull = true;
         break;
       }
+
+      /* Looking for command error pattern */
+      match = qsub_error_exp.match(line);
+      if (match.hasMatch()) 
+      {
+        // if last line, skip and wait for prompt
+        if (i == (m_output_lines.count() - 1)) {
+          qDebug() << "Prompt has not been returned yet, waiting...";
+          break;
+        }
+
+        m_cmd_error_msg = match.captured(1);
+
+        qCritical() << QString("Job scheduling failed with msg '%1'")
+                           .arg(line);
+
+        m_is_executed = true;
+        m_is_successfull = false;
+        break;
+      }
+
     }
 
 		if (line.contains(fullCommandString())) 

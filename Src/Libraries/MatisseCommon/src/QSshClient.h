@@ -12,68 +12,78 @@ using namespace QSsh;
 
 namespace MatisseCommon {
 
-    class QSshClient :
-        public SshClient
-    {
-        Q_OBJECT
+class QSshClient :
+    public SshClient
+{
+    Q_OBJECT
 
-    public:
-        explicit QSshClient(QObject* parent = nullptr);
+public:
+    explicit QSshClient(QObject* parent = nullptr);
 
-        void connectToHost();
-        void disconnectFromHost();
-        void resume();
-                
-    //    void download(QString remoteFilePath, QString localPath); // récupérer flux
-    //    QStringList listDirs(QString parentDirPath);
-    //    QStringList listFiles(QString parentDirPath);
-        void init();
+    void connectToHost();
+    void disconnectFromHost();
+    void resume();
+    void init();
 
     protected:
-        void upload(QString localPath, QString remotePath, bool isDirUpload); // récupérer flux
-        void uploadDir(QString localDir, QString remoteBaseDir);
-        void processAction();
+     void upload(QString _local_path, QString _remote_path, bool is_dir_upload);
+     void download(QString _remote_path, QString _local_path, bool _is_dir_upload);
+     void dirContent(QString _remote_dir_path,
+       FileTypeFilters _flags =
+       FileTypeFilter::AllEntries,
+       QStringList _file_filters = QStringList());
 
     signals:
 
     protected slots:
-        void onConnected();
-        void onDisconnected();
-        void clearConnectionAndActionQueue();
-        void onConnectionError(QSsh::SshError);
-        void onChannelInitialized();
-        void onChannelError(const QString& err);
-        void onChannelClosed();
-        void onOpfinished(QSsh::SftpJobId job, const SftpError errorType, const QString& error = QString());
-        void onTransferProgress(QSsh::SftpJobId job, quint64 progress, quint64 total);
+        void sl_onConnected();
+        void sl_onDisconnected();
+        void sl_onConnectionError(QSsh::SshError);
+        void sl_onChannelInitialized();
+        void sl_onChannelError(const QString& err);
+        void sl_onChannelClosed();
+        void sl_onOpfinished(QSsh::SftpJobId job, const SftpError errorType, const QString& error = QString());
+        void sl_onTransferProgress(QSsh::SftpJobId job, quint64 progress, quint64 total);
 
-        void onShellStarted();
-        void onReadyReadStandardOutput();
-        void onReadyReadStandardError();
+        void sl_onShellStarted();
+        void sl_onReadyReadStandardOutput();
+        void sl_onReadyReadStandardError();
         /*
          * Parameter is of type ExitStatus, but we use int because of
          * signal/slot awkwardness (full namespace required).
          */
-        void onShellClosed(int exitStatus);
+        void sl_onShellClosed(int exitStatus);
+        void sl_onFileInfoAvailable(QSsh::SftpJobId job, const QList<QSsh::SftpFileInfo>& fileInfoList); 
 
     private:
+        void processAction();
+        void clearConnectionAndActionQueue();
         void connectToRemoteHost();
         void createSftpChannel();
         void createRemoteShell(QString& command);
         void closeRemoteShell();
-        void createRemoteProcess(QString& command);
         void executeCommand();
-        void mapError(QSsh::SshError err);
+        void startDownloadDir(QString _remote_path, QString _local_path);
+        void reinitProgressIndicators(quint64 _transfer_size, quint32 _matrix_size);
+        void mapConnectionError(QSsh::SshError _err);
+        void mapTransferError(QSsh::SftpError _err);
 
         QString m_local_path;
         QString m_remote_path;
         QString m_shell_command;
+        QList<SshFileInfo*> m_dir_contents_buffer;
+        bool m_dir_contents_received;
+        FileTypeFilters m_file_type_flags;
+        QStringList m_file_filters;
+        quint64 m_current_transfer_size = 0;
+        QVector<quint64> m_progress_matrix;
+        quint64 m_total_received_bytes = 0;
+        int m_last_signalled_progress = 0;
+        quint32 m_progress_offset = 0; // first job id for progress tracking
         
         SftpChannel::Ptr m_channel;
         SshRemoteProcess::Ptr m_shell;
         SshConnection* m_connection;
-        
-        bool m_is_dir_upload;
     };
 
 }

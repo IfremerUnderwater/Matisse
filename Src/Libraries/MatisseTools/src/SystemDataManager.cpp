@@ -64,20 +64,24 @@ bool SystemDataManager::readMatisseSettings(QString filename)
             }
 
             /* Default preferences values for remote execution */
-            else if (elementName == "RemoteServerAddress") {
-                _defaultRemoteServerAddress = reader.readElementText();
+            else if (elementName == "RemoteCommandServer") {
+                m_default_remote_command_server = reader.readElementText();
+            }
+
+            else if (elementName == "RemoteFileServer") {
+                m_default_remote_file_server = reader.readElementText();
             }
 
             else if (elementName == "RemoteQueueName") {
-                _defaultRemoteQueueName = reader.readElementText();
+                m_default_remote_queue_name = reader.readElementText();
             }
 
             else if (elementName == "RemoteDataPath") {
-                _defaultRemoteDataPath = reader.readElementText();
+                m_default_remote_data_path = reader.readElementText();
             }
 
             else if (elementName == "RemoteResultPath") {
-                _defaultRemoteResultPath = reader.readElementText();
+                m_default_remote_result_path = reader.readElementText();
             }
 
             /* External tools definition */
@@ -164,8 +168,11 @@ bool SystemDataManager::readMatissePreferences(QString filename, MatissePreferen
                 prefs.setLanguage(reader.readElementText());
 
             }
-            else if (elementName == "RemoteServerAddress") {
-                prefs.setRemoteServerAddress(reader.readElementText());
+            else if (elementName == "RemoteCommandServer") {
+                prefs.setRemoteCommandServer(reader.readElementText());
+            }
+            else if (elementName == "RemoteFileServer") {
+                prefs.setRemoteFileServer(reader.readElementText());
             }
             else if (elementName == "RemoteUsername") {
                 prefs.setRemoteUsername(reader.readElementText());
@@ -242,8 +249,12 @@ bool SystemDataManager::writeMatissePreferences(QString filename, MatissePrefere
     writer.writeCharacters(prefs.language());
     writer.writeEndElement();
 
-    writer.writeStartElement("RemoteServerAddress");
-    writer.writeCharacters(prefs.remoteServerAddress());
+    writer.writeStartElement("RemoteCommandServer");
+    writer.writeCharacters(prefs.remoteCommandServer());
+    writer.writeEndElement();
+    
+    writer.writeStartElement("RemoteFileServer");
+    writer.writeCharacters(prefs.remoteFileServer());
     writer.writeEndElement();
 
     writer.writeStartElement("RemoteUsername");

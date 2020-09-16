@@ -71,54 +71,64 @@ void MatissePreferences::setLastUpdate(const QDateTime &lastUpdate)
     _lastUpdate = lastUpdate;
 }
 
-QString MatissePreferences::remoteServerAddress() const
+QString MatissePreferences::remoteCommandServer() const
 {
-    return _remoteServerAddress;
+    return m_remote_command_server;
 }
 
-void MatissePreferences::setRemoteServerAddress(const QString& remoteServerAddress)
+void MatissePreferences::setRemoteCommandServer(const QString& _remote_server_address)
 {
-    _remoteServerAddress = remoteServerAddress;
+    m_remote_command_server = _remote_server_address;
+}
+
+QString MatissePreferences::remoteFileServer() const {
+  return m_remote_file_server;
+}
+
+void MatissePreferences::setRemoteFileServer(
+    const QString &_remote_file_server) 
+{
+  m_remote_file_server = _remote_file_server;
 }
 
 QString MatissePreferences::remoteUsername() const
 {
-    return _remoteUsername;
+    return m_remote_username;
 }
 
-void MatissePreferences::setRemoteUsername(const QString& remoteUsername)
+void MatissePreferences::setRemoteUsername(const QString& _remote_username)
 {
-    _remoteUsername = remoteUsername;
+    m_remote_username = _remote_username;
 }
 
 QString MatissePreferences::remoteQueueName() const
 {
-    return _remoteQueueName;
+    return m_remote_queue_name;
 }
 
-void MatissePreferences::setRemoteQueueName(const QString& remoteQueueName)
+void MatissePreferences::setRemoteQueueName(const QString& _remote_queue_name)
 {
-    _remoteQueueName = remoteQueueName;
+    m_remote_queue_name = _remote_queue_name;
 }
 
 QString MatissePreferences::remoteDefaultDataPath() const
 {
-    return _remoteDefaultDataPath;
+    return m_remote_default_data_path;
 }
 
-void MatissePreferences::setRemoteDefaultDataPath(const QString& remoteDefaultDataPath)
+void MatissePreferences::setRemoteDefaultDataPath(const QString& _remote_default_data_path)
 {
-    _remoteDefaultDataPath = remoteDefaultDataPath;
+    m_remote_default_data_path = _remote_default_data_path;
 }
 
 QString MatissePreferences::remoteResultPath() const
 {
-    return _remoteResultPath;
+    return m_remote_result_path;
 }
 
-void MatissePreferences::setRemoteResultPath(const QString& remoteResultPath)
+void MatissePreferences::setRemoteResultPath(const QString& _remote_result_path)
 {
-    _remoteResultPath = remoteResultPath;
+    m_remote_result_path = _remote_result_path;
 }
 
 MatissePreferences::MatissePreferences()

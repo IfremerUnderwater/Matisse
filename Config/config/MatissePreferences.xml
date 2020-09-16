@@ -7,9 +7,10 @@
     <DefaultMosaicFilenamePrefix>MyProcessing</DefaultMosaicFilenamePrefix>
     <ProgrammingModeEnabled>false</ProgrammingModeEnabled>
     <Language>EN</Language>
-    <RemoteServerAddress>51.210.7.224</RemoteServerAddress>
+    <RemoteCommandServer>51.210.7.224</RemoteCommandServer>
+	<RemoteFileServer>51.210.7.224</RemoteFileServer>
     <RemoteUsername>matisse</RemoteUsername>
     <RemoteQueueName>workq</RemoteQueueName>
     <RemoteDefaultDataPath>/home/matisse/datasets</RemoteDefaultDataPath>
-    <RemoteResultPath>/home/matisse.results</RemoteResultPath>
+    <RemoteResultPath>/home/matisse/results</RemoteResultPath>
 </MatissePreferences>

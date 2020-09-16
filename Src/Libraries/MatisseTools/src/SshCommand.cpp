@@ -132,6 +132,8 @@ bool SshCommand::isExecuted()
   return m_is_executed; 
 }
 
+bool SshCommand::isSuccessfull() { return m_is_successfull; }
+
 QString SshCommand::output() 
 {
   if (m_output_stream.isEmpty()) 
@@ -163,6 +165,8 @@ QString SshCommand::error()
   QString error = m_codec->toUnicode(m_error_stream);
   return error;
 }
+
+QString SshCommand::cmdErrorMessage() { return m_cmd_error_msg; }
 
 void SshCommand::checkCompletion() 
 { 

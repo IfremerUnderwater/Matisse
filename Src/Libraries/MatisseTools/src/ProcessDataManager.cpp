@@ -413,7 +413,10 @@ bool ProcessDataManager::writeJobFile(JobDefinition * job, bool overWrite)
     }
 
     QString jobFileFullPath = getJobsBasePath() + QDir::separator() + filename;
+    qDebug() << "Job file full path : " + jobFileFullPath;
 
+    QFileInfo fi(jobFileFullPath);
+    qDebug() << "Job file absolute path : " + fi.absolutePath();
     QFile jobFile(jobFileFullPath);
 
     if (jobFile.exists() && (!overWrite)) {

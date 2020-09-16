@@ -111,10 +111,20 @@ void JobLauncher::sl_processCompletion(quint8 _ret_code) {
 
 void JobLauncher::sl_jobProcessed(QString _job_name, bool _is_canceled) {
   if (_is_canceled) {
-    qDebug() << tr("Job '%1' canceled").arg(_job_name);
+    qDebug() << QString("Job '%1' canceled").arg(_job_name);
     exit(1);
   } else {
-    qDebug() << tr("Job '%1' executed, quitting...").arg(_job_name);
+    bool error = m_engine.errorFlag();
+    if (error) {
+      qCritical() << QString("Job '%1' failed").arg(_job_name);
+      exit(1);
+    }
+
+    qDebug() << QString("Job '%1' executed").arg(_job_name);
+    JobDefinition *job_def = m_process_data_manager->getJob(_job_name);
+    QDateTime now = QDateTime::currentDateTime();
+    job_def->executionDefinition()->setExecutionDate(now);
+    m_process_data_manager->writeJobFile(job_def, true);
     exit(0);
   }
 }

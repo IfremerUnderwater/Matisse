@@ -36,10 +36,11 @@ public:
     QString getBinRootDir() const { return m_bin_root_dir; }
     QMap<QString, QString> getExternalTools() const;
 
-    QString getDefaultRemoteServerAddress() const { return _defaultRemoteServerAddress; }
-    QString getDefaultRemoteQueueName() const { return _defaultRemoteQueueName; }
-    QString getDefaultRemoteDataPath() const { return _defaultRemoteDataPath; }
-    QString getDefaultRemoteResultPath() const { return _defaultRemoteResultPath; }
+    QString getDefaultRemoteCommandServer() const { return m_default_remote_command_server; }
+    QString getDefaultRemoteFileServer() const { return m_default_remote_file_server; }
+    QString getDefaultRemoteQueueName() const { return m_default_remote_queue_name; }
+    QString getDefaultRemoteDataPath() const { return m_default_remote_data_path; }
+    QString getDefaultRemoteResultPath() const { return m_default_remote_result_path; }
 
     bool readMatisseSettings(QString filename);
     bool readMatissePreferences(QString filename, MatissePreferences &prefs);
@@ -60,10 +61,11 @@ private:
     QString _dllPath;
     QString _platformDumpPath;
     
-    QString _defaultRemoteServerAddress;
-    QString _defaultRemoteQueueName;
-    QString _defaultRemoteDataPath;
-    QString _defaultRemoteResultPath;
+    QString m_default_remote_command_server;
+    QString m_default_remote_file_server;
+    QString m_default_remote_queue_name;
+    QString m_default_remote_data_path;
+    QString m_default_remote_result_path;
     
     int _port;
     QString _version;

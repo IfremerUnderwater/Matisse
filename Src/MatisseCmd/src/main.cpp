@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     QDir data_root_dir(data_root_path);
     if (!data_root_dir.exists()) 
     {
-      qFatal(QString("Data root directory '%1 not found").arg(data_root_path).toLatin1());
+      qFatal(QString("Data root directory '%1' not found").arg(data_root_path).toLatin1());
     }
      
     char *arg_job = argv[2];

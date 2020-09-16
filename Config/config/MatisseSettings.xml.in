@@ -15,7 +15,8 @@
     <DataRootDir>.</DataRootDir>
     <PlatformDir>./platforms</PlatformDir>
 	<!-- Default preference values for remote execution -->
-	<RemoteServerAddress>datarmor</RemoteServerAddress>
+	<RemoteCommandServer>datarmor</RemoteCommandServer>
+	<RemoteFileServer>datarmor</RemoteFileServer>
     <RemoteQueueName>omp</RemoteQueueName>
 	<RemoteDataPath>/home/matisse/datasets</RemoteDataPath>
 	<RemoteResultPath>/home/matisse/results</RemoteResultPath>

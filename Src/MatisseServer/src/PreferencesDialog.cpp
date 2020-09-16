@@ -6,7 +6,7 @@ using namespace MatisseServer;
 PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFactory, MatissePreferences *prefs, bool allowProgrammingModeActivation) :
     QDialog(parent),
     _ui(new Ui::PreferencesDialog)
-{
+{ 
     _ui->setupUi(this);
 
     _ui->_CB_languageSelect->addItem("FR");
@@ -20,7 +20,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFa
     _ui->_LE_defaultMosaicPrefix->setText(_prefs->defaultMosaicFilenamePrefix());
     _ui->_CK_enableProgrammingMode->setChecked(_prefs->programmingModeEnabled());
 
-    _ui->_LE_remoteServerAddress->setText(_prefs->remoteServerAddress());
+    _ui->_LE_remoteCommandServerAddress->setText(_prefs->remoteCommandServer());
+    _ui->_LE_remoteFileServerAddress->setText(_prefs->remoteFileServer());
     _ui->_LE_remoteUsername->setText(_prefs->remoteUsername());
     _ui->_LE_remoteQueueName->setText(_prefs->remoteQueueName());
     _ui->_LE_remoteDefaultDataPath->setText(_prefs->remoteDefaultDataPath());
@@ -93,7 +94,8 @@ void PreferencesDialog::slot_close()
         _prefs->setProgrammingModeEnabled(_ui->_CK_enableProgrammingMode->isChecked());
         _prefs->setLanguage(_ui->_CB_languageSelect->currentText());
 
-        _prefs->setRemoteServerAddress(_ui->_LE_remoteServerAddress->text());
+        _prefs->setRemoteCommandServer(_ui->_LE_remoteCommandServerAddress->text());
+        _prefs->setRemoteFileServer(_ui->_LE_remoteFileServerAddress->text());
         _prefs->setRemoteUsername(_ui->_LE_remoteUsername->text());
         _prefs->setRemoteQueueName(_ui->_LE_remoteQueueName->text());
         _prefs->setRemoteDefaultDataPath(_ui->_LE_remoteDefaultDataPath->text());

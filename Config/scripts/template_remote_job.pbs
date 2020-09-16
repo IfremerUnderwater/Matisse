@@ -1,8 +1,21 @@
 #!/bin/bash
-#PBS -q workq
+#PBS -m abe
+#PBS -M <%job.owner.email%>
+#PBS -q <%scheduler.queue.name%>
 #PBS -l walltime=00:10:00
 #PBS -l mem=500mb
 #PBS -l ncpus=4
+#PBS -o <%jobs.root.path%>/<%job.export.name%>.out
+#PBS -e <%jobs.root.path%>/<%job.export.name%>.err
 
-singularity exec /home/matisse/singularity/matisse_img_v_1.1.sif /home/matisse/matisse.sh <%path.jobs.root%> <%job.name%>
+MATISSE_IMG=/home/matisse/singularity/matisse_img_v_1.1.sif
+MATISSE_CMD=~/matisse_script/matisse.sh
+MATISSE_FILES_ROOT=/home/matisse/
+MATISSE_DATASETS_DIR=datasets
+MATISSE_JOBS_DIR=jobs
+MATISSE_RESULTS_DIR=results
+MATISSE_SCRIPT_DIR=matisse
+MATISSE_BIN_PATH=/home/matisse/dev/matisse/Build/Run/Release
+
+singularity exec -B $MATISSE_FILES_ROOT/$MATISSE_SCRIPT_DIR:$HOME/matisse_script -B $MATISSE_BIN_PATH:$HOME/matisse_bin -B $MATISSE_FILES_ROOT/$MATISSE_DATASETS_DIR:$HOME/matisse_data -B $MATISSE_FILES_ROOT/$MATISSE_JOBS_DIR:$HOME/matisse_jobs -B $MATISSE_FILES_ROOT/$MATISSE_RESULTS_DIR:$HOME/matisse_results $MATISSE_IMG $MATISSE_CMD <%jobs.root.path.binding%> <%job.name%>
 

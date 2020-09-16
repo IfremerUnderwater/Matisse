@@ -151,6 +151,10 @@ bool MatisseParameters::loadFile(QString xmlFilename)
             case QXmlStreamReader::StartDocument:
             break;
 
+            case QXmlStreamReader::Comment:
+              // ignore (remove warning "Unknown tag type '7'...")
+              break;
+
             default: {
                 qWarning() << QString("Unknown tag type '%1' found while parsing parameters value").arg(type);
                 _lastErrorStr = "XML file not compliant: format error";

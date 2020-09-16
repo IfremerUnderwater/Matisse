@@ -42,6 +42,8 @@ add_executable(MatisseServer
     src/ElementWidgetProvider.cpp
     src/AboutDialog.cpp
     src/DuplicateDialog.cpp
+    src/RemoteFileDialog.cpp
+    src/RemoteProgressDialog.cpp
     src/RestoreJobsDialog.cpp
     src/NetworkCheckDialog.cpp
     src/CartoScene.cpp

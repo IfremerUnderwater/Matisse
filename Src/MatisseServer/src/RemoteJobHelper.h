@@ -9,8 +9,10 @@
 #include <QQueue>
 #include <QtDebug>
 
+#include "MatisseParametersManager.h"
 #include "MatissePreferences.h"
 #include "ProcessDataManager.h"
+#include "RemoteProgressDialog.h"
 #include "SshClient.h"
 #include "SshCommand.h"
 
@@ -28,9 +30,11 @@ public:
 
 protected slots:
   void sl_onLoginAccepted();
+  void sl_onLoginCanceled();
 
 signals:
   void si_userLogin(QString _password);
+  void si_userLoginCanceled();
 
 private:
   QLabel* m_la_password;
@@ -42,6 +46,10 @@ private:
   void setupUi();
 };
 
+//class RemoteFileProxyModel : public 
+//
+//(QObject* _parent=0)
+
 class RemoteJobHelper : public QObject
 {
     Q_OBJECT
@@ -50,42 +58,65 @@ public:
 
     void init();
 
-    void uploadDataset(QString _local_dataset_dir);
+    void uploadDataset(QString _job_name, QString _local_dataset_dir);
+    void selectRemoteDataset(QString _job_name);
     void scheduleJob(QString _job_name, QString _local_job_bundle_file);
-    void downloadDataset();
+    void downloadResults(QString _job_name);
 
     void setSshClient(SshClient *_ssh_client);
+    void setSftpClient(SshClient *_sftp_client);
     void setJobLauncher(QWidget* _job_launcher);
     void setPreferences(MatissePreferences* _prefs);
     void setDataManager(ProcessDataManager* _data_manager);
+    void setParametersManager(MatisseParametersManager* _param_manager);
+    void setOutputPath(QString _output_path);
+    void setInputPath(QString _input_path);
 
 signals:
+    void si_jobResultsReceived(QString _job_name);
+    void si_transferMessage(QString _new_message);
 
 private slots:
-  void sl_onTransferFinished();
+  void sl_onTransferFinished(SshAction *_action);
+  void sl_onTransferFailed(SshAction* _action, SshClient::TransferError _err);
+  void sl_onDirContentsReceived(QList<SshFileInfo*> _contents);
   void sl_onShellOutputReceived(SshAction* _action, QByteArray _output);
   void sl_onShellErrorReceived(SshAction* _action, QByteArray _error);
 
 public slots:
   void sl_onUserLogin(QString password);
-  void sl_onConnectionFailed(SshClient::ErrorCode _err);
+  void sl_onUserLoginCanceled();
+  void sl_onConnectionFailed(SshClient::ConnectionError _err);
 
 private:
     QWidget* m_job_launcher = NULL;
     PasswordDialog* m_password_dialog = NULL;
+    RemoteProgressDialog* m_progress_dialog = NULL;
     ProcessDataManager* m_data_manager = NULL;
+    MatisseParametersManager* m_param_manager = NULL;
 
     bool m_host_and_creds_known = false;
+    bool m_is_last_action_command = false;
     SshClient *m_ssh_client = NULL;
+    SshClient *m_sftp_client = NULL;
     MatissePreferences* m_prefs = NULL;
+    QString m_output_path;
+    QString m_input_path;
     bool m_is_remote_exec_on = true;
     QQueue<SshAction*> m_pending_action_queue;
     QMap<SshAction*, MatisseTools::SshCommand*> m_commands_by_action;
     QMap<MatisseTools::SshCommand*, QString> m_jobs_by_command;
+    QMap<SshAction*, QString> m_jobs_by_action;
+    QString m_selected_dataset_path;
+    QString m_current_job_name;
 
     void checkHostAndCredentials();
     bool checkRemoteExecutionActive(QString _customMessage);
     void resumeAction();
+    void updateJobParameters(QString _job_name, QString _remote_dataset_path,
+                             QString _remote_nav_file);
+    void showProgress(QString _message = QString());
+    void hideProgress();
 };
 
 }

@@ -55,6 +55,28 @@ private:
   QDateTime m_timestamp;
 };
 
+class RemoteExecutionDefinition {
+  friend class JobDefinition;
+
+ public:
+  RemoteExecutionDefinition() {}
+  virtual ~RemoteExecutionDefinition() {}
+
+  QStringList resultFileNames() const;
+  void setResultFileNames(QStringList resultFileNames);
+
+  bool executed() const;
+  void setExecuted(bool executed);
+
+  QDateTime executionDate() const;
+  void setExecutionDate(QDateTime executionDate);
+
+ private:
+  QDateTime _executionDate;
+  bool _executed;
+  QStringList _resultFileNames;
+};
+
 class JobDefinition
 {
 public:
