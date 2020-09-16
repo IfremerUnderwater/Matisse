@@ -151,7 +151,7 @@ class SshActionManager : public QObject {
 		void init();
 		void execute();
 		QString command() { return m_command; }
-		QString setResponse(QString _response) { m_response = _response; }
+		void setResponse(QString _response) { m_response = _response; }
 		QString response() { return m_response; }
 		QString progressMessage() {
 			return QString("Executing command '%1'").arg(m_command); }

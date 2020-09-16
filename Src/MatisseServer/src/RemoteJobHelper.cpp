@@ -399,10 +399,39 @@ void RemoteJobHelper::downloadResults(QString _job_name)
 
   QString remote_dir_path = kvl.getValue(DATASET_PARAM_OUTPUT_DIR);
 
+  // TODO hack to substitute binded path by real path
+  remote_dir_path.replace(
+      "~/matisse_results", "/home/matisse/results");
+
   QString local_base_dir_path = m_input_path + QDir::separator() + _job_name;
   QDir local_base_dir(local_base_dir_path);
   if (!local_base_dir.exists()) {
     local_base_dir.mkpath(".");
+  } else {
+    /* Check if previous results are present */
+    QStringList old_files = local_base_dir.entryList(QDir::Files);
+
+    if (!old_files.isEmpty()) {
+      QMessageBox::StandardButton answer = QMessageBox::question(
+          m_job_launcher, tr("Clear previous results before downloading"),
+          tr("Previous result files (remote execution) were found for the job '%1'.\n"
+            "They will be deleted before downloading new results.\nContinue ?")
+              .arg(_job_name));
+
+      if (answer == QMessageBox::No) {
+        qWarning() << "Results download cancelled by user : refused to remove "
+                      "previous result files";
+        return;
+      }
+
+      /* Remove previous results */
+      for (QString old_file : old_files) {
+        bool removed = local_base_dir.remove(old_file);
+        if (!removed) {
+          qCritical() << QString("Failed to remove previous result file '%1'. This may prevent from downloading new result file").arg(old_file);
+        }
+      }
+    }
   }
 
   DownloadDirAction *action = new DownloadDirAction(m_sftp_client, remote_dir_path, local_base_dir_path);
@@ -526,7 +555,7 @@ void RemoteJobHelper::updateJobParameters(QString _job_name,
     _remote_dataset_path + '/' + _nav_file;
   QString job_export_name = _job_name + '_' + m_prefs->remoteUsername();
   //QString job_result_path = m_prefs->remoteResultPath() + '/' + job_export_name;
-  QString job_result_path = "~/matisse_results" + '/' + job_export_name;
+  QString job_result_path = QString("~/matisse_results") + '/' + job_export_name;
 
   KeyValueList kvl;
   kvl.set(DATASET_PARAM_DATASET_DIR, _remote_dataset_path);
@@ -658,11 +687,6 @@ void RemoteJobHelper::sl_onTransferFailed(SshAction* _action,
 void RemoteJobHelper::sl_onDirContentsReceived(QList<SshFileInfo*> _contents) {
   qDebug() << "Received remote dir contents";
 
-  //for (SshFileInfo* fi : _contents) {
-  //  QString type = fi->isDir() ? "Dir" : "File";
-  //  qDebug() << "RemoteJobHelper: remote file info: " << type << " : " << fi->name();
-  //}
-
   hideProgress();
 
   if (m_selected_dataset_path.isEmpty()) {
@@ -720,7 +744,12 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<SshFileInfo*> _contents) {
               .arg(m_selected_dataset_path));
     }
 
-    updateJobParameters(m_current_job_name, m_selected_dataset_path, selected_navfile);
+    // TODO hack to substitute path with binding
+    int pos = m_selected_dataset_path.lastIndexOf('/') + 1;
+    QString dataset_dir = m_selected_dataset_path.mid(pos);
+    QString binded_dataset_path = "~/matisse_data/" + dataset_dir;
+
+    updateJobParameters(m_current_job_name, binded_dataset_path, selected_navfile);
   }
 }
 
