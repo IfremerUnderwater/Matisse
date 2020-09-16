@@ -233,9 +233,9 @@ void RemoteJobHelper::uploadDataset(QString _job_name, QString _local_dataset_di
   QString dataset_root_dir = m_prefs->remoteDefaultDataPath();
   QString dataset_root_dir_binding = "~/matisse_data";
   QString dir_name = local_dir.dirName();
-  QString remote_dataset_dir = dataset_root_dir + '/' + dir_name;
+  QString remote_dataset_dir = dataset_root_dir_binding + '/' + dir_name;
   
-  updateJobParameters(_job_name, dataset_root_dir_binding, nav_file_name);
+  updateJobParameters(_job_name, remote_dataset_dir, nav_file_name);
 
   /* Create and enqueue upload action */
   SshAction* action = new UploadDirAction(m_sftp_client, _local_dataset_dir,
@@ -525,7 +525,8 @@ void RemoteJobHelper::updateJobParameters(QString _job_name,
   QString remote_nav_file_path = (_nav_file.isEmpty()) ? "" :
     _remote_dataset_path + '/' + _nav_file;
   QString job_export_name = _job_name + '_' + m_prefs->remoteUsername();
-  QString job_result_path = m_prefs->remoteResultPath() + '/' + job_export_name;
+  //QString job_result_path = m_prefs->remoteResultPath() + '/' + job_export_name;
+  QString job_result_path = "~/matisse_results" + '/' + job_export_name;
 
   KeyValueList kvl;
   kvl.set(DATASET_PARAM_DATASET_DIR, _remote_dataset_path);
