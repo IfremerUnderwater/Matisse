@@ -3880,14 +3880,15 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
             }
         }
 
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, tr("Load result ?"), tr("Do you want to load result in Matisse (can take time for big reconstructions) ?"),
+            QMessageBox::Yes | QMessageBox::No);
+
         foreach (QString resultFile, jobDef->executionDefinition()->resultFileNames()) {
 
             if (jobDef->executionDefinition()->executed() && (!resultFile.isEmpty())) {
 
                 // display result
-                QMessageBox::StandardButton reply;
-                reply = QMessageBox::question(this, tr("Load result ?"), tr("Do you want to load result in Matisse (can take time for big reconstructions) ?"),
-                                              QMessageBox::Yes|QMessageBox::No);
                 if (reply == QMessageBox::Yes)
                     loadResultToCartoView(resultFile, false);
             }
