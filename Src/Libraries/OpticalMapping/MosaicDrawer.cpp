@@ -499,9 +499,9 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
     // We first backup drawing options as we will change them on blocks blending iterations
     drawingOptions dOptionsBackup = dOptions;
 
-    // 5% overlap hard coded for the moment
-    xOverlapSize = (int)(0.05*blockSize_p.x);
-    yOverlapSize = (int)(0.05*blockSize_p.y);
+    // % overlap hard coded for the moment
+    xOverlapSize = (int)(0.20*blockSize_p.x);
+    yOverlapSize = (int)(0.20*blockSize_p.y);
 
     // Get complete mosaic size
     Point2d mosaicSize = mosaicD_p.mosaicSize();
@@ -1044,7 +1044,7 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
         double blockUtmBR_x = mosaicD_p.mosaicOrigin().x + blockBR_x*mosaicD_p.pixelSize().x;
         double blockUtmBR_y = mosaicD_p.mosaicOrigin().y - blockBR_y*mosaicD_p.pixelSize().y;
 
-        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"COMPRESS=JPEG\" -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
                 .arg(blockUtmTL_x,0,'f',2)
                 .arg(blockUtmTL_y,0,'f',2)
                 .arg(blockUtmBR_x,0,'f',2)
