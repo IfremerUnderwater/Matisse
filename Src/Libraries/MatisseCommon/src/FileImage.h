@@ -1,7 +1,7 @@
 ﻿#ifndef FILEIMAGE_H
 #define FILEIMAGE_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QSharedPointer>
 
@@ -9,13 +9,12 @@
 #include "PictureFileSet.h"
 #include <QImageReader>
 
-using namespace cv;
 
 namespace MatisseCommon {
 ///
 /// \brief The Image provenant d'un fichier
 ///
-class LIBMATISSECOMMONSHARED_EXPORT FileImage : public NavImage
+class FileImage : public NavImage
 {
 public:
 
@@ -50,7 +49,7 @@ public:
     /// \brief Construction d'image Mat en lazy-loading
     /// \return
     ///
-    virtual Mat * imageData();
+    virtual cv::Mat * imageData();
 
     ///
     /// \brief Return width of _imageData without loading image file

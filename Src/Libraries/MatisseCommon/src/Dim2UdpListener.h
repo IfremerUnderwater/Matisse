@@ -1,12 +1,12 @@
 ﻿#ifndef DIM2UDPLISTENER_H
 #define DIM2UDPLISTENER_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QObject>
 #include <QUdpSocket>
 
-class LIBMATISSECOMMONSHARED_EXPORT Dim2UDPListener : public QObject
+class Dim2UDPListener : public QObject
 {
     Q_OBJECT
 

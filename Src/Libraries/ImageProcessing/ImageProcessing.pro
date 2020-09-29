@@ -7,8 +7,9 @@
 #QT       -= gui
 
 TEMPLATE = lib
+CONFIG += staticlib
 
-DEFINES += IMAGEPROCESSING_LIBRARY
+#DEFINES += IMAGEPROCESSING_LIBRARY
 
 # Workaround to be removed in qt5 with qmake.conf and shadowed function --
 SOURCE_DIR=$$PWD/../../
@@ -28,18 +29,17 @@ include(../../Scripts/opencv.pri)
 include(../../Scripts/BasicProcessing.pri)
 
 
-win32 {
-    DLLDESTDIR = $${BUILD_DIR}/Libraries/dll
-}
+#win32 {
+#    DLLDESTDIR = $${BUILD_DIR}/Libraries/dll
+#}
 
-unix {
-    DESTDIR = $${BUILD_DIR}/Libraries/dll
-}
+#unix {
+#    DESTDIR = $${BUILD_DIR}/Libraries/dll
+#}
 
 
 SOURCES += imageprocessing.cpp
 
-HEADERS += imageprocessing.h\
-        imageprocessing_global.h
+HEADERS += imageprocessing.h
 
 

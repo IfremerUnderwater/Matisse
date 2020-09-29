@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>Matisse 3D</Name>
+    <Version>@MatisseProject_VERSION_MAJOR@.@MatisseProject_VERSION_MINOR@.@MatisseProject_VERSION_PATCH@</Version>
+    <Title>Matisse 3D</Title>
+    <Publisher>IFREMER</Publisher>
+    <StartMenuDir>Matisse 3D</StartMenuDir>
+    <TargetDir>@BINARYTOOL_HOMEDIR@/Matisse3D</TargetDir>
+</Installer>

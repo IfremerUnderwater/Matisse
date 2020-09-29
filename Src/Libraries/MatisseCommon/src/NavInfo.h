@@ -1,7 +1,7 @@
 ﻿#ifndef NAVINFO_H
 #define NAVINFO_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QDateTime>
 #include <QStringList>
@@ -32,7 +32,7 @@ namespace MatisseCommon {
 ///
 /// \brief Classe de stockage des informations de navigation
 ///
-class LIBMATISSECOMMONSHARED_EXPORT NavInfo
+class NavInfo
 {
 public:
     NavInfo(quint32 dive = 0, QDateTime time = QDateTime(), double longitude = InvalidValue, double latitude = InvalidValue, double depth = InvalidValue, double altitude = InvalidValue, double yaw = InvalidValue, double roll = InvalidValue, double pitch = InvalidValue, double vx = InvalidValue, double vy = InvalidValue, double vz = InvalidValue);

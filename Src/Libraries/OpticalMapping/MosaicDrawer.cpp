@@ -17,6 +17,7 @@
 #include "FileUtils.h"
 #include <math.h>
 #include "gdal_translate_wrapper.h"
+#include "float.h"
 
 using namespace std;
 using namespace cv;
@@ -242,7 +243,7 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
 
         for (int i = 0; i < num_images; ++i){
 
-            cvtColor(red_images[i], red_images[i], CV_GRAY2BGR);
+            cvtColor(red_images[i], red_images[i], COLOR_GRAY2BGR);
 
         }
         red_compensator->feed(corners_p, red_images, masksWarped_p);
@@ -251,7 +252,7 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
         // Process exposure compensation for the green channel
         for (int i = 0; i < num_images; ++i){
 
-            cvtColor(green_images[i], green_images[i], CV_GRAY2BGR);
+            cvtColor(green_images[i], green_images[i], COLOR_GRAY2BGR);
 
         }
         green_compensator->feed(corners_p, green_images, masksWarped_p);
@@ -260,7 +261,7 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
         // Process exposure compensation for the blue channel
         for (int i = 0; i < num_images; ++i){
 
-            cvtColor(blue_images[i], blue_images[i], CV_GRAY2BGR);
+            cvtColor(blue_images[i], blue_images[i], COLOR_GRAY2BGR);
 
         }
         blue_compensator->feed(corners_p, blue_images, masksWarped_p);
@@ -269,17 +270,17 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
         // Compensate exposure
         for (int img_idx = 0; img_idx < num_images; ++img_idx){
             split(imagesWarped_p[img_idx], TempRGB);
-            cvtColor(TempRGB[0], TempRGB[0], CV_GRAY2BGR);
-            cvtColor(TempRGB[1], TempRGB[1], CV_GRAY2BGR);
-            cvtColor(TempRGB[2], TempRGB[2], CV_GRAY2BGR);
+            cvtColor(TempRGB[0], TempRGB[0], COLOR_GRAY2BGR);
+            cvtColor(TempRGB[1], TempRGB[1], COLOR_GRAY2BGR);
+            cvtColor(TempRGB[2], TempRGB[2], COLOR_GRAY2BGR);
 
             red_compensator->apply(img_idx, corners_p[img_idx], TempRGB[0], masksWarped_p[img_idx]);
             green_compensator->apply(img_idx, corners_p[img_idx], TempRGB[1], masksWarped_p[img_idx]);
             blue_compensator->apply(img_idx, corners_p[img_idx], TempRGB[2], masksWarped_p[img_idx]);
 
-            cvtColor(TempRGB[0], TempRGB[0], CV_BGR2GRAY);
-            cvtColor(TempRGB[1], TempRGB[1], CV_BGR2GRAY);
-            cvtColor(TempRGB[2], TempRGB[2], CV_BGR2GRAY);
+            cvtColor(TempRGB[0], TempRGB[0], COLOR_BGR2GRAY);
+            cvtColor(TempRGB[1], TempRGB[1], COLOR_BGR2GRAY);
+            cvtColor(TempRGB[2], TempRGB[2], COLOR_BGR2GRAY);
 
             merge(TempRGB,imagesWarped_p[img_idx]);
         }
@@ -289,7 +290,7 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
         for (int i=0; i<num_images; i++){
 
             sizes[i] = imagesWarped_p[i].size();
-            cvtColor(imagesWarped_p[i], imagesWarped_p[i], CV_GRAY2BGR);
+            cvtColor(imagesWarped_p[i], imagesWarped_p[i], COLOR_GRAY2BGR);
 
             mean_col_nb += imagesWarped_p[i].cols;
             mean_row_nb += imagesWarped_p[i].rows;
@@ -498,9 +499,9 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
     // We first backup drawing options as we will change them on blocks blending iterations
     drawingOptions dOptionsBackup = dOptions;
 
-    // 5% overlap hard coded for the moment
-    xOverlapSize = (int)(0.05*blockSize_p.x);
-    yOverlapSize = (int)(0.05*blockSize_p.y);
+    // % overlap hard coded for the moment
+    xOverlapSize = (int)(0.20*blockSize_p.x);
+    yOverlapSize = (int)(0.20*blockSize_p.y);
 
     // Get complete mosaic size
     Point2d mosaicSize = mosaicD_p.mosaicSize();
@@ -795,10 +796,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
                 // Open first block and mask & get corner
                 imgFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-                blocksToBeBlended[0] = imread(imgFilePath1.toStdString().c_str()).getUMat(ACCESS_READ);
+                blocksToBeBlended[0] = imread(imgFilePath1.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
                 mosaicMaskFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-                blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath1.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE).getUMat(ACCESS_READ);
+                blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath1.toStdString().c_str(),IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
                 vpEffBlocksPoly[k]->getBoundingBox(tl_x1,tl_y1,br_x1,br_y1);
                 corners[0].x = (int) tl_x1;
@@ -806,10 +807,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
                 // Open second block and mask
                 imgFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
-                blocksToBeBlended[1] = imread(imgFilePath2.toStdString().c_str()).getUMat(ACCESS_READ);
+                blocksToBeBlended[1] = imread(imgFilePath2.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
                 mosaicMaskFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
-                blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath2.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE).getUMat(ACCESS_READ);
+                blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath2.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
                 vpEffBlocksPoly[l]->getBoundingBox(tl_x2,tl_y2,br_x2,br_y2);
                 corners[1].x = (int) tl_x2;
@@ -941,11 +942,11 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
                     blockJunctionInter->getBoundingBox( tl_x,tl_y,br_x,br_y );
 
                     imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
-                    imgTemp = imread(imgBlockFilePath.toStdString().c_str()).getUMat(ACCESS_READ);
+                    imgTemp = imread(imgBlockFilePath.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
                     blocksToBeBlended.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1)) );
 
                     imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
-                    imgTemp = imread(imgBlockMaskFilePath.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE).getUMat(ACCESS_READ);
+                    imgTemp = imread(imgBlockMaskFilePath.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
                     blocksToBeBlendedMasks.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1))  );
 
                     // Store corners values
@@ -980,8 +981,8 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
                 imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
                 imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
 
-                UMat blockImg = imread(imgBlockFilePath.toStdString().c_str()).getUMat(ACCESS_READ);
-                UMat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str()).getUMat(ACCESS_READ);
+                UMat blockImg = imread(imgBlockFilePath.toStdString().c_str(),cv::IMREAD_COLOR|cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                UMat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str(),cv::IMREAD_GRAYSCALE|cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
 
                 // Part of the matrix we are interested in
@@ -1043,7 +1044,7 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
         double blockUtmBR_x = mosaicD_p.mosaicOrigin().x + blockBR_x*mosaicD_p.pixelSize().x;
         double blockUtmBR_y = mosaicD_p.mosaicOrigin().y - blockBR_y*mosaicD_p.pixelSize().y;
 
-        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"COMPRESS=JPEG\" -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
                 .arg(blockUtmTL_x,0,'f',2)
                 .arg(blockUtmTL_y,0,'f',2)
                 .arg(blockUtmBR_x,0,'f',2)
@@ -1054,10 +1055,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
         // Read files
         QString blockImgFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-        Mat blockImg = imread(blockImgFilePath.toStdString().c_str());
+        Mat blockImg = imread(blockImgFilePath.toStdString().c_str(),cv::IMREAD_COLOR|cv::IMREAD_IGNORE_ORIENTATION);
 
         QString blockImgMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),CV_LOAD_IMAGE_GRAYSCALE);
+        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
 
         std::vector<cv::Mat> blockImgChannels;
         cv::split(blockImg, blockImgChannels);

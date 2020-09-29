@@ -28,7 +28,11 @@ public:
     virtual void onNewImage(quint32 port, Image &image);
 
 private:
+    QString m_source_dir;
+    QString m_outdir;
+    QString m_out_filename_prefix;
 
+    bool generateCamFile(QString _sfm_data_file, QString _undist_img_path);
     void writeKml(QString model_path, QString model_prefix);
 };
 

@@ -35,6 +35,8 @@ include(../../Scripts/OpticalMapping.pri)
 include(../../Scripts/opencv.pri)
 #include(../../Scripts/qgis.pri)
 
+LIBS*=-lproj
+
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Modules/processors
 }

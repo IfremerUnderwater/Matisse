@@ -1,7 +1,7 @@
 ﻿#ifndef DIM2_H
 #define DIM2_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QtGlobal>
 #include <QDateTime>
@@ -20,7 +20,7 @@ namespace MatisseCommon {
 ///
 /// Le format DIM2 est décrit dans le document "Description données engins V1.0.pdf" référencé 28/08/2012 – IMN/SM/12-220
 ///
-class LIBMATISSECOMMONSHARED_EXPORT Dim2
+class Dim2
 {
 public:
     Dim2(QString args);

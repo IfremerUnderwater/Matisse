@@ -1,7 +1,7 @@
 ﻿#ifndef IMAGESET_H
 #define IMAGESET_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QObject>
 #include <QList>
@@ -26,7 +26,7 @@ struct ImageSetPort {
 ///
 /// Un ImageSet permet d'échanger des images entre une instance d'ImageProvider et une instance de Processor ou entre plusieurs instances de Processor.
 ///
-class LIBMATISSECOMMONSHARED_EXPORT ImageSet : public QObject
+class ImageSet : public QObject
 {
 
     Q_OBJECT

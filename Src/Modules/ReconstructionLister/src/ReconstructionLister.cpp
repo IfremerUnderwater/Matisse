@@ -23,31 +23,6 @@ ReconstructionLister::~ReconstructionLister()
 
 bool ReconstructionLister::configure()
 {
-    qDebug() << logPrefix() << "configure";
-
-    /*QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-    QString outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
-    QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
-
-    if (datasetDirnameStr.isEmpty()
-     || outputDirnameStr.isEmpty()
-     || outputFilename.isEmpty())
-        return false;
-
-
-    QFileInfo outputDirInfo(outputDirnameStr);
-    QFileInfo datasetDirInfo(datasetDirnameStr);
-    QFileInfo outputFileInfo;
-
-    bool isRelativeDir = outputDirInfo.isRelative();
-
-    if (isRelativeDir) {
-        outputDirnameStr = QDir::cleanPath( datasetDirInfo.absoluteFilePath() + QDir::separator() + outputDirnameStr);
-    }
-    outputFileInfo.setFile(QDir(outputDirnameStr), outputFilename + "_texrecon.obj");
-    _rastersInfo.clear();
-    _rastersInfo << outputFileInfo;*/
-
     return true;
 }
 
@@ -99,7 +74,6 @@ bool ReconstructionLister::start()
 
 bool ReconstructionLister::stop()
 {
-    qDebug() << logPrefix() << "On stop ";
 
     _rastersInfo.clear();
 
@@ -120,12 +94,15 @@ bool ReconstructionLister::stop()
     QVariant *object = _context->getObject("reconstruction_context");
     reconstructionContext * rc=NULL;
     if (object)
+    {
         rc = object->value<reconstructionContext*>();
 
-    for(unsigned int i=0; i<rc->components_ids.size(); i++)
-    {
-        QDir outPathDir(QString("%1_%2").arg(completeOutPath).arg(rc->components_ids[i]));
-        _rastersInfo << outPathDir.absoluteFilePath(QString("%1_%2_texrecon.obj").arg(fileNamePrefixStr).arg(rc->components_ids[i]));
+        for (unsigned int i = 0; i < rc->components_ids.size(); i++)
+        {
+            QDir outPathDir(QString("%1_%2").arg(completeOutPath).arg(rc->components_ids[i]));
+            _rastersInfo << outPathDir.absoluteFilePath(QString("%1_%2%3.obj").arg(fileNamePrefixStr).arg(rc->components_ids[i]).arg(rc->out_file_suffix));
+        }
+
     }
 
     return true;

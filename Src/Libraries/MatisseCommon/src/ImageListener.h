@@ -1,7 +1,7 @@
 ﻿#ifndef IMAGELISTENER_H
 #define IMAGELISTENER_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QObject>
 #include "Image.h"
@@ -11,7 +11,7 @@ namespace MatisseCommon {
 ///
 /// \brief Interface de notification d'arrivée de nouvelle image
 ///
-class LIBMATISSECOMMONSHARED_EXPORT ImageListener
+class ImageListener
 {
 public:
     virtual ~ImageListener() {}

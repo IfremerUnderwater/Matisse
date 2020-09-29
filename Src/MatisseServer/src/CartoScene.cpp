@@ -34,13 +34,13 @@ void CartoScene::addCartoImage(CartoImage *image)
     // only RGB and RGBA images can be used
     if(nbchannels == 3)
     {
-        cvtColor(*(image->imageData()), dest, CV_BGR2RGB);
+        cvtColor(*(image->imageData()), dest, COLOR_BGR2RGB);
         format = QImage::Format_RGB888;
     }
     else if (nbchannels == 4)
     {
         // with alpha CV_BGRA2RGBA
-        cvtColor(*(image->imageData()), dest, CV_BGRA2RGBA);
+        cvtColor(*(image->imageData()), dest, COLOR_BGRA2RGBA);
         format = QImage::Format_RGBA8888;
     }
     else
@@ -55,7 +55,7 @@ void CartoScene::addCartoImage(CartoImage *image)
     {
         qDebug() << "Error loading 4 channels data - trying 3 channels : " << image->fileName();
         dest.release();
-        cvtColor(*(image->imageData()), dest, CV_BGR2RGB);
+        cvtColor(*(image->imageData()), dest, COLOR_BGR2RGB);
         format = QImage::Format_RGB888;
         result = QImage((uchar*) dest.data, dest.cols, dest.rows, dest.step, format);
     }

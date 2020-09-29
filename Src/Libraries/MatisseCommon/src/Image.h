@@ -1,7 +1,7 @@
 ﻿#ifndef IMAGE_H
 #define IMAGE_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QSharedData>
 #include <QExplicitlySharedDataPointer>
@@ -17,7 +17,7 @@ namespace MatisseCommon {
 /// \brief Classe de base de manipulation des Image dans Matisse.
 /// L'image mémoire est stockée au format OpenCV Mat. Selon les implémentation l'image mémoire peut être chargée en lazy-loading
 ///
-class LIBMATISSECOMMONSHARED_EXPORT Image
+class Image
 {
 public:
     Image();

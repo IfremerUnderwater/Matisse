@@ -41,5 +41,6 @@ unix {
 }
 
 win32 {
+INCLUDEPATH += C:\msys64\mingw64\include\opencv4
 LIBS *= -lopencv_highgui -lopencv_stitching  -lopencv_imgproc -lopencv_imgcodecs  -lopencv_core
 }

@@ -7,7 +7,7 @@
 TARGET = MatisseServer
 TEMPLATE = app
 
-QT       += core gui network sql xml xmlpatterns script opengl printsupport widgets
+QT       += core gui network xml xmlpatterns script opengl widgets
 
 #win32 {
 #    RC_FILE = MatisseServer.rc
@@ -63,6 +63,17 @@ include(../Scripts/OpenSceneGraph.pri)
 
 SOURCES += src/main.cpp\
     src/AssemblyGui.cpp \
+    src/OSGWidget/area_computation_visitor.cpp \
+    src/OSGWidget/box_visitor.cpp \
+    src/OSGWidget/geometry_type_count_visitor.cpp \
+    src/OSGWidget/kml_handler.cpp \
+    src/OSGWidget/measurement_picker_tool.cpp \
+    src/OSGWidget/minmax_computation_visitor.cpp \
+    src/OSGWidget/osg_widget.cpp \
+    src/OSGWidget/osg_widget_tool.cpp \
+    src/OSGWidget/overlay_widget.cpp \
+    src/OSGWidget/point3d.cpp \
+    src/OSGWidget/shader_color.cpp \
     src/ProcessorWidget.cpp \
     src/SourceWidget.cpp \
     src/ElementWidget.cpp \
@@ -90,7 +101,6 @@ SOURCES += src/main.cpp\
     src/ParametersFoldButton.cpp \
     src/ElementWidgetProvider.cpp \
     src/AboutDialog.cpp \
-    src/OSGWidget.cpp \
     src/DuplicateDialog.cpp \
     src/RestoreJobsDialog.cpp \
     src/NetworkCheckDialog.cpp \
@@ -100,6 +110,18 @@ SOURCES += src/main.cpp\
 
 HEADERS  += \
     src/AssemblyGui.h \
+    src/OSGWidget/area_computation_visitor.h \
+    src/OSGWidget/box_visitor.h \
+    src/OSGWidget/geometry_type_count_visitor.h \
+    src/OSGWidget/kml_handler.h \
+    src/OSGWidget/loading_mode.h \
+    src/OSGWidget/measurement_picker_tool.h \
+    src/OSGWidget/minmax_computation_visitor.h \
+    src/OSGWidget/osg_widget.h \
+    src/OSGWidget/osg_widget_tool.h \
+    src/OSGWidget/overlay_widget.h \
+    src/OSGWidget/point3d.h \
+    src/OSGWidget/shader_color.h \
     src/ProcessorWidget.h \
     src/SourceWidget.h \
     src/ElementWidget.h \
@@ -127,7 +149,6 @@ HEADERS  += \
     src/ParametersFoldButton.h \
     src/ElementWidgetProvider.h \
     src/AboutDialog.h \
-    src/OSGWidget.h \
     src/DuplicateDialog.h \
     src/RestoreJobsDialog.h \
     src/NetworkCheckDialog.h \
@@ -136,35 +157,35 @@ HEADERS  += \
     src/WheelGraphicsView.h
 
 FORMS    += \
-    ui/AssemblyGui.ui \
-    ui/AssemblyDialog.ui \
-    ui/ExpertFormWidget.ui \
-    ui/UserFormWidget.ui \
-    ui/ParametersDialog.ui \
-    ui/ServerDialog.ui \
-    ui/JobDialog.ui \
-    ui/StatusMessageWidget.ui \
-    ui/WelcomeDialog.ui \
-    ui/HomeWidget.ui \
-    ui/VisuModeWidget.ui \
-    ui/MainMenuWidget.ui \
-    ui/OngoingProcessWidget.ui \
-    ui/MainControllBar.ui \
-    ui/MatisseVersionWidget.ui \
-    ui/PreferencesDialog.ui \
-    ui/AboutDialog.ui \
-    ui/DuplicateDialog.ui \
-    ui/RestoreJobsDialog.ui \
-    ui/NetworkCheckDialog.ui
+    src/AssemblyGui.ui \
+    src/AssemblyDialog.ui \
+    src/ExpertFormWidget.ui \
+    src/UserFormWidget.ui \
+    src/ParametersDialog.ui \
+    src/ServerDialog.ui \
+    src/JobDialog.ui \
+    src/StatusMessageWidget.ui \
+    src/WelcomeDialog.ui \
+    src/HomeWidget.ui \
+    src/VisuModeWidget.ui \
+    src/MainMenuWidget.ui \
+    src/OngoingProcessWidget.ui \
+    src/MainControllBar.ui \
+    src/MatisseVersionWidget.ui \
+    src/PreferencesDialog.ui \
+    src/AboutDialog.ui \
+    src/DuplicateDialog.ui \
+    src/RestoreJobsDialog.ui \
+    src/NetworkCheckDialog.ui
 
 
 TRANSLATIONS=MatisseServer_fr.ts \
              MatisseServer_en.ts
 
 RESOURCES += \
-    ui/resources/resources.qrc \
-    ui/style.qrc \
-    ui/icons.qrc
+    resources/resources.qrc \
+    style.qrc \
+    icons.qrc
 
 OTHER_FILES += \
     ../../Config/lnf/Matisse.css \
@@ -182,4 +203,4 @@ DISTFILES += \
     ../../Config/schemas/MatisseParametersDictionnary.xsd
 
 
-RC_ICONS = ./ui/resources/ifremer-grand.ico
+RC_ICONS = ./resources/ifremer-grand.ico

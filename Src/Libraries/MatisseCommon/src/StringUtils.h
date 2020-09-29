@@ -1,7 +1,7 @@
 #ifndef STRINGUTILS_H
 #define STRINGUTILS_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QString>
 #include <QRegExp>
@@ -14,7 +14,7 @@
 #define PLACEHOLDER_PATTERN_XML_2       "\\{&(%1)&\\}"          // Placeholder pattern compatible with XML syntax (for embedding in pattern #1)
 #define PLACEHOLDER_PATTERN_DEFAULT     PLACEHOLDER_PATTERN_CSS
 
-class LIBMATISSECOMMONSHARED_EXPORT StringUtils
+class StringUtils
 {
 public:
     static QString substitutePlaceHolders(QString source, QMap<QString,QString> properties,

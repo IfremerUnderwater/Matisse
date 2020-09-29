@@ -26,11 +26,12 @@ CONFIG(release, debug|release) {
 }
 # ------------------------------------------------------------------------
 
+include(../../Scripts/OpticalMapping.pri)
 include(../../Scripts/MatisseCommon.pri)
 include(../../Scripts/BasicProcessing.pri)
-include(../../Scripts/OpticalMapping.pri)
 include(../../Scripts/opencv.pri)
 #include(../../Scripts/qgis.pri)
+LIBS*=-lproj -lgdal
 
 win32 {
     DLLDESTDIR = $${BUILD_DIR}/Modules/processors

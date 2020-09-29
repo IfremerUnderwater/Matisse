@@ -637,7 +637,7 @@ void AssemblyGui::initVersionDisplay()
     _matisseVersionlabel->setText(fullVersionLabel);
 }
 
-bool AssemblyGui::loadResultToCartoView(QString resultFile_p)
+bool AssemblyGui::loadResultToCartoView(QString resultFile_p, bool remove_previous_scenes)
 {
     QFileInfo infoResult(resultFile_p);
 
@@ -655,7 +655,7 @@ bool AssemblyGui::loadResultToCartoView(QString resultFile_p)
         _userFormWidget->loadShapefile(infoResult.absoluteFilePath());
 
     }else if (_userFormWidget->supported3DFileFormat().contains(infoResult.suffix())){
-        _userFormWidget->load3DFile(infoResult.absoluteFilePath());
+        _userFormWidget->load3DFile(infoResult.absoluteFilePath(), remove_previous_scenes);
 
     }else if (_userFormWidget->supportedImageFormat().contains(infoResult.suffix())){
         qDebug() << "Loading image file " << resultFile_p;
@@ -2622,6 +2622,11 @@ void AssemblyGui::displayJob(QString jobName, bool forceReload)
 
         jobResultImageItems = new QTreeWidgetItem *[nbOfImageFiles];
 
+        // display result
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, tr("Load result ?"), tr("Do you want to load result in Matisse (can take time for big reconstructions) ?"),
+                                      QMessageBox::Yes|QMessageBox::No);
+
         for (int i = 0 ; i < nbOfImageFiles ; i++) {
 
             QString resultFile = resultImages[i];
@@ -2637,12 +2642,8 @@ void AssemblyGui::displayJob(QString jobName, bool forceReload)
                 continue;
             }
 
-            // display result
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(this, tr("Load result ?"), tr("Do you want to load result in Matisse (can take time for big reconstructions) ?"),
-                                          QMessageBox::Yes|QMessageBox::No);
             if (reply == QMessageBox::Yes)
-                loadResultToCartoView(resultFile);
+                loadResultToCartoView(resultFile, false);
         }
     }
 
@@ -3879,16 +3880,17 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
             }
         }
 
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, tr("Load result ?"), tr("Do you want to load result in Matisse (can take time for big reconstructions) ?"),
+            QMessageBox::Yes | QMessageBox::No);
+
         foreach (QString resultFile, jobDef->executionDefinition()->resultFileNames()) {
 
             if (jobDef->executionDefinition()->executed() && (!resultFile.isEmpty())) {
 
                 // display result
-                QMessageBox::StandardButton reply;
-                reply = QMessageBox::question(this, tr("Load result ?"), tr("Do you want to load result in Matisse (can take time for big reconstructions) ?"),
-                                              QMessageBox::Yes|QMessageBox::No);
                 if (reply == QMessageBox::Yes)
-                    loadResultToCartoView(resultFile);
+                    loadResultToCartoView(resultFile, false);
             }
         }
 

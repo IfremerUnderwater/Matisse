@@ -3,6 +3,8 @@
 #include <QTextStream>
 #include <QDate>
 #include <QTime>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <cmath>
 
 double DEG2RAD=M_PI/180;

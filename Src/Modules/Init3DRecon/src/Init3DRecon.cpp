@@ -92,14 +92,14 @@ bool Init3DRecon::getCameraIntrinsics(double & focal, double & ppx, double & ppy
         return true;
     }
 
-     if (camera_preset=="Ariane Princ.")
-     {
-         scaling_factor=width/1920.0;
-         focal = scaling_factor*1170;
-         ppx = width / 2.0;
-         ppy = height / 2.0;
-         return true;
-     }
+    if (camera_preset=="Ariane Princ.")
+    {
+        scaling_factor=width/1920.0;
+        focal = scaling_factor*1170;
+        ppx = width / 2.0;
+        ppy = height / 2.0;
+        return true;
+    }
 
     if (camera_preset=="Victor 4K" || camera_preset=="Nautile 4K")
     {
@@ -162,7 +162,7 @@ bool Init3DRecon::getCameraIntrinsics(double & focal, double & ppx, double & ppy
 static std::pair<bool, Vec3> checkGPS(const std::string & filename)
 {
     std::pair<bool, Vec3> val(false, Vec3::Zero());
-    std::unique_ptr<Exif_IO_EasyExif> exifReader(new Exif_IO_EasyExif);
+    std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
     if (exifReader)
     {
         // Try to parse EXIF metada & check existence of EXIF data
@@ -425,8 +425,8 @@ void Init3DRecon::onFlush(quint32 port)
     std::sort(vec_image.begin(), vec_image.end());
 
     // Configure an empty scene with Views and their corresponding cameras
-    SfM_Data *sfm_data = new SfM_Data();
-    sfm_data->s_root_path = sImageDir; // Setup main image root_path
+    SfM_Data sfm_data;
+    sfm_data.s_root_path = sImageDir; // Setup main image root_path
     //Views & views = sfm_data->views;
     //Intrinsics & intrinsics = sfm_data->intrinsics;
 
@@ -537,7 +537,7 @@ void Init3DRecon::onFlush(quint32 port)
         if (gps_info.first && use_prior)
         {
             // use nav
-            ViewPriors v(*iter_image, sfm_data->views.size(), sfm_data->views.size(), sfm_data->views.size(), width, height);
+            ViewPriors v(*iter_image, sfm_data.views.size(), sfm_data.views.size(), sfm_data.views.size(), width, height);
 
             // Add intrinsic related to the image (if any)
             if (intrinsic == NULL)
@@ -549,7 +549,7 @@ void Init3DRecon::onFlush(quint32 port)
             else
             {
                 // Add the defined intrinsic to the sfm_container
-                sfm_data->intrinsics[v.id_intrinsic] = intrinsic;
+                sfm_data.intrinsics[v.id_intrinsic] = intrinsic;
             }
 
             v.b_use_pose_center_ = true;
@@ -566,11 +566,11 @@ void Init3DRecon::onFlush(quint32 port)
             }
 
             // Add the view to the sfm_container
-            sfm_data->views[v.id_view] = std::make_shared<ViewPriors>(v);
+            sfm_data.views[v.id_view] = std::make_shared<ViewPriors>(v);
         }
         else
         {
-            View v(*iter_image, sfm_data->views.size(), sfm_data->views.size(), sfm_data->views.size(), width, height);
+            View v(*iter_image, sfm_data.views.size(), sfm_data.views.size(), sfm_data.views.size(), width, height);
 
             // Add intrinsic related to the image (if any)
             if (intrinsic == NULL)
@@ -582,11 +582,11 @@ void Init3DRecon::onFlush(quint32 port)
             else
             {
                 // Add the defined intrinsic to the sfm_container
-                sfm_data->intrinsics[v.id_intrinsic] = intrinsic;
+                sfm_data.intrinsics[v.id_intrinsic] = intrinsic;
             }
 
             // Add the view to the sfm_container
-            sfm_data->views[v.id_view] = std::make_shared<View>(v);
+            sfm_data.views[v.id_view] = std::make_shared<View>(v);
         }
     }
 
@@ -599,17 +599,56 @@ void Init3DRecon::onFlush(quint32 port)
     // Group camera that share common properties if desired (leads to more faster & stable BA).
     if (b_Group_camera_model)
     {
-        GroupSharedIntrinsics(*sfm_data);
+        //GroupSharedIntrinsics(sfm_data); // Added the code of GroupSharedIntinsics because calling it in the lib was crashing ... (build options ?)
+        Views & views = sfm_data.views;
+        Intrinsics & intrinsics = sfm_data.intrinsics;
+
+        // Build hash & build a set of the hash in order to maintain unique Ids
+        std::set<size_t> hash_index;
+        std::vector<size_t> hash_value;
+
+        for (const auto & intrinsic_it : intrinsics)
+        {
+            const cameras::IntrinsicBase * intrinsicData = intrinsic_it.second.get();
+            const size_t hashVal = intrinsicData->hashValue();
+            hash_index.insert(hashVal);
+            hash_value.push_back(hashVal);
+        }
+
+        // From hash_value(s) compute the new index (old to new indexing)
+        Hash_Map<IndexT, IndexT> old_new_reindex;
+        size_t i = 0;
+        for (const auto & intrinsic_it : intrinsics)
+        {
+            old_new_reindex[intrinsic_it.first] = std::distance(hash_index.cbegin(), hash_index.find(hash_value[i]));
+            ++i;
+        }
+        //--> Save only the required Intrinsics (do not need to keep all the copy)
+        Intrinsics intrinsic_updated;
+        for (const auto & intrinsic_it : intrinsics)
+        {
+            intrinsic_updated[old_new_reindex[intrinsic_it.first]] = intrinsics[intrinsic_it.first];
+        }
+        // Update intrinsics (keep only the necessary ones) -> swapping
+        intrinsics.swap(intrinsic_updated);
+
+        // Update views intrinsic IDs (since some intrinsic position have changed in the map)
+        for (auto & view_it: views)
+        {
+            View * v = view_it.second.get();
+            // Update the Id only if a corresponding index exists
+            if (old_new_reindex.count(v->id_intrinsic))
+                v->id_intrinsic = old_new_reindex[v->id_intrinsic];
+        }
     }
 
     emit signal_userInformation("Init3DRecon - saving...");
     // Store SfM_Data views & intrinsic data
-    if (!Save(  *sfm_data,
-                stlplus::create_filespec( sOutputDir, "sfm_data.json" ).c_str(),
+    if (!Save(  sfm_data,
+                stlplus::create_filespec( sOutputDir, "sfm_data.bin" ).c_str(),
                 ESfM_Data(VIEWS|INTRINSICS)))
     {
-        fatalErrorExit("Error saving sfm_data.json");
-        delete sfm_data;
+        fatalErrorExit("Error saving sfm_data.bin");
 
         return;
     }
@@ -618,6 +657,9 @@ void Init3DRecon::onFlush(quint32 port)
     reconstruction_context->lat_origin = firstImagePos[0];
     reconstruction_context->lon_origin = firstImagePos[1];
     reconstruction_context->alt_origin = firstImagePos[2];
+    reconstruction_context->current_format = ReconFormat::openMVG;
+    reconstruction_context->out_file_suffix = QString("");
+
     QVariant * reconstruction_context_stocker = new QVariant();
     reconstruction_context_stocker->setValue(reconstruction_context);
     _context->addObject("reconstruction_context",reconstruction_context_stocker);
@@ -659,13 +701,13 @@ void Init3DRecon::onFlush(quint32 port)
     qDebug() << "\n"
              << "SfMInit_ImageListing report:\n"
              << "listed #File(s): " << vec_image.size() << "\n"
-             << "usable #File(s) listed in sfm_data: " << sfm_data->GetViews().size() << "\n"
-             << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data->GetIntrinsics().size() << "\n";
+             << "usable #File(s) listed in sfm_data: " << sfm_data.GetViews().size() << "\n"
+             << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data.GetIntrinsics().size() << "\n";
 
-    if(sfm_data->GetViews().size() == 0)
+    if(sfm_data.GetViews().size() == 0)
     {
         fatalErrorExit("No valid images found");
-        delete sfm_data;
+        //delete sfm_data;
 
         return;
     }
@@ -673,12 +715,12 @@ void Init3DRecon::onFlush(quint32 port)
     // do not crash...
     //delete sfm_data;
 
-    sfm_data->poses.clear();
-    sfm_data->control_points.clear();
-    sfm_data->views.clear();
+    sfm_data.poses.clear();
+    sfm_data.control_points.clear();
+    sfm_data.views.clear();
     std::shared_ptr<IntrinsicBase> intrinsic (NULL);
-    sfm_data->intrinsics[0] = intrinsic;
-    sfm_data->s_root_path = "";
+    sfm_data.intrinsics[0] = intrinsic;
+    sfm_data.s_root_path = "";
     //crash
     //sfm_data->intrinsics.clear();
 

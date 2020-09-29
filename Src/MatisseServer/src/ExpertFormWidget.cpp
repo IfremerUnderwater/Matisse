@@ -26,7 +26,6 @@ void ExpertFormWidget::init()
     _ui->_GRW_assembly->setAcceptDrops(true);
 
     QRect containerRect = _ui->_GRW_assembly->rect();
-    //QRect sceneRect = containerRect.adjusted(50,50,-50,-50);
 
     _scene = new AssemblyGraphicsScene(containerRect);
     _ui->_GRW_assembly->setScene(_scene);

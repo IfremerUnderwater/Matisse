@@ -1,6 +1,7 @@
 ﻿#include "FileImage.h"
 #include <QDebug>
 
+using namespace cv;
 using namespace MatisseCommon;
 
 
@@ -59,10 +60,10 @@ Mat *FileImage::imageData() {
 
             if (_scaleFactor < 1.0){
                 _imageData = new Mat();
-                Mat fullSizeImg = imread(filePath);
-                resize(fullSizeImg, *_imageData, cvSize(0, 0), _scaleFactor, _scaleFactor);
+                Mat fullSizeImg = imread(filePath, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+                resize(fullSizeImg, *_imageData, cv::Size(0, 0), _scaleFactor, _scaleFactor);
             }else{
-                _imageData = new Mat(imread(filePath));
+                _imageData = new Mat(imread(filePath, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION));
             }
         }
     }

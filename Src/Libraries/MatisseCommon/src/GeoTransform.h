@@ -1,7 +1,7 @@
 #ifndef GEOTRANSFORM_H
 #define GEOTRANSFORM_H
 
-#include "libmatissecommon_global.h"
+
 
 #include <QtGlobal>
 #include <QDateTime>
@@ -14,7 +14,7 @@ namespace MatisseCommon {
 ///
 /// \brief The GeoTransform class is based on the Proj4, OpenCV and Qt libraries and provide geographic & geometric operations
 ///
-class LIBMATISSECOMMONSHARED_EXPORT GeoTransform
+class GeoTransform
 {
 public:
     GeoTransform();

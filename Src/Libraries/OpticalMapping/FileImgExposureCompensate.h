@@ -50,7 +50,7 @@
 #ifndef __FILEIMAGE_EXPOSURE_COMPENSATE_HPP__
 #define __FILEIMAGE_EXPOSURE_COMPENSATE_HPP__
 
-#include "libopticalmapping_global.h"
+#include <QString>
 #include <opencv2/core/core.hpp>
 
 //using namespace MatisseCommon;
@@ -58,7 +58,7 @@ using namespace cv;
 using namespace detail;
 
 
-class LIBOPTICALMAPPINGSHARED_EXPORT FileImgExposureCompensator
+class FileImgExposureCompensator
 {
 public:
     virtual ~FileImgExposureCompensator() {}
@@ -71,7 +71,7 @@ public:
 };
 
 
-class LIBOPTICALMAPPINGSHARED_EXPORT FileImgNoExposureCompensator : public FileImgExposureCompensator
+class FileImgNoExposureCompensator : public FileImgExposureCompensator
 {
 public:
     void feed(const QString & /*imagesPath_p*/, const QString & /*infoFilename_p*/) {}
@@ -79,7 +79,7 @@ public:
 };
 
 
-class LIBOPTICALMAPPINGSHARED_EXPORT FileImgGainCompensator : public FileImgExposureCompensator
+class FileImgGainCompensator : public FileImgExposureCompensator
 {
 public:
     void feed(const QString & imagesPath_p, const QString & infoFilename_p);

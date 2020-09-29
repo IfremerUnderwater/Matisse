@@ -130,8 +130,11 @@ void Init2DMosaic::onFlush(quint32 port)
         foreach (Image* image, imageList) {
 
             NavImage *navImage = dynamic_cast<NavImage*>(image);
-            if (navImage){
-                pCams->push_back(new ProjectiveCamera(navImage , K, V_T_C, V_R_C, (double)scaleFactor));
+            if (navImage) {
+                if (navImage->navInfo().altitude()>0.0)
+                {
+                    pCams->push_back(new ProjectiveCamera(navImage, K, V_T_C, V_R_C, (double)scaleFactor));
+                }
             }else{
                 qDebug() << "cannot cast as navImage \n";
                 exit(1);

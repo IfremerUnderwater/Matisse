@@ -12,6 +12,14 @@
 #include <string>
 #include <vector>
 
+#include "openMVG/cameras/Camera_Pinhole.hpp"
+#include "openMVG/image/image_io.hpp"
+#include "openMVG/sfm/sfm_data.hpp"
+#include "openMVG/sfm/sfm_data_io.hpp"
+#include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
+#include <fstream>
+
+
 #ifdef _WIN32
 static const char* TexreconExe = "texrecon.exe";
 #define MVE_EMBEDDED "MVE==undistorted "
@@ -20,19 +28,20 @@ static const char* TexreconExe = "texrecon";
 #define MVE_EMBEDDED "MVE::undistorted "
 #endif
 
+using namespace openMVG;
+using namespace openMVG::cameras;
+using namespace openMVG::geometry;
+using namespace openMVG::sfm;
 
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(Texturing3D, Texturing3D)
 #endif
 
-// traiter les étoiles (total 51 étoiles pour 100 %)
+// proccess stars (total 51 stars for 100 %)
 // 0%   10   20   30   40   50   60   70   80   90   100%
 // |----|----|----|----|----|----|----|----|----|----|
 // ***************************************************
-// entrée : message
-// mis à jour : starcount
-// retourne : le pourcentage d'avancement
 static int progressStarCountPct(QString message, int &starcount)
 {
     int n = message.count("*");
@@ -69,6 +78,66 @@ void Texturing3D::onNewImage(quint32 port, Image &image)
 
     // Forward image
     postImage(0, image);
+}
+
+bool Texturing3D::generateCamFile(QString _sfm_data_file, QString _undist_img_path)
+{
+
+    // Create output dir
+    if (!stlplus::folder_exists(_undist_img_path.toStdString()))
+        return false; // should have been created for mvs proc
+
+    // Read the SfM scene
+    SfM_Data sfm_data;
+    if (!Load(sfm_data, _sfm_data_file.toStdString(), ESfM_Data(VIEWS | INTRINSICS | EXTRINSICS))) {
+        std::cerr << std::endl
+            << "The input SfM_Data file \"" << _sfm_data_file.toStdString() << "\" cannot be read." << std::endl;
+        return false;
+    }
+
+    for (Views::const_iterator iter = sfm_data.GetViews().begin();
+        iter != sfm_data.GetViews().end(); ++iter)
+    {
+        const View* view = iter->second.get();
+        if (!sfm_data.IsPoseAndIntrinsicDefined(view))
+            continue;
+
+        // Valid view, we can ask a pose & intrinsic data
+        const Pose3 pose = sfm_data.GetPoseOrDie(view);
+        Intrinsics::const_iterator iterIntrinsic = sfm_data.GetIntrinsics().find(view->id_intrinsic);
+        const IntrinsicBase* cam = iterIntrinsic->second.get();
+
+        if (!cameras::isPinhole(cam->getType()))
+            continue;
+        const Pinhole_Intrinsic* pinhole_cam = static_cast<const Pinhole_Intrinsic*>(cam);
+
+        // Extrinsic
+        const Vec3 t = pose.translation();
+        const Mat3 R = pose.rotation();
+        // Intrinsic
+        const double f = pinhole_cam->focal();
+        const Vec2 pp = pinhole_cam->principal_point();
+
+        // Image size in px
+        const int w = pinhole_cam->w();
+        const int h = pinhole_cam->h();
+
+        // We can now create the .cam file for the View in the output dir
+        std::ofstream outfile(stlplus::create_filespec(
+            _undist_img_path.toStdString(), stlplus::basename_part(view->s_Img_path), "cam").c_str());
+        // See https://github.com/nmoehrle/mvs-texturing/blob/master/apps/texrecon/arguments.cpp
+        // for full specs
+        const int largerDim = w > h ? w : h;
+        outfile << t(0) << " " << t(1) << " " << t(2) << " "
+            << R(0, 0) << " " << R(0, 1) << " " << R(0, 2) << " "
+            << R(1, 0) << " " << R(1, 1) << " " << R(1, 2) << " "
+            << R(2, 0) << " " << R(2, 1) << " " << R(2, 2) << "\n"
+            << f / largerDim << " 0 0 1 " << pp(0) / w << " " << pp(1) / h;
+        outfile.close();
+
+    }
+
+    return true;
 }
 
 void Texturing3D::writeKml(QString model_path, QString model_prefix)
@@ -122,6 +191,19 @@ bool Texturing3D::start()
 {
     setOkStatus();
 
+    static const QString SEP = QDir::separator();
+
+    // get params
+    m_source_dir = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+
+    m_outdir = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    if (m_outdir.isEmpty())
+        m_outdir = "outReconstruction";
+
+    m_outdir = m_source_dir + SEP + m_outdir;
+
+    m_out_filename_prefix = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+
     return true;
 }
 
@@ -139,61 +221,27 @@ void Texturing3D::onFlush(quint32 port)
     emit signal_processCompletion(0);
     emit signal_userInformation("Texturing3D start");
 
-    // Dir checks
-    QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-
-    QString outDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
-    if(outDirnameStr.isEmpty())
-        outDirnameStr = "outReconstruction";
-
-    QString completeOutPath = rootDirnameStr + SEP + outDirnameStr;
-
-    QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
-
     // Get context
     QVariant *object = _context->getObject("reconstruction_context");
-    reconstructionContext * rc=NULL;
+    reconstructionContext * rc;
     if (object)
         rc = object->value<reconstructionContext*>();
+    else
+        fatalErrorExit("Context issue ...");
 
     for(unsigned int i=0; i<rc->components_ids.size(); i++)
     {
 
-        // Convert model to mve
+        // Convert model to mvs-texturing
         emit signal_userInformation("Texturing3D convert");
+        
+        QString scene_dir_i = m_outdir + QString("_%1").arg(rc->components_ids[i]);
+        QString mesh_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".ply";
+        QString undist_dir_i = scene_dir_i + SEP + "undist_imgs";
+        QString sfm_data_file = scene_dir_i + SEP + "sfm_data.bin";
 
-        QProcess featuresProc;
-        featuresProc.setWorkingDirectory(rootDirnameStr);
-        featuresProc.start("openMVG_main_openMVG2MVE2 -i ."+SEP+ outDirnameStr+QString("_%1").arg(rc->components_ids[i]) +SEP+"sfm_data.bin -o ."+SEP+ outDirnameStr+QString("_%1").arg(rc->components_ids[i]) +SEP);
-
-        int starcount = 0;
-        int lastpct = 0;
-        while(featuresProc.waitForReadyRead(-1))
-        {
-            if(!isStarted())
-            {
-                featuresProc.kill();
-                fatalErrorExit("openMVG2MVE2 Cancelled");
-                return;
-            }
-
-            QString output = featuresProc.readAllStandardOutput();
-
-            if(output.contains("Exporting views..."))
-            {
-                emit signal_userInformation("Text Convert : views");
-                starcount = 0;
-            }
-
-            // traiter les étoiles
-            int pct = progressStarCountPct(output, starcount);
-            if(pct != lastpct)
-            {
-                emit signal_processCompletion(pct);
-                lastpct = pct;
-            }
-            qDebug() << output;
-        }
+        if (!this->generateCamFile(sfm_data_file, undist_dir_i))
+            continue;
 
         // Texture model
         emit signal_userInformation("Texturing3D texturing");
@@ -203,11 +251,11 @@ void Texturing3D::onFlush(quint32 port)
         bool keep_unseen_faces = _matisseParameters->getBoolParamValue("algo_param", "keep_unseen_faces", ok);
         if(ok && keep_unseen_faces)
             cmdLine += " --keep_unseen_faces";
-        cmdLine += " ."+SEP+ outDirnameStr+QString("_%1").arg(rc->components_ids[i]) +SEP+ MVE_EMBEDDED;
-        cmdLine += "."+SEP+ outDirnameStr+QString("_%1").arg(rc->components_ids[i]) +SEP+fileNamePrefixStr+QString("_%1").arg(rc->components_ids[i]) + "_dense_mesh.ply ";
-        cmdLine += "."+SEP+ outDirnameStr+QString("_%1").arg(rc->components_ids[i]) +SEP+fileNamePrefixStr+QString("_%1").arg(rc->components_ids[i]) + "_texrecon";
+        cmdLine += " " + undist_dir_i;
+        cmdLine += " "+ mesh_data_file;
+        cmdLine += " "+ m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + "_texrecon";
         QProcess textureProc;
-        textureProc.setWorkingDirectory(rootDirnameStr);
+        textureProc.setWorkingDirectory(scene_dir_i);
         textureProc.start(cmdLine);
 
         bool initer = false;
@@ -310,12 +358,15 @@ void Texturing3D::onFlush(quint32 port)
         }
 
         // Write kml associated to model
-        writeKml(completeOutPath+QString("_%1").arg(rc->components_ids[i]), fileNamePrefixStr+QString("_%1").arg(rc->components_ids[i]) + "_texrecon");
+        writeKml(scene_dir_i, m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + "_texrecon");
 
         emit signal_processCompletion(100);
         emit signal_userInformation("Texturing3D end");
 
     }
+
+    // update suffix
+    rc->out_file_suffix = "_texrecon";
 
     // Flush next module port
     flush(0);
