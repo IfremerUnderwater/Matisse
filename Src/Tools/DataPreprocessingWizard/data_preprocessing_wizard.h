@@ -3,6 +3,7 @@
 
 #include <QWizard>
 #include "nav_file_reader.h"
+#include "dim2_file_reader.h"
 
 namespace Ui {
 class DataPreprocessingWizard;
@@ -18,12 +19,14 @@ public:
 
 public slots:
     void sl_selectDataPath();
+    void sl_selectDim2File();
     void sl_selectOutputPath();
     void sl_selectNavFile();
     void sl_pageChanged(int _page_idx);
     void sl_selectAllFiles();
     void sl_deselectAllFiles();
     void sl_finished(int _state);
+    void sl_handleUseRtDim2();
 
 private:
 
@@ -40,6 +43,7 @@ private:
     QStringList m_found_files;
 
     NavFileReader *m_nav_file;
+    Dim2FileReader* m_dim2_file;
 };
 
 #endif // DATA_PREPROCESSING_WIZARD_H

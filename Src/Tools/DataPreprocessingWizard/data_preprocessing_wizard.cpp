@@ -27,10 +27,13 @@ double RAD2DEG=180/M_PI;
 DataPreprocessingWizard::DataPreprocessingWizard(QWidget *parent) :
     QWizard(parent),
     ui(new Ui::DataPreprocessingWizard),
-    m_nav_file(NULL)
+    m_nav_file(NULL),
+    m_dim2_file(NULL)
 {
     ui->setupUi(this);
 
+    connect(ui->use_rt_dim2_cb, SIGNAL(stateChanged(int)), this, SLOT(sl_handleUseRtDim2()));
+    connect(ui->select_dim2_file, SIGNAL(released()), this, SLOT(sl_selectDim2File()));
     connect(ui->select_path, SIGNAL(released()), this, SLOT(sl_selectDataPath()));
     connect(ui->select_nav_file, SIGNAL(released()), this, SLOT(sl_selectNavFile()));
     connect(ui->select_all, SIGNAL(released()), this, SLOT(sl_selectAllFiles()));
@@ -46,7 +49,10 @@ DataPreprocessingWizard::~DataPreprocessingWizard()
     delete ui;
     if (m_nav_file)
         delete m_nav_file;
+    if (m_dim2_file)
+        delete m_dim2_file;
 }
+
 
 void DataPreprocessingWizard::sl_selectDataPath()
 {
@@ -75,6 +81,19 @@ void DataPreprocessingWizard::sl_selectOutputPath()
         if (QDir::separator()=="\\")
             output_folder.replace("/","\\");
         ui->out_data_path_line->setText(output_folder);
+    }
+}
+
+void  DataPreprocessingWizard::sl_selectDim2File()
+{
+    QString dim2_file = QFileDialog::getOpenFileName(this,
+        tr("Open dim2 file"), "./", tr("Nav Files (*.dim2)"));
+
+    if (!dim2_file.isEmpty())
+    {
+        if (QDir::separator() == "\\")
+            dim2_file.replace("/", "\\");
+        ui->rt_dim2_file->setText(dim2_file);
     }
 }
 
@@ -357,16 +376,33 @@ void DataPreprocessingWizard::video2Images()
                             double date_time_double = ((double)date_time_img.toMSecsSinceEpoch());
 
                             QString dim2_line("0;%1;%2;video;video;%3;%4;%5;%6;%7;%8;%9;%10;;;;;;;;;;;;;;;;;\n");
-                            dim2_line = dim2_line.arg(date_img.toString("dd/MM/yyyy"))
+
+                            if (m_dim2_file->isValid())
+                            {
+                                dim2_line = dim2_line.arg(date_img.toString("dd/MM/yyyy"))
                                     .arg(time_img.toString("hh:mm:ss.zzz"))
                                     .arg(new_file_name)
-                                    .arg(m_nav_file->latAtTime(date_time_double),0,'f',10)
-                                    .arg(m_nav_file->lonAtTime(date_time_double),0,'f',10)
-                                    .arg(m_nav_file->depthAtTime(date_time_double),0,'f',3)
-                                    .arg(m_nav_file->altAtTime(date_time_double),0,'f',3)
-                                    .arg(m_nav_file->yawAtTime(date_time_double)*RAD2DEG,0,'f',2)
-                                    .arg(m_nav_file->rollAtTime(date_time_double)*RAD2DEG,0,'f',2)
-                                    .arg(m_nav_file->pitchAtTime(date_time_double)*RAD2DEG,0,'f',2);
+                                    .arg(m_nav_file->latAtTime(date_time_double), 0, 'f', 10)
+                                    .arg(m_nav_file->lonAtTime(date_time_double), 0, 'f', 10)
+                                    .arg(m_nav_file->depthAtTime(date_time_double), 0, 'f', 3)
+                                    .arg(m_dim2_file->altAtTime(date_time_double), 0, 'f', 3)
+                                    .arg(m_nav_file->yawAtTime(date_time_double) * RAD2DEG, 0, 'f', 2)
+                                    .arg(m_nav_file->rollAtTime(date_time_double) * RAD2DEG, 0, 'f', 2)
+                                    .arg(m_nav_file->pitchAtTime(date_time_double) * RAD2DEG, 0, 'f', 2);
+                            }
+                            else
+                            {
+                                dim2_line = dim2_line.arg(date_img.toString("dd/MM/yyyy"))
+                                    .arg(time_img.toString("hh:mm:ss.zzz"))
+                                    .arg(new_file_name)
+                                    .arg(m_nav_file->latAtTime(date_time_double), 0, 'f', 10)
+                                    .arg(m_nav_file->lonAtTime(date_time_double), 0, 'f', 10)
+                                    .arg(m_nav_file->depthAtTime(date_time_double), 0, 'f', 3)
+                                    .arg(m_nav_file->altAtTime(date_time_double), 0, 'f', 3)
+                                    .arg(m_nav_file->yawAtTime(date_time_double) * RAD2DEG, 0, 'f', 2)
+                                    .arg(m_nav_file->rollAtTime(date_time_double) * RAD2DEG, 0, 'f', 2)
+                                    .arg(m_nav_file->pitchAtTime(date_time_double) * RAD2DEG, 0, 'f', 2);
+                            }
                             nav_out_file_stream << dim2_line;
                         }
                     }
@@ -436,16 +472,34 @@ void DataPreprocessingWizard::preprocessImages()
 
                     double date_time_double = ((double)date_time.toMSecsSinceEpoch());
 
-                    QString dim2_line("0;%1;%2;video;video;%3;%4;%5;%6;-99;%7;%8;%9;;;;;;;;;;;;;;;;;\n");
-                    dim2_line = dim2_line.arg(date.toString("dd/MM/yyyy"))
+                    QString dim2_line("0;%1;%2;photo;photo;%3;%4;%5;%6;%7;%8;%9;%10;;;;;;;;;;;;;;;;;\n");
+
+                    if (m_dim2_file->isValid())
+                    {
+                        dim2_line = dim2_line.arg(date.toString("dd/MM/yyyy"))
                             .arg(time.toString("hh:mm:ss.zzz"))
                             .arg(image_file)
-                            .arg(m_nav_file->latAtTime(date_time_double),0,'f',10)
-                            .arg(m_nav_file->lonAtTime(date_time_double),0,'f',10)
-                            .arg(m_nav_file->depthAtTime(date_time_double),0,'f',3)
-                            .arg(m_nav_file->yawAtTime(date_time_double)*RAD2DEG,0,'f',2)
-                            .arg(m_nav_file->rollAtTime(date_time_double)*RAD2DEG,0,'f',2)
-                            .arg(m_nav_file->pitchAtTime(date_time_double)*RAD2DEG,0,'f',2);
+                            .arg(m_nav_file->latAtTime(date_time_double), 0, 'f', 10)
+                            .arg(m_nav_file->lonAtTime(date_time_double), 0, 'f', 10)
+                            .arg(m_nav_file->depthAtTime(date_time_double), 0, 'f', 3)
+                            .arg(m_dim2_file->altAtTime(date_time_double), 0, 'f', 3)
+                            .arg(m_nav_file->yawAtTime(date_time_double) * RAD2DEG, 0, 'f', 2)
+                            .arg(m_nav_file->rollAtTime(date_time_double) * RAD2DEG, 0, 'f', 2)
+                            .arg(m_nav_file->pitchAtTime(date_time_double) * RAD2DEG, 0, 'f', 2);
+                    }
+                    else
+                    {
+                        dim2_line = dim2_line.arg(date.toString("dd/MM/yyyy"))
+                            .arg(time.toString("hh:mm:ss.zzz"))
+                            .arg(image_file)
+                            .arg(m_nav_file->latAtTime(date_time_double), 0, 'f', 10)
+                            .arg(m_nav_file->lonAtTime(date_time_double), 0, 'f', 10)
+                            .arg(m_nav_file->depthAtTime(date_time_double), 0, 'f', 3)
+                            .arg(m_nav_file->altAtTime(date_time_double), 0, 'f', 3)
+                            .arg(m_nav_file->yawAtTime(date_time_double) * RAD2DEG, 0, 'f', 2)
+                            .arg(m_nav_file->rollAtTime(date_time_double) * RAD2DEG, 0, 'f', 2)
+                            .arg(m_nav_file->pitchAtTime(date_time_double) * RAD2DEG, 0, 'f', 2);
+                    }
                     nav_out_file_stream << dim2_line;
                 }
             }
@@ -521,6 +575,15 @@ void DataPreprocessingWizard::sl_finished(int _state)
         else
             m_nav_file = new NavFileReader("");
 
+        if (ui->use_rt_dim2_cb->isChecked())
+        {
+            QString rt_dim2_file = ui->rt_dim2_file->text();
+            if (!rt_dim2_file.isEmpty())
+                m_dim2_file = new Dim2FileReader(rt_dim2_file);
+            else
+                m_dim2_file = new Dim2FileReader("");
+        }
+
         if (m_data_type == "Video")
         {
             video2Images(); // transform video to images
@@ -535,4 +598,18 @@ void DataPreprocessingWizard::sl_finished(int _state)
                              tr("Preprocessing ended"));
     QApplication::quit();
 
+}
+
+void DataPreprocessingWizard::sl_handleUseRtDim2()
+{
+    if (ui->use_rt_dim2_cb->isChecked())
+    {
+        ui->rt_dim2_file->setEnabled(true);
+        ui->select_dim2_file->setEnabled(true);
+    }
+    else
+    {
+        ui->rt_dim2_file->setEnabled(false);
+        ui->select_dim2_file->setEnabled(false);
+    }
 }

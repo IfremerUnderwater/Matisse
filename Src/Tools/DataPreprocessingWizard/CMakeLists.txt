@@ -3,7 +3,8 @@ add_executable(DataPreprocessingWizard
     data_preprocessing_wizard.cpp
     interpolator.cpp
     angle_interpolator.cpp
-    nav_file_reader.cpp)
+    nav_file_reader.cpp
+	dim2_file_reader.cpp)
 
 set_target_properties(DataPreprocessingWizard PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
 

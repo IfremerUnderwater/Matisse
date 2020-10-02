@@ -10,8 +10,17 @@
 double DEG2RAD=M_PI/180;
 
 
-NavFileReader::NavFileReader(QString _file_path):m_file_path(_file_path),m_is_valid(false)
+NavFileReader::NavFileReader(QString _file_path):m_file_path(_file_path),m_is_valid(false),
+m_lat_interpolator(NULL),
+m_lon_interpolator(NULL),
+m_depth_interpolator(NULL),
+m_alt_interpolator(NULL),
+m_roll_interpolator(NULL),
+m_pitch_interpolator(NULL),
+m_yaw_interpolator(NULL)
 {
+
+
     if(loadFileToMemory())
         m_is_valid=true;
 }
