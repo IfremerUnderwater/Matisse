@@ -38,7 +38,7 @@ public:
 	/// <param name="_output_image">Compensated output image</param>
 	/// <param name="_temporal_median_image">Temporal median image</param>
 	/// <returns>true on success</returns>
-	bool compensateIllumination(cv::Mat& _input_image, cv::Mat& _output_image, Mat& _temporal_median_image);
+	bool compensateIllumination(cv::Mat& _input_image, cv::Mat& _output_image, cv::Mat& _temporal_median_image);
 
 
 

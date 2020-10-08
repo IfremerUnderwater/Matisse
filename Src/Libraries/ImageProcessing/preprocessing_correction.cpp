@@ -3,9 +3,11 @@
 #include "stdvectoperations.h"
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
+#include <Eigen/dense>
 
 using namespace std;
 using namespace cv;
+using namespace Eigen;
 
 PreprocessingCorrection::PreprocessingCorrection(int _ws) :m_ws(_ws), m_scaling_factor(1.0)
 {
@@ -134,15 +136,65 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 {
 	// spatially filter temporal median image
 	Mat _temporal_spatial_median_image;
-	std::vector<double> _temporal_spatial_median_image;
+	std::vector<double> _temporal_spatial_median_vect;
 	medianBlur(_temporal_median_image, _temporal_spatial_median_image, 5);
+
+	double out_perc = 0.01; // outlier percentage
+	vector<double> channel_limits;
+	vector<double> quantiles;
+	quantiles.push_back(out_perc);
+	quantiles.push_back(1 - out_perc);
 
 	for (int w = 0; w < _temporal_spatial_median_image.rows; w++)
 	{
 		for (int h = 0; h < _temporal_spatial_median_image.cols; h++)
 		{
-			_temporal_spatial_median_image.push_back(_temporal_spatial_median_image.at<float>(w, h));
+			_temporal_spatial_median_vect.push_back(_temporal_spatial_median_image.at<float>(w, h));
 		}
 	}
+	channel_limits = doubleQuantiles(_temporal_spatial_median_vect, quantiles);
+
+	// Construct x,y,z fitting dataset (x = width, y = height, z=intensity) for paraboloid model
+	vector<double> x, y, z;
+	double temp_z;
+	for (int w = 0; w < _temporal_spatial_median_image.rows; w++)
+	{
+		for (int h = 0; h < _temporal_spatial_median_image.cols; h++)
+		{
+			temp_z = _temporal_spatial_median_image.at<float>(w, h);
+			if (temp_z > channel_limits[0] && temp_z < channel_limits[1])
+			{
+				x.push_back(w);
+				y.push_back(h);
+				z.push_back(temp_z);
+			}
+		}
+	}
+
+	// Solve paraboloid
+	MatrixXf A = MatrixXf::Zero(x.size(),10);
+	VectorXf b = VectorXf::Zero(z.size());
+	
+	for (int i = 0; i < z.size(); i++)
+	{
+		// A = [x. ^ 3, y. ^ 3, x.*y. ^ 2, x. ^ 2. * y, x. ^ 2, y. ^ 2, x.*y, x, y, ones(size(x))];
+		// idx  0       1       2          3            4       5       6     7  8  9
+		A(i, 0) = pow(x[i], 3);
+		A(i, 1) = pow(y[i], 3);
+		A(i, 2) = x[i]*pow(y[i], 2);
+		A(i, 3) = pow(x[i],2)*y[i];
+		A(i, 4) = pow(x[i], 2);
+		A(i, 5) = pow(y[i], 2);
+		A(i, 6) = x[i]*y[i];
+		A(i, 7) = x[i];
+		A(i, 8) = y[i];
+
+		b(i) = z[i];
+
+	}
+
+	VectorXf alpha;
+	alpha = A.bdcSvd(ComputeThinU | ComputeThinV).solve(b); // solve A*alpha = b
+
 
 }
