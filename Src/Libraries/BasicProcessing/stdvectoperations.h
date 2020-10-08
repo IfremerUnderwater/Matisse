@@ -35,5 +35,13 @@ void doubleVectorScalarMult(vector<double> & _v, double _alpha );
 ///
 vector<int> integerQuantiles(vector<int> _v, vector<double> _quantiles);
 
+///
+/// \brief doubleQuantiles compute quantiles for double vectors
+/// \param _v input vector
+/// \param _quantiles required quantiles list
+/// \return return quantiles limits
+///
+vector<double> doubleQuantiles(vector<double> _v, vector<double> _quantiles);
+
 #endif // STDVECTOPERATIONS
 

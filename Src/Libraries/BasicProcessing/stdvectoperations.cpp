@@ -68,3 +68,17 @@ vector<int> integerQuantiles(vector<int> _v, vector<double> _quantiles)
     return quantiles_limits;
 
 }
+
+vector<double> doubleQuantiles(vector<double> _v, vector<double> _quantiles)
+{
+    // sort vector
+    sort(_v.begin(), _v.end());
+
+    vector<double> quantiles_limits;
+
+    for (unsigned int i = 0; i < _quantiles.size(); i++)
+        quantiles_limits.push_back(_v[round(_quantiles[i] * (double)_v.size())]);
+
+    return quantiles_limits;
+
+}

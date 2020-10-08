@@ -26,12 +26,19 @@ public:
 	bool correctImageList(std::vector<std::string> _input_img_files, std::string _output_path);
 
 	/// <summary>
+	/// Compute median image in the sliding window
+	/// </summary>
+	/// <returns>true on success</returns>
+	bool computeTemporalMedian();
+
+	/// <summary>
 	/// Compute pattern model and compensate illumination
 	/// </summary>
 	/// <param name="_input_image">Input image</param>
 	/// <param name="_output_image">Compensated output image</param>
+	/// <param name="_temporal_median_image">Temporal median image</param>
 	/// <returns>true on success</returns>
-	bool compensateIllumination(cv::Mat& _input_image, cv::Mat& _output_image);
+	bool compensateIllumination(cv::Mat& _input_image, cv::Mat& _output_image, Mat& _temporal_median_image);
 
 
 

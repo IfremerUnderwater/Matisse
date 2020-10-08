@@ -74,13 +74,13 @@ bool PreprocessingCorrection::correctImageList(std::vector<std::string> _input_i
 
 	}
 
-	if (!computeMedian())
+	if (!computeTemporalMedian())
 		return false;
 
 	return true;
 }
 
-bool PreprocessingCorrection::computeMedian()
+bool PreprocessingCorrection::computeTemporalMedian()
 {
 	// check we have at least one image for correction
 	if (m_blue_stack_images.size() < 1)
@@ -105,7 +105,7 @@ bool PreprocessingCorrection::computeMedian()
 
 	for (int w = 0; w < images_size.width; w++)
 	{
-		for (int h = 0; w < images_size.height; w++)
+		for (int h = 0; h < images_size.height; h++)
 		{
 			for (int k = 0; k < m_blue_stack_images.size(); k++)
 			{
@@ -130,7 +130,19 @@ bool PreprocessingCorrection::computeMedian()
 	return true;
 }
 
-bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _output_image)
+bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _output_image, Mat& _temporal_median_image)
 {
+	// spatially filter temporal median image
+	Mat _temporal_spatial_median_image;
+	std::vector<double> _temporal_spatial_median_image;
+	medianBlur(_temporal_median_image, _temporal_spatial_median_image, 5);
+
+	for (int w = 0; w < _temporal_spatial_median_image.rows; w++)
+	{
+		for (int h = 0; h < _temporal_spatial_median_image.cols; h++)
+		{
+			_temporal_spatial_median_image.push_back(_temporal_spatial_median_image.at<float>(w, h));
+		}
+	}
 
 }
