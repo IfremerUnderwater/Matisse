@@ -142,7 +142,6 @@ private:
     QString _importPath;
     QString _archivePath;
     QString m_remote_output_path;
-    QString m_remote_input_path;
 
     MatissePreferences* _preferences;
     QTranslator* _toolsTranslator_en;
@@ -175,7 +174,7 @@ private:
     ParametersWidgetSkeleton * _parametersWidget;
     QLabel* _messagesPicto;
 
-    QString _currentBundleForRemoteExecution;
+    QString m_current_remote_execution_bundle;
 
     QTreeWidgetItem *_assemblyVersionPropertyItem;
     QTreeWidgetItem *_assemblyCreationDatePropertyItem;

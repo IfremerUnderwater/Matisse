@@ -71,7 +71,7 @@ RemoteJobHelper::RemoteJobHelper(QObject* _parent)
   m_commands_by_action(),
   m_jobs_by_command(),
   m_jobs_by_action(),
-  m_selected_dataset_path() 
+  m_selected_remote_dataset_path() 
 {
 }
 
@@ -144,8 +144,9 @@ void RemoteJobHelper::init() {
   m_is_remote_exec_on = true;
   m_host_and_creds_known = false;
 
-  connect(m_sftp_client, SIGNAL(si_connectionFailed(SshClient::ErrorCode)),
-          SLOT(sl_onConnectionFailed(SshClient::ErrorCode)));
+  connect(m_sftp_client,
+          SIGNAL(si_connectionFailed(SshClient::ConnectionError)),
+          SLOT(sl_onConnectionFailed(SshClient::ConnectionError)));
   connect(m_sftp_client, SIGNAL(si_transferFinished(SshAction*)),
           SLOT(sl_onTransferFinished(SshAction*)));
   connect(m_sftp_client, SIGNAL(si_transferFailed(SshAction*, SshClient::TransferError)),
@@ -154,8 +155,8 @@ void RemoteJobHelper::init() {
           SIGNAL(si_dirContents(QList<SshFileInfo*>)),
           SLOT(sl_onDirContentsReceived(QList<SshFileInfo*>)));
   
-  connect(m_ssh_client, SIGNAL(si_connectionFailed(SshClient::ErrorCode)),
-          SLOT(sl_onConnectionFailed(SshClient::ErrorCode)));
+  connect(m_ssh_client, SIGNAL(si_connectionFailed(SshClient::ConnectionError)),
+          SLOT(sl_onConnectionFailed(SshClient::ConnectionError)));
   connect(m_ssh_client, SIGNAL(si_shellOutputReceived(SshAction*, QByteArray)),
     SLOT(sl_onShellOutputReceived(SshAction*, QByteArray)));
   connect(m_ssh_client, SIGNAL(si_shellErrorReceived(SshAction*, QByteArray)),
@@ -164,25 +165,70 @@ void RemoteJobHelper::init() {
 
 
 
-void RemoteJobHelper::uploadDataset(QString _job_name, QString _local_dataset_dir) {
+void RemoteJobHelper::uploadDataset(QString _job_name) {
   if (!checkRemoteExecutionActive(
           tr("cannot upload dataset to remote server."))) {
     return;
   }
 
-  qDebug() << QString("Uploading dataset %1...").arg(_local_dataset_dir);
-
   m_current_job_name = _job_name;
-  m_selected_dataset_path = "";
+  m_selected_remote_dataset_path = "";
+
+  /* Prompt user to select local dataset */
+  QSettings settings("IFREMER", "Matisse3D");
+  QVariant ul_path_setting = settings.value("remote/localUploadPath");
+
+  QFileDialog dialog(m_job_launcher, tr("Select dataset to upload"));
+  dialog.setFileMode(QFileDialog::Directory);
+  if (!ul_path_setting.isNull()) {
+    QString ul_path = ul_path_setting.toString();
+    dialog.setDirectory(ul_path);
+  }
+
+  if (!dialog.exec()) {
+    qCritical() << "File dialog could no execute";
+    return;
+  }
+
+  QStringList filenames = dialog.selectedFiles();
+  if (filenames.isEmpty()) {
+    qCritical() << "No dataset folder selected, upload could not be performed";
+    return;
+  }
+
+  QString local_dataset_dir_name = filenames.at(0);
+
+  if (local_dataset_dir_name.isEmpty()) {
+    qCritical() << "Selected dataset folder name is empty, upload could not be "
+                   "performed";
+    return;
+  }
+
+  QDir local_dataset_dir(local_dataset_dir_name);
+  if (!local_dataset_dir.exists()) {
+    qCritical() << QString(
+                       "Dataset folder %1 does not exist, upload could not be "
+                       "performed")
+                       .arg(local_dataset_dir_name);
+    return;
+  }
+
+  QString local_dataset_dir_path = local_dataset_dir.canonicalPath();
+
+  /* Persist selected folder */
+  QVariant new_ul_path_setting(local_dataset_dir_path);
+  settings.setValue("remote/localUploadPath", new_ul_path_setting);
+
+  qDebug() << QString("Uploading dataset %1...").arg(local_dataset_dir_path);
 
   /* Remove existing result files if present */
-  QDir local_dir(_local_dataset_dir);
-  QStringList subdirs = local_dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+  QStringList subdirs = local_dataset_dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
   if (!subdirs.isEmpty()) {
     QMessageBox::StandardButton answer = QMessageBox::question(
         m_job_launcher, tr("Remove unnecessary files from dataset directory"),
         tr("Previous result files shall not be uploaded.\nRemove all "
-           "subdirectories from local dataset directory '%1' ?").arg(_local_dataset_dir));
+           "subdirectories from local dataset directory '%1' ?")
+            .arg(local_dataset_dir_path));
 
     if (answer == QMessageBox::No) {
       qWarning() << "Dataset upload cancelled by user : refused to remove result files from dataset dir";
@@ -191,7 +237,7 @@ void RemoteJobHelper::uploadDataset(QString _job_name, QString _local_dataset_di
 
     for (QString subdir_name : subdirs) {
       qDebug() << "Removing dataset subdir " << subdir_name;
-      QString subdir_path = _local_dataset_dir + QDir::separator() + subdir_name;
+      QString subdir_path = local_dataset_dir_path + QDir::separator() + subdir_name;
       QDir subdir(subdir_path);
       bool status = subdir.removeRecursively();
       if (!status) {
@@ -204,21 +250,20 @@ void RemoteJobHelper::uploadDataset(QString _job_name, QString _local_dataset_di
   /* Check for navigation files */
   QStringList name_filters;
   name_filters << "*.dim2" << "*.txt";
-  QStringList nav_files = local_dir.entryList(name_filters, QDir::Files);
+  QStringList nav_files = local_dataset_dir.entryList(name_filters, QDir::Files);
 
   if (nav_files.isEmpty()) {
     QMessageBox::warning(
       m_job_launcher, 
       tr("Navigation file not found"),
       tr("No navigation file (*.dim2 or *.txt) was found in the selected dataset dir '%1'.\nThe navigation file must be included in the uploaded dataset dir.")
-      .arg(_local_dataset_dir));
+            .arg(local_dataset_dir_path));
     return;
   }
 
   QString selected_nav_file = QFileDialog::getOpenFileName(
     m_job_launcher, 
-    tr("Select navigation file"),
-    _local_dataset_dir,
+    tr("Select navigation file"), local_dataset_dir_path,
     tr("Navigation Files (%1)").arg(name_filters.join(" ")));
 
   if (selected_nav_file.isEmpty()) {
@@ -230,16 +275,16 @@ void RemoteJobHelper::uploadDataset(QString _job_name, QString _local_dataset_di
   QString nav_file_name = nav_file_info.fileName();
 
   /* Update job parameter file */
-  QString dataset_root_dir = m_prefs->remoteDefaultDataPath();
-  QString dataset_root_dir_binding = "~/matisse_data";
-  QString dir_name = local_dir.dirName();
-  QString remote_dataset_dir = dataset_root_dir_binding + '/' + dir_name;
+  QString dataset_root_dir_bound = m_server_settings->datasetsPathBound();
+  QString dir_name = local_dataset_dir.dirName();
+  QString remote_dataset_dir = dataset_root_dir_bound + '/' + dir_name;
   
   updateJobParameters(_job_name, remote_dataset_dir, nav_file_name);
 
   /* Create and enqueue upload action */
-  SshAction* action = new UploadDirAction(m_sftp_client, _local_dataset_dir,
-                                          dataset_root_dir);
+  SshAction* action =
+      new UploadDirAction(m_sftp_client, local_dataset_dir_path,
+                                          m_server_settings->datasetsPath());
   action->setMetainfo("dataset");
   m_pending_action_queue.enqueue(action);
   m_jobs_by_action.insert(action, _job_name);
@@ -255,10 +300,10 @@ void RemoteJobHelper::selectRemoteDataset(QString _job_name) {
   qDebug() << QString("Selecting dataset for job '%1'...").arg(_job_name);
 
   m_current_job_name = _job_name;
-  m_selected_dataset_path = "";
+  m_selected_remote_dataset_path = "";
 
   SshAction* action =
-      new ListDirContentAction(m_sftp_client, m_prefs->remoteDefaultDataPath(),
+      new ListDirContentAction(m_sftp_client, m_server_settings->datasetsPath(),
                                FileTypeFilter::Dirs);
 
   m_pending_action_queue.enqueue(action);
@@ -272,7 +317,7 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
   }
 
   m_current_job_name = _job_name;
-  m_selected_dataset_path = "";
+  m_selected_remote_dataset_path = "";
 
   QFileInfo bundle_info(_local_job_bundle_file);
   if (!bundle_info.exists()) 
@@ -317,7 +362,7 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
       QString(job_export_path) + QDir::separator() + target_script_file_name;
   pbs_template.copy(target_script_path);
 
-  /* Substitute script variables */
+  /* Substitute PBS script variables */
   QFile target_script_file(target_script_path);
   if (!target_script_file.open(QIODevice::ReadOnly |
                                QIODevice::Text)) {
@@ -330,18 +375,32 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
 
   target_script_file.close();
 
-  QString remote_jobs_root = "/home/matisse/jobs"; // TODO : use binding ~/jobs
-  QString remote_jobs_root_binding = "~/matisse_jobs"; // current account binding
+  QString remote_jobs_root = m_server_settings->jobsPath();
   QString remote_job_bundle_path = remote_jobs_root + '/' + job_export_name;
-  QString remote_job_bundle_path_binding = remote_jobs_root_binding + '/' + job_export_name;
+  QString remote_job_bundle_path_bound = m_server_settings->jobsPathBound() + '/' + job_export_name;
 
   QMap<QString, QString> variables;
+  variables.insert("server.container.image", m_server_settings->containerImage().path());
+  variables.insert("launch.script.path", m_server_settings->launcherParentDir().path());
+  variables.insert("launch.script.binding", m_server_settings->launcherParentDir().alias());
+  variables.insert("launch.script.name", m_server_settings->launcherFile().path());
+  variables.insert("bin.root.path", m_server_settings->binRoot().path());
+  variables.insert("bin.root.binding", m_server_settings->binRoot().alias());
+  variables.insert("runtime.files.root.path", m_server_settings->applicationFilesRoot().path());
+  variables.insert("runtime.datasets.subdir", m_server_settings->datasetsSubdir().path());
+  variables.insert("runtime.datasets.binding", m_server_settings->datasetsSubdir().alias());
+  variables.insert("runtime.jobs.subdir", m_server_settings->jobsSubdir().path());
+  variables.insert("runtime.jobs.binding", m_server_settings->jobsSubdir().alias());
+  variables.insert("runtime.results.subdir", m_server_settings->resultsSubdir().path());
+  variables.insert("runtime.results.binding", m_server_settings->resultsSubdir().alias());
   variables.insert("jobs.root.path", remote_job_bundle_path);
-  variables.insert("jobs.root.path.binding", remote_job_bundle_path_binding);
+  variables.insert("jobs.root.path.bound", remote_job_bundle_path_bound);
   variables.insert("job.name", _job_name);
   variables.insert("job.export.name", job_export_name);
   variables.insert("scheduler.queue.name", m_prefs->remoteQueueName());
-  variables.insert("job.owner.email", "bg@innosense.eu");
+  variables.insert("job.resources.ncpus", QVariant(m_prefs->remoteNbOfCpus()).toString());
+  variables.insert("job.owner.email", m_prefs->remoteUserEmail());
+  
   QString custom_text = StringUtils::substitutePlaceHolders(template_text, variables);
 
   /* Force Unix-syle writing (replace CRLF by LF) to ensure compatibility with PBS server */
@@ -393,17 +452,61 @@ void RemoteJobHelper::downloadResults(QString _job_name)
     return;
   }
 
+  /* Retrieve bound result path from parameters */
   KeyValueList kvl;
   kvl.insert(DATASET_PARAM_OUTPUT_DIR, "");
   m_param_manager->pullDatasetParameters(kvl);
 
   QString remote_dir_path = kvl.getValue(DATASET_PARAM_OUTPUT_DIR);
 
-  // TODO hack to substitute binded path by real path
-  remote_dir_path.replace(
-      "~/matisse_results", "/home/matisse/results");
+  /* Substitute container bound result path by real path */
+  remote_dir_path.replace(m_server_settings->resultsPathBound(), m_server_settings->resultsPath());
 
-  QString local_base_dir_path = m_input_path + QDir::separator() + _job_name;
+  /* Open dialog for user to select target folder */
+  QSettings settings("IFREMER", "Matisse3D");
+  QVariant dl_path_setting = settings.value("remote/localDownloadPath");
+
+  QFileDialog dialog(m_job_launcher, tr("Select results destination folder"));
+  dialog.setFileMode(QFileDialog::Directory);
+  if (!dl_path_setting.isNull()) {
+    QString dl_path = dl_path_setting.toString();
+    dialog.setDirectory(dl_path);
+  }
+
+  if (!dialog.exec()) {
+    qCritical() << "RemoteJobHelper: file dialog could no execute";
+    return;
+  }
+
+  QStringList filenames = dialog.selectedFiles();
+  if (filenames.isEmpty()) {
+    qCritical() << "No results destination folder selected, upload could not be performed";
+    return;
+  }
+
+  QString results_dest_dir_name = filenames.at(0);
+
+  if (results_dest_dir_name.isEmpty()) {
+    qCritical() << "Selected results destination folder name is empty, download could not be "
+                   "performed";
+    return;
+  }
+
+  QDir results_dest_dir(results_dest_dir_name);
+  if (!results_dest_dir.exists()) {
+    qCritical() << QString(
+                       "Results destination folder %1 does not exist, download could not be "
+                       "performed")
+                       .arg(results_dest_dir_name);
+    return;
+  }
+
+  /* Persist selected folder */
+  QVariant new_dl_path_setting(results_dest_dir_name);
+  settings.setValue("remote/localDownloadPath", new_dl_path_setting);
+
+  /* Prepare download */
+  QString local_base_dir_path = results_dest_dir.canonicalPath() + QDir::separator() + _job_name;
   QDir local_base_dir(local_base_dir_path);
   if (!local_base_dir.exists()) {
     local_base_dir.mkpath(".");
@@ -476,13 +579,8 @@ void RemoteJobHelper::setParametersManager(
   m_param_manager = _param_manager;
 }
 
-void RemoteJobHelper::setOutputPath(QString _output_path) {
-  m_output_path = _output_path;
-}
-
-void RemoteJobHelper::setInputPath(QString _input_path) 
-{
-  m_input_path = _input_path;
+void RemoteJobHelper::setServerSettings(MatisseRemoteServerSettings* _server_settings) {
+  m_server_settings = _server_settings;
 }
 
 void RemoteJobHelper::checkHostAndCredentials() {
@@ -554,8 +652,7 @@ void RemoteJobHelper::updateJobParameters(QString _job_name,
   QString remote_nav_file_path = (_nav_file.isEmpty()) ? "" :
     _remote_dataset_path + '/' + _nav_file;
   QString job_export_name = _job_name + '_' + m_prefs->remoteUsername();
-  //QString job_result_path = m_prefs->remoteResultPath() + '/' + job_export_name;
-  QString job_result_path = QString("~/matisse_results") + '/' + job_export_name;
+  QString job_result_path = m_server_settings->resultsPathBound() + '/' + job_export_name;
 
   KeyValueList kvl;
   kvl.set(DATASET_PARAM_DATASET_DIR, _remote_dataset_path);
@@ -689,9 +786,9 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<SshFileInfo*> _contents) {
 
   hideProgress();
 
-  if (m_selected_dataset_path.isEmpty()) {
+  if (m_selected_remote_dataset_path.isEmpty()) {
     /* First round : selecting dataset dir */
-    QString data_root_folder = m_prefs->remoteDefaultDataPath();
+    QString data_root_folder = m_server_settings->datasetsPath();
 
     RemoteFileTreeModelFactory factory;
     TreeModel* model = factory.createModel(data_root_folder, _contents);
@@ -704,14 +801,14 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<SshFileInfo*> _contents) {
     QString selected_dataset = rfd.selectedFile();
     qDebug() << "Selected dataset: " << selected_dataset;
 
-    m_selected_dataset_path = data_root_folder + '/' + selected_dataset;
+    m_selected_remote_dataset_path = data_root_folder + '/' + selected_dataset;
 
     QStringList name_filters;
     name_filters << "*.dim2"
                  << "*.txt";
 
     SshAction* action = new ListDirContentAction(
-        m_sftp_client, m_selected_dataset_path,
+        m_sftp_client, m_selected_remote_dataset_path,
         FileTypeFilter::Files, name_filters);
 
     m_pending_action_queue.enqueue(action);
@@ -724,7 +821,7 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<SshFileInfo*> _contents) {
 
     if (!_contents.isEmpty()) {
       RemoteFileTreeModelFactory factory;
-      TreeModel* model = factory.createModel(m_selected_dataset_path, _contents);
+      TreeModel* model = factory.createModel(m_selected_remote_dataset_path, _contents);
       RemoteFileDialog rfd(model, m_job_launcher);
       
       if (rfd.exec()) {
@@ -733,7 +830,7 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<SshFileInfo*> _contents) {
         QMessageBox::warning(
             m_job_launcher, tr("Remote navigation file not selected"),
             tr("No navigation file was selected for remote dataset dir '%1'.\nPlease specify parameter manually.")
-                .arg(m_selected_dataset_path));
+                .arg(m_selected_remote_dataset_path));
       }
 
     } else { // no nav file found in remote dataset dir
@@ -741,15 +838,14 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<SshFileInfo*> _contents) {
           m_job_launcher, tr("Remote navigation file not found"),
           tr("No navigation file (*.dim2 or *.txt) was found in the selected "
              "dataset dir '%1'.\nPlease specify parameter manually.")
-              .arg(m_selected_dataset_path));
+              .arg(m_selected_remote_dataset_path));
     }
 
-    // TODO hack to substitute path with binding
-    int pos = m_selected_dataset_path.lastIndexOf('/') + 1;
-    QString dataset_dir = m_selected_dataset_path.mid(pos);
-    QString binded_dataset_path = "~/matisse_data/" + dataset_dir;
+    /* Substitute OS path for datasets root by container bound path */
+    QString current_dataset_path_bound = m_selected_remote_dataset_path;
+    current_dataset_path_bound.replace(m_server_settings->datasetsPath(), m_server_settings->datasetsPathBound());
 
-    updateJobParameters(m_current_job_name, binded_dataset_path, selected_navfile);
+    updateJobParameters(m_current_job_name, current_dataset_path_bound, selected_navfile);
   }
 }
 

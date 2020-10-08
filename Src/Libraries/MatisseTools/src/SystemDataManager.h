@@ -10,6 +10,7 @@
 #include <QtDebug>
 
 #include "MatissePreferences.h"
+#include "MatisseRemoteServerSettings.h"
 #include "PlatformInspector.h"
 #include "PlatformDump.h"
 #include "PlatformComparator.h"
@@ -36,11 +37,14 @@ public:
     QString getBinRootDir() const { return m_bin_root_dir; }
     QMap<QString, QString> getExternalTools() const;
 
-    QString getDefaultRemoteCommandServer() const { return m_default_remote_command_server; }
-    QString getDefaultRemoteFileServer() const { return m_default_remote_file_server; }
-    QString getDefaultRemoteQueueName() const { return m_default_remote_queue_name; }
+    QString defaultRemoteCommandServer() const { return m_default_remote_command_server; }
+    QString defaultRemoteFileServer() const { return m_default_remote_file_server; }
+    QString defaultRemoteQueueName() const { return m_default_remote_queue_name; }
+    int defaultRemoteNbOfCpus() const { return m_default_remote_nb_of_cpus; }
     QString getDefaultRemoteDataPath() const { return m_default_remote_data_path; }
     QString getDefaultRemoteResultPath() const { return m_default_remote_result_path; }
+
+    MatisseRemoteServerSettings *remoteServerSettings() { return m_remote_server_settings; }
 
     bool readMatisseSettings(QString filename);
     bool readMatissePreferences(QString filename, MatissePreferences &prefs);
@@ -51,7 +55,6 @@ public:
 
     PlatformComparisonStatus *compareRemoteAndLocalPlatform();
 
-
 private:
     void getPlatformDump();
 
@@ -60,10 +63,13 @@ private:
     QString m_bin_root_dir;
     QString _dllPath;
     QString _platformDumpPath;
+
+    MatisseRemoteServerSettings *m_remote_server_settings;
     
     QString m_default_remote_command_server;
     QString m_default_remote_file_server;
     QString m_default_remote_queue_name;
+    int m_default_remote_nb_of_cpus = 1;
     QString m_default_remote_data_path;
     QString m_default_remote_result_path;
     

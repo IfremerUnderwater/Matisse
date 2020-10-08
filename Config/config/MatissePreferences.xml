@@ -7,10 +7,12 @@
     <DefaultMosaicFilenamePrefix>MyProcessing</DefaultMosaicFilenamePrefix>
     <ProgrammingModeEnabled>false</ProgrammingModeEnabled>
     <Language>EN</Language>
-    <RemoteCommandServer>51.210.7.224</RemoteCommandServer>
-	<RemoteFileServer>51.210.7.224</RemoteFileServer>
-    <RemoteUsername>matisse</RemoteUsername>
-    <RemoteQueueName>workq</RemoteQueueName>
+    <RemoteCommandServer>datarmor</RemoteCommandServer>
+	<RemoteFileServer>datarmor</RemoteFileServer>
+    <RemoteUsername>aarnaubec</RemoteUsername>
+    <RemoteUserEmail>aurelien.arnaubec@ifremer.fr</RemoteUserEmail>
+    <RemoteQueueName>omp</RemoteQueueName>
+	<RemoteNbOfCpus>32</RemoteNbOfCpus>
     <RemoteDefaultDataPath>/home/matisse/datasets</RemoteDefaultDataPath>
     <RemoteResultPath>/home/matisse/results</RemoteResultPath>
 </MatissePreferences>

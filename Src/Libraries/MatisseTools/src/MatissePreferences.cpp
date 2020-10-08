@@ -101,6 +101,16 @@ void MatissePreferences::setRemoteUsername(const QString& _remote_username)
     m_remote_username = _remote_username;
 }
 
+QString MatissePreferences::remoteUserEmail() const 
+{ 
+  return m_remote_user_email; 
+}
+
+void MatissePreferences::setRemoteUserEmail(const QString &_remote_user_email) 
+{
+  m_remote_user_email = _remote_user_email;
+}
+
 QString MatissePreferences::remoteQueueName() const
 {
     return m_remote_queue_name;
@@ -109,6 +119,16 @@ QString MatissePreferences::remoteQueueName() const
 void MatissePreferences::setRemoteQueueName(const QString& _remote_queue_name)
 {
     m_remote_queue_name = _remote_queue_name;
+}
+
+int MatissePreferences::remoteNbOfCpus() const 
+{ 
+  return m_remote_nb_of_cpus; 
+}
+
+void MatissePreferences::setRemoteNbOfCpus(const int _remote_nb_of_cpus) 
+{
+  m_remote_nb_of_cpus = _remote_nb_of_cpus;
 }
 
 QString MatissePreferences::remoteDefaultDataPath() const

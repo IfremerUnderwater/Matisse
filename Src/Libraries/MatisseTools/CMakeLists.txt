@@ -17,6 +17,7 @@ add_library(MatisseTools
     src/EnrichedFileChooser.cpp
     src/MatissePreferences.cpp
     src/MatisseParametersManager.cpp
+    src/MatisseRemoteServerSettings.cpp
     src/EnrichedDecimalValueWidget.cpp
     src/httpImageDownloader.cpp
     src/ParametersHeaderButton.cpp

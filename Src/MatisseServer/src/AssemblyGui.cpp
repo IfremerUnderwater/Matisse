@@ -122,10 +122,11 @@ void AssemblyGui::initPreferences()
         QString sysUsername = qEnvironmentVariable("USER");
         if (sysUsername.isEmpty()) sysUsername = qEnvironmentVariable("USERNAME");
 
-        _preferences->setRemoteCommandServer(_systemDataManager->getDefaultRemoteCommandServer());
-        _preferences->setRemoteFileServer(_systemDataManager->getDefaultRemoteFileServer());
+        _preferences->setRemoteCommandServer(_systemDataManager->defaultRemoteCommandServer());
+        _preferences->setRemoteFileServer(_systemDataManager->defaultRemoteFileServer());
         _preferences->setRemoteUsername(sysUsername);
-        _preferences->setRemoteQueueName(_systemDataManager->getDefaultRemoteQueueName());
+        _preferences->setRemoteQueueName(_systemDataManager->defaultRemoteQueueName());
+        _preferences->setRemoteNbOfCpus(_systemDataManager->defaultRemoteNbOfCpus());
         _preferences->setRemoteDefaultDataPath(_systemDataManager->getDefaultRemoteDataPath());
         _preferences->setRemoteResultPath(_systemDataManager->getDefaultRemoteResultPath());
 
@@ -478,6 +479,7 @@ void AssemblyGui::initRemoteJobHelper()
   m_remote_job_helper->setDataManager(_processDataManager);
   m_remote_job_helper->setParametersManager(_server.parametersManager());
   m_remote_job_helper->setPreferences(_preferences);
+  m_remote_job_helper->setServerSettings(_systemDataManager->remoteServerSettings());
   m_remote_job_helper->init();
   connect(m_remote_job_helper, SIGNAL(si_jobResultsReceived(QString)),
           SLOT(sl_onRemoteJobResultsReceived(QString)));
@@ -1223,24 +1225,13 @@ void AssemblyGui::checkRemoteDirCreated()
     return;
   }
 
-  QString remote_root_path = _systemDataManager->getDataRootDir() + QDir::separator() + DEFAULT_REMOTE_PATH;
-
-  m_remote_output_path = remote_root_path + QDir::separator() + "toServer";
-  m_remote_input_path = remote_root_path + QDir::separator() + "fromServer";
-
-  m_remote_job_helper->setOutputPath(m_remote_output_path);
-  m_remote_job_helper->setInputPath(m_remote_input_path);
+  m_remote_output_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+    QDir::separator() + "toServer"; 
 
   QDir remote_output_dir(m_remote_output_path);
   if (!remote_output_dir.exists()) {
       qDebug() << "Creating remote output directory " << m_remote_output_path;
       remote_output_dir.mkpath(".");
-  }
-
-  QDir remote_input_Dir(m_remote_input_path);
-  if (!remote_input_Dir.exists()) {
-      qDebug() << "Creating remote input directory " << m_remote_input_path;
-      remote_input_Dir.mkpath(".");
   }
 }
 
@@ -1287,16 +1278,36 @@ void AssemblyGui::slot_importJob()
 
 void AssemblyGui::slot_goToResult()
 {
-    QString datasetPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_DATASET_DIR);
-    QString resultPath = datasetPath; //+ QDir::separator()  +_server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
-    QDir resultDir(resultPath);
-    if (!resultDir.exists()) {
-        QMessageBox::critical(this, tr("Path invalid"), tr("Result path '%1' does not exist.").arg(resultPath));
-        return;
-    }
+  /* Guard unconsistent cases (this slot is assumed by selecting a previously executed job) */
+  if (!_currentJob) {
+    qCritical() << "No job was selected, cannot open reconstruction folder";
+    return;  
+  }
 
-    QUrl url = QUrl::fromLocalFile(resultDir.absolutePath());
-    QDesktopServices::openUrl(url);
+  if (!_currentJob->executionDefinition()->executed()) {
+    qCritical() << "Job was selected, cannot open reconstruction folder";
+    return;
+  }
+
+  QStringList result_files = _currentJob->executionDefinition()->resultFileNames();
+  if (result_files.isEmpty()) {
+    qCritical() << "Job has no result files, cannot open reconstruction folder";
+    return;
+  }
+
+  /* Reconstruction folder is the parent path of all result images (wether executed locally or remotely) */
+  QString result_file = result_files.first();
+  int file_name_pos = result_file.lastIndexOf('/') + 1;
+  QString result_path = result_file.left(file_name_pos);
+
+  QDir result_dir(result_path);
+  if (!result_dir.exists()) {
+      QMessageBox::critical(this, tr("Path invalid"), tr("Result path '%1' does not exist.").arg(result_path));
+      return;
+  }
+
+  QUrl url = QUrl::fromLocalFile(result_dir.absolutePath());
+  QDesktopServices::openUrl(url);
 }
 
 void AssemblyGui::slot_archiveJob()
@@ -1698,7 +1709,7 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction, bool isForRemote
 
     if (isForRemoteExecution) {
         /* Store path for later use */
-        _currentBundleForRemoteExecution = exportFilename;
+        m_current_remote_execution_bundle = exportFilename;
     } else {
         /* Display export confirmation */
         QMessageBox::information(
@@ -3201,7 +3212,10 @@ void AssemblyGui::slot_assemblyContextMenuRequested(const QPoint &pos)
         contextMenu->addAction(m_upload_data_act);
         contextMenu->addAction(m_select_remote_data_act);
         contextMenu->addAction(m_execute_remote_job_act);
-        contextMenu->addAction(m_download_job_results_act);
+        if (_currentJob->remoteJobDefinition()->isScheduled()) {
+          // show only if job was scheduled on remote server
+          contextMenu->addAction(m_download_job_results_act);
+        }
         contextMenu->addSeparator();
         contextMenu->addAction(_saveJobAct);
         contextMenu->addAction(_cloneJobAct);
@@ -3896,7 +3910,7 @@ void AssemblyGui::sl_launchRemoteJob()
 
     executeExportWorkflow(true, true);
 
-    m_remote_job_helper->scheduleJob(_currentJob->name(), _currentBundleForRemoteExecution);
+    m_remote_job_helper->scheduleJob(_currentJob->name(), m_current_remote_execution_bundle);
 }
 
 
@@ -3909,36 +3923,7 @@ void AssemblyGui::sl_uploadJobData()
 
     QString job_name = _currentJob->name();
 
-    QFileDialog dialog(this, tr("Select dataset to upload"));
-    dialog.setFileMode(QFileDialog::Directory);
-    
-    if (!dialog.exec()) {
-        qCritical() << "File dialog could no execute";
-        return;
-    }
-    
-    QStringList filenames = dialog.selectedFiles();
-    if (filenames.isEmpty()) {
-        qCritical() << "No dataset folder selected, upload could not be performed";
-        return;
-    }
-
-    QString datasetDirName = filenames.at(0);
-
-    if (datasetDirName.isEmpty()) {
-        qCritical() << "Selected dataset folder name is empty, upload could not be performed";
-        return;
-    }
-
-    QDir datasetDir(datasetDirName);
-    if (!datasetDir.exists()) {
-        qCritical() << QString("Dataset folder %1 does not exist, upload could not be performed").arg(datasetDirName);
-        return;
-    }
-
-    QString datasetDirFinal = datasetDir.canonicalPath();
-
-    m_remote_job_helper->uploadDataset(job_name, datasetDirFinal);
+    m_remote_job_helper->uploadDataset(job_name);
 }
 
 void MatisseServer::AssemblyGui::sl_selectRemoteJobData() 

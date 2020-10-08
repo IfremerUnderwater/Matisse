@@ -11,6 +11,7 @@
 
 #include "MatisseParametersManager.h"
 #include "MatissePreferences.h"
+#include "MatisseRemoteServerSettings.h"
 #include "ProcessDataManager.h"
 #include "RemoteProgressDialog.h"
 #include "SshClient.h"
@@ -46,9 +47,6 @@ private:
   void setupUi();
 };
 
-//class RemoteFileProxyModel : public 
-//
-//(QObject* _parent=0)
 
 class RemoteJobHelper : public QObject
 {
@@ -58,7 +56,7 @@ public:
 
     void init();
 
-    void uploadDataset(QString _job_name, QString _local_dataset_dir);
+    void uploadDataset(QString _job_name);
     void selectRemoteDataset(QString _job_name);
     void scheduleJob(QString _job_name, QString _local_job_bundle_file);
     void downloadResults(QString _job_name);
@@ -69,8 +67,7 @@ public:
     void setPreferences(MatissePreferences* _prefs);
     void setDataManager(ProcessDataManager* _data_manager);
     void setParametersManager(MatisseParametersManager* _param_manager);
-    void setOutputPath(QString _output_path);
-    void setInputPath(QString _input_path);
+    void setServerSettings(MatisseRemoteServerSettings* _server_settings);
 
 signals:
     void si_jobResultsReceived(QString _job_name);
@@ -94,21 +91,24 @@ private:
     RemoteProgressDialog* m_progress_dialog = NULL;
     ProcessDataManager* m_data_manager = NULL;
     MatisseParametersManager* m_param_manager = NULL;
+    MatisseRemoteServerSettings *m_server_settings = NULL;
 
     bool m_host_and_creds_known = false;
     bool m_is_last_action_command = false;
     SshClient *m_ssh_client = NULL;
     SshClient *m_sftp_client = NULL;
     MatissePreferences* m_prefs = NULL;
-    QString m_output_path;
-    QString m_input_path;
     bool m_is_remote_exec_on = true;
     QQueue<SshAction*> m_pending_action_queue;
     QMap<SshAction*, MatisseTools::SshCommand*> m_commands_by_action;
     QMap<MatisseTools::SshCommand*, QString> m_jobs_by_command;
     QMap<SshAction*, QString> m_jobs_by_action;
-    QString m_selected_dataset_path;
+    QString m_selected_remote_dataset_path;
     QString m_current_job_name;
+
+    QString m_container_launcher_name; // launcher script name for server container
+    QString m_container_image_path; // path to server container image
+
 
     void checkHostAndCredentials();
     bool checkRemoteExecutionActive(QString _customMessage);

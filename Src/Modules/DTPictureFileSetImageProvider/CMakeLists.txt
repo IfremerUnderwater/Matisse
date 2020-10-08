@@ -5,6 +5,7 @@ set_target_properties(DTPictureFileSetImageProvider PROPERTIES RUNTIME_OUTPUT_DI
 set_target_properties(DTPictureFileSetImageProvider PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
 set_target_properties(DTPictureFileSetImageProvider PROPERTIES PREFIX "")
 
+include_directories(${QUAZIP_INCLUDE_DIRS})
 
 target_link_libraries( DTPictureFileSetImageProvider MatisseCommon BasicProcessing ${OpenCV_LIBS} Qt5::Core Qt5::Xml Qt5::Widgets ${QUAZIP_LIBRARIES})
 
