@@ -22,5 +22,18 @@ void histogramStretch(cv::Mat &_in_img, cv::Mat &_in_mask, cv::Point _low_high_i
 ///
 void histogramQuantileStretch(cv::Mat &_in_img, cv::Mat &_in_mask, double _saturation_percentage,  cv::Mat &_stretched_img);
 
+/// <summary>
+/// Gamma transformation from linear image to rgb
+/// </summary>
+/// <param name="_lin">linear value</param>
+/// <returns>rgb value</returns>
+double lin2rgbf(double _lin);
+
+/// <summary>
+/// Remove gamma transformation from rgb to linear
+/// </summary>
+/// <param name="_lin">linear value</param>
+/// <returns>rgb value</returns>
+double rgb2linf(double _rgb);
 
 #endif // IMAGEPROCESSING_H

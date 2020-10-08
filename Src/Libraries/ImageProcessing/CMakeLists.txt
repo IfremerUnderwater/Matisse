@@ -1,4 +1,4 @@
-add_library(ImageProcessing imageprocessing.cpp)
+add_library(ImageProcessing imageprocessing.cpp preprocessing_correction.cpp)
 
 target_link_libraries( ImageProcessing BasicProcessing ${OpenCV_LIBS} Qt5::Core)
 

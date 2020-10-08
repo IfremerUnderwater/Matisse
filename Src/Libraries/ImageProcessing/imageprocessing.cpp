@@ -1,5 +1,6 @@
 #include "imageprocessing.h"
 #include "stdvectoperations.h"
+#include <math.h>
 
 using namespace cv;
 
@@ -132,4 +133,16 @@ void histogramQuantileStretch(Mat &_in_img, Mat &_in_mask, double _saturation_ra
     // Merge channels
     merge(tempRGBout,_stretched_img);
 
+}
+
+double lin2rgbf(double _lin)
+{
+    // gamma = 2.19921875
+    return pow(_lin,2.19921875);
+}
+
+double rgb2linf(double _rgb)
+{
+    // 1.0/2.19921875 = 0.45470692
+    return pow(_rgb, 0.45470692);
 }

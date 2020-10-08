@@ -8,15 +8,22 @@ using namespace std;
 
 ///
 /// \brief doubleVector Mean compute the vector mean
-/// \param v_p input vector
+/// \param _v input vector
 /// \return mean value
 ///
 double doubleVectorMean( vector<double> & _v );
 
 ///
+/// \brief doubleVectorMedian compute the vector's median
+/// \param _vec input vector
+/// \return mean value
+///
+double doubleVectorMedian(std::vector<double> _vec);
+
+///
 /// \brief doubleVectorScalarMult Multiply a vector with a double
-/// \param v_p input vector modified on output
-/// \param m_p input double
+/// \param _v input vector modified on output
+/// \param _alpha input double
 ///
 void doubleVectorScalarMult(vector<double> & _v, double _alpha );
 
