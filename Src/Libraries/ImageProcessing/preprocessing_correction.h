@@ -6,7 +6,6 @@
 #include <vector>
 #include <string>
 
-#pragma once
 class PreprocessingCorrection
 {
 public:
@@ -23,7 +22,7 @@ public:
 	/// <param name="_input_img_files">files path list</param>
 	/// <param name="_output_path">output folder path</param>
 	/// <returns>true on success</returns>
-	bool correctImageList(std::vector<std::string> _input_img_files, std::string _output_path);
+	bool preprocessImageList(std::vector<std::string> _input_img_files, std::string _output_path);
 
 	/// <summary>
 	/// Compute median image in the sliding window
@@ -40,11 +39,21 @@ public:
 	/// <returns>true on success</returns>
 	bool compensateIllumination(cv::Mat& _input_image, cv::Mat& _output_image, cv::Mat& _temporal_median_image);
 
+	/// <summary>
+	/// configure the preprocessing steps that are needed
+	/// </summary>
+	/// <param name="_correct_colors"></param>
+	/// <param name="_compensate_illumination"></param>
+	/// <param name="_prepro_img_scaling"></param>
+	void configureProcessing(bool _correct_colors = true, bool _compensate_illumination = true, double _prepro_img_scaling = 1.0);
 
 
 private:
 	int m_ws;
-	double m_scaling_factor;
+	double m_median_comp_scaling;
+	double m_prepro_img_scaling;
+	bool m_correct_colors;
+	bool m_compensate_illumination;
 
 	cv::Mat m_blue_median_img;
 	cv::Mat m_green_median_img;

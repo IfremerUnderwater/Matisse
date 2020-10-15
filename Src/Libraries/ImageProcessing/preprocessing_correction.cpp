@@ -9,17 +9,21 @@ using namespace std;
 using namespace cv;
 using namespace Eigen;
 
-PreprocessingCorrection::PreprocessingCorrection(int _ws) :m_ws(_ws), m_scaling_factor(1.0)
+PreprocessingCorrection::PreprocessingCorrection(int _ws) :m_ws(_ws), 
+m_median_comp_scaling(1.0),
+m_prepro_img_scaling(1.0),
+m_correct_colors(false),
+m_compensate_illumination(false)
 {
 }
 
-bool PreprocessingCorrection::correctImageList(std::vector<std::string> _input_img_files, std::string _output_path)
+bool PreprocessingCorrection::preprocessImageList(std::vector<std::string> _input_img_files, std::string _output_path)
 {
 	// check if we need to reduce image resolution
 	cv::Mat first_img = cv::imread(_input_img_files[0], cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-	double m_scaling_factor = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 1Mpx
-	if (m_scaling_factor > 1.0)
-		m_scaling_factor = 1.0;
+	double m_median_comp_scaling = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 1Mpx
+	if (m_median_comp_scaling > 1.0)
+		m_median_comp_scaling = 1.0;
 	//resize(_in_img, reduced_img, Size(), alpha, alpha);
 
 	if (_input_img_files.size() < m_ws)
@@ -28,56 +32,82 @@ bool PreprocessingCorrection::correctImageList(std::vector<std::string> _input_i
 	int im_nb = _input_img_files.size();
 	int half_ws = (m_ws-1)/2;
 
+	// preprocess
 	for (int i = 0; i < im_nb; i++)
 	{
 		Mat current_img = imread(_input_img_files[i], cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
 
-		if (i-half_ws <= 0)
+		// need illumination compensation
+		if (m_compensate_illumination)
 		{
-
-			if (i == 0)
+			if (i - half_ws <= 0)
 			{
 
-				for (int j = 0; j < m_ws; j++)
+				if (i == 0)
 				{
-					Mat temp_img;
-					resize(imread(_input_img_files[j], cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_scaling_factor, m_scaling_factor);
 
-					vector<Mat> temp_BRG(3);
-					split(temp_img, temp_BRG);
+					for (int j = 0; j < m_ws; j++)
+					{
+						Mat temp_img;
+						resize(imread(_input_img_files[j], cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_median_comp_scaling, m_median_comp_scaling);
 
-					// stacking images for median
-					m_blue_stack_images.push_back(temp_BRG[0]);
-					m_green_stack_images.push_back(temp_BRG[1]);
-					m_red_stack_images.push_back(temp_BRG[2]);
+						vector<Mat> temp_BRG(3);
+						split(temp_img, temp_BRG);
 
+						// stacking images for median
+						m_blue_stack_images.push_back(temp_BRG[0]);
+						m_green_stack_images.push_back(temp_BRG[1]);
+						m_red_stack_images.push_back(temp_BRG[2]);
+
+					}
 				}
+
+			}
+			else if (i + half_ws < im_nb - 1)
+			{
+				Mat temp_img;
+				resize(imread(_input_img_files[i + half_ws], cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_median_comp_scaling, m_median_comp_scaling);
+
+
+				vector<Mat> temp_BRG(3);
+				split(temp_img, temp_BRG);
+
+				// stacking images for median
+				m_blue_stack_images.pop_front();
+				m_blue_stack_images.push_back(temp_BRG[0]);
+				m_green_stack_images.pop_front();
+				m_green_stack_images.push_back(temp_BRG[1]);
+				m_red_stack_images.pop_front();
+				m_red_stack_images.push_back(temp_BRG[2]);
+
 			}
 
-		}
-		else if ( i+half_ws < im_nb-1)
+			// Compute temporal median
+			if (!computeTemporalMedian())
+				return false;
+
+			if (m_prepro_img_scaling < 1.0)
+				resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
+
+			vector<Mat> current_BRG(3);
+			vector<Mat> current_BRG_corr(3);
+			split(current_img, current_BRG);
+
+			// compute illum correction
+			compensateIllumination(current_BRG[0], current_BRG_corr[0], m_blue_median_img);
+			compensateIllumination(current_BRG[1], current_BRG_corr[1], m_green_median_img);
+			compensateIllumination(current_BRG[2], current_BRG_corr[2], m_red_median_img);
+
+			merge(current_BRG_corr, current_img);
+
+		} // end need illumination compensation
+		else
 		{
-			Mat temp_img;
-			resize(imread(_input_img_files[i+half_ws], cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_scaling_factor, m_scaling_factor);
-
-
-			vector<Mat> temp_BRG(3);
-			split(temp_img, temp_BRG);
-
-			// stacking images for median
-			m_blue_stack_images.pop_front();
-			m_blue_stack_images.push_back(temp_BRG[0]);
-			m_green_stack_images.pop_front();
-			m_green_stack_images.push_back(temp_BRG[1]);
-			m_red_stack_images.pop_front();
-			m_red_stack_images.push_back(temp_BRG[2]);
-
+			if (m_prepro_img_scaling < 1.0)
+				resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
 		}
 
 	}
-
-	if (!computeTemporalMedian())
-		return false;
 
 	return true;
 }
@@ -140,6 +170,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 	medianBlur(_temporal_median_image, _temporal_spatial_median_image, 5);
 
 	double out_perc = 0.01; // outlier percentage
+	double maximum_corr_factor = 10.0; // if correction is greater we truncate
 	vector<double> channel_limits;
 	vector<double> quantiles;
 	quantiles.push_back(out_perc);
@@ -171,7 +202,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 		}
 	}
 
-	// Solve paraboloid
+	// Solve paraboloid model
 	MatrixXf A = MatrixXf::Zero(x.size(),10);
 	VectorXf b = VectorXf::Zero(z.size());
 	
@@ -196,5 +227,39 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 	VectorXf alpha;
 	alpha = A.bdcSvd(ComputeThinU | ComputeThinV).solve(b); // solve A*alpha = b
 
+	// Correct image
+	_output_image = _input_image;
+	double temp_x, temp_y, corr_factor;
+	for (int w = 0; w < _input_image.rows; w++)
+	{
+		for (int h = 0; h < _input_image.cols; h++)
+		{
+			temp_x = static_cast<double>(w)*m_median_comp_scaling/m_prepro_img_scaling;
+			temp_y = static_cast<double>(h)*m_median_comp_scaling/m_prepro_img_scaling;
+			temp_z = alpha(0)*pow(temp_x,3) + alpha(1)*pow(temp_y, 3) + alpha(2)*temp_x*pow(temp_y, 2)
+				+ alpha(3)*pow(temp_x, 2)*temp_y + alpha(4)*pow(temp_x, 2) + alpha(5)*pow(temp_y, 2)
+				+ alpha(6)*temp_x*temp_y + alpha(7)*temp_x + alpha(8)*temp_y + alpha(9);
 
+			if (temp_z > 1.0 / maximum_corr_factor || temp_z < 0)
+			{
+				corr_factor = maximum_corr_factor;
+			}
+			else
+			{
+				corr_factor = 1.0 / temp_z;
+			}
+
+			// correct accounting for gamma factor
+			_output_image.at<uchar>(w,h) = static_cast<uchar>( 255*lin2rgbf( corr_factor*rgb2linf(static_cast<double>(_input_image.at<uchar>(w, h)) / 255.0) ) );
+
+		}
+	}
+
+}
+
+void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _compensate_illumination, double _prepro_img_scaling)
+{
+	m_correct_colors = _correct_colors;
+	m_compensate_illumination = _compensate_illumination;
+	m_prepro_img_scaling = _prepro_img_scaling;
 }
