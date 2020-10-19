@@ -4,6 +4,8 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
 #include <Eigen/dense>
+#include <QFileInfo>
+#include <QDir>
 
 using namespace std;
 using namespace cv;
@@ -17,10 +19,10 @@ m_compensate_illumination(false)
 {
 }
 
-bool PreprocessingCorrection::preprocessImageList(std::vector<std::string> _input_img_files, std::string _output_path)
+bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, QString _output_path)
 {
 	// check if we need to reduce image resolution
-	cv::Mat first_img = cv::imread(_input_img_files[0], cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+	cv::Mat first_img = cv::imread(_input_img_files[0].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
 	double m_median_comp_scaling = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 1Mpx
 	if (m_median_comp_scaling > 1.0)
 		m_median_comp_scaling = 1.0;
@@ -35,7 +37,11 @@ bool PreprocessingCorrection::preprocessImageList(std::vector<std::string> _inpu
 	// preprocess
 	for (int i = 0; i < im_nb; i++)
 	{
-		Mat current_img = imread(_input_img_files[i], cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+		Mat current_img = imread(_input_img_files[i].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+
+		// check if we need to resize image
+		if (m_prepro_img_scaling < 1.0)
+			resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
 
 		// need illumination compensation
 		if (m_compensate_illumination)
@@ -49,7 +55,7 @@ bool PreprocessingCorrection::preprocessImageList(std::vector<std::string> _inpu
 					for (int j = 0; j < m_ws; j++)
 					{
 						Mat temp_img;
-						resize(imread(_input_img_files[j], cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_median_comp_scaling, m_median_comp_scaling);
+						resize(imread(_input_img_files[j].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_median_comp_scaling, m_median_comp_scaling);
 
 						vector<Mat> temp_BRG(3);
 						split(temp_img, temp_BRG);
@@ -66,7 +72,7 @@ bool PreprocessingCorrection::preprocessImageList(std::vector<std::string> _inpu
 			else if (i + half_ws < im_nb - 1)
 			{
 				Mat temp_img;
-				resize(imread(_input_img_files[i + half_ws], cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_median_comp_scaling, m_median_comp_scaling);
+				resize(imread(_input_img_files[i + half_ws].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_median_comp_scaling, m_median_comp_scaling);
 
 
 				vector<Mat> temp_BRG(3);
@@ -86,9 +92,6 @@ bool PreprocessingCorrection::preprocessImageList(std::vector<std::string> _inpu
 			if (!computeTemporalMedian())
 				return false;
 
-			if (m_prepro_img_scaling < 1.0)
-				resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
-
 			vector<Mat> current_BRG(3);
 			vector<Mat> current_BRG_corr(3);
 			split(current_img, current_BRG);
@@ -101,11 +104,18 @@ bool PreprocessingCorrection::preprocessImageList(std::vector<std::string> _inpu
 			merge(current_BRG_corr, current_img);
 
 		} // end need illumination compensation
-		else
+
+		// correct colors
+		if (m_correct_colors)
 		{
-			if (m_prepro_img_scaling < 1.0)
-				resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
+			cv::Mat empty_mask;
+			histogramQuantileStretch(current_img, empty_mask, 0.0005, current_img);
 		}
+
+		// write image
+		QFileInfo current_file_info(_input_img_files[i]);
+		QString outfile = _output_path + QDir::separator() + current_file_info.fileName();
+		cv::imwrite(outfile.toStdString(), current_img);
 
 	}
 
@@ -251,7 +261,6 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 
 			// correct accounting for gamma factor
 			_output_image.at<uchar>(w,h) = static_cast<uchar>( 255*lin2rgbf( corr_factor*rgb2linf(static_cast<double>(_input_image.at<uchar>(w, h)) / 255.0) ) );
-
 		}
 	}
 
@@ -261,5 +270,8 @@ void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _co
 {
 	m_correct_colors = _correct_colors;
 	m_compensate_illumination = _compensate_illumination;
-	m_prepro_img_scaling = _prepro_img_scaling;
+	if (_prepro_img_scaling > 1.0)
+		m_prepro_img_scaling = 1.0;
+	else
+		m_prepro_img_scaling = _prepro_img_scaling;
 }

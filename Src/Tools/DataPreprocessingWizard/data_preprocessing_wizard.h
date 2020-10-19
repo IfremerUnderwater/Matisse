@@ -33,8 +33,8 @@ private:
     void checkAndFillVideoFiles(QString _dataPath );
     void checkAndFillPhotoFiles(QString _dataPath );
     void video2Images();
-    void preprocessImages();
-    void preprocessImage(QString _image_path, QString _out_image_path);
+    void handleImages();
+    void preprocessImages(QStringList _images_list, QString _out_image_path);
 
     Ui::DataPreprocessingWizard *ui;
 

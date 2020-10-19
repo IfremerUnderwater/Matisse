@@ -4,7 +4,7 @@
 #include <opencv2/core/mat.hpp>
 #include <deque>
 #include <vector>
-#include <string>
+#include <QString>
 
 class PreprocessingCorrection
 {
@@ -22,7 +22,7 @@ public:
 	/// <param name="_input_img_files">files path list</param>
 	/// <param name="_output_path">output folder path</param>
 	/// <returns>true on success</returns>
-	bool preprocessImageList(std::vector<std::string> _input_img_files, std::string _output_path);
+	bool preprocessImageList(QStringList _input_img_files, QString _output_path);
 
 	/// <summary>
 	/// Compute median image in the sliding window

@@ -21,6 +21,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/opencv.hpp"
 #include "imageprocessing.h"
+#include "preprocessing_correction.h"
 
 double RAD2DEG=180/M_PI;
 
@@ -340,6 +341,7 @@ void DataPreprocessingWizard::video2Images()
                 int j=1;
 
                 // Check images files corresponding to video
+                QStringList new_images_files;
                 foreach (QString image_file, images_files) {
                     QRegExp img_file_rex(".+_(\\d+)");
 
@@ -366,9 +368,8 @@ void DataPreprocessingWizard::video2Images()
                         image_qfile.remove(processed_directory.absoluteFilePath(new_file_name));
                         image_qfile.rename(processed_directory.absoluteFilePath(new_file_name));
 
-                        // preprocess if needed
-                        preprocessImage(processed_directory.absoluteFilePath(new_file_name),
-                                        processed_directory.absoluteFilePath(new_file_name));
+                        // add to preprocess in case it is needed
+                        new_images_files << processed_directory.absoluteFilePath(new_file_name);
 
                         // if nav_file write out_nav_file
                         if (nav_out_file.isOpen())
@@ -409,6 +410,10 @@ void DataPreprocessingWizard::video2Images()
                     prepro_progress.setValue(round(100*j/images_files.size()));
                     j++;
                 }
+
+                // Preprocess if needed
+                preprocessImage(processed_directory.absoluteFilePath(new_file_name),
+                    processed_directory.absoluteFilePath(new_file_name));
             }
             else
             {
@@ -421,7 +426,7 @@ void DataPreprocessingWizard::video2Images()
         nav_out_file.close();
 }
 
-void DataPreprocessingWizard::preprocessImages()
+void DataPreprocessingWizard::handleImages()
 {
     QStringList nameFilter = {"*.jpg","*.jpeg","*.png", "*.tiff", "*.tif"};
     QDir data_dir(ui->data_path_line->text());
@@ -513,10 +518,13 @@ void DataPreprocessingWizard::preprocessImages()
 
 }
 
-void DataPreprocessingWizard::preprocessImage(QString _image_path, QString _out_image_path)
+void DataPreprocessingWizard::preprocessImages(QStringList _images_list, QString _out_image_path)
 {
+
     if(ui->correct_colors_cb->isChecked() || ui->res_limit_cb->isChecked())
     {
+        PreprocessingCorrection img_processor;
+
         QImageReader qimg(_image_path);
         if (qimg.canRead())
         {
@@ -590,7 +598,7 @@ void DataPreprocessingWizard::sl_finished(int _state)
         }
         if (m_data_type == "Photo")
         {
-            preprocessImages();
+            handleImages();
         }
     }
 
