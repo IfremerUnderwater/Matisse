@@ -20,10 +20,10 @@ class QSshClient :
 public:
     explicit QSshClient(QObject* parent = nullptr);
 
-    void connectToHost();
-    void disconnectFromHost();
     void resume();
     void init();
+    void resetConnection();
+    void clearActions();
 
     protected:
      void upload(QString _local_path, QString _remote_path, bool is_dir_upload);
@@ -84,6 +84,7 @@ public:
         SftpChannel::Ptr m_channel;
         SshRemoteProcess::Ptr m_shell;
         SshConnection* m_connection;
+        QSet<SshConnection*> m_obsolete_connections;
     };
 
 }

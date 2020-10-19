@@ -131,26 +131,6 @@ void MatissePreferences::setRemoteNbOfCpus(const int _remote_nb_of_cpus)
   m_remote_nb_of_cpus = _remote_nb_of_cpus;
 }
 
-QString MatissePreferences::remoteDefaultDataPath() const
-{
-    return m_remote_default_data_path;
-}
-
-void MatissePreferences::setRemoteDefaultDataPath(const QString& _remote_default_data_path)
-{
-    m_remote_default_data_path = _remote_default_data_path;
-}
-
-QString MatissePreferences::remoteResultPath() const
-{
-    return m_remote_result_path;
-}
-
-void MatissePreferences::setRemoteResultPath(const QString& _remote_result_path)
-{
-    m_remote_result_path = _remote_result_path;
-}
-
 MatissePreferences::MatissePreferences()
 {
     

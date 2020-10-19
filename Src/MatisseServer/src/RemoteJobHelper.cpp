@@ -90,79 +90,51 @@ void RemoteJobHelper::init() {
     qFatal("RemoteJobHelper: Preferences not set");
   }
 
-  /* Check preferences consistency */
-  QString ssh_host = m_prefs->remoteCommandServer();
-  QString sftp_host = m_prefs->remoteFileServer();
-  QString username = m_prefs->remoteUsername();
-  QString queue = m_prefs->remoteQueueName();
-  QString defaultDataPath = m_prefs->remoteDefaultDataPath();
-  QString resultPath = m_prefs->remoteResultPath();
-
-  if (ssh_host.isEmpty()) {
-    qWarning("Remote command host not defined, remote execution can not be activated");
-    m_is_remote_exec_on = false;
-    return;
-  }
-
-  if (sftp_host.isEmpty()) {
-    qWarning("Remote file host not defined, remote execution can not be activated");
-    m_is_remote_exec_on = false;
-    return;
-  }
-
-  if (username.isEmpty()) {
-    qWarning(
-        "Remote username not defined, remote execution can not be activated");
-    m_is_remote_exec_on = false;
-    return;
-  }
-
-  if (queue.isEmpty()) {
-    qWarning(
-        "Remote execution queue not defined, remote execution can not be "
-        "activated");
-    m_is_remote_exec_on = false;
-    return;
-  }
-
-  if (defaultDataPath.isEmpty()) {
-    qWarning(
-        "Remote default data path not defined, remote execution can not be "
-        "activated");
-    m_is_remote_exec_on = false;
-    return;
-  }
-
-  if (resultPath.isEmpty()) {
-    qWarning(
-        "Remote result path not defined, remote execution can not be "
-        "activated");
-    m_is_remote_exec_on = false;
-    return;
-  }
-
-  m_is_remote_exec_on = true;
+  m_is_remote_exec_on = checkPreferences();
   m_host_and_creds_known = false;
 
-  connect(m_sftp_client,
-          SIGNAL(si_connectionFailed(SshClient::ConnectionError)),
-          SLOT(sl_onConnectionFailed(SshClient::ConnectionError)));
-  connect(m_sftp_client, SIGNAL(si_transferFinished(SshAction*)),
-          SLOT(sl_onTransferFinished(SshAction*)));
-  connect(m_sftp_client, SIGNAL(si_transferFailed(SshAction*, SshClient::TransferError)),
-          SLOT(sl_onTransferFailed(SshAction*, SshClient::TransferError)));
-  connect(m_sftp_client,
-          SIGNAL(si_dirContents(QList<SshFileInfo*>)),
-          SLOT(sl_onDirContentsReceived(QList<SshFileInfo*>)));
-  
-  connect(m_ssh_client, SIGNAL(si_connectionFailed(SshClient::ConnectionError)),
-          SLOT(sl_onConnectionFailed(SshClient::ConnectionError)));
-  connect(m_ssh_client, SIGNAL(si_shellOutputReceived(SshAction*, QByteArray)),
-    SLOT(sl_onShellOutputReceived(SshAction*, QByteArray)));
-  connect(m_ssh_client, SIGNAL(si_shellErrorReceived(SshAction*, QByteArray)),
-          SLOT(sl_onShellErrorReceived(SshAction*, QByteArray)));
+  connectGatewaySignals();
 }
 
+void RemoteJobHelper::reinit() 
+{
+  m_is_remote_exec_on = checkPreferences(); /* check preferences completeness */
+  if (!m_is_remote_exec_on) {
+    return;
+  }
+
+  if (!m_host_and_creds_known) { /* no connection to remote hosts have occurred yet */
+    return;
+  }
+
+  /* Check if connection preferences have changed */
+  QString current_ssh_host = m_ssh_client->host();
+  QString current_username = m_ssh_client->username(); /* username identical for SSH and SFTP servers */
+  QString current_sftp_host = m_sftp_client->host();
+
+  bool host_and_creds_changed = false;
+
+  if (m_prefs->remoteCommandServer() != current_ssh_host
+    || m_prefs->remoteFileServer() != current_sftp_host
+    || m_prefs->remoteUsername() != current_username) {
+    host_and_creds_changed = true;
+    m_host_and_creds_known = false;
+  }
+
+  if (host_and_creds_changed) {
+    qDebug() << "RemoteJobHelper: remote connection preferences have changed, "
+                "any ongoing action will be interrupted...";
+
+    hideProgress(); /* Any ongoing action will be interrupted */
+
+    /* reset connections */
+    m_sftp_client->resetConnection();
+    m_ssh_client->resetConnection();
+
+    clearPendingActionQueue();
+  }
+
+}
 
 
 void RemoteJobHelper::uploadDataset(QString _job_name) {
@@ -583,11 +555,106 @@ void RemoteJobHelper::setServerSettings(MatisseRemoteServerSettings* _server_set
   m_server_settings = _server_settings;
 }
 
+void RemoteJobHelper::connectGatewaySignals() {
+  connect(m_sftp_client,
+          SIGNAL(si_connectionFailed(SshClient::ConnectionError)),
+          SLOT(sl_onConnectionFailed(SshClient::ConnectionError)));  
+  connect(m_sftp_client, SIGNAL(si_transferFinished(SshAction*)),
+          SLOT(sl_onTransferFinished(SshAction*)));
+  connect(m_sftp_client,
+          SIGNAL(si_transferFailed(SshAction*, SshClient::TransferError)),
+          SLOT(sl_onTransferFailed(SshAction*, SshClient::TransferError)));
+  connect(m_sftp_client, SIGNAL(si_dirContents(QList<SshFileInfo*>)),
+          SLOT(sl_onDirContentsReceived(QList<SshFileInfo*>)));
+
+  connect(m_ssh_client, SIGNAL(si_connectionFailed(SshClient::ConnectionError)),
+          SLOT(sl_onConnectionFailed(SshClient::ConnectionError)));
+  connect(m_ssh_client, SIGNAL(si_shellOutputReceived(SshAction*, QByteArray)),
+          SLOT(sl_onShellOutputReceived(SshAction*, QByteArray)));
+  connect(m_ssh_client, SIGNAL(si_shellErrorReceived(SshAction*, QByteArray)),
+          SLOT(sl_onShellErrorReceived(SshAction*, QByteArray)));
+}
+
+void RemoteJobHelper::disconnectGatewaySignals() { 
+  disconnect(this, SLOT(sl_onConnectionFailed(SshClient::ConnectionError)));
+  disconnect(this, SLOT(sl_onTransferFinished(SshAction*)));
+  disconnect(this, SLOT(sl_onTransferFailed(SshAction*, SshClient::TransferError)));
+  disconnect(this, SLOT(sl_onDirContentsReceived(QList<SshFileInfo*>)));
+  disconnect(this, SLOT(sl_onShellOutputReceived(SshAction*, QByteArray)));
+  disconnect(this, SLOT(sl_onShellErrorReceived(SshAction*, QByteArray)));
+  
+  disconnect(m_sftp_client, SIGNAL(si_connectionFailed(SshClient::ConnectionError)));
+  disconnect(m_sftp_client, SIGNAL(si_transferFinished(SshAction*)));
+  disconnect(m_sftp_client, SIGNAL(si_transferFailed(SshAction*, SshClient::TransferError)));
+  disconnect(m_sftp_client, SIGNAL(si_dirContents(QList<SshFileInfo*>)));
+
+  disconnect(m_ssh_client, SIGNAL(si_connectionFailed(SshClient::ConnectionError)));
+  disconnect(m_ssh_client, SIGNAL(si_shellOutputReceived(SshAction*, QByteArray)));
+  disconnect(m_ssh_client, SIGNAL(si_shellErrorReceived(SshAction*, QByteArray)));
+}
+
+bool RemoteJobHelper::checkPreferences() {
+
+  /* Check preferences consistency */
+  QString ssh_host = m_prefs->remoteCommandServer();
+  QString sftp_host = m_prefs->remoteFileServer();
+  QString username = m_prefs->remoteUsername();
+  QString queue = m_prefs->remoteQueueName();
+  QString email = m_prefs->remoteUserEmail();
+  int ncpus = m_prefs->remoteNbOfCpus();
+
+  if (ssh_host.isEmpty()) {
+    qWarning(
+        "Remote command host not defined, remote execution can not be "
+        "activated");
+    return false;
+  }
+
+  if (sftp_host.isEmpty()) {
+    qWarning(
+        "Remote file host not defined, remote execution can not be activated");
+    return false;
+  }
+
+  if (username.isEmpty()) {
+    qWarning(
+        "Remote username not defined, remote execution can not be activated");
+    return false;
+  }
+
+  if (queue.isEmpty()) {
+    qWarning(
+        "Remote execution queue not defined, remote execution can not be "
+        "activated");
+    return false;
+  }
+
+  if (email.isEmpty()) {
+    qWarning(
+        "Notification email for remote execution not defined, remote execution "
+        "can not be "
+        "activated");
+    return false;
+  }
+
+  if (ncpus < 1) {
+    qWarning(
+        "Nb of CPUs for remote execution not properly set, remote execution "
+        "can not be "
+        "activated");
+    return false;
+  }
+
+  return true;
+}
+
 void RemoteJobHelper::checkHostAndCredentials() {
   if (m_host_and_creds_known) {
-    resumeAction();
+     resumeAction();
     return;
   }
+
+  hideProgress();
 
   qDebug() << "Setting remote host and credentials...";
 
@@ -599,6 +666,7 @@ void RemoteJobHelper::checkHostAndCredentials() {
   } 
 
   m_password_dialog->setUsername(m_prefs->remoteUsername());
+  m_password_dialog->resetPassword();
   m_password_dialog->refreshUi();
   m_password_dialog->show();
 }
@@ -692,8 +760,33 @@ void RemoteJobHelper::hideProgress()
   }
 }
 
+void RemoteJobHelper::clearPendingActionQueue() {
+
+  qDebug() << "RemoteJobHelper: clearing SSH actions, SSH commands and links to jobs...";
+
+  while (!m_pending_action_queue.isEmpty()) {
+    SshAction* action = m_pending_action_queue.dequeue();
+
+    if (m_commands_by_action.contains(action)) {
+      SshCommand* command = m_commands_by_action.value(action);
+      if (m_jobs_by_command.contains(command)) {
+        m_jobs_by_command.remove(command);      
+      }
+
+      m_commands_by_action.remove(action);
+      delete command;
+    }
+
+    if (m_jobs_by_action.contains(action)) {
+      m_jobs_by_action.remove(action);
+    }
+
+    delete action;
+  }
+}
+
 void RemoteJobHelper::sl_onTransferFinished(SshAction *_action) {
-  qDebug() << "Receveived signal finished";
+  qDebug() << "Receveived signal transfer finished";
 
   hideProgress();
    
@@ -951,7 +1044,6 @@ void RemoteJobHelper::sl_onShellErrorReceived(SshAction* _action,
   }
 }
 
-
 void RemoteJobHelper::sl_onConnectionFailed(SshClient::ConnectionError _err) {
   
   QObject* emitter = sender();
@@ -995,7 +1087,10 @@ void RemoteJobHelper::sl_onUserLogin(QString _password) {
 
 void RemoteJobHelper::sl_onUserLoginCanceled() {
   qDebug() << "Login canceled by user, remote operation aborted...";
-  m_pending_action_queue.clear();
+  clearPendingActionQueue();
+  m_sftp_client->clearActions();
+  m_ssh_client->clearActions();
+  m_is_last_action_command = false;
 }
 
 } // namespace MatisseServer

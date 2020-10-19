@@ -12,21 +12,12 @@ namespace MatisseCommon
 QSshClient::QSshClient(QObject* parent)
     : SshClient(parent),
   m_connection(NULL),
+  m_obsolete_connections(),
   m_dir_contents_buffer(),
   m_dir_contents_received(false), 
   m_file_filters(),
   m_progress_matrix() 
 {}
-
-void QSshClient::connectToHost() {
-  qDebug() << tr("QSsh Connecting to host %1 as %2 ...")
-                  .arg(m_host)
-                  .arg(m_creds->username());
-}
-
-void QSshClient::disconnectFromHost() {
-  qDebug() << QString("QSsh Disconnecting from host %1 ...").arg(m_host);
-}
 
 void QSshClient::upload(QString _local_path, QString _remote_path,
                         bool _is_dir_upload) {
@@ -119,6 +110,26 @@ void QSshClient::dirContent(QString _remote_dir_path,
 }
 
 void QSshClient::init() {}
+
+void QSshClient::resetConnection() { 
+  if (m_connected) {
+    qDebug() << "QSshClient: Closing SSH/SFTP connection...";
+    m_connection->disconnectFromHost();
+    m_connected = false;
+    m_waiting_for_connection = false;
+    m_obsolete_connections.insert(m_connection); /* keep track of connection object until disconnected */
+    m_connection = NULL;
+
+    clearConnectionAndActionQueue();
+
+  } else {
+    qDebug() << "QSshClient: SSH/SFTP gateway not connected, ready to reconnect";  
+  }
+}
+
+void QSshClient::clearActions() { 
+  clearConnectionAndActionQueue();
+}
 
 void QSshClient::resume() {
   /* Try to reconnect after failed login */
@@ -306,10 +317,38 @@ void QSshClient::sl_onConnected() {
 void QSshClient::sl_onDisconnected() {
   qDebug() << "QSshClient: disconnected";
 
-  clearConnectionAndActionQueue();
+  QObject* emitter = sender();
+  SshConnection* expired_connection = static_cast<SshConnection*>(emitter);
 
-  //_currentErrorCode = SshClient::ErrorCode::ClosedByServerError;
-  // emit connectionFailed(_currentErrorCode);
+  /* Case : the connection was closed by calling agent */
+  if (m_obsolete_connections.contains(expired_connection)) {
+    qDebug() << "QSshClient: clearing obsolete connection";
+
+    disconnect(expired_connection, SIGNAL(connected()));
+    disconnect(expired_connection, SIGNAL(error(QSsh::SshError)));
+    disconnect(expired_connection, SIGNAL(disconnected()));
+
+    m_obsolete_connections.remove(expired_connection);
+    delete expired_connection;
+
+    return;
+  }
+
+  /* Unconsistent case : the connection is neither the current connection, nor tracked as an ancient connection */
+  if (expired_connection != m_connection) {
+    qWarning() << "QSshClient: unknown connection object, clearing anyway";
+
+    disconnect(expired_connection, SIGNAL(connected()));
+    disconnect(expired_connection, SIGNAL(error(QSsh::SshError)));
+    disconnect(expired_connection, SIGNAL(disconnected()));
+
+    delete expired_connection;
+
+    return;
+  }
+
+  /* Nominal case : the connection was closed after completing job */
+  clearConnectionAndActionQueue();
 }
 
 void QSshClient::sl_onConnectionError(QSsh::SshError err) {
@@ -341,6 +380,7 @@ void QSshClient::clearConnectionAndActionQueue() {
                        "QSshClient: Disconnected while %1 actions are still "
                        "pending in action queue, clearing queue...")
                        .arg(m_action_queue.count());
+    qDeleteAll(m_action_queue);
     m_action_queue.clear();
   }
 
@@ -350,8 +390,11 @@ void QSshClient::clearConnectionAndActionQueue() {
     m_current_action = NULL;
   }
 
-  delete m_connection;
-  m_connection = NULL;
+  /* free connection except if it was tracked as obsolete (connection reset by calling agent) */
+  if (m_connection) {
+    delete m_connection;
+    m_connection = NULL;
+  }
 }
 
 void QSshClient::sl_onChannelInitialized() {
@@ -599,10 +642,10 @@ void QSshClient::sl_onFileInfoAvailable(
     switch (info.type)
     { 
     case QSsh::SftpFileType::FileTypeRegular :
-      qDebug() << "File " << name;
+      //qDebug() << "File " << name;
       break;
     case QSsh::SftpFileType::FileTypeDirectory:
-      qDebug() << "Dir " << name;
+      //qDebug() << "Dir " << name;
       is_dir = true;
       break;
     default:

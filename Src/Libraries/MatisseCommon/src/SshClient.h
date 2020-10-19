@@ -17,12 +17,12 @@ class SshClientCredentials
 public:
     explicit SshClientCredentials(QString _username, QString _password);
 
-    QString username() { return _username; };
-    QString password() { return _password; };
+    QString username() { return m_username; };
+    QString password() { return m_password; };
 
 private:
-    QString _username;
-    QString _password;
+    QString m_username;
+    QString m_password;
 };
 
 
@@ -49,63 +49,68 @@ class SshClient : public SshActionManager
     Q_OBJECT
 
 public:
-    /*!
-     * \brief SSH specific errors
-     */
-    enum class ConnectionError {
-        /// No error has occured
-        NoError,
-        /// There was a network socket error
-        SocketError,
-        /// The connection timed out
-        TimeoutError,
-        /// There was an error communicating with the server
-        ProtocolError,
-        /// There was a problem with the remote host key
-        HostKeyError,
-        /// We failed to read or parse the key file used for authentication
-        KeyFileError,
-        /// We failed to authenticate
-        AuthenticationError,
-        /// The server closed our connection
-        ClosedByServerError,
-        /// The ssh-agent used for authenticating failed somehow
-        AgentError,
-        /// Something bad happened on the server
-        InternalError
-    };
+  /*!
+    * \brief SSH specific errors
+    */
+  enum class ConnectionError {
+    /// No error has occured
+    NoError,
+    /// There was a network socket error
+    SocketError,
+    /// The connection timed out
+    TimeoutError,
+    /// There was an error communicating with the server
+    ProtocolError,
+    /// There was a problem with the remote host key
+    HostKeyError,
+    /// We failed to read or parse the key file used for authentication
+    KeyFileError,
+    /// We failed to authenticate
+    AuthenticationError,
+    /// The server closed our connection
+    ClosedByServerError,
+    /// The ssh-agent used for authenticating failed somehow
+    AgentError,
+    /// Something bad happened on the server
+    InternalError
+  };
     
-    enum class TransferError {
-      NoError,
-      EndOfFile,
-      FileNotFound,
-      PermissionDenied,
-      GenericFailure,
-      BadMessage,
-      NoConnection,
-      ConnectionLost,
-      UnsupportedOperation
-    };
+  enum class TransferError {
+    NoError,
+    EndOfFile,
+    FileNotFound,
+    PermissionDenied,
+    GenericFailure,
+    BadMessage,
+    NoConnection,
+    ConnectionLost,
+    UnsupportedOperation
+  };
 
-    Q_ENUM(ConnectionError)
-    Q_ENUM(TransferError)
+  Q_ENUM(ConnectionError)
+  Q_ENUM(TransferError)
 
-    explicit SshClient(QObject *parent = nullptr);
-    virtual void connectToHost() = 0;
-    virtual void disconnectFromHost() = 0;
+  explicit SshClient(QObject *parent = nullptr);
+    
+  virtual void init() = 0;
+  virtual void resume() = 0;
+  virtual void resetConnection() = 0;
+  virtual void clearActions() = 0;
 
-    void addAction(SshAction *action);
-    virtual void init() = 0;
-    virtual void resume() = 0;
-
-    void setHost(QString host);
-    void setCredentials(SshClientCredentials* creds);
+  void addAction(SshAction *action);
+    
+  bool isConnected();
+  void setHost(QString host);
+  QString host();
+  void setCredentials(SshClientCredentials* creds);
+  QString username();
 
 signals:
   void si_transferFinished(SshAction *_action);
- void si_transferFailed(SshAction *_action, SshClient::TransferError _err);
+  void si_transferFailed(SshAction *_action, SshClient::TransferError _err);
   void si_dirContents(QList<SshFileInfo *> _contents);
   void si_connectionFailed(SshClient::ConnectionError err);
+  void si_connectionClosed();
   void si_shellOutputReceived(SshAction *action, QByteArray output);
   void si_shellErrorReceived(SshAction *action, QByteArray error);
   void si_progressUpdate(int _progress);
@@ -113,16 +118,16 @@ signals:
 public slots:
 
 protected:
-    virtual void processAction() = 0;
+  virtual void processAction() = 0;
     
-    QString m_host;
-    SshClientCredentials *m_creds;
-    QQueue<SshAction*> m_action_queue;
-    SshAction *m_current_action;
-    bool m_connected = false;
-    bool m_waiting_for_connection = false;
-    ConnectionError m_current_cx_error = ConnectionError::NoError;
-    TransferError m_current_tx_error = TransferError::NoError;
+  QString m_host;
+  SshClientCredentials *m_creds;
+  QQueue<SshAction*> m_action_queue;
+  SshAction *m_current_action;
+  bool m_connected = false;
+  bool m_waiting_for_connection = false;
+  ConnectionError m_current_cx_error = ConnectionError::NoError;
+  TransferError m_current_tx_error = TransferError::NoError;
 };
 
 

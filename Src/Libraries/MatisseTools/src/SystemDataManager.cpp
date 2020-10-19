@@ -64,35 +64,6 @@ bool SystemDataManager::readMatisseSettings(QString filename)
                 _dataRootDir = reader.readElementText();
             }
 
-            /* Default preferences values for remote execution */
-            else if (elementName == "RemoteCommandServer") {
-                m_default_remote_command_server = reader.readElementText();
-            }
-
-            else if (elementName == "RemoteFileServer") {
-                m_default_remote_file_server = reader.readElementText();
-            }
-
-            else if (elementName == "RemoteQueueName") {
-                m_default_remote_queue_name = reader.readElementText();
-            }
-
-            else if (elementName == "RemoteNbOfCpus") {
-              QString value = reader.readElementText();
-              int nb_of_cpus = QVariant(value).toInt();
-              if (nb_of_cpus > 0) {
-                m_default_remote_nb_of_cpus = nb_of_cpus;
-              }
-            }
-
-            else if (elementName == "RemoteDataPath") {
-                m_default_remote_data_path = reader.readElementText();
-            }
-
-            else if (elementName == "RemoteResultPath") {
-                m_default_remote_result_path = reader.readElementText();
-            }
-
             /* Remote server settings */
             else if (elementName == "RemoteServerSetting") {
               QXmlStreamAttributes attributes = reader.attributes();
@@ -216,7 +187,6 @@ bool SystemDataManager::readMatissePreferences(QString filename, MatissePreferen
 
             } else if (elementName == "Language") {
                 prefs.setLanguage(reader.readElementText());
-
             }
             else if (elementName == "RemoteCommandServer") {
               prefs.setRemoteCommandServer(reader.readElementText());
@@ -237,12 +207,6 @@ bool SystemDataManager::readMatissePreferences(QString filename, MatissePreferen
               QString value = reader.readElementText();
               int nb_of_cpus = QVariant(value).toInt();
               prefs.setRemoteNbOfCpus(nb_of_cpus);
-            }
-            else if (elementName == "RemoteDefaultDataPath") {
-              prefs.setRemoteDefaultDataPath(reader.readElementText());
-            }
-            else if (elementName == "RemoteResultPath") {
-              prefs.setRemoteResultPath(reader.readElementText());
             }
         }
 
@@ -329,14 +293,6 @@ bool SystemDataManager::writeMatissePreferences(QString filename, MatissePrefere
 
     writer.writeStartElement("RemoteNbOfCpus");
     writer.writeCharacters(QVariant(prefs.remoteNbOfCpus()).toString());
-    writer.writeEndElement();
-
-    writer.writeStartElement("RemoteDefaultDataPath");
-    writer.writeCharacters(prefs.remoteDefaultDataPath());
-    writer.writeEndElement();
-
-    writer.writeStartElement("RemoteResultPath");
-    writer.writeCharacters(prefs.remoteResultPath());
     writer.writeEndElement();
 
     writer.writeEndElement(); // ending start tag

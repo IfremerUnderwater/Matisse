@@ -118,17 +118,7 @@ void AssemblyGui::initPreferences()
         _preferences->setProgrammingModeEnabled(false); // By default, programming mode is disabled
         _preferences->setLanguage("FR");
 
-        /* Retrieve local system username as default username for remote execution */
-        QString sysUsername = qEnvironmentVariable("USER");
-        if (sysUsername.isEmpty()) sysUsername = qEnvironmentVariable("USERNAME");
-
-        _preferences->setRemoteCommandServer(_systemDataManager->defaultRemoteCommandServer());
-        _preferences->setRemoteFileServer(_systemDataManager->defaultRemoteFileServer());
-        _preferences->setRemoteUsername(sysUsername);
-        _preferences->setRemoteQueueName(_systemDataManager->defaultRemoteQueueName());
-        _preferences->setRemoteNbOfCpus(_systemDataManager->defaultRemoteNbOfCpus());
-        _preferences->setRemoteDefaultDataPath(_systemDataManager->getDefaultRemoteDataPath());
-        _preferences->setRemoteResultPath(_systemDataManager->getDefaultRemoteResultPath());
+        /* This case is obsolete : no need to initalize remote execution preferences */
 
         _systemDataManager->writeMatissePreferences(PREFERENCES_FILEPATH, *_preferences);
     } else {
@@ -1120,7 +1110,7 @@ void AssemblyGui::slot_updatePreferences()
             _importPath = "";
 
             /* recheck preferences for remote job execution */
-            m_remote_job_helper->init();
+            m_remote_job_helper->reinit();
         }
     }
 

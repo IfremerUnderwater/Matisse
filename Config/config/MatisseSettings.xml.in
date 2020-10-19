@@ -14,13 +14,7 @@
     <Port>8888</Port>
     <DataRootDir>.</DataRootDir>
     <PlatformDir>./platforms</PlatformDir>
-	<!-- Default preference values for remote execution -->
-	<RemoteCommandServer>datarmor</RemoteCommandServer>
-	<RemoteFileServer>datarmor</RemoteFileServer>
-    <RemoteQueueName>omp</RemoteQueueName>
-    <RemoteNbOfCpus>4</RemoteNbOfCpus>
-	<RemoteDataPath>/home/matisse/datasets</RemoteDataPath>
-	<RemoteResultPath>/home/matisse/results</RemoteResultPath>
+	
 	<!-- Remote server container settings -->
 	<RemoteServerSettings>
 		<RemoteServerSetting name="containerImage" path="/home/matisse/singularity/matisse_img_v_1.1.sif" alias=""/>

@@ -92,10 +92,17 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="4" colspan="4">
+       <item row="11" column="4" colspan="3">
         <widget class="QLineEdit" name="_LE_remoteUsername"/>
        </item>
-       <item row="4" column="1" colspan="6">
+       <item row="9" column="1" colspan="3">
+        <widget class="QLabel" name="_LA_remoteCommandServerAddress">
+         <property name="text">
+          <string>Remote command server (SSH)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" colspan="5">
         <widget class="QLabel" name="_LA_DefaultMosaicPrefix">
          <property name="text">
           <string>Default output name:</string>
@@ -109,21 +116,14 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="1" colspan="3">
-        <widget class="QLabel" name="_LA_remoteCommandServerAddress">
+       <item row="12" column="1" colspan="3">
+        <widget class="QLabel" name="_LA_remoteUserEmail">
          <property name="text">
-          <string>Remote command server (SSH)</string>
+          <string>Remote user email</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="1" colspan="3">
-        <widget class="QLabel" name="_LA_enableProgrammingMode">
-         <property name="text">
-          <string>Enable expert mode</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="9">
+       <item row="1" column="8">
         <widget class="QPushButton" name="_PB_archivePathSelect">
          <property name="text">
           <string/>
@@ -140,7 +140,14 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="4" colspan="4">
+       <item row="5" column="1" colspan="3">
+        <widget class="QLabel" name="_LA_enableProgrammingMode">
+         <property name="text">
+          <string>Enable expert mode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="4" colspan="3">
         <widget class="QLineEdit" name="_LE_remoteFileServerAddress"/>
        </item>
        <item row="10" column="1" colspan="3">
@@ -157,14 +164,11 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="4" colspan="4">
+       <item row="2" column="4" colspan="3">
         <widget class="QLineEdit" name="_LE_defaultResultPath"/>
        </item>
-       <item row="4" column="7">
+       <item row="4" column="6">
         <widget class="QLineEdit" name="_LE_defaultMosaicPrefix"/>
-       </item>
-       <item row="16" column="4" colspan="4">
-        <widget class="QLineEdit" name="_LE_remoteResultPath"/>
        </item>
        <item row="14" column="1" colspan="3">
         <widget class="QLabel" name="_LA_remoteNbOfCpus">
@@ -173,7 +177,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="8">
+       <item row="0" column="7">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -189,7 +193,7 @@
          </property>
         </spacer>
        </item>
-       <item row="9" column="4" colspan="4">
+       <item row="9" column="4" colspan="3">
         <widget class="QLineEdit" name="_LE_remoteCommandServerAddress"/>
        </item>
        <item row="5" column="4">
@@ -199,14 +203,10 @@
          </property>
         </widget>
        </item>
-       <item row="15" column="1" colspan="3">
-        <widget class="QLabel" name="_LA_remoteDefaultDataPath">
-         <property name="text">
-          <string>Remote default data path</string>
-         </property>
-        </widget>
+       <item row="12" column="4" colspan="3">
+        <widget class="QLineEdit" name="_LE_remoteUserEmail"/>
        </item>
-       <item row="0" column="9">
+       <item row="0" column="8">
         <widget class="QPushButton" name="_PB_importExportPathSelect">
          <property name="text">
           <string/>
@@ -230,7 +230,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="3" colspan="5">
+       <item row="1" column="3" colspan="4">
         <widget class="QLineEdit" name="_LE_archivePath"/>
        </item>
        <item row="0" column="1" colspan="2">
@@ -240,19 +240,16 @@
          </property>
         </widget>
        </item>
-       <item row="13" column="4" colspan="4">
+       <item row="13" column="4" colspan="3">
         <widget class="QLineEdit" name="_LE_remoteQueueName"/>
        </item>
-       <item row="14" column="4" colspan="4">
+       <item row="14" column="4" colspan="3">
         <widget class="QLineEdit" name="_LE_remoteNbOfCpus"/>
        </item>
-       <item row="15" column="4" colspan="4">
-        <widget class="QLineEdit" name="_LE_remoteDefaultDataPath"/>
-       </item>
-       <item row="0" column="3" colspan="5">
+       <item row="0" column="3" colspan="4">
         <widget class="QLineEdit" name="_LE_importExportPath"/>
        </item>
-       <item row="2" column="9">
+       <item row="2" column="8">
         <widget class="QPushButton" name="_PB_defaultResultPathSelect">
          <property name="text">
           <string/>
@@ -275,23 +272,6 @@
           <string>Remote username</string>
          </property>
         </widget>
-       </item>
-       <item row="16" column="1" colspan="3">
-        <widget class="QLabel" name="_LA_remoteResultPath">
-         <property name="text">
-          <string>Remote result path (prefix</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="1" colspan="3">
-        <widget class="QLabel" name="_LA_remoteUserEmail">
-         <property name="text">
-          <string>Remote user email</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="4" colspan="4">
-        <widget class="QLineEdit" name="_LE_remoteUserEmail"/>
        </item>
       </layout>
      </item>

@@ -2,18 +2,18 @@
 
 namespace MatisseCommon {
 
-SshClientCredentials::SshClientCredentials(QString username, QString password) {
-  if (username.isNull() || username.isEmpty()) {
+SshClientCredentials::SshClientCredentials(QString _username, QString _password) {
+  if (_username.isNull() || _username.isEmpty()) {
     qCritical() << "SSH username null or empty";
   }
 
-  _username = username;
+  m_username = _username;
 
-  if (password.isNull() || password.isEmpty()) {
+  if (_password.isNull() || _password.isEmpty()) {
     qCritical() << "SSH password null or empty";
   }
 
-  _password = password;
+  m_password = _password;
 }
 
 SshActionManager::SshActionManager() {}
@@ -37,8 +37,18 @@ void SshClient::addAction(SshAction *action) {
   }
 }
 
-void SshClient::setHost(QString host) { m_host = host; }
+bool SshClient::isConnected() { return m_connected; }
 
-void SshClient::setCredentials(SshClientCredentials *creds) { m_creds = creds; }
+void SshClient::setHost(QString host) { 
+  m_host = host; 
+}
+
+QString SshClient::host() { return m_host; }
+
+void SshClient::setCredentials(SshClientCredentials *creds) { 
+  m_creds = creds; 
+}
+
+QString SshClient::username() { return m_creds->username(); }
 
 }  // namespace MatisseCommon

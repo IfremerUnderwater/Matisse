@@ -26,8 +26,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFa
     _ui->_LE_remoteUserEmail->setText(_prefs->remoteUserEmail());
     _ui->_LE_remoteQueueName->setText(_prefs->remoteQueueName());
     _ui->_LE_remoteNbOfCpus->setText(QVariant(_prefs->remoteNbOfCpus()).toString());
-    _ui->_LE_remoteDefaultDataPath->setText(_prefs->remoteDefaultDataPath());
-    _ui->_LE_remoteResultPath->setText(_prefs->remoteResultPath());
 
     if (!allowProgrammingModeActivation) {
         _ui->_LA_enableProgrammingMode->setEnabled(false);
@@ -111,8 +109,6 @@ void PreferencesDialog::slot_close()
         if (nb_of_cpus) {
           _prefs->setRemoteNbOfCpus(nb_of_cpus);
         }
-        _prefs->setRemoteDefaultDataPath(_ui->_LE_remoteDefaultDataPath->text());
-        _prefs->setRemoteResultPath(_ui->_LE_remoteResultPath->text());
 
         accept();
     }

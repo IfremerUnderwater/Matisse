@@ -13,6 +13,4 @@
     <RemoteUserEmail>aurelien.arnaubec@ifremer.fr</RemoteUserEmail>
     <RemoteQueueName>omp</RemoteQueueName>
 	<RemoteNbOfCpus>32</RemoteNbOfCpus>
-    <RemoteDefaultDataPath>/home/matisse/datasets</RemoteDefaultDataPath>
-    <RemoteResultPath>/home/matisse/results</RemoteResultPath>
 </MatissePreferences>

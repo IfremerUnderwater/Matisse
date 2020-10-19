@@ -28,6 +28,7 @@ public:
   explicit PasswordDialog(QWidget* _parent = 0);
   void refreshUi();
   void setUsername(QString _username) { m_username = _username; }
+  void resetPassword() { m_le_password->setText(""); }
 
 protected slots:
   void sl_onLoginAccepted();
@@ -55,6 +56,7 @@ public:
     explicit RemoteJobHelper(QObject *_parent = nullptr);
 
     void init();
+    void reinit();
 
     void uploadDataset(QString _job_name);
     void selectRemoteDataset(QString _job_name);
@@ -110,6 +112,9 @@ private:
     QString m_container_image_path; // path to server container image
 
 
+    void connectGatewaySignals();
+    void disconnectGatewaySignals();
+    bool checkPreferences();
     void checkHostAndCredentials();
     bool checkRemoteExecutionActive(QString _customMessage);
     void resumeAction();
@@ -117,6 +122,7 @@ private:
                              QString _remote_nav_file);
     void showProgress(QString _message = QString());
     void hideProgress();
+    void clearPendingActionQueue();
 };
 
 }

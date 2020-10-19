@@ -28,8 +28,6 @@ private:
    QString m_remote_user_email;
    QString m_remote_queue_name;
    int m_remote_nb_of_cpus;
-   QString m_remote_default_data_path;
-   QString m_remote_result_path;
 
 public:
     MatissePreferences();
@@ -60,10 +58,6 @@ public:
     void setRemoteQueueName(const QString& _remote_queue_name);
     int remoteNbOfCpus() const;
     void setRemoteNbOfCpus(const int _remote_nb_of_cpus);
-    QString remoteDefaultDataPath() const;
-    void setRemoteDefaultDataPath(const QString& _remote_default_data_path);
-    QString remoteResultPath() const;
-    void setRemoteResultPath(const QString& _remote_result_path);
 };
 
 #endif // MATISSEPREFERENCES_H
