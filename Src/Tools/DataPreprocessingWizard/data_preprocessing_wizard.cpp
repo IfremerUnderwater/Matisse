@@ -412,8 +412,8 @@ void DataPreprocessingWizard::video2Images()
                 }
 
                 // Preprocess if needed
-                preprocessImage(processed_directory.absoluteFilePath(new_file_name),
-                    processed_directory.absoluteFilePath(new_file_name));
+                preprocessImages(new_images_files, processed_directory.absolutePath());
+
             }
             else
             {
@@ -452,15 +452,15 @@ void DataPreprocessingWizard::handleImages()
     int j=1;
 
     // process images
+    QStringList new_images_files;
     foreach (QString image_file, images_files) {
 
         if (prepro_progress.wasCanceled())
             return;
 
-        // preprocess if needed
-        preprocessImage(data_dir.absoluteFilePath(image_file),
-                        out_data_dir.absoluteFilePath(image_file));
-
+        // add to preprocess in case it is needed
+        new_images_files << data_dir.absoluteFilePath(image_file);
+        
         // regenerate nav if needed and possible
         // if nav_file write out_nav_file
         if (nav_out_file.isOpen())
@@ -516,6 +516,9 @@ void DataPreprocessingWizard::handleImages()
     if (nav_out_file.isOpen())
         nav_out_file.close();
 
+    // preprocess if needed
+    preprocessImages(new_images_files,  out_data_dir.absolutePath());
+
 }
 
 void DataPreprocessingWizard::preprocessImages(QStringList _images_list, QString _out_image_path)
@@ -524,46 +527,32 @@ void DataPreprocessingWizard::preprocessImages(QStringList _images_list, QString
     if(ui->correct_colors_cb->isChecked() || ui->res_limit_cb->isChecked())
     {
         PreprocessingCorrection img_processor;
+        bool need_colors_corr = false;
+        bool need_illum_corr = true;
+        double preproc_scale = 1.0;
 
-        QImageReader qimg(_image_path);
-        if (qimg.canRead())
+        if (ui->correct_colors_cb->isChecked())
+            need_colors_corr = true;
+
+        if (ui->res_limit_cb->isChecked())
         {
-            cv::Mat cv_img;
-
-            // reduce image if needed
-            if(ui->res_limit_cb->isChecked()){
+            QImageReader qimg(_images_list[0]);
+            if (qimg.canRead())
+            {
                 int width = qimg.size().width();
                 int height = qimg.size().height();
-                double img_mpx = (double)(width*height)/1e6;
+                double img_mpx = (double)(width * height) / 1e6;
 
                 if (img_mpx > ui->res_limit_sb->value())
                 {
-                    cv::Mat cv_temp_img = cv::imread(_image_path.toStdString(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-                    cv::Size dst_size;
-                    double mpx_ratio_sqrt = sqrt(ui->res_limit_sb->value()/img_mpx);
-                    dst_size.width = round(mpx_ratio_sqrt*cv_temp_img.cols);
-                    dst_size.height = round(mpx_ratio_sqrt*cv_temp_img.rows);
-                    cv::resize(cv_temp_img,cv_img,dst_size);
-
-                    if(!ui->correct_colors_cb->isChecked())
-                        cv::imwrite(_out_image_path.toStdString(),cv_img);
+                    preproc_scale = sqrt(ui->res_limit_sb->value() / img_mpx);
                 }
             }
-
-            // color correct if needed
-            if(ui->correct_colors_cb->isChecked())
-            {
-                cv::Mat cv_out_img,empty_mask;
-
-                if(cv_img.empty())
-                    cv_img = cv::imread(_image_path.toStdString(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-
-                histogramQuantileStretch(cv_img, empty_mask, 0.0005,  cv_out_img);
-
-                cv::imwrite(_out_image_path.toStdString(),cv_out_img);
-            }
-
         }
+
+        img_processor.configureProcessing(need_colors_corr, need_illum_corr, preproc_scale);
+        img_processor.preprocessImageList(_images_list, _out_image_path);
+
     }
 }
 

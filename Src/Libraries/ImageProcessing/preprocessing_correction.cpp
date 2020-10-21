@@ -6,6 +6,10 @@
 #include <Eigen/dense>
 #include <QFileInfo>
 #include <QDir>
+#include <random>
+
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace cv;
@@ -23,7 +27,7 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 {
 	// check if we need to reduce image resolution
 	cv::Mat first_img = cv::imread(_input_img_files[0].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-	double m_median_comp_scaling = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 1Mpx
+	double m_median_comp_scaling = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 0.1Mpx
 	if (m_median_comp_scaling > 1.0)
 		m_median_comp_scaling = 1.0;
 	//resize(_in_img, reduced_img, Size(), alpha, alpha);
@@ -56,6 +60,9 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 					{
 						Mat temp_img;
 						resize(imread(_input_img_files[j].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_median_comp_scaling, m_median_comp_scaling);
+
+						cout << "median img width  = " << temp_img.cols << endl;
+						cout << "median img height = " << temp_img.rows << endl;
 
 						vector<Mat> temp_BRG(3);
 						split(temp_img, temp_BRG);
@@ -141,9 +148,9 @@ bool PreprocessingCorrection::computeTemporalMedian()
 	m_green_median_img = Mat::zeros(images_size, CV_32FC1);
 	m_red_median_img = Mat::zeros(images_size, CV_32FC1);
 
-	vector<double> blue_pixel_stack; blue_pixel_stack.reserve(stack_size);
-	vector<double> green_pixel_stack; green_pixel_stack.reserve(stack_size);
-	vector<double> red_pixel_stack; red_pixel_stack.reserve(stack_size);
+	vector<double> blue_pixel_stack; blue_pixel_stack.resize(stack_size);
+	vector<double> green_pixel_stack; green_pixel_stack.resize(stack_size);
+	vector<double> red_pixel_stack; red_pixel_stack.resize(stack_size);
 
 	for (int w = 0; w < images_size.width; w++)
 	{
@@ -151,20 +158,20 @@ bool PreprocessingCorrection::computeTemporalMedian()
 		{
 			for (int k = 0; k < m_blue_stack_images.size(); k++)
 			{
-				blue_pixel_stack[k] = rgb2linf(static_cast<double>(m_blue_stack_images[k].at<uchar>(w, h)) / 255.0);
-				green_pixel_stack[k] = rgb2linf(static_cast<double>(m_green_stack_images[k].at<uchar>(w, h)) / 255.0);
-				red_pixel_stack[k] = rgb2linf(static_cast<double>(m_red_stack_images[k].at<uchar>(w, h)) / 255.0);
+				blue_pixel_stack[k] = rgb2linf(static_cast<double>(m_blue_stack_images[k].at<uchar>(h, w)) / 255.0);
+				green_pixel_stack[k] = rgb2linf(static_cast<double>(m_green_stack_images[k].at<uchar>(h, w)) / 255.0);
+				red_pixel_stack[k] = rgb2linf(static_cast<double>(m_red_stack_images[k].at<uchar>(h, w)) / 255.0);
 			}
 			double tempMedian;
 
 			tempMedian = doubleVectorMedian(blue_pixel_stack);
-			m_blue_median_img.at<float>(w, h) = static_cast<float>(tempMedian);
+			m_blue_median_img.at<float>(h, w) = static_cast<float>(tempMedian);
 
 			tempMedian = doubleVectorMedian(green_pixel_stack);
-			m_green_median_img.at<float>(w, h) = static_cast<float>(tempMedian);
+			m_green_median_img.at<float>(h, w) = static_cast<float>(tempMedian);
 
 			tempMedian = doubleVectorMedian(red_pixel_stack);
-			m_red_median_img.at<float>(w, h) = static_cast<float>(tempMedian);
+			m_red_median_img.at<float>(h, w) = static_cast<float>(tempMedian);
 
 		}
 	}
@@ -179,6 +186,9 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 	std::vector<double> _temporal_spatial_median_vect;
 	medianBlur(_temporal_median_image, _temporal_spatial_median_image, 5);
 
+	//imshow("median img", _temporal_spatial_median_image);
+	//waitKey();
+
 	double out_perc = 0.01; // outlier percentage
 	double maximum_corr_factor = 10.0; // if correction is greater we truncate
 	vector<double> channel_limits;
@@ -186,29 +196,40 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 	quantiles.push_back(out_perc);
 	quantiles.push_back(1 - out_perc);
 
-	for (int w = 0; w < _temporal_spatial_median_image.rows; w++)
+	for (int w = 0; w < _temporal_spatial_median_image.cols; w++)
 	{
-		for (int h = 0; h < _temporal_spatial_median_image.cols; h++)
+		for (int h = 0; h < _temporal_spatial_median_image.rows; h++)
 		{
-			_temporal_spatial_median_vect.push_back(_temporal_spatial_median_image.at<float>(w, h));
+			_temporal_spatial_median_vect.push_back(_temporal_spatial_median_image.at<float>(h, w));
 		}
 	}
 	channel_limits = doubleQuantiles(_temporal_spatial_median_vect, quantiles);
 
 	// Construct x,y,z fitting dataset (x = width, y = height, z=intensity) for paraboloid model
 	vector<double> x, y, z;
-	double temp_z;
-	for (int w = 0; w < _temporal_spatial_median_image.rows; w++)
+	double temp_x, temp_y, temp_z;
+	int needed_fitting_points_nb = 5000;
+	
+	int fitting_points_nb = 0;
+	std::random_device rd;  //Will be used to obtain a seed for the random number engine
+	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+	std::uniform_int_distribution<> width_dist(0, _temporal_spatial_median_image.cols-1);
+	std::uniform_int_distribution<> height_dist(0, _temporal_spatial_median_image.rows-1);
+
+	while (fitting_points_nb < needed_fitting_points_nb)
 	{
-		for (int h = 0; h < _temporal_spatial_median_image.cols; h++)
+		int w = width_dist(gen);
+		int h = height_dist(gen);
+		temp_x = static_cast<double>( w );
+		temp_y = static_cast<double>( h );
+		temp_z = _temporal_spatial_median_image.at<float>(h, w);
+
+		if (temp_z > channel_limits[0] && temp_z < channel_limits[1])
 		{
-			temp_z = _temporal_spatial_median_image.at<float>(w, h);
-			if (temp_z > channel_limits[0] && temp_z < channel_limits[1])
-			{
-				x.push_back(w);
-				y.push_back(h);
-				z.push_back(temp_z);
-			}
+			x.push_back(w);
+			y.push_back(h);
+			z.push_back(temp_z);
+			fitting_points_nb++;
 		}
 	}
 
@@ -229,20 +250,75 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 		A(i, 6) = x[i]*y[i];
 		A(i, 7) = x[i];
 		A(i, 8) = y[i];
+		A(i, 9) = 1;
 
 		b(i) = z[i];
 
 	}
 
+	// https://eigen.tuxfamily.org/dox/structEigen_1_1IOFormat.html
+	const static IOFormat CSVFormat(FullPrecision, DontAlignCols, ", ", "\n");
+
+	ofstream file("D:\\A.txt");
+	if (file.is_open())
+	{
+		file << A.format(CSVFormat);
+		file.close();
+	}
+
+	ofstream fileB("D:\\b.txt");
+	if (fileB.is_open())
+	{
+		fileB << b.format(CSVFormat);
+		fileB.close();
+	}
+
 	VectorXf alpha;
-	alpha = A.bdcSvd(ComputeThinU | ComputeThinV).solve(b); // solve A*alpha = b
+
+	JacobiSVD<MatrixXf> svd;
+	svd.setThreshold(1e-14); // Does not work without it
+	svd.compute(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
+	alpha = svd.solve(b);
+
+	//alpha = A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(b); // solve A*alpha = b
+	//alpha = A.colPivHouseholderQr().solve(b);
+
+	//std::cout << "A = " << A << std::endl;
+	//std::cout << "b = " << b << std::endl;
+	std::cout << "alpha = " << alpha << std::endl;
+
+	ofstream filealpha("D:\\alpha.txt");
+	if (filealpha.is_open())
+	{
+		filealpha << alpha.format(CSVFormat);
+		filealpha.close();
+	}
 
 	// Correct image
 	_output_image = _input_image;
-	double temp_x, temp_y, corr_factor;
-	for (int w = 0; w < _input_image.rows; w++)
+	imshow("input img", _input_image);
+	waitKey();
+	double corr_factor, illum_max=0;
+
+	// only search for maximum
+	for (int w = 0; w < _input_image.cols; w++)
 	{
-		for (int h = 0; h < _input_image.cols; h++)
+		for (int h = 0; h < _input_image.rows; h++)
+		{
+			temp_x = static_cast<double>(w) * m_median_comp_scaling / m_prepro_img_scaling;
+			temp_y = static_cast<double>(h) * m_median_comp_scaling / m_prepro_img_scaling;
+			temp_z = alpha(0) * pow(temp_x, 3) + alpha(1) * pow(temp_y, 3) + alpha(2) * temp_x * pow(temp_y, 2)
+				+ alpha(3) * pow(temp_x, 2) * temp_y + alpha(4) * pow(temp_x, 2) + alpha(5) * pow(temp_y, 2)
+				+ alpha(6) * temp_x * temp_y + alpha(7) * temp_x + alpha(8) * temp_y + alpha(9);
+			if (temp_z > illum_max)
+				illum_max = temp_z;
+		}
+	}
+
+	// correct
+	for (int w = 0; w < _input_image.cols; w++)
+	{
+		for (int h = 0; h < _input_image.rows; h++)
 		{
 			temp_x = static_cast<double>(w)*m_median_comp_scaling/m_prepro_img_scaling;
 			temp_y = static_cast<double>(h)*m_median_comp_scaling/m_prepro_img_scaling;
@@ -250,19 +326,21 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 				+ alpha(3)*pow(temp_x, 2)*temp_y + alpha(4)*pow(temp_x, 2) + alpha(5)*pow(temp_y, 2)
 				+ alpha(6)*temp_x*temp_y + alpha(7)*temp_x + alpha(8)*temp_y + alpha(9);
 
-			if (temp_z > 1.0 / maximum_corr_factor || temp_z < 0)
+			if (temp_z/ illum_max > 1.0 / maximum_corr_factor || temp_z < 0)
 			{
 				corr_factor = maximum_corr_factor;
 			}
 			else
 			{
-				corr_factor = 1.0 / temp_z;
+				corr_factor = illum_max / temp_z;
 			}
 
 			// correct accounting for gamma factor
-			_output_image.at<uchar>(w,h) = static_cast<uchar>( 255*lin2rgbf( corr_factor*rgb2linf(static_cast<double>(_input_image.at<uchar>(w, h)) / 255.0) ) );
+			_output_image.at<uchar>(h, w) = static_cast<uchar>( 255*lin2rgbf( corr_factor*rgb2linf(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0) ) );
 		}
 	}
+	imshow("output img", _output_image);
+	waitKey();
 
 }
 
