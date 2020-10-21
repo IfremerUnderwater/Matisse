@@ -27,7 +27,7 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 {
 	// check if we need to reduce image resolution
 	cv::Mat first_img = cv::imread(_input_img_files[0].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-	double m_median_comp_scaling = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 0.1Mpx
+	m_median_comp_scaling = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 0.1Mpx
 	if (m_median_comp_scaling > 1.0)
 		m_median_comp_scaling = 1.0;
 	//resize(_in_img, reduced_img, Size(), alpha, alpha);
@@ -234,65 +234,37 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 	}
 
 	// Solve paraboloid model
-	MatrixXf A = MatrixXf::Zero(x.size(),10);
-	VectorXf b = VectorXf::Zero(z.size());
+	Mat A = cv::Mat::zeros(cv::Size(10, x.size()), CV_64FC1);
+	Mat b = cv::Mat::zeros(cv::Size(1, z.size()), CV_64FC1);
 	
 	for (int i = 0; i < z.size(); i++)
 	{
 		// A = [x. ^ 3, y. ^ 3, x.*y. ^ 2, x. ^ 2. * y, x. ^ 2, y. ^ 2, x.*y, x, y, ones(size(x))];
 		// idx  0       1       2          3            4       5       6     7  8  9
-		A(i, 0) = pow(x[i], 3);
-		A(i, 1) = pow(y[i], 3);
-		A(i, 2) = x[i]*pow(y[i], 2);
-		A(i, 3) = pow(x[i],2)*y[i];
-		A(i, 4) = pow(x[i], 2);
-		A(i, 5) = pow(y[i], 2);
-		A(i, 6) = x[i]*y[i];
-		A(i, 7) = x[i];
-		A(i, 8) = y[i];
-		A(i, 9) = 1;
+		A.at<double>(i, 0) = pow(x[i], 3);
+		A.at<double>(i, 1) = pow(y[i], 3);
+		A.at<double>(i, 2) = x[i]*pow(y[i], 2);
+		A.at<double>(i, 3) = pow(x[i],2)*y[i];
+		A.at<double>(i, 4) = pow(x[i], 2);
+		A.at<double>(i, 5) = pow(y[i], 2);
+		A.at<double>(i, 6) = x[i]*y[i];
+		A.at<double>(i, 7) = x[i];
+		A.at<double>(i, 8) = y[i];
+		A.at<double>(i, 9) = 1;
 
-		b(i) = z[i];
+		b.at<double>(i) = z[i];
 
 	}
 
-	// https://eigen.tuxfamily.org/dox/structEigen_1_1IOFormat.html
-	const static IOFormat CSVFormat(FullPrecision, DontAlignCols, ", ", "\n");
+	Mat alpha;
 
-	ofstream file("D:\\A.txt");
-	if (file.is_open())
+	solve(A, b, alpha, DECOMP_SVD);
+
+	for (int i = 0; i < alpha.rows; i++)
 	{
-		file << A.format(CSVFormat);
-		file.close();
+		std::cout << "alpha = " << alpha.at<double>(i) << std::endl;
 	}
 
-	ofstream fileB("D:\\b.txt");
-	if (fileB.is_open())
-	{
-		fileB << b.format(CSVFormat);
-		fileB.close();
-	}
-
-	VectorXf alpha;
-
-	JacobiSVD<MatrixXf> svd;
-	svd.setThreshold(1e-14); // Does not work without it
-	svd.compute(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
-	alpha = svd.solve(b);
-
-	//alpha = A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(b); // solve A*alpha = b
-	//alpha = A.colPivHouseholderQr().solve(b);
-
-	//std::cout << "A = " << A << std::endl;
-	//std::cout << "b = " << b << std::endl;
-	std::cout << "alpha = " << alpha << std::endl;
-
-	ofstream filealpha("D:\\alpha.txt");
-	if (filealpha.is_open())
-	{
-		filealpha << alpha.format(CSVFormat);
-		filealpha.close();
-	}
 
 	// Correct image
 	_output_image = _input_image;
@@ -307,9 +279,9 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 		{
 			temp_x = static_cast<double>(w) * m_median_comp_scaling / m_prepro_img_scaling;
 			temp_y = static_cast<double>(h) * m_median_comp_scaling / m_prepro_img_scaling;
-			temp_z = alpha(0) * pow(temp_x, 3) + alpha(1) * pow(temp_y, 3) + alpha(2) * temp_x * pow(temp_y, 2)
-				+ alpha(3) * pow(temp_x, 2) * temp_y + alpha(4) * pow(temp_x, 2) + alpha(5) * pow(temp_y, 2)
-				+ alpha(6) * temp_x * temp_y + alpha(7) * temp_x + alpha(8) * temp_y + alpha(9);
+			temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
+				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
+				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 			if (temp_z > illum_max)
 				illum_max = temp_z;
 		}
@@ -322,17 +294,15 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 		{
 			temp_x = static_cast<double>(w)*m_median_comp_scaling/m_prepro_img_scaling;
 			temp_y = static_cast<double>(h)*m_median_comp_scaling/m_prepro_img_scaling;
-			temp_z = alpha(0)*pow(temp_x,3) + alpha(1)*pow(temp_y, 3) + alpha(2)*temp_x*pow(temp_y, 2)
-				+ alpha(3)*pow(temp_x, 2)*temp_y + alpha(4)*pow(temp_x, 2) + alpha(5)*pow(temp_y, 2)
-				+ alpha(6)*temp_x*temp_y + alpha(7)*temp_x + alpha(8)*temp_y + alpha(9);
+			temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
+				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
+				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 
-			if (temp_z/ illum_max > 1.0 / maximum_corr_factor || temp_z < 0)
+			corr_factor = illum_max / temp_z;
+
+			if (corr_factor > maximum_corr_factor || temp_z < 0)
 			{
 				corr_factor = maximum_corr_factor;
-			}
-			else
-			{
-				corr_factor = illum_max / temp_z;
 			}
 
 			// correct accounting for gamma factor
