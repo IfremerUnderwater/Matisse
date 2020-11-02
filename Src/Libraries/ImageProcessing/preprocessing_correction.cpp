@@ -62,7 +62,7 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 			findImgColorQuantiles(current_img, empty_mask, quantiles, ch1_lim, ch2_lim, ch3_lim);
 
 			// Strech img according to saturation limit
-			stretchColorImg(current_img, empty_mask, ch1_lim, ch2_lim, ch3_lim, current_img, false);
+			//stretchColorImg(current_img, empty_mask, ch1_lim, ch2_lim, ch3_lim, current_img, true);
 			
 			//histogramQuantileStretch(current_img, empty_mask, 0.0005, current_img, false);
 		}
@@ -277,10 +277,10 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 
 	solve(A, b, alpha, DECOMP_SVD);
 
-	for (int i = 0; i < alpha.rows; i++)
+	/*for (int i = 0; i < alpha.rows; i++)
 	{
 		std::cout << "alpha = " << alpha.at<double>(i) << std::endl;
-	}
+	}*/
 
 
 	// Correct image
