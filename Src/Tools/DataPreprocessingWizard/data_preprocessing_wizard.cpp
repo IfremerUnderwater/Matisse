@@ -446,17 +446,9 @@ void DataPreprocessingWizard::handleImages()
             nav_out_file_stream.setDevice(&nav_out_file);
     }
 
-    // progressbar for preprocessing
-    QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, this);
-    prepro_progress.setWindowModality(Qt::WindowModal);
-    int j=1;
-
     // process images
     QStringList new_images_files;
     foreach (QString image_file, images_files) {
-
-        if (prepro_progress.wasCanceled())
-            return;
 
         // add to preprocess in case it is needed
         new_images_files << data_dir.absoluteFilePath(image_file);
@@ -509,8 +501,7 @@ void DataPreprocessingWizard::handleImages()
                 }
             }
         }
-        prepro_progress.setValue(round(100*j/images_files.size()));
-        j++;
+
     }
 
     if (nav_out_file.isOpen())
@@ -524,15 +515,18 @@ void DataPreprocessingWizard::handleImages()
 void DataPreprocessingWizard::preprocessImages(QStringList _images_list, QString _out_image_path)
 {
 
-    if(ui->correct_colors_cb->isChecked() || ui->res_limit_cb->isChecked())
+    if(ui->correct_colors_cb->isChecked() || ui->res_limit_cb->isChecked() || ui->correct_illum_cb->isChecked())
     {
-        PreprocessingCorrection img_processor;
+        PreprocessingCorrection img_processor(5,this);
         bool need_colors_corr = false;
-        bool need_illum_corr = true;
+        bool need_illum_corr = false;
         double preproc_scale = 1.0;
 
         if (ui->correct_colors_cb->isChecked())
             need_colors_corr = true;
+
+        if (ui->correct_illum_cb->isChecked())
+            need_illum_corr = true;
 
         if (ui->res_limit_cb->isChecked())
         {

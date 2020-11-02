@@ -5,6 +5,7 @@
 #include <deque>
 #include <vector>
 #include <QString>
+#include <QWidget>
 
 class PreprocessingCorrection
 {
@@ -14,7 +15,8 @@ public:
 	/// Constructor
 	/// </summary>
 	/// <param name="_ws">ws is the sliding window size (number of image used for the computation of the model)</param>
-	PreprocessingCorrection(int _ws=5);
+	/// <param name="_parent"> provide a parent widget in case you want to show graphically the progession</param>
+	PreprocessingCorrection(int _ws=5, QWidget* _parent = nullptr);
 
 	/// <summary>
 	/// Correct images for illumination given a list of files on the disk
@@ -62,6 +64,8 @@ private:
 	std::deque<cv::Mat> m_blue_stack_images;
 	std::deque<cv::Mat> m_green_stack_images;
 	std::deque<cv::Mat> m_red_stack_images;
+
+	QWidget* m_graphic_parent;
 
 };
 

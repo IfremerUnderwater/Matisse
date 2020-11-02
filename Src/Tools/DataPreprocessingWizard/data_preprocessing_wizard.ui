@@ -237,6 +237,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QCheckBox" name="correct_illum_cb">
+      <property name="text">
+       <string>Correct for non uniform illumination</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
       <property name="topMargin">
        <number>20</number>

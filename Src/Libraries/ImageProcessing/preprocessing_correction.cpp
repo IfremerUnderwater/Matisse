@@ -6,6 +6,8 @@
 #include <Eigen/dense>
 #include <QFileInfo>
 #include <QDir>
+#include <QProgressDialog>
+#include <QApplication>
 #include <random>
 
 #include <iostream>
@@ -15,12 +17,13 @@ using namespace std;
 using namespace cv;
 using namespace Eigen;
 
-PreprocessingCorrection::PreprocessingCorrection(int _ws) :m_ws(_ws), 
+PreprocessingCorrection::PreprocessingCorrection(int _ws, QWidget* _parent):m_ws(_ws),
 m_median_comp_scaling(1.0),
 m_prepro_img_scaling(1.0),
 m_correct_colors(false),
 m_compensate_illumination(false)
 {
+	m_graphic_parent = _parent;
 }
 
 bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, QString _output_path)
@@ -38,9 +41,15 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 	int im_nb = _input_img_files.size();
 	int half_ws = (m_ws-1)/2;
 
+	QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, m_graphic_parent);
+	int j = 1;
+
 	// preprocess
 	for (int i = 0; i < im_nb; i++)
 	{
+		if (m_graphic_parent && prepro_progress.wasCanceled())
+			return false;
+
 		Mat current_img = imread(_input_img_files[i].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
 
 		// check if we need to resize image
@@ -52,7 +61,6 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 		cv::Mat empty_mask;
 		if (m_correct_colors)
 		{
-
 			// Construct required quantiles vector
 			vector<double> quantiles;
 			quantiles.push_back(0.0005);
@@ -60,11 +68,6 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 
 			// Get channels saturation limits
 			findImgColorQuantiles(current_img, empty_mask, quantiles, ch1_lim, ch2_lim, ch3_lim);
-
-			// Strech img according to saturation limit
-			//stretchColorImg(current_img, empty_mask, ch1_lim, ch2_lim, ch3_lim, current_img, true);
-			
-			//histogramQuantileStretch(current_img, empty_mask, 0.0005, current_img, false);
 		}
 
 		// need illumination compensation
@@ -140,6 +143,13 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 		QFileInfo current_file_info(_input_img_files[i]);
 		QString outfile = _output_path + QDir::separator() + current_file_info.fileName();
 		cv::imwrite(outfile.toStdString(), current_img);
+
+		if (m_graphic_parent)
+		{
+			prepro_progress.setValue(round(100 * j / im_nb));
+			j++;
+			QApplication::processEvents();
+		}
 
 	}
 
@@ -315,7 +325,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
 				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 
-			corr_factor = 0.8*illum_max / temp_z;
+			corr_factor = 0.8*illum_max / temp_z; // 0.8 is to prevent saturation
 
 			if (corr_factor > maximum_corr_factor || temp_z < 0)
 			{
