@@ -47,6 +47,26 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 		if (m_prepro_img_scaling < 1.0)
 			resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
 
+		// correct colors
+		vector<int> ch1_lim, ch2_lim, ch3_lim;
+		cv::Mat empty_mask;
+		if (m_correct_colors)
+		{
+
+			// Construct required quantiles vector
+			vector<double> quantiles;
+			quantiles.push_back(0.0005);
+			quantiles.push_back(1 - 0.0005);
+
+			// Get channels saturation limits
+			findImgColorQuantiles(current_img, empty_mask, quantiles, ch1_lim, ch2_lim, ch3_lim);
+
+			// Strech img according to saturation limit
+			stretchColorImg(current_img, empty_mask, ch1_lim, ch2_lim, ch3_lim, current_img, false);
+			
+			//histogramQuantileStretch(current_img, empty_mask, 0.0005, current_img, false);
+		}
+
 		// need illumination compensation
 		if (m_compensate_illumination)
 		{
@@ -60,9 +80,6 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 					{
 						Mat temp_img;
 						resize(imread(_input_img_files[j].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_median_comp_scaling, m_median_comp_scaling);
-
-						cout << "median img width  = " << temp_img.cols << endl;
-						cout << "median img height = " << temp_img.rows << endl;
 
 						vector<Mat> temp_BRG(3);
 						split(temp_img, temp_BRG);
@@ -112,11 +129,11 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 
 		} // end need illumination compensation
 
-		// correct colors
+				// correct colors
 		if (m_correct_colors)
 		{
-			cv::Mat empty_mask;
-			histogramQuantileStretch(current_img, empty_mask, 0.0005, current_img);
+			// Strech img according to saturation limit
+			stretchColorImg(current_img, empty_mask, ch1_lim, ch2_lim, ch3_lim, current_img, false);
 		}
 
 		// write image
@@ -268,8 +285,8 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 
 	// Correct image
 	_output_image = _input_image;
-	imshow("input img", _input_image);
-	waitKey();
+	//imshow("input img", _input_image);
+	//waitKey();
 	double corr_factor, illum_max=0;
 
 	// only search for maximum
@@ -298,7 +315,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
 				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 
-			corr_factor = illum_max / temp_z;
+			corr_factor = 0.8*illum_max / temp_z;
 
 			if (corr_factor > maximum_corr_factor || temp_z < 0)
 			{
@@ -309,8 +326,8 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 			_output_image.at<uchar>(h, w) = static_cast<uchar>( 255*lin2rgbf( corr_factor*rgb2linf(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0) ) );
 		}
 	}
-	imshow("output img", _output_image);
-	waitKey();
+	//imshow("output img", _output_image);
+	//waitKey();
 
 }
 

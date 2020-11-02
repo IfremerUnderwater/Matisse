@@ -2,6 +2,7 @@
 #define IMAGEPROCESSING_H
 
 #include <opencv2/opencv.hpp>
+#include <vector>
 
 ///
 /// \brief histogramStretch streches img histogram from _low_high_in to _low_high_out
@@ -11,7 +12,7 @@
 /// \param _low_high_out output range
 /// \param _stretched_img streched image
 ///
-void histogramStretch(cv::Mat &_in_img, cv::Mat &_in_mask, cv::Point _low_high_in, cv::Point _low_high_out,  cv::Mat &_stretched_img);
+void histogramStretch(cv::Mat &_in_img, cv::Mat &_in_mask, cv::Point _low_high_in, cv::Point _low_high_out,  cv::Mat &_stretched_img, bool _gamma_undo = true);
 
 ///
 /// \brief histogramQuantileStretch
@@ -20,7 +21,10 @@ void histogramStretch(cv::Mat &_in_img, cv::Mat &_in_mask, cv::Point _low_high_i
 /// \param _saturation_percentage
 /// \param _stretched_img
 ///
-void histogramQuantileStretch(cv::Mat &_in_img, cv::Mat &_in_mask, double _saturation_percentage,  cv::Mat &_stretched_img);
+void histogramQuantileStretch(cv::Mat &_in_img, cv::Mat &_in_mask, double _saturation_percentage,  cv::Mat &_stretched_img, bool _gamma_undo=true);
+
+void stretchColorImg(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<int>& _ch1_lim, std::vector<int>& _ch2_lim, std::vector<int>& _ch3_lim, cv::Mat& _stretched_img, bool _gamma_undo = true);
+void findImgColorQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<double> &_quantiles, std::vector<int> &_ch1_lim, std::vector<int> &_ch2_lim, std::vector<int> &_ch3_lim);
 
 /// <summary>
 /// Gamma transformation from linear image to rgb
