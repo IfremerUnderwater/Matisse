@@ -2,6 +2,7 @@
 #include "NavImage.h"
 
 #include <QProcess>
+#include <QElapsedTimer>
 
 #ifndef OPENMVG_USE_OPENMP
 #define OPENMVG_USE_OPENMP
@@ -792,11 +793,16 @@ void Matching3D::onFlush(quint32 port)
 {
     Q_UNUSED(port)
 
+    QElapsedTimer timer;
+    timer.start();
+
     if (!this->computeFeatures())
       return;
 
     this->computeMatches();
  
+    qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
+
     // Flush next module port
     flush(0);
 

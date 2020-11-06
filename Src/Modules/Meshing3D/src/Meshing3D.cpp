@@ -6,6 +6,7 @@
 #include "MVGMVSInterface.h"
 
 #include <QProcess>
+#include <QElapsedTimer>
 
 #include <iostream>
 #include <fstream>
@@ -201,6 +202,9 @@ void Meshing3D::onFlush(quint32 port)
 {
     Q_UNUSED(port)
 
+    QElapsedTimer timer;
+    timer.start();
+
     static const QString SEP = QDir::separator();
 
     emit signal_processCompletion(0);
@@ -268,6 +272,8 @@ void Meshing3D::onFlush(quint32 port)
 
     // complete current file suffix
     rc->out_file_suffix += "_mesh";
+
+    qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
 
     // Flush next module port
     flush(0);

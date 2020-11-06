@@ -6,6 +6,7 @@
 #include "Polygon.h"
 
 #include "Dim2FileReader.h"
+#include <QElapsedTimer>
 
 //#define PROGRESS
 //#define PROGRESS_DISPLAY
@@ -288,6 +289,9 @@ bool Init3DRecon::stop()
 
 void Init3DRecon::onFlush(quint32 port)
 {
+    QElapsedTimer timer;
+    timer.start();
+
     reconstructionContext *reconstruction_context = new reconstructionContext();
 
     qDebug() << logPrefix() << "flush port " << port;
@@ -707,13 +711,9 @@ void Init3DRecon::onFlush(quint32 port)
     if(sfm_data.GetViews().size() == 0)
     {
         fatalErrorExit("No valid images found");
-        //delete sfm_data;
 
         return;
     }
-
-    // do not crash...
-    //delete sfm_data;
 
     sfm_data.poses.clear();
     sfm_data.control_points.clear();
@@ -721,11 +721,10 @@ void Init3DRecon::onFlush(quint32 port)
     std::shared_ptr<IntrinsicBase> intrinsic (NULL);
     sfm_data.intrinsics[0] = intrinsic;
     sfm_data.s_root_path = "";
-    //crash
-    //sfm_data->intrinsics.clear();
-
 
     emit signal_userInformation("Init3DRecon - end");
+
+    qDebug() << logPrefix() << " took " << timer.elapsed()/1000.0 << " seconds";
 
     flush(0);
 }

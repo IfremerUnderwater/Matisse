@@ -62,7 +62,7 @@ AssemblyGui::~AssemblyGui()
 {
     delete _iconFactory;
     delete _ui;
-    qDebug() << "Delete Gui";
+    //qDebug() << "Delete Gui";
 }
 
 void AssemblyGui::initDateTimeDisplay()
@@ -647,22 +647,22 @@ bool AssemblyGui::loadResultToCartoView(QString resultFile_p, bool remove_previo
     }
 
     if (_userFormWidget->supportedRasterFormat().contains(infoResult.suffix())){
-        qDebug() << "Loading raster layer " << resultFile_p;
+        //qDebug() << "Loading raster layer " << resultFile_p;
         _userFormWidget->loadRasterFile(infoResult.absoluteFilePath());
 
     }else if (_userFormWidget->supportedVectorFormat().contains(infoResult.suffix())){
-        qDebug() << "Loading vector layer " << resultFile_p;
+        //qDebug() << "Loading vector layer " << resultFile_p;
         _userFormWidget->loadShapefile(infoResult.absoluteFilePath());
 
     }else if (_userFormWidget->supported3DFileFormat().contains(infoResult.suffix())){
         _userFormWidget->load3DFile(infoResult.absoluteFilePath(), remove_previous_scenes);
 
     }else if (_userFormWidget->supportedImageFormat().contains(infoResult.suffix())){
-        qDebug() << "Loading image file " << resultFile_p;
+        //qDebug() << "Loading image file " << resultFile_p;
         _userFormWidget->loadImageFile(infoResult.absoluteFilePath());
 
     }else{
-        qDebug() << "Output file format not supported";
+        //qDebug() << "Output file format not supported";
         return false;
     }
 
@@ -735,7 +735,7 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
 
     // Selecting mode-specific stylesheet
     QString styleSheetForMode = _stylesheetByAppMode.value(mode);
-    qDebug() << QString("Stylesheet for mode : %1").arg(styleSheetForMode);
+    //qDebug() << QString("Stylesheet for mode : %1").arg(styleSheetForMode);
 
     // Loading stylesheets...
 
@@ -765,7 +765,7 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
             //QString globalStyles = globalStylesWithVariables;
 
             // Applying stylesheet
-            qDebug() << "Applying stylesheet...";
+            //qDebug() << "Applying stylesheet...";
             qApp->setStyleSheet(globalStyles);
         }
     }
@@ -987,12 +987,12 @@ void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int c
             QString newAssemblyName = getActualNewAssemblyName();
 
             if (selectedAssemblyName == newAssemblyName) {
-                qDebug() << "Same assembly selected";
+                //qDebug() << "Same assembly selected";
                 return;
             }
         } else if (_currentAssembly) {
             if (selectedAssemblyName == _currentAssembly->name()) {
-                qDebug() << "Same assembly selected";
+                //qDebug() << "Same assembly selected";
                 return;
             }
         }
@@ -1021,7 +1021,7 @@ void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int c
         /* check if same job is selected */
         if (_currentJob) {
             if (selectedJobName == _currentJob->name()) {
-                qDebug() << "Same job selected";
+                //qDebug() << "Same job selected";
                 return;
             }
         }
@@ -3803,13 +3803,13 @@ void AssemblyGui::slot_jobShowImageOnMainView(QString name, Image *image)
 
 void AssemblyGui::slot_userInformation(QString userText)
 {
-    qDebug() << "Received user information : " << userText;
+    //qDebug() << "Received user information : " << userText;
     _ongoingProcessInfolabel->setText(userText);
 }
 
 void AssemblyGui::slot_processCompletion(quint8 percentComplete)
 {
-    qDebug() << "Received process completion signal : " << percentComplete;
+    //qDebug() << "Received process completion signal : " << percentComplete;
 
     if(percentComplete == (quint8)-1)
     {
@@ -3841,7 +3841,7 @@ void AssemblyGui::slot_showErrorMessage(QString title, QString message)
 
 
 void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
-    qDebug() << "Job done : " << name;
+    //qDebug() << "Job done : " << name;
     //_userFormWidget->switchCartoViewTo(QGisMapLayer);
 
     if (!_server.errorFlag()) {
@@ -3907,7 +3907,7 @@ void AssemblyGui::slot_assembliesReload()
 
     if (_isMapView) {
         _userFormWidget->clear();
-        qDebug() << "Clear userForm...";
+        //qDebug() << "Clear userForm...";
     } else {
         slot_clearAssembly();
     }
@@ -3919,7 +3919,7 @@ void AssemblyGui::slot_assembliesReload()
 
 void AssemblyGui::slot_modifiedParameters(bool changed)
 {
-    qDebug() << "Receiving parameter value update flag : " << changed;
+    //qDebug() << "Receiving parameter value update flag : " << changed;
 
     bool hasActuallyChanged = changed;
 
@@ -3949,7 +3949,7 @@ void AssemblyGui::slot_modifiedParameters(bool changed)
 
 void AssemblyGui::slot_modifiedAssembly()
 {
-    qDebug() << "Received assembly modified notification";
+    //qDebug() << "Received assembly modified notification";
 
     _isAssemblyModified = true;
     handleAssemblyModified();
@@ -3961,7 +3961,7 @@ void AssemblyGui::slot_modifiedAssembly()
 
 void AssemblyGui::slot_assemblyComplete(bool isComplete)
 {
-    qDebug() << "Received assembly completeness flag : " << isComplete;
+    //qDebug() << "Received assembly completeness flag : " << isComplete;
 
     _isAssemblyComplete = isComplete;
     //    _saveAssemblyAct->setEnabled(isComplete); // assembly can be saved only if assembly is complete
@@ -3998,7 +3998,7 @@ void AssemblyGui::handleJobModified()
 void AssemblyGui::handleAssemblyModified()
 {
     if (_newAssembly) {
-        qDebug() << "Updated new assembly " << _newAssembly->name();
+        //qDebug() << "Updated new assembly " << _newAssembly->name();
         return;
     }
 

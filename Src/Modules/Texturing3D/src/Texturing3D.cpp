@@ -4,6 +4,7 @@
 
 #include <QFile>
 #include <QProcess>
+#include <QElapsedTimer>
 
 #include <iostream>
 #include <fstream>
@@ -216,6 +217,9 @@ void Texturing3D::onFlush(quint32 port)
 {
     Q_UNUSED(port)
 
+    QElapsedTimer timer;
+    timer.start();
+
     static const QString SEP = QDir::separator();
 
     emit signal_processCompletion(0);
@@ -367,6 +371,8 @@ void Texturing3D::onFlush(quint32 port)
 
     // update suffix
     rc->out_file_suffix = "_texrecon";
+
+    qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
 
     // Flush next module port
     flush(0);

@@ -1,6 +1,7 @@
 ﻿#include "SfmBundleAdjustment.h"
 #include "reconstructioncontext.h"
 #include <QProcess>
+#include <QElapsedTimer>
 
 #include "openMVG/cameras/Camera_Common.hpp"
 #include "openMVG/cameras/Cameras_Common_command_line_helper.hpp"
@@ -404,6 +405,9 @@ void SfmBundleAdjustment::onFlush(quint32 port)
 {
     Q_UNUSED(port)
 
+    QElapsedTimer timer;
+    timer.start();
+
     static const QString SEP = QDir::separator();
     QDir splitted_matches_path_dir(m_splitted_matches_path);
     QDir matches_path_dir(m_matches_path);
@@ -456,6 +460,8 @@ void SfmBundleAdjustment::onFlush(quint32 port)
 
     // set format
     rc->current_format = ReconFormat::openMVG;
+
+    qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
 
     // Flush next module port
     flush(0);

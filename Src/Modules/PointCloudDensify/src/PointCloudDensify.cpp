@@ -6,6 +6,7 @@
 #include "MVGMVSInterface.h"
 
 #include <QProcess>
+#include <QElapsedTimer>
 
 #include <iostream>
 #include <fstream>
@@ -203,6 +204,9 @@ void PointCloudDensify::onFlush(quint32 port)
 {
     Q_UNUSED(port)
 
+    QElapsedTimer timer;
+    timer.start();
+
     static const QString SEP = QDir::separator();
 
     // Get context
@@ -270,6 +274,8 @@ void PointCloudDensify::onFlush(quint32 port)
 
     emit signal_userInformation("PointCloudDensify");
     emit signal_processCompletion(100);
+
+    qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
 
     // Flush next module port
     flush(0);
