@@ -222,11 +222,9 @@ private:
     MatisseMenu *_processMenu;
     MatisseMenu *_toolMenu;
     MatisseMenu *_helpMenu;
-    QMenu *_mapMenu;
 
     /* static menu actions */
     QAction* _exportMapViewAct;
-    QAction* _exportProjectQGisAct;
     QAction* _closeAct;
     QAction* _dayNightModeAct;
     QAction* _mapToolbarAct;
@@ -238,8 +236,6 @@ private:
     QAction* _preprocessingTool;
     QAction* _videoToImageToolAct;
     QAction* _checkNetworkRxAct;
-    QAction* _loadShapefileAct;
-    QAction* _loadRasterAct;
     QAction* _userManualAct;
     QAction* _aboutAct;
 
@@ -371,20 +367,13 @@ protected slots:
     void slot_checkNetworkRx();
     void slot_swapDayNightDisplay();
     void slot_exportMapToImage();
-    void slot_exportMapToQgisProject();
-    void slot_loadShapeFile();
-    void slot_loadRasterFile();
     void slot_launchPreprocessingTool();
-    //void slot_launchVideoToImageTool();
 
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);
     void slot_goHome();
     void slot_show3DFileOnMainView(QString filepath_p);
     void slot_addRasterFileToMap(QString filepath_p);
-    void slot_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
-    void slot_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p);    
-    //void slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p);
 
 signals:
     void signal_processRunning();

@@ -57,7 +57,6 @@ class OSGWidget;
 namespace Ui {
 class UserFormWidget;
 }
-//class QgsRasterLayer;
 
 class QLabel;
 
@@ -104,20 +103,13 @@ public:
     void setIconFactory(MatisseIconFactory *iconFactory);
     void initCanvas();
     void initMapToolBar();
-    void initLayersWidget();
     void clear();
     void displayImage(Image *image);
     void displayCartoImage(CartoImage *image);
     void resetJobForm();
     void loadRasterFile(QString filename);
-    void loadShapefile(QString filename);
     void load3DFile(QString filename_p, bool remove_previous_scenes_p=true);
     void loadImageFile(QString filename);
-    void saveQgisProject(QString filename);
-    //void loadTestVectorLayer();
-    //void addQGisPointsToMap(QList<QgsPoint> &pointsList_p, QString pointsColor_p, QString layerName_p);
-    void addPolygonToMap(basicproc::Polygon &polygon_p, QString polyInsideColor_p, QString layerName_p);
-    void addPolylineToMap(basicproc::Polygon &polygon_p, QString polyInsideColor_p, QString layerName_p);
     void exportMapViewToImage(QString imageFilePath);
 
     CartoViewType currentViewType() const;
@@ -127,30 +119,21 @@ public:
     QStringList supported3DFileFormat() const;
     QStringList supportedImageFormat() const;
 
-    void setLayersWidget(QListWidget *layersWidget);
-
 protected slots:
-    //void slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
     void slot_addRasterToCartoView(CartoImage *image_p);
     void slot_addRasterToImageView(Image *image_p);
     void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool _remove_previous_scenes=true);
-    void slot_showLayersWidgetContextMenu(const QPoint &pos);
     void slot_showMapContextMenu(const QPoint& pos_p);
     void slot_onAutoResizeTrigger();
     void slot_onFollowLastItem();
     void slot_onManualMove();
     void slot_updateColorPalette(QMap<QString,QString>);
     void slot_showHideToolbar();
-    //void slot_activatePanTool();
     void slot_activateZoomInTool();
     void slot_activateZoomOutTool();
     void slot_recenterMap();
     void slot_showImagesRect(bool);
 
-    //void slot_layerWasAdded(QgsMapLayer *layer);
-    //void slot_layerWasRemoved(QString layerId);
-    void slot_layerItemChanged();
-    void slot_removeLayer();
 
     void slot_updateMapCoords(QPointF p);
     void slot_mapZoomChanged(qreal z);
@@ -161,14 +144,8 @@ signals:
     void signal_load3DSceneFromFile(QString filename_p, bool remove_previous_scenes_p);
 
 private:
-    //void updateMapCanvasAndExtent(QgsMapLayer *currentLayer_p);
-    bool findLayerIndexFromName(const QString &layerName_p, int &idx_p);
 
     Ui::UserFormWidget *_ui;
-    //QList<QgsMapCanvasLayer> _layers;
-    // QGis 2.99
-   // QList<QgsMapLayer*> _players;
-    // attention : pointeur - delete à faire
 
     CartoScene _scene;
 
@@ -191,18 +168,9 @@ private:
     QAction *_manualMove;
     QMenu *_repaintBehaviorMenu;
 
-    QAction *_removeLayerAction;
-    QMenu *_layersMenu;
-
     RepaintBehaviorState _repaintBehaviorState;
     QToolBar *_mapToolBar;
     QLabel *_coords;
-
-    //QgsMapTool *_panTool;
-    //QgsMapTool *_zoomInTool;
-    //QgsMapTool *_zoomOutTool;
-
-    QListWidget *_layersWidget;
 
     std::vector< osg::ref_ptr<osg::Node> > _osg_nodes;
 

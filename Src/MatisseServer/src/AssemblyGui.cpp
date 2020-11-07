@@ -207,8 +207,8 @@ void AssemblyGui::lookupChildWidgets()
     _homeWidget = findChild<HomeWidget*>(QString("homeWidget"));
 
     // Tabs : object name is set anew explicitely to enable stylesheet ( setObjectName overriden)
-    QTabWidget *mapViewTabs = findChild<QTabWidget*>(QString("_TW_mapViewTabs"));
-    mapViewTabs->setObjectName("_TW_mapViewTabs");
+    QTabWidget *infoViewTabs = findChild<QTabWidget*>(QString("_TW_infoTabs"));
+    infoViewTabs->setObjectName("_TW_infoTabs");
     QTabWidget *creationViewTabs = findChild<QTabWidget*>(QString("_TW_creationViewTabs"));
     creationViewTabs->setObjectName("_TW_creationViewTabs");
 
@@ -257,9 +257,6 @@ void AssemblyGui::initUserActions()
     connect(_dayNightModeAct, SIGNAL(triggered()), this, SLOT(slot_swapDayNightDisplay()));
     connect(_mapToolbarAct, SIGNAL(triggered()), _userFormWidget, SLOT(slot_showHideToolbar()));
     connect(_exportMapViewAct, SIGNAL(triggered()), this, SLOT(slot_exportMapToImage()));
-    connect(_exportProjectQGisAct, SIGNAL(triggered()), this, SLOT(slot_exportMapToQgisProject()));
-    connect(_loadShapefileAct, SIGNAL(triggered()), this, SLOT(slot_loadShapeFile()));
-    connect(_loadRasterAct, SIGNAL(triggered()), this, SLOT(slot_loadRasterFile()));
     connect(_preprocessingTool, SIGNAL(triggered()), this, SLOT(slot_launchPreprocessingTool()));
     //connect(_videoToImageToolAct, SIGNAL(triggered()), this, SLOT(slot_launchVideoToImageTool()));
 
@@ -315,9 +312,7 @@ void AssemblyGui::initWelcomeDialog()
 void AssemblyGui::initMapFeatures()
 {
     _userFormWidget->setIconFactory(_iconFactory);
-    _userFormWidget->setLayersWidget(_ui->_LW_mapLayers);
     _userFormWidget->initCanvas();
-    _userFormWidget->initLayersWidget();
     _userFormWidget->initMapToolBar();
 
     //    for (int i=0; i < 20 ; i++) {
@@ -513,11 +508,9 @@ void AssemblyGui::initMainMenu()
     _fileMenu = new MatisseMenu(menuContainer);
 
     _exportMapViewAct = new QAction(this);
-    _exportProjectQGisAct = new QAction(this);
     _closeAct = new QAction(this);
 
     _fileMenu->addAction(_exportMapViewAct);
-    _fileMenu->addAction(_exportProjectQGisAct);
     _fileMenu->addSeparator();
     _fileMenu->addAction(_closeAct);
 
@@ -555,25 +548,14 @@ void AssemblyGui::initMainMenu()
 
     _appConfigAct = new QAction(this);
     _preprocessingTool = new QAction(this);
-    //_videoToImageToolAct = new QAction(this);
     _checkNetworkRxAct = new QAction(this);
-
-    /* Sous-menu Cartographie */
-    _loadShapefileAct = new QAction(this);
-    _loadRasterAct = new QAction(this);
 
     _toolMenu->addAction(_appConfigAct);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_preprocessingTool);
-    //_toolMenu->addAction(_videoToImageToolAct);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_checkNetworkRxAct);
 
-    _mapMenu = new QMenu(_toolMenu);
-    _mapMenu->addAction(_loadShapefileAct);
-    _mapMenu->addAction(_loadRasterAct);
-
-    _toolMenu->addMenu(_mapMenu);
 
     /* MENU AIDE */
     _helpMenu = new MatisseMenu(menuContainer);
@@ -651,8 +633,8 @@ bool AssemblyGui::loadResultToCartoView(QString resultFile_p, bool remove_previo
         _userFormWidget->loadRasterFile(infoResult.absoluteFilePath());
 
     }else if (_userFormWidget->supportedVectorFormat().contains(infoResult.suffix())){
-        //qDebug() << "Loading vector layer " << resultFile_p;
-        _userFormWidget->loadShapefile(infoResult.absoluteFilePath());
+        qDebug() << "Vector layer not supported anymore" << resultFile_p;
+        //_userFormWidget->loadShapefile(infoResult.absoluteFilePath());
 
     }else if (_userFormWidget->supported3DFileFormat().contains(infoResult.suffix())){
         _userFormWidget->load3DFile(infoResult.absoluteFilePath(), remove_previous_scenes);
@@ -1362,50 +1344,6 @@ void AssemblyGui::slot_exportMapToImage()
                 tr("View has been exported in file %1").arg(imageFilePath));
 }
 
-void AssemblyGui::slot_exportMapToQgisProject()
-{
-    if (_exportPath.isEmpty()) {
-        createExportDir();
-    }
-
-    QString qgisProjectFilePath = QFileDialog::getSaveFileName(this, tr("Export QGIS project..."), _exportPath, tr("Project file (*.qgs)"));
-
-    if (qgisProjectFilePath.isEmpty()) {
-        /* cancel */
-        return;
-    }
-
-    _userFormWidget->saveQgisProject(qgisProjectFilePath);
-
-    QMessageBox::information(
-                this,
-                tr("Export QGIS project"),
-                tr("Viex exported to QGis project file %1").arg(qgisProjectFilePath));
-}
-
-void AssemblyGui::slot_loadShapeFile()
-{
-    QString shapeFilePath = QFileDialog::getOpenFileName(this, tr("Open shapefile..."), _exportPath, tr("Shapefile (*.shp)"));
-
-    if (shapeFilePath.isEmpty()) {
-        /* cancel */
-        return;
-    }
-
-    _userFormWidget->loadShapefile(shapeFilePath);
-}
-
-void AssemblyGui::slot_loadRasterFile()
-{
-    QString rasterFilePath = QFileDialog::getOpenFileName(this, tr("Open raster..."), _exportPath, tr("Raster file (*.tif *.tiff)"));
-
-    if (rasterFilePath.isEmpty()) {
-        /* cancel */
-        return;
-    }
-
-    _userFormWidget->loadRasterFile(rasterFilePath);
-}
 
 void AssemblyGui::slot_launchPreprocessingTool()
 {
@@ -2307,21 +2245,7 @@ void AssemblyGui::slot_addRasterFileToMap(QString filepath_p)
     _userFormWidget->loadRasterFile(filepath_p);
 }
 
-void AssemblyGui::slot_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p)
-{
-    _userFormWidget->addPolygonToMap(polygon_p, polyInsideColor_p, layerName_p);
-}
 
-void AssemblyGui::slot_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p)
-{
-    _userFormWidget->addPolylineToMap(polygon_p, polyColor_p, layerName_p);
-}
-
-//void AssemblyGui::slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p)
-//{
-//    _userFormWidget->addQGisPointsToMap(pointsList_p, pointsColor_p, layerName_p);
-
-//}
 
 void AssemblyGui::saveAssemblyAndReload(AssemblyDefinition *assembly)
 {
@@ -3225,7 +3149,6 @@ void AssemblyGui::retranslate()
     /* MENU FICHIER */
     _fileMenu->setTitle(tr("FILE"));
     _exportMapViewAct->setText(tr("Export view to image"));
-    _exportProjectQGisAct->setText(tr("Export project to QGIS file"));
     _closeAct->setText(tr("Close"));
 
     /* MENU AFFICHAGE */
@@ -3244,13 +3167,8 @@ void AssemblyGui::retranslate()
     _toolMenu->setTitle(tr("TOOLS"));
     _appConfigAct->setText(tr("Configure settings for application"));
     _preprocessingTool->setText(tr("Launch preprocessing tool"));
-    //_videoToImageToolAct->setText(tr("Lancer outil transformation de videos en jeux d'image"));
     _checkNetworkRxAct->setText(tr("Check network reception"));
 
-    /* Sous-menu Cartographie */
-    _mapMenu->setTitle(tr("Cartography"));
-    _loadShapefileAct->setText(tr("Load shapefile"));
-    _loadRasterAct->setText(tr("Load raster"));
 
     /* MENU AIDE */
     _helpMenu->setTitle(tr("HELP"));
@@ -3411,14 +3329,8 @@ void AssemblyGui::enableActions()
 
     /* enable/diable main menu items */
     _exportMapViewAct->setEnabled(_isMapView);
-    _exportProjectQGisAct->setEnabled(_isMapView);
     _mapToolbarAct->setEnabled(_isMapView);
     _preprocessingTool->setEnabled(_isMapView);
-    //_videoToImageToolAct->setEnabled(_isMapView);
-    _loadShapefileAct->setEnabled(_isMapView);
-    _loadRasterAct->setEnabled(_isMapView);
-    //_createAssemblyAct->setEnabled(!_isMapView);
-    //_saveAssemblyAct->setEnabled(!_isMapView);
     _checkNetworkRxAct->setEnabled(_isMapView);
 
     if (lastAction == SELECT_ASSEMBLY || lastAction == SAVE_ASSEMBLY) {
@@ -3579,7 +3491,7 @@ void AssemblyGui::slot_swapMapOrCreationView()
         _ui->_TRW_assemblies->setItemsExpandable(true);
         _ui->_TRW_assemblies->expandAll();
         _userFormWidget->resetJobForm();
-        _ui->_TW_mapViewTabs->setCurrentIndex(0);
+        _ui->_TW_infoTabs->setCurrentIndex(0);
     }
 
     _newAssembly = NULL;
