@@ -116,12 +116,12 @@ bool MatisseParametersManager::readDictionnaryFile(QString xmlFilename)
 
     QFile inputFile(xmlFilename);
     if (!inputFile.exists()) {
-        qDebug() << "Fichier non trouvé..." << xmlFilename;
+        qDebug() << "File not found..." << xmlFilename;
         return false;
     }
 
     if (!inputFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "Fichier non ouvert...";
+        qDebug() << "File not opened...";
         return false;
     }
 
@@ -165,11 +165,9 @@ bool MatisseParametersManager::readDictionnaryFile(QString xmlFilename)
                 groupName = attributes.value("name").toString();
                 groupText = tr(attributes.value("text").toString().toLatin1());
             } else if (name == "Parameter") {
-                // qDebug() << "Add Parameter:" << structureName << groupName << attributes.value("name");
                 addParameter(structureName, groupName, groupText, attributes);
             } else if (name == "Enum") {
                 enumsName = attributes.value("name" ).toString();
-                // qDebug() << "Trouvé enum" << enumsName;
                 Enums newEnums;
                 newEnums._name = enumsName;
                 _enums.insert(enumsName, newEnums);
@@ -437,7 +435,7 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
         return false;
     }
 
-    // recherche du groupe s'il n'existe pas, on le crée. Si pas de nom de groupe
+    // searching group. If it doesn't exist we create it.
     int noGroup = _structures[structName]._groupsNames.indexOf(groupName);
     if (noGroup == -1) {
         _structures[structName]._groupsNames.append(groupName);
