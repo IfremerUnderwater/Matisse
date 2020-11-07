@@ -611,16 +611,12 @@ JobTask::~JobTask()
 void JobTask::stop(bool cancel)
 {
     _isCancelled = cancel;
-
-    qDebug() << "Demande d'arret du image provider";
     _imageProvider->askToStop(cancel);
 
-    qDebug() << "Demande d'arret des processeurs";
     foreach (Processor *processor, _processors) {
         processor->askToStop(cancel);
     }
 
-    qDebug() << "Demande d'arret du raster provider";
     _rasterProvider->askToStop(cancel);
 }
 
@@ -630,16 +626,12 @@ void JobTask::slot_start()
     bool ok;
     _context = new Context;
 
-    qDebug() << "Configuration de la source";
     connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
     connect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
     connect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
     connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-    connect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    connect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-//    connect(_imageProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
 
     ok = _imageProvider->callConfigure(_context, _matParameters);
     if (!ok) {
@@ -648,9 +640,8 @@ void JobTask::slot_start()
     }
 
 
-    qDebug() << "Configuration des Processeurs";
     foreach (Processor* processor, _processors) {
-        qDebug() << "Configuration du processeur " << processor->name();
+        //qDebug() << "Configuration du processeur " << processor->name();
         connect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
         connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
@@ -659,22 +650,16 @@ void JobTask::slot_start()
         connect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
         connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
         connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-        connect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-        connect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-//        connect(processor, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
         processor->callConfigure(_context, _matParameters);
     }
 
-    qDebug() << "Configuration de la destination";
+    //qDebug() << "Configuration de la destination";
     connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
     connect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
     connect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
     connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-    connect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    connect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-//    connect(_rasterProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
     ok = _rasterProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -682,14 +667,12 @@ void JobTask::slot_start()
     }
 
 
-    qDebug() << "Démarrage du raster provider";
     ok = _rasterProvider->callStart();
     if (!ok) {
         qDebug() << "Error on raster provider start";
         return;
     }
 
-    qDebug() << "Démarrage des processeurs";
     foreach (Processor *processor, _processors) {
         ok = processor->callStart();
         if (!ok) {
@@ -698,14 +681,12 @@ void JobTask::slot_start()
         }
     }
 
-    qDebug() << "Démarrage du image provider";
     ok = _imageProvider->callStart();
     if (!ok) {
         qDebug() << "Error on image provider start";
         return;
     }
 
-    qDebug() << "Fin de slot_start";
 
     bool isRealTime = _imageProvider->isRealTime();
     if (!isRealTime) {
@@ -717,16 +698,13 @@ void JobTask::slot_start()
 void JobTask::slot_stop()
 {
 
-    qDebug() << "Arret du image provider";
     _imageProvider->callStop();
 
-    qDebug() << "Arret des processeurs";
     foreach (Processor *processor, _processors) {
         processor->callStop();
     }
     disconnect(this, SLOT(slot_showImageOnMainView(Image*)));
 
-    qDebug() << "Arret du raster provider";
     _rasterProvider->callStop();
 
     /* Disconnecting user information signals */
@@ -749,9 +727,6 @@ void JobTask::slot_stop()
     disconnect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
     disconnect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     disconnect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-    disconnect(_imageProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    disconnect(_imageProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
- //   disconnect(_imageProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
 
     foreach (Processor* processor, _processors) {
         if(!processor->okStatus())
@@ -764,9 +739,6 @@ void JobTask::slot_stop()
         disconnect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
         disconnect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
         disconnect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-        disconnect(processor, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-        disconnect(processor, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-//        disconnect(processor, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
     }
 
     disconnect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
@@ -775,9 +747,6 @@ void JobTask::slot_stop()
     disconnect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
     disconnect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     disconnect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_addPolygonToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolygonToMap(basicproc::Polygon,QString,QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_addPolylineToMap(basicproc::Polygon,QString,QString)), _mainGui, SLOT(slot_addPolylineToMap(basicproc::Polygon,QString,QString)));
-//    disconnect(_rasterProvider, SIGNAL(signal_addQGisPointsToMap(QList<QgsPoint>,QString,QString)), _mainGui, SLOT(slot_addQGisPointsToMap(QList<QgsPoint>,QString,QString)));
 
     if(_context != NULL)
     {
@@ -836,8 +805,6 @@ bool Server::loadParametersDictionnary()
 {
     QXmlSchema dictionnarySchema;
 
-    qDebug() << "Loading MatisseParametersDictionnary.xsd schema...";
-
     QFile dicoXsdFile("schemas/MatisseParametersDictionnary.xsd");
 
     if (!dicoXsdFile.exists()) {
@@ -856,10 +823,7 @@ bool Server::loadParametersDictionnary()
         qFatal("%s\n","Error ParametersDictionnary.xsd is not valid");
     }
 
-    qDebug() << "MatisseParametersDictionnary.xsd is a valid schema";
     dicoXsdFile.close();
-
-    qDebug() << "Loading dictionnary file...";
 
     QFile dicoXmlFile("config/MatisseParametersDictionnary.xml");
 
@@ -875,8 +839,6 @@ bool Server::loadParametersDictionnary()
     if (!validator.validate(&dicoXmlFile, QUrl::fromLocalFile(dicoXmlFile.fileName()))) {
         qFatal("%s\n","Dictionnary XML file does not conform to schema");
     }
-
-    qDebug() << "XML dictionnary file is consistent with schema";
 
     _dicoParamMgr = new MatisseParametersManager();
     _dicoParamMgr->readDictionnaryFile("config/MatisseParametersDictionnary.xml");

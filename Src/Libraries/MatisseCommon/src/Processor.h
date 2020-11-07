@@ -87,9 +87,6 @@ signals:
     void signal_fatalError();
     void signal_show3DFileOnMainView(QString filepath_p);
     void signal_addRasterFileToMap(QString filepath_p);
-    void signal_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
-    void signal_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p);
-    //void signal_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p);
 
 private:
     QString _comment;
@@ -105,6 +102,6 @@ protected:
     void fatalErrorExit(QString message);
 };
 }
-Q_DECLARE_INTERFACE(MatisseCommon::Processor, "Chrisar.Processor/1.1")
+Q_DECLARE_INTERFACE(MatisseCommon::Processor, "Ifremer.Processor/1.1")
 
 #endif // PROCESSOR_H

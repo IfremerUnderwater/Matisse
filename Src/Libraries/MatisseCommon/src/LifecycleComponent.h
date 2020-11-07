@@ -127,5 +127,5 @@ private:
     volatile bool _isCancelled;
 };
 }
-Q_DECLARE_INTERFACE(MatisseCommon::LifecycleComponent, "Chrisar.LifecycleComponent/1.1")
+Q_DECLARE_INTERFACE(MatisseCommon::LifecycleComponent, "Ifremer.LifecycleComponent/1.1")
 #endif // LIFECYCLECOMPONENT_H
