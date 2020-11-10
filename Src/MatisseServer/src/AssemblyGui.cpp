@@ -2247,6 +2247,7 @@ void AssemblyGui::slot_addRasterFileToMap(QString filepath_p)
 
 void AssemblyGui::slot_addToLog(QString _loggin_text)
 {
+    _ui->_TW_infoTabs->setCurrentIndex(1);
     _ui->_QTE_loggingText->append(_loggin_text);
 }
 
@@ -3526,6 +3527,8 @@ void AssemblyGui::slot_launchJob()
 {
     qDebug() << "Launching job...";
 
+    // clear log
+    _ui->_QTE_loggingText->clear();
 
     // On teste assemblage ou job
     // Le bouton est actif si le job est selectionnable
