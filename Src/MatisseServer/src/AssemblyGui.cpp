@@ -3638,6 +3638,13 @@ void AssemblyGui::slot_launchJob()
 
     /* Copy XML files to result path */
     QString resultPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
+    QDir resultPathDir(resultPath);
+    if (resultPathDir.isRelative())
+    {
+        QString dataPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_DATASET_DIR);
+        resultPath = dataPath;
+    }
+
     _processDataManager->copyJobFilesToResult(jobName, resultPath);
 
     _lastJobLaunchedItem = currentItem;
