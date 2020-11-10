@@ -40,6 +40,7 @@ signals:
     void signal_showErrorMessage(QString title, QString text);
     void signal_show3DFileOnMainView(QString filepath_p);
     void signal_addRasterFileToMap(QString filepath_p);
+    void signal_addToLog(QString _loggin_text);
 
 private:
     QString _comment;

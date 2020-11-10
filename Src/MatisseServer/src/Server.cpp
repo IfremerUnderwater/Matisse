@@ -632,6 +632,7 @@ void JobTask::slot_start()
     connect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
     connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
+    connect(_imageProvider, SIGNAL(signal_addToLog(QString)), _mainGui, SLOT(slot_addToLog(QString)));
 
     ok = _imageProvider->callConfigure(_context, _matParameters);
     if (!ok) {
@@ -650,6 +651,7 @@ void JobTask::slot_start()
         connect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
         connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
         connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
+        connect(processor, SIGNAL(signal_addToLog(QString)), _mainGui, SLOT(slot_addToLog(QString)));
         processor->callConfigure(_context, _matParameters);
     }
 
@@ -660,6 +662,8 @@ void JobTask::slot_start()
     connect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
     connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
     connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
+    connect(_rasterProvider, SIGNAL(signal_addToLog(QString)), _mainGui, SLOT(slot_addToLog(QString)));
+
     ok = _rasterProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";

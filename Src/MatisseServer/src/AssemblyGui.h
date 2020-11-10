@@ -374,6 +374,7 @@ public slots:
     void slot_goHome();
     void slot_show3DFileOnMainView(QString filepath_p);
     void slot_addRasterFileToMap(QString filepath_p);
+    void slot_addToLog(QString _loggin_text);
 
 signals:
     void signal_processRunning();

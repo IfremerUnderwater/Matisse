@@ -2245,7 +2245,10 @@ void AssemblyGui::slot_addRasterFileToMap(QString filepath_p)
     _userFormWidget->loadRasterFile(filepath_p);
 }
 
-
+void AssemblyGui::slot_addToLog(QString _loggin_text)
+{
+    _ui->_QTE_loggingText->append(_loggin_text);
+}
 
 void AssemblyGui::saveAssemblyAndReload(AssemblyDefinition *assembly)
 {
@@ -2960,6 +2963,9 @@ void AssemblyGui::slot_deleteJob()
 void AssemblyGui::slot_assemblyContextMenuRequested(const QPoint &pos)
 {
     QTreeWidgetItem* item = _ui->_TRW_assemblies->itemAt(pos);
+
+    // Select in case left click was not done before
+    slot_selectAssemblyOrJob(item);
 
     if (!item) {
         qWarning() << "Right click on assembly tree widget : no item selected";

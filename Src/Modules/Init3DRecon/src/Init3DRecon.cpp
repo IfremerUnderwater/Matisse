@@ -294,7 +294,9 @@ void Init3DRecon::onFlush(quint32 port)
 
     reconstructionContext *reconstruction_context = new reconstructionContext();
 
-    qDebug() << logPrefix() << "flush port " << port;
+    // Log
+    QString proc_info =  logPrefix() + "Initialize Sfm from data\n";
+    emit signal_addToLog(proc_info);
 
     emit signal_processCompletion(0);
     emit signal_userInformation("Init3DRecon - start");
@@ -724,7 +726,11 @@ void Init3DRecon::onFlush(quint32 port)
 
     emit signal_userInformation("Init3DRecon - end");
 
-    qDebug() << logPrefix() << " took " << timer.elapsed()/1000.0 << " seconds";
+    //qDebug() << logPrefix() << " took " << timer.elapsed()/1000.0 << " seconds";
+
+    // Log elapsed time
+    proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
+    emit signal_addToLog(proc_info);
 
     flush(0);
 }

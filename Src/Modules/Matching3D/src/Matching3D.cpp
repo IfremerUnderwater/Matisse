@@ -793,6 +793,10 @@ void Matching3D::onFlush(quint32 port)
 {
     Q_UNUSED(port)
 
+    // Log
+    QString proc_info = logPrefix() + "Features matching started\n";
+    emit signal_addToLog(proc_info);
+
     QElapsedTimer timer;
     timer.start();
 
@@ -800,8 +804,11 @@ void Matching3D::onFlush(quint32 port)
       return;
 
     this->computeMatches();
- 
-    qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
+
+    // Log elapsed time
+    proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
+    emit signal_addToLog(proc_info);
+
 
     // Flush next module port
     flush(0);
