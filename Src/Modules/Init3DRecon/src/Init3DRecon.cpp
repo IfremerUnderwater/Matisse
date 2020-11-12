@@ -688,7 +688,7 @@ void Init3DRecon::onFlush(quint32 port)
     geoFile.close();
 
     // firstImagePosLC : in LC x, y, Alt
-    QString lccoords = QString::number(firstImagePosLC[0],'f',3) +";"
+    /*QString lccoords = QString::number(firstImagePosLC[0],'f',3) +";"
             + QString::number(firstImagePosLC[1],'f',3) + ";"
             + QString::number(firstImagePosLC[2],'f',3);
     QString fileName = stlplus::create_filespec(rootDirnameStr.toStdString(),"lcrefpos.txt").c_str();
@@ -702,7 +702,7 @@ void Init3DRecon::onFlush(quint32 port)
     QTextStream outputStream(&lc_file);
 
     outputStream << lccoords;
-    lc_file.close();
+    lc_file.close();*/
 
     qDebug() << "\n"
              << "SfMInit_ImageListing report:\n"
