@@ -179,6 +179,47 @@ void findImgColorQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, vector<double>& 
     _ch3_lim = integerQuantiles(ch3_values, _quantiles);
 }
 
+void findImgQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<double>& _quantiles, std::vector<int>& _ch_lim)
+{
+    bool process_pixel = false;
+
+    vector<int> ch_values;
+
+    Mat* image_to_be_processed;
+    Mat reduced_img;
+    double alpha = sqrt(1e6 / ((double)_in_img.cols * _in_img.rows));
+
+    if (alpha < 1.0) {
+        resize(_in_img, reduced_img, Size(), alpha, alpha);
+        image_to_be_processed = &reduced_img;
+    }
+    else {
+        image_to_be_processed = &_in_img;
+    }
+
+    // Stretches the image from low_high_in to low_high_out with a cast
+    for (int y = 0; y < image_to_be_processed->rows; y++) {
+        for (int x = 0; x < image_to_be_processed->cols; x++) {
+                if (_in_mask.empty()) {
+                    process_pixel = true;
+                }
+                else {
+                    if (_in_mask.at<uchar>(y, x) != 0)
+                        process_pixel = true;
+                    else
+                        process_pixel = false;
+                }
+
+                if (process_pixel) {
+                        ch_values.push_back(image_to_be_processed->at<uchar>(y, x));
+                }
+        }
+     }
+
+    // Get channel saturation limits
+    _ch_lim = integerQuantiles(ch_values, _quantiles);
+}
+
 double lin2rgbf(double _lin)
 {
     // gamma = 2.19921875

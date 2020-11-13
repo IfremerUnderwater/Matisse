@@ -26,6 +26,8 @@ void histogramQuantileStretch(cv::Mat &_in_img, cv::Mat &_in_mask, double _satur
 void stretchColorImg(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<int>& _ch1_lim, std::vector<int>& _ch2_lim, std::vector<int>& _ch3_lim, cv::Mat& _stretched_img, bool _gamma_undo = true);
 void findImgColorQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<double> &_quantiles, std::vector<int> &_ch1_lim, std::vector<int> &_ch2_lim, std::vector<int> &_ch3_lim);
 
+void findImgQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<double>& _quantiles, std::vector<int>& _ch_lim);
+
 /// <summary>
 /// Gamma transformation from linear image to rgb
 /// </summary>

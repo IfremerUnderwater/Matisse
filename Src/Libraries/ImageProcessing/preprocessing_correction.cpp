@@ -18,11 +18,12 @@ using namespace cv;
 using namespace Eigen;
 
 PreprocessingCorrection::PreprocessingCorrection(int _ws, QWidget* _parent):m_ws(_ws),
-m_median_comp_scaling(1.0),
+m_lowres_comp_scaling(1.0),
 m_prepro_img_scaling(1.0),
 m_correct_colors(false),
 m_compensate_illumination(false)
 {
+	//m_bgr_lowres_img.resize(3);
 	m_graphic_parent = _parent;
 }
 
@@ -30,10 +31,9 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 {
 	// check if we need to reduce image resolution
 	cv::Mat first_img = cv::imread(_input_img_files[0].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-	m_median_comp_scaling = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 0.1Mpx
-	if (m_median_comp_scaling > 1.0)
-		m_median_comp_scaling = 1.0;
-	//resize(_in_img, reduced_img, Size(), alpha, alpha);
+	m_lowres_comp_scaling = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 0.1Mpx
+	if (m_lowres_comp_scaling > 1.0)
+		m_lowres_comp_scaling = 1.0;
 
 	if (_input_img_files.size() < m_ws)
 		return false;
@@ -56,6 +56,21 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 		if (m_prepro_img_scaling < 1.0)
 			resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
 
+		// in case we need correction we will use the lower res image to speed up
+		if (m_correct_colors || m_compensate_illumination)
+		{
+			Mat reduced_img;
+
+			if (m_lowres_comp_scaling < 1.0) {
+				resize(current_img, reduced_img, Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
+				split(reduced_img, m_bgr_lowres_img);
+			}
+			else {
+				split(current_img, m_bgr_lowres_img);
+			}
+
+		}
+
 		// correct colors
 		vector<int> ch1_lim, ch2_lim, ch3_lim;
 		cv::Mat empty_mask;
@@ -63,11 +78,14 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 		{
 			// Construct required quantiles vector
 			vector<double> quantiles;
-			quantiles.push_back(0.0005);
-			quantiles.push_back(1 - 0.0005);
+			quantiles.push_back(0.001);
+			quantiles.push_back(1 - 0.001);
 
 			// Get channels saturation limits
-			findImgColorQuantiles(current_img, empty_mask, quantiles, ch1_lim, ch2_lim, ch3_lim);
+			//findImgColorQuantiles(current_img, empty_mask, quantiles, ch1_lim, ch2_lim, ch3_lim);
+			findImgQuantiles(m_bgr_lowres_img[0], empty_mask, quantiles, ch1_lim);
+			findImgQuantiles(m_bgr_lowres_img[1], empty_mask, quantiles, ch2_lim);
+			findImgQuantiles(m_bgr_lowres_img[2], empty_mask, quantiles, ch3_lim);
 		}
 
 		// need illumination compensation
@@ -82,7 +100,7 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 					for (int j = 0; j < m_ws; j++)
 					{
 						Mat temp_img;
-						resize(imread(_input_img_files[j].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_median_comp_scaling, m_median_comp_scaling);
+						resize(imread(_input_img_files[j].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
 
 						vector<Mat> temp_BRG(3);
 						split(temp_img, temp_BRG);
@@ -99,8 +117,7 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 			else if (i + half_ws < im_nb - 1)
 			{
 				Mat temp_img;
-				resize(imread(_input_img_files[i + half_ws].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_median_comp_scaling, m_median_comp_scaling);
-
+				resize(imread(_input_img_files[i + half_ws].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
 
 				vector<Mat> temp_BRG(3);
 				split(temp_img, temp_BRG);
@@ -124,9 +141,9 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 			split(current_img, current_BRG);
 
 			// compute illum correction
-			compensateIllumination(current_BRG[0], current_BRG_corr[0], m_blue_median_img);
-			compensateIllumination(current_BRG[1], current_BRG_corr[1], m_green_median_img);
-			compensateIllumination(current_BRG[2], current_BRG_corr[2], m_red_median_img);
+			compensateIllumination(current_BRG[0], m_bgr_lowres_img[0], m_blue_median_img, current_BRG_corr[0]);
+			compensateIllumination(current_BRG[1], m_bgr_lowres_img[1], m_green_median_img, current_BRG_corr[1]);
+			compensateIllumination(current_BRG[2], m_bgr_lowres_img[2], m_red_median_img, current_BRG_corr[2]);
 
 			merge(current_BRG_corr, current_img);
 
@@ -135,6 +152,7 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 				// correct colors
 		if (m_correct_colors)
 		{
+
 			// Strech img according to saturation limit
 			stretchColorImg(current_img, empty_mask, ch1_lim, ch2_lim, ch3_lim, current_img, false);
 		}
@@ -206,7 +224,7 @@ bool PreprocessingCorrection::computeTemporalMedian()
 	return true;
 }
 
-bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _output_image, Mat& _temporal_median_image)
+bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _input_lowres, Mat& _temporal_median_image, Mat& _lin_output_image)
 {
 	// spatially filter temporal median image
 	Mat _temporal_spatial_median_image;
@@ -217,7 +235,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 	//waitKey();
 
 	double out_perc = 0.01; // outlier percentage
-	double maximum_corr_factor = 10.0; // if correction is greater we truncate
+	double maximum_corr_factor = 10.0; // if correction is greater we truncate to this value
 	vector<double> channel_limits;
 	vector<double> quantiles;
 	quantiles.push_back(out_perc);
@@ -287,45 +305,54 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 
 	solve(A, b, alpha, DECOMP_SVD);
 
-	/*for (int i = 0; i < alpha.rows; i++)
-	{
-		std::cout << "alpha = " << alpha.at<double>(i) << std::endl;
-	}*/
-
-
 	// Correct image
-	_output_image = _input_image;
-	//imshow("input img", _input_image);
-	//waitKey();
-	double corr_factor, illum_max=0;
+	vector<double> lin_lowres_image;
+	_lin_output_image = _input_image;
 
-	// only search for maximum
+	double corr_factor;
+	double mean_corr = 0;
+	double regul_sat_factor = 1.0;
+	double illum_max = 0;
+
+	// loop for normalization computation
 	for (int w = 0; w < _input_image.cols; w++)
 	{
 		for (int h = 0; h < _input_image.rows; h++)
 		{
-			temp_x = static_cast<double>(w) * m_median_comp_scaling / m_prepro_img_scaling;
-			temp_y = static_cast<double>(h) * m_median_comp_scaling / m_prepro_img_scaling;
+			temp_x = static_cast<double>(w) * m_lowres_comp_scaling / m_prepro_img_scaling;
+			temp_y = static_cast<double>(h) * m_lowres_comp_scaling / m_prepro_img_scaling;
 			temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
 				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
 				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 			if (temp_z > illum_max)
 				illum_max = temp_z;
+
+			corr_factor = 1.0 / temp_z;
+
+			if (corr_factor > maximum_corr_factor || temp_z < 0)
+			{
+				corr_factor = maximum_corr_factor;
+			}
+
+			if (temp_z > 0)
+				mean_corr += corr_factor;
 		}
 	}
 
-	// correct
-	for (int w = 0; w < _input_image.cols; w++)
+	mean_corr = mean_corr / ((double)_input_image.cols*(double)_input_image.rows);
+
+	// simulate on low res image to limit saturation and so limit overcorrection
+	for (int w = 0; w < _input_lowres.cols; w++)
 	{
-		for (int h = 0; h < _input_image.rows; h++)
+		for (int h = 0; h < _input_lowres.rows; h++)
 		{
-			temp_x = static_cast<double>(w)*m_median_comp_scaling/m_prepro_img_scaling;
-			temp_y = static_cast<double>(h)*m_median_comp_scaling/m_prepro_img_scaling;
+			temp_x = static_cast<double>(w) ;
+			temp_y = static_cast<double>(h);
 			temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
 				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
 				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 
-			corr_factor = 0.8*illum_max / temp_z; // 0.8 is to prevent saturation
+			corr_factor = 1.0 / (mean_corr*temp_z);
 
 			if (corr_factor > maximum_corr_factor || temp_z < 0)
 			{
@@ -333,10 +360,45 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _ou
 			}
 
 			// correct accounting for gamma factor
-			_output_image.at<uchar>(h, w) = static_cast<uchar>( 255*lin2rgbf( corr_factor*rgb2linf(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0) ) );
+			lin_lowres_image.push_back( lin2rgbf(corr_factor * rgb2linf(static_cast<double>(_input_lowres.at<uchar>(h, w)) / 255.0)) );
 		}
 	}
-	//imshow("output img", _output_image);
+
+	vector<double> sat_quant,returned_sat;
+	sat_quant.push_back(0.999);
+	returned_sat = doubleQuantiles(lin_lowres_image, sat_quant);
+
+	if (returned_sat[0] > 1)
+	{
+		cout << "sat =" << returned_sat[0] << "mean_corr=" << mean_corr << "size return_sat=" << returned_sat.size() << "illum_max="<< illum_max <<endl;
+		regul_sat_factor = 1 /returned_sat[0];
+	}
+
+
+	// correct
+    #pragma omp parallel for
+	for (int w = 0; w < _input_image.cols; w++)
+	{
+		for (int h = 0; h < _input_image.rows; h++)
+		{
+			temp_x = static_cast<double>(w)*m_lowres_comp_scaling/m_prepro_img_scaling;
+			temp_y = static_cast<double>(h)*m_lowres_comp_scaling/m_prepro_img_scaling;
+			temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
+				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
+				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
+
+			corr_factor = regul_sat_factor / (mean_corr*temp_z);
+
+			if (corr_factor > maximum_corr_factor || temp_z < 0)
+			{
+				corr_factor = maximum_corr_factor;
+			}
+
+			// correct accounting for gamma factor
+			_lin_output_image.at<uchar>(h, w) = static_cast<uchar>( 255*lin2rgbf( corr_factor*rgb2linf(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0) ) );
+		}
+	}
+	//imshow("output img", _lin_output_image);
 	//waitKey();
 
 }
