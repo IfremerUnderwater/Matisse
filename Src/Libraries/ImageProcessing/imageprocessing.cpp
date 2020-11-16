@@ -138,7 +138,6 @@ void findImgColorQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, vector<double>& 
         image_to_be_processed = &_in_img;
     }
 
-
     // Stretches the image from low_high_in to low_high_out with a cast
     for (int y = 0; y < image_to_be_processed->rows; y++) {
         for (int x = 0; x < image_to_be_processed->cols; x++) {
@@ -220,14 +219,27 @@ void findImgQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<double>& 
     _ch_lim = integerQuantiles(ch_values, _quantiles);
 }
 
-double lin2rgbf(double _lin)
+/*double lin2rgbf(double _rgb)
+{
+    // 1.0/2.19921875 = 0.45470692
+    return pow(_rgb, 0.45470692);
+}
+
+double rgb2linf(double _lin)
 {
     // gamma = 2.19921875
     return pow(_lin,2.19921875);
+}*/
+
+
+double lin2rgbf(double _rgb)
+{
+    // 1.0/2.19921875 = 0.45470692
+    return pow(_rgb, 5.0);
 }
 
 double rgb2linf(double _rgb)
 {
-    // 1.0/2.19921875 = 0.45470692
-    return pow(_rgb, 0.45470692);
+    // gamma = 2.19921875
+    return pow(_rgb, 1.0/5.0);
 }

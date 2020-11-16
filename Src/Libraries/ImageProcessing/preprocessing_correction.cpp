@@ -306,12 +306,13 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 	solve(A, b, alpha, DECOMP_SVD);
 
 	// Correct image
-	vector<double> lin_lowres_image;
+	vector<double> lin_lowres_input_vec, lin_lowres_corr_vec;
 	_lin_output_image = _input_image;
 
 	double corr_factor;
-	double mean_corr = 0;
-	double regul_sat_factor = 1.0;
+	double lin_input_mean = 0;
+	double lin_corr_mean = 0;
+	double scale_factor = 1.0;
 	double illum_max = 0;
 
 	// loop for normalization computation
@@ -326,33 +327,21 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 			if (temp_z > illum_max)
 				illum_max = temp_z;
-
-			corr_factor = 1.0 / temp_z;
-
-			if (corr_factor > maximum_corr_factor || temp_z < 0)
-			{
-				corr_factor = maximum_corr_factor;
-			}
-
-			if (temp_z > 0)
-				mean_corr += corr_factor;
 		}
 	}
 
-	mean_corr = mean_corr / ((double)_input_image.cols*(double)_input_image.rows);
-
 	// simulate on low res image to limit saturation and so limit overcorrection
-	for (int w = 0; w < _input_lowres.cols; w++)
+	for (int w = 0; w < _input_image.cols; w++)
 	{
-		for (int h = 0; h < _input_lowres.rows; h++)
+		for (int h = 0; h < _input_image.rows; h++)
 		{
-			temp_x = static_cast<double>(w) ;
-			temp_y = static_cast<double>(h);
+			temp_x = static_cast<double>(w) * m_lowres_comp_scaling / m_prepro_img_scaling;
+			temp_y = static_cast<double>(h) * m_lowres_comp_scaling / m_prepro_img_scaling;
 			temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
 				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
 				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 
-			corr_factor = 1.0 / (mean_corr*temp_z);
+			corr_factor = illum_max / (temp_z);
 
 			if (corr_factor > maximum_corr_factor || temp_z < 0)
 			{
@@ -360,18 +349,41 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 			}
 
 			// correct accounting for gamma factor
-			lin_lowres_image.push_back( lin2rgbf(corr_factor * rgb2linf(static_cast<double>(_input_lowres.at<uchar>(h, w)) / 255.0)) );
+			double lin_input = rgb2linf(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0);
+			lin_lowres_input_vec.push_back(lin_input);
+			lin_lowres_corr_vec.push_back( corr_factor * lin_input );
+
+			//compute mean
+			lin_input_mean += lin_input;
+			lin_corr_mean += corr_factor * lin_input;
 		}
 	}
 
-	vector<double> sat_quant,returned_sat;
-	sat_quant.push_back(0.999);
-	returned_sat = doubleQuantiles(lin_lowres_image, sat_quant);
+	lin_input_mean = lin_input_mean / ((double)_input_lowres.cols * (double)_input_lowres.rows);
+	lin_corr_mean = lin_corr_mean / ((double)_input_lowres.cols * (double)_input_lowres.rows);
 
-	if (returned_sat[0] > 1)
+	//scale_factor = lin_input_mean/lin_corr_mean;
+
+
+	vector<double> required_quant, lin_input_quant,lin_corr_quant;
+
+	// We suppose that well illuminated area should match before and after corr so we adjust exposure according to this assumption
+	// using 0.8 (so threshold giving the 20% brightest pixels)
+	required_quant.push_back(0.8);
+	lin_input_quant = doubleQuantiles(lin_lowres_input_vec, required_quant);
+
+	// add a quantile to check for saturation
+	required_quant.push_back(0.999);
+	lin_corr_quant = doubleQuantiles(lin_lowres_corr_vec, required_quant);
+
+	scale_factor = lin_input_quant[0] / lin_corr_quant[0];
+
+	cout << "lin_input_quant=" << lin_input_quant[0] << ", lin_corr_quant=" << lin_corr_quant[0] <<endl;
+
+	if (scale_factor*lin_corr_quant[1] > 1)
 	{
-		cout << "sat =" << returned_sat[0] << "mean_corr=" << mean_corr << "size return_sat=" << returned_sat.size() << "illum_max="<< illum_max <<endl;
-		regul_sat_factor = 1 /returned_sat[0];
+		cout << "scale factor=" << scale_factor << ", sat =" << lin_corr_quant[1]  << ", illum_max="<< illum_max <<endl;
+		scale_factor = 1.0 /lin_corr_quant[1];
 	}
 
 
@@ -387,7 +399,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
 				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 
-			corr_factor = regul_sat_factor / (mean_corr*temp_z);
+			corr_factor = scale_factor*illum_max / (temp_z);
 
 			if (corr_factor > maximum_corr_factor || temp_z < 0)
 			{
