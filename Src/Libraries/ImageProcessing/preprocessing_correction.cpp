@@ -203,9 +203,9 @@ bool PreprocessingCorrection::computeTemporalMedian()
 		{
 			for (int k = 0; k < m_blue_stack_images.size(); k++)
 			{
-				blue_pixel_stack[k] = rgb2linf(static_cast<double>(m_blue_stack_images[k].at<uchar>(h, w)) / 255.0);
-				green_pixel_stack[k] = rgb2linf(static_cast<double>(m_green_stack_images[k].at<uchar>(h, w)) / 255.0);
-				red_pixel_stack[k] = rgb2linf(static_cast<double>(m_red_stack_images[k].at<uchar>(h, w)) / 255.0);
+				blue_pixel_stack[k] = gamma_undo(static_cast<double>(m_blue_stack_images[k].at<uchar>(h, w)) / 255.0);
+				green_pixel_stack[k] = gamma_undo(static_cast<double>(m_green_stack_images[k].at<uchar>(h, w)) / 255.0);
+				red_pixel_stack[k] = gamma_undo(static_cast<double>(m_red_stack_images[k].at<uchar>(h, w)) / 255.0);
 			}
 			double tempMedian;
 
@@ -226,6 +226,9 @@ bool PreprocessingCorrection::computeTemporalMedian()
 
 bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _input_lowres, Mat& _temporal_median_image, Mat& _lin_output_image)
 {
+	// This function contains empirical choices about model to correct and thresholds
+	// It is not to be understood just adjusted on multiples datasets
+
 	// spatially filter temporal median image
 	Mat _temporal_spatial_median_image;
 	std::vector<double> _temporal_spatial_median_vect;
@@ -313,24 +316,9 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 	double lin_input_mean = 0;
 	double lin_corr_mean = 0;
 	double scale_factor = 1.0;
-	double illum_max = 0;
-
-	// loop for normalization computation
-	for (int w = 0; w < _input_image.cols; w++)
-	{
-		for (int h = 0; h < _input_image.rows; h++)
-		{
-			temp_x = static_cast<double>(w) * m_lowres_comp_scaling / m_prepro_img_scaling;
-			temp_y = static_cast<double>(h) * m_lowres_comp_scaling / m_prepro_img_scaling;
-			temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
-				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
-				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
-			if (temp_z > illum_max)
-				illum_max = temp_z;
-		}
-	}
 
 	// simulate on low res image to limit saturation and so limit overcorrection
+	#pragma omp parallel for
 	for (int w = 0; w < _input_image.cols; w++)
 	{
 		for (int h = 0; h < _input_image.rows; h++)
@@ -341,7 +329,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
 				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 
-			corr_factor = illum_max / (temp_z);
+			corr_factor = 1.0 / (temp_z);
 
 			if (corr_factor > maximum_corr_factor || temp_z < 0)
 			{
@@ -349,21 +337,15 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 			}
 
 			// correct accounting for gamma factor
-			double lin_input = rgb2linf(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0);
-			lin_lowres_input_vec.push_back(lin_input);
-			lin_lowres_corr_vec.push_back( corr_factor * lin_input );
+			double lin_input = gamma_undo(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0);
+			#pragma omp critical
+			{
+				lin_lowres_input_vec.push_back(lin_input);
+				lin_lowres_corr_vec.push_back(corr_factor * lin_input);
+			}
 
-			//compute mean
-			lin_input_mean += lin_input;
-			lin_corr_mean += corr_factor * lin_input;
 		}
 	}
-
-	lin_input_mean = lin_input_mean / ((double)_input_lowres.cols * (double)_input_lowres.rows);
-	lin_corr_mean = lin_corr_mean / ((double)_input_lowres.cols * (double)_input_lowres.rows);
-
-	//scale_factor = lin_input_mean/lin_corr_mean;
-
 
 	vector<double> required_quant, lin_input_quant,lin_corr_quant;
 
@@ -378,11 +360,11 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 
 	scale_factor = lin_input_quant[0] / lin_corr_quant[0];
 
-	cout << "lin_input_quant=" << lin_input_quant[0] << ", lin_corr_quant=" << lin_corr_quant[0] <<endl;
+	//cout << "lin_input_quant=" << lin_input_quant[0] << ", lin_corr_quant=" << lin_corr_quant[0] <<endl;
 
 	if (scale_factor*lin_corr_quant[1] > 1)
 	{
-		cout << "scale factor=" << scale_factor << ", sat =" << lin_corr_quant[1]  << ", illum_max="<< illum_max <<endl;
+		cout << "scale factor=" << scale_factor << ", sat =" << lin_corr_quant[1]  <<endl;
 		scale_factor = 1.0 /lin_corr_quant[1];
 	}
 
@@ -399,7 +381,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
 				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 
-			corr_factor = scale_factor*illum_max / (temp_z);
+			corr_factor = scale_factor / (temp_z);
 
 			if (corr_factor > maximum_corr_factor || temp_z < 0)
 			{
@@ -407,7 +389,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 			}
 
 			// correct accounting for gamma factor
-			_lin_output_image.at<uchar>(h, w) = static_cast<uchar>( 255*lin2rgbf( corr_factor*rgb2linf(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0) ) );
+			_lin_output_image.at<uchar>(h, w) = static_cast<uchar>( 255*gamma_do( corr_factor*gamma_undo(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0) ) );
 		}
 	}
 	//imshow("output img", _lin_output_image);

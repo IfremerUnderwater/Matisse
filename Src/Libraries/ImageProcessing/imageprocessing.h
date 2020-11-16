@@ -42,4 +42,9 @@ double lin2rgbf(double _lin);
 /// <returns>rgb value</returns>
 double rgb2linf(double _rgb);
 
+
+double gamma_do(double _input, double _gamma_value=5.0);
+
+double gamma_undo(double _input, double _gamma_value=5.0);
+
 #endif // IMAGEPROCESSING_H

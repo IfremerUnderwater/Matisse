@@ -219,7 +219,7 @@ void findImgQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<double>& 
     _ch_lim = integerQuantiles(ch_values, _quantiles);
 }
 
-/*double lin2rgbf(double _rgb)
+double lin2rgbf(double _rgb)
 {
     // 1.0/2.19921875 = 0.45470692
     return pow(_rgb, 0.45470692);
@@ -229,17 +229,15 @@ double rgb2linf(double _lin)
 {
     // gamma = 2.19921875
     return pow(_lin,2.19921875);
-}*/
-
-
-double lin2rgbf(double _rgb)
-{
-    // 1.0/2.19921875 = 0.45470692
-    return pow(_rgb, 5.0);
 }
 
-double rgb2linf(double _rgb)
+
+double gamma_do(double _input, double _gamma_value)
 {
-    // gamma = 2.19921875
-    return pow(_rgb, 1.0/5.0);
+    return pow(_input, _gamma_value);
+}
+
+double gamma_undo(double _input, double _gamma_value)
+{
+    return pow(_input, 1.0/_gamma_value);
 }
