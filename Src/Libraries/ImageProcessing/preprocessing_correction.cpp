@@ -52,10 +52,6 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 
 		Mat current_img = imread(_input_img_files[i].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
 
-		// check if we need to resize image
-		if (m_prepro_img_scaling < 1.0)
-			resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
-
 		// in case we need correction we will use the lower res image to speed up
 		if (m_correct_colors || m_compensate_illumination)
 		{
@@ -70,6 +66,10 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 			}
 
 		}
+
+		// check if we need to resize image
+		if (m_prepro_img_scaling < 1.0)
+			resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
 
 		// correct colors
 		vector<int> ch1_lim, ch2_lim, ch3_lim;
@@ -224,7 +224,7 @@ bool PreprocessingCorrection::computeTemporalMedian()
 	return true;
 }
 
-bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _input_lowres, Mat& _temporal_median_image, Mat& _lin_output_image)
+bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _input_lowres, Mat& _temporal_median_image, Mat& _output_image)
 {
 	// This function contains empirical choices about model to correct and thresholds
 	// It is not to be understood just adjusted on multiples datasets
@@ -309,15 +309,17 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 	solve(A, b, alpha, DECOMP_SVD);
 
 	// Correct image
-	vector<double> lin_lowres_input_vec, lin_lowres_corr_vec;
-	_lin_output_image = _input_image;
+	vector<double> dbl_lowres_input_vec, dbl_lowres_corr_vec;
+	Mat _dbl_output_image = Mat(_input_image.size(), CV_64FC1);
+	Mat _dbl_lowres_output_image;
+	_output_image = _input_image;
 
 	double corr_factor;
 	double lin_input_mean = 0;
 	double lin_corr_mean = 0;
 	double scale_factor = 1.0;
 
-	// simulate on low res image to limit saturation and so limit overcorrection
+	// first apply correction without normalization
 	#pragma omp parallel for
 	for (int w = 0; w < _input_image.cols; w++)
 	{
@@ -337,12 +339,24 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 			}
 
 			// correct accounting for gamma factor
-			double lin_input = gamma_undo(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0);
-			#pragma omp critical
-			{
-				lin_lowres_input_vec.push_back(lin_input);
-				lin_lowres_corr_vec.push_back(corr_factor * lin_input);
-			}
+			//_output_image.at<uchar>(h, w) = static_cast<uchar>(255 * gamma_do(corr_factor * gamma_undo(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0)));
+			_dbl_output_image.at<double>(h, w) = corr_factor*gamma_undo(static_cast<double>(_input_image.at<uchar>(h, w))/255.0);
+
+		}
+	}
+
+	// compute low res for faster quantile computation
+	resize(_dbl_output_image, _dbl_lowres_output_image, _input_lowres.size());
+
+	for (int w = 0; w < _input_lowres.cols; w++)
+	{
+		for (int h = 0; h < _input_lowres.rows; h++)
+		{
+			// correct accounting for gamma factor
+			double dbl_input = gamma_undo(static_cast<double>(_input_lowres.at<uchar>(h, w)) / 255.0);
+			dbl_lowres_input_vec.push_back(dbl_input);
+
+			dbl_lowres_corr_vec.push_back(_dbl_lowres_output_image.at<double>(h, w));
 
 		}
 	}
@@ -352,15 +366,15 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 	// We suppose that well illuminated area should match before and after corr so we adjust exposure according to this assumption
 	// using 0.8 (so threshold giving the 20% brightest pixels)
 	required_quant.push_back(0.8);
-	lin_input_quant = doubleQuantiles(lin_lowres_input_vec, required_quant);
+	lin_input_quant = doubleQuantiles(dbl_lowres_input_vec, required_quant);
 
 	// add a quantile to check for saturation
 	required_quant.push_back(0.999);
-	lin_corr_quant = doubleQuantiles(lin_lowres_corr_vec, required_quant);
+	lin_corr_quant = doubleQuantiles(dbl_lowres_corr_vec, required_quant);
 
 	scale_factor = lin_input_quant[0] / lin_corr_quant[0];
 
-	//cout << "lin_input_quant=" << lin_input_quant[0] << ", lin_corr_quant=" << lin_corr_quant[0] <<endl;
+	cout << "lin_input_quant=" << lin_input_quant[0] << ", lin_corr_quant=" << lin_corr_quant[0] <<endl;
 
 	if (scale_factor*lin_corr_quant[1] > 1)
 	{
@@ -368,32 +382,16 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 		scale_factor = 1.0 /lin_corr_quant[1];
 	}
 
-
-	// correct
-    #pragma omp parallel for
+	// apply scaling factor
+	#pragma omp parallel for
 	for (int w = 0; w < _input_image.cols; w++)
 	{
 		for (int h = 0; h < _input_image.rows; h++)
 		{
-			temp_x = static_cast<double>(w)*m_lowres_comp_scaling/m_prepro_img_scaling;
-			temp_y = static_cast<double>(h)*m_lowres_comp_scaling/m_prepro_img_scaling;
-			temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
-				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
-				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
-
-			corr_factor = scale_factor / (temp_z);
-
-			if (corr_factor > maximum_corr_factor || temp_z < 0)
-			{
-				corr_factor = maximum_corr_factor;
-			}
-
 			// correct accounting for gamma factor
-			_lin_output_image.at<uchar>(h, w) = static_cast<uchar>( 255*gamma_do( corr_factor*gamma_undo(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0) ) );
+			_output_image.at<uchar>(h, w) = static_cast<uchar>(255 * gamma_do(scale_factor * _dbl_output_image.at<double>(h, w)) );
 		}
 	}
-	//imshow("output img", _lin_output_image);
-	//waitKey();
 
 }
 
