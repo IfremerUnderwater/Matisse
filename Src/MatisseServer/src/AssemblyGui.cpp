@@ -51,7 +51,8 @@ AssemblyGui::AssemblyGui(QWidget *parent) :
     _visuModeButton(NULL),
     _resetMessagesButton(NULL),
     _maxOrRestoreButtonWrapper(NULL),
-    _visuModeButtonWrapper(NULL)
+    _visuModeButtonWrapper(NULL),
+    m_camera_manager_tool_dialog(this)
 {
     _ui->setupUi(this);
     _server.setMainGui(this);
@@ -258,6 +259,7 @@ void AssemblyGui::initUserActions()
     connect(_mapToolbarAct, SIGNAL(triggered()), _userFormWidget, SLOT(slot_showHideToolbar()));
     connect(_exportMapViewAct, SIGNAL(triggered()), this, SLOT(slot_exportMapToImage()));
     connect(_preprocessingTool, SIGNAL(triggered()), this, SLOT(slot_launchPreprocessingTool()));
+    connect(m_camera_manager_tool, SIGNAL(triggered()), this, SLOT(slot_launchCameraManagerTool()));
     //connect(_videoToImageToolAct, SIGNAL(triggered()), this, SLOT(slot_launchVideoToImageTool()));
 
     // Menus contextuels
@@ -548,11 +550,13 @@ void AssemblyGui::initMainMenu()
 
     _appConfigAct = new QAction(this);
     _preprocessingTool = new QAction(this);
+    m_camera_manager_tool = new QAction(this);
     _checkNetworkRxAct = new QAction(this);
 
     _toolMenu->addAction(_appConfigAct);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_preprocessingTool);
+    _toolMenu->addAction(m_camera_manager_tool);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_checkNetworkRxAct);
 
@@ -1365,6 +1369,11 @@ void AssemblyGui::slot_launchPreprocessingTool()
 
     QUrl url = QUrl::fromLocalFile(toolPathFile.absoluteFilePath());
     QDesktopServices::openUrl(url);
+}
+
+void AssemblyGui::slot_launchCameraManagerTool()
+{
+    m_camera_manager_tool_dialog.show();
 }
 
 //void AssemblyGui::slot_launchVideoToImageTool()
@@ -3174,6 +3183,7 @@ void AssemblyGui::retranslate()
     _toolMenu->setTitle(tr("TOOLS"));
     _appConfigAct->setText(tr("Configure settings for application"));
     _preprocessingTool->setText(tr("Launch preprocessing tool"));
+    m_camera_manager_tool->setText(tr("Launch camera manager"));
     _checkNetworkRxAct->setText(tr("Check network reception"));
 
 
@@ -3338,6 +3348,7 @@ void AssemblyGui::enableActions()
     _exportMapViewAct->setEnabled(_isMapView);
     _mapToolbarAct->setEnabled(_isMapView);
     _preprocessingTool->setEnabled(_isMapView);
+    m_camera_manager_tool->setEnabled(_isMapView);
     _checkNetworkRxAct->setEnabled(_isMapView);
 
     if (lastAction == SELECT_ASSEMBLY || lastAction == SAVE_ASSEMBLY) {
