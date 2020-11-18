@@ -197,6 +197,7 @@ bool PreprocessingCorrection::computeTemporalMedian()
 	vector<double> green_pixel_stack; green_pixel_stack.resize(stack_size);
 	vector<double> red_pixel_stack; red_pixel_stack.resize(stack_size);
 
+	#pragma omp parallel for
 	for (int w = 0; w < images_size.width; w++)
 	{
 		for (int h = 0; h < images_size.height; h++)

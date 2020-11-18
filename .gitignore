@@ -27,8 +27,5 @@ Makefile.Release*
 *.exp
 *.manifest
 *.autosave
-/Build/
-/Build_cmake/
-/Build_msys/
-/BuildWin/
+/Build*
 /Run/
