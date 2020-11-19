@@ -3,7 +3,9 @@
 #include <opencv2/opencv.hpp>
 #include <QMessageBox>
 #include <cmath>
+#include "camera_info.h"
 
+using namespace MatisseCommon;
 using namespace cv;
 
 CameraManagerTool::CameraManagerTool(QWidget *parent) :
@@ -96,5 +98,35 @@ void CameraManagerTool::slot_saveCurrentCamera()
         QMessageBox::warning(this,tr("Invalid IMU to camera transform"),tr("IMU to camera transformation is wrong. If you don't have any idea of the transformation, leave 0 everywhere. Rotations are in degrees between -180 and 180."));
         return;
     }
+
+    QString camera_name = ui->camera_name->text();
+
+    if(camera_name.isEmpty())
+    {
+        QMessageBox::warning(this,tr("No camera name"),tr("You must give a name to your camera."));
+        return;
+    }
+
+    int sensor_width = ui->sensor_width->text().toInt(&valid); all_correct &= valid;
+    int sensor_height = ui->sensor_height->text().toInt(&valid); all_correct &= valid;
+
+    if(!all_correct || sensor_width==0.0 || sensor_height==0.0)
+    {
+        QMessageBox::warning(this,tr("Invalid sensor size"),tr("You must give a valid sensor size. It is the size of the images used for calibration. If you then rescale your images, Matisse will handle the scaling"));
+        return;
+    }
+
+    // Everything went well so we affect to CamInfo
+    CameraInfo camera_info;
+
+    camera_info.setK(K);
+    camera_info.setCamera_name(camera_name);
+    camera_info.setDistortionCoeff(dist_coeff);
+    camera_info.setDistortionModel(distortion_model);
+    camera_info.setVehicleToCameraTransform(vehicle_to_cam_transform);
+    camera_info.setFullSensorSize(sensor_width,sensor_height);
+
+    QString dest_file = QString("/home/ifremer/cam.yaml");
+    camera_info.writeToFile(dest_file);
 
 }

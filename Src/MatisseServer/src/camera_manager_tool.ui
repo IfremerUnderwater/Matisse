@@ -451,7 +451,7 @@ translation and rotation:</string>
        <item row="2" column="1">
         <layout class="QGridLayout" name="gridLayout_5">
          <item row="0" column="1">
-          <widget class="QLineEdit" name="lineEdit"/>
+          <widget class="QLineEdit" name="sensor_width"/>
          </item>
          <item row="0" column="2">
           <widget class="QLabel" name="label_17">
@@ -461,7 +461,7 @@ translation and rotation:</string>
           </widget>
          </item>
          <item row="0" column="3">
-          <widget class="QLineEdit" name="lineEdit_2"/>
+          <widget class="QLineEdit" name="sensor_height"/>
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_16">
