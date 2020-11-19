@@ -10,8 +10,8 @@ class CameraInfo
 {
 public:
     CameraInfo();
-    QString camera_name() const;
-    void setCamera_name(const QString &camera_name);
+    QString cameraName() const;
+    void setCameraName(const QString &cameraName);
 
     int distortionModel() const;
     void setDistortionModel(int distortionModel);

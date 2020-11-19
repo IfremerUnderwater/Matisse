@@ -4,17 +4,20 @@
 #include <QMessageBox>
 #include <cmath>
 #include "camera_info.h"
+#include "camera_manager.h"
+
 
 using namespace MatisseCommon;
 using namespace cv;
 
 CameraManagerTool::CameraManagerTool(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::CameraManager)
+    ui(new Ui::CameraManagerTool)
 {
     ui->setupUi(this);
 
     connect(ui->save_to_file_pb,SIGNAL(clicked()),this,SLOT(slot_saveCurrentCamera()));
+
 }
 
 CameraManagerTool::~CameraManagerTool()
@@ -120,13 +123,16 @@ void CameraManagerTool::slot_saveCurrentCamera()
     CameraInfo camera_info;
 
     camera_info.setK(K);
-    camera_info.setCamera_name(camera_name);
+    camera_info.setCameraName(camera_name);
     camera_info.setDistortionCoeff(dist_coeff);
     camera_info.setDistortionModel(distortion_model);
     camera_info.setVehicleToCameraTransform(vehicle_to_cam_transform);
     camera_info.setFullSensorSize(sensor_width,sensor_height);
 
-    QString dest_file = QString("/home/ifremer/cam.yaml");
-    camera_info.readFromFile(dest_file);
+    // add it to manager and write to file
+    CameraManager::instance().addCamera(camera_info);
+
+    QMessageBox::information(this,tr("Camera saved to database"),tr("Your camera has been added to database in the folder :")
+                             +CameraManager::instance().camInfoDir().absolutePath()+tr(". You can save this file appart and share it with other users if you like."));
 
 }

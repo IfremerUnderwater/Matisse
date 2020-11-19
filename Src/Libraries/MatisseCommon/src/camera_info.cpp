@@ -8,12 +8,12 @@ CameraInfo::CameraInfo()
 
 }
 
-QString CameraInfo::camera_name() const
+QString CameraInfo::cameraName() const
 {
     return m_camera_name;
 }
 
-void CameraInfo::setCamera_name(const QString &camera_name)
+void CameraInfo::setCameraName(const QString &camera_name)
 {
     m_camera_name = camera_name;
 }

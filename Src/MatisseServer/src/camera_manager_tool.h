@@ -1,10 +1,10 @@
-#ifndef CAMERA_MANAGER_H
-#define CAMERA_MANAGER_H
+#ifndef CAMERA_MANAGER_TOOL_H
+#define CAMERA_MANAGER_TOOL_H
 
 #include <QDialog>
 
 namespace Ui {
-class CameraManager;
+class CameraManagerTool;
 }
 
 class CameraManagerTool : public QDialog
@@ -16,7 +16,7 @@ public:
     ~CameraManagerTool();
 
 private:
-    Ui::CameraManager *ui;
+    Ui::CameraManagerTool *ui;
 
 private slots:
     void slot_saveCurrentCamera();
