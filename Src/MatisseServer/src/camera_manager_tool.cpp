@@ -18,11 +18,19 @@ CameraManagerTool::CameraManagerTool(QWidget *parent) :
 
     connect(ui->save_to_file_pb,SIGNAL(clicked()),this,SLOT(slot_saveCurrentCamera()));
 
+    CameraManager *cam_manager_p = &(CameraManager::instance());
+    connect(cam_manager_p,SIGNAL(sig_newCameraAdded()),this,SLOT(slot_refreshCameraList()));
+
 }
 
 CameraManagerTool::~CameraManagerTool()
 {
     delete ui;
+}
+
+void CameraManagerTool::slot_refreshCameraList()
+{
+
 }
 
 void CameraManagerTool::slot_saveCurrentCamera()
@@ -132,7 +140,7 @@ void CameraManagerTool::slot_saveCurrentCamera()
     // add it to manager and write to file
     CameraManager::instance().addCamera(camera_info);
 
-    QMessageBox::information(this,tr("Camera saved to database"),tr("Your camera has been added to database in the folder :")
+    QMessageBox::information(this,tr("Camera saved to database"),tr("Your camera has been added to database in the folder ")
                              +CameraManager::instance().camInfoDir().absolutePath()+tr(". You can save this file appart and share it with other users if you like."));
 
 }

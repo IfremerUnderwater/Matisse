@@ -18,10 +18,11 @@
 //#include "WelcomeDialog.h"
 #include "SystemDataManager.h"
 #include "ProcessDataManager.h"
+#include "camera_manager.h"
 
 using namespace MatisseServer;
 using namespace MatisseTools;
-
+using namespace MatisseCommon;
 
 
 
@@ -91,6 +92,7 @@ int main(int argc, char *argv[])
     FileUtils::removeAllTempDirectories();
 
     /* Create managers to be injected */
+    CameraManager::instance().initializeFromDataBase();
     SystemDataManager systemDataManager;
     systemDataManager.readMatisseSettings("config/MatisseSettings.xml");
     QString dataRootDir = systemDataManager.getDataRootDir();
