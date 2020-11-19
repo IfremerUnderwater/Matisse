@@ -127,6 +127,6 @@ void CameraManagerTool::slot_saveCurrentCamera()
     camera_info.setFullSensorSize(sensor_width,sensor_height);
 
     QString dest_file = QString("/home/ifremer/cam.yaml");
-    camera_info.writeToFile(dest_file);
+    camera_info.readFromFile(dest_file);
 
 }
