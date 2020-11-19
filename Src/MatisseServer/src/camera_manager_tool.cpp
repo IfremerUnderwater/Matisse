@@ -21,6 +21,14 @@ CameraManagerTool::CameraManagerTool(QWidget *parent) :
     CameraManager *cam_manager_p = &(CameraManager::instance());
     connect(cam_manager_p,SIGNAL(sig_newCameraAdded()),this,SLOT(slot_refreshCameraList()));
 
+    connect(ui->cam_selection_cb,SIGNAL(currentTextChanged(QString)),this,SLOT(slot_cameraSelected(QString)));
+    connect(ui->dist_model_cb,SIGNAL(currentIndexChanged(int)),this,SLOT(slot_distModelChanged(int)));
+
+    slot_refreshCameraList();
+
+    ui->dist_model_cb->setCurrentIndex(1);
+    slot_distModelChanged(1);
+
 }
 
 CameraManagerTool::~CameraManagerTool()
@@ -30,7 +38,9 @@ CameraManagerTool::~CameraManagerTool()
 
 void CameraManagerTool::slot_refreshCameraList()
 {
-
+    ui->cam_selection_cb->clear();
+    ui->cam_selection_cb->addItem("New camera");
+    ui->cam_selection_cb->addItems(CameraManager::instance().cameraList());
 }
 
 void CameraManagerTool::slot_saveCurrentCamera()
@@ -137,10 +147,124 @@ void CameraManagerTool::slot_saveCurrentCamera()
     camera_info.setVehicleToCameraTransform(vehicle_to_cam_transform);
     camera_info.setFullSensorSize(sensor_width,sensor_height);
 
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("Overwriting camera"), tr("You are about to overwrite the current camera. Are you sure ?"),
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::No)
+        return;
+
     // add it to manager and write to file
     CameraManager::instance().addCamera(camera_info);
 
     QMessageBox::information(this,tr("Camera saved to database"),tr("Your camera has been added to database in the folder ")
                              +CameraManager::instance().camInfoDir().absolutePath()+tr(". You can save this file appart and share it with other users if you like."));
 
+}
+
+void CameraManagerTool::slot_cameraSelected(QString _selected_item)
+{
+    if(_selected_item.isEmpty())
+        return;
+
+    CameraInfo current_cam;
+
+    if(_selected_item != "New camera")
+        current_cam = CameraManager::instance().cameraByName(_selected_item);
+
+    // fill K
+    ui->K11_le->setText(QString::number(current_cam.K().at<double>(0,0)));
+    ui->K21_le->setText(QString::number(current_cam.K().at<double>(1,0)));
+    ui->K31_le->setText(QString::number(current_cam.K().at<double>(2,0)));
+    ui->K12_le->setText(QString::number(current_cam.K().at<double>(0,1)));
+    ui->K22_le->setText(QString::number(current_cam.K().at<double>(1,1)));
+    ui->K32_le->setText(QString::number(current_cam.K().at<double>(2,1)));
+    ui->K13_le->setText(QString::number(current_cam.K().at<double>(0,2)));
+    ui->K23_le->setText(QString::number(current_cam.K().at<double>(1,2)));
+    ui->K33_le->setText(QString::number(current_cam.K().at<double>(2,2)));
+
+    // 0:radial k1, 1:radial k3, 2:radial+tan, 3:fisheye
+    ui->dist_model_cb->setCurrentIndex(current_cam.distortionModel());
+
+    switch (current_cam.distortionModel()) {
+    case 0:
+        ui->d1_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,0)));
+        ui->d2_le->setText(QString::number(0.0));
+        ui->d3_le->setText(QString::number(0.0));
+        ui->d4_le->setText(QString::number(0.0));
+        ui->d5_le->setText(QString::number(0.0));
+        break;
+    case 1:
+        ui->d1_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,0)));
+        ui->d2_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,1)));
+        ui->d3_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,2)));
+        ui->d4_le->setText(QString::number(0.0));
+        ui->d5_le->setText(QString::number(0.0));
+        break;
+    case 2:
+        ui->d1_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,0)));
+        ui->d2_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,1)));
+        ui->d3_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,2)));
+        ui->d4_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,3)));
+        ui->d5_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,4)));
+        break;
+    case 3:
+        ui->d1_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,0)));
+        ui->d2_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,1)));
+        ui->d3_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,2)));
+        ui->d4_le->setText(QString::number(current_cam.distortionCoeff().at<double>(0,3)));
+        ui->d5_le->setText(QString::number(0.0));
+        break;
+
+    }
+
+    // vehicle transform
+    ui->X_le->setText(QString::number(180*current_cam.vehicleToCameraTransform().at<double>(0,0)/M_PI));
+    ui->Y_le->setText(QString::number(180*current_cam.vehicleToCameraTransform().at<double>(0,1)/M_PI));
+    ui->Z_le->setText(QString::number(180*current_cam.vehicleToCameraTransform().at<double>(0,2)/M_PI));
+    ui->roll_le->setText(QString::number(180*current_cam.vehicleToCameraTransform().at<double>(0,3)/M_PI));
+    ui->pitch_le->setText(QString::number(180*current_cam.vehicleToCameraTransform().at<double>(0,4)/M_PI));
+    ui->yaw_le->setText(QString::number(180*current_cam.vehicleToCameraTransform().at<double>(0,5)/M_PI));
+
+    int sensor_width,sensor_height;
+    current_cam.fullSensorSize(sensor_width,sensor_height);
+    ui->sensor_width->setText( QString::number(sensor_width));
+    ui->sensor_height->setText( QString::number(sensor_height));
+
+    ui->camera_name->setText(current_cam.cameraName());
+
+}
+
+void CameraManagerTool::slot_distModelChanged(int _dist_model)
+{
+    switch (_dist_model) {
+    case 0:
+        ui->d1_le->setText(QString::number(0.0)); ui->d1_le->setEnabled(true);
+        ui->d2_le->setText(""); ui->d2_le->setEnabled(false);
+        ui->d3_le->setText(""); ui->d3_le->setEnabled(false);
+        ui->d4_le->setText(""); ui->d4_le->setEnabled(false);
+        ui->d5_le->setText(""); ui->d5_le->setEnabled(false);
+        break;
+    case 1:
+        ui->d1_le->setText(QString::number(0.0)); ui->d1_le->setEnabled(true);
+        ui->d2_le->setText(QString::number(0.0)); ui->d2_le->setEnabled(true);
+        ui->d3_le->setText(QString::number(0.0)); ui->d3_le->setEnabled(true);
+        ui->d4_le->setText(""); ui->d4_le->setEnabled(false);
+        ui->d5_le->setText(""); ui->d5_le->setEnabled(false);
+        break;
+    case 2:
+        ui->d1_le->setText(QString::number(0.0)); ui->d1_le->setEnabled(true);
+        ui->d2_le->setText(QString::number(0.0)); ui->d2_le->setEnabled(true);
+        ui->d3_le->setText(QString::number(0.0)); ui->d3_le->setEnabled(true);
+        ui->d4_le->setText(QString::number(0.0)); ui->d4_le->setEnabled(true);
+        ui->d5_le->setText(QString::number(0.0)); ui->d5_le->setEnabled(true);
+        break;
+    case 3:
+        ui->d1_le->setText(QString::number(0.0)); ui->d1_le->setEnabled(true);
+        ui->d2_le->setText(QString::number(0.0)); ui->d2_le->setEnabled(true);
+        ui->d3_le->setText(QString::number(0.0)); ui->d3_le->setEnabled(true);
+        ui->d4_le->setText(QString::number(0.0)); ui->d4_le->setEnabled(true);
+        ui->d5_le->setText(""); ui->d5_le->setEnabled(false);
+        break;
+
+    }
 }

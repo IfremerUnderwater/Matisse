@@ -22,7 +22,7 @@ public:
     void addCamera(CameraInfo _camera);
 
     QStringList cameraList();
-
+    CameraInfo cameraByName(QString _camera_name);
     QDir camInfoDir() const;
 
 private:

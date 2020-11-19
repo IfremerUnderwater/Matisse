@@ -41,6 +41,11 @@ QStringList CameraManager::cameraList()
     return m_caminfo_map.keys();
 }
 
+CameraInfo CameraManager::cameraByName(QString _camera_name)
+{
+    return  m_caminfo_map[_camera_name];
+}
+
 CameraManager::CameraManager(QObject *_parent):QObject(_parent)
 {
     QDir config_path = QDir(QStandardPaths::locate(QStandardPaths::ConfigLocation, QString(), QStandardPaths::LocateDirectory));

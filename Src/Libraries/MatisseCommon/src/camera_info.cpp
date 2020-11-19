@@ -3,9 +3,15 @@
 using namespace MatisseCommon;
 using namespace cv;
 
-CameraInfo::CameraInfo()
+CameraInfo::CameraInfo():m_camera_name(""),
+    m_distortion_model(1),
+    m_distortion_coeff(1,3,CV_64F,0.0),
+    m_K(3,3,CV_64F,0.0),
+    m_vehicle_to_camera_transform(1,6,CV_64F,0.0),
+    m_full_sensor_width(0),
+    m_full_sensor_height(0)
 {
-
+    m_K.at<double>(2,2)=1.0;
 }
 
 QString CameraInfo::cameraName() const
