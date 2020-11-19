@@ -489,6 +489,11 @@ translation and rotation:</string>
            <string>Brown T2 (3 radial+ 2 tan)</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>Fisheye</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item row="3" column="1">

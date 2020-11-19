@@ -17,6 +17,9 @@ public:
 
 private:
     Ui::CameraManager *ui;
+
+private slots:
+    void slot_saveCurrentCamera();
 };
 
 #endif // CAMERA_MANAGER_H

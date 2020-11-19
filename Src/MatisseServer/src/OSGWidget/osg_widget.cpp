@@ -280,9 +280,6 @@ OSGWidget::OSGWidget(QWidget* parent)
     m_ref_lat_lon.setY(INVALID_VALUE);
     m_ref_alt = INVALID_VALUE;
 
-
-    //osgDB::Registry::instance()->setLibraryFilePathList("/Users/tim/code/3DMetricWorkspace/Run/Release/3DMetrics.app/Contents/osgPlugins");
-
     float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
 
     osg::Camera* camera = new osg::Camera;
