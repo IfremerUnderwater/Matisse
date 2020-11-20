@@ -1,8 +1,6 @@
 ﻿#ifndef MOSAICPARAMETERS_H
 #define MOSAICPARAMETERS_H
 
-
-
 #include <QtCore>
 #include <QString>
 #include <QMatrix3x3>
