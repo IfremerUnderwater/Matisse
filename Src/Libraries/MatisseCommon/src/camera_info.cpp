@@ -5,7 +5,7 @@ using namespace cv;
 
 CameraInfo::CameraInfo():m_camera_name(""),
     m_distortion_model(1),
-    m_distortion_coeff(1,3,CV_64F,0.0),
+    m_distortion_coeff(1,5,CV_64F,0.0),
     m_K(3,3,CV_64F,0.0),
     m_vehicle_to_camera_transform(1,6,CV_64F,0.0),
     m_full_sensor_width(0),
@@ -120,4 +120,50 @@ bool CameraInfo::writeToFile(QString &_file_path)
     fs.release();
 
     return true;
+}
+
+QString CameraInfo::toQString()
+{
+    // name
+    QString cam_info_string = m_camera_name;
+
+    // add width and height
+    cam_info_string = cam_info_string + QString(";%1;%2").arg(m_full_sensor_width).arg(m_full_sensor_height);
+
+    // add camera matrix
+    cam_info_string = cam_info_string + QString(";%1,%2,%3,%4,%5,%6,%7,%8,%9").arg(m_K.at<double>(0,0))
+            .arg(m_K.at<double>(0,1))
+            .arg(m_K.at<double>(0,2))
+            .arg(m_K.at<double>(1,0))
+            .arg(m_K.at<double>(1,1))
+            .arg(m_K.at<double>(1,2))
+            .arg(m_K.at<double>(2,0))
+            .arg(m_K.at<double>(2,1))
+            .arg(m_K.at<double>(2,2));
+
+    // add distortion model
+    cam_info_string = cam_info_string + QString(";%1").arg(m_distortion_model);
+
+    // add distortion coeff
+    cam_info_string = cam_info_string + QString(";%1,%2,%3,%4,%5").arg(m_distortion_coeff.at<double>(0,0))
+            .arg(m_distortion_coeff.at<double>(0,1))
+            .arg(m_distortion_coeff.at<double>(0,2))
+            .arg(m_distortion_coeff.at<double>(0,3))
+            .arg(m_distortion_coeff.at<double>(0,4));
+
+    // add vehicle to camera transform
+    cam_info_string = cam_info_string + QString(";%1,%2,%3,%4,%5,%6").arg(m_vehicle_to_camera_transform.at<double>(0,0))
+            .arg(m_vehicle_to_camera_transform.at<double>(0,1))
+            .arg(m_vehicle_to_camera_transform.at<double>(0,2))
+            .arg(m_vehicle_to_camera_transform.at<double>(0,3))
+            .arg(m_vehicle_to_camera_transform.at<double>(0,4))
+            .arg(m_vehicle_to_camera_transform.at<double>(0,5));
+
+
+    return cam_info_string;
+}
+
+bool CameraInfo::fromQString()
+{
+
 }

@@ -48,6 +48,7 @@ void MatisseParametersManager::loadStaticCollections()
     _enumTypes.insert("double", PAR_DOUBLE);
     _enumTypes.insert("string", PAR_STRING);
     _enumTypes.insert("bool", PAR_BOOL);
+    _enumTypes.insert("camera", PAR_CAMERA);
 
     //_enumShows.clear();
     //_enumShows.insert("unknown", UNKNOWN_SHOW);

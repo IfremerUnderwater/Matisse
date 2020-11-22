@@ -31,6 +31,9 @@ public:
     bool readFromFile(QString &_file_path);
     bool writeToFile(QString &_file_path);
 
+    QString toQString();
+    bool fromQString();
+
 private:
     QString m_camera_name;
     int m_distortion_model;
