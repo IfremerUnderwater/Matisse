@@ -1,4 +1,5 @@
 #include "camera_info.h"
+#include <QStringList>
 
 using namespace MatisseCommon;
 using namespace cv;
@@ -163,7 +164,59 @@ QString CameraInfo::toQString()
     return cam_info_string;
 }
 
-bool CameraInfo::fromQString()
+bool CameraInfo::fromQString(QString _value)
 {
+    QStringList fields = _value.split(";");
+
+    if (fields.size()!=7)
+        return false;
+
+    m_camera_name = fields[0];
+    m_full_sensor_width = fields[1].toInt();
+    m_full_sensor_height = fields[2].toInt();
+
+    QStringList matrix_coeffs = fields[3].split(",");
+
+    if (matrix_coeffs.size()!=9)
+        return false;
+
+    m_K.at<double>(0,0)=matrix_coeffs[0].toDouble();
+    m_K.at<double>(0,1)=matrix_coeffs[1].toDouble();
+    m_K.at<double>(0,2)=matrix_coeffs[2].toDouble();
+    m_K.at<double>(1,0)=matrix_coeffs[3].toDouble();
+    m_K.at<double>(1,1)=matrix_coeffs[4].toDouble();
+    m_K.at<double>(1,2)=matrix_coeffs[5].toDouble();
+    m_K.at<double>(2,0)=matrix_coeffs[6].toDouble();
+    m_K.at<double>(2,1)=matrix_coeffs[7].toDouble();
+    m_K.at<double>(2,2)=matrix_coeffs[8].toDouble();
+
+    m_distortion_model=fields[4].toInt();
+
+    QStringList distortion_coeff = fields[5].split(",");
+
+    if (distortion_coeff.size()!=5)
+        return false;
+
+    m_distortion_coeff=Mat(1,5,CV_64F,0.0);
+
+    m_distortion_coeff.at<double>(0,0)=distortion_coeff[0].toDouble();
+    m_distortion_coeff.at<double>(0,1)=distortion_coeff[1].toDouble();
+    m_distortion_coeff.at<double>(0,2)=distortion_coeff[2].toDouble();
+    m_distortion_coeff.at<double>(0,3)=distortion_coeff[3].toDouble();
+    m_distortion_coeff.at<double>(0,4)=distortion_coeff[4].toDouble();
+
+    QStringList vehicle_to_camera_transform = fields[6].split(",");
+
+    if (vehicle_to_camera_transform.size()!=6)
+        return false;
+
+    m_vehicle_to_camera_transform.at<double>(0,0)=vehicle_to_camera_transform[0].toDouble();
+    m_vehicle_to_camera_transform.at<double>(0,1)=vehicle_to_camera_transform[1].toDouble();
+    m_vehicle_to_camera_transform.at<double>(0,2)=vehicle_to_camera_transform[2].toDouble();
+    m_vehicle_to_camera_transform.at<double>(0,3)=vehicle_to_camera_transform[3].toDouble();
+    m_vehicle_to_camera_transform.at<double>(0,4)=vehicle_to_camera_transform[4].toDouble();
+    m_vehicle_to_camera_transform.at<double>(0,5)=vehicle_to_camera_transform[5].toDouble();
+
+    return true;
 
 }

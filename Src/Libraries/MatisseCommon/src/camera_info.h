@@ -32,7 +32,7 @@ public:
     bool writeToFile(QString &_file_path);
 
     QString toQString();
-    bool fromQString();
+    bool fromQString(QString _value);
 
 private:
     QString m_camera_name;
