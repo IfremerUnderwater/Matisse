@@ -240,20 +240,13 @@ Init3DRecon::Init3DRecon() :
     addExpectedParameter("cam_param",  "K");
     addExpectedParameter("cam_param",  "camera_preset");
     addExpectedParameter("cam_param",  "sensor_width");
+    addExpectedParameter("cam_param",  "camera_equipment");
 
     addExpectedParameter("vehic_param",  "reproj_std");
     addExpectedParameter("vehic_param",  "X_std");
     addExpectedParameter("vehic_param",  "Y_std");
     addExpectedParameter("vehic_param",  "depth_std");
 
-    // unused
-    //addExpectedParameter("algo_param", "scale_factor");
-    // unused
-    //addExpectedParameter("cam_param",  "V_Pose_C");
-    // unused
-    //addExpectedParameter("algo_param","filter_overlap");
-    //addExpectedParameter("algo_param","min_overlap");
-    //addExpectedParameter("algo_param","max_overlap");
 }
 
 Init3DRecon::~Init3DRecon(){

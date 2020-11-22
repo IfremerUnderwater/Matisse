@@ -54,6 +54,7 @@ void MatisseParametersManager::loadStaticCollections()
     //_enumShows.insert("unknown", UNKNOWN_SHOW);
     _enumShows.insert("line", LINE_EDIT);
     _enumShows.insert("combo", COMBO_BOX);
+    _enumShows.insert("cam_combo", CAM_COMBO_BOX);
     _enumShows.insert("list", LIST_BOX);
     _enumShows.insert("spin", SPIN_BOX);
     _enumShows.insert("spinDouble", DOUBLE_SPIN_BOX);
@@ -677,6 +678,10 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
         case COMBO_BOX: {
             QStringList items = getEnums(param);
             widget = new EnrichedComboBox(_fullParametersWidget, paramLabelText, items, param._value.toString());
+        }
+            break;
+        case CAM_COMBO_BOX: {
+            widget = new EnrichedCamComboBox(_fullParametersWidget, paramLabelText, param._value.toString());
         }
             break;
         case LIST_BOX: {

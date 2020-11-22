@@ -6,6 +6,7 @@
 #include <QtDebug>
 
 #include "EnrichedFormWidget.h"
+#include "camera_info.h"
 
 namespace MatisseTools {
 
@@ -28,9 +29,12 @@ signals:
 public slots:
 
 private:
-        QComboBox *_combo;
-        qint32 _defaultIndex;
-        qint32 _initialIndex;
+        QComboBox m_combo;
+        qint32 m_default_index;
+        qint32 m_initial_index;
+
+        MatisseCommon::CameraInfo m_cam_info;
+
 };
 }
 #endif // ENRICHEDCAMCOMBOBOX_H

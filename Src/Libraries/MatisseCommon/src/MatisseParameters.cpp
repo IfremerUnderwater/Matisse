@@ -237,6 +237,20 @@ QString MatisseParameters::getStringParamValue(QString paramStructName, QString 
     return value;
 }
 
+CameraInfo MatisseParameters::getCamInfoParamValue(QString paramStructName, QString paramName, bool &ok)
+{
+    CameraInfo cam_info;
+
+    QString valuesStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"");
+
+    if( cam_info.fromQString(valuesStr) )
+        ok=true;
+    else
+        ok=false;
+
+    return cam_info;
+}
+
 QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString paramStructName, QString paramName, bool &ok)
 {
     QMatrix3x3 values;

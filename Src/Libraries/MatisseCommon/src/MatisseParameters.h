@@ -11,6 +11,7 @@
 #include <QHash>
 #include <QVariant>
 #include <QRegExp>
+#include "camera_info.h"
 
 #define InfInt qPow(2,31)-1
 #define InfDouble exp((double)100)
@@ -134,6 +135,8 @@ public:
     /// \return
     ///
     Matrix6x1 getMatrix6x1ParamValue(QString paramStructName, QString paramName, bool &ok);
+
+    CameraInfo getCamInfoParamValue(QString paramStructName, QString paramName, bool &ok);
 
 private:
     QString _lastErrorStr;
