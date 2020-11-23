@@ -36,6 +36,7 @@ DataPreprocessingWizard::DataPreprocessingWizard(QWidget *parent) :
     connect(ui->use_rt_dim2_cb, SIGNAL(stateChanged(int)), this, SLOT(sl_handleUseRtDim2()));
     connect(ui->select_dim2_file, SIGNAL(released()), this, SLOT(sl_selectDim2File()));
     connect(ui->select_path, SIGNAL(released()), this, SLOT(sl_selectDataPath()));
+    connect(ui->select_out_path, SIGNAL(released()), this, SLOT(sl_selectOutputPath()));
     connect(ui->select_nav_file, SIGNAL(released()), this, SLOT(sl_selectNavFile()));
     connect(ui->select_all, SIGNAL(released()), this, SLOT(sl_selectAllFiles()));
     connect(ui->deselect_all, SIGNAL(released()), this, SLOT(sl_deselectAllFiles()));
@@ -570,10 +571,10 @@ void DataPreprocessingWizard::sl_finished(int _state)
         {
             QString rt_dim2_file = ui->rt_dim2_file->text();
             if (!rt_dim2_file.isEmpty())
-                m_dim2_file = new Dim2FileReader(rt_dim2_file);
-            else
-                m_dim2_file = new Dim2FileReader("");
+                m_dim2_file = new Dim2FileReader(rt_dim2_file); 
         }
+        else
+            m_dim2_file = new Dim2FileReader("");
 
         if (m_data_type == "Video")
         {
