@@ -26,7 +26,7 @@
         <Parameter name="K">1440.00;0.00;960.00;0.00;1440.00;540.00;0.00;0.00;1.00</Parameter>
         <Parameter name="sensor_width">1920</Parameter>
         <Parameter name="camera_preset">Scampi HD</Parameter>
-        <Parameter name="camera_equipment">"Unknown; 0; 0; 0, 0, 0, 0, 0, 0, 0, 0, 0; 2; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0"</Parameter>
+        <Parameter name="camera_equipment">Unknown; 0; 0; 0, 0, 0, 0, 0, 0, 0, 0, 0; 2; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0</Parameter>
     </Structure>
     <Structure name="dataset_param">
         <!--output_and_geo_params-->
