@@ -40,7 +40,12 @@ bool EnrichedCamComboBox::currentValueChanged()
 
 QString EnrichedCamComboBox::currentValue()
 {
-    return m_cam_info.toQString();
+    if (m_combo.currentText()=="Unknown")
+        return _defaultValue;
+    else
+    {
+        return CameraManager::instance().cameraByName(m_combo.currentText()).toQString();
+    }
 }
 
 qint32 EnrichedCamComboBox::currentIndex()
