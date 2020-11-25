@@ -25,6 +25,9 @@ public:
 
     QStringList cameraList();
     CameraInfo cameraByName(QString _camera_name);
+
+    bool deleteCameraByName(QString _camera_name);
+
     QDir camInfoDir() const;
 
 private:
@@ -35,7 +38,7 @@ private:
     QDir m_cam_info_dir;
 
 signals:
-    void sigal_cameraListChanged();
+    void signal_cameraListChanged();
 };
 
 }

@@ -17,9 +17,10 @@ CameraManagerTool::CameraManagerTool(QWidget *parent) :
     ui->setupUi(this);
 
     connect(ui->save_to_file_pb,SIGNAL(clicked()),this,SLOT(slot_saveCurrentCamera()));
+    connect(ui->delete_from_db_pb,SIGNAL(clicked()),this,SLOT(slot_deleteCurrentCamera()));
 
     CameraManager *cam_manager_p = &(CameraManager::instance());
-    connect(cam_manager_p,SIGNAL(sigal_cameraListChanged()),this,SLOT(slot_refreshCameraList()));
+    connect(cam_manager_p,SIGNAL(signal_cameraListChanged()),this,SLOT(slot_refreshCameraList()));
 
     connect(ui->cam_selection_cb,SIGNAL(currentTextChanged(QString)),this,SLOT(slot_cameraSelected(QString)));
     connect(ui->dist_model_cb,SIGNAL(currentIndexChanged(int)),this,SLOT(slot_distModelChanged(int)));
@@ -162,6 +163,18 @@ void CameraManagerTool::slot_saveCurrentCamera()
     QMessageBox::information(this,tr("Camera saved to database"),tr("Your camera has been added to database in the folder ")
                              +CameraManager::instance().camInfoDir().absolutePath()+tr(". You can save this file appart and share it with other users if you like."));
 
+}
+
+void CameraManagerTool::slot_deleteCurrentCamera()
+{
+    if( CameraManager::instance().deleteCameraByName(ui->cam_selection_cb->currentText()) )
+    {
+        QMessageBox::information(this,tr("Camera removed database"),tr("This camera has been deleted."));
+    }
+    else
+    {
+        QMessageBox::warning(this,tr("Cannot remove camera from database"),tr("That is not possible to remove a camera that has not been saved in database !"));
+    }
 }
 
 void CameraManagerTool::slot_cameraSelected(QString _selected_item)

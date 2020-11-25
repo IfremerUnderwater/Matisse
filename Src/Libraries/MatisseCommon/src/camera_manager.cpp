@@ -53,7 +53,7 @@ void CameraManager::addCamera(CameraInfo _camera)
     QString camera_filename = m_cam_info_dir.absoluteFilePath(_camera.cameraName()+".yaml");
 
     if(_camera.writeToFile(camera_filename))
-        emit sigal_cameraListChanged();
+        emit signal_cameraListChanged();
 }
 
 QStringList CameraManager::cameraList()
@@ -64,6 +64,25 @@ QStringList CameraManager::cameraList()
 CameraInfo CameraManager::cameraByName(QString _camera_name)
 {
     return  m_caminfo_map[_camera_name];
+}
+
+bool CameraManager::deleteCameraByName(QString _camera_name)
+{
+    QStringList cam_info_file_list = m_cam_info_dir.entryList(QStringList()<<_camera_name+".yaml");
+
+    if(cam_info_file_list.isEmpty())
+        return false;
+
+    // remove file
+    QFile::remove(m_cam_info_dir.absoluteFilePath(cam_info_file_list[0]));
+
+    // remove from memory
+    m_caminfo_map.remove(_camera_name);
+
+    // tell listeners to update
+    emit signal_cameraListChanged();
+
+    return true;
 }
 
 CameraManager::CameraManager(QObject *_parent):QObject(_parent)

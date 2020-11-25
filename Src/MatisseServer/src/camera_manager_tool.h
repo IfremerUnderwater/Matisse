@@ -23,6 +23,7 @@ private:
 
 private slots:
     void slot_saveCurrentCamera();
+    void slot_deleteCurrentCamera();
     void slot_cameraSelected(QString _selected_item);
     void slot_distModelChanged(int _dist_model);
 };

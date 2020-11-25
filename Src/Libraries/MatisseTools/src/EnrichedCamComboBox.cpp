@@ -31,7 +31,7 @@ EnrichedCamComboBox::EnrichedCamComboBox(QWidget *parent, QString label, QString
 
     connect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
 
-    connect(&CameraManager::instance(),SIGNAL(sigal_cameraListChanged()),this,SLOT(slot_refreshCameraList()));
+    connect(&CameraManager::instance(),SIGNAL(signal_cameraListChanged()),this,SLOT(slot_refreshCameraList()));
 
 }
 
