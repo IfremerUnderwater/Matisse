@@ -19,6 +19,8 @@ public:
 
     void initializeFromDataBase();
 
+    void deployDefaultCamerasToAppData();
+
     void addCamera(CameraInfo _camera);
 
     QStringList cameraList();
@@ -33,7 +35,7 @@ private:
     QDir m_cam_info_dir;
 
 signals:
-    void sig_newCameraAdded();
+    void sigal_cameraListChanged();
 };
 
 }

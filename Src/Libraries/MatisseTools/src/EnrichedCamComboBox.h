@@ -26,7 +26,8 @@ protected:
 
 signals:
 
-public slots:
+private slots:
+    void slot_refreshCameraList();
 
 private:
         QComboBox m_combo;

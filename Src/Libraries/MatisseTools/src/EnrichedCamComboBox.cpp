@@ -31,6 +31,8 @@ EnrichedCamComboBox::EnrichedCamComboBox(QWidget *parent, QString label, QString
 
     connect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
 
+    connect(&CameraManager::instance(),SIGNAL(sigal_cameraListChanged()),this,SLOT(slot_refreshCameraList()));
+
 }
 
 bool EnrichedCamComboBox::currentValueChanged()
@@ -41,7 +43,11 @@ bool EnrichedCamComboBox::currentValueChanged()
 QString EnrichedCamComboBox::currentValue()
 {
     if (m_combo.currentText()=="Unknown")
-        return _defaultValue;
+    {
+        CameraInfo unknown_cam_info;
+        unknown_cam_info.setCameraName("Unknown");
+        return unknown_cam_info.toQString();
+    }
     else
     {
         return CameraManager::instance().cameraByName(m_combo.currentText()).toQString();
@@ -75,6 +81,22 @@ void EnrichedCamComboBox::applyValue(QString newValue)
     m_combo.setCurrentIndex(index);
     m_initial_index = index;
     connect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
+}
+
+void EnrichedCamComboBox::slot_refreshCameraList()
+{
+    QString backup_current_value = currentValue();
+
+    // add database cam
+    QStringList values = CameraManager::instance().cameraList();
+    m_combo.clear();
+    m_combo.addItems(values);
+
+    // add unknown option
+    m_combo.addItem("Unknown");
+
+    // apply back the current value
+    applyValue(backup_current_value);
 }
 
 void EnrichedCamComboBox::restoreDefaultValue()

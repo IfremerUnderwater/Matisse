@@ -19,7 +19,7 @@ CameraManagerTool::CameraManagerTool(QWidget *parent) :
     connect(ui->save_to_file_pb,SIGNAL(clicked()),this,SLOT(slot_saveCurrentCamera()));
 
     CameraManager *cam_manager_p = &(CameraManager::instance());
-    connect(cam_manager_p,SIGNAL(sig_newCameraAdded()),this,SLOT(slot_refreshCameraList()));
+    connect(cam_manager_p,SIGNAL(sigal_cameraListChanged()),this,SLOT(slot_refreshCameraList()));
 
     connect(ui->cam_selection_cb,SIGNAL(currentTextChanged(QString)),this,SLOT(slot_cameraSelected(QString)));
     connect(ui->dist_model_cb,SIGNAL(currentIndexChanged(int)),this,SLOT(slot_distModelChanged(int)));
@@ -122,9 +122,9 @@ void CameraManagerTool::slot_saveCurrentCamera()
 
     QString camera_name = ui->camera_name->text();
 
-    if(camera_name.isEmpty())
+    if(camera_name.isEmpty() || camera_name=="Unknown")
     {
-        QMessageBox::warning(this,tr("No camera name"),tr("You must give a name to your camera."));
+        QMessageBox::warning(this,tr("No camera name"),tr("You must give a name to your camera. Note that \"Unknown\" is a reserved name that you cannot use"));
         return;
     }
 
@@ -147,11 +147,14 @@ void CameraManagerTool::slot_saveCurrentCamera()
     camera_info.setVehicleToCameraTransform(vehicle_to_cam_transform);
     camera_info.setFullSensorSize(sensor_width,sensor_height);
 
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, tr("Overwriting camera"), tr("You are about to overwrite the current camera. Are you sure ?"),
-                                  QMessageBox::Yes|QMessageBox::No);
-    if (reply == QMessageBox::No)
-        return;
+    if(ui->cam_selection_cb->currentText() != "New camera")
+    {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, tr("Overwriting camera"), tr("You are about to overwrite the current camera. Are you sure ?"),
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::No)
+            return;
+    }
 
     // add it to manager and write to file
     CameraManager::instance().addCamera(camera_info);
