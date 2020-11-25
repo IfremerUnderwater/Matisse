@@ -289,7 +289,7 @@ void Init3DRecon::onFlush(quint32 port)
 
     if(navigationFile.contains(":/") || navigationFile.startsWith(QSep) )
     {
-        // chemin absolu
+        // absolute path
         dim2FileName = navigationFile.toStdString();
     }
     else
