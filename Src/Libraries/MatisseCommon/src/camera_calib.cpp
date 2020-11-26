@@ -89,7 +89,7 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 			resize(cimg, cimg1, Size(), sf, sf);
 
 			cv::imshow(tr("Image with detected corners").toStdString(), cimg1);
-			cv::waitKey(500);
+			cv::waitKey(100);
 		}
 
 
@@ -125,9 +125,38 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 	distCoeffs = Mat::zeros(5, 1, CV_64F);
 	vector<Mat> rvecs0, tvecs0;
 
-	double rms_reproj = calibrateCamera(objectPoints, imagePoints, imageSize, cameraMatrix,
-		distCoeffs, rvecs0, tvecs0,
-		CALIB_FIX_ASPECT_RATIO | CALIB_FIX_K4 | CALIB_FIX_K5 | CALIB_FIX_K6);
+	int flags=0;
+	double rms_reproj;
+
+	if (_cam_info.distortionModel() == 3)
+	{
+		Mat dist_temp = Mat::zeros(4, 1, CV_64F); // opencv fisheye wants a size 4 vector even if last element is 0
+		rms_reproj = fisheye::calibrate(objectPoints, imagePoints, imageSize, cameraMatrix,
+			dist_temp, rvecs0, tvecs0, fisheye::CALIB_FIX_SKEW);
+
+		for (int i = 0; i < 4; i++)
+			distCoeffs.at<double>(i, 0) = dist_temp.at<double>(i, 0);
+
+	}
+	else {
+
+		switch (_cam_info.distortionModel())
+		{
+		case 0:
+			flags = CALIB_FIX_ASPECT_RATIO | CALIB_FIX_K2 | CALIB_FIX_K3 | CALIB_FIX_K4 | CALIB_FIX_K5;
+			break;
+		case 1:
+			flags = CALIB_FIX_ASPECT_RATIO | CALIB_FIX_K4 | CALIB_FIX_K5;
+			break;
+		case 2:
+			flags = CALIB_FIX_ASPECT_RATIO;
+			break;
+		}
+
+		rms_reproj = calibrateCamera(objectPoints, imagePoints, imageSize, cameraMatrix,
+			distCoeffs, rvecs0, tvecs0, flags);
+
+	}
 
 	bool ok = checkRange(cameraMatrix) && checkRange(distCoeffs);
 	if (!ok)
@@ -139,6 +168,7 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 
 	_cam_info.setDistortionCoeff(distCoeffs);
 	_cam_info.setK(cameraMatrix);
+	_cam_info.setFullSensorSize(imageSize.width, imageSize.height);
 
 	sig_logCalib(QString(tr("Camera calibration reprojection error = %1\n")).arg(rms_reproj));
 

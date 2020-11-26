@@ -43,6 +43,44 @@
       </layout>
      </item>
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <property name="topMargin">
+        <number>10</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Distortion model:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="dist_model_cb">
+         <item>
+          <property name="text">
+           <string>Radial K1 (1 radial)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Radial K3 (3 radial, recommended most of the time)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Brown T2 (3 radial+ 2 tan)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Fisheye (for very wide angle like GoPro)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QLabel" name="label">

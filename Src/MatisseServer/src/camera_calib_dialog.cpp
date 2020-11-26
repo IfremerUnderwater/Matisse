@@ -21,6 +21,8 @@ CameraCalibDialog::CameraCalibDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->dist_model_cb->setCurrentIndex(1);
+
     QObject::connect(ui->select_path_pb, SIGNAL(clicked()), this, SLOT(slot_onCalibPathSelection()));
     QObject::connect(ui->quit_pb, SIGNAL(clicked()), this, SLOT(hide()));
     QObject::connect(ui->calibrate_pb, SIGNAL(clicked()), this, SLOT(slot_onCalibrateCameras()));
@@ -51,6 +53,9 @@ void CameraCalibDialog::slot_onCalibrateCameras()
 
     CameraInfo cam_info;
     cam_info.setCameraName(ui->camera_name_le->text());
+
+    // dist model
+    cam_info.setDistortionModel(ui->dist_model_cb->currentIndex());
 
     // Get images
     QStringList nameFilter = {"*.jpg", "*.jpeg" ,"*.tiff" ,"*.png" };
