@@ -51,7 +51,8 @@ AssemblyGui::AssemblyGui(QWidget *parent) :
     _visuModeButton(NULL),
     _resetMessagesButton(NULL),
     _maxOrRestoreButtonWrapper(NULL),
-    _visuModeButtonWrapper(NULL)
+    _visuModeButtonWrapper(NULL),
+    m_camera_manager_tool_dialog(this)
 {
     _ui->setupUi(this);
     _server.setMainGui(this);
@@ -258,6 +259,7 @@ void AssemblyGui::initUserActions()
     connect(_mapToolbarAct, SIGNAL(triggered()), _userFormWidget, SLOT(slot_showHideToolbar()));
     connect(_exportMapViewAct, SIGNAL(triggered()), this, SLOT(slot_exportMapToImage()));
     connect(_preprocessingTool, SIGNAL(triggered()), this, SLOT(slot_launchPreprocessingTool()));
+    connect(m_camera_manager_tool, SIGNAL(triggered()), this, SLOT(slot_launchCameraManagerTool()));
     //connect(_videoToImageToolAct, SIGNAL(triggered()), this, SLOT(slot_launchVideoToImageTool()));
 
     // Menus contextuels
@@ -306,7 +308,8 @@ void AssemblyGui::initWelcomeDialog()
     _welcomeDialog = new WelcomeDialog(this, _iconFactory, _preferences->programmingModeEnabled());
     _welcomeDialog->setObjectName("_D_welcomeDialog");
     _welcomeDialog->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-    _welcomeDialog->show();
+    //_welcomeDialog->show();
+
 }
 
 void AssemblyGui::initMapFeatures()
@@ -447,22 +450,22 @@ void AssemblyGui::initStylesheetSelection()
 
     _stylesheetByAppMode.insert(PROGRAMMING, "lnf/MatisseModeProg.css");
     _stylesheetByAppMode.insert(REAL_TIME, "lnf/MatisseModeRt.css");
-    _stylesheetByAppMode.insert(DEFERRED_TIME, "lnf/MatisseModeDt.css");
+    _stylesheetByAppMode.insert(POST_PROCESSING, "lnf/MatisseModeDt.css");
     _stylesheetByAppMode.insert(APP_CONFIG, "lnf/MatisseModeProg.css");
 
     _wheelColorsByMode.insert(PROGRAMMING, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.orange%>").arg("<%color.orange2%>"));
     _wheelColorsByMode.insert(REAL_TIME, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.blue%>").arg("<%color.blue2%>"));
-    _wheelColorsByMode.insert(DEFERRED_TIME, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.mauve%>").arg("<%color.mauve2%>"));
+    _wheelColorsByMode.insert(POST_PROCESSING, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.mauve%>").arg("<%color.mauve2%>"));
     _wheelColorsByMode.insert(APP_CONFIG, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.orange%>").arg("<%color.orange2%>"));
 
     _colorsByMode1.insert(PROGRAMMING, QString("orange"));
     _colorsByMode1.insert(REAL_TIME, QString("blue"));
-    _colorsByMode1.insert(DEFERRED_TIME, QString("mauve"));
+    _colorsByMode1.insert(POST_PROCESSING, QString("mauve"));
     _colorsByMode1.insert(APP_CONFIG, QString("grey"));
 
     _colorsByMode2.insert(PROGRAMMING, QString("orange2"));
     _colorsByMode2.insert(REAL_TIME, QString("blue2"));
-    _colorsByMode2.insert(DEFERRED_TIME, QString("mauve2"));
+    _colorsByMode2.insert(POST_PROCESSING, QString("mauve2"));
     _colorsByMode2.insert(APP_CONFIG, QString("grey2"));
 
     _colorsByLevel.insert(IDLE, QString("grey"));
@@ -504,7 +507,7 @@ void AssemblyGui::initMainMenu()
     /* Identifying container widget */
     QWidget* menuContainer = findChild<QWidget*>(QString("mainMenuWidget"));
 
-    /* MENU FICHIER */
+    /* FILE MENU */
     _fileMenu = new MatisseMenu(menuContainer);
 
     _exportMapViewAct = new QAction(this);
@@ -514,7 +517,7 @@ void AssemblyGui::initMainMenu()
     _fileMenu->addSeparator();
     _fileMenu->addAction(_closeAct);
 
-    /* MENU AFFICHAGE */
+    /* DISPLAY MENU */
     _displayMenu = new MatisseMenu(menuContainer);
 
     _dayNightModeAct = new QAction(this);
@@ -529,7 +532,7 @@ void AssemblyGui::initMainMenu()
     _displayMenu->addSeparator();
     _displayMenu->addAction(_mapToolbarAct);
 
-    /* MENU TRAITEMENTS */
+    /* PROCESSING MENU */
     _processMenu = new MatisseMenu(menuContainer);
 
     _createAssemblyAct = new QAction(this);
@@ -543,21 +546,23 @@ void AssemblyGui::initMainMenu()
     _processMenu->addAction(_importAssemblyAct);
     _processMenu->addAction(_exportAssemblyAct);
 
-    /* MENU OUTILS */
+    /* TOOLS MENU */
     _toolMenu = new MatisseMenu(menuContainer);
 
     _appConfigAct = new QAction(this);
     _preprocessingTool = new QAction(this);
+    m_camera_manager_tool = new QAction(this);
     _checkNetworkRxAct = new QAction(this);
 
     _toolMenu->addAction(_appConfigAct);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_preprocessingTool);
+    _toolMenu->addAction(m_camera_manager_tool);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_checkNetworkRxAct);
 
 
-    /* MENU AIDE */
+    /* HELP MENU */
     _helpMenu = new MatisseMenu(menuContainer);
 
     _userManualAct = new QAction(this);
@@ -682,7 +687,7 @@ void AssemblyGui::loadAssembliesAndJobsLists(bool doExpand)
         // RT or DT assemblies are displayed according to application mode
         if (_activeApplicationMode == REAL_TIME && !assembly->isRealTime()) {
             continue;
-        } else if (_activeApplicationMode == DEFERRED_TIME && assembly->isRealTime()) {
+        } else if (_activeApplicationMode == POST_PROCESSING && assembly->isRealTime()) {
             continue;
         }
 
@@ -773,7 +778,7 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
     // affichage du mode pour TR/TD (sinon affichage de la vue)
     if (mode == REAL_TIME) {
         _activeViewOrModeLabel->setText(tr("Mode : Real time"));
-    } else if(mode == DEFERRED_TIME){
+    } else if(mode == POST_PROCESSING){
         _activeViewOrModeLabel->setText(tr("Mode : Post-processing"));
     }
 
@@ -1365,6 +1370,11 @@ void AssemblyGui::slot_launchPreprocessingTool()
 
     QUrl url = QUrl::fromLocalFile(toolPathFile.absoluteFilePath());
     QDesktopServices::openUrl(url);
+}
+
+void AssemblyGui::slot_launchCameraManagerTool()
+{
+    m_camera_manager_tool_dialog.show();
 }
 
 //void AssemblyGui::slot_launchVideoToImageTool()
@@ -3174,6 +3184,7 @@ void AssemblyGui::retranslate()
     _toolMenu->setTitle(tr("TOOLS"));
     _appConfigAct->setText(tr("Configure settings for application"));
     _preprocessingTool->setText(tr("Launch preprocessing tool"));
+    m_camera_manager_tool->setText(tr("Launch camera manager"));
     _checkNetworkRxAct->setText(tr("Check network reception"));
 
 
@@ -3338,6 +3349,7 @@ void AssemblyGui::enableActions()
     _exportMapViewAct->setEnabled(_isMapView);
     _mapToolbarAct->setEnabled(_isMapView);
     _preprocessingTool->setEnabled(_isMapView);
+    m_camera_manager_tool->setEnabled(_isMapView);
     _checkNetworkRxAct->setEnabled(_isMapView);
 
     if (lastAction == SELECT_ASSEMBLY || lastAction == SAVE_ASSEMBLY) {

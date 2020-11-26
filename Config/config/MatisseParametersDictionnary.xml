@@ -76,7 +76,7 @@
                 <Parameter name="still_camera_address" level="user" text="Still camera address" type="string" show="line" default="192.168.1.104"/>
 		        <Parameter name="sensor_width" level="advanced" text="Full sensor width (px)" type="integer" range="[0,20000]" show="spin" default="1920"/>
 		        <Parameter name="sensor_height" level="advanced" text="Full sensor height (pixels)" type="integer" range="[0,20000]" show="spin" default="1080"/>
-		        <Parameter name="camera_preset" level="user" text="Camera preset" type="string" range="{$CAMERA_NAME}" show="combo" default="UNKNOWN"/>
+		        <Parameter name="camera_equipment" level="user" text="Camera equipment" type="camera" show="cam_combo" default="Unknown; 0; 0; 0, 0, 0, 0, 0, 0, 0, 0, 0; 2; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0"/>
             </ParametersGroup>
         </Structure>
         <Structure name="video_input_param">
@@ -154,21 +154,6 @@
             <EnumValue name="EXIF" text="EXIF"/>
             <EnumValue name="DIM2" text="DIM2"/>
             <EnumValue name="NO_NAV" text="NO_NAV"/>
-        </Enum>
-		<Enum name="CAMERA_NAME">
-            <EnumValue name="UNKNOWN" text="Unknown"/>
-			<EnumValue name="CUSTOM" text="Custom"/>
-            <EnumValue name="VICTOR_HD" text="Victor HD"/>
-            <EnumValue name="VICTOR_4K" text="Victor 4K"/>
-			<EnumValue name="OTUS2" text="Otus 2"/>
-            <EnumValue name="ARIANE_PRINC" text="Ariane Princ."/>
-			<EnumValue name="ARIANE_DSLR" text="Ariane Still camera"/>
-			<EnumValue name="ARIANE_SCIENCE" text="Ariane Science."/>
-			<EnumValue name="VORTEX_DSLR" text="Vortex still camera"/>
-			<EnumValue name="SCAMPI_HD" text="Scampi HD"/>
-			<EnumValue name="NAUTILE_4K" text="Nautile 4K"/>
-			<EnumValue name="NAUTILE_HD" text="Nautile HD"/>
-			<EnumValue name="NAUTILE_DSLR" text="Nautile Still camera"/>
         </Enum>
     </Enums>
 </MatisseParametersDictionnary>

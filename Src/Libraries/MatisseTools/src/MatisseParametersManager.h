@@ -21,6 +21,7 @@
 #include "MatisseParameters.h"
 #include "KeyValueList.h"
 #include "EnrichedComboBox.h"
+#include "EnrichedCamComboBox.h"
 #include "EnrichedLineEdit.h"
 #include "EnrichedListBox.h"
 #include "EnrichedSpinBox.h"

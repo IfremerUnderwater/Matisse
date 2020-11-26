@@ -3,7 +3,6 @@
 #include "stdvectoperations.h"
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
-#include <Eigen/dense>
 #include <QFileInfo>
 #include <QDir>
 #include <QProgressDialog>
@@ -15,7 +14,6 @@
 
 using namespace std;
 using namespace cv;
-using namespace Eigen;
 
 PreprocessingCorrection::PreprocessingCorrection(int _ws, QWidget* _parent):m_ws(_ws),
 m_lowres_comp_scaling(1.0),

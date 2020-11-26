@@ -18,7 +18,9 @@ add_library(MatisseCommon
     src/FileUtils.cpp
     src/StringUtils.cpp
     src/GraphicalCharter.cpp
-    src/gdal_translate_wrapper.cpp)
+    src/gdal_translate_wrapper.cpp
+    src/camera_manager.cpp
+    src/camera_info.cpp)
 
 include_directories(${QUAZIP_INCLUDE_DIRS})
 

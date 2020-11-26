@@ -82,7 +82,7 @@ void WelcomeDialog::on_configModeLauncherButton_clicked()
 void WelcomeDialog::on_deferredTimeModeLauncherButton_clicked()
 {
     hide();
-    emit signal_launchApplication(DEFERRED_TIME);
+    emit signal_launchApplication(POST_PROCESSING);
 }
 
 void WelcomeDialog::changeEvent(QEvent *event)

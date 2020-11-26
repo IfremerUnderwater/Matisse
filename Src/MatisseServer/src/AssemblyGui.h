@@ -51,6 +51,7 @@
 #include "IconizedTreeItemWrapper.h"
 #include "MatisseTreeItem.h"
 #include "WelcomeDialog.h"
+#include "camera_manager_tool.h"
 
 namespace Ui {
 class AssemblyGui;
@@ -193,6 +194,7 @@ private:
     HomeWidget *_homeWidget;
     WelcomeDialog *_welcomeDialog;
 
+    CameraManagerTool m_camera_manager_tool_dialog;
 
     bool _isNightDisplayMode;
     QMap<QString, QString> _currentColorSet;
@@ -234,6 +236,7 @@ private:
     QAction* _exportAssemblyAct;
     QAction* _appConfigAct;
     QAction* _preprocessingTool;
+    QAction* m_camera_manager_tool;
     QAction* _videoToImageToolAct;
     QAction* _checkNetworkRxAct;
     QAction* _userManualAct;
@@ -368,6 +371,7 @@ protected slots:
     void slot_swapDayNightDisplay();
     void slot_exportMapToImage();
     void slot_launchPreprocessingTool();
+    void slot_launchCameraManagerTool();
 
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);

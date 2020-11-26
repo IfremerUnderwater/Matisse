@@ -1,6 +1,6 @@
-#define Matisse_VERSION_MAJOR @MatisseProject_VERSION_MAJOR@
-#define Matisse_VERSION_MINOR @MatisseProject_VERSION_MINOR@
-#define Matisse_VERSION_PATCH @MatisseProject_VERSION_PATCH@
+#define MATISSE_VERSION_MAJOR @MatisseProject_VERSION_MAJOR@
+#define MATISSE_VERSION_MINOR @MatisseProject_VERSION_MINOR@
+#define MATISSE_VERSION_PATCH @MatisseProject_VERSION_PATCH@
 
 #define Matisse_BUILD_DATE @BUILD_DATE@
 

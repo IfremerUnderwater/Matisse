@@ -50,7 +50,7 @@ void ParametersWidgetSkeleton::changeEvent(QEvent *event)
     if (event->type() == QEvent::LanguageChange)
     {
         // retranslate designer form
-        qDebug() << "Signalling parameters widget UI retranslation...";
+        qDebug() << "Parameters widget UI retranslation...";
         emit signal_translateParameters();
     }
 }

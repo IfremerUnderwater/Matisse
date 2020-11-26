@@ -26,7 +26,7 @@ namespace MatisseServer {
 enum ApplicationMode {
     PROGRAMMING,
     REAL_TIME,
-    DEFERRED_TIME,
+    POST_PROCESSING,
     APP_CONFIG
 };
 

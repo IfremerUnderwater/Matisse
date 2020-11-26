@@ -124,6 +124,7 @@ public:
 		_paramLabelKeys.insert("sensor_width", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Full sensor width (px)"));
 		_paramLabelKeys.insert("sensor_height", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Full sensor height (pixels)"));
 		_paramLabelKeys.insert("camera_preset", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Camera preset"));
+        _paramLabelKeys.insert("camera_equipment", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Camera equipment"));
 
 		/*
 		 * STRUCTURE : video_input_param

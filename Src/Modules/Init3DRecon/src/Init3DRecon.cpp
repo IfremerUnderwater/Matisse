@@ -57,98 +57,36 @@ Q_EXPORT_PLUGIN2(Init3DRecon, Init3DRecon)
 /// With f,ppx,ppy as valid numerical value
 bool Init3DRecon::getCameraIntrinsics(double & focal, double & ppx, double & ppy, const double &width, const double &height)
 {
-    QString camera_preset =  _matisseParameters->getStringParamValue("cam_param", "camera_preset");
 
-    double scaling_factor;
+    bool Ok=false;
 
-    // Custom case
-    if (camera_preset=="Custom")
+    CameraInfo camera_equipment =  _matisseParameters->getCamInfoParamValue("cam_param", "camera_equipment", Ok);
+
+    if(Ok)
     {
-        bool Ok=false;
-        QMatrix3x3 qK = _matisseParameters->getMatrix3x3ParamValue("cam_param",  "K",  Ok);
-        double full_sensor_width=width;
-        if(Ok)
-            full_sensor_width=(double)_matisseParameters->getIntParamValue("cam_param","sensor_width",Ok);
-
-        if(Ok)
+        // Unkown case
+        if (camera_equipment.cameraName()=="Unknown")
         {
-            scaling_factor = width/full_sensor_width;
-            focal = scaling_factor*(qK(0,0)+qK(1,1))/2;
-            ppx = scaling_factor*qK(0,2);
-            ppy = scaling_factor*qK(1,2);
+            focal = width; // approx in case we don't know
+            ppx = width / 2.0;
+            ppy = height / 2.0;
             return true;
         }
-        else
-        {
-            camera_preset="Unknown";
-        }
-    }
 
-    if (camera_preset=="Victor HD")
-    {
-        scaling_factor=width/1920.0;
-        focal = scaling_factor*1430;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
+        double scaling_factor;
+
+        int full_sensor_width, full_sensor_height;
+        camera_equipment.fullSensorSize(full_sensor_width,full_sensor_height);
+
+        cv::Mat K = camera_equipment.K();
+
+        scaling_factor = width/(double)full_sensor_width;
+        focal = scaling_factor*(K.at<double>(0,0)+K.at<double>(1,1))/2;
+        ppx = scaling_factor*K.at<double>(0,2);
+        ppy = scaling_factor*K.at<double>(1,2);
         return true;
     }
-
-    if (camera_preset=="Ariane Princ.")
-    {
-        scaling_factor=width/1920.0;
-        focal = scaling_factor*1170;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    if (camera_preset=="Victor 4K" || camera_preset=="Nautile 4K")
-    {
-        scaling_factor=width/3840.0;
-        focal = scaling_factor*2370;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    if (camera_preset=="Otus 2" || camera_preset=="Ariane Still camera")
-    {
-        scaling_factor=width/6000.0;
-        focal = scaling_factor*6700;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    if (camera_preset=="Nautile Still camera")
-    {
-        scaling_factor=width/6000.0;
-        focal = scaling_factor*5875.0;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    if (camera_preset=="Ariane Science." || camera_preset=="Scampi HD" || camera_preset=="Nautile HD")
-    {
-        scaling_factor=width/1920.0;
-        focal = scaling_factor*1880;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    if (camera_preset=="Vortex still camera")
-    {
-        scaling_factor=width/6000.0;
-        focal = scaling_factor*6000;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    // Unkown case
-    if (camera_preset=="Unknown")
+    else
     {
         focal = width; // approx in case we don't know
         ppx = width / 2.0;
@@ -156,7 +94,6 @@ bool Init3DRecon::getCameraIntrinsics(double & focal, double & ppx, double & ppy
         return true;
     }
 
-    return false;
 
 }
 
@@ -237,23 +174,13 @@ Init3DRecon::Init3DRecon() :
     addExpectedParameter("dataset_param", "navSource"); // AUTO, GPS, DIM2, NO_NAV
     addExpectedParameter("dataset_param", "usePrior");
 
-    addExpectedParameter("cam_param",  "K");
-    addExpectedParameter("cam_param",  "camera_preset");
-    addExpectedParameter("cam_param",  "sensor_width");
+    addExpectedParameter("cam_param",  "camera_equipment");
 
     addExpectedParameter("vehic_param",  "reproj_std");
     addExpectedParameter("vehic_param",  "X_std");
     addExpectedParameter("vehic_param",  "Y_std");
     addExpectedParameter("vehic_param",  "depth_std");
 
-    // unused
-    //addExpectedParameter("algo_param", "scale_factor");
-    // unused
-    //addExpectedParameter("cam_param",  "V_Pose_C");
-    // unused
-    //addExpectedParameter("algo_param","filter_overlap");
-    //addExpectedParameter("algo_param","min_overlap");
-    //addExpectedParameter("algo_param","max_overlap");
 }
 
 Init3DRecon::~Init3DRecon(){
@@ -362,7 +289,7 @@ void Init3DRecon::onFlush(quint32 port)
 
     if(navigationFile.contains(":/") || navigationFile.startsWith(QSep) )
     {
-        // chemin absolu
+        // absolute path
         dim2FileName = navigationFile.toStdString();
     }
     else

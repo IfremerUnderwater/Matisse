@@ -47,7 +47,7 @@ bool MatisseParameters::loadFile(QString xmlFilename)
 
     QXmlStreamReader reader(&inputFile);
 
-    int level = -99; //-99: pas de fichier mosaic0: avant debut fichier, 1: avant debut struct, 2: avant debut var, 3: avant debut val
+    int level = -99; //-99: pas de fichier mosaic 0: avant debut fichier, 1: avant debut struct, 2: avant debut var, 3: avant debut val
     //    bool start = true;
     QString structName;
     QString paramName;
@@ -119,32 +119,6 @@ bool MatisseParameters::loadFile(QString xmlFilename)
         {
             level--;
 
-//            switch (level) {
-//            case 3: {
-//                if (name != paramName) {
-//                    _lastErrorStr = "XML file not compliant: parameter begin without end";
-//                    ok = false;
-//                } else {
-//                    level--;
-//                }
-//            }
-//                break;
-//            case 2: {
-//                if (name != structName) {
-//                    _lastErrorStr = "XML file not compliant: struct begin without end";
-//                    ok = false;
-//                } else {
-//                    level--;
-//                }
-//            }
-//                break;
-//            case 1: {
-//                if (name != "mosaic_settings") {
-//                    _lastErrorStr = "XML file not compliant: mosaic_settings begin without end";
-//                    ok = false;
-//                } else {
-//                    level--;
-//                }
             }
                 break;
 
@@ -261,6 +235,20 @@ QString MatisseParameters::getStringParamValue(QString paramStructName, QString 
     QString value = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"");
 
     return value;
+}
+
+CameraInfo MatisseParameters::getCamInfoParamValue(QString paramStructName, QString paramName, bool &ok)
+{
+    CameraInfo cam_info;
+
+    QString valuesStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"");
+
+    if( cam_info.fromQString(valuesStr) )
+        ok=true;
+    else
+        ok=false;
+
+    return cam_info;
 }
 
 QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString paramStructName, QString paramName, bool &ok)
