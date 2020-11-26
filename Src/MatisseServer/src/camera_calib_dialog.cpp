@@ -78,6 +78,12 @@ void CameraCalibDialog::slot_onCalibrateCameras()
     cv::Size board_size(ui->horiz_squares_nb->text().toInt(),ui->vertic_squares_nb->text().toInt());
     float squares_size = ui->squares_size->text().toFloat();
 
+    if (board_size.width==0 || board_size.height==0 || squares_size<=0)
+    {
+        QMessageBox::warning(this, tr("Pattern issue"), tr("You must give valid pattern informations, meaning non zero board size and positive squares size."));
+        return;
+    }
+
     CameraCalib calib(images_files_std,board_size,squares_size,ui->log_text_edit);
 
     double reproj_error;
