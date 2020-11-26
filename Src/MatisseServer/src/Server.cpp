@@ -785,8 +785,6 @@ void JobTask::slot_fatalError()
     _isCancelled = true;
     stop(true);
     _isCancelled = true;
-    emit signal_jobStopped();
-    slot_stop();
 }
 
 void JobTask::setMainGui(AssemblyGui *mainGui)

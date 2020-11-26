@@ -22,7 +22,7 @@ class Init3DRecon : public Processor
 #endif
 
 private:
-    bool getCameraIntrinsics(double &focal, double &ppx, double &ppy, const double &width, const double &height);
+    bool getCameraIntrinsics(double & _focal, double & _ppx, double & _ppy, const double &_width, const double &_height, int &_distortion_model, cv::Mat &_dist_coeff);
     std::pair<bool, openMVG::Vec3> getPriorWeights();
 
     GeographicLib::LocalCartesian m_ltp_proj;
