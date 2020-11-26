@@ -56,6 +56,7 @@ AssemblyGui::AssemblyGui(QWidget *parent) :
 {
     _ui->setupUi(this);
     _server.setMainGui(this);
+    this->setWindowFlags(Qt::FramelessWindowHint);
 
 }
 
@@ -799,7 +800,7 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
 
 void AssemblyGui::loadDefaultStyleSheet()
 {
-    loadStyleSheet(PROGRAMMING);
+    loadStyleSheet(POST_PROCESSING);
 }
 
 

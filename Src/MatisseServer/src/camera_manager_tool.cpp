@@ -1,8 +1,10 @@
 #include "camera_manager_tool.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <cmath>
 #include "ui_camera_manager_tool.h"
 #include <opencv2/opencv.hpp>
 #include <QMessageBox>
-#include <cmath>
 #include "camera_info.h"
 #include "camera_manager.h"
 

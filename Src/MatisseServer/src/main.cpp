@@ -135,9 +135,10 @@ int main(int argc, char *argv[])
     w.setSystemDataManager(&systemDataManager);
     w.setProcessDataManager(&processDataManager);
     w.init();
-    w.loadDefaultStyleSheet();
-    w.setWindowFlags(Qt::FramelessWindowHint);
+    //w.loadDefaultStyleSheet();
     w.slot_showApplicationMode(POST_PROCESSING); // open directly to the most used mode ie : post processing
+    
+
 
     int ret = a.exec();
     return ret;
