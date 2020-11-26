@@ -52,6 +52,7 @@
 #include "MatisseTreeItem.h"
 #include "WelcomeDialog.h"
 #include "camera_manager_tool.h"
+#include "camera_calib_dialog.h"
 
 namespace Ui {
 class AssemblyGui;
@@ -195,6 +196,7 @@ private:
     WelcomeDialog *_welcomeDialog;
 
     CameraManagerTool m_camera_manager_tool_dialog;
+    CameraCalibDialog m_camera_calib_tool_dialog;
 
     bool _isNightDisplayMode;
     QMap<QString, QString> _currentColorSet;
@@ -237,6 +239,7 @@ private:
     QAction* _appConfigAct;
     QAction* _preprocessingTool;
     QAction* m_camera_manager_tool;
+    QAction* m_camera_calib_tool;
     QAction* _videoToImageToolAct;
     QAction* _checkNetworkRxAct;
     QAction* _userManualAct;
@@ -372,6 +375,7 @@ protected slots:
     void slot_exportMapToImage();
     void slot_launchPreprocessingTool();
     void slot_launchCameraManagerTool();
+    void slot_launchCameraCalibTool();
 
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);

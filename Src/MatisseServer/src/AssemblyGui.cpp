@@ -261,8 +261,8 @@ void AssemblyGui::initUserActions()
     connect(_exportMapViewAct, SIGNAL(triggered()), this, SLOT(slot_exportMapToImage()));
     connect(_preprocessingTool, SIGNAL(triggered()), this, SLOT(slot_launchPreprocessingTool()));
     connect(m_camera_manager_tool, SIGNAL(triggered()), this, SLOT(slot_launchCameraManagerTool()));
-    //connect(_videoToImageToolAct, SIGNAL(triggered()), this, SLOT(slot_launchVideoToImageTool()));
-
+    connect(m_camera_calib_tool, SIGNAL(triggered()), this, SLOT(slot_launchCameraCalibTool()));
+    
     // Menus contextuels
     connect(_createJobAct, SIGNAL(triggered()), this, SLOT(slot_newJob()));
     connect(_saveJobAct, SIGNAL(triggered()), this, SLOT(slot_saveJob()));
@@ -553,12 +553,15 @@ void AssemblyGui::initMainMenu()
     _appConfigAct = new QAction(this);
     _preprocessingTool = new QAction(this);
     m_camera_manager_tool = new QAction(this);
+    m_camera_calib_tool = new QAction(this);
     _checkNetworkRxAct = new QAction(this);
 
     _toolMenu->addAction(_appConfigAct);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_preprocessingTool);
+    _toolMenu->addSeparator();
     _toolMenu->addAction(m_camera_manager_tool);
+    _toolMenu->addAction(m_camera_calib_tool);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_checkNetworkRxAct);
 
@@ -1376,6 +1379,11 @@ void AssemblyGui::slot_launchPreprocessingTool()
 void AssemblyGui::slot_launchCameraManagerTool()
 {
     m_camera_manager_tool_dialog.show();
+}
+
+void MatisseServer::AssemblyGui::slot_launchCameraCalibTool()
+{
+    m_camera_calib_tool_dialog.show();
 }
 
 //void AssemblyGui::slot_launchVideoToImageTool()
@@ -3186,6 +3194,7 @@ void AssemblyGui::retranslate()
     _appConfigAct->setText(tr("Configure settings for application"));
     _preprocessingTool->setText(tr("Launch preprocessing tool"));
     m_camera_manager_tool->setText(tr("Launch camera manager"));
+    m_camera_calib_tool->setText(tr("Launch camera calibration tool"));
     _checkNetworkRxAct->setText(tr("Check network reception"));
 
 
@@ -3351,6 +3360,7 @@ void AssemblyGui::enableActions()
     _mapToolbarAct->setEnabled(_isMapView);
     _preprocessingTool->setEnabled(_isMapView);
     m_camera_manager_tool->setEnabled(_isMapView);
+    m_camera_calib_tool->setEnabled(_isMapView);
     _checkNetworkRxAct->setEnabled(_isMapView);
 
     if (lastAction == SELECT_ASSEMBLY || lastAction == SAVE_ASSEMBLY) {

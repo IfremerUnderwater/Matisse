@@ -169,6 +169,12 @@ void CameraManagerTool::slot_saveCurrentCamera()
 
 void CameraManagerTool::slot_deleteCurrentCamera()
 {
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("Delete camera"), tr("You are about to delete %1 camera. Are you sure ?").arg(ui->cam_selection_cb->currentText()),
+        QMessageBox::Yes | QMessageBox::No);
+    if (reply == QMessageBox::No)
+        return;
+
     if( CameraManager::instance().deleteCameraByName(ui->cam_selection_cb->currentText()) )
     {
         QMessageBox::information(this,tr("Camera removed database"),tr("This camera has been deleted."));
