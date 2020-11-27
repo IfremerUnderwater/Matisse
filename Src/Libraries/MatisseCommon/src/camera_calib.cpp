@@ -68,7 +68,7 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 		if (!found)
 		{
 			std::cout << "no corner found !!\n";
-			break;
+			continue;
 		}
 		// refine subpixel corners position
 		cornerSubPix(img, corners, Size(11, 11), Size(-1, -1),
@@ -132,7 +132,7 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 	{
 		Mat dist_temp = Mat::zeros(4, 1, CV_64F); // opencv fisheye wants a size 4 vector even if last element is 0
 		rms_reproj = fisheye::calibrate(objectPoints, imagePoints, imageSize, cameraMatrix,
-			dist_temp, rvecs0, tvecs0, fisheye::CALIB_FIX_SKEW);
+			dist_temp, rvecs0, tvecs0, fisheye::CALIB_RECOMPUTE_EXTRINSIC | fisheye::CALIB_FIX_SKEW);
 
 		for (int i = 0; i < 4; i++)
 			distCoeffs.at<double>(i, 0) = dist_temp.at<double>(i, 0);

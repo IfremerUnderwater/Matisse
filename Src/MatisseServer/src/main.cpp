@@ -15,7 +15,6 @@
 #include "Context.h"
 #include "MatisseParameters.h"
 #include "AssemblyGui.h"
-//#include "WelcomeDialog.h"
 #include "SystemDataManager.h"
 #include "ProcessDataManager.h"
 #include "camera_manager.h"
@@ -104,7 +103,7 @@ int main(int argc, char *argv[])
     }
 
     //matisse_settings.setValue("Matisse/Version", current_version );
-    matisse_settings.setValue("Matisse/Version",QString("%1.%2.%3").arg(0).arg(0).arg(0) );
+    matisse_settings.setValue("Matisse/Version",QString("%1.%2.%3").arg(MATISSE_VERSION_MAJOR).arg(MATISSE_VERSION_MINOR).arg(MATISSE_VERSION_PATCH) );
 
     if (deployment_needed)
     {

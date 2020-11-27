@@ -43,6 +43,8 @@ void CameraCalibDialog::slot_onCalibPathSelection()
 
 void CameraCalibDialog::slot_onCalibrateCameras()
 {
+    // Clear old calibration text
+    ui->log_text_edit->clear();
 
     // Get and set camera name
     if (ui->camera_name_le->text().isEmpty())
@@ -88,6 +90,21 @@ void CameraCalibDialog::slot_onCalibrateCameras()
 
     double reproj_error;
     calib.calibrateMono(cam_info, reproj_error, true);
+
+    if (reproj_error<0)
+    {
+        QMessageBox::warning(this, tr("Calibration issue"), tr("Something wrong has happened, check the log."));
+        return;
+    }
+
+    if (reproj_error > 5)
+    {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, tr("Poor quality calibration"), tr("Your rms calibration error is more than 5 pixels this usualy means the calibration is not good enough. Do you still want to add this camera to database ?"),
+            QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::No)
+            return;
+    }
 
     // Push camera to database
     CameraManager::instance().addCamera(cam_info);
