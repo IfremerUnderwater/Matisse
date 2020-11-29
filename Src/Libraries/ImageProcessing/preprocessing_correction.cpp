@@ -338,8 +338,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 			}
 
 			// correct accounting for gamma factor
-			//_output_image.at<uchar>(h, w) = static_cast<uchar>(255 * gamma_do(corr_factor * gamma_undo(static_cast<double>(_input_image.at<uchar>(h, w)) / 255.0)));
-			_dbl_output_image.at<double>(h, w) = corr_factor*gamma_undo(static_cast<double>(_input_image.at<uchar>(h, w))/255.0);
+			_dbl_output_image.at<double>(h, w) = corr_factor*gamma_undo(saturate_cast<double>(_input_image.at<uchar>(h, w))/255.0);
 
 		}
 	}
@@ -388,7 +387,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 		for (int h = 0; h < _input_image.rows; h++)
 		{
 			// correct accounting for gamma factor
-			_output_image.at<uchar>(h, w) = static_cast<uchar>(255 * gamma_do(scale_factor * _dbl_output_image.at<double>(h, w)) );
+			_output_image.at<uchar>(h, w) = saturate_cast<uchar>(255 * gamma_do(scale_factor * _dbl_output_image.at<double>(h, w)) );
 		}
 	}
 
