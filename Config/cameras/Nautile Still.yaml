@@ -1,6 +1,6 @@
 %YAML:1.0
 ---
-camera_name: Ariane Still
+camera_name: Nautile Still
 full_sensor_width: 6000
 full_sensor_height: 4000
 K: !!opencv-matrix

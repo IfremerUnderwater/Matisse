@@ -87,12 +87,13 @@ bool CameraManager::deleteCameraByName(QString _camera_name)
 
 CameraManager::CameraManager(QObject *_parent):QObject(_parent)
 {
-    QDir config_path = QDir(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
+    QStringList config_paths = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+    QDir config_path = QDir(config_paths[0]);
 
-    if (!config_path.exists("Matisse/CamInfoFiles"))
-        config_path.mkpath("Matisse/CamInfoFiles");
+    if (!config_path.exists("CamInfoFiles"))
+        config_path.mkpath("CamInfoFiles");
 
-    m_cam_info_dir = QDir(config_path.absoluteFilePath(QString("Matisse")+QDir::separator()+"CamInfoFiles"));
+    m_cam_info_dir = QDir(config_path.absoluteFilePath("CamInfoFiles"));
 }
 
 CameraManager::~CameraManager()

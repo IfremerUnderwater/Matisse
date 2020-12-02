@@ -171,7 +171,7 @@ public:
 	QString getGroupLabel(QString groupName) {
 		if (!_groupLabelKeys.contains(groupName)) {
 			qDebug() << QString("No label declared for group '%1'").arg(groupName);
-			return "";
+			return groupName;
 		}
 	
 		QString labelKey = _groupLabelKeys.value(groupName);

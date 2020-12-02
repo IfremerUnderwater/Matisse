@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MatisseAssembly name="3DReconstructionFAST" isRealTime="false" usable="true">
+<MatisseAssembly name="3D Dense" isRealTime="false" usable="true">
     <DescriptorFields>
         <Author>A.A</Author>
         <Version>1.0</Version>
-        <Comments>This processing is the same as 3DReconstruction but made faster and a little less accurate.</Comments>
+        <Comments>This processing can be used with georeferenced images to create 3D georeferenced optical models. It can also be used with non georeferenced data but the result won't be scaled or oriented</Comments>
         <Date></Date>
     </DescriptorFields>
     <Source id="99" name="Flusher" order="0"/>

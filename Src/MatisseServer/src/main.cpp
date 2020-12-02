@@ -105,10 +105,10 @@ int main(int argc, char *argv[])
     //matisse_settings.setValue("Matisse/Version", current_version );
     matisse_settings.setValue("Matisse/Version",QString("%1.%2.%3").arg(MATISSE_VERSION_MAJOR).arg(MATISSE_VERSION_MINOR).arg(MATISSE_VERSION_PATCH) );
 
-    if (deployment_needed)
-    {
+    //if (deployment_needed) // Deploy all the time for the moment
+    //{
         CameraManager::instance().deployDefaultCamerasToAppData();
-    }
+    //}
 
     /* Create managers to be injected */
     CameraManager::instance().initializeFromDataBase();

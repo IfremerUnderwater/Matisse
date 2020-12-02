@@ -359,6 +359,8 @@ OSGWidget::OSGWidget(QWidget* parent)
     m_overlay->setColorPalette(m_colorPalette);
     m_overlay->setMinMax(m_displayZMin, m_displayZMax);
     m_overlay->show();
+
+    enableLight(false);
 }
 
 OSGWidget::~OSGWidget()

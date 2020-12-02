@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MatisseAssembly name="NavigationBased2DMosaicFAST" isRealTime="false" usable="false">
+<MatisseAssembly name="NavBased 2D Mosaic FAST" isRealTime="false" usable="false">
     <DescriptorFields>
         <Author>A;A</Author>
         <Version>1.0</Version>
