@@ -51,6 +51,8 @@
 #include "IconizedTreeItemWrapper.h"
 #include "MatisseTreeItem.h"
 #include "WelcomeDialog.h"
+#include "camera_manager_tool.h"
+#include "camera_calib_dialog.h"
 
 namespace Ui {
 class AssemblyGui;
@@ -193,6 +195,8 @@ private:
     HomeWidget *_homeWidget;
     WelcomeDialog *_welcomeDialog;
 
+    CameraManagerTool m_camera_manager_tool_dialog;
+    CameraCalibDialog m_camera_calib_tool_dialog;
 
     bool _isNightDisplayMode;
     QMap<QString, QString> _currentColorSet;
@@ -222,11 +226,9 @@ private:
     MatisseMenu *_processMenu;
     MatisseMenu *_toolMenu;
     MatisseMenu *_helpMenu;
-    QMenu *_mapMenu;
 
     /* static menu actions */
     QAction* _exportMapViewAct;
-    QAction* _exportProjectQGisAct;
     QAction* _closeAct;
     QAction* _dayNightModeAct;
     QAction* _mapToolbarAct;
@@ -236,10 +238,10 @@ private:
     QAction* _exportAssemblyAct;
     QAction* _appConfigAct;
     QAction* _preprocessingTool;
+    QAction* m_camera_manager_tool;
+    QAction* m_camera_calib_tool;
     QAction* _videoToImageToolAct;
     QAction* _checkNetworkRxAct;
-    QAction* _loadShapefileAct;
-    QAction* _loadRasterAct;
     QAction* _userManualAct;
     QAction* _aboutAct;
 
@@ -371,20 +373,16 @@ protected slots:
     void slot_checkNetworkRx();
     void slot_swapDayNightDisplay();
     void slot_exportMapToImage();
-    void slot_exportMapToQgisProject();
-    void slot_loadShapeFile();
-    void slot_loadRasterFile();
     void slot_launchPreprocessingTool();
-    //void slot_launchVideoToImageTool();
+    void slot_launchCameraManagerTool();
+    void slot_launchCameraCalibTool();
 
 public slots:
     void slot_showApplicationMode(ApplicationMode mode);
     void slot_goHome();
     void slot_show3DFileOnMainView(QString filepath_p);
     void slot_addRasterFileToMap(QString filepath_p);
-    void slot_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
-    void slot_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p);    
-    //void slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p);
+    void slot_addToLog(QString _loggin_text);
 
 signals:
     void signal_processRunning();

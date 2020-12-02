@@ -48,11 +48,13 @@ void MatisseParametersManager::loadStaticCollections()
     _enumTypes.insert("double", PAR_DOUBLE);
     _enumTypes.insert("string", PAR_STRING);
     _enumTypes.insert("bool", PAR_BOOL);
+    _enumTypes.insert("camera", PAR_CAMERA);
 
     //_enumShows.clear();
     //_enumShows.insert("unknown", UNKNOWN_SHOW);
     _enumShows.insert("line", LINE_EDIT);
     _enumShows.insert("combo", COMBO_BOX);
+    _enumShows.insert("cam_combo", CAM_COMBO_BOX);
     _enumShows.insert("list", LIST_BOX);
     _enumShows.insert("spin", SPIN_BOX);
     _enumShows.insert("spinDouble", DOUBLE_SPIN_BOX);
@@ -116,12 +118,12 @@ bool MatisseParametersManager::readDictionnaryFile(QString xmlFilename)
 
     QFile inputFile(xmlFilename);
     if (!inputFile.exists()) {
-        qDebug() << "Fichier non trouvé..." << xmlFilename;
+        qDebug() << "File not found..." << xmlFilename;
         return false;
     }
 
     if (!inputFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "Fichier non ouvert...";
+        qDebug() << "File not opened...";
         return false;
     }
 
@@ -165,11 +167,9 @@ bool MatisseParametersManager::readDictionnaryFile(QString xmlFilename)
                 groupName = attributes.value("name").toString();
                 groupText = tr(attributes.value("text").toString().toLatin1());
             } else if (name == "Parameter") {
-                // qDebug() << "Add Parameter:" << structureName << groupName << attributes.value("name");
                 addParameter(structureName, groupName, groupText, attributes);
             } else if (name == "Enum") {
                 enumsName = attributes.value("name" ).toString();
-                // qDebug() << "Trouvé enum" << enumsName;
                 Enums newEnums;
                 newEnums._name = enumsName;
                 _enums.insert(enumsName, newEnums);
@@ -437,7 +437,7 @@ bool MatisseParametersManager::addParameter(QString structName, QString groupNam
         return false;
     }
 
-    // recherche du groupe s'il n'existe pas, on le crée. Si pas de nom de groupe
+    // searching group. If it doesn't exist we create it.
     int noGroup = _structures[structName]._groupsNames.indexOf(groupName);
     if (noGroup == -1) {
         _structures[structName]._groupsNames.append(groupName);
@@ -678,6 +678,10 @@ void MatisseParametersManager::generateLevelParametersWidget(ParameterLevel leve
         case COMBO_BOX: {
             QStringList items = getEnums(param);
             widget = new EnrichedComboBox(_fullParametersWidget, paramLabelText, items, param._value.toString());
+        }
+            break;
+        case CAM_COMBO_BOX: {
+            widget = new EnrichedCamComboBox(_fullParametersWidget, paramLabelText, param._value.toString());
         }
             break;
         case LIST_BOX: {

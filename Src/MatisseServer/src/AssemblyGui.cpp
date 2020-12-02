@@ -51,10 +51,12 @@ AssemblyGui::AssemblyGui(QWidget *parent) :
     _visuModeButton(NULL),
     _resetMessagesButton(NULL),
     _maxOrRestoreButtonWrapper(NULL),
-    _visuModeButtonWrapper(NULL)
+    _visuModeButtonWrapper(NULL),
+    m_camera_manager_tool_dialog(this)
 {
     _ui->setupUi(this);
     _server.setMainGui(this);
+    this->setWindowFlags(Qt::FramelessWindowHint);
 
 }
 
@@ -62,7 +64,7 @@ AssemblyGui::~AssemblyGui()
 {
     delete _iconFactory;
     delete _ui;
-    qDebug() << "Delete Gui";
+    //qDebug() << "Delete Gui";
 }
 
 void AssemblyGui::initDateTimeDisplay()
@@ -207,8 +209,8 @@ void AssemblyGui::lookupChildWidgets()
     _homeWidget = findChild<HomeWidget*>(QString("homeWidget"));
 
     // Tabs : object name is set anew explicitely to enable stylesheet ( setObjectName overriden)
-    QTabWidget *mapViewTabs = findChild<QTabWidget*>(QString("_TW_mapViewTabs"));
-    mapViewTabs->setObjectName("_TW_mapViewTabs");
+    QTabWidget *infoViewTabs = findChild<QTabWidget*>(QString("_TW_infoTabs"));
+    infoViewTabs->setObjectName("_TW_infoTabs");
     QTabWidget *creationViewTabs = findChild<QTabWidget*>(QString("_TW_creationViewTabs"));
     creationViewTabs->setObjectName("_TW_creationViewTabs");
 
@@ -257,12 +259,10 @@ void AssemblyGui::initUserActions()
     connect(_dayNightModeAct, SIGNAL(triggered()), this, SLOT(slot_swapDayNightDisplay()));
     connect(_mapToolbarAct, SIGNAL(triggered()), _userFormWidget, SLOT(slot_showHideToolbar()));
     connect(_exportMapViewAct, SIGNAL(triggered()), this, SLOT(slot_exportMapToImage()));
-    connect(_exportProjectQGisAct, SIGNAL(triggered()), this, SLOT(slot_exportMapToQgisProject()));
-    connect(_loadShapefileAct, SIGNAL(triggered()), this, SLOT(slot_loadShapeFile()));
-    connect(_loadRasterAct, SIGNAL(triggered()), this, SLOT(slot_loadRasterFile()));
     connect(_preprocessingTool, SIGNAL(triggered()), this, SLOT(slot_launchPreprocessingTool()));
-    //connect(_videoToImageToolAct, SIGNAL(triggered()), this, SLOT(slot_launchVideoToImageTool()));
-
+    connect(m_camera_manager_tool, SIGNAL(triggered()), this, SLOT(slot_launchCameraManagerTool()));
+    connect(m_camera_calib_tool, SIGNAL(triggered()), this, SLOT(slot_launchCameraCalibTool()));
+    
     // Menus contextuels
     connect(_createJobAct, SIGNAL(triggered()), this, SLOT(slot_newJob()));
     connect(_saveJobAct, SIGNAL(triggered()), this, SLOT(slot_saveJob()));
@@ -309,15 +309,14 @@ void AssemblyGui::initWelcomeDialog()
     _welcomeDialog = new WelcomeDialog(this, _iconFactory, _preferences->programmingModeEnabled());
     _welcomeDialog->setObjectName("_D_welcomeDialog");
     _welcomeDialog->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-    _welcomeDialog->show();
+    //_welcomeDialog->show();
+
 }
 
 void AssemblyGui::initMapFeatures()
 {
     _userFormWidget->setIconFactory(_iconFactory);
-    _userFormWidget->setLayersWidget(_ui->_LW_mapLayers);
     _userFormWidget->initCanvas();
-    _userFormWidget->initLayersWidget();
     _userFormWidget->initMapToolBar();
 
     //    for (int i=0; i < 20 ; i++) {
@@ -452,22 +451,22 @@ void AssemblyGui::initStylesheetSelection()
 
     _stylesheetByAppMode.insert(PROGRAMMING, "lnf/MatisseModeProg.css");
     _stylesheetByAppMode.insert(REAL_TIME, "lnf/MatisseModeRt.css");
-    _stylesheetByAppMode.insert(DEFERRED_TIME, "lnf/MatisseModeDt.css");
+    _stylesheetByAppMode.insert(POST_PROCESSING, "lnf/MatisseModeDt.css");
     _stylesheetByAppMode.insert(APP_CONFIG, "lnf/MatisseModeProg.css");
 
     _wheelColorsByMode.insert(PROGRAMMING, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.orange%>").arg("<%color.orange2%>"));
     _wheelColorsByMode.insert(REAL_TIME, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.blue%>").arg("<%color.blue2%>"));
-    _wheelColorsByMode.insert(DEFERRED_TIME, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.mauve%>").arg("<%color.mauve2%>"));
+    _wheelColorsByMode.insert(POST_PROCESSING, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.mauve%>").arg("<%color.mauve2%>"));
     _wheelColorsByMode.insert(APP_CONFIG, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.orange%>").arg("<%color.orange2%>"));
 
     _colorsByMode1.insert(PROGRAMMING, QString("orange"));
     _colorsByMode1.insert(REAL_TIME, QString("blue"));
-    _colorsByMode1.insert(DEFERRED_TIME, QString("mauve"));
+    _colorsByMode1.insert(POST_PROCESSING, QString("mauve"));
     _colorsByMode1.insert(APP_CONFIG, QString("grey"));
 
     _colorsByMode2.insert(PROGRAMMING, QString("orange2"));
     _colorsByMode2.insert(REAL_TIME, QString("blue2"));
-    _colorsByMode2.insert(DEFERRED_TIME, QString("mauve2"));
+    _colorsByMode2.insert(POST_PROCESSING, QString("mauve2"));
     _colorsByMode2.insert(APP_CONFIG, QString("grey2"));
 
     _colorsByLevel.insert(IDLE, QString("grey"));
@@ -509,19 +508,17 @@ void AssemblyGui::initMainMenu()
     /* Identifying container widget */
     QWidget* menuContainer = findChild<QWidget*>(QString("mainMenuWidget"));
 
-    /* MENU FICHIER */
+    /* FILE MENU */
     _fileMenu = new MatisseMenu(menuContainer);
 
     _exportMapViewAct = new QAction(this);
-    _exportProjectQGisAct = new QAction(this);
     _closeAct = new QAction(this);
 
     _fileMenu->addAction(_exportMapViewAct);
-    _fileMenu->addAction(_exportProjectQGisAct);
     _fileMenu->addSeparator();
     _fileMenu->addAction(_closeAct);
 
-    /* MENU AFFICHAGE */
+    /* DISPLAY MENU */
     _displayMenu = new MatisseMenu(menuContainer);
 
     _dayNightModeAct = new QAction(this);
@@ -536,7 +533,7 @@ void AssemblyGui::initMainMenu()
     _displayMenu->addSeparator();
     _displayMenu->addAction(_mapToolbarAct);
 
-    /* MENU TRAITEMENTS */
+    /* PROCESSING MENU */
     _processMenu = new MatisseMenu(menuContainer);
 
     _createAssemblyAct = new QAction(this);
@@ -550,32 +547,26 @@ void AssemblyGui::initMainMenu()
     _processMenu->addAction(_importAssemblyAct);
     _processMenu->addAction(_exportAssemblyAct);
 
-    /* MENU OUTILS */
+    /* TOOLS MENU */
     _toolMenu = new MatisseMenu(menuContainer);
 
     _appConfigAct = new QAction(this);
     _preprocessingTool = new QAction(this);
-    //_videoToImageToolAct = new QAction(this);
+    m_camera_manager_tool = new QAction(this);
+    m_camera_calib_tool = new QAction(this);
     _checkNetworkRxAct = new QAction(this);
-
-    /* Sous-menu Cartographie */
-    _loadShapefileAct = new QAction(this);
-    _loadRasterAct = new QAction(this);
 
     _toolMenu->addAction(_appConfigAct);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_preprocessingTool);
-    //_toolMenu->addAction(_videoToImageToolAct);
+    _toolMenu->addSeparator();
+    _toolMenu->addAction(m_camera_manager_tool);
+    _toolMenu->addAction(m_camera_calib_tool);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_checkNetworkRxAct);
 
-    _mapMenu = new QMenu(_toolMenu);
-    _mapMenu->addAction(_loadShapefileAct);
-    _mapMenu->addAction(_loadRasterAct);
 
-    _toolMenu->addMenu(_mapMenu);
-
-    /* MENU AIDE */
+    /* HELP MENU */
     _helpMenu = new MatisseMenu(menuContainer);
 
     _userManualAct = new QAction(this);
@@ -647,22 +638,22 @@ bool AssemblyGui::loadResultToCartoView(QString resultFile_p, bool remove_previo
     }
 
     if (_userFormWidget->supportedRasterFormat().contains(infoResult.suffix())){
-        qDebug() << "Loading raster layer " << resultFile_p;
+        //qDebug() << "Loading raster layer " << resultFile_p;
         _userFormWidget->loadRasterFile(infoResult.absoluteFilePath());
 
     }else if (_userFormWidget->supportedVectorFormat().contains(infoResult.suffix())){
-        qDebug() << "Loading vector layer " << resultFile_p;
-        _userFormWidget->loadShapefile(infoResult.absoluteFilePath());
+        qDebug() << "Vector layer not supported anymore" << resultFile_p;
+        //_userFormWidget->loadShapefile(infoResult.absoluteFilePath());
 
     }else if (_userFormWidget->supported3DFileFormat().contains(infoResult.suffix())){
         _userFormWidget->load3DFile(infoResult.absoluteFilePath(), remove_previous_scenes);
 
     }else if (_userFormWidget->supportedImageFormat().contains(infoResult.suffix())){
-        qDebug() << "Loading image file " << resultFile_p;
+        //qDebug() << "Loading image file " << resultFile_p;
         _userFormWidget->loadImageFile(infoResult.absoluteFilePath());
 
     }else{
-        qDebug() << "Output file format not supported";
+        //qDebug() << "Output file format not supported";
         return false;
     }
 
@@ -700,7 +691,7 @@ void AssemblyGui::loadAssembliesAndJobsLists(bool doExpand)
         // RT or DT assemblies are displayed according to application mode
         if (_activeApplicationMode == REAL_TIME && !assembly->isRealTime()) {
             continue;
-        } else if (_activeApplicationMode == DEFERRED_TIME && assembly->isRealTime()) {
+        } else if (_activeApplicationMode == POST_PROCESSING && assembly->isRealTime()) {
             continue;
         }
 
@@ -735,7 +726,7 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
 
     // Selecting mode-specific stylesheet
     QString styleSheetForMode = _stylesheetByAppMode.value(mode);
-    qDebug() << QString("Stylesheet for mode : %1").arg(styleSheetForMode);
+    //qDebug() << QString("Stylesheet for mode : %1").arg(styleSheetForMode);
 
     // Loading stylesheets...
 
@@ -765,7 +756,7 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
             //QString globalStyles = globalStylesWithVariables;
 
             // Applying stylesheet
-            qDebug() << "Applying stylesheet...";
+            //qDebug() << "Applying stylesheet...";
             qApp->setStyleSheet(globalStyles);
         }
     }
@@ -791,7 +782,7 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
     // affichage du mode pour TR/TD (sinon affichage de la vue)
     if (mode == REAL_TIME) {
         _activeViewOrModeLabel->setText(tr("Mode : Real time"));
-    } else if(mode == DEFERRED_TIME){
+    } else if(mode == POST_PROCESSING){
         _activeViewOrModeLabel->setText(tr("Mode : Post-processing"));
     }
 
@@ -812,7 +803,7 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
 
 void AssemblyGui::loadDefaultStyleSheet()
 {
-    loadStyleSheet(PROGRAMMING);
+    loadStyleSheet(POST_PROCESSING);
 }
 
 
@@ -987,12 +978,12 @@ void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int c
             QString newAssemblyName = getActualNewAssemblyName();
 
             if (selectedAssemblyName == newAssemblyName) {
-                qDebug() << "Same assembly selected";
+                //qDebug() << "Same assembly selected";
                 return;
             }
         } else if (_currentAssembly) {
             if (selectedAssemblyName == _currentAssembly->name()) {
-                qDebug() << "Same assembly selected";
+                //qDebug() << "Same assembly selected";
                 return;
             }
         }
@@ -1021,7 +1012,7 @@ void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int c
         /* check if same job is selected */
         if (_currentJob) {
             if (selectedJobName == _currentJob->name()) {
-                qDebug() << "Same job selected";
+                //qDebug() << "Same job selected";
                 return;
             }
         }
@@ -1362,50 +1353,6 @@ void AssemblyGui::slot_exportMapToImage()
                 tr("View has been exported in file %1").arg(imageFilePath));
 }
 
-void AssemblyGui::slot_exportMapToQgisProject()
-{
-    if (_exportPath.isEmpty()) {
-        createExportDir();
-    }
-
-    QString qgisProjectFilePath = QFileDialog::getSaveFileName(this, tr("Export QGIS project..."), _exportPath, tr("Project file (*.qgs)"));
-
-    if (qgisProjectFilePath.isEmpty()) {
-        /* cancel */
-        return;
-    }
-
-    _userFormWidget->saveQgisProject(qgisProjectFilePath);
-
-    QMessageBox::information(
-                this,
-                tr("Export QGIS project"),
-                tr("Viex exported to QGis project file %1").arg(qgisProjectFilePath));
-}
-
-void AssemblyGui::slot_loadShapeFile()
-{
-    QString shapeFilePath = QFileDialog::getOpenFileName(this, tr("Open shapefile..."), _exportPath, tr("Shapefile (*.shp)"));
-
-    if (shapeFilePath.isEmpty()) {
-        /* cancel */
-        return;
-    }
-
-    _userFormWidget->loadShapefile(shapeFilePath);
-}
-
-void AssemblyGui::slot_loadRasterFile()
-{
-    QString rasterFilePath = QFileDialog::getOpenFileName(this, tr("Open raster..."), _exportPath, tr("Raster file (*.tif *.tiff)"));
-
-    if (rasterFilePath.isEmpty()) {
-        /* cancel */
-        return;
-    }
-
-    _userFormWidget->loadRasterFile(rasterFilePath);
-}
 
 void AssemblyGui::slot_launchPreprocessingTool()
 {
@@ -1427,6 +1374,16 @@ void AssemblyGui::slot_launchPreprocessingTool()
 
     QUrl url = QUrl::fromLocalFile(toolPathFile.absoluteFilePath());
     QDesktopServices::openUrl(url);
+}
+
+void AssemblyGui::slot_launchCameraManagerTool()
+{
+    m_camera_manager_tool_dialog.show();
+}
+
+void MatisseServer::AssemblyGui::slot_launchCameraCalibTool()
+{
+    m_camera_calib_tool_dialog.show();
 }
 
 //void AssemblyGui::slot_launchVideoToImageTool()
@@ -2307,21 +2264,11 @@ void AssemblyGui::slot_addRasterFileToMap(QString filepath_p)
     _userFormWidget->loadRasterFile(filepath_p);
 }
 
-void AssemblyGui::slot_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p)
+void AssemblyGui::slot_addToLog(QString _loggin_text)
 {
-    _userFormWidget->addPolygonToMap(polygon_p, polyInsideColor_p, layerName_p);
+    _ui->_TW_infoTabs->setCurrentIndex(1);
+    _ui->_QTE_loggingText->append(_loggin_text);
 }
-
-void AssemblyGui::slot_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p)
-{
-    _userFormWidget->addPolylineToMap(polygon_p, polyColor_p, layerName_p);
-}
-
-//void AssemblyGui::slot_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p)
-//{
-//    _userFormWidget->addQGisPointsToMap(pointsList_p, pointsColor_p, layerName_p);
-
-//}
 
 void AssemblyGui::saveAssemblyAndReload(AssemblyDefinition *assembly)
 {
@@ -3037,6 +2984,9 @@ void AssemblyGui::slot_assemblyContextMenuRequested(const QPoint &pos)
 {
     QTreeWidgetItem* item = _ui->_TRW_assemblies->itemAt(pos);
 
+    // Select in case left click was not done before
+    slot_selectAssemblyOrJob(item);
+
     if (!item) {
         qWarning() << "Right click on assembly tree widget : no item selected";
         return;
@@ -3225,7 +3175,6 @@ void AssemblyGui::retranslate()
     /* MENU FICHIER */
     _fileMenu->setTitle(tr("FILE"));
     _exportMapViewAct->setText(tr("Export view to image"));
-    _exportProjectQGisAct->setText(tr("Export project to QGIS file"));
     _closeAct->setText(tr("Close"));
 
     /* MENU AFFICHAGE */
@@ -3244,13 +3193,10 @@ void AssemblyGui::retranslate()
     _toolMenu->setTitle(tr("TOOLS"));
     _appConfigAct->setText(tr("Configure settings for application"));
     _preprocessingTool->setText(tr("Launch preprocessing tool"));
-    //_videoToImageToolAct->setText(tr("Lancer outil transformation de videos en jeux d'image"));
+    m_camera_manager_tool->setText(tr("Launch camera manager"));
+    m_camera_calib_tool->setText(tr("Launch camera calibration tool"));
     _checkNetworkRxAct->setText(tr("Check network reception"));
 
-    /* Sous-menu Cartographie */
-    _mapMenu->setTitle(tr("Cartography"));
-    _loadShapefileAct->setText(tr("Load shapefile"));
-    _loadRasterAct->setText(tr("Load raster"));
 
     /* MENU AIDE */
     _helpMenu->setTitle(tr("HELP"));
@@ -3411,14 +3357,10 @@ void AssemblyGui::enableActions()
 
     /* enable/diable main menu items */
     _exportMapViewAct->setEnabled(_isMapView);
-    _exportProjectQGisAct->setEnabled(_isMapView);
     _mapToolbarAct->setEnabled(_isMapView);
     _preprocessingTool->setEnabled(_isMapView);
-    //_videoToImageToolAct->setEnabled(_isMapView);
-    _loadShapefileAct->setEnabled(_isMapView);
-    _loadRasterAct->setEnabled(_isMapView);
-    //_createAssemblyAct->setEnabled(!_isMapView);
-    //_saveAssemblyAct->setEnabled(!_isMapView);
+    m_camera_manager_tool->setEnabled(_isMapView);
+    m_camera_calib_tool->setEnabled(_isMapView);
     _checkNetworkRxAct->setEnabled(_isMapView);
 
     if (lastAction == SELECT_ASSEMBLY || lastAction == SAVE_ASSEMBLY) {
@@ -3579,7 +3521,7 @@ void AssemblyGui::slot_swapMapOrCreationView()
         _ui->_TRW_assemblies->setItemsExpandable(true);
         _ui->_TRW_assemblies->expandAll();
         _userFormWidget->resetJobForm();
-        _ui->_TW_mapViewTabs->setCurrentIndex(0);
+        _ui->_TW_infoTabs->setCurrentIndex(0);
     }
 
     _newAssembly = NULL;
@@ -3608,6 +3550,8 @@ void AssemblyGui::slot_launchJob()
 {
     qDebug() << "Launching job...";
 
+    // clear log
+    _ui->_QTE_loggingText->clear();
 
     // On teste assemblage ou job
     // Le bouton est actif si le job est selectionnable
@@ -3720,6 +3664,13 @@ void AssemblyGui::slot_launchJob()
 
     /* Copy XML files to result path */
     QString resultPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
+    QDir resultPathDir(resultPath);
+    if (resultPathDir.isRelative())
+    {
+        QString dataPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_DATASET_DIR);
+        resultPath = dataPath;
+    }
+
     _processDataManager->copyJobFilesToResult(jobName, resultPath);
 
     _lastJobLaunchedItem = currentItem;
@@ -3803,13 +3754,13 @@ void AssemblyGui::slot_jobShowImageOnMainView(QString name, Image *image)
 
 void AssemblyGui::slot_userInformation(QString userText)
 {
-    qDebug() << "Received user information : " << userText;
+    //qDebug() << "Received user information : " << userText;
     _ongoingProcessInfolabel->setText(userText);
 }
 
 void AssemblyGui::slot_processCompletion(quint8 percentComplete)
 {
-    qDebug() << "Received process completion signal : " << percentComplete;
+    //qDebug() << "Received process completion signal : " << percentComplete;
 
     if(percentComplete == (quint8)-1)
     {
@@ -3841,7 +3792,7 @@ void AssemblyGui::slot_showErrorMessage(QString title, QString message)
 
 
 void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
-    qDebug() << "Job done : " << name;
+    //qDebug() << "Job done : " << name;
     //_userFormWidget->switchCartoViewTo(QGisMapLayer);
 
     if (!_server.errorFlag()) {
@@ -3907,7 +3858,7 @@ void AssemblyGui::slot_assembliesReload()
 
     if (_isMapView) {
         _userFormWidget->clear();
-        qDebug() << "Clear userForm...";
+        //qDebug() << "Clear userForm...";
     } else {
         slot_clearAssembly();
     }
@@ -3919,7 +3870,7 @@ void AssemblyGui::slot_assembliesReload()
 
 void AssemblyGui::slot_modifiedParameters(bool changed)
 {
-    qDebug() << "Receiving parameter value update flag : " << changed;
+    //qDebug() << "Receiving parameter value update flag : " << changed;
 
     bool hasActuallyChanged = changed;
 
@@ -3949,7 +3900,7 @@ void AssemblyGui::slot_modifiedParameters(bool changed)
 
 void AssemblyGui::slot_modifiedAssembly()
 {
-    qDebug() << "Received assembly modified notification";
+    //qDebug() << "Received assembly modified notification";
 
     _isAssemblyModified = true;
     handleAssemblyModified();
@@ -3961,7 +3912,7 @@ void AssemblyGui::slot_modifiedAssembly()
 
 void AssemblyGui::slot_assemblyComplete(bool isComplete)
 {
-    qDebug() << "Received assembly completeness flag : " << isComplete;
+    //qDebug() << "Received assembly completeness flag : " << isComplete;
 
     _isAssemblyComplete = isComplete;
     //    _saveAssemblyAct->setEnabled(isComplete); // assembly can be saved only if assembly is complete
@@ -3998,7 +3949,7 @@ void AssemblyGui::handleJobModified()
 void AssemblyGui::handleAssemblyModified()
 {
     if (_newAssembly) {
-        qDebug() << "Updated new assembly " << _newAssembly->name();
+        //qDebug() << "Updated new assembly " << _newAssembly->name();
         return;
     }
 

@@ -28,5 +28,5 @@ public:
 };
 
 }
-Q_DECLARE_INTERFACE(MatisseCommon::ImageListener, "Chrisar.ImageListener/1.1")
+Q_DECLARE_INTERFACE(MatisseCommon::ImageListener, "Ifremer.ImageListener/1.1")
 #endif // IMAGELISTENER_H

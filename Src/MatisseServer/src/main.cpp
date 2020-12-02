@@ -15,21 +15,21 @@
 #include "Context.h"
 #include "MatisseParameters.h"
 #include "AssemblyGui.h"
-//#include "WelcomeDialog.h"
 #include "SystemDataManager.h"
 #include "ProcessDataManager.h"
+#include "camera_manager.h"
+#include "MatisseConfig.h"
+#include <QSettings>
 
 using namespace MatisseServer;
 using namespace MatisseTools;
-
+using namespace MatisseCommon;
 
 
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
-
-    //OutputDebugStringA(localMsg.constData());
 
     switch (type) {
     case QtInfoMsg:
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc,argv);
 
-    // Define log handler
+    // Define customized log handler
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     qInstallMessageHandler(myMessageOutput);
 #else
@@ -83,14 +83,35 @@ int main(int argc, char *argv[])
     /* Define default encoding for all text streaming */
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
-    //    qDebug() << "**********************************";
-    //    qDebug() << QgsApplication::showSettings();
-    //    qDebug() << "**********************************";
-
     /* Clean all temp directories created during previous sessions */
     FileUtils::removeAllTempDirectories();
 
+    /* Check if we need to deploy and eventually make it */
+    QSettings matisse_settings("Ifremer","Matisse");
+    QString current_version = QString("%1.%2.%3").arg(MATISSE_VERSION_MAJOR).arg(MATISSE_VERSION_MINOR).arg(MATISSE_VERSION_PATCH);
+    bool deployment_needed = false;
+
+    if (matisse_settings.contains("Matisse/Version"))
+    {
+        QString deployed_version = matisse_settings.value("Matisse/Version").toString();
+        if (current_version != deployed_version)
+            deployment_needed = true;
+    }
+    else
+    {
+        deployment_needed = true;
+    }
+
+    //matisse_settings.setValue("Matisse/Version", current_version );
+    matisse_settings.setValue("Matisse/Version",QString("%1.%2.%3").arg(MATISSE_VERSION_MAJOR).arg(MATISSE_VERSION_MINOR).arg(MATISSE_VERSION_PATCH) );
+
+    //if (deployment_needed) // Deploy all the time for the moment
+    //{
+        CameraManager::instance().deployDefaultCamerasToAppData();
+    //}
+
     /* Create managers to be injected */
+    CameraManager::instance().initializeFromDataBase();
     SystemDataManager systemDataManager;
     systemDataManager.readMatisseSettings("config/MatisseSettings.xml");
     QString dataRootDir = systemDataManager.getDataRootDir();
@@ -113,8 +134,10 @@ int main(int argc, char *argv[])
     w.setSystemDataManager(&systemDataManager);
     w.setProcessDataManager(&processDataManager);
     w.init();
-    w.loadDefaultStyleSheet();
-    w.setWindowFlags(Qt::FramelessWindowHint);
+    //w.loadDefaultStyleSheet();
+    w.slot_showApplicationMode(POST_PROCESSING); // open directly to the most used mode ie : post processing
+    
+
 
     int ret = a.exec();
     return ret;

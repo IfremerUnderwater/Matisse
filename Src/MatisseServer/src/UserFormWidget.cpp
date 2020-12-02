@@ -105,23 +105,6 @@ void UserFormWidget::initMapToolBar()
     }
 
     _mapToolBar = new QToolBar("Map tools", this);
-//    QAction *panAction = new QAction(this);
-//    IconizedActionWrapper *panActionWrapper = new IconizedActionWrapper(panAction);
-//    _iconFactory->attachIcon(panActionWrapper, "lnf/icons/carte-deplacer.svg", false, false);
-//    panAction->setIconText(tr("Deplacer"));
-//    _mapToolBar->addAction(panAction);
-//    connect(panAction, SIGNAL(triggered(bool)), this, SLOT(slot_activatePanTool()));
-//    _panTool = new QgsMapToolPan(_ui->_GRV_map);
-//    _panTool->setAction(panAction);
-
-//    QAction *zoomInAction = new QAction(this);
-//    IconizedActionWrapper *zoomInActionWrapper = new IconizedActionWrapper(zoomInAction);
-//    _iconFactory->attachIcon(zoomInActionWrapper, "lnf/icons/carte-zoom-in.svg", false, false);
-//    zoomInAction->setIconText(tr("Zoom AV"));
-//    _mapToolBar->addAction(zoomInAction);
-//    connect(zoomInAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomInTool()));
-//    _zoomInTool = new QgsMapToolZoom(_ui->_GRV_map, false);
-//    _zoomInTool->setAction(zoomInAction);
 
        QAction *zoomInAction = new QAction(this);
        IconizedActionWrapper *zoomInActionWrapper = new IconizedActionWrapper(zoomInAction);
@@ -129,15 +112,6 @@ void UserFormWidget::initMapToolBar()
        zoomInAction->setIconText(tr("Zoom in"));
       _mapToolBar->addAction(zoomInAction);
        connect(zoomInAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomInTool()));
-
-//    QAction *zoomOutAction = new QAction(this);
-//    IconizedActionWrapper *zoomOutActionWrapper = new IconizedActionWrapper(zoomOutAction);
-//    _iconFactory->attachIcon(zoomOutActionWrapper, "lnf/icons/carte-zoom-out.svg", false, false);
-//    zoomOutAction->setIconText(tr("Zoom AR"));
-//    _mapToolBar->addAction(zoomOutAction);
-//    connect(zoomOutAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomOutTool()));
-//    _zoomOutTool = new QgsMapToolZoom(_ui->_GRV_map, true);
-//    _zoomOutTool->setAction(zoomOutAction);
 
       QAction *zoomOutAction = new QAction(this);
       IconizedActionWrapper *zoomOutActionWrapper = new IconizedActionWrapper(zoomOutAction);
@@ -153,11 +127,6 @@ void UserFormWidget::initMapToolBar()
     _mapToolBar->addAction(recenterAction);
     connect(recenterAction, SIGNAL(triggered(bool)), this, SLOT(slot_recenterMap()));
 
-//    _mapToolBar->setFloatable(true);
-//    _mapToolBar->setMovable(true);
-//    _mapToolBar->setOrientation(Qt::Vertical);
-//    _mapToolBar->show();
-
     _mapToolBar->addSeparator();
 
     _coords = new QLabel("__________ __________");
@@ -170,9 +139,7 @@ void UserFormWidget::initMapToolBar()
     showImageAction->setCheckable(true);
     showImageAction->setChecked(false);
     showImageAction->setToolTip("Bounding Image Rectangles");
-//    IconizedActionWrapper *recenterActionWrapper = new IconizedActionWrapper(recenterAction);
-//    _iconFactory->attachIcon(recenterActionWrapper, "lnf/icons/carte-afficher-tout.svg", false, false);
-//    recenterAction->setIconText(tr("Recentrer"));
+
     _mapToolBar->addAction(showImageAction);
     connect(showImageAction, SIGNAL(triggered(bool)), this, SLOT(slot_showImagesRect(bool)));
 
@@ -194,32 +161,6 @@ void  UserFormWidget::slot_showImagesRect(bool show)
     _scene.showImageRect(show);
 }
 
-void UserFormWidget::initLayersWidget()
-{
-    _layersWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-    _layersWidget->setDragEnabled(true);
-    _layersWidget->viewport()->setAcceptDrops(true);
-    _layersWidget->setDefaultDropAction(Qt::MoveAction);
-    _layersWidget->setDropIndicatorShown(true);
-    _layersWidget->setDragDropMode(QAbstractItemView::InternalMove);
-
-    // QGIS 2.99
-    //connect(QgsMapLayerRegistry::instance(), SIGNAL(layerWasAdded(QgsMapLayer*)), this, SLOT(slot_layerWasAdded(QgsMapLayer*)));
-    //connect(QgsMapLayerRegistry::instance(), SIGNAL(layerRemoved(QString)), this, SLOT(slot_layerWasRemoved(QString)));
-//    connect(QgsProject::instance(), SIGNAL(layerWasAdded(QgsMapLayer*)), this, SLOT(slot_layerWasAdded(QgsMapLayer*)));
-//    connect(QgsProject::instance(), SIGNAL(layerRemoved(QString)), this, SLOT(slot_layerWasRemoved(QString)));
-    connect(_layersWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(slot_layerItemChanged()));
-    connect(_layersWidget->model(), SIGNAL(layoutChanged()), this, SLOT(slot_layerItemChanged()));
-
-    /* Initialize context menu */
-    _removeLayerAction = new QAction(tr("Supprimer"), this);
-    _layersMenu = new QMenu(this);
-    _layersMenu->addAction(_removeLayerAction);
-
-    _layersWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(_layersWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slot_showLayersWidgetContextMenu(QPoint)));
-    connect(_removeLayerAction, SIGNAL(triggered()), this, SLOT(slot_removeLayer()));
-}
 
 void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
 {
@@ -310,141 +251,9 @@ void UserFormWidget::slot_recenterMap()
     _ui->_GV_view->repaint();
 }
 
-//void UserFormWidget::slot_layerWasAdded(QgsMapLayer *layer)
-//{
-//    QListWidgetItem *layerItem = new QListWidgetItem(layer->id());
-//    layerItem->setCheckState(Qt::Checked);
-//    layerItem->setToolTip(layer->name());
-//    _layersWidget->addItem(layerItem);
-//}
-
-//void UserFormWidget::slot_layerWasRemoved(QString layerId)
-//{
-//    QList<QListWidgetItem *> foundItems = _layersWidget->findItems(layerId, Qt::MatchExactly);
-
-//    if (foundItems.isEmpty()) {
-//        qWarning() << QString("Layer '%1' was not found in layers widget").arg(layerId);
-//        return;
-//    }
-
-//    if (foundItems.size() > 1) {
-//        qWarning() << QString("Found %1 layers with id '%2', they will all be removed").arg(foundItems.size()).arg(layerId);
-//    } else {
-//        qDebug() << QString("Removing layer '%1' from layers widget").arg(layerId);
-//    }
-
-//    foreach (QListWidgetItem *item, foundItems) {
-//        _layersWidget->removeItemWidget(item);
-//        delete item;
-//    }
-//}
-
-void UserFormWidget::slot_layerItemChanged()
-{
-//    /* rebuild layers list from updated graphical list */
-
-//    // QGis 2.99
-//    //QMap<QString, QgsMapLayer*> layersById = QgsMapLayerRegistry::instance()->mapLayers();
-//    QMap<QString, QgsMapLayer*> layersById = QgsProject::instance()->mapLayers();
-
-//    // QGis 2.99
-//    //_layers.clear();
-//    _players.clear();   // TODO ne doit-on pas faire de delete ?
-
-//    for (int row = 0; row < _layersWidget->count() ; row++) {
-//        QListWidgetItem *currentItem = _layersWidget->item(row);
-//        QString currentLayerId = currentItem->text();
-//        QgsMapLayer *layer = layersById.value(currentLayerId);
-//        // QGis 2.99
-//        //QgsMapCanvasLayer canvasLayer(layer);
-//        QgsMapLayer::LayerType ltype = layer->type();
-//        switch(ltype)
-//        {
-//        case QgsMapLayer::VectorLayer:
-//        case QgsMapLayer::RasterLayer:
-//        case QgsMapLayer::PluginLayer:
-//            break;
-//        }
-//        bool isVisible = (currentItem->checkState() == Qt::Checked);
-
-//        qDebug() << QString("Layer %1 has visibility %2").arg(currentLayerId).arg(isVisible);
-//        // QGis 2.99
-//        //canvasLayer.setVisible(isVisible);
-//        // QGis 2.99
-//        //_layers.append(canvasLayer);
-//        _players.append(layer);
-//    }
-
-//   // QGis 2.99
-//    //_ui->_GRV_map->setLayerSet(_layers);
-//    _ui->_GRV_map->setLayers(_players);
-}
-
-void UserFormWidget::slot_removeLayer()
-{
-    QListWidgetItem *currentLayerItem = _layersWidget->currentItem();
-    if (!currentLayerItem) {
-        qCritical() << QString("Current layer item not identified, cannot remove layer");
-        return;
-    }
-
-    QString currentLayerId = currentLayerItem->text();
-
-    qDebug() << QString("Removing layer id '%1'...").arg(currentLayerId);
-
-    bool foundCanvasLayer = false;
-
-    // QGis 2.99
-//    for (int i=0 ; i < _layers.size() ; i++) {
-//        QgsMapCanvasLayer canvasLayer = _layers.at(i);
-//        if (canvasLayer.layer()->id() == currentLayerId) {
-//            _layers.removeAt(i);
-//            foundCanvasLayer = true;
-//        }
-//    }
-//    for (int i=0 ; i < _players.size() ; i++) {
-//        QgsMapLayer *canvasLayer = _players.at(i);
-//        if (canvasLayer->id() == currentLayerId) {
-//            _players.removeAt(i);
-//            foundCanvasLayer = true;
-//        }
-//    }
-
-    if (!foundCanvasLayer) {
-        qCritical() << QString("Canvas layer not found for id '%1'").arg(currentLayerId);
-        return;
-    }
-
-    // QGis 2.99
-    //QgsMapLayer *layer = QgsMapLayerRegistry::instance()->mapLayer(currentLayerId);
-//    QgsMapLayer *layer = QgsProject::instance()->mapLayer(currentLayerId);
-
-//    if (!layer) {
-//        qCritical() << QString("Layer id '%1' not referenced in layer registry, cannot remove layer properly").arg(currentLayerId);
-//        return;
-//    }
-
-    // QGis 2.99
-    //QgsMapLayerRegistry::instance()->removeMapLayer(currentLayerId); /* layer object deleted here */
-//    QgsProject::instance()->removeMapLayer(currentLayerId); /* layer object deleted here */
-    /* Layer item removal is handled by signal/slot from here */
-
-    /* recenter dans reload layers */
-//    updateMapCanvasAndExtent(NULL);
-}
 
 void UserFormWidget::clear()
 {
-//    // Clear QGis Widget
-//    // QGis 2.99
-//    //QgsMapLayerRegistry::instance()->removeAllMapLayers();
-//    //_layers.clear();
-//    QgsProject::instance()->removeAllMapLayers();
-//    _players.clear();
-
-//    _ui->_GRV_map->clearExtentHistory();
-//    //_ui->_GRV_map->clear();
-//    _ui->_GRV_map->refresh();
 
     // Clear OSG Widget
     _ui->_OSG_viewer->clearSceneData();
@@ -458,7 +267,6 @@ void UserFormWidget::clear()
 void UserFormWidget::resetJobForm()
 {
     // reset parameters
-    qDebug() << "resetJobForm";
     clear();
 }
 
@@ -468,25 +276,6 @@ void UserFormWidget::loadRasterFile(QString filename) {
     emit signal_loadRasterFromFile(filename);
 
 }
-
-//void UserFormWidget::slot_addRasterToCartoView(QgsRasterLayer * rasterLayer_p) {
-
-//    if (_currentViewType!=QGisMapLayer)
-//        switchCartoViewTo(QGisMapLayer);
-
-////    // Add the raster Layer to the Layer Registry
-////    // QGis 2.99
-////    //QgsMapLayerRegistry::instance()->addMapLayer(rasterLayer_p, TRUE, TRUE);
-////    QgsProject::instance()->addMapLayer(rasterLayer_p, TRUE, TRUE);
-
-////    // Add the layer to the Layer Set
-////    // QGis 2.99
-////    //_layers.append(QgsMapCanvasLayer(rasterLayer_p, TRUE));//bool visibility
-////    _players.append(rasterLayer_p);//bool visibility
-
-////    this->updateMapCanvasAndExtent(NULL);
-
-//}
 
 void UserFormWidget::slot_addRasterToCartoView(CartoImage * image_p) {
 
@@ -502,26 +291,6 @@ void UserFormWidget::slot_addRasterToImageView(Image * image_p)
         switchCartoViewTo(QImageView);
 
     displayImage(image_p);
-}
-
-
-void UserFormWidget::slot_showLayersWidgetContextMenu(const QPoint &pos)
-{
-    QListWidgetItem *selectedItem = _layersWidget->currentItem();
-    if (!selectedItem) {
-        qDebug() << "No layer item selected, context menu not shown";
-        return;
-    }
-
-    _layersMenu->popup(_layersWidget->viewport()->mapToGlobal(pos));
-}
-
-void UserFormWidget::loadShapefile(QString filename)
-{
-    if (_currentViewType!=QGisMapLayer)
-        switchCartoViewTo(QGisMapLayer);
-
-//    QGis dep removed
 }
 
 void UserFormWidget::load3DFile(QString filename_p, bool remove_previous_scenes_p)
@@ -640,36 +409,6 @@ void UserFormWidget::slot_onManualMove()
 }
 
 
-
-void UserFormWidget::saveQgisProject(QString filename)
-{
-//    QGis dep removed
-}
-
-void UserFormWidget::addPolygonToMap(basicproc::Polygon &polygon_p, QString polyInsideColor_p, QString layerName_p){
-
-    if (polygon_p.contours().size()>1){
-        qDebug() << "Multi contours polygon not supported yet...returning !";
-        return;
-    }
-
-    if (_currentViewType!=QGisMapLayer)
-        switchCartoViewTo(QGisMapLayer);
-
-}
-
-void UserFormWidget::addPolylineToMap(basicproc::Polygon &polygon_p, QString polyColor_p, QString layerName_p){
-
-    if (polygon_p.contours().size()>1){
-        qDebug() << "Multi contours polygon not supported yet...returning !";
-        return;
-    }
-
-    if (_currentViewType!=QGisMapLayer)
-        switchCartoViewTo(QGisMapLayer);
-
-}
-
 void UserFormWidget::exportMapViewToImage(QString imageFilePath)
 {
     QImage image(QSize(800, 600), QImage::Format_ARGB32_Premultiplied);
@@ -696,30 +435,6 @@ void UserFormWidget::loadImageFile(QString filename){
 
 }
 
-
-bool UserFormWidget::findLayerIndexFromName(const QString &layerName_p, int &idx_p)
-{
-    int i=0;
-
-    // Qgis 2.99
-//    foreach (QgsMapCanvasLayer currentLayer, _layers){
-//        if(currentLayer.layer()->name() == layerName_p){
-//    foreach (QgsMapLayer *currentLayer, _players){
-//        if(currentLayer->name() == layerName_p){
-//            idx_p = i;
-//            return true;
-//        }
-
-//        i++;
-//    }
-
-    return false;
-
-}
-void UserFormWidget::setLayersWidget(QListWidget *layersWidget)
-{
-    _layersWidget = layersWidget;
-}
 
 void UserFormWidget::setIconFactory(MatisseIconFactory *iconFactory)
 {

@@ -6,6 +6,7 @@
 #include "Polygon.h"
 
 #include "Dim2FileReader.h"
+#include <QElapsedTimer>
 
 //#define PROGRESS
 //#define PROGRESS_DISPLAY
@@ -54,108 +55,51 @@ Q_EXPORT_PLUGIN2(Init3DRecon, Init3DRecon)
 
 /// Get camera matrix "f;0;ppx;0;f;ppy;0;0;1"
 /// With f,ppx,ppy as valid numerical value
-bool Init3DRecon::getCameraIntrinsics(double & focal, double & ppx, double & ppy, const double &width, const double &height)
+bool Init3DRecon::getCameraIntrinsics(double & _focal, double & _ppx, double & _ppy, const double &_width, const double &_height, int &_distortion_model, cv::Mat &_dist_coeff)
 {
-    QString camera_preset =  _matisseParameters->getStringParamValue("cam_param", "camera_preset");
 
-    double scaling_factor;
+    bool Ok=false;
 
-    // Custom case
-    if (camera_preset=="Custom")
+    CameraInfo camera_equipment =  _matisseParameters->getCamInfoParamValue("cam_param", "camera_equipment", Ok);
+
+    if(Ok)
     {
-        bool Ok=false;
-        QMatrix3x3 qK = _matisseParameters->getMatrix3x3ParamValue("cam_param",  "K",  Ok);
-        double full_sensor_width=width;
-        if(Ok)
-            full_sensor_width=(double)_matisseParameters->getIntParamValue("cam_param","sensor_width",Ok);
-
-        if(Ok)
+        // Unkown case
+        if (camera_equipment.cameraName()=="Unknown")
         {
-            scaling_factor = width/full_sensor_width;
-            focal = scaling_factor*(qK(0,0)+qK(1,1))/2;
-            ppx = scaling_factor*qK(0,2);
-            ppy = scaling_factor*qK(1,2);
+            _focal = _width; // approx in case we don't know
+            _ppx = _width / 2.0;
+            _ppy = _height / 2.0;
+            _distortion_model = 1;
+            _dist_coeff = cv::Mat(1,5,CV_64F,0.0);
             return true;
         }
-        else
-        {
-            camera_preset="Unknown";
-        }
-    }
 
-    if (camera_preset=="Victor HD")
+        double scaling_factor;
+
+        int full_sensor_width, full_sensor_height;
+        camera_equipment.fullSensorSize(full_sensor_width,full_sensor_height);
+
+        cv::Mat K = camera_equipment.K();
+
+        scaling_factor = _width/(double)full_sensor_width;
+        _focal = scaling_factor*(K.at<double>(0,0)+K.at<double>(1,1))/2;
+        _ppx = scaling_factor*K.at<double>(0,2);
+        _ppy = scaling_factor*K.at<double>(1,2);
+        _distortion_model = camera_equipment.distortionModel();
+        _dist_coeff = camera_equipment.distortionCoeff();
+        return true;
+    }
+    else
     {
-        scaling_factor=width/1920.0;
-        focal = scaling_factor*1430;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
+        _focal = _width; // approx in case we don't know
+        _ppx = _width / 2.0;
+        _ppy = _height / 2.0;
+        _distortion_model = 1;
+        _dist_coeff = cv::Mat(1,5,CV_64F,0.0);
         return true;
     }
 
-    if (camera_preset=="Ariane Princ.")
-    {
-        scaling_factor=width/1920.0;
-        focal = scaling_factor*1170;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    if (camera_preset=="Victor 4K" || camera_preset=="Nautile 4K")
-    {
-        scaling_factor=width/3840.0;
-        focal = scaling_factor*2370;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    if (camera_preset=="Otus 2" || camera_preset=="Ariane Still camera")
-    {
-        scaling_factor=width/6000.0;
-        focal = scaling_factor*6700;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    if (camera_preset=="Nautile Still camera")
-    {
-        scaling_factor=width/6000.0;
-        focal = scaling_factor*5875.0;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    if (camera_preset=="Ariane Science." || camera_preset=="Scampi HD" || camera_preset=="Nautile HD")
-    {
-        scaling_factor=width/1920.0;
-        focal = scaling_factor*1880;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    if (camera_preset=="Vortex still camera")
-    {
-        scaling_factor=width/6000.0;
-        focal = scaling_factor*6000;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    // Unkown case
-    if (camera_preset=="Unknown")
-    {
-        focal = width; // approx in case we don't know
-        ppx = width / 2.0;
-        ppy = height / 2.0;
-        return true;
-    }
-
-    return false;
 
 }
 
@@ -236,23 +180,13 @@ Init3DRecon::Init3DRecon() :
     addExpectedParameter("dataset_param", "navSource"); // AUTO, GPS, DIM2, NO_NAV
     addExpectedParameter("dataset_param", "usePrior");
 
-    addExpectedParameter("cam_param",  "K");
-    addExpectedParameter("cam_param",  "camera_preset");
-    addExpectedParameter("cam_param",  "sensor_width");
+    addExpectedParameter("cam_param",  "camera_equipment");
 
     addExpectedParameter("vehic_param",  "reproj_std");
     addExpectedParameter("vehic_param",  "X_std");
     addExpectedParameter("vehic_param",  "Y_std");
     addExpectedParameter("vehic_param",  "depth_std");
 
-    // unused
-    //addExpectedParameter("algo_param", "scale_factor");
-    // unused
-    //addExpectedParameter("cam_param",  "V_Pose_C");
-    // unused
-    //addExpectedParameter("algo_param","filter_overlap");
-    //addExpectedParameter("algo_param","min_overlap");
-    //addExpectedParameter("algo_param","max_overlap");
 }
 
 Init3DRecon::~Init3DRecon(){
@@ -288,25 +222,25 @@ bool Init3DRecon::stop()
 
 void Init3DRecon::onFlush(quint32 port)
 {
+    QElapsedTimer timer;
+    timer.start();
+
     reconstructionContext *reconstruction_context = new reconstructionContext();
 
-    qDebug() << logPrefix() << "flush port " << port;
+    // Log
+    QString proc_info =  logPrefix() + "Initialize Sfm from data\n";
+    emit signal_addToLog(proc_info);
 
     emit signal_processCompletion(0);
     emit signal_userInformation("Init3DRecon - start");
 
     std::ostringstream error_report_stream;
 
-    std::string sImageDir,
-            //sfileDatabase = "",
-            sOutputDir = "";
-
     std::pair<bool, Vec3> prior_w_info(false, Vec3(1.0,1.0,1.0));
 
-    int i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
 
     bool b_Group_camera_model = true;
-    bool Ok;
+    bool Ok=false;
     bool use_prior = _matisseParameters->getBoolParamValue("dataset_param", "usePrior",Ok);
     if(!Ok)
         use_prior = false;
@@ -316,19 +250,14 @@ void Init3DRecon::onFlush(quint32 port)
     Vec3 firstImagePosLC = Vec3::Zero();
     bool firstImage = true;
 
-    // Expected properties for each image
-    double width = -1, height = -1, focal = -1, ppx = -1,  ppy = -1;
-
-    const EINTRINSIC e_User_camera_model = EINTRINSIC(i_User_camera_model);
-
     // Dir checks
     QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-    sImageDir = rootDirnameStr.toStdString();
+    std::string dataset_dir = rootDirnameStr.toStdString();
     QString QSep = QDir::separator();
     std::string SEP = QSep.toStdString();
-    sOutputDir = sImageDir + SEP + "matches";
+    std::string output_dir = dataset_dir + SEP + "matches";
 
-    if ( !stlplus::folder_exists( sImageDir ) )
+    if ( !stlplus::folder_exists( dataset_dir ) )
     {
         fatalErrorExit("The input directory doesn't exist");
         return;
@@ -346,7 +275,6 @@ void Init3DRecon::onFlush(quint32 port)
     else
         navMode = DIM2;
 
-    rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
     QString navigationFile = _matisseParameters->getStringParamValue("dataset_param", "navFile");
 
     if (navigationFile.isEmpty())
@@ -356,7 +284,7 @@ void Init3DRecon::onFlush(quint32 port)
 
     if(navigationFile.contains(":/") || navigationFile.startsWith(QSep) )
     {
-        // chemin absolu
+        // absolute path
         dim2FileName = navigationFile.toStdString();
     }
     else
@@ -400,15 +328,15 @@ void Init3DRecon::onFlush(quint32 port)
             navMode = EXIF;
     }
 
-    if (sOutputDir.empty())
+    if (output_dir.empty())
     {
         fatalErrorExit("Invalid output directory");
         return;
     }
 
-    if ( !stlplus::folder_exists( sOutputDir ) )
+    if ( !stlplus::folder_exists( output_dir ) )
     {
-        if ( !stlplus::folder_create( sOutputDir ))
+        if ( !stlplus::folder_create( output_dir ))
         {
             fatalErrorExit("Cannot create output directory");
             return;
@@ -421,19 +349,21 @@ void Init3DRecon::onFlush(quint32 port)
         prior_w_info = getPriorWeights();
     }
 
-    std::vector<std::string> vec_image = stlplus::folder_files( sImageDir );
+    std::vector<std::string> vec_image = stlplus::folder_files( dataset_dir );
     std::sort(vec_image.begin(), vec_image.end());
 
     // Configure an empty scene with Views and their corresponding cameras
     SfM_Data sfm_data;
-    sfm_data.s_root_path = sImageDir; // Setup main image root_path
-    //Views & views = sfm_data->views;
-    //Intrinsics & intrinsics = sfm_data->intrinsics;
+    sfm_data.s_root_path = dataset_dir; // Setup main image root_path
 
+    // Expected properties for each image
+    double width = -1, height = -1, focal = -1, ppx = -1,  ppy = -1;
+    int dist_model=1;
+    cv::Mat dist_coeff = cv::Mat(1,5,CV_64F,0.0);
+
+    // Loop on all images to initialize ***************************************************************
     int counter=0;
-    for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin();
-          iter_image != vec_image.end();
-          ++iter_image)
+    for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin(); iter_image != vec_image.end(); ++iter_image)
     {
         counter++;
         emit signal_processCompletion(100.0*(double)counter/(double)vec_image.size());
@@ -441,7 +371,7 @@ void Init3DRecon::onFlush(quint32 port)
         // Read meta data to fill camera parameter (w,h,focal,ppx,ppy) fields.
         width = height = ppx = ppy = focal = -1.0;
 
-        const std::string sImageFilename = stlplus::create_filespec( sImageDir, *iter_image );
+        const std::string sImageFilename = stlplus::create_filespec( dataset_dir, *iter_image );
         const std::string sImFilenamePart = stlplus::filename_part(sImageFilename);
 
         // Test if the image format is supported:
@@ -464,14 +394,12 @@ void Init3DRecon::onFlush(quint32 port)
 
         width = imgHeader.width;
         height = imgHeader.height;
-        ppx = width / 2.0;
-        ppy = height / 2.0;
 
         std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
         exifReader->open( sImageFilename );
 
         // Get camera intrinsics
-        getCameraIntrinsics(focal, ppx, ppy, width, height);
+        getCameraIntrinsics(focal, ppx, ppy, width, height, dist_model, dist_coeff);
 
         // Build intrinsic parameter related to the view
         std::shared_ptr<IntrinsicBase> intrinsic (NULL);
@@ -479,32 +407,28 @@ void Init3DRecon::onFlush(quint32 port)
         if (focal > 0 && ppx > 0 && ppy > 0 && width > 0 && height > 0)
         {
             // Create the desired camera type
-            switch(e_User_camera_model)
+            switch(dist_model)
             {
-            case PINHOLE_CAMERA:
-                intrinsic = std::make_shared<Pinhole_Intrinsic>
-                        (width, height, focal, ppx, ppy);
-                break;
-            case PINHOLE_CAMERA_RADIAL1:
+//            case PINHOLE_CAMERA: // do we need undistorted case -> maybe we'll reactivate it
+//                intrinsic = std::make_shared<Pinhole_Intrinsic>
+//                        (width, height, focal, ppx, ppy);
+//                break;
+            case 0:
                 intrinsic = std::make_shared<Pinhole_Intrinsic_Radial_K1>
-                        (width, height, focal, ppx, ppy, 0.0); // setup no distortion as initial guess
+                        (width, height, focal, ppx, ppy, dist_coeff.at<double>(0,0));
                 break;
-            case PINHOLE_CAMERA_RADIAL3:
+            case 1:
                 intrinsic = std::make_shared<Pinhole_Intrinsic_Radial_K3>
-                        (width, height, focal, ppx, ppy, 0.0, 0.0, 0.0);  // setup no distortion as initial guess
+                        (width, height, focal, ppx, ppy, dist_coeff.at<double>(0,0), dist_coeff.at<double>(0,1), dist_coeff.at<double>(0,2));
                 break;
-            case PINHOLE_CAMERA_BROWN:
+            case 2:
                 intrinsic =std::make_shared<Pinhole_Intrinsic_Brown_T2>
-                        (width, height, focal, ppx, ppy, 0.0, 0.0, 0.0, 0.0, 0.0); // setup no distortion as initial guess
+                        (width, height, focal, ppx, ppy, dist_coeff.at<double>(0,0), dist_coeff.at<double>(0,1), dist_coeff.at<double>(0,2), dist_coeff.at<double>(0,3), dist_coeff.at<double>(0,4));
                 break;
-            case PINHOLE_CAMERA_FISHEYE:
+            case 3:
                 intrinsic =std::make_shared<Pinhole_Intrinsic_Fisheye>
-                        (width, height, focal, ppx, ppy, 0.0, 0.0, 0.0, 0.0); // setup no distortion as initial guess
+                        (width, height, focal, ppx, ppy, dist_coeff.at<double>(0,0), dist_coeff.at<double>(0,1), dist_coeff.at<double>(0,2), dist_coeff.at<double>(0,3));
                 break;
-            default:
-                QString msg = "Error: unknown camera model: " +  QString::number((int) e_User_camera_model);
-                fatalErrorExit(msg);
-                return;
             }
         }
 
@@ -645,7 +569,7 @@ void Init3DRecon::onFlush(quint32 port)
     emit signal_userInformation("Init3DRecon - saving...");
     // Store SfM_Data views & intrinsic data
     if (!Save(  sfm_data,
-                stlplus::create_filespec( sOutputDir, "sfm_data.bin" ).c_str(),
+                stlplus::create_filespec( output_dir, "sfm_data.bin" ).c_str(),
                 ESfM_Data(VIEWS|INTRINSICS)))
     {
         fatalErrorExit("Error saving sfm_data.bin");
@@ -681,39 +605,17 @@ void Init3DRecon::onFlush(quint32 port)
     outputGeoStream << coords;
     geoFile.close();
 
-    // firstImagePosLC : in LC x, y, Alt
-    QString lccoords = QString::number(firstImagePosLC[0],'f',3) +";"
-            + QString::number(firstImagePosLC[1],'f',3) + ";"
-            + QString::number(firstImagePosLC[2],'f',3);
-    QString fileName = stlplus::create_filespec(rootDirnameStr.toStdString(),"lcrefpos.txt").c_str();
-    QFile lc_file(fileName);
-    if( !lc_file.open(QIODevice::WriteOnly) )
-    {
-        fatalErrorExit("Error saving " + fileName);
-    }
-
-    // Save the pos
-    QTextStream outputStream(&lc_file);
-
-    outputStream << lccoords;
-    lc_file.close();
-
-    qDebug() << "\n"
-             << "SfMInit_ImageListing report:\n"
-             << "listed #File(s): " << vec_image.size() << "\n"
-             << "usable #File(s) listed in sfm_data: " << sfm_data.GetViews().size() << "\n"
-             << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data.GetIntrinsics().size() << "\n";
+    // Log dataset informations
+    proc_info = logPrefix();
+    proc_info += QString("usable #File(s) listed in sfm_data: %1\nusable #Intrinsic(s) listed in sfm_data: %2")
+            .arg(sfm_data.GetViews().size()).arg(sfm_data.GetIntrinsics().size());
+    emit signal_addToLog(proc_info);
 
     if(sfm_data.GetViews().size() == 0)
     {
         fatalErrorExit("No valid images found");
-        //delete sfm_data;
-
         return;
     }
-
-    // do not crash...
-    //delete sfm_data;
 
     sfm_data.poses.clear();
     sfm_data.control_points.clear();
@@ -721,11 +623,12 @@ void Init3DRecon::onFlush(quint32 port)
     std::shared_ptr<IntrinsicBase> intrinsic (NULL);
     sfm_data.intrinsics[0] = intrinsic;
     sfm_data.s_root_path = "";
-    //crash
-    //sfm_data->intrinsics.clear();
-
 
     emit signal_userInformation("Init3DRecon - end");
+
+    // Log elapsed time
+    proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
+    emit signal_addToLog(proc_info);
 
     flush(0);
 }

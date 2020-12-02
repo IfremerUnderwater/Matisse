@@ -1,0 +1,21 @@
+%YAML:1.0
+---
+camera_name: Nautile Still
+full_sensor_width: 6000
+full_sensor_height: 4000
+K: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 5875., 0., 3000., 0., 5875., 2000., 0., 0., 1. ]
+distortion_model: 1
+distortion_coeff: !!opencv-matrix
+   rows: 1
+   cols: 5
+   dt: d
+   data: [ 0., 0., 0., 0., 0. ]
+vehicle_to_camera_transform: !!opencv-matrix
+   rows: 1
+   cols: 6
+   dt: d
+   data: [ 0., 0., 0., 0., 0., 0. ]

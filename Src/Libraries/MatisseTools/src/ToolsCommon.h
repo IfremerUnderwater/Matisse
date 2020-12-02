@@ -36,7 +36,8 @@ enum ParameterType {
     PAR_DOUBLE,
     PAR_STRING,
     PAR_BOOL,
-    PAR_ENUM
+    PAR_ENUM,
+    PAR_CAMERA
 };
 
 enum ParameterShow {
@@ -52,7 +53,8 @@ enum ParameterShow {
     FILE_SELECTOR_RELATIVE,
     FILE_SELECTOR_ABSOLUTE,
     DIR_SELECTOR_RELATIVE,
-    DIR_SELECTOR_ABSOLUTE
+    DIR_SELECTOR_ABSOLUTE,
+    CAM_COMBO_BOX
 };
 
 struct Parameter {

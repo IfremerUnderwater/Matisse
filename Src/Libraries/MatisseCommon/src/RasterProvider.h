@@ -40,9 +40,7 @@ signals:
     void signal_showErrorMessage(QString title, QString text);
     void signal_show3DFileOnMainView(QString filepath_p);
     void signal_addRasterFileToMap(QString filepath_p);
-    void signal_addPolygonToMap(basicproc::Polygon polygon_p, QString polyInsideColor_p, QString layerName_p);
-    void signal_addPolylineToMap(basicproc::Polygon polygon_p, QString polyColor_p, QString layerName_p);
-    //void signal_addQGisPointsToMap(QList<QgsPoint> pointsList_p, QString pointsColor_p, QString layerName_p);
+    void signal_addToLog(QString _loggin_text);
 
 private:
     QString _comment;
@@ -54,6 +52,6 @@ private:
 
 
 }
-Q_DECLARE_INTERFACE(MatisseCommon::RasterProvider, "Chrisar.RasterProvider/1.1")
+Q_DECLARE_INTERFACE(MatisseCommon::RasterProvider, "Ifremer.RasterProvider/1.1")
 
 #endif // RASTERPROVIDER_H

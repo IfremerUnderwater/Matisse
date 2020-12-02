@@ -46,10 +46,12 @@ add_executable(MatisseServer
     src/CartoScene.cpp
     src/CartoImage.cpp
     src/WheelGraphicsView.cpp
-	resources/resources.qrc
+    src/camera_manager_tool.cpp
+    src/camera_calib_dialog.cpp
+    resources/resources.qrc
     style.qrc
     icons.qrc
-	MatisseServer.rc)
+    MatisseServer.rc)
 	
 	
 set_target_properties(MatisseServer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)

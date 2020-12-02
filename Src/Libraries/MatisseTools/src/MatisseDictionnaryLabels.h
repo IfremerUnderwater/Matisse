@@ -124,6 +124,7 @@ public:
 		_paramLabelKeys.insert("sensor_width", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Full sensor width (px)"));
 		_paramLabelKeys.insert("sensor_height", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Full sensor height (pixels)"));
 		_paramLabelKeys.insert("camera_preset", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Camera preset"));
+        _paramLabelKeys.insert("camera_equipment", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Camera equipment"));
 
 		/*
 		 * STRUCTURE : video_input_param
@@ -170,7 +171,7 @@ public:
 	QString getGroupLabel(QString groupName) {
 		if (!_groupLabelKeys.contains(groupName)) {
 			qDebug() << QString("No label declared for group '%1'").arg(groupName);
-			return "";
+			return groupName;
 		}
 	
 		QString labelKey = _groupLabelKeys.value(groupName);

@@ -108,6 +108,10 @@ public:
 #endif
 /*----------------------------------------------------------------*/
 
+std::string swapExtToPng(std::string _in_file)
+{
+	return stlplus::basename_part(_in_file) + ".png";
+}
 
 namespace _INTERFACE_NAMESPACE {
 
@@ -562,7 +566,7 @@ bool exportToOpenMVS(
     map_view[view.first] = scene.images.size();
 	LOCAL_MVS::Interface::Image image;
     const std::string srcImage = stlplus::create_filespec(sfm_data.s_root_path, view.second->s_Img_path);
-    image.name = stlplus::create_filespec(sOutDir, view.second->s_Img_path);
+    image.name = stlplus::create_filespec(sOutDir, swapExtToPng(view.second->s_Img_path)); // output png better dark value handling with undist img (not lossy)
     image.platformID = map_intrinsic.at(view.second->id_intrinsic);
 	LOCAL_MVS::Interface::Platform& platform = scene.platforms[image.platformID];
     image.cameraID = 0;
@@ -614,7 +618,7 @@ bool exportToOpenMVS(
 
     // Get image paths
     const std::string srcImage = stlplus::create_filespec(sfm_data.s_root_path, view->s_Img_path);
-    const std::string imageName = stlplus::create_filespec(sOutDir, view->s_Img_path);
+    const std::string imageName = stlplus::create_filespec(sOutDir, swapExtToPng(view->s_Img_path));
 
     if (!stlplus::is_file(srcImage))
     {

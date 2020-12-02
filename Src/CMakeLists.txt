@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name and version
-project(MatisseProject VERSION 1.1.1)
+project(MatisseProject VERSION 1.2.0)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 11)
@@ -65,6 +65,7 @@ configure_file(../Config/config/MatisseSettings.xml.in Run/Debug/config/MatisseS
 # configure a header file to pass some of the CMake settings
 # to the source code
 configure_file(MatisseConfig.h.in MatisseConfig.h)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # qt5 also required for Quazip
 find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script OpenGL REQUIRED)

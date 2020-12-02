@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseAssembly name="NavBased 2D Mosaic FAST" isRealTime="false" usable="false">
+    <DescriptorFields>
+        <Author>A;A</Author>
+        <Version>1.0</Version>
+        <Comments>This module can be used to project 2D images on a 2D map according to navigation data. This module if for obtaining a fast overview but not for accurate mapping</Comments>
+        <Date></Date>
+    </DescriptorFields>
+    <Source id="99" name="DTPictureFileSetImageProvider" order="0"/>
+    <Processors>
+        <Processor id="99" name="Init2DMosaic" order="1"/>
+    </Processors>
+    <Destination id="99" name="DrawBlend2DMosaic" order="2"/>
+    <Connections>
+        <Connection startOrder="1" startLine="0" endOrder="2" endLine="0" color="4278190335"/>
+        <Connection startOrder="0" startLine="0" endOrder="1" endLine="0" color="4294902015"/>
+    </Connections>
+</MatisseAssembly>

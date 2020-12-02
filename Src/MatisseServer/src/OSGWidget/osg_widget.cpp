@@ -280,9 +280,6 @@ OSGWidget::OSGWidget(QWidget* parent)
     m_ref_lat_lon.setY(INVALID_VALUE);
     m_ref_alt = INVALID_VALUE;
 
-
-    //osgDB::Registry::instance()->setLibraryFilePathList("/Users/tim/code/3DMetricWorkspace/Run/Release/3DMetrics.app/Contents/osgPlugins");
-
     float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
 
     osg::Camera* camera = new osg::Camera;
@@ -362,6 +359,8 @@ OSGWidget::OSGWidget(QWidget* parent)
     m_overlay->setColorPalette(m_colorPalette);
     m_overlay->setMinMax(m_displayZMin, m_displayZMax);
     m_overlay->show();
+
+    enableLight(false);
 }
 
 OSGWidget::~OSGWidget()
@@ -973,61 +972,58 @@ osg::ref_ptr<osg::Node> OSGWidget::createNodeFromFileWithGDAL(std::string _scene
 ///
 bool OSGWidget::addNodeToScene(osg::ref_ptr<osg::Node> _node, double _transparency)
 {
-    // Add model
-    m_models.push_back(_node);
-    osg::StateSet* state_set = _node->getOrCreateStateSet();
-    state_set->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
-//    state_set->setMode( GL_BLEND, osg::StateAttribute::ON);
+    if (_node)
+    {
+        // Add model
+        m_models.push_back(_node);
+        osg::StateSet* state_set = _node->getOrCreateStateSet();
+        state_set->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
 
-//    // Add the possibility of modifying the transparence
-//    osg::ref_ptr<osg::Material> material = new osg::Material;
-//    // Put the 3D model totally opaque
-//    material->setAlpha( osg::Material::FRONT, 1.0 );
-//    state_set->setAttributeAndModes ( material, osg::StateAttribute::ON );
+        m_modelsGroup->insertChild(0, _node.get()); // put at the beginning to be drawn first
 
-//    osg::ref_ptr<osg::BlendFunc> bf = new osg::BlendFunc(osg::BlendFunc::ONE_MINUS_SRC_ALPHA,osg::BlendFunc::SRC_ALPHA );
-//    state_set->setAttributeAndModes(bf);
+        // optimize the scene graph, remove redundant nodes and state etc.
+        osgUtil::Optimizer optimizer;
+        optimizer.optimize(_node.get(), osgUtil::Optimizer::ALL_OPTIMIZATIONS | osgUtil::Optimizer::TESSELLATE_GEOMETRY);
 
-    m_modelsGroup->insertChild(0, _node.get()); // put at the beginning to be drawn first
+        // compute z min/max of 3D model
+        MinMaxComputationVisitor minmax;
+        _node->accept(minmax);
+        float zmin = minmax.getMin();
+        float zmax = minmax.getMax();
 
-    // optimize the scene graph, remove redundant nodes and state etc.
-    osgUtil::Optimizer optimizer;
-    optimizer.optimize(_node.get(), osgUtil::Optimizer::ALL_OPTIMIZATIONS  | osgUtil::Optimizer::TESSELLATE_GEOMETRY);
+        GeometryTypeCountVisitor geomcount;
+        _node->accept(geomcount);
 
-    // compute z min/max of 3D model
-    MinMaxComputationVisitor minmax;
-    _node->accept(minmax);
-    float zmin = minmax.getMin();
-    float zmax = minmax.getMax();
+        // save original translation
+        osg::ref_ptr<osg::MatrixTransform> model_transform = dynamic_cast<osg::MatrixTransform*>(_node.get());
 
-    GeometryTypeCountVisitor geomcount;
-    _node->accept(geomcount);
+        osg::ref_ptr<NodeUserData> data = new NodeUserData();
+        data->useShader = false;
+        data->zmin = zmin;
+        data->zmax = zmax;
+        data->zoffset = 0; // will be changed on z offset changed
+        data->originalZoffset = model_transform->getMatrix().getTrans().z();
+        data->hasMesh = geomcount.getNbTriangles() > 0;
+        _node->setUserData(data);
 
-    // save original translation
-    osg::ref_ptr<osg::MatrixTransform> model_transform =  dynamic_cast<osg::MatrixTransform*>(_node.get());
+        //configureShaders( _node->getOrCreateStateSet() );
+        _node->getOrCreateStateSet()->addUniform(new osg::Uniform("zmin", zmin));
+        _node->getOrCreateStateSet()->addUniform(new osg::Uniform("deltaz", zmax - zmin));
+        _node->getOrCreateStateSet()->addUniform(new osg::Uniform("hasmesh", data->hasMesh));
 
-    osg::ref_ptr<NodeUserData> data = new NodeUserData();
-    data->useShader = false;
-    data->zmin = zmin;
-    data->zmax = zmax;
-    data->zoffset = 0; // will be changed on z offset changed
-    data->originalZoffset = model_transform->getMatrix().getTrans().z();
-    data->hasMesh = geomcount.getNbTriangles() > 0;
-    _node->setUserData(data);
+        setCameraOnNode(_node);
 
-    //configureShaders( _node->getOrCreateStateSet() );
-    _node->getOrCreateStateSet()->addUniform( new osg::Uniform( "zmin", zmin));
-    _node->getOrCreateStateSet()->addUniform( new osg::Uniform( "deltaz", zmax - zmin));
-    _node->getOrCreateStateSet()->addUniform( new osg::Uniform( "hasmesh", data->hasMesh));
+        home();
 
-    setCameraOnNode(_node);
+        // set transparency
+        setNodeTransparency(_node, _transparency);
 
-    home();
-
-    // set transparency
-    setNodeTransparency(_node, _transparency);
-
-    return true;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void OSGWidget::setCameraOnNode(osg::ref_ptr<osg::Node> _node)
