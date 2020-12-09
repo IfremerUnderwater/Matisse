@@ -2,7 +2,6 @@
 add_executable(MatisseCmd
     src/main.cpp
     src/JobLauncher.cpp
-    src/Server.cpp
     src/CartoImage.cpp)
 	
 	

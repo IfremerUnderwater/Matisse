@@ -24,7 +24,6 @@ add_executable(MatisseServer
     src/ExpertFormWidget.cpp
     src/UserFormWidget.cpp
     src/ParametersDialog.cpp
-    src/Server.cpp
     src/JobDialog.cpp
     src/StatusMessageWidget.cpp
     src/WelcomeDialog.cpp
