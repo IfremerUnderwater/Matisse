@@ -1,4 +1,6 @@
-﻿#include <QStyle>
+﻿//#include "WinSocket.h"
+
+#include <QStyle>
 #include <QDesktopWidget>
 #include <QList>
 #include <QtDebug>
@@ -7,7 +9,6 @@
 #include <QApplication>
 
 #include "FileUtils.h"
-#include "Server.h"
 #include "FileImage.h"
 #include "ImageSet.h"
 #include "Dim2FileReader.h"
@@ -20,6 +21,10 @@
 #include "camera_manager.h"
 #include "MatisseConfig.h"
 #include <QSettings>
+#include "SshClient.h"
+//#include "SshClientStub.h"
+#include "QSshClient.h"
+#include "RemoteJobHelper.h"
 
 using namespace MatisseServer;
 using namespace MatisseTools;
@@ -69,6 +74,8 @@ int main(int argc, char *argv[])
     std::setlocale(LC_ALL, "C");
 #endif // !1
 
+    QLoggingCategory::setFilterRules("qtc.ssh.debug=false");
+
     QApplication a(argc,argv);
 
     // Define customized log handler
@@ -85,6 +92,7 @@ int main(int argc, char *argv[])
 
     /* Clean all temp directories created during previous sessions */
     FileUtils::removeAllTempDirectories();
+
 
     /* Check if we need to deploy and eventually make it */
     QSettings matisse_settings("Ifremer","Matisse");
@@ -110,6 +118,11 @@ int main(int argc, char *argv[])
         CameraManager::instance().deployDefaultCamerasToAppData();
     //}
 
+    /* Check working directory path */
+    QString matisse_bin_path = ".";
+    qDebug() << "MatisseCmd bin path : " << QDir(matisse_bin_path).absolutePath();
+
+
     /* Create managers to be injected */
     CameraManager::instance().initializeFromDataBase();
     SystemDataManager systemDataManager;
@@ -117,6 +130,13 @@ int main(int argc, char *argv[])
     QString dataRootDir = systemDataManager.getDataRootDir();
     QString userDataPath = systemDataManager.getUserDataPath();
     ProcessDataManager processDataManager(dataRootDir, userDataPath);
+
+    /* Create remote process gateways and UI helper */
+    SshClient* ssh_client = new QSshClient();
+    SshClient* sftp_client = new QSshClient();
+    RemoteJobHelper remoteJobHelper;
+    remoteJobHelper.setSshClient(ssh_client);
+    remoteJobHelper.setSftpClient(sftp_client);
 
     /* Create main window and set params */
     AssemblyGui w;
@@ -133,6 +153,7 @@ int main(int argc, char *argv[])
     w.setObjectName("_MW_assemblyGui");
     w.setSystemDataManager(&systemDataManager);
     w.setProcessDataManager(&processDataManager);
+    w.setRemoteJobHelper(&remoteJobHelper);
     w.init();
     //w.loadDefaultStyleSheet();
     w.slot_showApplicationMode(POST_PROCESSING); // open directly to the most used mode ie : post processing

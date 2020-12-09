@@ -18,7 +18,6 @@
 #include "AssemblyGraphicsScene.h"
 #include "KeyValueList.h"
 #include "ParametersDialog.h"
-#include "Server.h"
 #include "MatisseParametersManager.h"
 #include "ParametersWidgetSkeleton.h"
 
@@ -36,9 +35,6 @@ class ExpertFormWidget : public QWidget
 public:
     explicit ExpertFormWidget(QWidget *parent = 0);
     ~ExpertFormWidget();
-
-    // TODO provisoire à supprimer
-    void setServer(Server *server);
 
     bool loadAssembly(QString assemblyName);
     void resetAssemblyForm();

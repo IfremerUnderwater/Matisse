@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>700</width>
-    <height>315</height>
+    <height>605</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,12 +20,15 @@
    <string>Configuration</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources/resources.qrc">
+   <iconset>
     <normaloff>:/png/ifremer-grand.png</normaloff>:/png/ifremer-grand.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
      <property name="leftMargin">
       <number>10</number>
      </property>
@@ -43,110 +46,8 @@
        <property name="horizontalSpacing">
         <number>2</number>
        </property>
-       <item row="6" column="2" colspan="2">
-        <widget class="QComboBox" name="_CB_languageSelect">
-         <property name="insertPolicy">
-          <enum>QComboBox::InsertAtBottom</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="9">
-        <widget class="QPushButton" name="_PB_importExportPathSelect">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="9">
-        <widget class="QPushButton" name="_PB_defaultResultPathSelect">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QLabel" name="_LA_language">
-         <property name="text">
-          <string>Language (EN/FR) :</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1" colspan="6">
-        <widget class="QLabel" name="_LA_DefaultMosaicPrefix">
-         <property name="text">
-          <string>Default output name:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="4">
-        <widget class="QCheckBox" name="_CK_enableProgrammingMode">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="9">
-        <widget class="QPushButton" name="_PB_archivePathSelect">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="7">
-        <widget class="QLineEdit" name="_LE_defaultMosaicPrefix"/>
-       </item>
-       <item row="5" column="1" colspan="3">
-        <widget class="QLabel" name="_LA_enableProgrammingMode">
-         <property name="text">
-          <string>Enable expert mode</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3" colspan="5">
-        <widget class="QLineEdit" name="_LE_importExportPath"/>
-       </item>
-       <item row="0" column="1" colspan="2">
-        <widget class="QLabel" name="_LA_importExport">
-         <property name="text">
-          <string>Import/Export directory</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3" colspan="5">
-        <widget class="QLineEdit" name="_LE_archivePath"/>
-       </item>
-       <item row="3" column="1">
-        <spacer name="verticalSpacer_2">
+       <item row="7" column="1">
+        <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -168,7 +69,115 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="8">
+       <item row="3" column="1">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="6" column="2" colspan="2">
+        <widget class="QComboBox" name="_CB_languageSelect">
+         <property name="insertPolicy">
+          <enum>QComboBox::InsertAtBottom</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="4" colspan="3">
+        <widget class="QLineEdit" name="_LE_remoteUsername"/>
+       </item>
+       <item row="9" column="1" colspan="3">
+        <widget class="QLabel" name="_LA_remoteCommandServerAddress">
+         <property name="text">
+          <string>Remote command server (SSH)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" colspan="5">
+        <widget class="QLabel" name="_LA_DefaultMosaicPrefix">
+         <property name="text">
+          <string>Default output name:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="1" colspan="3">
+        <widget class="QLabel" name="_LA_remoteQueueName">
+         <property name="text">
+          <string>Remote execution queue</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="1" colspan="3">
+        <widget class="QLabel" name="_LA_remoteUserEmail">
+         <property name="text">
+          <string>Remote user email</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="8">
+        <widget class="QPushButton" name="_PB_archivePathSelect">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1" colspan="3">
+        <widget class="QLabel" name="_LA_enableProgrammingMode">
+         <property name="text">
+          <string>Enable expert mode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="4" colspan="3">
+        <widget class="QLineEdit" name="_LE_remoteFileServerAddress"/>
+       </item>
+       <item row="10" column="1" colspan="3">
+        <widget class="QLabel" name="_LA_remoteFileServerAddress">
+         <property name="text">
+          <string>Remote file server (SFTP)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLabel" name="_LA_language">
+         <property name="text">
+          <string>Language (EN/FR) :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="4" colspan="3">
+        <widget class="QLineEdit" name="_LE_defaultResultPath"/>
+       </item>
+       <item row="4" column="6">
+        <widget class="QLineEdit" name="_LE_defaultMosaicPrefix"/>
+       </item>
+       <item row="14" column="1" colspan="3">
+        <widget class="QLabel" name="_LA_remoteNbOfCpus">
+         <property name="text">
+          <string>Number of remote CPUs</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -184,6 +193,36 @@
          </property>
         </spacer>
        </item>
+       <item row="9" column="4" colspan="3">
+        <widget class="QLineEdit" name="_LE_remoteCommandServerAddress"/>
+       </item>
+       <item row="5" column="4">
+        <widget class="QCheckBox" name="_CK_enableProgrammingMode">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="4" colspan="3">
+        <widget class="QLineEdit" name="_LE_remoteUserEmail"/>
+       </item>
+       <item row="0" column="8">
+        <widget class="QPushButton" name="_PB_importExportPathSelect">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+       </item>
        <item row="2" column="1" colspan="3">
         <widget class="QLabel" name="_LA_defaultResultPath">
          <property name="text">
@@ -191,8 +230,48 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="4" colspan="4">
-        <widget class="QLineEdit" name="_LE_defaultResultPath"/>
+       <item row="1" column="3" colspan="4">
+        <widget class="QLineEdit" name="_LE_archivePath"/>
+       </item>
+       <item row="0" column="1" colspan="2">
+        <widget class="QLabel" name="_LA_importExport">
+         <property name="text">
+          <string>Import/Export directory</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="4" colspan="3">
+        <widget class="QLineEdit" name="_LE_remoteQueueName"/>
+       </item>
+       <item row="14" column="4" colspan="3">
+        <widget class="QLineEdit" name="_LE_remoteNbOfCpus"/>
+       </item>
+       <item row="0" column="3" colspan="4">
+        <widget class="QLineEdit" name="_LE_importExportPath"/>
+       </item>
+       <item row="2" column="8">
+        <widget class="QPushButton" name="_PB_defaultResultPathSelect">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>:/qss_icons/icons/Dossier.svg</normaloff>:/qss_icons/icons/Dossier.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="1" colspan="3">
+        <widget class="QLabel" name="_LA_remoteUsername">
+         <property name="text">
+          <string>Remote username</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -201,10 +280,13 @@
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::MinimumExpanding</enum>
+       </property>
        <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
-         <height>40</height>
+         <height>20</height>
         </size>
        </property>
       </spacer>

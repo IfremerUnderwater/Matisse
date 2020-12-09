@@ -10,8 +10,6 @@
 #include <QMap>
 #include <QHash>
 #include <QStringRef>
-#include <QScriptEngine>
-#include <QScriptValue>
 #include <QSize>
 #include <QRegExp>
 #include <QStringList>
@@ -60,6 +58,7 @@ public:
     void applyApplicationContext(bool isExpert, bool isProgramming);
     void toggleReadOnlyMode(bool isReadOnly);
     void pullDatasetParameters(KeyValueList &kvl);
+    void pushDatasetParameters(KeyValueList kvl);
     void pushPreferredDatasetParameters(KeyValueList kvl);
 
     QString getParameterValue(QString parameterName);
@@ -87,7 +86,6 @@ private:
     void translateHeaderButtons();
     void retranslateLevelGroups(ParameterLevel level);
     void checkDictionnaryComplete();
-    void pushDatasetParameters(KeyValueList kvl);
 
     MatisseDictionnaryLabels _dictionnaryLabels;
 

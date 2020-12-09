@@ -2,10 +2,12 @@
 
 using namespace MatisseTools;
 
-SystemDataManager::SystemDataManager() :
-    _platformDump(NULL),
-    _remotePlatformDump(NULL)
+SystemDataManager::SystemDataManager(QString _bin_root_dir) :
+  _platformDump(NULL),
+  _remotePlatformDump(NULL), 
+  m_bin_root_dir(_bin_root_dir) 
 {
+  m_remote_server_settings = new MatisseRemoteServerSettings();
 }
 
 bool SystemDataManager::readMatisseSettings(QString filename)
@@ -62,6 +64,48 @@ bool SystemDataManager::readMatisseSettings(QString filename)
                 _dataRootDir = reader.readElementText();
             }
 
+            /* Remote server settings */
+            else if (elementName == "RemoteServerSetting") {
+              QXmlStreamAttributes attributes = reader.attributes();
+              QString server_setting_name = attributes.value("name").toString();
+              QString path = attributes.value("path").toString();
+              QString alias = attributes.value("alias").toString();
+              
+              RemoteServerSetting server_setting;
+              server_setting.setPath(path);
+              server_setting.setAlias(alias);
+
+              if (server_setting_name == "containerImage") {
+                m_remote_server_settings->setContainerImage(server_setting);
+              }              
+              else if (server_setting_name == "launcherParentDir") {
+                m_remote_server_settings->setLauncherParentDir(server_setting);
+              }              
+              else if (server_setting_name == "launcherFile") {
+                m_remote_server_settings->setLauncherFile(server_setting);
+              }              
+              else if (server_setting_name == "binRoot") {
+                m_remote_server_settings->setBinRoot(server_setting);
+              }              
+              else if (server_setting_name == "applicationFilesRoot") {
+                m_remote_server_settings->setApplicationFilesRoot(server_setting);
+              }              
+              else if (server_setting_name == "datasetsSubdir") {
+                m_remote_server_settings->setDatasetsSubdir(server_setting);
+              }              
+              else if (server_setting_name == "jobsSubdir") {
+                m_remote_server_settings->setJobsSubdir(server_setting);
+              }              
+              else if (server_setting_name == "resultsSubdir") {
+                m_remote_server_settings->setResultsSubdir(server_setting);
+              } else {
+                qWarning() << "SystemDataManager.readMatisseSettings: unknown "
+                              "remote server setting : "
+                           << server_setting_name;
+              }              
+            }
+
+            /* External tools definition */
             else if (elementName == "ExternalTool") {
                 QXmlStreamAttributes attributes = reader.attributes();
                 QString toolName = attributes.value("name").toString();
@@ -144,6 +188,26 @@ bool SystemDataManager::readMatissePreferences(QString filename, MatissePreferen
             } else if (elementName == "Language") {
                 prefs.setLanguage(reader.readElementText());
             }
+            else if (elementName == "RemoteCommandServer") {
+              prefs.setRemoteCommandServer(reader.readElementText());
+            }
+            else if (elementName == "RemoteFileServer") {
+              prefs.setRemoteFileServer(reader.readElementText());
+            }
+            else if (elementName == "RemoteUsername") {
+              prefs.setRemoteUsername(reader.readElementText());
+            }
+            else if (elementName == "RemoteUserEmail") {
+              prefs.setRemoteUserEmail(reader.readElementText());
+            }
+            else if (elementName == "RemoteQueueName") {
+              prefs.setRemoteQueueName(reader.readElementText());
+            }
+            else if (elementName == "RemoteNbOfCpus") {
+              QString value = reader.readElementText();
+              int nb_of_cpus = QVariant(value).toInt();
+              prefs.setRemoteNbOfCpus(nb_of_cpus);
+            }
         }
 
         if (reader.hasError()) {
@@ -205,6 +269,30 @@ bool SystemDataManager::writeMatissePreferences(QString filename, MatissePrefere
 
     writer.writeStartElement("Language");
     writer.writeCharacters(prefs.language());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteCommandServer");
+    writer.writeCharacters(prefs.remoteCommandServer());
+    writer.writeEndElement();
+    
+    writer.writeStartElement("RemoteFileServer");
+    writer.writeCharacters(prefs.remoteFileServer());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteUsername");
+    writer.writeCharacters(prefs.remoteUsername());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteUserEmail");
+    writer.writeCharacters(prefs.remoteUserEmail());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteQueueName");
+    writer.writeCharacters(prefs.remoteQueueName());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteNbOfCpus");
+    writer.writeCharacters(QVariant(prefs.remoteNbOfCpus()).toString());
     writer.writeEndElement();
 
     writer.writeEndElement(); // ending start tag

@@ -1,5 +1,5 @@
-﻿#ifndef ASSEMBLYGUI_H
-#define ASSEMBLYGUI_H
+﻿#ifndef JOB_LAUNCHER_H
+#define JOB_LAUNCHER_H
 
 #include <QDateTime>
 #include <QFile>
@@ -11,16 +11,17 @@
 #include <QtDebug>
 
 #include "KeyValueList.h"
-#include "Server.h"
 #include "Dim2FileReader.h"
 #include "MatissePreferences.h"
+#include "MatisseEngine.h"
 #include "SystemDataManager.h"
 #include "ProcessDataManager.h"
 #include "PlatformComparisonStatus.h"
 #include "StringUtils.h"
 
+using namespace MatisseTools;
 
-namespace MatisseServer {
+namespace MatisseCmd {
 
 
 class JobLauncher : public QObject
@@ -28,25 +29,25 @@ class JobLauncher : public QObject
     Q_OBJECT
     
 public:
-    explicit JobLauncher(QObject *parent = 0);
+    explicit JobLauncher(QObject *_parent = 0);
     ~JobLauncher();
 
     void init();
 
-    void setSystemDataManager(SystemDataManager *systemDataManager);
-    void setProcessDataManager(ProcessDataManager *processDataManager);
+    void setSystemDataManager(SystemDataManager *_system_data_manager);
+    void setProcessDataManager(ProcessDataManager *_process_data_manager);
 
-    void launchJob(QString jobName);
+    void launchJob(QString _job_name);
 
 private:
-    Server _server;
+    MatisseEngine m_engine;
 
-    SystemDataManager *_systemDataManager;
-    ProcessDataManager *_processDataManager;
+    SystemDataManager *m_system_data_manager;
+    ProcessDataManager *m_process_data_manager;
 
-    AssemblyDefinition *_newAssembly;
-    AssemblyDefinition *_currentAssembly;
-    JobDefinition *_currentJob;
+    AssemblyDefinition *m_new_assembly;
+    AssemblyDefinition *m_current_assembly;
+    JobDefinition *m_current_job;
 
 
 
@@ -58,7 +59,12 @@ signals:
     void signal_processRunning();
     void signal_processStopped();
     void signal_processFrozen();
+
+public slots:
+    void sl_jobProcessed(QString _job_name, bool _is_canceled);
+    void sl_processCompletion(quint8 _ret_code);
+    void sl_userInformation(QString _user_information);
 };
 }
 
-#endif // ASSEMBLYGUI_H
+#endif // JOB_LAUNCHER_H

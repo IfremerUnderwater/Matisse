@@ -14,6 +14,7 @@ add_executable(MatisseServer
     src/OSGWidget/overlay_widget.cpp
     src/AssemblyGui.cpp
     src/ProcessorWidget.cpp
+	src/RemoteJobHelper.cpp
     src/SourceWidget.cpp
     src/ElementWidget.cpp
     src/DestinationWidget.cpp
@@ -23,7 +24,6 @@ add_executable(MatisseServer
     src/ExpertFormWidget.cpp
     src/UserFormWidget.cpp
     src/ParametersDialog.cpp
-    src/Server.cpp
     src/JobDialog.cpp
     src/StatusMessageWidget.cpp
     src/WelcomeDialog.cpp
@@ -41,6 +41,8 @@ add_executable(MatisseServer
     src/ElementWidgetProvider.cpp
     src/AboutDialog.cpp
     src/DuplicateDialog.cpp
+    src/RemoteFileDialog.cpp
+    src/RemoteProgressDialog.cpp
     src/RestoreJobsDialog.cpp
     src/NetworkCheckDialog.cpp
     src/CartoScene.cpp
@@ -67,9 +69,11 @@ target_link_libraries(MatisseServer PUBLIC
      Qt5::Network
      Qt5::Xml
      Qt5::XmlPatterns
-     Qt5::Script
+ #    Qt5::Script
      Qt5::OpenGL
      GDAL::GDAL
+     QSsh::QSsh
+     ${BOTAN_LIB}
      ${QUAZIP_LIBRARIES}
      ${OPENSCENEGRAPH_LIBRARIES}
 	 ${GeographicLib_LIBRARIES}

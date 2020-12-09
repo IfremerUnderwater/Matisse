@@ -5,9 +5,9 @@
 #include <QTranslator>
 #include <QStyleFactory>
 #include <QApplication>
+#include <QProcessEnvironment>
 
 #include "FileUtils.h"
-#include "Server.h"
 #include "FileImage.h"
 #include "ImageSet.h"
 #include "Dim2FileReader.h"
@@ -19,8 +19,8 @@
 #include "SystemDataManager.h"
 #include "ProcessDataManager.h"
 
-using namespace MatisseServer;
 using namespace MatisseTools;
+using namespace MatisseCmd;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
@@ -54,7 +54,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &
 
 int main(int argc, char *argv[])
 {
-
     // set all locales to avoid numbers with , instead of .
     setlocale(LC_ALL, "C");
     QLocale::setDefault(QLocale::C);
@@ -74,19 +73,50 @@ int main(int argc, char *argv[])
     /* Define default encoding for all text streaming */
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
-    //    qDebug() << "**********************************";
-    //    qDebug() << QgsApplication::showSettings();
-    //    qDebug() << "**********************************";
-
     /* Clean all temp directories created during previous sessions */
     FileUtils::removeAllTempDirectories();
 
+    QString matisse_bin_path = ".";
+    qDebug() << "MatisseCmd bin path : " << QDir(matisse_bin_path).absolutePath();
+
+    /* Checking arguments */
+    if (argc < 3) 
+    {
+      qFatal("Usage: MatisseCmd <data root path> <job name>");
+    }
+
+    char *arg_root = argv[1];
+    QString data_root_path(arg_root);
+    qDebug() << QString("MatisseCmd arg 1 (data root path) : %1")
+                    .arg(data_root_path);
+
+    QDir data_root_dir(data_root_path);
+    if (!data_root_dir.exists()) 
+    {
+      qFatal(QString("Data root directory '%1' not found").arg(data_root_path).toLatin1());
+    }
+     
+    char *arg_job = argv[2];
+    QString job_name(arg_job);
+    qDebug() << QString("MatisseCmd arg 2 (job name) : %1")
+                    .arg(job_name);
+
+    QString data_xml_path = data_root_path + QDir::separator() + "xml";
+    QString job_file_path = data_xml_path + QDir::separator() + "jobs" +
+                            QDir::separator() + job_name + ".xml";
+    QFile job_file(job_file_path);
+    if (!job_file.exists()) {
+      qFatal(
+          QString("Job file '%1 not found").arg(job_file_path).toLatin1());
+    }
+
     /* Create managers to be injected */
+    QString settings_path = matisse_bin_path + QDir::separator() + "config" 
+      + QDir::separator() + "MatisseSettings.xml";
+
     SystemDataManager systemDataManager;
-    systemDataManager.readMatisseSettings("config/MatisseSettings.xml");
-    QString dataRootDir = systemDataManager.getDataRootDir();
-    QString userDataPath = systemDataManager.getUserDataPath();
-    ProcessDataManager processDataManager(dataRootDir, userDataPath);
+    systemDataManager.readMatisseSettings(settings_path);
+    ProcessDataManager processDataManager(data_root_path, data_xml_path);
 
     /* Create main class and set params */
     JobLauncher jl;
@@ -95,7 +125,7 @@ int main(int argc, char *argv[])
     jl.setProcessDataManager(&processDataManager);
     jl.init();
 
-    jl.launchJob("toto");
+    jl.launchJob(job_name);
 
     int ret = a.exec();
     return ret;

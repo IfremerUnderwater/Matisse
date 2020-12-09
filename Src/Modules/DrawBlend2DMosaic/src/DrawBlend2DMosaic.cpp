@@ -3,6 +3,7 @@
 #include <math.h>
 #endif
 
+#include "FileUtils.h"
 #include "MosaicContext.h"
 #include "MosaicDrawer.h"
 #include "NavImage.h"
@@ -44,6 +45,9 @@ bool DrawBlend2DMosaic::configure()
 
     QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
     _outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    /* Resolve UNIX paths ('~/...') for remote job execution */
+    _outputDirnameStr = FileUtils::resolveUnixPath(_outputDirnameStr);
+
     QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
     if (datasetDirnameStr.isEmpty()

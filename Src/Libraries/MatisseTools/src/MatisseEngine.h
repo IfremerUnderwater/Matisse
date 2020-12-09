@@ -1,5 +1,5 @@
-﻿#ifndef SERVER_H
-#define SERVER_H
+#ifndef MATISSEENGINE_H
+#define MATISSEENGINE_H
 
 #include <QString>
 #include <QTcpSocket>
@@ -19,9 +19,8 @@
 #include "ProcessDataManager.h"
 
 using namespace MatisseCommon;
-using namespace MatisseTools;
 
-namespace MatisseServer {
+namespace MatisseTools {
 
 enum ApplicationMode {
     PROGRAMMING,
@@ -30,8 +29,7 @@ enum ApplicationMode {
     APP_CONFIG
 };
 
-class AssemblyGui;
-class Server;
+class MatisseEngine;
 class JobTask : public QObject{
     Q_OBJECT
 
@@ -45,7 +43,8 @@ public:
 
     bool isCancelled() const;
 
-    void setMainGui(AssemblyGui *mainGui);
+    void setJobLauncher(QObject *jobLauncher);
+    void setIsServerMode(bool _is_server_mode);
 
 signals:
     void signal_jobShowImageOnMainView(QString jobName, Image *image);
@@ -62,7 +61,7 @@ public slots:
     void slot_fatalError();
 
 private:
-    AssemblyGui* _mainGui;
+    QObject* _jobLauncher;
     Context* _context;
     ImageProvider* _imageProvider;
     QList<Processor*> _processors;
@@ -72,19 +71,20 @@ private:
     MatisseParameters *_assemblyParameters;
     QStringList _resultFileNames;
     volatile bool _isCancelled;
+    bool m_is_server_mode = false;
 };
 
-class Server : public QObject
+class MatisseEngine : public QObject
 {
     Q_OBJECT
-    
+
 public:
-    explicit Server(QObject *parent = 0);
-    virtual ~Server();
+    explicit MatisseEngine(QObject *parent = 0, bool _is_server_mode=false);
+    virtual ~MatisseEngine();
 
     //bool setSettingsFile(QString settings = "");
     void init();
-    void setMainGui(AssemblyGui* mainGui_p);
+    void setJobLauncher(QObject* jobLauncher);
 
     QList<Processor*> const getAvailableProcessors();
     QList<ImageProvider*> const getAvailableImageProviders();
@@ -101,7 +101,6 @@ public:
     bool stopJob(bool cancel=false);
     bool errorFlag();
     QString messageStr();
-//    Xml& xmlTool();
     MatisseParametersManager * parametersManager() { return _dicoParamMgr; }
 
     void setSystemDataManager(SystemDataManager *systemDataManager);
@@ -122,7 +121,8 @@ private:
     void setMessageStr(QString messageStr = "", bool error = true);
     bool loadParametersDictionnary();
 
-    AssemblyGui* _mainGui;
+    bool m_is_server_mode;
+    QObject* _jobLauncher;
     SystemDataManager *_systemDataManager;
     ProcessDataManager *_processDataManager;
     JobServer *_jobServer;
@@ -138,7 +138,7 @@ private:
     bool _errorFlag;
 };
 
-
 }
 
-#endif // SERVER_H
+
+#endif // MATISSEENGINE_H

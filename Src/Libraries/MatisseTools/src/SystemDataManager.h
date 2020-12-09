@@ -10,6 +10,7 @@
 #include <QtDebug>
 
 #include "MatissePreferences.h"
+#include "MatisseRemoteServerSettings.h"
 #include "PlatformInspector.h"
 #include "PlatformDump.h"
 #include "PlatformComparator.h"
@@ -24,7 +25,7 @@ namespace MatisseTools {
 class SystemDataManager
 {
 public:
-    SystemDataManager();
+    SystemDataManager(QString _bin_root_dir = ".");
 
     int port() const { return _port; }
     QString getUserDataPath() const { return _userDataPath; }
@@ -33,7 +34,10 @@ public:
     QString getPlatformSummaryFilePath() const;
     QString getPlatformEnvDumpFilePath() const;
     QString getDataRootDir() const;
+    QString getBinRootDir() const { return m_bin_root_dir; }
     QMap<QString, QString> getExternalTools() const;
+
+    MatisseRemoteServerSettings *remoteServerSettings() { return m_remote_server_settings; }
 
     bool readMatisseSettings(QString filename);
     bool readMatissePreferences(QString filename, MatissePreferences &prefs);
@@ -44,14 +48,17 @@ public:
 
     PlatformComparisonStatus *compareRemoteAndLocalPlatform();
 
-
 private:
     void getPlatformDump();
 
     QString _userDataPath;
     QString _dataRootDir;
+    QString m_bin_root_dir;
     QString _dllPath;
     QString _platformDumpPath;
+
+    MatisseRemoteServerSettings *m_remote_server_settings;
+    
     int _port;
     QString _version;
     QString _platformSummaryFilePath;

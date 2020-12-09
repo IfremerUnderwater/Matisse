@@ -4,103 +4,133 @@
 #include "GraphicalCharter.h"
 
 using namespace MatisseTools;
-using namespace MatisseServer;
 
-JobLauncher::JobLauncher(QObject *parent) :
+namespace MatisseCmd {
 
-    _currentJob(NULL),
-    _currentAssembly(NULL),
-    _newAssembly(NULL),
-    _systemDataManager(NULL),
-    _processDataManager(NULL)
-{
-    // useless but does not build otherwise -> ugly ..................
-//    GraphicalCharter &graph_charter = GraphicalCharter::instance();
-//    int a = graph_charter.dpiScaled(0);
-//    QString b("");
-//    FileUtils::createTempDirectory(b);
-//    QString source;
-//    QMap<QString,QString> properties;
-//    StringUtils::substitutePlaceHolders(source, properties);
-//    // ...............................................................
+JobLauncher::JobLauncher(QObject *_parent) : 
+      m_engine(_parent, true), // initialize engine as server
+      m_current_job(NULL),
+      m_current_assembly(NULL),
+      m_new_assembly(NULL),
+      m_system_data_manager(NULL),
+      m_process_data_manager(NULL) {
+  // useless but does not build otherwise -> ugly ..................
+  GraphicalCharter &graph_charter = GraphicalCharter::instance();
+  int a = graph_charter.dpiScaled(0);
+  QString b("");
+  FileUtils::createTempDirectory(b);
+  QString source;
+  QMap<QString, QString> properties;
+  StringUtils::substitutePlaceHolders(source, properties);
 
-    _server.setMainGui(this);
+  // ...............................................................
 
+  m_engine.setJobLauncher(this);
 }
 
-JobLauncher::~JobLauncher()
-{
+JobLauncher::~JobLauncher() {}
+
+void JobLauncher::setSystemDataManager(
+    SystemDataManager *_system_data_manager) {
+  m_system_data_manager = _system_data_manager;
 }
 
-void JobLauncher::setSystemDataManager(SystemDataManager *systemDataManager)
-{
-    _systemDataManager = systemDataManager;
+void JobLauncher::setProcessDataManager(
+    ProcessDataManager *process_data_manager) {
+  m_process_data_manager = process_data_manager;
 }
 
-void JobLauncher::setProcessDataManager(ProcessDataManager *processDataManager)
-{
-    _processDataManager = processDataManager;
+void JobLauncher::initServer() {
+  m_engine.setSystemDataManager(m_system_data_manager);
+  m_engine.setProcessDataManager(m_process_data_manager);
+  m_engine.init();
+
+  connect(&m_engine, SIGNAL(signal_jobProcessed(QString, bool)), this,
+          SLOT(sl_jobProcessed(QString, bool)));
+  connect(&m_engine, SIGNAL(signal_userInformation(QString)), this,
+          SLOT(sl_userInformation(QString)));
+  connect(&m_engine, SIGNAL(signal_processCompletion(quint8)), this,
+          SLOT(sl_processCompletion(quint8)));
 }
 
+void JobLauncher::init() {
+  initServer();
 
-void JobLauncher::initServer()
-{
-    _server.setSystemDataManager(_systemDataManager);
-    _server.setProcessDataManager(_processDataManager);
-    _server.init();
-
-    connect(&_server, SIGNAL(signal_jobProcessed(QString, bool)), this, SLOT(slot_jobProcessed(QString, bool)));
-    connect(&_server, SIGNAL(signal_jobShowImageOnMainView(QString,Image *)), this, SLOT(slot_jobShowImageOnMainView(QString,Image *)));
-    connect(&_server, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
-    connect(&_server, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+  /* Load elements */
+  bool load_status = m_process_data_manager->loadAssembliesAndJobs();
+  if (!load_status) {
+    qCritical() << tr("Could not initialize job launcher");
+    exit(1);
+  }
 }
 
+void JobLauncher::launchJob(QString _job_name) {
+  qDebug() << "Launching job...";
 
-void JobLauncher::init()
-{
+  if (!m_current_job) {
+    m_current_job = m_process_data_manager->getJob(_job_name);
 
-    initServer();
+    if (!m_current_job) {
+      qCritical() << QString(
+                         "Selected job '%1' not found in local repository, "
+                         "impossible to launch")
+                         .arg(_job_name);
+      return;
+    }
+  } else {
+    _job_name = m_current_job->name();
+  }
 
-    /* Load elements */
-    _processDataManager->loadAssembliesAndJobs();
+  QString assembly_name = m_current_job->assemblyName();
+
+  AssemblyDefinition *assemblyDef =
+      m_process_data_manager->getAssembly(assembly_name);
+  if (!assemblyDef) {
+    qCritical() << "Assembly error" << assembly_name;
+    return;
+  }
+
+  // Copy XML files to result path (crashing because of strong dependance to
+  // graphic classes
+  // QString resultPath =
+  // _server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
+  //_processDataManager->copyJobFilesToResult(jobName, resultPath);
+
+  emit signal_processRunning();
+
+  bool run_success = m_engine.processJob(*m_current_job);
+
+  if (!run_success) {
+    qCritical() << QString("Error launching job");
+  }
 }
 
-void JobLauncher::launchJob(QString jobName)
-{
-    qDebug() << "Launching job...";
+void JobLauncher::sl_processCompletion(quint8 _ret_code) {
+  qDebug() << tr("Job completion status: %1").arg(_ret_code);
+}
 
-
-    if (!_currentJob) {
-
-        _currentJob = _processDataManager->getJob(jobName);
-
-        if (!_currentJob) {
-            qCritical() << QString("Selected job '%1' not found in local repository, impossible to launch").arg(jobName);
-            return;
-        }
-    } else {
-        jobName = _currentJob->name();
+void JobLauncher::sl_jobProcessed(QString _job_name, bool _is_canceled) {
+  if (_is_canceled) {
+    qDebug() << QString("Job '%1' canceled").arg(_job_name);
+    exit(1);
+  } else {
+    bool error = m_engine.errorFlag();
+    if (error) {
+      qCritical() << QString("Job '%1' failed").arg(_job_name);
+      exit(1);
     }
 
-    QString assemblyName = _currentJob->assemblyName();
-
-
-    AssemblyDefinition * assemblyDef = _processDataManager->getAssembly(assemblyName);
-    if (!assemblyDef) {
-        qCritical() << "Assembly error" << assemblyName;
-        return;
-    }
-
-    // Copy XML files to result path (crashing because of strong dependance to graphic classes
-    //QString resultPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
-    //_processDataManager->copyJobFilesToResult(jobName, resultPath);
-
-    emit signal_processRunning();
-
-    bool runSuccess = _server.processJob(*_currentJob);
-
-    if (!runSuccess) {
-       qCritical() << QString("Error launching job");
-    }
-
+    qDebug() << QString("Job '%1' executed").arg(_job_name);
+    JobDefinition *job_def = m_process_data_manager->getJob(_job_name);
+    QDateTime now = QDateTime::currentDateTime();
+    job_def->executionDefinition()->setExecutionDate(now);
+    m_process_data_manager->writeJobFile(job_def, true);
+    exit(0);
+  }
 }
+
+void JobLauncher::sl_userInformation(QString _user_information) {
+  qDebug() << "==> User Information : " << _user_information;
+}
+
+}  // namespace MatisseCmd

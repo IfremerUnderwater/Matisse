@@ -3,13 +3,15 @@
 
 #include <QDialog>
 
-#include "Server.h"
+#include "MatisseEngine.h"
 #include "MatisseIconFactory.h"
 #include "IconizedButtonWrapper.h"
 
 namespace Ui {
 class WelcomeDialog;
 }
+
+using namespace MatisseTools;
 
 namespace MatisseServer {
 
