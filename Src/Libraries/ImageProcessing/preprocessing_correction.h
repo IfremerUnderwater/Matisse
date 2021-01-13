@@ -48,7 +48,7 @@ public:
 	/// <param name="_correct_colors"></param>
 	/// <param name="_compensate_illumination"></param>
 	/// <param name="_prepro_img_scaling"></param>
-	void configureProcessing(bool _correct_colors = true, bool _compensate_illumination = true, double _prepro_img_scaling = 1.0);
+	void configureProcessing(bool _correct_colors = true, bool _compensate_illumination = true, double _prepro_img_scaling = 1.0, double _saturation_threshold = 0.0001);
 
 
 private:
@@ -57,6 +57,7 @@ private:
 	double m_prepro_img_scaling;
 	bool m_correct_colors;
 	bool m_compensate_illumination;
+	double m_sat_thres;
 
 	std::vector<cv::Mat> m_bgr_lowres_img;
 

@@ -227,14 +227,60 @@
      </widget>
     </item>
     <item>
-     <widget class="QCheckBox" name="correct_colors_cb">
-      <property name="text">
-       <string>Correct colors for underwater attenuation</string>
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <property name="topMargin">
+       <number>0</number>
       </property>
-      <property name="checked">
-       <bool>true</bool>
-      </property>
-     </widget>
+      <item>
+       <widget class="QCheckBox" name="correct_colors_cb">
+        <property name="text">
+         <string>Correct colors for underwater attenuation</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Channel saturation percentage (between 0.01 and 1, recommended value : 0.6)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="sat_spinbox">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <double>0.60000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QCheckBox" name="correct_illum_cb">
@@ -267,7 +313,7 @@
          <double>50.000000000000000</double>
         </property>
         <property name="value">
-         <double>12.000000000000000</double>
+         <double>4.000000000000000</double>
         </property>
        </widget>
       </item>
