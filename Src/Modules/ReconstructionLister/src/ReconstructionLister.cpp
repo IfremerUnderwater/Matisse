@@ -34,76 +34,57 @@ void ReconstructionLister::onNewImage(quint32 port, Image &image)
 
 void ReconstructionLister::onFlush(quint32 port)
 {
-    qDebug() << logPrefix() << "Flush on port " << port;
-
-    /*_rastersInfo.clear();
-
-    static const QString SEP = QDir::separator();
-
-    // Dir checks
-    QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-
-    QString outDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
-    if(outDirnameStr.isEmpty())
-        outDirnameStr = "outReconstruction";
-
-    QString completeOutPath = rootDirnameStr + SEP + outDirnameStr;
-
-    QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
-
-    // Get context
-    QVariant *object = _context->getObject("reconstruction_context");
-    reconstructionContext * rc=NULL;
-    if (object)
-        rc = object->value<reconstructionContext*>();
-
-    for(unsigned int i=0; i<rc->components_ids.size(); i++)
-    {
-        QDir outPathDir(QString("%1_%2").arg(completeOutPath).arg(rc->components_ids[i]));
-        _rastersInfo << outPathDir.absoluteFilePath(QString("%1_%2_texrecon.obj").arg(fileNamePrefixStr).arg(rc->components_ids[i]));
-    }*/
-}
-
-bool ReconstructionLister::start()
-{
-    qDebug() << logPrefix() << " inside start";
-
-    qDebug() << logPrefix() << " out start";
-    return true;
-}
-
-bool ReconstructionLister::stop()
-{
 
     _rastersInfo.clear();
 
     static const QString SEP = QDir::separator();
 
     // Dir checks
-    QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-
-    QString outDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
-    if(outDirnameStr.isEmpty())
-        outDirnameStr = "outReconstruction";
-
-    QString completeOutPath = rootDirnameStr + SEP + outDirnameStr;
+    QString temp_out_dir = absoluteOutputTempDir() + QDir::separator() + "ModelPart";
+    QString out_dir = absoluteOutputDir();
+    QDir q_out_dir(out_dir);
 
     QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
     // Get context
-    QVariant *object = _context->getObject("reconstruction_context");
-    reconstructionContext * rc=NULL;
+    QVariant* object = _context->getObject("reconstruction_context");
+    reconstructionContext* rc = NULL;
     if (object)
     {
         rc = object->value<reconstructionContext*>();
 
+        QString out_filename_prefix = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+
         for (unsigned int i = 0; i < rc->components_ids.size(); i++)
         {
-            QDir outPathDir(QString("%1_%2").arg(completeOutPath).arg(rc->components_ids[i]));
-            _rastersInfo << outPathDir.absoluteFilePath(QString("%1_%2%3.obj").arg(fileNamePrefixStr).arg(rc->components_ids[i]).arg(rc->out_file_suffix));
+            QDir temp_out_recons_dir(QString("%1_%2").arg(temp_out_dir).arg(rc->components_ids[i]));
+            QString temp = temp_out_recons_dir.path();
+            QStringList recons_files = temp_out_recons_dir.entryList(QStringList() << fileNamePrefixStr+"*.png" << fileNamePrefixStr + "*.kml" << fileNamePrefixStr + "*.mtl" << fileNamePrefixStr + "*.obj" << fileNamePrefixStr + "*mesh.ply", QDir::Files);
+
+            for (unsigned int j = 0; j < recons_files.size(); j++)
+            {
+                QFile current_file(temp_out_recons_dir.absoluteFilePath(recons_files[j]));
+                current_file.rename(out_dir + QDir::separator() + recons_files[j]);
+            }
+
+            _rastersInfo << q_out_dir.absoluteFilePath(QString("%1_%2%3.obj").arg(fileNamePrefixStr).arg(rc->components_ids[i]).arg(rc->out_file_suffix));
+
         }
 
     }
+
+ 
+}
+
+bool ReconstructionLister::start()
+{
+    return true;
+}
+
+bool ReconstructionLister::stop()
+{
+
+
 
     return true;
 }

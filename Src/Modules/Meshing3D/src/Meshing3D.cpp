@@ -180,13 +180,9 @@ bool Meshing3D::start()
     static const QString SEP = QDir::separator();
 
     // get params
-    m_source_dir = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    m_source_dir = absoluteDatasetDir();
 
-    m_outdir = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
-    if (m_outdir.isEmpty())
-        m_outdir = "outReconstruction";
-
-    m_outdir = m_source_dir + SEP + m_outdir;
+    m_outdir = absoluteOutputTempDir();
 
     m_out_filename_prefix = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
@@ -227,7 +223,7 @@ void Meshing3D::onFlush(quint32 port)
     for (unsigned int i=0; i<rc->components_ids.size(); i++)
     {
 
-        QString scene_dir_i = m_outdir + QString("_%1").arg(rc->components_ids[i]);
+        QString scene_dir_i = m_outdir +QDir::separator() + "ModelPart" + QString("_%1").arg(rc->components_ids[i]);
         QString mvs_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".mvs";
 
         if (rc->current_format == ReconFormat::openMVG)

@@ -1,4 +1,5 @@
 ﻿#include "LifecycleComponent.h"
+#include <QDir>
 
 using namespace MatisseCommon;
 
@@ -71,5 +72,36 @@ bool LifecycleComponent::callStop()
     qDebug() << logPrefix() << "stop";
     _isStarted = false;
     return stop();
+}
+
+QString LifecycleComponent::absoluteDatasetDir()
+{
+    return _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+}
+
+QString LifecycleComponent::absoluteOutputDir()
+{
+    QDir output_dir(_matisseParameters->getStringParamValue("dataset_param", "output_dir"));
+    
+    if (output_dir.isRelative())
+    {
+        QString dataset_dir = this->absoluteDatasetDir();
+        return dataset_dir + QDir::separator() + output_dir.path();
+    }
+    else
+        return output_dir.path();
+
+}
+
+QString LifecycleComponent::absoluteOutputTempDir()
+{
+    QDir temp_path(this->absoluteOutputDir() + QDir::separator() + "temp");
+
+    if (!temp_path.exists())
+    {
+        temp_path.mkpath(temp_path.path());
+    }
+
+    return temp_path.path();
 }
 
