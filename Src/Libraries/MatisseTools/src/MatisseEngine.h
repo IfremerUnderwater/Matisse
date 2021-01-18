@@ -8,6 +8,7 @@
 #include <QNetworkInterface>
 #include <QModelIndex>
 #include <QCryptographicHash>
+#include <QFile>
 
 #include "Processor.h"
 #include "ImageProvider.h"
@@ -59,8 +60,10 @@ public slots:
     void slot_userInformation(QString userText);
     void slot_processCompletion(quint8 percentComplete);
     void slot_fatalError();
+    void slot_logToFile(QString _logInfo);
 
 private:
+    QFile* m_user_log_file;
     QObject* _jobLauncher;
     Context* _context;
     ImageProvider* _imageProvider;
@@ -72,6 +75,7 @@ private:
     QStringList _resultFileNames;
     volatile bool _isCancelled;
     bool m_is_server_mode = false;
+    bool m_log_file_opened = false;
 };
 
 class MatisseEngine : public QObject

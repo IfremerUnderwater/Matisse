@@ -3806,7 +3806,7 @@ void AssemblyGui::slot_launchJob()
     if (resultPathDir.isRelative())
     {
         QString dataPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_DATASET_DIR);
-        resultPath = dataPath;
+        resultPath = dataPath + QDir::separator() + resultPathDir.path();
     }
 
     _processDataManager->copyJobFilesToResult(jobName, resultPath);
