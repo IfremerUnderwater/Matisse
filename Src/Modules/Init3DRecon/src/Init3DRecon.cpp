@@ -251,11 +251,11 @@ void Init3DRecon::onFlush(quint32 port)
     bool firstImage = true;
 
     // Dir checks
-    QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    QString rootDirnameStr = absoluteDatasetDir();
     std::string dataset_dir = rootDirnameStr.toStdString();
     QString QSep = QDir::separator();
     std::string SEP = QSep.toStdString();
-    std::string output_dir = dataset_dir + SEP + "matches";
+    std::string output_dir = absoluteOutputTempDir().toStdString() + SEP + "matches";
 
     if ( !stlplus::folder_exists( dataset_dir ) )
     {
@@ -593,7 +593,7 @@ void Init3DRecon::onFlush(quint32 port)
     QString coords = QString::number(firstImagePos[0],'f',6) +";"
             + QString::number(firstImagePos[1],'f',6) + ";"
             + QString::number(firstImagePos[2],'f',3);
-    QString geoFileName = stlplus::create_filespec(rootDirnameStr.toStdString(),"georefpos.txt").c_str();
+    QString geoFileName = stlplus::create_filespec(absoluteOutputDir().toStdString(),"model_origin.txt").c_str();
     QFile geoFile(geoFileName);
     if( !geoFile.open(QIODevice::WriteOnly) )
     {

@@ -550,13 +550,37 @@ void MatisseEngine::init(){
 
 JobTask::JobTask(ImageProvider* imageProvider, QList<Processor*> processors, RasterProvider* rasterProvider,
                  JobDefinition &jobDefinition, MatisseParameters *parameters )
-    : _imageProvider(imageProvider),
+    : m_user_log_file(NULL),
+      _imageProvider(imageProvider),
       _processors(processors),
       _rasterProvider(rasterProvider),
       _jobDefinition(jobDefinition),
       _matParameters(parameters),
       _isCancelled(false)
 {
+    // Create the log file in the output folder
+    QString dataset_dir = _matParameters->getStringParamValue("dataset_param", "dataset_dir");
+
+    QDir output_dir(_matParameters->getStringParamValue("dataset_param", "output_dir"));
+    QDir absolute_out_dir;
+
+    if (output_dir.isRelative())
+    {
+        absolute_out_dir.setPath(dataset_dir + QDir::separator() + output_dir.path() + QDir::separator() + "log");
+    }
+    else
+        absolute_out_dir.setPath(output_dir.path() + QDir::separator() + "log");
+
+    if (!absolute_out_dir.exists())
+    {
+        absolute_out_dir.mkpath(absolute_out_dir.path());
+    }
+
+    m_user_log_file = new QFile(absolute_out_dir.absoluteFilePath("user_log.txt"));
+
+    if (m_user_log_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+        m_log_file_opened = true;
+    }
 }
 
 JobTask::~JobTask()
@@ -568,25 +592,22 @@ void JobTask::stop(bool cancel)
 {
     _isCancelled = cancel;
 
-    qDebug() << "Demande d'arret du image provider";
     _imageProvider->askToStop(cancel);
 
-    qDebug() << "Demande d'arret des processeurs";
     foreach (Processor *processor, _processors) {
         processor->askToStop(cancel);
     }
 
-    qDebug() << "Demande d'arret du raster provider";
     _rasterProvider->askToStop(cancel);
 }
 
 void JobTask::slot_start()
 {
+
     // TODO Ask for external creation of context!
     bool ok;
     _context = new Context;
 
-    qDebug() << "Configuration de la source";
     connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
     if (!m_is_server_mode) {
@@ -595,6 +616,7 @@ void JobTask::slot_start()
       connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
       connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
       connect(_imageProvider, SIGNAL(signal_addToLog(QString)), _jobLauncher, SLOT(slot_addToLog(QString)));
+      connect(_imageProvider, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
     }
 
     ok = _imageProvider->callConfigure(_context, _matParameters);
@@ -615,6 +637,7 @@ void JobTask::slot_start()
         connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
         connect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
+        connect(processor, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
         if (!m_is_server_mode) {
           connect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
           connect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
@@ -628,6 +651,7 @@ void JobTask::slot_start()
     qDebug() << "Configuration de la destination";
     connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    connect(_rasterProvider, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
     if (!m_is_server_mode) {
       connect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
       connect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
@@ -705,6 +729,7 @@ void JobTask::slot_stop()
     // Disconnect everything
     disconnect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     disconnect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    disconnect(_imageProvider, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
     if (!m_is_server_mode) {
       disconnect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
       disconnect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
@@ -720,6 +745,7 @@ void JobTask::slot_stop()
         disconnect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         disconnect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
         disconnect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
+        disconnect(processor, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
         if (!m_is_server_mode) {
           disconnect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
           disconnect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
@@ -731,6 +757,7 @@ void JobTask::slot_stop()
 
     disconnect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     disconnect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    disconnect(_rasterProvider, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
     if (!m_is_server_mode) {
       disconnect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
       disconnect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
@@ -745,6 +772,9 @@ void JobTask::slot_stop()
         _context = NULL;
         emit signal_jobStopped();
     }
+
+    m_user_log_file->close();
+    delete m_user_log_file;
 }
 
 bool JobTask::isCancelled() const
@@ -774,6 +804,12 @@ void JobTask::slot_fatalError()
     _isCancelled = true;
     emit signal_jobStopped();
     slot_stop();
+}
+
+void JobTask::slot_logToFile(QString _logInfo)
+{
+    QTextStream out_stream(m_user_log_file);
+    out_stream << _logInfo << "\n";
 }
 
 void JobTask::setJobLauncher(QObject *jobLauncher)

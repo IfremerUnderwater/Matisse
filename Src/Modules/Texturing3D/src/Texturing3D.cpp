@@ -195,13 +195,9 @@ bool Texturing3D::start()
     static const QString SEP = QDir::separator();
 
     // get params
-    m_source_dir = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    m_source_dir = absoluteOutputTempDir();
 
-    m_outdir = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
-    if (m_outdir.isEmpty())
-        m_outdir = "outReconstruction";
-
-    m_outdir = m_source_dir + SEP + m_outdir;
+    m_outdir = absoluteOutputTempDir();
 
     m_out_filename_prefix = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
@@ -243,7 +239,7 @@ void Texturing3D::onFlush(quint32 port)
         // Convert model to mvs-texturing
         emit signal_userInformation("Texturing3D convert");
         
-        QString scene_dir_i = m_outdir + QString("_%1").arg(rc->components_ids[i]);
+        QString scene_dir_i = m_outdir + QDir::separator() + "ModelPart" + QString("_%1").arg(rc->components_ids[i]);
         QString mesh_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".ply";
         QString undist_dir_i = scene_dir_i + SEP + "undist_imgs";
         QString sfm_data_file = scene_dir_i + SEP + "sfm_data.bin";

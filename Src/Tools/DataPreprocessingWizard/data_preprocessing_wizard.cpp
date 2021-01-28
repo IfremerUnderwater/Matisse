@@ -518,13 +518,17 @@ void DataPreprocessingWizard::preprocessImages(QStringList _images_list, QString
 
     if(ui->correct_colors_cb->isChecked() || ui->res_limit_cb->isChecked() || ui->correct_illum_cb->isChecked())
     {
-        PreprocessingCorrection img_processor(5,this);
+        PreprocessingCorrection img_processor(3,this);
         bool need_colors_corr = false;
         bool need_illum_corr = false;
         double preproc_scale = 1.0;
+        double color_sat_value = 0.001;
 
         if (ui->correct_colors_cb->isChecked())
+        {
             need_colors_corr = true;
+            color_sat_value = ui->sat_spinbox->value()/100.0;
+        }
 
         if (ui->correct_illum_cb->isChecked())
             need_illum_corr = true;
@@ -545,7 +549,7 @@ void DataPreprocessingWizard::preprocessImages(QStringList _images_list, QString
             }
         }
 
-        img_processor.configureProcessing(need_colors_corr, need_illum_corr, preproc_scale);
+        img_processor.configureProcessing(need_colors_corr, need_illum_corr, preproc_scale, color_sat_value);
         img_processor.preprocessImageList(_images_list, _out_image_path);
 
     }

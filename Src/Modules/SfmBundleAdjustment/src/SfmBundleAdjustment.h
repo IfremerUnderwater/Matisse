@@ -33,12 +33,10 @@ private:
     QDateTime m_start_time;
     QDateTime m_last_ply_time;
 
-    QString m_root_dirname_str;
-    QString m_out_dirname_str;
-    QString m_out_complete_path_str;
     QString m_matches_path;
     QString m_splitted_matches_path;
     QString m_sfm_data_file;
+    QString m_out_complete_path_str;
     QStringList m_matches_files_list;
     bool m_use_prior;
  

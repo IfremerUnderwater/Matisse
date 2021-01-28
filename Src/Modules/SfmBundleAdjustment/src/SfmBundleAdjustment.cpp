@@ -290,6 +290,7 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
         }
     }
 
+
     //---------------------------------------
     // Sequential reconstruction process
     //---------------------------------------
@@ -382,16 +383,10 @@ bool SfmBundleAdjustment::start()
     if (!Ok)
         m_use_prior = true;
 
-    // Get Dirs
-    m_root_dirname_str = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-
-    m_out_dirname_str = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
-    if(m_out_dirname_str.isEmpty())
-        m_out_dirname_str = "outReconstruction";
-
-    m_matches_path = m_root_dirname_str + SEP + "matches";
-    m_splitted_matches_path = m_root_dirname_str + SEP + QString("splitted_matches");
-    m_sfm_data_file = m_root_dirname_str + SEP + "matches" + SEP + "sfm_data.bin";
+    // Get Paths
+    m_matches_path = absoluteOutputTempDir() + SEP + "matches";
+    m_splitted_matches_path = absoluteOutputTempDir() + SEP + QString("splitted_matches");
+    m_sfm_data_file = absoluteOutputTempDir() + SEP + "matches" + SEP + "sfm_data.bin";
 
     return true;
 }
@@ -452,7 +447,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
         emit signal_userInformation(QString("Sfm bundle adj %1/%2").arg(i+1).arg(m_matches_files_list.size()));
 
         // Fill out path
-        m_out_complete_path_str = m_root_dirname_str + SEP + m_out_dirname_str+QString("_%1").arg(rc->components_ids[i]);
+        m_out_complete_path_str = absoluteOutputTempDir() + SEP + "ModelPart"+QString("_%1").arg(rc->components_ids[i]);
 
         // Compute Sfm bundle adjustment
         this->incrementalSfm(m_out_complete_path_str, m_matches_files_list[i]);
