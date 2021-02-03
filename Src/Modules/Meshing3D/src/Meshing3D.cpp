@@ -206,6 +206,9 @@ void Meshing3D::onFlush(quint32 port)
     emit signal_processCompletion(0);
     emit signal_userInformation("Meshing3D - start");
 
+    QString proc_info = logPrefix() + "Meshing started\n";
+    emit signal_addToLog(proc_info);
+
     // Get context
     QVariant *object = _context->getObject("reconstruction_context");
     reconstructionContext * rc;
@@ -269,7 +272,10 @@ void Meshing3D::onFlush(quint32 port)
     // complete current file suffix
     rc->out_file_suffix += "_mesh";
 
-    qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
+    // Log elapsed time
+    proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
+    emit signal_addToLog(proc_info);
+    //qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
 
     // Flush next module port
     flush(0);
