@@ -48,7 +48,7 @@ public:
 		_paramLabelKeys.insert("force_recompute", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Force recompute"));
 
 		/* GROUP : overlap_filtering_params */
-		_groupLabelKeys.insert("overlap_filtering_params", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Parametres de filtrage"));
+		_groupLabelKeys.insert("overlap_filtering_params", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Images overlap handling"));
 		_paramLabelKeys.insert("filter_overlap", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Overlap filtering"));
 		_paramLabelKeys.insert("max_overlap", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Max overlap between 2 images"));
 		_paramLabelKeys.insert("min_overlap", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Min overlap between 2 images"));
@@ -160,7 +160,7 @@ public:
 	QString getParamLabel(QString paramName) {
 		if (!_paramLabelKeys.contains(paramName)) {
 			qCritical() << QString("No label declared for parameter '%1'").arg(paramName);
-			return "Unknown";
+			return paramName;
 		}
 		
 		QString labelKey = _paramLabelKeys.value(paramName);

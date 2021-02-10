@@ -46,6 +46,8 @@ bool Polygon::addContour(std::vector<double> x_p, std::vector<double> y_p, bool 
 
     _modifSinceUpdate = true;
 
+    updateGpcPolygon();
+
     return true;
 
 }

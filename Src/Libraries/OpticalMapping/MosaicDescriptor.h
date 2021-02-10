@@ -92,6 +92,11 @@ public:
     ///
     void decimateImagesFromOverlap(double minOverlap_p=0.5, double maxOverlap_p=0.7);
 
+    ///
+    /// \brief decimateImagesUntilNoOverlap This function removes images that have overlap with past images (This help to not count twice structures in case of bad navigation)
+    ///
+    void decimateImagesUntilNoOverlap();
+
 
 protected:
 

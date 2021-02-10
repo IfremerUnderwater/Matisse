@@ -21,6 +21,7 @@ Init2DMosaic::Init2DMosaic() :
     addExpectedParameter("algo_param","filter_overlap");
     addExpectedParameter("algo_param","min_overlap");
     addExpectedParameter("algo_param","max_overlap");
+    addExpectedParameter("algo_param", "disjoint_drawing");
 
 }
 
@@ -145,9 +146,12 @@ void Init2DMosaic::onFlush(quint32 port)
         pMosaicD->initCamerasAndFrames(*pCams,true);
         qDebug() << "Init done";
 
-
         // Filter cameras on overlap
-        if ( _matisseParameters->getBoolParamValue("algo_param","filter_overlap", Ok) ){
+        if (_matisseParameters->getBoolParamValue("algo_param", "disjoint_drawing", Ok)) {
+            pMosaicD->computeMosaicExtentAndShiftFrames();
+            pMosaicD->decimateImagesUntilNoOverlap();
+        }
+        else if ( _matisseParameters->getBoolParamValue("algo_param","filter_overlap", Ok) ){
             double min_overlap = _matisseParameters->getDoubleParamValue("algo_param","min_overlap", Ok);
             double max_overlap = _matisseParameters->getDoubleParamValue("algo_param","max_overlap", Ok);
 

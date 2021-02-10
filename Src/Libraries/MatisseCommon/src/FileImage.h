@@ -38,6 +38,8 @@ public:
     ~FileImage();
 
     QString getFileName() {  return _fileName;  }
+	
+	QString getFullFilePath() {  return _pictureFileSet->rootDirname() + "/" +_fileName;  }
 
     QString getSourceName() { return _sourceName; }
 
