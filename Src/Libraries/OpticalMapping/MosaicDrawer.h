@@ -80,6 +80,16 @@ public:
                                 QString writingPath_p,
                                 QString prefix_p);
 
+    ///
+    /// \brief blockDrawBlendAndWrite This function draw each image as a single geotiff file
+    /// \param mosaicD_p MosaicDescriptor for the mosaic to be blended
+    /// \param writingFolderPath_p path to write mosic files
+    /// \return list of output filenames
+    ///
+    QStringList writeImagesAsGeoTiff(const MosaicDescriptor& mosaicD_p,
+        QString writingPath_p,
+        QString prefix_p);
+
     int parseAndAffectOptions(QString drawingOptions);
 
 private:

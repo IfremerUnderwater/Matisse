@@ -33,6 +33,8 @@ DrawBlend2DMosaic::DrawBlend2DMosaic() :
     addExpectedParameter("algo_param", "block_width");
     addExpectedParameter("algo_param", "block_height");
 
+    addExpectedParameter("algo_param", "disjoint_drawing");
+
 }
 
 DrawBlend2DMosaic::~DrawBlend2DMosaic(){
@@ -137,7 +139,17 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     MosaicDrawer mosaicDrawer;
     QFileInfo outputFileInfo;
 
-    if (!blockDraw){
+    if (_matisseParameters->getBoolParamValue("algo_param", "disjoint_drawing", Ok)) {
+        QStringList outputFiles = mosaicDrawer.writeImagesAsGeoTiff(*pMosaicD,
+            _outputDirnameStr, outputFilename);
+
+        foreach(QString filename, outputFiles) {
+            outputFileInfo.setFile(QDir(_outputDirnameStr), filename);
+            _rastersInfo << outputFileInfo;
+        }
+
+    }
+    else if (!blockDraw){
         // opencv331
         cv::UMat mosaicImage,mosaicMask;
         mosaicDrawer.drawAndBlend(*pMosaicD, mosaicImage, mosaicMask);
@@ -157,7 +169,8 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
 
     }else{
         qDebug()<< logPrefix() << "entered block drawing part...";
-
+       
+        
         QStringList outputFiles = mosaicDrawer.blockDrawBlendAndWrite(*pMosaicD,
                                                                       Point2d(blockWidth, blockHeight),
                                                                       _outputDirnameStr, outputFilename);

@@ -13,7 +13,8 @@
                 <Parameter name="step_im" level="user" text="Images step" type="integer" range="[1,inf[" show="spin" default="1"/>
                 <Parameter name="force_recompute" level="user" text="Force recompute" type="bool" show="check" default="0"/>
             </ParametersGroup>
-            <ParametersGroup name="overlap_filtering_params" text="Parametres de filtrage">
+            <ParametersGroup name="overlap_filtering_params" text="Images overlap handling">
+                <Parameter name="disjoint_drawing" level="user" text="Disjoint mosaicking" type="bool" show="check" default="0"/>
                 <Parameter name="filter_overlap" level="expert" text="Overlap filtering" type="bool" show="check" default="0"/>
                 <Parameter name="max_overlap" level="expert" text="Max overlap between 2 images" type="double" range="[0,1]" precision="2" show="spin" default="0.9"/>
                 <Parameter name="min_overlap" level="expert" text="Min overlap between 2 images" type="double" range="[0,1]" precision="2" show="spin" default="0.7"/>

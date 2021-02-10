@@ -114,7 +114,7 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
     meanLat /= (double)_cameraNodes.size();
     meanLon /= (double)_cameraNodes.size();
 
-    if ( !(_T.LatLongToUTM(meanLat, meanLon, X, Y, utmZone)) ){
+    if ( !(_T.LatLongToUTM(meanLat, meanLon, X, Y, utmZone, false)) ){
         qDebug() << "Cannot retrieve UTM Zone\n";
         exit(1);
     }else{
@@ -371,18 +371,6 @@ void MosaicDescriptor::decimateImagesFromOverlap(double minOverlap_p, double max
 
     for (int k=0; k < cameraNodes().size(); k++){
         std::vector<double> x,y;
-        /*int xBegin, yBegin, xEnd, yEnd;
-        cv::Point imgCorner;
-        cv::Size imgSize;
-
-        cameraNodes().at(k)->computeImageExtent(imgCorner, imgSize);
-
-        // Compute extents
-        xBegin = imgCorner.x;
-        yBegin = imgCorner.y;
-
-        xEnd = imgCorner.x + imgSize.width-1;
-        yEnd = imgCorner.y + imgSize.height-1;*/
 
         // Construct currentPolygon
         cameraNodes().at(k)->computeImageFootPrint(x,y);
@@ -435,4 +423,71 @@ void MosaicDescriptor::decimateImagesFromOverlap(double minOverlap_p, double max
     }
 
 
+}
+
+void MosaicDescriptor::decimateImagesUntilNoOverlap()
+{
+    // Allocate and build polygons associated with images
+    std::vector<Polygon*> vpImagesPoly;
+
+    double eps = 0.000001;
+
+    Polygon* poly_union = new Polygon();
+    Polygon* temp_union = new Polygon();
+
+    for (int k = 0; k < cameraNodes().size(); k++) {
+        std::vector<double> x, y;
+
+        // Construct currentPolygon
+        cameraNodes().at(k)->computeImageFootPrint(x, y);
+        Polygon* currentPolygon = new Polygon();
+
+        currentPolygon->addContour(x, y);
+        x.clear(); y.clear();
+        vpImagesPoly.push_back(currentPolygon);
+
+    }
+
+    // Decimate images
+    std::vector<bool> keptIndexes;
+    keptIndexes.push_back(true);
+
+    // Initialize union
+    *poly_union = *(vpImagesPoly.at(0));
+
+    for (int i = 1; i < cameraNodes().size(); i++) {
+
+        double inter_area = poly_union->clipArea(*vpImagesPoly.at(i), basicproc::INT);
+
+        if (inter_area <eps) {
+            keptIndexes.push_back(true);
+            poly_union->clip(*vpImagesPoly.at(i), *temp_union, basicproc::UNION);
+            *poly_union = *temp_union;
+        }
+        else {
+            keptIndexes.push_back(false);
+        }
+
+    }
+
+    // Recreate cameraNode and delete non needed cameras
+    QVector<ProjectiveCamera*> tempCameraNodes;
+    for (unsigned int i = 0; i < keptIndexes.size(); i++) {
+        if (keptIndexes.at(i) == true) {
+            tempCameraNodes.push_back(_cameraNodes.at(i));
+        }
+        else {
+            delete _cameraNodes.at(i);
+        }
+    }
+
+    _cameraNodes = tempCameraNodes;
+
+
+    // Delete Polygons from memory
+    for (unsigned int i = 0; i < vpImagesPoly.size(); i++) {
+        delete vpImagesPoly.at(i);
+    }
+    delete poly_union;
+    delete temp_union;
 }
