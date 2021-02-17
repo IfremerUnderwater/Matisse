@@ -42,6 +42,8 @@ MosaicDrawer::MosaicDrawer(QString drawingOptions)
 }
 
 
+
+
 int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
 {
 
@@ -1183,6 +1185,24 @@ QStringList MosaicDrawer::writeImagesAsGeoTiff(const MosaicDescriptor& mosaicD_p
         // remove temp file
         QFile file(temp_input);
         file.remove();
+
+    }
+
+    return outputFiles;
+}
+
+QStringList MosaicDrawer::outputMosaicImagesAsIs(const MosaicDescriptor& mosaicD_p, QString writingPath_p, QString prefix_p)
+{
+    QStringList outputFiles;
+
+    // Loop on all images
+    for (int k = 0; k < mosaicD_p.cameraNodes().size(); k++) {
+
+        QString out_string = writingPath_p + QDir::separator() + prefix_p + QString("_%1.jpg").arg(k, 4, 'g', -1, '0');
+
+        FileImage* input_image =dynamic_cast<MatisseCommon::FileImage*>(mosaicD_p.cameraNodes().at(k)->image());
+
+        cv::imwrite(out_string.toStdString(), *(input_image->imageData()));
 
     }
 
