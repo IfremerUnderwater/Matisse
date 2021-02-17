@@ -34,6 +34,7 @@ DrawBlend2DMosaic::DrawBlend2DMosaic() :
     addExpectedParameter("algo_param", "block_height");
 
     addExpectedParameter("algo_param", "disjoint_drawing");
+    addExpectedParameter("algo_param", "single_image_output");
 
 }
 
@@ -139,9 +140,41 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     MosaicDrawer mosaicDrawer;
     QFileInfo outputFileInfo;
 
+    QString output_type_choice = _matisseParameters->getStringParamValue("algo_param", "single_image_output");
+
+    bool draw_geotiff = true;
+    bool draw_jpeg = false;
+    if (output_type_choice == "Geotiff only")
+    {
+        draw_geotiff = true;
+        draw_jpeg = false;
+    }
+    if (output_type_choice == "JPEG only")
+    {
+        draw_geotiff = false;
+        draw_jpeg = true;
+    }
+    if (output_type_choice == "Geotiff and JPEG")
+    {
+        draw_geotiff = true;
+        draw_jpeg = true;
+    }
+
+
     if (_matisseParameters->getBoolParamValue("algo_param", "disjoint_drawing", Ok)) {
-        QStringList outputFiles = mosaicDrawer.writeImagesAsGeoTiff(*pMosaicD,
-            _outputDirnameStr, outputFilename);
+        QStringList outputFiles;
+        
+        if (draw_geotiff)
+        {
+            outputFiles = mosaicDrawer.writeImagesAsGeoTiff(*pMosaicD,
+                _outputDirnameStr, outputFilename);
+        }
+
+        if (draw_jpeg)
+        {
+            mosaicDrawer.outputMosaicImagesAsIs(*pMosaicD,
+                _outputDirnameStr, outputFilename);
+        }
 
         foreach(QString filename, outputFiles) {
             outputFileInfo.setFile(QDir(_outputDirnameStr), filename);

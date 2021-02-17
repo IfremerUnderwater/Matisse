@@ -81,12 +81,22 @@ public:
                                 QString prefix_p);
 
     ///
-    /// \brief blockDrawBlendAndWrite This function draw each image as a single geotiff file
-    /// \param mosaicD_p MosaicDescriptor for the mosaic to be blended
+    /// \brief writeImagesAsGeoTiff This function draw each image as a single geotiff file
+    /// \param mosaicD_p MosaicDescriptor for the mosaic to be drawn
     /// \param writingFolderPath_p path to write mosic files
     /// \return list of output filenames
     ///
     QStringList writeImagesAsGeoTiff(const MosaicDescriptor& mosaicD_p,
+        QString writingPath_p,
+        QString prefix_p);
+
+    ///
+/// \brief blockDrawBlendAndWrite This function output each image without transform
+/// \param mosaicD_p MosaicDescriptor for the mosaic
+/// \param writingFolderPath_p path to write mosic files
+/// \return list of output filenames
+///
+    QStringList outputMosaicImagesAsIs(const MosaicDescriptor& mosaicD_p,
         QString writingPath_p,
         QString prefix_p);
 

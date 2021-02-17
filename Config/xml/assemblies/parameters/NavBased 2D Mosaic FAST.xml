@@ -8,6 +8,7 @@
         <Parameter name="step_im">1</Parameter>
         <!--overlap_filtering_params-->
         <Parameter name="disjoint_drawing">false</Parameter>
+        <Parameter name="single_image_output">Geotiff only</Parameter>
         <Parameter name="filter_overlap">true</Parameter>
         <Parameter name="max_overlap">0.60</Parameter>
         <Parameter name="min_overlap">0.30</Parameter>
