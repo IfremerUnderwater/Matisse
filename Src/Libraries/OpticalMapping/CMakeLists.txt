@@ -8,7 +8,7 @@ add_library(OpticalMapping
 include_directories(${QUAZIP_INCLUDE_DIRS})
 
 #target_link_libraries( OpticalMapping BasicProcessing MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Network Qt5::Xml Qt5::XmlPatterns Qt5::Script ${QUAZIP_LIBRARIES})
-target_link_libraries( OpticalMapping BasicProcessing MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Network Qt5::Xml Qt5::XmlPatterns ${QUAZIP_LIBRARIES})
+target_link_libraries( OpticalMapping BasicProcessing MatisseTools MatisseCommon SystemTools ${OpenCV_LIBS} Qt5::Core Qt5::Network Qt5::Xml Qt5::XmlPatterns ${QUAZIP_LIBRARIES})
 
 
 # state that anybody linking to us needs to include the current source dir

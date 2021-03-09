@@ -24,13 +24,6 @@ add_library(MatisseTools
     src/FoldUnfoldButton.cpp
     src/SystemDataManager.cpp
     src/ProcessDataManager.cpp
-    src/PlatformComponent.cpp
-    src/PlatformInspector.cpp
-    src/PlatformDump.cpp
-    src/PlatformOpencvComponent.cpp
-    src/platformOsgComponent.cpp
-    src/PlatformComparisonStatus.cpp
-    src/PlatformComparator.cpp
     src/MatisseIconFactory.cpp
     src/IconizedWidgetWrapper.cpp
     src/IconizedLabelWrapper.cpp

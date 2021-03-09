@@ -15,7 +15,7 @@ add_library(SystemTools
 include_directories(${QUAZIP_INCLUDE_DIRS})
 
 #target_link_libraries( MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml Qt5::XmlPatterns Qt5::Script ${QUAZIP_LIBRARIES})
-target_link_libraries( SystemTools Qt5::Core ${QUAZIP_LIBRARIES})
+target_link_libraries( SystemTools Qt5::Core Qt5::Widgets ${QUAZIP_LIBRARIES})
 
 
 

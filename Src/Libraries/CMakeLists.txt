@@ -1,5 +1,6 @@
 add_subdirectory(BasicProcessing)
 add_subdirectory(ImageProcessing)
+add_subdirectory(SystemTools)
 add_subdirectory(MatisseCommon)
 add_subdirectory(MatisseTools)
 add_subdirectory(OpticalMapping)
