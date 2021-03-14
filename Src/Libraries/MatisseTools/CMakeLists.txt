@@ -33,8 +33,6 @@ add_library(MatisseTools
     src/IconizedTreeItemWrapper.cpp
     src/IconizedActionWrapper.cpp
     src/EnrichedCamComboBox.cpp
-    src/SshCommand.cpp
-    src/SshCommandPbsQsub.cpp
     src/TreeItem.cpp
     src/TreeModel.cpp)
 	

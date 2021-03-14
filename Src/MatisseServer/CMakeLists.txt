@@ -65,15 +65,15 @@ target_link_libraries(MatisseServer PUBLIC
      ${OpenCV_LIBS}
      Qt5::Core
      Qt5::Widgets
-     Qt5::Network
+     #Qt5::Network
      Qt5::Xml
      Qt5::XmlPatterns
  #    Qt5::Script
      Qt5::OpenGL
      GDAL::GDAL
-     QSsh::QSsh
-     ${BOTAN_LIB}
-     ${QUAZIP_LIBRARIES}
+     #QSsh::QSsh
+     #${BOTAN_LIB}
+     #${QUAZIP_LIBRARIES}
      ${OPENSCENEGRAPH_LIBRARIES}
 	 ${GeographicLib_LIBRARIES}
 	 kmldom kmlbase)
