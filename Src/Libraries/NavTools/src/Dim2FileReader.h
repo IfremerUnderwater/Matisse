@@ -15,7 +15,7 @@
 
 #include "Dim2.h"
 #include "NavInfo.h"
-#include "FileImage.h"
+//#include "FileImage.h"
 
 namespace MatisseCommon {
 

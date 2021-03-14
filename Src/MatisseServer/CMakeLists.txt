@@ -46,7 +46,6 @@ add_executable(MatisseServer
     src/RestoreJobsDialog.cpp
     src/NetworkCheckDialog.cpp
     src/CartoScene.cpp
-    src/CartoImage.cpp
     src/WheelGraphicsView.cpp
     src/camera_manager_tool.cpp
     src/camera_calib_dialog.cpp
