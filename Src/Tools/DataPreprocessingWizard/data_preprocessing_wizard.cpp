@@ -532,23 +532,61 @@ void DataPreprocessingWizard::handleImages()
         QProcess exiftool_process;
         exiftool_process.setWorkingDirectory(m_data_path);
         QString command_line;
+        int nb_proc_img = 0;
 
         QProgressDialog exiftool_progress("Updating metadata ...", "Abort extraction", 0, 100, this);
         exiftool_progress.setWindowModality(Qt::WindowModal);
 
+        // Group images by batch to improve processing speed with exiftool
+        QVector<QStringList> batch_list;
+        int last_batch_idx = 0;
+
         for (int i = 0; i < new_images_files.size(); i++)
         {
+            if (i%50==0)
+                batch_list.push_back(QStringList());
 
-            QFileInfo current_file_info(new_images_files[i]);
-            QString processed_image_path = out_data_dir.absolutePath() + QDir::separator() + current_file_info.fileName();
+            last_batch_idx = batch_list.size() - 1;
+
+            batch_list[last_batch_idx] << new_images_files[i];
+
+        }
+
+        QString temp_arg_file = QDir::tempPath() + QDir::separator() + "tmp.args";
+
+        for (int i = 0; i < batch_list.size(); i++)
+        {
+            QFile file(temp_arg_file);
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+            {
+                QTextStream stream(&file);
+                
+                for (int j = 0; j < batch_list[i].size(); j++)
+                {
+                    QFileInfo current_file_info(batch_list[i][j]);
+                    QString processed_image_path = out_data_dir.absolutePath() + QDir::separator() + current_file_info.fileName();
+
+                    stream << "-overwrite_original_in_place\n";
+                    stream << "-TagsFromFile\n";
+
+                    stream << current_file_info.absoluteFilePath() << "\n";
+                    stream << processed_image_path << "\n";
+                }
+
+                stream << "-stay_open\n";
+                stream << "False\n";
+                file.close();
+
+            }
 
 #ifdef WIN32
-            command_line = "exiftool.exe -overwrite_original_in_place -TagsFromFile \"%1\" \"%2\" ";
+            command_line = "exiftool.exe -stay_open True -@ %1";
 #else
-            command_line = "exiftool -overwrite_original_in_place -TagsFromFile \"%1\" \"%2\" ";
+            command_line = "exiftool -stay_open True -@ %1";
 #endif
 
-            command_line = command_line.arg(current_file_info.absoluteFilePath()).arg(processed_image_path);
+            command_line = command_line.arg(temp_arg_file);
+            qDebug() << command_line;
             exiftool_process.start(command_line);
 
             // Monitor ffmpeg process
@@ -565,7 +603,8 @@ void DataPreprocessingWizard::handleImages()
                 qDebug() << output;
             }
 
-            exiftool_progress.setValue(round(100 * (i+1) / new_images_files.size()));
+            nb_proc_img += batch_list[i].size();
+            exiftool_progress.setValue(round(100 * nb_proc_img / new_images_files.size()));
 
         }
     }
