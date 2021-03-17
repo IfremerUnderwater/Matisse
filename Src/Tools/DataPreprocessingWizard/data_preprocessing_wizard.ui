@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>972</width>
-    <height>646</height>
+    <width>976</width>
+    <height>655</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -320,6 +320,16 @@
      <widget class="QCheckBox" name="correct_illum_cb">
       <property name="text">
        <string>Correct for non uniform illumination</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="keep_exif_metadata">
+      <property name="text">
+       <string>Keep photo metadata if available </string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
       </property>
      </widget>
     </item>

@@ -526,6 +526,50 @@ void DataPreprocessingWizard::handleImages()
     // preprocess if needed
     preprocessImages(new_images_files,  out_data_dir.absolutePath());
 
+    // copy exif data
+    if (ui->keep_exif_metadata->isChecked() && (ui->correct_colors_cb->isChecked() || ui->res_limit_cb->isChecked() || ui->correct_illum_cb->isChecked() || ui->use_inpaint_mask->isChecked()) )
+    {
+        QProcess exiftool_process;
+        exiftool_process.setWorkingDirectory(m_data_path);
+        QString command_line;
+
+        QProgressDialog exiftool_progress("Updating metadata ...", "Abort extraction", 0, 100, this);
+        exiftool_progress.setWindowModality(Qt::WindowModal);
+
+        for (int i = 0; i < new_images_files.size(); i++)
+        {
+
+            QFileInfo current_file_info(new_images_files[i]);
+            QString processed_image_path = out_data_dir.absolutePath() + QDir::separator() + current_file_info.fileName();
+
+#ifdef WIN32
+            command_line = "exiftool.exe -overwrite_original_in_place -TagsFromFile \"%1\" \"%2\" ";
+#else
+            command_line = "exiftool -overwrite_original_in_place -TagsFromFile \"%1\" \"%2\" ";
+#endif
+
+            command_line = command_line.arg(current_file_info.absoluteFilePath()).arg(processed_image_path);
+            exiftool_process.start(command_line);
+
+            // Monitor ffmpeg process
+            while (exiftool_process.waitForReadyRead(-1)) {
+
+                QString output = exiftool_process.readAllStandardOutput() + exiftool_process.readAllStandardError();
+
+                if (exiftool_progress.wasCanceled())
+                {
+                    exiftool_process.kill();
+                    return;
+                }
+
+                qDebug() << output;
+            }
+
+            exiftool_progress.setValue(round(100 * (i+1) / new_images_files.size()));
+
+        }
+    }
+
 }
 
 void DataPreprocessingWizard::preprocessImages(QStringList &_images_list, QString _out_image_path)
