@@ -60,6 +60,7 @@ set_target_properties(MatisseServer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISS
 include_directories(${QUAZIP_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_link_libraries(MatisseServer PUBLIC 
+	 MatisseCore
      MatisseTools
      MatisseCommon
      ${OpenCV_LIBS}
