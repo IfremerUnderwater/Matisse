@@ -434,6 +434,18 @@ void DataPreprocessingWizard::video2Images()
             else
             {
                 QMessageBox::information(this,"Video file naming","The video file you provided does not match any of the supported naming rules. Your model won't be georeferenced and scaled if you use those images");
+                
+                // Preprocess if needed
+                QStringList nameFilter = { "*.jpg" };
+                QDir processed_directory(ui->out_data_path_line->text());
+                qDebug() << "ProcessDir = " << processed_directory.absolutePath();
+                QStringList images_files = processed_directory.entryList(nameFilter);
+
+                // add to preprocess in case it is needed
+                QStringList new_images_files;
+                for (int i=0; i< images_files.size(); i++)
+                    new_images_files << processed_directory.absoluteFilePath(images_files[i]);
+                preprocessImages(new_images_files, processed_directory.absolutePath());
             }
 
         }
