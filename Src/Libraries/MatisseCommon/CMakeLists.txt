@@ -1,17 +1,5 @@
 add_library(MatisseCommon   
-    src/Processor.cpp
-    src/ImageProvider.cpp
-    src/PictureFileSet.cpp
-    src/NavImage.cpp
-    src/ImageSet.cpp
-    src/FileImage.cpp
-    src/MatisseParameters.cpp
-    src/RasterProvider.cpp
-    src/LifecycleComponent.cpp
-    src/GraphicalCharter.cpp
-    src/camera_manager.cpp
-    src/camera_info.cpp
-    src/camera_calib.cpp)
+	)
 
 #include_directories(${QUAZIP_INCLUDE_DIRS})
 

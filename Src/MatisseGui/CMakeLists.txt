@@ -1,5 +1,5 @@
 # add the executable
-add_executable(MatisseServer
+add_executable(MatisseGui
     src/main.cpp
 	src/OSGWidget/kml_handler.cpp
 	src/OSGWidget/point3d.cpp
@@ -49,17 +49,32 @@ add_executable(MatisseServer
     src/WheelGraphicsView.cpp
     src/camera_manager_tool.cpp
     src/camera_calib_dialog.cpp
+    #src/ParametersUi/EnrichedComboBox.cpp
+    #src/ParametersUi/EnrichedFormWidget.cpp
+    #src/ParametersUi/EnrichedLineEdit.cpp
+    #src/ParametersUi/EnrichedSpinBox.cpp
+    #src/ParametersUi/EnrichedDoubleSpinBox.cpp
+    #src/ParametersUi/EnrichedCheckBox.cpp
+    #src/ParametersUi/EnrichedListBox.cpp
+    #src/ParametersUi/EnrichedTableWidget.cpp
+	#src/ParametersUi/EnrichedCamComboBox.cpp
+    #src/ParametersUi/ParametersWidgetSkeleton.cpp
+    #src/ParametersUi/EnrichedFileChooser.cpp
+	#src/ParametersUi/MatisseParametersManager.cpp
+	#src/ParametersUi/EnrichedDecimalValueWidget.cpp
+	#src/ParametersUi/ParametersHeaderButton.cpp
+    #src/ParametersUi/FoldUnfoldButton.cpp	
     resources/resources.qrc
     style.qrc
     icons.qrc
     MatisseServer.rc)
 	
 	
-set_target_properties(MatisseServer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
+set_target_properties(MatisseGui PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
 	
 include_directories(${QUAZIP_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_link_libraries(MatisseServer PUBLIC 
+target_link_libraries(MatisseGui PUBLIC 
 	 MatisseCore
      MatisseTools
      MatisseCommon

@@ -112,8 +112,9 @@ endif()
 
 add_subdirectory(Libraries)
 
-add_subdirectory(MatisseServer)
-add_subdirectory(MatisseCmd)
+add_subdirectory(MatisseCore)
+add_subdirectory(MatisseGui)
+add_subdirectory(MatisseHeadless)
 
 add_subdirectory(Modules)
 
