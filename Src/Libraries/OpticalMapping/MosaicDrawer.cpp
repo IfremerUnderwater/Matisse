@@ -1198,11 +1198,13 @@ QStringList MosaicDrawer::outputMosaicImagesAsIs(const MosaicDescriptor& mosaicD
     // Loop on all images
     for (int k = 0; k < mosaicD_p.cameraNodes().size(); k++) {
 
-        QString out_string = writingPath_p + QDir::separator() + prefix_p + QString("_%1.jpg").arg(k, 4, 'g', -1, '0');
+        FileImage* input_image = dynamic_cast<MatisseCommon::FileImage*>(mosaicD_p.cameraNodes().at(k)->image());
 
-        FileImage* input_image =dynamic_cast<MatisseCommon::FileImage*>(mosaicD_p.cameraNodes().at(k)->image());
-
-        cv::imwrite(out_string.toStdString(), *(input_image->imageData()));
+        if (input_image != nullptr)
+        {
+            QString out_string = writingPath_p + QDir::separator() + input_image->getFileName();
+            cv::imwrite(out_string.toStdString(), *(input_image->imageData()));
+        }
 
     }
 

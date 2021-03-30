@@ -34,7 +34,9 @@ DataPreprocessingWizard::DataPreprocessingWizard(QWidget *parent) :
     ui->setupUi(this);
 
     connect(ui->use_rt_dim2_cb, SIGNAL(stateChanged(int)), this, SLOT(sl_handleUseRtDim2()));
+    connect(ui->use_inpaint_mask, SIGNAL(stateChanged(int)), this, SLOT(sl_handleUseInpaintMask()));
     connect(ui->select_dim2_file, SIGNAL(released()), this, SLOT(sl_selectDim2File()));
+    connect(ui->select_mask_file, SIGNAL(released()), this, SLOT(sl_selectMaskFile()));
     connect(ui->select_path, SIGNAL(released()), this, SLOT(sl_selectDataPath()));
     connect(ui->select_out_path, SIGNAL(released()), this, SLOT(sl_selectOutputPath()));
     connect(ui->select_nav_file, SIGNAL(released()), this, SLOT(sl_selectNavFile()));
@@ -96,6 +98,19 @@ void  DataPreprocessingWizard::sl_selectDim2File()
         if (QDir::separator() == "\\")
             dim2_file.replace("/", "\\");
         ui->rt_dim2_file->setText(dim2_file);
+    }
+}
+
+void  DataPreprocessingWizard::sl_selectMaskFile()
+{
+    QString mask_file = QFileDialog::getOpenFileName(this,
+        tr("Open tiff or png file"), "./", tr("Mask file (*.tiff *.dim2)"));
+
+    if (!mask_file.isEmpty())
+    {
+        if (QDir::separator() == "\\")
+            mask_file.replace("/", "\\");
+        ui->mask_file_le->setText(mask_file);
     }
 }
 
@@ -513,8 +528,43 @@ void DataPreprocessingWizard::handleImages()
 
 }
 
-void DataPreprocessingWizard::preprocessImages(QStringList _images_list, QString _out_image_path)
+void DataPreprocessingWizard::preprocessImages(QStringList &_images_list, QString _out_image_path)
 {
+
+    if (ui->use_inpaint_mask->isChecked())
+    {
+        QFileInfo mask_file_info(ui->mask_file_le->text());
+
+        if (mask_file_info.exists())
+        {
+            QProgressDialog inpaint_progress(QString("Inpainting images"), "Abort processing", 0, 100, this);
+            inpaint_progress.setWindowModality(Qt::WindowModal);
+
+            cv::Mat mask_img = cv::imread(mask_file_info.absoluteFilePath().toStdString(), cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
+            cv::Mat current_img, current_img_inpainted;
+
+            double inpaintRadius = 3.0;
+            int flags = cv::INPAINT_NS;
+
+            for (int i = 0; i < _images_list.size(); i++)
+            {
+                current_img = cv::imread(_images_list[i].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+
+                cv::inpaint(current_img, mask_img, current_img_inpainted, inpaintRadius, flags);
+
+                QFileInfo current_file_info(_images_list[i]);
+                _images_list[i] = _out_image_path + QDir::separator() + current_file_info.fileName();
+                cv::imwrite(_images_list[i].toStdString(), current_img_inpainted);
+
+                inpaint_progress.setValue(round(100 * i / _images_list.size()));
+
+                if (inpaint_progress.wasCanceled())
+                    return;
+            }
+
+        }
+
+    }
 
     if(ui->correct_colors_cb->isChecked() || ui->res_limit_cb->isChecked() || ui->correct_illum_cb->isChecked())
     {
@@ -607,5 +657,19 @@ void DataPreprocessingWizard::sl_handleUseRtDim2()
     {
         ui->rt_dim2_file->setEnabled(false);
         ui->select_dim2_file->setEnabled(false);
+    }
+}
+
+void DataPreprocessingWizard::sl_handleUseInpaintMask()
+{
+    if (ui->use_inpaint_mask->isChecked())
+    {
+        ui->mask_file_le->setEnabled(true);
+        ui->select_mask_file->setEnabled(true);
+    }
+    else
+    {
+        ui->mask_file_le->setEnabled(false);
+        ui->select_mask_file->setEnabled(false);
     }
 }
