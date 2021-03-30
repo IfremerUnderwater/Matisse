@@ -7,7 +7,7 @@ set_target_properties(DrawBlend2DMosaic PROPERTIES PREFIX "")
 
 include_directories(${QUAZIP_INCLUDE_DIRS})
 
-target_link_libraries( DrawBlend2DMosaic MatisseCommon BasicProcessing OpticalMapping ${OpenCV_LIBS} Qt5::Core Qt5::Xml Qt5::Widgets ${QUAZIP_LIBRARIES} GDAL::GDAL ${PROJ_LIBS})
+target_link_libraries( DrawBlend2DMosaic MatisseCore BasicProcessing OpticalMapping ${OpenCV_LIBS} Qt5::Core Qt5::Xml Qt5::Widgets ${QUAZIP_LIBRARIES} GDAL::GDAL ${PROJ_LIBS})
 
 add_custom_command(
  TARGET DrawBlend2DMosaic POST_BUILD

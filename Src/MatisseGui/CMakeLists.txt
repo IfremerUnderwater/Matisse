@@ -77,7 +77,6 @@ include_directories(${QUAZIP_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(MatisseGui PUBLIC 
 	 MatisseCore
      MatisseTools
-     MatisseCommon
      ${OpenCV_LIBS}
      Qt5::Core
      Qt5::Widgets

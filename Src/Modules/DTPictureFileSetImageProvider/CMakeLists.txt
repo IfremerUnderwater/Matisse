@@ -7,7 +7,7 @@ set_target_properties(DTPictureFileSetImageProvider PROPERTIES PREFIX "")
 
 include_directories(${QUAZIP_INCLUDE_DIRS})
 
-target_link_libraries( DTPictureFileSetImageProvider MatisseCommon BasicProcessing ${OpenCV_LIBS} Qt5::Core Qt5::Xml Qt5::Widgets ${QUAZIP_LIBRARIES})
+target_link_libraries( DTPictureFileSetImageProvider MatisseCore NavTools BasicProcessing ${OpenCV_LIBS} Qt5::Core Qt5::Xml Qt5::Widgets ${QUAZIP_LIBRARIES})
 
 add_custom_command(
  TARGET DTPictureFileSetImageProvider POST_BUILD

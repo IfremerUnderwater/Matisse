@@ -4,7 +4,7 @@
 #endif
 
 #include "FileUtils.h"
-#include "MosaicContext.h"
+//#include "MosaicContext.h"
 #include "MosaicDrawer.h"
 #include "NavImage.h"
 #include "DrawBlend2DMosaic.h"

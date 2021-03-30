@@ -1,7 +1,9 @@
 add_library(Init3DRecon SHARED src/Init3DRecon.cpp)
 
 target_link_libraries( Init3DRecon PRIVATE
-    MatisseCommon
+    MatisseCore
+    MatisseImage
+    NavTools
     BasicProcessing
     OpticalMapping
     ${OpenCV_LIBS}

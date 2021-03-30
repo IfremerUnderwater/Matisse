@@ -1,5 +1,5 @@
 ﻿#include "Init2DMosaic.h"
-#include "MosaicContext.h"
+//#include "MosaicContext.h"
 #include "NavImage.h"
 
 #include "MosaicDescriptor.h"

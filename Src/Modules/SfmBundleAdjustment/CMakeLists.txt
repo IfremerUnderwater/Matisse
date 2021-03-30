@@ -1,7 +1,7 @@
 add_library(SfmBundleAdjustment SHARED src/SfmBundleAdjustment.cpp)
 
 target_link_libraries( SfmBundleAdjustment
-	MatisseCommon
+	MatisseCore
 	BasicProcessing
 	${OpenCV_LIBS}
 	Qt5::Core

@@ -7,6 +7,7 @@
 #include "GeoTransform.h"
 #include <QVector>
 #include <QString>
+#include <QMetaType>
 
 using namespace MatisseCommon;
 //using namespace cv;
@@ -130,5 +131,8 @@ protected:
     QVector<ProjectiveCamera*> _cameraNodes;
 
 };
+
+Q_DECLARE_METATYPE(QVector<ProjectiveCamera *> *)
+Q_DECLARE_METATYPE(MosaicDescriptor *)
 
 #endif // MOSAIC_H

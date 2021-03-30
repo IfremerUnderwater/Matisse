@@ -1,7 +1,8 @@
 add_library(Meshing3D SHARED src/Meshing3D.cpp)
 
 target_link_libraries( Meshing3D
-	MatisseCommon
+	MatisseCore
+	MatisseImage
 	BasicProcessing
 	${OpenCV_LIBS}
 	Qt5::Core

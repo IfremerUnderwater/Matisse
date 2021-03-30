@@ -3,7 +3,8 @@ add_library(Matching3D SHARED src/Matching3D.cpp)
 include_directories(${OPENMVG_INSTALL_PATH}/include/openMVG_dependencies)
 
 target_link_libraries( Matching3D 
-	MatisseCommon
+	MatisseCore
+	MatisseImage
 	BasicProcessing
 	OpticalMapping
 	${OpenCV_LIBS}

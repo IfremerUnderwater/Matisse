@@ -1,7 +1,8 @@
 add_library(PointCloudDensify SHARED src/PointCloudDensify.cpp)
 
 target_link_libraries( PointCloudDensify
-	MatisseCommon
+	MatisseCore
+	MatisseImage
 	BasicProcessing
 	${OpenCV_LIBS}
 	Qt5::Core

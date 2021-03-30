@@ -1,7 +1,8 @@
 add_library(Texturing3D SHARED src/Texturing3D.cpp)
 
 target_link_libraries( Texturing3D
-	MatisseCommon
+	MatisseCore
+	MatisseImage
 	BasicProcessing
 	OpticalMapping
 	${OpenCV_LIBS}
