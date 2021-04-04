@@ -19,6 +19,15 @@ add_library(MatisseCore
     Parameters/MatisseDictionnaryLabels.h	
 	Parameters/MatisseParameters.cpp
 	# Temp location to resolve architectural issue
+	GraphicalCharter/GraphicalCharter.cpp
+	GraphicalCharter/MatisseIconFactory.cpp
+    GraphicalCharter/IconizedWidgetWrapper.cpp
+    GraphicalCharter/IconizedLabelWrapper.cpp
+    GraphicalCharter/IconizedButtonWrapper.cpp
+    GraphicalCharter/IconizedComboBoxItemWrapper.cpp
+    GraphicalCharter/MatisseTreeItem.cpp
+    GraphicalCharter/IconizedTreeItemWrapper.cpp
+    GraphicalCharter/IconizedActionWrapper.cpp	
     Parameters/EnrichedComboBox.cpp
     Parameters/EnrichedFormWidget.cpp
     Parameters/EnrichedLineEdit.cpp

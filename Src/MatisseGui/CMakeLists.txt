@@ -49,15 +49,6 @@ add_executable(MatisseGui
     src/WheelGraphicsView.cpp
     src/camera_manager_tool.cpp
     src/camera_calib_dialog.cpp
-	GraphicalCharter/GraphicalCharter.cpp
-	GraphicalCharter/MatisseIconFactory.cpp
-    GraphicalCharter/IconizedWidgetWrapper.cpp
-    GraphicalCharter/IconizedLabelWrapper.cpp
-    GraphicalCharter/IconizedButtonWrapper.cpp
-    GraphicalCharter/IconizedComboBoxItemWrapper.cpp
-    GraphicalCharter/MatisseTreeItem.cpp
-    GraphicalCharter/IconizedTreeItemWrapper.cpp
-    GraphicalCharter/IconizedActionWrapper.cpp
     #src/ParametersUi/EnrichedComboBox.cpp
     #src/ParametersUi/EnrichedFormWidget.cpp
     #src/ParametersUi/EnrichedLineEdit.cpp
