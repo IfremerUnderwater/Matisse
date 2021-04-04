@@ -31,3 +31,4 @@ Makefile.Release*
 /Run/
 /Src/.vs*
 out
+.vs
