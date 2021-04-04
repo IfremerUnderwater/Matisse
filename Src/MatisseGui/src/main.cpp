@@ -1,6 +1,4 @@
-﻿//#include "WinSocket.h"
-
-#include <QStyle>
+﻿#include <QStyle>
 #include <QDesktopWidget>
 #include <QList>
 #include <QtDebug>
@@ -22,7 +20,6 @@
 #include "MatisseConfig.h"
 #include <QSettings>
 #include "SshClient.h"
-//#include "SshClientStub.h"
 #include "QSshClient.h"
 #include "RemoteJobHelper.h"
 
@@ -120,13 +117,15 @@ int main(int argc, char *argv[])
 
     /* Check working directory path */
     QString matisse_bin_path = ".";
-    qDebug() << "MatisseCmd bin path : " << QDir(matisse_bin_path).absolutePath();
+    QString config_file_path = "config/MatisseSettings.xml";
 
+    qDebug() << "MatisseCmd bin path : " << QDir(matisse_bin_path).absolutePath();
+    qDebug() << "MatisseCmd config file path : " << QFileInfo(config_file_path).absoluteFilePath();
 
     /* Create managers to be injected */
     CameraManager::instance().initializeFromDataBase();
     SystemDataManager systemDataManager;
-    systemDataManager.readMatisseSettings("config/MatisseSettings.xml");
+    systemDataManager.readMatisseSettings(config_file_path);
     QString dataRootDir = systemDataManager.getDataRootDir();
     QString userDataPath = systemDataManager.getUserDataPath();
     ProcessDataManager processDataManager(dataRootDir, userDataPath);
