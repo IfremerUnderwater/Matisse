@@ -32,3 +32,6 @@ Makefile.Release*
 /Src/.vs*
 out
 .vs
+.vs
+/.vs
+/Src/MatisseGui/MatisseServer.aps
