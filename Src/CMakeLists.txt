@@ -112,7 +112,6 @@ endif()
 
 add_subdirectory(Libraries)
 
-add_subdirectory(MatisseCore)
 add_subdirectory(MatisseGui)
 add_subdirectory(MatisseHeadless)
 
