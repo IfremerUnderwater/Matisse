@@ -49,6 +49,8 @@ add_executable(MatisseGui
     src/WheelGraphicsView.cpp
     src/camera_manager_tool.cpp
     src/camera_calib_dialog.cpp
+	RemoteJobUi/TreeItem.cpp
+    RemoteJobUi/TreeModel.cpp
     #src/ParametersUi/EnrichedComboBox.cpp
     #src/ParametersUi/EnrichedFormWidget.cpp
     #src/ParametersUi/EnrichedLineEdit.cpp
