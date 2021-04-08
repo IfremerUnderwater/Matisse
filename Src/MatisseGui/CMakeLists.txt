@@ -16,7 +16,6 @@ add_executable(MatisseGui
 	src/RemoteJobHelper.cpp
     src/UserFormWidget.cpp
     src/ParametersDialog.cpp
-    src/JobDialog.cpp
     src/StatusMessageWidget.cpp
     src/WelcomeDialog.cpp
     src/OngoingProcessWidget.cpp
@@ -26,10 +25,8 @@ add_executable(MatisseGui
     src/LiveProcessWheel.cpp
     src/ParametersFoldButton.cpp
     src/AboutDialog.cpp
-    src/DuplicateDialog.cpp
     src/RemoteFileDialog.cpp
     src/RemoteProgressDialog.cpp
-    src/RestoreJobsDialog.cpp
     src/NetworkCheckDialog.cpp
     src/CartoScene.cpp
     src/WheelGraphicsView.cpp
@@ -49,6 +46,9 @@ add_executable(MatisseGui
     ExpertUi/ProcessorWidget.cpp
     ExpertUi/DestinationWidget.cpp
     ExpertUi/ElementWidgetProvider.cpp
+    JobManagementUi/JobDialog.cpp
+    JobManagementUi/DuplicateDialog.cpp
+    JobManagementUi/RestoreJobsDialog.cpp
 	RemoteJobUi/TreeItem.cpp
     RemoteJobUi/TreeModel.cpp
     #src/ParametersUi/EnrichedComboBox.cpp
@@ -79,6 +79,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 	${CMAKE_CURRENT_SOURCE_DIR}/BasicWidgets
 	${CMAKE_CURRENT_SOURCE_DIR}/CameraUi
+    ${CMAKE_CURRENT_SOURCE_DIR}/ExpertUi
+    ${CMAKE_CURRENT_SOURCE_DIR}/JobManagementUi
     ${CMAKE_CURRENT_SOURCE_DIR}/RemoteJobUi
     )
 
