@@ -1141,9 +1141,6 @@ void AssemblyGui::slot_showAboutBox()
     if (about.exec() != QDialog::Accepted) {
         return;
     }
-
-    //    AboutWebView webDialog(this);
-    //    webDialog.exec();
 }
 
 void AssemblyGui::createExportDir()
