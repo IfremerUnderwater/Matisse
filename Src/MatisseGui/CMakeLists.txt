@@ -1,17 +1,6 @@
 # add the executable
 add_executable(MatisseGui
     src/main.cpp
-	src/OSGWidget/kml_handler.cpp
-	src/OSGWidget/point3d.cpp
-	src/OSGWidget/osg_widget_tool.cpp
-    src/OSGWidget/osg_widget.cpp
-    src/OSGWidget/box_visitor.cpp
-    src/OSGWidget/area_computation_visitor.cpp
-    src/OSGWidget/measurement_picker_tool.cpp
-    src/OSGWidget/minmax_computation_visitor.cpp
-    src/OSGWidget/geometry_type_count_visitor.cpp
-    src/OSGWidget/shader_color.cpp
-    src/OSGWidget/overlay_widget.cpp
     src/AssemblyGui.cpp
     src/WelcomeDialog.cpp
     src/MainControllBar.cpp
@@ -51,6 +40,17 @@ add_executable(MatisseGui
     UserUi/StatusMessageWidget.cpp
     UserUi/OngoingProcessWidget.cpp
     UserUi/PreferencesDialog.cpp
+	UserUi/OSG3DViewer/kml_handler.cpp
+	UserUi/OSG3DViewer/point3d.cpp
+	UserUi/OSG3DViewer/osg_widget_tool.cpp
+    UserUi/OSG3DViewer/osg_widget.cpp
+    UserUi/OSG3DViewer/box_visitor.cpp
+    UserUi/OSG3DViewer/area_computation_visitor.cpp
+    UserUi/OSG3DViewer/measurement_picker_tool.cpp
+    UserUi/OSG3DViewer/minmax_computation_visitor.cpp
+    UserUi/OSG3DViewer/geometry_type_count_visitor.cpp
+    UserUi/OSG3DViewer/shader_color.cpp
+    UserUi/OSG3DViewer/overlay_widget.cpp
     #src/ParametersUi/EnrichedComboBox.cpp
     #src/ParametersUi/EnrichedFormWidget.cpp
     #src/ParametersUi/EnrichedLineEdit.cpp
@@ -83,7 +83,9 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/JobManagementUi
     ${CMAKE_CURRENT_SOURCE_DIR}/ParametersUi
     ${CMAKE_CURRENT_SOURCE_DIR}/RemoteJobUi
+    ${CMAKE_CURRENT_SOURCE_DIR}/RealTimeUi
     ${CMAKE_CURRENT_SOURCE_DIR}/UserUi
+    ${CMAKE_CURRENT_SOURCE_DIR}/UserUi/OSG3DViewer
     )
 
 target_link_libraries(MatisseGui PUBLIC 
