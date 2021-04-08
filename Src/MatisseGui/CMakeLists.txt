@@ -42,13 +42,13 @@ add_executable(MatisseGui
     src/NetworkCheckDialog.cpp
     src/CartoScene.cpp
     src/WheelGraphicsView.cpp
-    src/camera_manager_tool.cpp
-    src/camera_calib_dialog.cpp
     BasicWidgets/MatisseMenu.cpp	
 	BasicWidgets/MatisseVersionWidget.cpp
     BasicWidgets/HomeWidget.cpp
     BasicWidgets/VisuModeWidget.cpp
     BasicWidgets/MainMenuWidget.cpp	
+    CameraUi/camera_manager_tool.cpp
+    CameraUi/camera_calib_dialog.cpp
 	RemoteJobUi/TreeItem.cpp
     RemoteJobUi/TreeModel.cpp
     #src/ParametersUi/EnrichedComboBox.cpp
@@ -78,6 +78,7 @@ include_directories(
     ${QUAZIP_INCLUDE_DIRS} 
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 	${CMAKE_CURRENT_SOURCE_DIR}/BasicWidgets
+	${CMAKE_CURRENT_SOURCE_DIR}/CameraUi
     ${CMAKE_CURRENT_SOURCE_DIR}/RemoteJobUi
     )
 
