@@ -14,11 +14,9 @@ add_executable(MatisseGui
     src/OSGWidget/overlay_widget.cpp
     src/AssemblyGui.cpp
 	src/RemoteJobHelper.cpp
-    src/ParametersDialog.cpp
     src/WelcomeDialog.cpp
     src/MainControllBar.cpp
     src/MatisseTabWidget.cpp
-    src/ParametersFoldButton.cpp
     src/AboutDialog.cpp
     src/RemoteFileDialog.cpp
     src/RemoteProgressDialog.cpp
@@ -43,6 +41,8 @@ add_executable(MatisseGui
     JobManagementUi/JobDialog.cpp
     JobManagementUi/DuplicateDialog.cpp
     JobManagementUi/RestoreJobsDialog.cpp
+    ParametersUi/ParametersDialog.cpp
+    ParametersUi/ParametersFoldButton.cpp
 	RemoteJobUi/TreeItem.cpp
     RemoteJobUi/TreeModel.cpp
     UserUi/UserFormWidget.cpp
@@ -81,6 +81,7 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/CameraUi
     ${CMAKE_CURRENT_SOURCE_DIR}/ExpertUi
     ${CMAKE_CURRENT_SOURCE_DIR}/JobManagementUi
+    ${CMAKE_CURRENT_SOURCE_DIR}/ParametersUi
     ${CMAKE_CURRENT_SOURCE_DIR}/RemoteJobUi
     ${CMAKE_CURRENT_SOURCE_DIR}/UserUi
     )
