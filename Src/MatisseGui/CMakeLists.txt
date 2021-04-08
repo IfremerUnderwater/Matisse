@@ -13,15 +13,7 @@ add_executable(MatisseGui
     src/OSGWidget/shader_color.cpp
     src/OSGWidget/overlay_widget.cpp
     src/AssemblyGui.cpp
-    src/ProcessorWidget.cpp
 	src/RemoteJobHelper.cpp
-    src/SourceWidget.cpp
-    src/ElementWidget.cpp
-    src/DestinationWidget.cpp
-    src/AssemblyGraphicsScene.cpp
-    src/PipeWidget.cpp
-    src/AssemblyDialog.cpp
-    src/ExpertFormWidget.cpp
     src/UserFormWidget.cpp
     src/ParametersDialog.cpp
     src/JobDialog.cpp
@@ -33,7 +25,6 @@ add_executable(MatisseGui
     src/PreferencesDialog.cpp
     src/LiveProcessWheel.cpp
     src/ParametersFoldButton.cpp
-    src/ElementWidgetProvider.cpp
     src/AboutDialog.cpp
     src/DuplicateDialog.cpp
     src/RemoteFileDialog.cpp
@@ -49,6 +40,15 @@ add_executable(MatisseGui
     BasicWidgets/MainMenuWidget.cpp	
     CameraUi/camera_manager_tool.cpp
     CameraUi/camera_calib_dialog.cpp
+    ExpertUi/ExpertFormWidget.cpp
+    ExpertUi/AssemblyDialog.cpp
+    ExpertUi/AssemblyGraphicsScene.cpp
+    ExpertUi/PipeWidget.cpp
+    ExpertUi/ElementWidget.cpp
+    ExpertUi/SourceWidget.cpp
+    ExpertUi/ProcessorWidget.cpp
+    ExpertUi/DestinationWidget.cpp
+    ExpertUi/ElementWidgetProvider.cpp
 	RemoteJobUi/TreeItem.cpp
     RemoteJobUi/TreeModel.cpp
     #src/ParametersUi/EnrichedComboBox.cpp
