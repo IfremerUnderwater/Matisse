@@ -14,21 +14,15 @@ add_executable(MatisseGui
     src/OSGWidget/overlay_widget.cpp
     src/AssemblyGui.cpp
 	src/RemoteJobHelper.cpp
-    src/UserFormWidget.cpp
     src/ParametersDialog.cpp
-    src/StatusMessageWidget.cpp
     src/WelcomeDialog.cpp
-    src/OngoingProcessWidget.cpp
     src/MainControllBar.cpp
     src/MatisseTabWidget.cpp
-    src/PreferencesDialog.cpp
-    src/LiveProcessWheel.cpp
     src/ParametersFoldButton.cpp
     src/AboutDialog.cpp
     src/RemoteFileDialog.cpp
     src/RemoteProgressDialog.cpp
     src/NetworkCheckDialog.cpp
-    src/CartoScene.cpp
     src/WheelGraphicsView.cpp
     BasicWidgets/MatisseMenu.cpp	
 	BasicWidgets/MatisseVersionWidget.cpp
@@ -51,6 +45,12 @@ add_executable(MatisseGui
     JobManagementUi/RestoreJobsDialog.cpp
 	RemoteJobUi/TreeItem.cpp
     RemoteJobUi/TreeModel.cpp
+    UserUi/UserFormWidget.cpp
+    UserUi/CartoScene.cpp
+    UserUi/LiveProcessWheel.cpp
+    UserUi/StatusMessageWidget.cpp
+    UserUi/OngoingProcessWidget.cpp
+    UserUi/PreferencesDialog.cpp
     #src/ParametersUi/EnrichedComboBox.cpp
     #src/ParametersUi/EnrichedFormWidget.cpp
     #src/ParametersUi/EnrichedLineEdit.cpp
@@ -82,6 +82,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ExpertUi
     ${CMAKE_CURRENT_SOURCE_DIR}/JobManagementUi
     ${CMAKE_CURRENT_SOURCE_DIR}/RemoteJobUi
+    ${CMAKE_CURRENT_SOURCE_DIR}/UserUi
     )
 
 target_link_libraries(MatisseGui PUBLIC 
