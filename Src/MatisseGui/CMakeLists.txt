@@ -74,11 +74,16 @@ add_executable(MatisseGui
 	
 set_target_properties(MatisseGui PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
 	
-include_directories(${QUAZIP_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(
+    ${QUAZIP_INCLUDE_DIRS} 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/RemoteJobUi
+    )
 
 target_link_libraries(MatisseGui PUBLIC 
 	 MatisseCore
-     MatisseTools
+     NetworkTools
+     NavTools
      ${OpenCV_LIBS}
      Qt5::Core
      Qt5::Widgets
