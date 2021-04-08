@@ -27,14 +27,9 @@ add_executable(MatisseGui
     src/JobDialog.cpp
     src/StatusMessageWidget.cpp
     src/WelcomeDialog.cpp
-    src/HomeWidget.cpp
-    src/VisuModeWidget.cpp
-    src/MainMenuWidget.cpp
     src/OngoingProcessWidget.cpp
     src/MainControllBar.cpp
-    src/MatisseVersionWidget.cpp
     src/MatisseTabWidget.cpp
-    src/MatisseMenu.cpp
     src/PreferencesDialog.cpp
     src/LiveProcessWheel.cpp
     src/ParametersFoldButton.cpp
@@ -49,6 +44,11 @@ add_executable(MatisseGui
     src/WheelGraphicsView.cpp
     src/camera_manager_tool.cpp
     src/camera_calib_dialog.cpp
+    BasicWidgets/MatisseMenu.cpp	
+	BasicWidgets/MatisseVersionWidget.cpp
+    BasicWidgets/HomeWidget.cpp
+    BasicWidgets/VisuModeWidget.cpp
+    BasicWidgets/MainMenuWidget.cpp	
 	RemoteJobUi/TreeItem.cpp
     RemoteJobUi/TreeModel.cpp
     #src/ParametersUi/EnrichedComboBox.cpp
@@ -77,6 +77,7 @@ set_target_properties(MatisseGui PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_R
 include_directories(
     ${QUAZIP_INCLUDE_DIRS} 
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR}/BasicWidgets
     ${CMAKE_CURRENT_SOURCE_DIR}/RemoteJobUi
     )
 
