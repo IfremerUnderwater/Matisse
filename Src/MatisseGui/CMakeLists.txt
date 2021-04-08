@@ -13,13 +13,10 @@ add_executable(MatisseGui
     src/OSGWidget/shader_color.cpp
     src/OSGWidget/overlay_widget.cpp
     src/AssemblyGui.cpp
-	src/RemoteJobHelper.cpp
     src/WelcomeDialog.cpp
     src/MainControllBar.cpp
     src/MatisseTabWidget.cpp
     src/AboutDialog.cpp
-    src/RemoteFileDialog.cpp
-    src/RemoteProgressDialog.cpp
     src/NetworkCheckDialog.cpp
     src/WheelGraphicsView.cpp
     BasicWidgets/MatisseMenu.cpp	
@@ -43,6 +40,9 @@ add_executable(MatisseGui
     JobManagementUi/RestoreJobsDialog.cpp
     ParametersUi/ParametersDialog.cpp
     ParametersUi/ParametersFoldButton.cpp
+	RemoteJobUi/RemoteJobHelper.cpp
+    RemoteJobUi/RemoteFileDialog.cpp
+    RemoteJobUi/RemoteProgressDialog.cpp
 	RemoteJobUi/TreeItem.cpp
     RemoteJobUi/TreeModel.cpp
     UserUi/UserFormWidget.cpp
