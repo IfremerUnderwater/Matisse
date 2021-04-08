@@ -4,9 +4,9 @@ add_executable(MatisseGui
     AssemblyGui.cpp
     WelcomeDialog.cpp
     AboutDialog.cpp
-    #src/MainControllBar.cpp
-    #src/MatisseTabWidget.cpp
-    #src/WheelGraphicsView.cpp
+    src/MainControllBar.cpp
+    src/MatisseTabWidget.cpp
+    src/WheelGraphicsView.cpp
     BasicWidgets/MatisseMenu.cpp	
 	BasicWidgets/MatisseVersionWidget.cpp
     BasicWidgets/HomeWidget.cpp
@@ -77,6 +77,7 @@ set_target_properties(MatisseGui PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_R
 include_directories(
     ${QUAZIP_INCLUDE_DIRS} 
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 	${CMAKE_CURRENT_SOURCE_DIR}/BasicWidgets
 	${CMAKE_CURRENT_SOURCE_DIR}/CameraUi
     ${CMAKE_CURRENT_SOURCE_DIR}/ExpertUi

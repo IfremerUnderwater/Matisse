@@ -1,6 +1,6 @@
 #include "measurement_picker_tool.h"
-#include "OSGWidget/osg_widget.h"
-#include "OSGWidget/osg_widget_tool.h"
+#include "osg_widget.h"
+#include "osg_widget_tool.h"
 
 MeasurementPickerTool::MeasurementPickerTool(QObject *parent) : QObject(parent)
 {

@@ -5,9 +5,9 @@
 #include "UserFormWidget.h"
 #include "ui_UserFormWidget.h"
 
-#include "WheelGraphicsView.h"
+//#include "WheelGraphicsView.h"
 
-#include "OSGWidget/osg_widget.h"
+#include "osg_widget.h"
 
 using namespace cv;
 

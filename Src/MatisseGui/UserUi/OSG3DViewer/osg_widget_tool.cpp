@@ -1,4 +1,4 @@
-#include "OSGWidget/osg_widget.h"
+#include "osg_widget.h"
 #include "osg_widget_tool.h"
 
 OSGWidgetTool *OSGWidgetTool::s_instance = 0;
