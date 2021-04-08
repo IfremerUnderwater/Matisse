@@ -5,8 +5,6 @@
 #include "UserFormWidget.h"
 #include "ui_UserFormWidget.h"
 
-//#include "WheelGraphicsView.h"
-
 #include "osg_widget.h"
 
 using namespace cv;
@@ -71,12 +69,6 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(slot_showMapContextMenu(const QPoint&)));
 
-    // WheelGraphicsView replace standard GraphicsView
-//    _GV_view = new WheelGraphicsView(_ui->_WID_pageQGis);
-//    _GV_view->resize(_ui->_WID_pageQGis->width(), _ui->_WID_pageQGis->height());
-
-    // handled by WheelGraphicsView
-    //_ui->_GV_view->setDragMode(QGraphicsView::ScrollHandDrag);
     _scene.setScaleFactor(4.0);
     _ui->_GV_view->setScene(&_scene);
 

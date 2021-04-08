@@ -6,7 +6,6 @@ add_executable(MatisseGui
     AboutDialog.cpp
     src/MainControllBar.cpp
     src/MatisseTabWidget.cpp
-    src/WheelGraphicsView.cpp
     BasicWidgets/MatisseMenu.cpp	
 	BasicWidgets/MatisseVersionWidget.cpp
     BasicWidgets/HomeWidget.cpp
@@ -36,6 +35,7 @@ add_executable(MatisseGui
     RemoteJobUi/TreeModel.cpp
     UserUi/UserFormWidget.cpp
     UserUi/CartoScene.cpp
+    UserUi/WheelGraphicsView.cpp
     UserUi/LiveProcessWheel.cpp
     UserUi/StatusMessageWidget.cpp
     UserUi/OngoingProcessWidget.cpp
