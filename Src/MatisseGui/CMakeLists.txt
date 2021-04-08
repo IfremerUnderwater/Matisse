@@ -17,7 +17,6 @@ add_executable(MatisseGui
     src/MainControllBar.cpp
     src/MatisseTabWidget.cpp
     src/AboutDialog.cpp
-    src/NetworkCheckDialog.cpp
     src/WheelGraphicsView.cpp
     BasicWidgets/MatisseMenu.cpp	
 	BasicWidgets/MatisseVersionWidget.cpp
@@ -40,6 +39,7 @@ add_executable(MatisseGui
     JobManagementUi/RestoreJobsDialog.cpp
     ParametersUi/ParametersDialog.cpp
     ParametersUi/ParametersFoldButton.cpp
+    RealTimeUi/NetworkCheckDialog.cpp
 	RemoteJobUi/RemoteJobHelper.cpp
     RemoteJobUi/RemoteFileDialog.cpp
     RemoteJobUi/RemoteProgressDialog.cpp
