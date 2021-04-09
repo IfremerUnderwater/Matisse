@@ -6,7 +6,7 @@ using namespace MatisseServer;
 PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFactory, MatissePreferences *prefs, bool allowProgrammingModeActivation) :
     QDialog(parent),
     _ui(new Ui::PreferencesDialog)
-{
+{ 
     _ui->setupUi(this);
 
     _ui->_CB_languageSelect->addItem("FR");
@@ -19,6 +19,13 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFa
     _ui->_LE_defaultResultPath->setText(_prefs->defaultResultPath());
     _ui->_LE_defaultMosaicPrefix->setText(_prefs->defaultMosaicFilenamePrefix());
     _ui->_CK_enableProgrammingMode->setChecked(_prefs->programmingModeEnabled());
+
+    _ui->_LE_remoteCommandServerAddress->setText(_prefs->remoteCommandServer());
+    _ui->_LE_remoteFileServerAddress->setText(_prefs->remoteFileServer());
+    _ui->_LE_remoteUsername->setText(_prefs->remoteUsername());
+    _ui->_LE_remoteUserEmail->setText(_prefs->remoteUserEmail());
+    _ui->_LE_remoteQueueName->setText(_prefs->remoteQueueName());
+    _ui->_LE_remoteNbOfCpus->setText(QVariant(_prefs->remoteNbOfCpus()).toString());
 
     if (!allowProgrammingModeActivation) {
         _ui->_LA_enableProgrammingMode->setEnabled(false);
@@ -37,6 +44,11 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFa
     // on limite la saisie aux caractères alphanumériques + '-' et '_'
     QRegExpValidator *prefixVal = new QRegExpValidator(QRegExp("[a-zA-Z\\d_\\-]{2,}"), this);
     _ui->_LE_defaultMosaicPrefix->setValidator(prefixVal);
+
+    /* Set validator for Nb of remote CPUs field */
+    QIntValidator *cpus_val = new QIntValidator(this);
+    cpus_val->setBottom(1);
+    _ui->_LE_remoteNbOfCpus->setValidator(cpus_val);
 
     connect(_ui->_PB_save, SIGNAL(clicked()), this, SLOT(slot_close()));
     connect(_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(slot_close()));
@@ -86,6 +98,17 @@ void PreferencesDialog::slot_close()
         _prefs->setDefaultMosaicFilenamePrefix(newMosaicPrefix);
         _prefs->setProgrammingModeEnabled(_ui->_CK_enableProgrammingMode->isChecked());
         _prefs->setLanguage(_ui->_CB_languageSelect->currentText());
+
+        _prefs->setRemoteCommandServer(_ui->_LE_remoteCommandServerAddress->text());
+        _prefs->setRemoteFileServer(_ui->_LE_remoteFileServerAddress->text());
+        _prefs->setRemoteUsername(_ui->_LE_remoteUsername->text());
+        _prefs->setRemoteUserEmail(_ui->_LE_remoteUserEmail->text());
+        _prefs->setRemoteQueueName(_ui->_LE_remoteQueueName->text());
+        QVariant cpu_val = _ui->_LE_remoteNbOfCpus->text();
+        int nb_of_cpus = cpu_val.toInt();
+        if (nb_of_cpus) {
+          _prefs->setRemoteNbOfCpus(nb_of_cpus);
+        }
 
         accept();
     }

@@ -5,6 +5,8 @@ set_target_properties(DrawBlend2DMosaic PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MA
 set_target_properties(DrawBlend2DMosaic PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
 set_target_properties(DrawBlend2DMosaic PROPERTIES PREFIX "")
 
+include_directories(${QUAZIP_INCLUDE_DIRS})
+
 target_link_libraries( DrawBlend2DMosaic MatisseCommon BasicProcessing OpticalMapping ${OpenCV_LIBS} Qt5::Core Qt5::Xml Qt5::Widgets ${QUAZIP_LIBRARIES} GDAL::GDAL ${PROJ_LIBS})
 
 add_custom_command(

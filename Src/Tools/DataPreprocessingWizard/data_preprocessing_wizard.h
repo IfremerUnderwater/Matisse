@@ -20,6 +20,7 @@ public:
 public slots:
     void sl_selectDataPath();
     void sl_selectDim2File();
+    void sl_selectMaskFile();
     void sl_selectOutputPath();
     void sl_selectNavFile();
     void sl_pageChanged(int _page_idx);
@@ -27,6 +28,7 @@ public slots:
     void sl_deselectAllFiles();
     void sl_finished(int _state);
     void sl_handleUseRtDim2();
+    void sl_handleUseInpaintMask();
 
 private:
 
@@ -34,7 +36,7 @@ private:
     void checkAndFillPhotoFiles(QString _dataPath );
     void video2Images();
     void handleImages();
-    void preprocessImages(QStringList _images_list, QString _out_image_path);
+    void preprocessImages(QStringList &_images_list, QString _out_image_path);
 
     Ui::DataPreprocessingWizard *ui;
 

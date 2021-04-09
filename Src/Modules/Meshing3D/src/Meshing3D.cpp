@@ -180,13 +180,9 @@ bool Meshing3D::start()
     static const QString SEP = QDir::separator();
 
     // get params
-    m_source_dir = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    m_source_dir = absoluteDatasetDir();
 
-    m_outdir = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
-    if (m_outdir.isEmpty())
-        m_outdir = "outReconstruction";
-
-    m_outdir = m_source_dir + SEP + m_outdir;
+    m_outdir = absoluteOutputTempDir();
 
     m_out_filename_prefix = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
@@ -210,6 +206,9 @@ void Meshing3D::onFlush(quint32 port)
     emit signal_processCompletion(0);
     emit signal_userInformation("Meshing3D - start");
 
+    QString proc_info = logPrefix() + "Meshing started\n";
+    emit signal_addToLog(proc_info);
+
     // Get context
     QVariant *object = _context->getObject("reconstruction_context");
     reconstructionContext * rc;
@@ -227,7 +226,7 @@ void Meshing3D::onFlush(quint32 port)
     for (unsigned int i=0; i<rc->components_ids.size(); i++)
     {
 
-        QString scene_dir_i = m_outdir + QString("_%1").arg(rc->components_ids[i]);
+        QString scene_dir_i = m_outdir +QDir::separator() + "ModelPart" + QString("_%1").arg(rc->components_ids[i]);
         QString mvs_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".mvs";
 
         if (rc->current_format == ReconFormat::openMVG)
@@ -273,7 +272,10 @@ void Meshing3D::onFlush(quint32 port)
     // complete current file suffix
     rc->out_file_suffix += "_mesh";
 
-    qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
+    // Log elapsed time
+    proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
+    emit signal_addToLog(proc_info);
+    //qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
 
     // Flush next module port
     flush(0);

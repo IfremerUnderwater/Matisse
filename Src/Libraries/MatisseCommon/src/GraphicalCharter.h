@@ -47,7 +47,7 @@
 #define JD_WIDTH                        600
 
 // Preferences dialog
-#define PD_HEIGHT                       315
+#define PD_HEIGHT                       500
 #define PD_WIDTH                        800
 
 #define ASSEMBLY_PROPS_LABEL_WIDTH      140

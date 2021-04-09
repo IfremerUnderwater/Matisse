@@ -19,7 +19,8 @@ PreprocessingCorrection::PreprocessingCorrection(int _ws, QWidget* _parent):m_ws
 m_lowres_comp_scaling(1.0),
 m_prepro_img_scaling(1.0),
 m_correct_colors(false),
-m_compensate_illumination(false)
+m_compensate_illumination(false),
+m_sat_thres(0.001)
 {
 	//m_bgr_lowres_img.resize(3);
 	m_graphic_parent = _parent;
@@ -76,8 +77,8 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 		{
 			// Construct required quantiles vector
 			vector<double> quantiles;
-			quantiles.push_back(0.001);
-			quantiles.push_back(1 - 0.001);
+			quantiles.push_back(m_sat_thres);
+			quantiles.push_back(1 - m_sat_thres);
 
 			// Get channels saturation limits
 			//findImgColorQuantiles(current_img, empty_mask, quantiles, ch1_lim, ch2_lim, ch3_lim);
@@ -393,7 +394,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 
 }
 
-void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _compensate_illumination, double _prepro_img_scaling)
+void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _compensate_illumination, double _prepro_img_scaling, double _saturation_threshold)
 {
 	m_correct_colors = _correct_colors;
 	m_compensate_illumination = _compensate_illumination;
@@ -401,4 +402,10 @@ void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _co
 		m_prepro_img_scaling = 1.0;
 	else
 		m_prepro_img_scaling = _prepro_img_scaling;
+
+	if (_saturation_threshold >= 0.0001 && _saturation_threshold <= 0.01)
+		m_sat_thres = _saturation_threshold;
+	else
+		m_sat_thres = 0.001;
+
 }

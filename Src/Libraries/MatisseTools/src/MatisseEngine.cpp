@@ -1,22 +1,22 @@
-﻿#include "Server.h"
-#include "AssemblyDefinition.h"
-#include "AssemblyGui.h"
+#include "MatisseEngine.h"
 
-using namespace MatisseServer;
+using namespace MatisseTools;
 
-Server::Server(QObject *parent) :
-    QObject(parent),
+MatisseEngine::MatisseEngine(QObject *_parent, bool _is_server_mode) :
+    QObject(_parent),
+    m_is_server_mode(_is_server_mode),
+    _jobLauncher(NULL),
     _systemDataManager(NULL),
     _processDataManager(NULL),
     _jobServer(NULL),
     _currentJob(NULL),
-    _mainGui(NULL),
     _thread(NULL)
 {
 
 }
 
-Server::~Server()
+
+MatisseEngine::~MatisseEngine()
 {
     if (_jobServer) {
         delete _jobServer;
@@ -27,59 +27,21 @@ Server::~Server()
         _currentJob->stop(true);
 }
 
-//bool Server::setSettingsFile(QString settings)
-//{
-//    QString standardFile = "config/MatisseSettings.xml";
-//    setMessageStr();
-//    // lecture du fichier xml de settings
-//    if (settings == "") {
-//        settings = standardFile;
-//    }
-//    QFileInfo settingsFile(settings);
-//    if (!settingsFile.exists()) {
-//        //QMessageBox::critical(this, "Fichier de configuration introuvable", "Impossible de trouver le fichier:\n" + _settingsFile + "\nRelancez l'application avec un nom de fichier valide en paramètre\nou un fichier " + standardFile + " valide!");
-//        setMessageStr(tr("Fichier de configuration introuvable: %1").arg(settingsFile.absoluteFilePath()));
-//        return false;
-//    }
 
-//    if (!settingsFile.isReadable()) {
-//        //QMessageBox::critical(this, "Fichier de configuration illisible", "Impossible de lire le fichier:\n" + _settingsFile + "\nRelancez l'application avec un nom de fichier lisible en paramètre\nou rendez le fichier " + standardFile + " lisible!");
-//        setMessageStr(tr("Fichier de configuration illisible: %1").arg(settingsFile.absoluteFilePath()));
-//        return false;
-//    }
-
-//    _xmlTool.readMatisseGuiSettings(settings);
-//    if (( _xmlTool.getBasePath()) == "") {
-//        //QMessageBox::critical(this, "Fichier de configuration incorrect", "La valeur de XmlRootDir ne peut être déterminée.\nRelancez l'application avec un paramètre XmlRootDir valide\ndans le fichier de configuration!");
-//        setMessageStr(tr("XmlRootDir introuvable dans le fichier de configuration: %1").arg(settingsFile.absoluteFilePath()));
-//        return false;
-//    }
-
-//    if (( _xmlTool.getDllPath()) == "") {
-//        setMessageStr(tr("DllRootDir introuvable dans le fichier de configuration: %1").arg(settingsFile.absoluteFilePath()));
-//        return false;
-//    }
-
-
-//    _jobServer = new JobServer(_xmlTool.port(), &_xmlTool);
-
-//    return true;
-//}
-
-QList<Processor*> const Server::getAvailableProcessors() {
+QList<Processor*> const MatisseEngine::getAvailableProcessors() {
     return _processors.values();
 }
 
-QList<ImageProvider*> const Server::getAvailableImageProviders() {
+QList<ImageProvider*> const MatisseEngine::getAvailableImageProviders() {
     return _imageProviders.values();
 }
 
-const QList<RasterProvider *> Server::getAvailableRasterProviders()
+const QList<RasterProvider *> MatisseEngine::getAvailableRasterProviders()
 {
     return _rasterProviders.values();
 }
 
-void Server::addParametersForImageProvider(QString name)
+void MatisseEngine::addParametersForImageProvider(QString name)
 {
     qDebug() << "Loading parameters for image provider " << name;
 
@@ -99,7 +61,7 @@ void Server::addParametersForImageProvider(QString name)
 
 }
 
-void Server::addParametersForProcessor(QString name)
+void MatisseEngine::addParametersForProcessor(QString name)
 {
     qDebug() << "Loading parameters for Processor " << name;
 
@@ -119,7 +81,8 @@ void Server::addParametersForProcessor(QString name)
 
 }
 
-void Server::addParametersForRasterProvider(QString name)
+
+void MatisseEngine::addParametersForRasterProvider(QString name)
 {
     qDebug() << "Loading parameters for raster provider " << name;
 
@@ -139,7 +102,7 @@ void Server::addParametersForRasterProvider(QString name)
 
 }
 
-bool Server::removeModuleAndExpectedParameters(QString name)
+bool MatisseEngine::removeModuleAndExpectedParameters(QString name)
 {
     qDebug() << QString("Remove module '%1' from expected parameters list").arg(name);
 
@@ -156,7 +119,7 @@ bool Server::removeModuleAndExpectedParameters(QString name)
     return true;
 }
 
-MatisseParameters* Server::buildMatisseParameters(JobDefinition &job) {
+MatisseParameters* MatisseEngine::buildMatisseParameters(JobDefinition &job) {
 
 
     QString file = _processDataManager->getJobParametersFilePath(job.name());
@@ -173,7 +136,7 @@ MatisseParameters* Server::buildMatisseParameters(JobDefinition &job) {
 
 }
 
-void Server::setMessageStr(QString messageStr, bool error)
+void MatisseEngine::setMessageStr(QString messageStr, bool error)
 {
     _messageStr = messageStr;
     _errorFlag = error;
@@ -190,12 +153,7 @@ void Server::setMessageStr(QString messageStr, bool error)
     }
 }
 
-//Xml& Server::xmlTool()
-//{
-//    return _xmlTool;
-//}
-
-void Server::slot_currentJobProcessed()
+void MatisseEngine::slot_currentJobProcessed()
 {
     if(_currentJob == NULL)
         return;
@@ -219,7 +177,7 @@ void Server::slot_currentJobProcessed()
     emit signal_jobProcessed(jobName, isCancelled);
 }
 
-bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters)
+bool MatisseEngine::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters)
 {
     ImageProvider* imageProvider = NULL;
     QList<Processor*> processorList;
@@ -233,7 +191,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
     qDebug() << "Verification présence de la source" << sourceName;
     imageProvider = _imageProviders.value(sourceName);
     if (!imageProvider) {
-        setMessageStr(tr("Source modul not found: %1").arg(sourceName));
+        setMessageStr(tr("Source module not found: %1").arg(sourceName));
         return false;
     }
 
@@ -402,7 +360,8 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
 
 
     _currentJob = new JobTask(imageProvider, processorList, rasterProvider, jobDefinition, matisseParameters);
-    _currentJob->setMainGui(_mainGui);
+     _currentJob->setIsServerMode(m_is_server_mode);
+    _currentJob->setJobLauncher(_jobLauncher);
 
     return true;
 
@@ -410,7 +369,7 @@ bool Server::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefini
 
 
 
-bool Server::processJob(JobDefinition &jobDefinition)
+bool MatisseEngine::processJob(JobDefinition &jobDefinition)
 {
     setMessageStr();
 
@@ -466,12 +425,12 @@ bool Server::processJob(JobDefinition &jobDefinition)
 
 }
 
-bool Server::isProcessingJob()
+bool MatisseEngine::isProcessingJob()
 {
     return _currentJob!=NULL;
 }
 
-bool Server::stopJob(bool cancel)
+bool MatisseEngine::stopJob(bool cancel)
 {
     if (_currentJob) {
         _currentJob->stop(cancel);
@@ -487,12 +446,12 @@ bool Server::stopJob(bool cancel)
     return true;
 }
 
-bool Server::errorFlag()
+bool MatisseEngine::errorFlag()
 {
     return _errorFlag;
 }
 
-QString Server::messageStr()
+QString MatisseEngine::messageStr()
 {
     return _messageStr;
 }
@@ -503,7 +462,7 @@ QString Server::messageStr()
 #define SHARED_DLL_EXT "*.so"
 #endif
 
-void Server::init(){
+void MatisseEngine::init(){
 
     _jobServer = new JobServer(_systemDataManager->port(), _processDataManager);
 
@@ -589,18 +548,39 @@ void Server::init(){
 }
 
 
-
-
-
 JobTask::JobTask(ImageProvider* imageProvider, QList<Processor*> processors, RasterProvider* rasterProvider,
                  JobDefinition &jobDefinition, MatisseParameters *parameters )
-    : _imageProvider(imageProvider),
+    : m_user_log_file(NULL),
+      _imageProvider(imageProvider),
       _processors(processors),
       _rasterProvider(rasterProvider),
       _jobDefinition(jobDefinition),
       _matParameters(parameters),
       _isCancelled(false)
 {
+    // Create the log file in the output folder
+    QString dataset_dir = _matParameters->getStringParamValue("dataset_param", "dataset_dir");
+
+    QDir output_dir(_matParameters->getStringParamValue("dataset_param", "output_dir"));
+    QDir absolute_out_dir;
+
+    if (output_dir.isRelative())
+    {
+        absolute_out_dir.setPath(dataset_dir + QDir::separator() + output_dir.path() + QDir::separator() + "log");
+    }
+    else
+        absolute_out_dir.setPath(output_dir.path() + QDir::separator() + "log");
+
+    if (!absolute_out_dir.exists())
+    {
+        absolute_out_dir.mkpath(absolute_out_dir.path());
+    }
+
+    m_user_log_file = new QFile(absolute_out_dir.absoluteFilePath("user_log.txt"));
+
+    if (m_user_log_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+        m_log_file_opened = true;
+    }
 }
 
 JobTask::~JobTask()
@@ -611,6 +591,7 @@ JobTask::~JobTask()
 void JobTask::stop(bool cancel)
 {
     _isCancelled = cancel;
+
     _imageProvider->askToStop(cancel);
 
     foreach (Processor *processor, _processors) {
@@ -622,48 +603,62 @@ void JobTask::stop(bool cancel)
 
 void JobTask::slot_start()
 {
+
     // TODO Ask for external creation of context!
     bool ok;
     _context = new Context;
 
     connect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    connect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-    connect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
-    connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-    connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-    connect(_imageProvider, SIGNAL(signal_addToLog(QString)), _mainGui, SLOT(slot_addToLog(QString)));
+    if (!m_is_server_mode) {
+      connect(_imageProvider, SIGNAL(signal_showInformationMessage(QString, QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString, QString)));
+      connect(_imageProvider, SIGNAL(signal_showErrorMessage(QString, QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString, QString)));
+      connect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+      connect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+      connect(_imageProvider, SIGNAL(signal_addToLog(QString)), _jobLauncher, SLOT(slot_addToLog(QString)));
+      connect(_imageProvider, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
+    }
 
     ok = _imageProvider->callConfigure(_context, _matParameters);
     if (!ok) {
-        qDebug() << "Error on raster provider configuration";
-        return;
+      /* Bad parameters or dataset not found */
+      qCritical() << "Error on raster provider configuration";
+      if (m_is_server_mode) { // for non-regression with client mode (is there a reason why the task should continue in that case ?) 
+          slot_fatalError();
+      }
+      return;
     }
 
 
+    qDebug() << "Configuration des Processeurs";
     foreach (Processor* processor, _processors) {
-        //qDebug() << "Configuration du processeur " << processor->name();
+        qDebug() << "Configuration du processeur " << processor->name();
         connect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
         connect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         connect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-        connect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-        connect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
         connect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
-        connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-        connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-        connect(processor, SIGNAL(signal_addToLog(QString)), _mainGui, SLOT(slot_addToLog(QString)));
+        connect(processor, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
+        if (!m_is_server_mode) {
+          connect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+          connect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+          connect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+          connect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+          connect(processor, SIGNAL(signal_addToLog(QString)), _jobLauncher, SLOT(slot_addToLog(QString)));
+        }
         processor->callConfigure(_context, _matParameters);
     }
 
-    //qDebug() << "Configuration de la destination";
+    qDebug() << "Configuration de la destination";
     connect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     connect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    connect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-    connect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
-    connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-    connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
-    connect(_rasterProvider, SIGNAL(signal_addToLog(QString)), _mainGui, SLOT(slot_addToLog(QString)));
-
+    connect(_rasterProvider, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
+    if (!m_is_server_mode) {
+      connect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+      connect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+      connect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+      connect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+      connect(_rasterProvider, SIGNAL(signal_addToLog(QString)), _jobLauncher, SLOT(slot_addToLog(QString)));
+    }
     ok = _rasterProvider->callConfigure(_context, _matParameters);
     if (!ok) {
         qDebug() << "Error on raster provider configuration";
@@ -671,12 +666,14 @@ void JobTask::slot_start()
     }
 
 
+    qDebug() << "Démarrage du raster provider";
     ok = _rasterProvider->callStart();
     if (!ok) {
         qDebug() << "Error on raster provider start";
         return;
     }
 
+    qDebug() << "Démarrage des processeurs";
     foreach (Processor *processor, _processors) {
         ok = processor->callStart();
         if (!ok) {
@@ -685,12 +682,14 @@ void JobTask::slot_start()
         }
     }
 
+    qDebug() << "Démarrage du image provider";
     ok = _imageProvider->callStart();
     if (!ok) {
         qDebug() << "Error on image provider start";
         return;
     }
 
+    qDebug() << "Fin de slot_start";
 
     bool isRealTime = _imageProvider->isRealTime();
     if (!isRealTime) {
@@ -702,13 +701,16 @@ void JobTask::slot_start()
 void JobTask::slot_stop()
 {
 
+    qDebug() << "Arret du image provider";
     _imageProvider->callStop();
 
+    qDebug() << "Arret des processeurs";
     foreach (Processor *processor, _processors) {
         processor->callStop();
     }
     disconnect(this, SLOT(slot_showImageOnMainView(Image*)));
 
+    qDebug() << "Arret du raster provider";
     _rasterProvider->callStop();
 
     /* Disconnecting user information signals */
@@ -724,13 +726,17 @@ void JobTask::slot_stop()
         }
     }
 
-    // déconnecter tout
+    // Disconnect everything
     disconnect(_imageProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     disconnect(_imageProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    disconnect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-    disconnect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
-    disconnect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-    disconnect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
+    disconnect(_imageProvider, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
+    if (!m_is_server_mode) {
+      disconnect(_imageProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+      disconnect(_imageProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+      disconnect(_imageProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+      disconnect(_imageProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+      disconnect(_imageProvider, SIGNAL(signal_addToLog(QString)), _jobLauncher, SLOT(slot_addToLog(QString)));
+    }
 
     foreach (Processor* processor, _processors) {
         if(!processor->okStatus())
@@ -738,19 +744,27 @@ void JobTask::slot_stop()
         disconnect(processor, SIGNAL(signal_showImageOnMainView(Image*)), this, SLOT(slot_showImageOnMainView(Image*)));
         disconnect(processor, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
         disconnect(processor, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-        disconnect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-        disconnect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
         disconnect(processor, SIGNAL(signal_fatalError()), this, SLOT(slot_fatalError()));
-        disconnect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-        disconnect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
+        disconnect(processor, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
+        if (!m_is_server_mode) {
+          disconnect(processor, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+          disconnect(processor, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+          disconnect(processor, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+          disconnect(processor, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+          disconnect(processor, SIGNAL(signal_addToLog(QString)), _jobLauncher, SLOT(slot_addToLog(QString)));
+        }
     }
 
     disconnect(_rasterProvider, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
     disconnect(_rasterProvider, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
-    disconnect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _mainGui, SLOT(slot_showInformationMessage(QString,QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _mainGui, SLOT(slot_showErrorMessage(QString,QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _mainGui, SLOT(slot_show3DFileOnMainView(QString)));
-    disconnect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _mainGui, SLOT(slot_addRasterFileToMap(QString)));
+    disconnect(_rasterProvider, SIGNAL(signal_addToLog(QString)), this, SLOT(slot_logToFile(QString)));
+    if (!m_is_server_mode) {
+      disconnect(_rasterProvider, SIGNAL(signal_showInformationMessage(QString,QString)), _jobLauncher, SLOT(slot_showInformationMessage(QString,QString)));
+      disconnect(_rasterProvider, SIGNAL(signal_showErrorMessage(QString,QString)), _jobLauncher, SLOT(slot_showErrorMessage(QString,QString)));
+      disconnect(_rasterProvider, SIGNAL(signal_show3DFileOnMainView(QString)), _jobLauncher, SLOT(slot_show3DFileOnMainView(QString)));
+      disconnect(_rasterProvider, SIGNAL(signal_addRasterFileToMap(QString)), _jobLauncher, SLOT(slot_addRasterFileToMap(QString)));
+      disconnect(_rasterProvider, SIGNAL(signal_addToLog(QString)), _jobLauncher, SLOT(slot_addToLog(QString)));
+    }
 
     if(_context != NULL)
     {
@@ -758,6 +772,9 @@ void JobTask::slot_stop()
         _context = NULL;
         emit signal_jobStopped();
     }
+
+    m_user_log_file->close();
+    delete m_user_log_file;
 }
 
 bool JobTask::isCancelled() const
@@ -785,11 +802,24 @@ void JobTask::slot_fatalError()
     _isCancelled = true;
     stop(true);
     _isCancelled = true;
+    emit signal_jobStopped();
+    slot_stop();
 }
 
-void JobTask::setMainGui(AssemblyGui *mainGui)
+void JobTask::slot_logToFile(QString _logInfo)
 {
-    _mainGui = mainGui;
+    QTextStream out_stream(m_user_log_file);
+    out_stream << _logInfo << "\n";
+}
+
+void JobTask::setJobLauncher(QObject *jobLauncher)
+{
+    _jobLauncher = jobLauncher;
+}
+
+void JobTask::setIsServerMode(bool _is_server_mode) 
+{
+  m_is_server_mode = _is_server_mode;
 }
 
 QStringList JobTask::resultFileNames() const
@@ -803,11 +833,18 @@ JobDefinition &JobTask::jobDefinition() const
 }
 
 
-bool Server::loadParametersDictionnary()
+bool MatisseEngine::loadParametersDictionnary()
 {
     QXmlSchema dictionnarySchema;
 
-    QFile dicoXsdFile("schemas/MatisseParametersDictionnary.xsd");
+    qDebug() << "Loading MatisseParametersDictionnary.xsd schema...";
+
+    QString dico_schema_path = _systemDataManager->getBinRootDir() +
+                    QDir::separator() + "schemas" + QDir::separator() +
+                    "MatisseParametersDictionnary.xsd";
+
+    //QFile dicoXsdFile("schemas/MatisseParametersDictionnary.xsd");
+    QFile dicoXsdFile(dico_schema_path);
 
     if (!dicoXsdFile.exists()) {
         qFatal("%s\n",QString("Error finding ").append(dicoXsdFile.fileName()).toStdString().c_str());
@@ -825,9 +862,16 @@ bool Server::loadParametersDictionnary()
         qFatal("%s\n","Error ParametersDictionnary.xsd is not valid");
     }
 
+    qDebug() << "MatisseParametersDictionnary.xsd is a valid schema";
     dicoXsdFile.close();
 
-    QFile dicoXmlFile("config/MatisseParametersDictionnary.xml");
+    qDebug() << "Loading dictionnary file...";
+
+    QString dico_path = _systemDataManager->getBinRootDir() +
+                        QDir::separator() + "config" + QDir::separator() +
+                        "MatisseParametersDictionnary.xml";
+    //QFile dicoXmlFile("config/MatisseParametersDictionnary.xml");
+    QFile dicoXmlFile(dico_path);
 
     if (!dicoXmlFile.exists()) {
         qFatal("%s\n",QString("Error finding").append(dicoXmlFile.fileName()).toStdString().c_str());
@@ -842,23 +886,25 @@ bool Server::loadParametersDictionnary()
         qFatal("%s\n","Dictionnary XML file does not conform to schema");
     }
 
+    qDebug() << "XML dictionnary file is consistent with schema";
+
     _dicoParamMgr = new MatisseParametersManager();
     _dicoParamMgr->readDictionnaryFile("config/MatisseParametersDictionnary.xml");
 
     return true;
 }
-void Server::setProcessDataManager(ProcessDataManager *processDataManager)
+void MatisseEngine::setProcessDataManager(ProcessDataManager *processDataManager)
 {
     _processDataManager = processDataManager;
 }
 
-void Server::setSystemDataManager(SystemDataManager *systemDataManager)
+void MatisseEngine::setSystemDataManager(SystemDataManager *systemDataManager)
 {
     _systemDataManager = systemDataManager;
 }
 
 
-void Server::setMainGui(AssemblyGui *mainGui_p)
+void MatisseEngine::setJobLauncher(QObject *jobLauncher)
 {
-    _mainGui = mainGui_p;
+    _jobLauncher = jobLauncher;
 }

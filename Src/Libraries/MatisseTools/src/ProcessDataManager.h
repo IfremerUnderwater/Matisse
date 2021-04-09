@@ -30,7 +30,7 @@ class ProcessDataManager
 public:
     ProcessDataManager(QString dataRootDir, QString userDataPath);
 
-    void loadAssembliesAndJobs();
+    bool loadAssembliesAndJobs();
     void loadArchivedJobs(QString archivePath);
 
     bool readAssemblyFile(QString filename);

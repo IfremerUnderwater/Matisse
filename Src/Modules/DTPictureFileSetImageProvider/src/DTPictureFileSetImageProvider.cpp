@@ -1,6 +1,7 @@
 ﻿#include <QDir>
 
 #include "DTPictureFileSetImageProvider.h"
+#include "FileUtils.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(DTPictureFileSetImageProvider, DTPictureFileSetImageProvider)
@@ -55,6 +56,10 @@ bool DTPictureFileSetImageProvider::configure()
     if (!isOk) {
         stepIndex = 1;
     }
+
+    /* Resolve UNIX paths ('~/...') for remote job execution */
+    rootDirnameStr = FileUtils::resolveUnixPath(rootDirnameStr);
+    navFileStr = FileUtils::resolveUnixPath(navFileStr);
 
     // TODO Améliorer le check
     if (rootDirnameStr.isEmpty() || navFileStr.isEmpty())

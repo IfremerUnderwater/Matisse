@@ -7,12 +7,14 @@
         <Parameter name="Last_processed_image">inf</Parameter>
         <Parameter name="step_im">1</Parameter>
         <!--overlap_filtering_params-->
+        <Parameter name="disjoint_drawing">false</Parameter>
+        <Parameter name="single_image_output">Geotiff only</Parameter>
         <Parameter name="filter_overlap">true</Parameter>
         <Parameter name="max_overlap">0.60</Parameter>
         <Parameter name="min_overlap">0.30</Parameter>
         <!--bundle_adjustment_params-->
         <!--blending_displaying_params-->
-        <Parameter name="block_drawing">false</Parameter>
+        <Parameter name="block_drawing">true</Parameter>
         <Parameter name="block_width">7000</Parameter>
         <Parameter name="block_height">7000</Parameter>
         <!--compute_feature-->

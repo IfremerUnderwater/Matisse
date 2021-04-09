@@ -34,6 +34,7 @@
 
 namespace MatisseCommon {
 
+
 class FileUtils
 {
 public:
@@ -45,6 +46,9 @@ public:
     static QMap<QString,QString> readPropertiesFile(QString propFilePath);
     static bool createTempDirectory(QString &tempDirPath, QString prefix = DEFAULT_TEMP_DIR_PREFIX);
     static void removeAllTempDirectories(QString prefix = DEFAULT_TEMP_DIR_PREFIX);
+    static quint64 dirSize(QString _dir_path, bool _include_subdirs = false);
+    static quint32 fileCount(QString _dir_path, bool _include_subdirs = false);
+    static QString resolveUnixPath(QString _file_spec);
 };
 }
 #endif // FILE_UTILS_H

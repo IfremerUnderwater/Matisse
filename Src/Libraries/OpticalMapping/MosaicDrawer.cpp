@@ -18,6 +18,7 @@
 #include <math.h>
 #include "gdal_translate_wrapper.h"
 #include "float.h"
+#include "FileImage.h"
 
 using namespace std;
 using namespace cv;
@@ -39,6 +40,8 @@ MosaicDrawer::MosaicDrawer(QString drawingOptions)
 
     this->parseAndAffectOptions( drawingOptions );
 }
+
+
 
 
 int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
@@ -1104,4 +1107,106 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
     return outputFiles;
 
+}
+
+QStringList MosaicDrawer::writeImagesAsGeoTiff(const MosaicDescriptor& mosaicD_p, QString writingPath_p, QString prefix_p)
+{
+    // This method is mainly used in case were navigation is not perfect, so we just want a rough representation of the footprint
+    // hence in order to speed up computation we neglect perspective transform (only scaling and rotation will be applied by geotiff info)
+
+    QStringList outputFiles;
+
+    QString utmProjParam, utmHemisphereOption, utmZoneString;
+
+    // Construct utm proj param options
+    utmZoneString = QString("%1 ").arg(mosaicD_p.utmZone()) + mosaicD_p.utmHemisphere();
+    QStringList utmParams = utmZoneString.split(" ");
+
+    if (utmParams.at(1) == "S") {
+        utmHemisphereOption = QString(" +south");
+    }
+    else {
+        utmHemisphereOption = QString("");
+    }
+    utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
+
+    // Loop on all images
+    for (int k = 0; k < mosaicD_p.cameraNodes().size(); k++) {
+        std::vector<double> x, y;
+
+        // Compute image footprint
+        mosaicD_p.cameraNodes().at(k)->computeImageFootPrint(x, y);
+
+        Polygon* currentPolygon = new Polygon();
+        currentPolygon->addContour(x, y);
+
+        // Get block corners in pixels
+        double TL_x, TL_y, BR_x, BR_y;
+        currentPolygon->getBoundingBox(TL_x, TL_y, BR_x, BR_y);
+
+        delete currentPolygon;
+        x.clear(); y.clear();
+
+        UMat img_warped;
+        UMat img_warped_mask;
+        cv::Point corner;
+
+        mosaicD_p.cameraNodes().at(k)->projectImageOnMosaickingPlane(img_warped, img_warped_mask, corner);
+
+        double UtmTL_x = mosaicD_p.mosaicOrigin().x + TL_x * mosaicD_p.pixelSize().x;
+        double UtmTL_y = mosaicD_p.mosaicOrigin().y - TL_y * mosaicD_p.pixelSize().y;
+
+        double UtmBR_x = mosaicD_p.mosaicOrigin().x + BR_x * mosaicD_p.pixelSize().x;
+        double UtmBR_y = mosaicD_p.mosaicOrigin().y - BR_y * mosaicD_p.pixelSize().y;
+
+        QString gdalOptions = QString("-a_srs \"") + utmProjParam + QString("\" -of GTiff -co \"COMPRESS=JPEG\" -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+            .arg(UtmTL_x, 0, 'f', 2)
+            .arg(UtmTL_y, 0, 'f', 2)
+            .arg(UtmBR_x, 0, 'f', 2)
+            .arg(UtmBR_y, 0, 'f', 2);
+
+        outputFiles << prefix_p + QString("_%1.tiff").arg(k, 4, 'g', -1, '0');
+        QString geoRefImgFilePath = writingPath_p + QDir::separator() + outputFiles.at(outputFiles.size() - 1);
+
+        QString temp_input = writingPath_p + QDir::separator() + prefix_p + QString("_%1.png").arg(k, 4, 'g', -1, '0');
+
+        //FileImage* input_image =dynamic_cast<MatisseCommon::FileImage*>(mosaicD_p.cameraNodes().at(k)->image());
+
+        std::vector<UMat> img_warped_channels;
+        img_warped_channels.push_back(img_warped);
+        img_warped_channels.push_back(img_warped_mask);
+        cv::Mat_<cv::Vec4b> img_warped_with_alpha;
+        cv::merge(img_warped_channels, img_warped_with_alpha);
+        cv::imwrite(temp_input.toStdString(), img_warped_with_alpha);
+
+        GdalTranslateWrapper gdalTranslate;
+        gdalTranslate.geoReferenceFile(temp_input, geoRefImgFilePath, gdalOptions);
+
+        // remove temp file
+        QFile file(temp_input);
+        file.remove();
+
+    }
+
+    return outputFiles;
+}
+
+QStringList MosaicDrawer::outputMosaicImagesAsIs(const MosaicDescriptor& mosaicD_p, QString writingPath_p, QString prefix_p)
+{
+    QStringList outputFiles;
+
+    // Loop on all images
+    for (int k = 0; k < mosaicD_p.cameraNodes().size(); k++) {
+
+        FileImage* input_image = dynamic_cast<MatisseCommon::FileImage*>(mosaicD_p.cameraNodes().at(k)->image());
+
+        if (input_image != nullptr)
+        {
+            QString out_string = writingPath_p + QDir::separator() + input_image->getFileName();
+            cv::imwrite(out_string.toStdString(), *(input_image->imageData()));
+        }
+
+    }
+
+    return outputFiles;
 }

@@ -10,7 +10,8 @@ ProcessDataManager::ProcessDataManager(QString dataRootDir, QString userDataPath
     _jobsParametersPath = _jobsPath + "/parameters";
     _assembliesPath = userDataPath + "/assemblies";
     _assembliesParametersPath = _assembliesPath + "/parameters";
-    _schemaPath = userDataPath + QDir::separator() + "models";
+    //_schemaPath = userDataPath + QDir::separator() + "models";
+    _schemaPath = "schemas";
 
     QDir root(dataRootDir);
     QString relativeAssembliesPath = root.relativeFilePath(_assembliesPath);
@@ -22,7 +23,7 @@ ProcessDataManager::ProcessDataManager(QString dataRootDir, QString userDataPath
     _jobParametersFilePattern = relativeJobPath + "/parameters/\\w+\\.xml";
 }
 
-void ProcessDataManager::loadAssembliesAndJobs()
+bool ProcessDataManager::loadAssembliesAndJobs()
 {
     /* Load assemblies */
     clearAssemblies();
@@ -32,8 +33,10 @@ void ProcessDataManager::loadAssembliesAndJobs()
     QDir assembliesDir(_assembliesPath);
     if (!assembliesDir.exists()) {
         qCritical() << QString("The assemblies directory '%1' does not exist. Could not load assemblies").arg(_assembliesPath);
-        return;
+        return false;
     }
+
+    bool read_one = false;
 
     QStringList assembliesFiles = assembliesDir.entryList(QStringList() << "*.xml");
     foreach(QString assemblyFile, assembliesFiles) {
@@ -41,12 +44,21 @@ void ProcessDataManager::loadAssembliesAndJobs()
             qWarning() << "Unable to read assembly file " << assemblyFile;
             continue;
         }
+
+        read_one = true;
+    }
+
+    if (!assembliesFiles.isEmpty() && !read_one) {
+      /* Assemblies directory populated but could not read any assembly file */
+      return false;
     }
 
     /* Load jobs */
     clearJobs();
 
     qDebug() << "Loading jobs...";
+
+    read_one = false;
 
     QDir jobsDir(_jobsPath);
     QStringList jobFiles  = jobsDir.entryList(QStringList() << "*.xml");
@@ -55,7 +67,16 @@ void ProcessDataManager::loadAssembliesAndJobs()
             qWarning() << "Unable to read job file " << jobFile;
             continue;
         }
+
+        read_one = true;
     }
+
+    if (!jobFiles.isEmpty() && !read_one) {
+      /* Jobs directory populated but could not read any job file */
+      return false;
+    }
+
+    return true;
 }
 
 void ProcessDataManager::loadArchivedJobs(QString archivePath)
@@ -262,6 +283,7 @@ bool ProcessDataManager::readJobFile(QString filename, bool isArchiveFile, QStri
 
     JobDefinition *newJob = NULL;
     ExecutionDefinition *executionDefinition = NULL;
+    RemoteJobDefinition* remote_job_definition = NULL;
 
     while(!reader.atEnd()) {
         /* Read next element.*/
@@ -311,10 +333,32 @@ bool ProcessDataManager::readJobFile(QString filename, bool isArchiveFile, QStri
                    executionDefinition->setResultFileNames(results);
                 }
             }
+            else if ("Remote" == elementName) {
+              if (newJob) {
+                QXmlStreamAttributes attributes = reader.attributes();
+                QString node = attributes.value("node").toString();
+                int job_id = attributes.value("jobId").toString().toInt();
+                QString timestamp_str = attributes.value("timestamp").toString();
+                QDateTime timestamp = QDateTime::fromString(timestamp_str, "dd/MM/yyyy HH:mm");
+                remote_job_definition = new RemoteJobDefinition();
+                remote_job_definition->setScheduled(true);
+                remote_job_definition->setNode(node);
+                remote_job_definition->setJobId(job_id);
+                remote_job_definition->setTimestamp(timestamp);
+                newJob->setRemoteJobDefinition(remote_job_definition);
+              }
+            }
         }
 
         if (reader.hasError()) {
             qWarning() << QString("Parsing error for job definition file").arg(jobFilePath);
+        }
+
+        if (newJob && !remote_job_definition) {
+          /* Initialize remote definition empty */
+          remote_job_definition = new RemoteJobDefinition();
+          remote_job_definition->setScheduled(false);
+          newJob->setRemoteJobDefinition(remote_job_definition);
         }
     }
 
@@ -369,7 +413,10 @@ bool ProcessDataManager::writeJobFile(JobDefinition * job, bool overWrite)
     }
 
     QString jobFileFullPath = getJobsBasePath() + QDir::separator() + filename;
+    qDebug() << "Job file full path : " + jobFileFullPath;
 
+    QFileInfo fi(jobFileFullPath);
+    qDebug() << "Job file absolute path : " + fi.absolutePath();
     QFile jobFile(jobFileFullPath);
 
     if (jobFile.exists() && (!overWrite)) {
@@ -418,6 +465,20 @@ bool ProcessDataManager::writeJobFile(JobDefinition * job, bool overWrite)
     }
 
     xsw.writeEndElement(); // Execution
+
+    if (job->remoteJobDefinition()->isScheduled()) {
+      xsw.writeStartElement("Remote");
+      
+      QXmlStreamAttribute node_attr("node", job->remoteJobDefinition()->node());
+      xsw.writeAttribute(node_attr);
+      QXmlStreamAttribute job_id_attr("jobId", QString::number(job->remoteJobDefinition()->jobId()));
+      xsw.writeAttribute(job_id_attr);
+      QString job_schedule_timestamp = job->remoteJobDefinition()->timestamp().toString("dd/MM/yyyy hh:mm");
+      QXmlStreamAttribute timestamp_attr("timestamp", job_schedule_timestamp);
+      xsw.writeAttribute(timestamp_attr);
+
+      xsw.writeEndElement(); // Remote
+    }
 
     xsw.writeEndElement(); // MatisseJob
 

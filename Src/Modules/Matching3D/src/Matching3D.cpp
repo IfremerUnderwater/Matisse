@@ -125,9 +125,6 @@ bool Matching3D::computeFeatures()
     emit signal_processCompletion(0);
     emit signal_userInformation("Matching : Compute Features");
 
-    // Dir checks
-    QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-
     bool ok = true;
     bool force_recompute = _matisseParameters->getBoolParamValue("algo_param", "force_recompute", ok);
     bool bUpRight = false;
@@ -141,8 +138,8 @@ bool Matching3D::computeFeatures()
     // describer preset parameter
     QString presetParamval = _matisseParameters->getStringParamValue("algo_param", "describer_preset");
 
-    QString sSfM_Data_Filename = rootDirnameStr + SEP + "matches" + SEP + "sfm_data.bin";
-    QString sOutDir = rootDirnameStr + SEP + "matches";
+    QString sSfM_Data_Filename = absoluteOutputTempDir() + SEP + "matches" + SEP + "sfm_data.bin";
+    QString sOutDir = absoluteOutputTempDir() + SEP + "matches";
 
     if (sOutDir.isEmpty()) {
         fatalErrorExit("Matching : output dir is empty");
@@ -366,7 +363,6 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
     static const QString SEP = QDir::separator();
 
     // Dir checks
-    QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
 
     bool ok = true;
     bool force_recompute = _matisseParameters->getBoolParamValue("algo_param", "force_recompute", ok);
@@ -374,8 +370,8 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
     // get nb of threads
     int nbthreads = QThread::idealThreadCount();
 
-    QString qSfM_Data_Filename = rootDirnameStr + SEP + "matches" + SEP + "sfm_data.bin";
-    QString sOutDir = rootDirnameStr + SEP + "matches";
+    QString qSfM_Data_Filename = absoluteOutputTempDir() + SEP + "matches" + SEP + "sfm_data.bin";
+    QString sOutDir = absoluteOutputTempDir() + SEP + "matches";
 
     emit signal_userInformation("Match 3D : Compute Matches");
     emit signal_processCompletion(0);

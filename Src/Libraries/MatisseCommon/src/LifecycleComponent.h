@@ -92,6 +92,24 @@ protected:
     ///
     void addExpectedParameter(QString structure, QString param);
 
+    /// <summary>
+    /// Return an absolute path to input dataset dir
+    /// </summary>
+    /// <returns></returns>
+    QString absoluteDatasetDir();
+
+    /// <summary>
+    /// Return absolute path to output dir
+    /// </summary>
+    /// <returns></returns>
+    QString absoluteOutputDir();
+
+    /// <summary>
+    /// Return absolute path to Temp directory
+    /// </summary>
+    /// <returns></returns>
+    QString absoluteOutputTempDir();
+
     ///
     /// \brief Retourne un chaine pour le déboggage
     /// \return

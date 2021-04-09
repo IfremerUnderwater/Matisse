@@ -8,6 +8,7 @@
 #include "VisuModeWidget.h"
 #include "OngoingProcessWidget.h"
 #include "GraphicalCharter.h"
+#include "RemoteJobHelper.h"
 
 using namespace MatisseTools;
 using namespace MatisseServer;
@@ -15,8 +16,10 @@ using namespace MatisseServer;
 const QString AssemblyGui::PREFERENCES_FILEPATH = QString("config/MatissePreferences.xml");
 const QString AssemblyGui::ASSEMBLY_EXPORT_PREFIX = QString("assembly_export_");
 const QString AssemblyGui::JOB_EXPORT_PREFIX = QString("job_export_");
+const QString AssemblyGui::JOB_REMOTE_PREFIX = QString("job_remote_");
 const QString AssemblyGui::DEFAULT_EXCHANGE_PATH = QString("exchange");
 const QString AssemblyGui::DEFAULT_ARCHIVE_PATH = QString("archive");
+const QString AssemblyGui::DEFAULT_REMOTE_PATH = QString("remote");
 const QString AssemblyGui::DEFAULT_RESULT_PATH = QString("./outReconstruction");
 const QString AssemblyGui::DEFAULT_MOSAIC_PREFIX = QString("MyProcess");
 
@@ -52,10 +55,11 @@ AssemblyGui::AssemblyGui(QWidget *parent) :
     _resetMessagesButton(NULL),
     _maxOrRestoreButtonWrapper(NULL),
     _visuModeButtonWrapper(NULL),
-    m_camera_manager_tool_dialog(this)
+    m_camera_manager_tool_dialog(this),
+    _server(NULL)
 {
     _ui->setupUi(this);
-    _server.setMainGui(this);
+    _server.setJobLauncher(this);
     this->setWindowFlags(Qt::FramelessWindowHint);
 
 }
@@ -95,6 +99,11 @@ void AssemblyGui::setProcessDataManager(ProcessDataManager *processDataManager)
     _processDataManager = processDataManager;
 }
 
+void AssemblyGui::setRemoteJobHelper(RemoteJobHelper *remoteJobHelper)
+{
+    m_remote_job_helper = remoteJobHelper;
+}
+
 void AssemblyGui::initPreferences()
 {
     _preferences = new MatissePreferences();
@@ -110,6 +119,8 @@ void AssemblyGui::initPreferences()
         _preferences->setDefaultMosaicFilenamePrefix(DEFAULT_MOSAIC_PREFIX);
         _preferences->setProgrammingModeEnabled(false); // By default, programming mode is disabled
         _preferences->setLanguage("FR");
+
+        /* This case is obsolete : no need to initalize remote execution preferences */
 
         _systemDataManager->writeMatissePreferences(PREFERENCES_FILEPATH, *_preferences);
     } else {
@@ -272,6 +283,10 @@ void AssemblyGui::initUserActions()
 
     connect(_executeJobAct, SIGNAL(triggered()), this, SLOT(slot_launchJob()));
     connect(_goToResultsAct, SIGNAL(triggered()), this, SLOT(slot_goToResult()));
+    connect(m_upload_data_act, SIGNAL(triggered()), this, SLOT(sl_uploadJobData()));
+    connect(m_select_remote_data_act, SIGNAL(triggered()), this, SLOT(sl_selectRemoteJobData()));
+    connect(m_execute_remote_job_act, SIGNAL(triggered()), this, SLOT(sl_launchRemoteJob()));
+    connect(m_download_job_results_act, SIGNAL(triggered()), this, SLOT(sl_downloadJobResults()));
     connect(_deleteJobAct, SIGNAL(triggered()), this, SLOT(slot_deleteJob()));
     connect(_archiveJobAct, SIGNAL(triggered()), this, SLOT(slot_archiveJob()));
     connect(_cloneJobAct, SIGNAL(triggered()), this, SLOT(slot_duplicateJob()));
@@ -384,6 +399,15 @@ void AssemblyGui::dpiScaleWidgets()
 
 void AssemblyGui::init()
 {
+    // useless but does not build otherwise -> ugly ..................
+//    GraphicalCharter &graph_charter = GraphicalCharter::instance();
+//    int a = graph_charter.dpiScaled(0);
+//    QString b("");
+//    FileUtils::createTempDirectory(b);
+//    QString source;
+//    QMap<QString,QString> properties;
+//    StringUtils::substitutePlaceHolders(source, properties);
+
 
     initLanguages();
 
@@ -414,6 +438,8 @@ void AssemblyGui::init()
 
     initPreferences();
 
+    initRemoteJobHelper();
+    
     initAssemblyCreationScene();
 
     initMapFeatures();
@@ -434,6 +460,18 @@ void AssemblyGui::init()
 
     dpiScaleWidgets();
 
+}
+
+void AssemblyGui::initRemoteJobHelper()
+{
+  m_remote_job_helper->setJobLauncher(this);
+  m_remote_job_helper->setDataManager(_processDataManager);
+  m_remote_job_helper->setParametersManager(_server.parametersManager());
+  m_remote_job_helper->setPreferences(_preferences);
+  m_remote_job_helper->setServerSettings(_systemDataManager->remoteServerSettings());
+  m_remote_job_helper->init();
+  connect(m_remote_job_helper, SIGNAL(si_jobResultsReceived(QString)),
+          SLOT(sl_onRemoteJobResultsReceived(QString)));
 }
 
 void AssemblyGui::initIconFactory()
@@ -598,6 +636,10 @@ void AssemblyGui::initContextMenus()
 
     /* Actions pour menu contextuel Tâche */
     _executeJobAct = new QAction(this);
+    m_execute_remote_job_act = new QAction(this);
+    m_upload_data_act = new QAction(this);
+    m_select_remote_data_act = new QAction(this);
+    m_download_job_results_act = new QAction(this);
     _saveJobAct = new QAction(this);
     _cloneJobAct = new QAction(this);
     _exportJobAct = new QAction(this);
@@ -1057,6 +1099,9 @@ void AssemblyGui::slot_updatePreferences()
             // reset import / export path (will be reinitialized at runtime)
             _exportPath = "";
             _importPath = "";
+
+            /* recheck preferences for remote job execution */
+            m_remote_job_helper->reinit();
         }
     }
 
@@ -1153,9 +1198,48 @@ void AssemblyGui::checkArchiveDirCreated()
     }
 }
 
+void AssemblyGui::checkRemoteDirCreated()
+{
+  bool already_checked = !m_remote_output_path.isEmpty();
+
+  if (already_checked) {
+    return;
+  }
+
+  m_remote_output_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+    QDir::separator() + "toServer"; 
+
+  QDir remote_output_dir(m_remote_output_path);
+  if (!remote_output_dir.exists()) {
+      qDebug() << "Creating remote output directory " << m_remote_output_path;
+      remote_output_dir.mkpath(".");
+  }
+}
+
+void MatisseServer::AssemblyGui::updateJobStatus(
+    QString _job_name, QTreeWidgetItem *_item, MessageIndicatorLevel _indicator,
+    QString _message) 
+{
+  if (_item->type() == MatisseTreeItem::Type) {
+    MatisseTreeItem *matisse_job_item = static_cast<MatisseTreeItem *>(_item);
+    IconizedWidgetWrapper *item_wrapper =
+        new IconizedTreeItemWrapper(matisse_job_item, 0);
+    _iconFactory->attachIcon(item_wrapper, "lnf/icons/led.svg", false, false,
+                             _colorsByLevel.value(_indicator));
+  } else {
+    qCritical() << QString(
+                       "Item for job '%1' is not of type MatisseTreeItem, "
+                       "cannot display icon")
+                       .arg(_job_name);
+  }
+
+  QString msg = _message.arg(_job_name);
+  showStatusMessage(msg, OK);
+}
+
 void AssemblyGui::slot_exportAssembly()
 {
-    executeExportWorkflow();
+    executeExportWorkflow(false);
 }
 
 void AssemblyGui::slot_importAssembly()
@@ -1175,16 +1259,36 @@ void AssemblyGui::slot_importJob()
 
 void AssemblyGui::slot_goToResult()
 {
-    QString datasetPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_DATASET_DIR);
-    QString resultPath = datasetPath; //+ QDir::separator()  +_server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
-    QDir resultDir(resultPath);
-    if (!resultDir.exists()) {
-        QMessageBox::critical(this, tr("Path invalid"), tr("Result path '%1' does not exist.").arg(resultPath));
-        return;
-    }
+  /* Guard unconsistent cases (this slot is assumed by selecting a previously executed job) */
+  if (!_currentJob) {
+    qCritical() << "No job was selected, cannot open reconstruction folder";
+    return;  
+  }
 
-    QUrl url = QUrl::fromLocalFile(resultDir.absolutePath());
-    QDesktopServices::openUrl(url);
+  if (!_currentJob->executionDefinition()->executed()) {
+    qCritical() << "Job was selected, cannot open reconstruction folder";
+    return;
+  }
+
+  QStringList result_files = _currentJob->executionDefinition()->resultFileNames();
+  if (result_files.isEmpty()) {
+    qCritical() << "Job has no result files, cannot open reconstruction folder";
+    return;
+  }
+
+  /* Reconstruction folder is the parent path of all result images (wether executed locally or remotely) */
+  QString result_file = result_files.first();
+  int file_name_pos = result_file.lastIndexOf('/') + 1;
+  QString result_path = result_file.left(file_name_pos);
+
+  QDir result_dir(result_path);
+  if (!result_dir.exists()) {
+      QMessageBox::critical(this, tr("Path invalid"), tr("Result path '%1' does not exist.").arg(result_path));
+      return;
+  }
+
+  QUrl url = QUrl::fromLocalFile(result_dir.absolutePath());
+  QDesktopServices::openUrl(url);
 }
 
 void AssemblyGui::slot_archiveJob()
@@ -1408,10 +1512,12 @@ void MatisseServer::AssemblyGui::slot_launchCameraCalibTool()
 //    QDesktopServices::openUrl(url);
 //}
 
-void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
-    if (_exportPath.isEmpty()) {
-        createExportDir();
+void AssemblyGui::executeExportWorkflow(bool isJobExportAction, bool isForRemoteExecution) {
+    if (isForRemoteExecution && ! isJobExportAction) {
+        qCritical() << "Unconsistent call cannot be executed : assembly export for remote execution";
+        return;
     }
+
 
     /* check unsaved assembly / job */
     bool confirmAction = true;
@@ -1430,6 +1536,14 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
 
     if (!confirmAction) {
         return;
+    }
+
+    if (isForRemoteExecution) {
+        checkRemoteDirCreated();
+    } else {
+        if (_exportPath.isEmpty()) {
+            createExportDir();
+        }
     }
 
     /* common translated labels */
@@ -1451,24 +1565,26 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
 
     QString entityName = "";
     QString entityFileName = "";
-    QString exportPrefix = "";
+    QString entityPrefix = "";
 
     if (isJobExportAction) {
         entityName = _currentJob->name();
         entityFileName = _currentJob->filename();
-        exportPrefix = JOB_EXPORT_PREFIX;
+        entityPrefix = (isForRemoteExecution) ? JOB_REMOTE_PREFIX : JOB_EXPORT_PREFIX;
 
     } else {
         entityName = _currentAssembly->name();
         entityFileName = _currentAssembly->filename();
-        exportPrefix = ASSEMBLY_EXPORT_PREFIX;
+        entityPrefix = ASSEMBLY_EXPORT_PREFIX;
     }
 
     qDebug() << QString("Exporting assembly/job '%1'...").arg(entityName);
 
+    QString exportPathRoot = (isForRemoteExecution) ? m_remote_output_path : _exportPath;
+
     QString normalizedEntityName = entityFileName;
     normalizedEntityName.chop(4); // remove ".xml" suffix
-    QString exportFilename = _exportPath + QDir::separator() + exportPrefix + normalizedEntityName + ".zip";
+    QString exportFilename = exportPathRoot + QDir::separator() + entityPrefix + normalizedEntityName + ".zip";
 
     QStringList fileNames;
 
@@ -1537,10 +1653,16 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction) {
     //FileUtils::zipFiles(exportFilename, ".", fileNames);
     FileUtils::zipFiles(exportFilename, _systemDataManager->getDataRootDir(), fileNames);
 
-    QMessageBox::information(
-                this,
-                exportTitle,
-                successMessage.arg(entityName).arg(QDir(_exportPath).absolutePath()));
+    if (isForRemoteExecution) {
+        /* Store path for later use */
+        m_current_remote_execution_bundle = exportFilename;
+    } else {
+        /* Display export confirmation */
+        QMessageBox::information(
+                    this,
+                    exportTitle,
+                    successMessage.arg(entityName).arg(QDir(_exportPath).absolutePath()));
+    }
 }
 
 
@@ -2613,7 +2735,7 @@ void AssemblyGui::displayJob(QString jobName, bool forceReload)
     }
 
     /* memory deallocation for the array of QTreeWidgetItem* */
-    delete jobResultImageItems;
+    delete[] jobResultImageItems;
 }
 
 void AssemblyGui::selectAssembly(QString assemblyName, bool reloadAssembly)
@@ -2834,6 +2956,10 @@ void AssemblyGui::slot_newJob()
     executionDefinition.setExecuted(false);
     newJob.setExecutionDefinition(&executionDefinition);
 
+    RemoteJobDefinition remoteJobDefinition;
+    remoteJobDefinition.setScheduled(false);
+    newJob.setRemoteJobDefinition(&remoteJobDefinition);
+
     if (!_processDataManager->writeJobFile(&newJob)) {
         qCritical() << QString("Job definition file could not be created for new job '%1'").arg(jobName);
         return;
@@ -3020,6 +3146,14 @@ void AssemblyGui::slot_assemblyContextMenuRequested(const QPoint &pos)
         if (_currentJob->executionDefinition()->executed()) {
             // show only if job was executed
             contextMenu->addAction(_goToResultsAct);
+        }
+        contextMenu->addSeparator();
+        contextMenu->addAction(m_upload_data_act);
+        contextMenu->addAction(m_select_remote_data_act);
+        contextMenu->addAction(m_execute_remote_job_act);
+        if (_currentJob->remoteJobDefinition()->isScheduled()) {
+          // show only if job was scheduled on remote server
+          contextMenu->addAction(m_download_job_results_act);
         }
         contextMenu->addSeparator();
         contextMenu->addAction(_saveJobAct);
@@ -3214,6 +3348,10 @@ void AssemblyGui::retranslate()
 
     /* Menu contextuel Tâche */
     _executeJobAct->setText(tr("Run"));
+    m_upload_data_act->setText(tr("Upload data to server"));
+    m_select_remote_data_act->setText(tr("Select dataset on server"));
+    m_execute_remote_job_act->setText(tr("Run on server"));
+    m_download_job_results_act->setText(tr("Download results"));
     _saveJobAct->setText(tr("Save"));
     _cloneJobAct->setText(tr("Copy"));
     _exportJobAct->setText(tr("Export"));
@@ -3668,7 +3806,7 @@ void AssemblyGui::slot_launchJob()
     if (resultPathDir.isRelative())
     {
         QString dataPath = _server.parametersManager()->getParameterValue(DATASET_PARAM_DATASET_DIR);
-        resultPath = dataPath;
+        resultPath = dataPath + QDir::separator() + resultPathDir.path();
     }
 
     _processDataManager->copyJobFilesToResult(jobName, resultPath);
@@ -3704,6 +3842,68 @@ void AssemblyGui::slot_launchJob()
     }
 
     //setActionsStates(_lastJobLaunchedItem);
+}
+
+void AssemblyGui::sl_launchRemoteJob()
+{
+    qDebug() << "Launching remote job...";
+
+    executeExportWorkflow(true, true);
+
+    m_remote_job_helper->scheduleJob(_currentJob->name(), m_current_remote_execution_bundle);
+}
+
+
+void AssemblyGui::sl_uploadJobData()
+{
+    if (!_currentJob) {
+      qCritical() << "No job selected, cannot upload job data";
+      return;
+    }
+
+    QString job_name = _currentJob->name();
+
+    m_remote_job_helper->uploadDataset(job_name);
+}
+
+void MatisseServer::AssemblyGui::sl_selectRemoteJobData() 
+{
+  if (!_currentJob) {
+    qCritical() << "No job selected, cannot select remote job data";
+    return;
+  }
+
+  QString job_name = _currentJob->name();
+
+  m_remote_job_helper->selectRemoteDataset(job_name);
+}
+
+void AssemblyGui::sl_downloadJobResults() 
+{
+  if (!_currentJob) {
+    qCritical() << "No job selected, cannot download results";
+    return;
+  }
+
+  checkRemoteDirCreated();
+
+  QString job_name = _currentJob->name();
+
+  m_remote_job_helper->downloadResults(job_name);
+}
+
+void AssemblyGui::sl_onRemoteJobResultsReceived(
+    QString _job_name) 
+{
+  /* Reselect job */
+  selectJob(_job_name);
+
+  /* Update status */
+  QTreeWidgetItem *job_item = _ui->_TRW_assemblies->currentItem();
+  updateJobStatus(_job_name, job_item, OK, tr("Job %1 executed on remote server..."));
+
+  /* Reload job and display results */
+  displayJob(_job_name, true);
 }
 
 void AssemblyGui::slot_stopJob()
@@ -3802,30 +4002,12 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
         _processDataManager->writeJobFile(jobDef, true);
         if (_lastJobLaunchedItem) {
             if (isCancelled) {
-                if (_lastJobLaunchedItem->type() == MatisseTreeItem::Type) {
-                    MatisseTreeItem *lastJobLaunchedIconItem = static_cast<MatisseTreeItem *>(_lastJobLaunchedItem);
-                    IconizedWidgetWrapper *itemWrapper = new IconizedTreeItemWrapper(lastJobLaunchedIconItem, 0);
-                    _iconFactory->attachIcon(itemWrapper, "lnf/icons/led.svg", false, false, _colorsByLevel.value(IDLE));
-                } else {
-                    qCritical() << QString("Item for job '%1' is not of type MatisseTreeItem, cannot display icon").arg(name);
-                }
+                updateJobStatus(name, _lastJobLaunchedItem, IDLE, tr("Job %1 cancelled..."));
 
-                QString msg = tr("Job %1 cancelled...").arg(jobDef->name());
-                showStatusMessage(msg, OK);
                 // TODO Image cleaning ?
             }
             else  {
-                // led update...
-                if (_lastJobLaunchedItem->type() == MatisseTreeItem::Type) {
-                    MatisseTreeItem *lastJobLaunchedIconItem = static_cast<MatisseTreeItem *>(_lastJobLaunchedItem);
-                    IconizedWidgetWrapper *itemWrapper = new IconizedTreeItemWrapper(lastJobLaunchedIconItem, 0);
-                    _iconFactory->attachIcon(itemWrapper, "lnf/icons/led.svg", false, false, _colorsByLevel.value(OK));
-                } else {
-                    qCritical() << QString("Item for job '%1' is not of type MatisseTreeItem, cannot display icon").arg(name);
-                }
-
-                QString msg = tr("Job %1 finished...").arg(jobDef->name());
-                showStatusMessage(msg, OK);
+                updateJobStatus(name, _lastJobLaunchedItem, OK, tr("Job %1 finished..."));
 
                 selectJob(jobDef->name());
             }

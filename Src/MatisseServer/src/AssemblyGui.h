@@ -24,7 +24,7 @@
 #include "ElementWidgetProvider.h"
 #include "AssemblyGraphicsScene.h"
 #include "KeyValueList.h"
-#include "Server.h"
+#include "MatisseEngine.h"
 #include "GraphicalCharter.h"
 #include "AssemblyDialog.h"
 #include "JobDialog.h"
@@ -53,6 +53,8 @@
 #include "WelcomeDialog.h"
 #include "camera_manager_tool.h"
 #include "camera_calib_dialog.h"
+#include "RemoteJobHelper.h"
+
 
 namespace Ui {
 class AssemblyGui;
@@ -122,17 +124,19 @@ public:
 
     void setSystemDataManager(SystemDataManager *systemDataManager);
     void setProcessDataManager(ProcessDataManager *processDataManager);
+    void setRemoteJobHelper(RemoteJobHelper *remoteJobHelper);
 
     void initMapFeatures();
 private:
     Ui::AssemblyGui *_ui;
     bool _isMapView;
-    Server _server;
+    MatisseEngine _server;
 //    bool _canShow;
     UserActionContext _context;
 
     SystemDataManager *_systemDataManager;
     ProcessDataManager *_processDataManager;
+    RemoteJobHelper *m_remote_job_helper;
 
 //    QString _settingsFile;
     QString _appVersion;
@@ -140,6 +144,7 @@ private:
     QString _exportPath;
     QString _importPath;
     QString _archivePath;
+    QString m_remote_output_path;
 
     MatissePreferences* _preferences;
     QTranslator* _toolsTranslator_en;
@@ -155,8 +160,10 @@ private:
     static const QString PREFERENCES_FILEPATH;
     static const QString ASSEMBLY_EXPORT_PREFIX;
     static const QString JOB_EXPORT_PREFIX;
+    static const QString JOB_REMOTE_PREFIX;
     static const QString DEFAULT_EXCHANGE_PATH;
     static const QString DEFAULT_ARCHIVE_PATH;
+    static const QString DEFAULT_REMOTE_PATH;
     static const QString DEFAULT_RESULT_PATH;
     static const QString DEFAULT_MOSAIC_PREFIX;
 
@@ -169,6 +176,8 @@ private:
     QScrollArea * _parametersDock;
     ParametersWidgetSkeleton * _parametersWidget;
     QLabel* _messagesPicto;
+
+    QString m_current_remote_execution_bundle;
 
     QTreeWidgetItem *_assemblyVersionPropertyItem;
     QTreeWidgetItem *_assemblyCreationDatePropertyItem;
@@ -255,6 +264,10 @@ private:
 
     /* job context menu */
     QAction* _executeJobAct;
+    QAction* m_execute_remote_job_act;
+    QAction* m_upload_data_act;
+    QAction* m_select_remote_data_act;
+    QAction* m_download_job_results_act;
     QAction* _saveJobAct;
     QAction* _cloneJobAct;
     QAction* _exportJobAct;
@@ -279,6 +292,7 @@ private:
     void initProcessWheelSignalling();
     void initUserActions();
     void initServer();
+    void initRemoteJobHelper();
     void initAssemblyCreationScene();
     void initWelcomeDialog();
     //bool getAssemblyValues(QString filename, QString  name, bool &valid, KeyValueList & assemblyValues);
@@ -321,9 +335,13 @@ private:
     void createExportDir();
     void createImportDir();
     void executeImportWorkflow(bool isJobImportAction = false);
-    void executeExportWorkflow(bool isJobExportAction = false);
+    void executeExportWorkflow(bool isJobExportAction, bool isForRemoteExecution = false);
     void checkArchiveDirCreated();
+    void checkRemoteDirCreated();
     bool checkArchivePathChange();
+
+    void updateJobStatus(QString _job_name, QTreeWidgetItem* _item,
+                         MessageIndicatorLevel _indicator, QString _message);
 
 protected:
     void changeEvent(QEvent *event); // overriding event handler for dynamic translation
@@ -344,6 +362,11 @@ protected slots:
     void slot_newAssembly();
     void slot_swapMapOrCreationView();
     void slot_launchJob();
+    void sl_uploadJobData();
+    void sl_selectRemoteJobData();
+    void sl_launchRemoteJob();
+    void sl_downloadJobResults();
+    void sl_onRemoteJobResultsReceived(QString _job_name);
     void slot_stopJob();
     void slot_jobShowImageOnMainView(QString name, Image *image);
     void slot_userInformation(QString userText);

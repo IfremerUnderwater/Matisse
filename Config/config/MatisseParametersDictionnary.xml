@@ -13,7 +13,9 @@
                 <Parameter name="step_im" level="user" text="Images step" type="integer" range="[1,inf[" show="spin" default="1"/>
                 <Parameter name="force_recompute" level="user" text="Force recompute" type="bool" show="check" default="0"/>
             </ParametersGroup>
-            <ParametersGroup name="overlap_filtering_params" text="Parametres de filtrage">
+            <ParametersGroup name="overlap_filtering_params" text="Images overlap handling">
+                <Parameter name="disjoint_drawing" level="user" text="Disjoint mosaicking" type="bool" show="check" default="0"/>
+                <Parameter name="single_image_output" level="user" text="Single image output type" type="string" range= "{$DRAWING_OUTPUT_TYPE}" show="combo" default="geotiff_only"/>
                 <Parameter name="filter_overlap" level="expert" text="Overlap filtering" type="bool" show="check" default="0"/>
                 <Parameter name="max_overlap" level="expert" text="Max overlap between 2 images" type="double" range="[0,1]" precision="2" show="spin" default="0.9"/>
                 <Parameter name="min_overlap" level="expert" text="Min overlap between 2 images" type="double" range="[0,1]" precision="2" show="spin" default="0.7"/>
@@ -93,7 +95,7 @@
         <Structure name="dataset_param">
             <ParametersGroup name="output_and_geo_params">
               <Parameter name="dataset_dir" level="user" text="Data path" type="string" show="dir" default ="./"/>
-              <Parameter name="output_dir" level="user" text="Output path" type="string" show="line" default="outReconstruction"/>
+              <Parameter name="output_dir" level="user" text="Output path" type="string" show="dir" default="outReconstruction"/>
               <Parameter name="output_filename" level="user" text="Output name prefix" type="string" show="line" default="mosaic-output"/>
               <Parameter name="navFile" level="user" text="Navigation file" type="string" show="file" default="nav_file.dim2"/>
               <Parameter name="navSource" level="user" text="Navigation source"  type="string" range="{$NAV_SOURCES}" show="combo" default="AUTO"/>
@@ -113,6 +115,11 @@
             <EnumValue name="Ferrer_2008_with_nav" text="Ferrer_2008_with_nav"/>
             <EnumValue name="Ferrer_without_nav" text="Ferrer_without_nav"/>
             <EnumValue name="Robust_2D_with_nav" text="Robust_2D_with_nav"/>
+        </Enum>
+        <Enum name="DRAWING_OUTPUT_TYPE">
+            <EnumValue name="geotiff_only" text="Geotiff only"/>
+            <EnumValue name="jpeg_only" text="JPEG only"/>
+            <EnumValue name="geotiff_and_jpeg" text="Geotiff and JPEG"/>
         </Enum>
         <Enum name="EXPO_COMP_METHOD">
             <EnumValue name="no" text="no"/>

@@ -3,6 +3,7 @@
 #include <math.h>
 #endif
 
+#include "FileUtils.h"
 #include "MosaicContext.h"
 #include "MosaicDrawer.h"
 #include "NavImage.h"
@@ -32,6 +33,9 @@ DrawBlend2DMosaic::DrawBlend2DMosaic() :
     addExpectedParameter("algo_param", "block_width");
     addExpectedParameter("algo_param", "block_height");
 
+    addExpectedParameter("algo_param", "disjoint_drawing");
+    addExpectedParameter("algo_param", "single_image_output");
+
 }
 
 DrawBlend2DMosaic::~DrawBlend2DMosaic(){
@@ -44,6 +48,9 @@ bool DrawBlend2DMosaic::configure()
 
     QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
     _outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    /* Resolve UNIX paths ('~/...') for remote job execution */
+    _outputDirnameStr = FileUtils::resolveUnixPath(_outputDirnameStr);
+
     QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
 
     if (datasetDirnameStr.isEmpty()
@@ -133,7 +140,49 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     MosaicDrawer mosaicDrawer;
     QFileInfo outputFileInfo;
 
-    if (!blockDraw){
+    QString output_type_choice = _matisseParameters->getStringParamValue("algo_param", "single_image_output");
+
+    bool draw_geotiff = true;
+    bool draw_jpeg = false;
+    if (output_type_choice == "Geotiff only")
+    {
+        draw_geotiff = true;
+        draw_jpeg = false;
+    }
+    if (output_type_choice == "JPEG only")
+    {
+        draw_geotiff = false;
+        draw_jpeg = true;
+    }
+    if (output_type_choice == "Geotiff and JPEG")
+    {
+        draw_geotiff = true;
+        draw_jpeg = true;
+    }
+
+
+    if (_matisseParameters->getBoolParamValue("algo_param", "disjoint_drawing", Ok)) {
+        QStringList outputFiles;
+        
+        if (draw_geotiff)
+        {
+            outputFiles = mosaicDrawer.writeImagesAsGeoTiff(*pMosaicD,
+                _outputDirnameStr, outputFilename);
+        }
+
+        if (draw_jpeg)
+        {
+            mosaicDrawer.outputMosaicImagesAsIs(*pMosaicD,
+                _outputDirnameStr, outputFilename);
+        }
+
+        foreach(QString filename, outputFiles) {
+            outputFileInfo.setFile(QDir(_outputDirnameStr), filename);
+            _rastersInfo << outputFileInfo;
+        }
+
+    }
+    else if (!blockDraw){
         // opencv331
         cv::UMat mosaicImage,mosaicMask;
         mosaicDrawer.drawAndBlend(*pMosaicD, mosaicImage, mosaicMask);
@@ -153,7 +202,8 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
 
     }else{
         qDebug()<< logPrefix() << "entered block drawing part...";
-
+       
+        
         QStringList outputFiles = mosaicDrawer.blockDrawBlendAndWrite(*pMosaicD,
                                                                       Point2d(blockWidth, blockHeight),
                                                                       _outputDirnameStr, outputFilename);

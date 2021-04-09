@@ -8,7 +8,8 @@ JobDefinition::JobDefinition(QString name, QString assemblyName, QString assembl
       _comment(""),
       _assemblyName(assemblyName),
       _assemblyVersion(assemblyVersion),
-      _executionDefinition(NULL)
+      _executionDefinition(NULL),
+      m_remote_job_definition(NULL)
 {
 }
 
@@ -28,10 +29,21 @@ ExecutionDefinition *JobDefinition::executionDefinition() const
     return _executionDefinition;
 }
 
-void JobDefinition::setExecutionDefinition(ExecutionDefinition *executionDefinition)
+void JobDefinition::setExecutionDefinition(ExecutionDefinition* executionDefinition)
 {
-    _executionDefinition = executionDefinition;
+  _executionDefinition = executionDefinition;
 }
+
+void JobDefinition::setRemoteJobDefinition(RemoteJobDefinition *_remote_job_definition)
+{
+    m_remote_job_definition = _remote_job_definition;
+}
+
+RemoteJobDefinition* JobDefinition::remoteJobDefinition() const
+{
+  return m_remote_job_definition;
+}
+
 
 JobDefinition *JobDefinition::duplicate(QString newName, QString newFileName)
 {
@@ -41,6 +53,9 @@ JobDefinition *JobDefinition::duplicate(QString newName, QString newFileName)
     ExecutionDefinition *executionDef = new ExecutionDefinition();
     executionDef->setExecuted(false);
     newJob->setExecutionDefinition(executionDef);
+    RemoteJobDefinition* remote_def = new RemoteJobDefinition();
+    remote_def->setScheduled(false);
+    newJob->setRemoteJobDefinition(remote_def);
 
     return newJob;
 }
@@ -106,4 +121,38 @@ void ExecutionDefinition::setExecutionDate(QDateTime executionDate)
     _executionDate = executionDate;
 }
 
+
+bool RemoteJobDefinition::isScheduled() const
+{
+  return m_is_scheduled;
+}
+
+void RemoteJobDefinition::setScheduled(bool _is_scheduled)
+{
+  m_is_scheduled = _is_scheduled;
+}
+
+QString RemoteJobDefinition::node() const {
+  return m_node;
+}
+
+void RemoteJobDefinition::setNode(QString _node) {
+  m_node = _node;
+}
+
+int RemoteJobDefinition::jobId() const {
+  return m_job_id;
+}
+
+void RemoteJobDefinition::setJobId(int _job_id) {
+  m_job_id = _job_id;
+}
+
+QDateTime RemoteJobDefinition::timestamp() const {
+  return m_timestamp;
+}
+
+void RemoteJobDefinition::setTimestamp(QDateTime _timestamp) {
+  m_timestamp = _timestamp;
+}
 
