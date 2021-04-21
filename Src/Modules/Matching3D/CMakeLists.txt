@@ -1,8 +1,8 @@
-add_library(Matching3D SHARED src/Matching3D.cpp)
+add_library(Matching3D SHARED Matching3D.cpp)
 
 include_directories(${OPENMVG_INSTALL_PATH}/include/openMVG_dependencies)
 
-target_link_libraries( Matching3D 
+target_link_libraries(Matching3D 
 	MatisseCore
 	MatisseImage
 	BasicProcessing
@@ -22,7 +22,8 @@ target_link_libraries( Matching3D
 	OpenMVG::openMVG_exif
 	OpenMVG::openMVG_stlplus
 	OpenMVG::openMVG_multiview
-	OpenMVG::openMVG_matching_image_collection)
+	OpenMVG::openMVG_matching_image_collection
+	)
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(Matching3D PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
@@ -37,5 +38,5 @@ add_custom_command(
 
 # state that anybody linking to us needs to include the current source dir
 target_include_directories(Matching3D
-          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src
+          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
           )
