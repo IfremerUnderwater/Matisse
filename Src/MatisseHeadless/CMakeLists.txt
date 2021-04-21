@@ -2,7 +2,7 @@
 add_executable(MatisseHeadless
     main.cpp
     JobLauncher.cpp
-    CartoImage.cpp)
+	)
 	
 	
 set_target_properties(MatisseHeadless PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
