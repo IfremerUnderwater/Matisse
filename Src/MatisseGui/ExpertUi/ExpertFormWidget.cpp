@@ -6,21 +6,21 @@ using namespace MatisseTools;
 using namespace MatisseServer;
 
 
-ExpertFormWidget::ExpertFormWidget(QWidget *parent) :
+AssemblyEditor::AssemblyEditor(QWidget *parent) :
     QWidget(parent),
-    _ui(new Ui::ExpertFormWidget)//,
+    _ui(new Ui::AssemblyEditor)//,
     //_server(NULL)
 {
     _ui->setupUi(this);
     init();
 }
 
-ExpertFormWidget::~ExpertFormWidget()
+AssemblyEditor::~AssemblyEditor()
 {
     delete _ui;
 }
 
-void ExpertFormWidget::init()
+void AssemblyEditor::init()
 {
     _ui->_GRW_assembly->setEnabled(false);
     _ui->_GRW_assembly->setAcceptDrops(true);
@@ -33,7 +33,7 @@ void ExpertFormWidget::init()
     _scene->initViewport();
 }
 
-void ExpertFormWidget::resizeEvent(QResizeEvent *event)
+void AssemblyEditor::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
 
@@ -46,20 +46,20 @@ void ExpertFormWidget::resizeEvent(QResizeEvent *event)
 //}
 
 
-QGraphicsView *ExpertFormWidget::getGraphicsView()
+QGraphicsView *AssemblyEditor::getGraphicsView()
 {
     return _ui->_GRW_assembly;
 }
 
 
-bool ExpertFormWidget::loadAssembly(QString assemblyName)
+bool AssemblyEditor::loadAssembly(QString assemblyName)
 {
     qDebug() << "Load assembly:" << assemblyName;
     return _scene->loadAssembly(assemblyName);
 
 }
 
-void ExpertFormWidget::resetAssemblyForm()
+void AssemblyEditor::resetAssemblyForm()
 {
     _scene->reset();
     _ui->_GRW_assembly->invalidateScene();

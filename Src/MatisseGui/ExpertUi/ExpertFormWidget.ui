@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ExpertFormWidget</class>
- <widget class="QWidget" name="ExpertFormWidget">
+ <class>AssemblyEditor</class>
+ <widget class="QWidget" name="AssemblyEditor">
   <property name="geometry">
    <rect>
     <x>0</x>

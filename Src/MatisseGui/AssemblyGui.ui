@@ -890,7 +890,7 @@ p, li { white-space: pre-wrap; }
            <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="UserFormWidget" name="_WID_mapViewSceneContainer">
+           <widget class="DataViewer" name="_WID_mapViewSceneContainer">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -904,7 +904,7 @@ p, li { white-space: pre-wrap; }
              </size>
             </property>
            </widget>
-           <widget class="MatisseServer::ExpertFormWidget" name="_WID_creationSceneContainer">
+           <widget class="MatisseServer::AssemblyEditor" name="_WID_creationSceneContainer">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -1020,7 +1020,7 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UserFormWidget</class>
+   <class>DataViewer</class>
    <extends>QWidget</extends>
    <header>UserFormWidget.h</header>
   </customwidget>
@@ -1037,7 +1037,7 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>MatisseServer::ExpertFormWidget</class>
+   <class>MatisseServer::AssemblyEditor</class>
    <extends>QWidget</extends>
    <header>ExpertFormWidget.h</header>
    <container>1</container>

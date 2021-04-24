@@ -23,18 +23,18 @@
 
 
 namespace Ui {
-class ExpertFormWidget;
+class AssemblyEditor;
 }
 
 namespace MatisseServer {
 
-class ExpertFormWidget : public QWidget
+class AssemblyEditor : public QWidget
 {
     Q_OBJECT
     
 public:
-    explicit ExpertFormWidget(QWidget *parent = 0);
-    ~ExpertFormWidget();
+    explicit AssemblyEditor(QWidget *parent = 0);
+    ~AssemblyEditor();
 
     bool loadAssembly(QString assemblyName);
     void resetAssemblyForm();
@@ -42,7 +42,7 @@ public:
     QGraphicsView * getGraphicsView();
 
 private:
-    Ui::ExpertFormWidget * _ui;
+    Ui::AssemblyEditor * _ui;
     AssemblyGraphicsScene * _scene;
     QHash<QString, KeyValueList> _assembliesValues;
 //    Server * _server;

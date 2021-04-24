@@ -55,7 +55,7 @@ using namespace MatisseTools;
 class OSGWidget;
 
 namespace Ui {
-class UserFormWidget;
+class DataViewer;
 }
 
 class QLabel;
@@ -90,13 +90,13 @@ private:
 
 };
 
-class UserFormWidget : public QWidget
+class DataViewer : public QWidget
 {
     Q_OBJECT
     
 public:
-    explicit UserFormWidget(QWidget *parent = NULL);
-    virtual ~UserFormWidget();
+    explicit DataViewer(QWidget *parent = NULL);
+    virtual ~DataViewer();
 
     void switchCartoViewTo(CartoViewType cartoViewType_p);
 
@@ -145,7 +145,7 @@ signals:
 
 private:
 
-    Ui::UserFormWidget *_ui;
+    Ui::DataViewer *_ui;
 
     CartoScene _scene;
 

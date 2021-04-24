@@ -10,9 +10,9 @@
 using namespace cv;
 
 
-UserFormWidget::UserFormWidget(QWidget *parent) :
+DataViewer::DataViewer(QWidget *parent) :
     QWidget(parent),
-    _ui(new Ui::UserFormWidget),
+    _ui(new Ui::DataViewer),
     _isToolBarDisplayed(false),
     _iconFactory(NULL)
 {
@@ -77,7 +77,7 @@ UserFormWidget::UserFormWidget(QWidget *parent) :
     connect(_ui->_GV_view,SIGNAL(signal_panChanged()),this,SLOT(slot_mapPanChanged()),Qt::QueuedConnection);
 }
 
-UserFormWidget::~UserFormWidget()
+DataViewer::~DataViewer()
 {
     // QT 5.10 : to avoid message on exit : "QThread: Destroyed while thread is still running"
     _resultLoadingThread.exit();
@@ -89,7 +89,7 @@ UserFormWidget::~UserFormWidget()
     delete _ui;
 }
 
-void UserFormWidget::initMapToolBar()
+void DataViewer::initMapToolBar()
 {
     if (!_iconFactory) {
         qCritical() << "Icon factory is not defined in UserFormWidget, cannot initialize map toolbar";
@@ -139,7 +139,7 @@ void UserFormWidget::initMapToolBar()
     _mapToolBar->setVisible(false);
 }
 
-void UserFormWidget::slot_updateMapCoords(QPointF p)
+void DataViewer::slot_updateMapCoords(QPointF p)
 {
     // scale needed to convert in meters (in case of GeoTiff in UTM)
     qreal scale = _scene.scale();
@@ -148,13 +148,13 @@ void UserFormWidget::slot_updateMapCoords(QPointF p)
     _coords->setText(s);
 }
 
-void  UserFormWidget::slot_showImagesRect(bool show)
+void  DataViewer::slot_showImagesRect(bool show)
 {
     _scene.showImageRect(show);
 }
 
 
-void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
+void DataViewer::switchCartoViewTo(CartoViewType cartoViewType_p)
 {
 
     this->clear();
@@ -180,7 +180,7 @@ void UserFormWidget::switchCartoViewTo(CartoViewType cartoViewType_p)
 }
 
 
-void UserFormWidget::initCanvas() {
+void DataViewer::initCanvas() {
 
     qDebug() << "Init QGIS Canvas";
 
@@ -197,7 +197,7 @@ void UserFormWidget::initCanvas() {
 
 }
 
-void UserFormWidget::slot_updateColorPalette(QMap<QString,QString> newColorPalette)
+void DataViewer::slot_updateColorPalette(QMap<QString,QString> newColorPalette)
 {
     QString backgroundColor = newColorPalette.value("color.black");
     qDebug() << "Update QGIS Canvas with bg color : " << backgroundColor;
@@ -206,7 +206,7 @@ void UserFormWidget::slot_updateColorPalette(QMap<QString,QString> newColorPalet
 //    mapCanvas->refresh();
 }
 
-void UserFormWidget::slot_showHideToolbar()
+void DataViewer::slot_showHideToolbar()
 {
     _isToolBarDisplayed = !_isToolBarDisplayed;
     _mapToolBar->setVisible(_isToolBarDisplayed);
@@ -217,7 +217,7 @@ void UserFormWidget::slot_showHideToolbar()
 ////    _ui->_GRV_map->setMapTool(_panTool);
 //}
 
-void UserFormWidget::slot_activateZoomInTool()
+void DataViewer::slot_activateZoomInTool()
 {
 //    _ui->_GRV_map->setMapTool(_zoomInTool);
     qreal zoom = _ui->_GV_view->zoomfactor();
@@ -225,7 +225,7 @@ void UserFormWidget::slot_activateZoomInTool()
     _ui->_GV_view->repaint();
 }
 
-void UserFormWidget::slot_activateZoomOutTool()
+void DataViewer::slot_activateZoomOutTool()
 {
 //    _ui->_GRV_map->setMapTool(_zoomOutTool);
     qreal zoom = _ui->_GV_view->zoomfactor();
@@ -233,7 +233,7 @@ void UserFormWidget::slot_activateZoomOutTool()
     _ui->_GV_view->repaint();
 }
 
-void UserFormWidget::slot_recenterMap()
+void DataViewer::slot_recenterMap()
 {
     // reset zoom...
     _ui->_GV_view->resetMatrix();
@@ -244,7 +244,7 @@ void UserFormWidget::slot_recenterMap()
 }
 
 
-void UserFormWidget::clear()
+void DataViewer::clear()
 {
 
     // Clear OSG Widget
@@ -256,20 +256,20 @@ void UserFormWidget::clear()
     _ui->_GV_view->resetMatrix();
 }
 
-void UserFormWidget::resetJobForm()
+void DataViewer::resetJobForm()
 {
     // reset parameters
     clear();
 }
 
 
-void UserFormWidget::loadRasterFile(QString filename) {
+void DataViewer::loadRasterFile(QString filename) {
 
     emit signal_loadRasterFromFile(filename);
 
 }
 
-void UserFormWidget::slot_addRasterToCartoView(CartoImage * image_p) {
+void DataViewer::slot_addRasterToCartoView(CartoImage * image_p) {
 
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
@@ -277,7 +277,7 @@ void UserFormWidget::slot_addRasterToCartoView(CartoImage * image_p) {
     displayCartoImage(image_p);
 }
 
-void UserFormWidget::slot_addRasterToImageView(Image * image_p)
+void DataViewer::slot_addRasterToImageView(Image * image_p)
 {
     if (_currentViewType!=QImageView)
         switchCartoViewTo(QImageView);
@@ -285,14 +285,14 @@ void UserFormWidget::slot_addRasterToImageView(Image * image_p)
     displayImage(image_p);
 }
 
-void UserFormWidget::load3DFile(QString filename_p, bool remove_previous_scenes_p)
+void DataViewer::load3DFile(QString filename_p, bool remove_previous_scenes_p)
 {
     if (_currentViewType!=OpenSceneGraphView)
         switchCartoViewTo(OpenSceneGraphView);
     emit signal_load3DSceneFromFile(filename_p, remove_previous_scenes_p);
 }
 
-void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool _remove_previous_scenes)
+void DataViewer::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool _remove_previous_scenes)
 {
     _ui->_OSG_viewer->addNodeToScene(sceneData_p);
     if(_remove_previous_scenes)
@@ -304,14 +304,14 @@ void UserFormWidget::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneDat
     _osg_nodes.push_back(sceneData_p);
 }
 
-void UserFormWidget::slot_showMapContextMenu(const QPoint &pos_p)
+void DataViewer::slot_showMapContextMenu(const QPoint &pos_p)
 {
     if (_currentViewType == QGisMapLayer){
         _repaintBehaviorMenu->popup(this->mapToGlobal(pos_p));
     }
 }
 
-void UserFormWidget::slot_onAutoResizeTrigger()
+void DataViewer::slot_onAutoResizeTrigger()
 {
     if (_repaintBehaviorState == ExtentAutoResize){
         _extentAutoResize->setChecked(true);
@@ -340,7 +340,7 @@ void UserFormWidget::slot_onAutoResizeTrigger()
 
 }
 
-void UserFormWidget::slot_onFollowLastItem()
+void DataViewer::slot_onFollowLastItem()
 {
     if (_repaintBehaviorState == FollowLastItem){
         _followLastItem->setChecked(true);
@@ -370,7 +370,7 @@ void UserFormWidget::slot_onFollowLastItem()
     }
 }
 
-void UserFormWidget::slot_onManualMove()
+void DataViewer::slot_onManualMove()
 {
     if (_repaintBehaviorState == ManualMove){
         _manualMove->setChecked(true);
@@ -401,7 +401,7 @@ void UserFormWidget::slot_onManualMove()
 }
 
 
-void UserFormWidget::exportMapViewToImage(QString imageFilePath)
+void DataViewer::exportMapViewToImage(QString imageFilePath)
 {
     QImage image(QSize(800, 600), QImage::Format_ARGB32_Premultiplied);
 
@@ -415,7 +415,7 @@ void UserFormWidget::exportMapViewToImage(QString imageFilePath)
 }
 
 
-void UserFormWidget::loadImageFile(QString filename){
+void DataViewer::loadImageFile(QString filename){
 
     if (_currentViewType!=QImageView)
         switchCartoViewTo(QImageView);
@@ -428,38 +428,38 @@ void UserFormWidget::loadImageFile(QString filename){
 }
 
 
-void UserFormWidget::setIconFactory(MatisseIconFactory *iconFactory)
+void DataViewer::setIconFactory(MatisseIconFactory *iconFactory)
 {
     _iconFactory = iconFactory;
 }
 
 
-CartoViewType UserFormWidget::currentViewType() const
+CartoViewType DataViewer::currentViewType() const
 {
     return _currentViewType;
 }
 
-QStringList UserFormWidget::supportedRasterFormat() const
+QStringList DataViewer::supportedRasterFormat() const
 {
     return _supportedRasterFormat;
 }
 
-QStringList UserFormWidget::supportedVectorFormat() const
+QStringList DataViewer::supportedVectorFormat() const
 {
     return _supportedVectorFormat;
 }
 
-QStringList UserFormWidget::supported3DFileFormat() const
+QStringList DataViewer::supported3DFileFormat() const
 {
     return _supported3DFileFormat;
 }
 
-QStringList UserFormWidget::supportedImageFormat() const
+QStringList DataViewer::supportedImageFormat() const
 {
     return _supportedImageFormat;
 }
 
-void UserFormWidget::displayImage(Image *image ){
+void DataViewer::displayImage(Image *image ){
 
     if (_currentViewType!=QImageView)
         switchCartoViewTo(QImageView);
@@ -477,7 +477,7 @@ void UserFormWidget::displayImage(Image *image ){
 
 }
 
-void UserFormWidget::displayCartoImage(CartoImage *image ){
+void DataViewer::displayCartoImage(CartoImage *image ){
 
     if (_currentViewType!=QGisMapLayer)
         switchCartoViewTo(QGisMapLayer);
@@ -490,7 +490,7 @@ void UserFormWidget::displayCartoImage(CartoImage *image ){
 }
 
 
-void UserFormWidget::slot_mapZoomChanged(qreal z)
+void DataViewer::slot_mapZoomChanged(qreal z)
 {
     if(z > _scene.scaleFactor())
     {
@@ -499,7 +499,7 @@ void UserFormWidget::slot_mapZoomChanged(qreal z)
     _scene.reloadVisibleImageWithNewScaleFactor(_ui->_GV_view);
 }
 
-void UserFormWidget::slot_mapPanChanged()
+void DataViewer::slot_mapPanChanged()
 {
     _scene.reloadVisibleImageWithNewScaleFactor(_ui->_GV_view);
 }

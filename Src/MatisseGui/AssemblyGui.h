@@ -171,8 +171,8 @@ private:
     AssemblyDefinition *_newAssembly;
     AssemblyDefinition *_currentAssembly;
     JobDefinition *_currentJob;
-    UserFormWidget * _userFormWidget;
-    ExpertFormWidget * _expertFormWidget;
+    DataViewer * _userFormWidget;
+    AssemblyEditor * _expertFormWidget;
     QScrollArea * _parametersDock;
     ParametersWidgetSkeleton * _parametersWidget;
     QLabel* _messagesPicto;
