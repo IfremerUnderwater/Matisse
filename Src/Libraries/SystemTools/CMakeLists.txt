@@ -20,7 +20,9 @@ target_link_libraries(
 	SystemTools 
 	Qt5::Core 
 	Qt5::Widgets 
+        ${OpenCV_LIBS}
 	${QUAZIP_LIBRARIES}
+        ${OPENSCENEGRAPH_LIBRARIES}
 	)
 
 # state that anybody linking to us needs to include the current source dir
