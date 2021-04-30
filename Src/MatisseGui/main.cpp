@@ -19,7 +19,7 @@
 #include "camera_manager.h"
 #include "MatisseConfig.h"
 #include <QSettings>
-#include "SshClient.h"
+#include "network_client.h"
 #include "QSshClient.h"
 #include "RemoteJobHelper.h"
 

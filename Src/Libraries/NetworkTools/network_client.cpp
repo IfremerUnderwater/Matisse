@@ -1,4 +1,4 @@
-#include "SshClient.h"
+#include "network_client.h"
 
 namespace MatisseCommon {
 

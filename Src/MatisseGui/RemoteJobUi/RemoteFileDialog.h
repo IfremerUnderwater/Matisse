@@ -5,7 +5,7 @@
 #include <QAbstractItemModel>
 #include <QDialog>
 
-#include "SshClient.h"
+#include "network_client.h"
 #include "TreeModel.h"
 
 using namespace MatisseCommon;

@@ -14,7 +14,7 @@
 #include "MatisseRemoteServerSettings.h"
 #include "ProcessDataManager.h"
 #include "RemoteProgressDialog.h"
-#include "SshClient.h"
+#include "network_client.h"
 #include "SshCommand.h"
 
 using namespace MatisseCommon;

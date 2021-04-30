@@ -1,7 +1,7 @@
 #ifndef MATISSE_QSSH_CLIENT_H_
 #define MATISSE_QSSH_CLIENT_H_
 
-#include "SshClient.h"
+#include "network_client.h"
 
 #include "sshconnection.h"
 #include "sftpchannel.h"
