@@ -13,7 +13,7 @@ add_executable(MatisseGui
     BasicWidgets/MatisseTabWidget.cpp
     CameraUi/camera_manager_tool.cpp
     CameraUi/camera_calib_dialog.cpp
-    ExpertUi/ExpertFormWidget.cpp
+    ExpertUi/assembly_editor.cpp
     ExpertUi/AssemblyDialog.cpp
     ExpertUi/AssemblyGraphicsScene.cpp
     ExpertUi/PipeWidget.cpp
@@ -28,21 +28,21 @@ add_executable(MatisseGui
     ParametersUi/ParametersDialog.cpp
     ParametersUi/ParametersFoldButton.cpp
     RealTimeUi/NetworkCheckDialog.cpp
-	RemoteJobUi/RemoteJobHelper.cpp
+    RemoteJobUi/RemoteJobHelper.cpp
     RemoteJobUi/RemoteFileDialog.cpp
     RemoteJobUi/RemoteProgressDialog.cpp
-	RemoteJobUi/TreeItem.cpp
+    RemoteJobUi/TreeItem.cpp
     RemoteJobUi/TreeModel.cpp
-    UserUi/UserFormWidget.cpp
+    UserUi/data_viewer.cpp
     UserUi/CartoScene.cpp
     UserUi/WheelGraphicsView.cpp
     UserUi/LiveProcessWheel.cpp
     UserUi/StatusMessageWidget.cpp
     UserUi/OngoingProcessWidget.cpp
     UserUi/PreferencesDialog.cpp
-	UserUi/OSG3DViewer/kml_handler.cpp
-	UserUi/OSG3DViewer/point3d.cpp
-	UserUi/OSG3DViewer/osg_widget_tool.cpp
+    UserUi/OSG3DViewer/kml_handler.cpp
+    UserUi/OSG3DViewer/point3d.cpp
+    UserUi/OSG3DViewer/osg_widget_tool.cpp
     UserUi/OSG3DViewer/osg_widget.cpp
     UserUi/OSG3DViewer/box_visitor.cpp
     UserUi/OSG3DViewer/area_computation_visitor.cpp

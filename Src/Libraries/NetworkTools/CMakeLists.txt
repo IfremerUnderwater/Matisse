@@ -1,5 +1,5 @@
 add_library(NetworkTools
-    SshAction.cpp
+    network_action.cpp
     SshCommand.cpp
     SshCommandPbsQsub.cpp
     SshClient.cpp

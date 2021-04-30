@@ -1,5 +1,5 @@
-#ifndef MATISSE_SSH_CLIENT_H_
-#define MATISSE_SSH_CLIENT_H_
+#ifndef MATISSE_NETWORK_CLIENT_H_
+#define MATISSE_NETWORK_CLIENT_H_
 
 #include <QDateTime>
 #include <QFlags>
@@ -7,15 +7,14 @@
 #include <QQueue>
 #include <QtDebug>
 
-//#include "SshActionManager.h"
-#include "SshAction.h"
+#include "network_action.h"
 
 namespace MatisseCommon {
 
-class SshClientCredentials
+class NetworkClientCredentials
 {
 public:
-    explicit SshClientCredentials(QString _username, QString _password);
+    explicit NetworkClientCredentials(QString _username, QString _password);
 
     QString username() { return m_username; };
     QString password() { return m_password; };
@@ -26,10 +25,10 @@ private:
 };
 
 
-class SshFileInfo : public QObject
+class NetworkFileInfo : public QObject
 {
 public:
-  explicit SshFileInfo(QString _name, bool _is_dir, quint64 _size, QDateTime _last_modified);
+  explicit NetworkFileInfo(QString _name, bool _is_dir, quint64 _size, QDateTime _last_modified);
 
   QString name() { return m_name; }
   bool isDir() { return m_is_dir; }
@@ -44,7 +43,7 @@ private:
 };
 
 
-class SshClient : public SshActionManager
+class NetworkClient : public NetworkActionManager
 {
     Q_OBJECT
 
@@ -90,29 +89,29 @@ public:
   Q_ENUM(ConnectionError)
   Q_ENUM(TransferError)
 
-  explicit SshClient(QObject *parent = nullptr);
+  explicit NetworkClient(QObject *parent = nullptr);
     
   virtual void init() = 0;
   virtual void resume() = 0;
   virtual void resetConnection() = 0;
   virtual void clearActions() = 0;
 
-  void addAction(SshAction *action);
+  void addAction(NetworkAction *action);
     
   bool isConnected();
   void setHost(QString host);
   QString host();
-  void setCredentials(SshClientCredentials* creds);
+  void setCredentials(NetworkClientCredentials* creds);
   QString username();
 
 signals:
-  void si_transferFinished(SshAction *_action);
-  void si_transferFailed(SshAction *_action, SshClient::TransferError _err);
-  void si_dirContents(QList<SshFileInfo *> _contents);
-  void si_connectionFailed(SshClient::ConnectionError err);
+  void si_transferFinished(NetworkAction *_action);
+  void si_transferFailed(NetworkAction *_action, NetworkClient::TransferError _err);
+  void si_dirContents(QList<NetworkFileInfo *> _contents);
+  void si_connectionFailed(NetworkClient::ConnectionError err);
   void si_connectionClosed();
-  void si_shellOutputReceived(SshAction *action, QByteArray output);
-  void si_shellErrorReceived(SshAction *action, QByteArray error);
+  void si_shellOutputReceived(NetworkAction *action, QByteArray output);
+  void si_shellErrorReceived(NetworkAction *action, QByteArray error);
   void si_progressUpdate(int _progress);
 
 public slots:
@@ -121,9 +120,9 @@ protected:
   virtual void processAction() = 0;
     
   QString m_host;
-  SshClientCredentials *m_creds;
-  QQueue<SshAction*> m_action_queue;
-  SshAction *m_current_action;
+  NetworkClientCredentials *m_creds;
+  QQueue<NetworkAction*> m_action_queue;
+  NetworkAction *m_current_action;
   bool m_connected = false;
   bool m_waiting_for_connection = false;
   ConnectionError m_current_cx_error = ConnectionError::NoError;
@@ -133,4 +132,4 @@ protected:
 
 }
 
-#endif // MATISSE_SSH_CLIENT_H_
+#endif // MATISSE_NETWORK_CLIENT_H_

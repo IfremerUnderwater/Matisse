@@ -1,4 +1,4 @@
-#include "SshAction.h"
+#include "network_action.h"
 
 #include <QtDebug>
 #include <QFileInfo>
@@ -7,12 +7,12 @@
 
 namespace MatisseCommon {
 
-SshAction::SshAction(SshActionManager* manager, SshActionType type) {
+NetworkAction::NetworkAction(NetworkActionManager* manager, NetworkActionType type) {
   m_manager = manager;
   m_type = type;
 }
 
-void SshAction::terminate() 
+void NetworkAction::terminate()
 { 
   m_is_terminated = true;
 
@@ -20,9 +20,13 @@ void SshAction::terminate()
   doTerminate();
 }
 
-UploadFileAction::UploadFileAction(SshActionManager* manager,
+
+NetworkActionManager::NetworkActionManager() {}
+
+
+UploadFileAction::UploadFileAction(NetworkActionManager* manager,
                                    QString localFilePath, QString remotePath)
-    : SshAction(manager, SshActionType::UploadFile) {
+    : NetworkAction(manager, NetworkActionType::UploadFile) {
   QFileInfo info(localFilePath);
 
   if (!info.exists()) {
@@ -44,9 +48,9 @@ void UploadFileAction::execute() {
 
 void UploadFileAction::doTerminate() {}
 
-UploadDirAction::UploadDirAction(SshActionManager* manager, QString localDir,
+UploadDirAction::UploadDirAction(NetworkActionManager* manager, QString localDir,
                                  QString remoteBaseDir)
-    : SshAction(manager, SshActionType::UploadDir) {
+    : NetworkAction(manager, NetworkActionType::UploadDir) {
   QFileInfo info(localDir);
 
   if (!info.exists()) {
@@ -69,11 +73,11 @@ void UploadDirAction::execute() {
 void UploadDirAction::doTerminate() {}
 
 
-ListDirContentAction::ListDirContentAction(SshActionManager* manager,
+ListDirContentAction::ListDirContentAction(NetworkActionManager* manager,
   QString _remote_dir,
   FileTypeFilters _flags,
   QStringList _file_filters)
-    : SshAction(manager, SshActionType::ListDirContent), m_file_filters() {
+    : NetworkAction(manager, NetworkActionType::ListDirContent), m_file_filters() {
 
   m_remote_dir = _remote_dir;
   m_flags = _flags;
@@ -106,9 +110,9 @@ void ListDirContentAction::doTerminate() {}
 
 
 
-SendCommandAction::SendCommandAction(SshActionManager* manager,
+SendCommandAction::SendCommandAction(NetworkActionManager* manager,
                                      QString commandString)
-    : SshAction(manager, SshActionType::SendCommand), m_command(commandString) {}
+    : NetworkAction(manager, NetworkActionType::SendCommand), m_command(commandString) {}
 
 void SendCommandAction::init() {
   qDebug() << "SendCommandAction init";
@@ -125,10 +129,10 @@ void SendCommandAction::doTerminate() {
   m_manager->closeRemoteShell();
 }
 
-DownloadDirAction::DownloadDirAction(SshActionManager* _manager,
+DownloadDirAction::DownloadDirAction(NetworkActionManager* _manager,
                                      QString _remote_dir,
                                      QString _local_base_dir) :
-    SshAction(_manager, SshActionType::DownloadDir) 
+    NetworkAction(_manager, NetworkActionType::DownloadDir)
 {
   QFileInfo info(_local_base_dir);
 

@@ -24,7 +24,7 @@ class RemoteFileTreeModelFactory : public QObject
  public:
   RemoteFileTreeModelFactory();
   TreeModel *createModel(QString _root_folder_name,
-                         QList<SshFileInfo *> _file_info);
+                         QList<NetworkFileInfo *> _file_info);
 };
 
 

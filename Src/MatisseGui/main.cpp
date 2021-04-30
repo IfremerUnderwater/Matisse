@@ -131,8 +131,8 @@ int main(int argc, char *argv[])
     ProcessDataManager processDataManager(dataRootDir, userDataPath);
 
     /* Create remote process gateways and UI helper */
-    SshClient* ssh_client = new QSshClient();
-    SshClient* sftp_client = new QSshClient();
+    NetworkClient* ssh_client = new QSshClient();
+    NetworkClient* sftp_client = new QSshClient();
     RemoteJobHelper remoteJobHelper;
     remoteJobHelper.setSshClient(ssh_client);
     remoteJobHelper.setSftpClient(sftp_client);

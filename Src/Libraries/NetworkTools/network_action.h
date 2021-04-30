@@ -1,5 +1,5 @@
-#ifndef MATISSE_SSH_ACTION_H_
-#define MATISSE_SSH_ACTION_H_
+#ifndef MATISSE_NETWORK_ACTION_H_
+#define MATISSE_NETWORK_ACTION_H_
 
 #include <QDir>
 #include <QObject>
@@ -14,7 +14,7 @@ enum class FileTypeFilter {
 Q_DECLARE_FLAGS(FileTypeFilters, FileTypeFilter)
 Q_DECLARE_OPERATORS_FOR_FLAGS(FileTypeFilters)
 
-class SshActionManager : public QObject {
+class NetworkActionManager : public QObject {
   friend class UploadFileAction;
   friend class UploadDirAction;
   friend class SendCommandAction;
@@ -24,7 +24,7 @@ class SshActionManager : public QObject {
   Q_OBJECT
 
  public:
-  explicit SshActionManager();
+  explicit NetworkActionManager();
 
  protected:
   virtual void createSftpChannel() = 0;
@@ -40,17 +40,17 @@ class SshActionManager : public QObject {
                           QStringList _file_filters = QStringList()) = 0;
 };
 
-	class SshAction : public QObject
+    class NetworkAction : public QObject
 	{	
 		Q_OBJECT
 
 	public:
-		enum class SshActionType { UploadFile, DownloadFile, UploadDir, ListDirContent, DownloadDir, SendCommand };
-		Q_ENUM(SshActionType)
+        enum class NetworkActionType { UploadFile, DownloadFile, UploadDir, ListDirContent, DownloadDir, SendCommand };
+        Q_ENUM(NetworkActionType)
 
-		SshAction(SshActionManager *_manager, SshActionType _type);
+        NetworkAction(NetworkActionManager *_manager, NetworkActionType _type);
 
-		SshActionType type() { return m_type; }
+        NetworkActionType type() { return m_type; }
 		bool isValid() { return m_is_valid; }
     bool isTerminated() { return m_is_terminated; }
 		QString metainfo() { return m_metainfo; }
@@ -66,19 +66,19 @@ class SshActionManager : public QObject {
 		
 		bool m_is_valid = true;
 		bool m_is_terminated = false;
-		SshActionManager *m_manager;
+        NetworkActionManager *m_manager;
 		QString m_metainfo;
 
 	private:
-		SshActionType m_type;
+        NetworkActionType m_type;
 	};
 
-	class UploadFileAction : public SshAction
+    class UploadFileAction : public NetworkAction
 	{
-		// friend class SshActionManager;
+        // friend class NetworkActionManager;
 
 	public:
-		explicit UploadFileAction(SshActionManager* _manager, QString _local_file_path, QString _remote_path);
+        explicit UploadFileAction(NetworkActionManager* _manager, QString _local_file_path, QString _remote_path);
 		void init();
 		void execute();
 		QString localFilePath() { return m_local_file_path; }
@@ -94,12 +94,12 @@ class SshActionManager : public QObject {
 		QString m_remote_path;
 	};
 
-	class UploadDirAction : public SshAction
+    class UploadDirAction : public NetworkAction
 	{
-		friend class SshActionManager;
+        friend class NetworkActionManager;
 
 	public:
-		explicit UploadDirAction(SshActionManager* _manager, QString _local_dir, QString _remote_base_dir);
+        explicit UploadDirAction(NetworkActionManager* _manager, QString _local_dir, QString _remote_base_dir);
 		void init();
 		void execute();
 		QString localDir() { return m_local_dir; }
@@ -117,12 +117,12 @@ class SshActionManager : public QObject {
 		QString m_remote_base_dir;
 	};
 
-	class ListDirContentAction : public SshAction 
+    class ListDirContentAction : public NetworkAction
 	{
-    friend class SshActionManager;
+    friend class NetworkActionManager;
 
   public:
-    explicit ListDirContentAction(SshActionManager* _manager,
+    explicit ListDirContentAction(NetworkActionManager* _manager,
 			QString _remote_dir, 
 			FileTypeFilters _flags = FileTypeFilter::Dirs, 
 			QStringList _file_filters = QStringList());
@@ -142,12 +142,12 @@ class SshActionManager : public QObject {
     QStringList m_file_filters;
   };
 	
-	class SendCommandAction : public SshAction
+    class SendCommandAction : public NetworkAction
 	{
-		friend class SshActionManager;
+        friend class NetworkActionManager;
 
 	public:
-		explicit SendCommandAction(SshActionManager* _manager, QString _command_string);
+        explicit SendCommandAction(NetworkActionManager* _manager, QString _command_string);
 		void init();
 		void execute();
 		QString command() { return m_command; }
@@ -165,10 +165,10 @@ class SshActionManager : public QObject {
 	};
 
 
-class DownloadDirAction : public SshAction {
+class DownloadDirAction : public NetworkAction {
 
  public:
-  explicit DownloadDirAction(SshActionManager* _manager, QString _remote_dir,
+  explicit DownloadDirAction(NetworkActionManager* _manager, QString _remote_dir,
                           QString _local_base_dir);
 	void init();
 	void execute();
@@ -188,4 +188,4 @@ class DownloadDirAction : public SshAction {
 
 }
 
-#endif  // MATISSE_SSH_ACTION_H_
+#endif  // MATISSE_NETWORK_ACTION_H_

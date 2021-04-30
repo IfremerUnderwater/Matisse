@@ -10,7 +10,7 @@ namespace MatisseCommon
 {
 
 QSshClient::QSshClient(QObject* parent)
-    : SshClient(parent),
+    : NetworkClient(parent),
   m_connection(NULL),
   m_obsolete_connections(),
   m_dir_contents_buffer(),
@@ -94,7 +94,7 @@ void QSshClient::dirContent(QString _remote_dir_path,
 
   QSsh::SftpJobId job;
 
-  if (m_current_action->type() == SshAction::SshActionType::ListDirContent) {
+  if (m_current_action->type() == NetworkAction::NetworkActionType::ListDirContent) {
     // Do not signal progress if called prior to dir downloading
     emit si_progressUpdate(10);
     m_last_signalled_progress = 10;
@@ -444,7 +444,7 @@ void QSshClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_ty
 
   if (m_dir_contents_received) { // Case job for listing dir contents complete
 
-    if (m_current_action->type() == SshAction::SshActionType::DownloadDir) {
+    if (m_current_action->type() == NetworkAction::NetworkActionType::DownloadDir) {
       // Sub-case : job was started internally prior to downloading
 
       m_dir_contents_received = false; // uncheck to avoid looping on dir download 
@@ -453,7 +453,7 @@ void QSshClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_ty
       quint64 transfer_size = 0;
       quint32 file_count = m_dir_contents_buffer.size();
 
-      for (SshFileInfo *sfi : m_dir_contents_buffer) {
+      for (NetworkFileInfo *sfi : m_dir_contents_buffer) {
         transfer_size += sfi->size();
       }
 
@@ -470,7 +470,7 @@ void QSshClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_ty
       qDebug() << "QSshClient: signalling dir contents...";
 
       /* Copy buffer (maybe empty if elements were filtered) */
-      QList<SshFileInfo*> dir_contents(m_dir_contents_buffer);
+      QList<NetworkFileInfo*> dir_contents(m_dir_contents_buffer);
       emit si_dirContents(dir_contents);
       /* Channel will be closed hereafter */
     } 
@@ -494,7 +494,7 @@ void QSshClient::sl_onTransferProgress(QSsh::SftpJobId job, quint64 progress,
   //                .arg(total);
 
   if (m_current_transfer_size == 0) {
-    if (m_current_action->type() == SshAction::SshActionType::DownloadFile) {
+    if (m_current_action->type() == NetworkAction::NetworkActionType::DownloadFile) {
       m_current_transfer_size = total; // total transfer size is being discovered with current file size
     } else {
       qCritical() << "QSshClient: current transfer size unknown (0), cannot signal progress";
@@ -702,12 +702,12 @@ void QSshClient::sl_onFileInfoAvailable(
       size = 0;
     }
 
-    SshFileInfo* ssh_fi = new SshFileInfo(name, is_dir, size, last_modified);
+    NetworkFileInfo* ssh_fi = new NetworkFileInfo(name, is_dir, size, last_modified);
     m_dir_contents_buffer.append(ssh_fi);
 
   } // _file_info_list
 
-  if (m_current_action->type() == SshAction::SshActionType::ListDirContent) {
+  if (m_current_action->type() == NetworkAction::NetworkActionType::ListDirContent) {
     // Do not signal progress if called prior to dir downloading (current action DownloadDir)
 
     /* Increment from 50% */

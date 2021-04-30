@@ -1,5 +1,5 @@
 ﻿#include "AssemblyGraphicsScene.h"
-#include "ExpertFormWidget.h"
+#include "assembly_editor.h"
 #include "AssemblyGui.h"
 
 using namespace MatisseServer;

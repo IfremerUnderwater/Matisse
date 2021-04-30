@@ -2,7 +2,7 @@
 
 namespace MatisseCommon {
 
-SshClientCredentials::SshClientCredentials(QString _username, QString _password) {
+NetworkClientCredentials::NetworkClientCredentials(QString _username, QString _password) {
   if (_username.isNull() || _username.isEmpty()) {
     qCritical() << "SSH username null or empty";
   }
@@ -16,15 +16,13 @@ SshClientCredentials::SshClientCredentials(QString _username, QString _password)
   m_password = _password;
 }
 
-SshActionManager::SshActionManager() {}
-
-SshFileInfo::SshFileInfo(QString _name, bool _is_dir, quint64 _size, QDateTime _last_modified)
+NetworkFileInfo::NetworkFileInfo(QString _name, bool _is_dir, quint64 _size, QDateTime _last_modified)
     : m_name(_name), m_is_dir(_is_dir), m_size(_size), m_last_modified(_last_modified) {}
 
-SshClient::SshClient(QObject *parent)
-    : SshActionManager(), m_action_queue(), m_current_action(NULL) {}
+NetworkClient::NetworkClient(QObject *parent)
+    : NetworkActionManager(), m_action_queue(), m_current_action(NULL) {}
 
-void SshClient::addAction(SshAction *action) {
+void NetworkClient::addAction(NetworkAction *action) {
   if (!action->isValid()) {
     qCritical() << "Action type " << action->type()
                 << " cannot be performed, will be skipped";
@@ -37,18 +35,18 @@ void SshClient::addAction(SshAction *action) {
   }
 }
 
-bool SshClient::isConnected() { return m_connected; }
+bool NetworkClient::isConnected() { return m_connected; }
 
-void SshClient::setHost(QString host) { 
+void NetworkClient::setHost(QString host) {
   m_host = host; 
 }
 
-QString SshClient::host() { return m_host; }
+QString NetworkClient::host() { return m_host; }
 
-void SshClient::setCredentials(SshClientCredentials *creds) { 
+void NetworkClient::setCredentials(NetworkClientCredentials *creds) {
   m_creds = creds; 
 }
 
-QString SshClient::username() { return m_creds->username(); }
+QString NetworkClient::username() { return m_creds->username(); }
 
 }  // namespace MatisseCommon

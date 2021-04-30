@@ -1022,7 +1022,7 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>DataViewer</class>
    <extends>QWidget</extends>
-   <header>UserFormWidget.h</header>
+   <header>data_viewer.h</header>
   </customwidget>
   <customwidget>
    <class>MainControllBar</class>
@@ -1039,7 +1039,7 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>MatisseServer::AssemblyEditor</class>
    <extends>QWidget</extends>
-   <header>ExpertFormWidget.h</header>
+   <header>assembly_editor.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

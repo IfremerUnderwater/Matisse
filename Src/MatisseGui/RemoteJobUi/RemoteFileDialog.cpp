@@ -71,7 +71,7 @@ void RemoteFileDialog::sl_onSelectionChanged(const QModelIndex &_current,
 
 RemoteFileTreeModelFactory::RemoteFileTreeModelFactory() {}
 
-TreeModel *RemoteFileTreeModelFactory::createModel(QString _root_folder_name, QList<SshFileInfo *> _file_info) 
+TreeModel *RemoteFileTreeModelFactory::createModel(QString _root_folder_name, QList<NetworkFileInfo *> _file_info) 
 {
   QString folder_label = tr("Folder");
   QString file_label = tr("File");
@@ -86,7 +86,7 @@ TreeModel *RemoteFileTreeModelFactory::createModel(QString _root_folder_name, QL
   QString indent = " ";
 
   /* Format data as a multiline string */
-  for (SshFileInfo *sfi : _file_info) {
+  for (NetworkFileInfo *sfi : _file_info) {
     QString file_type_string = (sfi->isDir()) ? folder_label : file_label;
     QString size_str = QLocale::system().toString(sfi->size());
     QString timestamp = sfi->lastModified().toString("dd/MM/yyyy HH:mm:ss");

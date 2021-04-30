@@ -6,14 +6,14 @@
 #include "sshconnection.h"
 #include "sftpchannel.h"
 #include "sshremoteprocess.h"
-#include "SshAction.h"
+#include "network_action.h"
 
 using namespace QSsh;
 
 namespace MatisseCommon {
 
 class QSshClient :
-    public SshClient
+    public NetworkClient
 {
     Q_OBJECT
 
@@ -71,7 +71,7 @@ public:
         QString m_local_path;
         QString m_remote_path;
         QString m_shell_command;
-        QList<SshFileInfo*> m_dir_contents_buffer;
+        QList<NetworkFileInfo*> m_dir_contents_buffer;
         bool m_dir_contents_received;
         FileTypeFilters m_file_type_flags;
         QStringList m_file_filters;

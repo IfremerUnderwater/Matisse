@@ -2,8 +2,8 @@
 #define M_PI 3.1415926535
 #endif
 
-#include "UserFormWidget.h"
-#include "ui_UserFormWidget.h"
+#include "data_viewer.h"
+#include "ui_data_viewer.h"
 
 #include "osg_widget.h"
 
