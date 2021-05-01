@@ -1,7 +1,7 @@
 ﻿#ifndef RTStillCameraProvider_H
 #define RTStillCameraProvider_H
 
-#include "ImageProvider.h"
+#include "input_data_provider.h"
 #include "PictureFileSet.h"
 #include "ImageSet.h"
 //#include "Dim2UdpListener.h"

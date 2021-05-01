@@ -1,7 +1,7 @@
 ﻿#ifndef RTVIDEODIRECTSHOWPROVIDER_H
 #define RTVIDEODIRECTSHOWPROVIDER_H
 
-#include "ImageProvider.h"
+#include "input_data_provider.h"
 #include "ImageSet.h"
 #include "CameraVideoSource.h"
 #include "Dim2UdpListener.h"

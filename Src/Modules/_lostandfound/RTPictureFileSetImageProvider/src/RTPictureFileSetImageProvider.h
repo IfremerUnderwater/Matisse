@@ -1,7 +1,7 @@
 ﻿#ifndef RTPICTUREFILESETIMAGEPROVIDER_H
 #define RTPICTUREFILESETIMAGEPROVIDER_H
 
-#include "ImageProvider.h"
+#include "input_data_provider.h"
 #include "PictureFileSet.h"
 #include "ImageSet.h"
 #include "Dim2UdpListener.h"

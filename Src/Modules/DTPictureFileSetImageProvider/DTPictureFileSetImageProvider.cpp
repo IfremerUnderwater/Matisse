@@ -8,7 +8,7 @@ Q_EXPORT_PLUGIN2(DTPictureFileSetImageProvider, DTPictureFileSetImageProvider)
 #endif
 
 DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *parent):
-    ImageProvider(NULL, "DTPictureFileSetImageProvider", "", 1),
+    InputDataProvider(NULL, "DTPictureFileSetImageProvider", "", 1),
     _pictureFileSet(NULL),
     _dim2FileReader(NULL)
 {

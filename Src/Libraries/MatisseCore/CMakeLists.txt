@@ -2,7 +2,7 @@
 add_library(MatisseCore
     LifecycleComponent.cpp	
     Processor.cpp
-    ImageProvider.cpp
+    input_data_provider.cpp
     RasterProvider.cpp
     MatisseEngine.cpp
     KeyValueList.cpp
@@ -17,10 +17,10 @@ add_library(MatisseCore
     Camera/camera_info.cpp
     Camera/camera_calib.cpp
     Parameters/MatisseDictionnaryLabels.h	
-	Parameters/MatisseParameters.cpp
-	# Temp location to resolve architectural issue
-	GraphicalCharter/GraphicalCharter.cpp
-	GraphicalCharter/MatisseIconFactory.cpp
+    Parameters/MatisseParameters.cpp
+    # Temp location to resolve architectural issue
+    GraphicalCharter/GraphicalCharter.cpp
+    GraphicalCharter/MatisseIconFactory.cpp
     GraphicalCharter/IconizedWidgetWrapper.cpp
     GraphicalCharter/IconizedLabelWrapper.cpp
     GraphicalCharter/IconizedButtonWrapper.cpp

@@ -32,7 +32,7 @@ QList<Processor*> const MatisseEngine::getAvailableProcessors() {
     return _processors.values();
 }
 
-QList<ImageProvider*> const MatisseEngine::getAvailableImageProviders() {
+QList<InputDataProvider*> const MatisseEngine::getAvailableImageProviders() {
     return _imageProviders.values();
 }
 
@@ -50,7 +50,7 @@ void MatisseEngine::addParametersForImageProvider(QString name)
         return;
     }
 
-    ImageProvider* source = _imageProviders.value(name);
+    InputDataProvider* source = _imageProviders.value(name);
     QList<MatisseParameter> expectedParams = source->expectedParameters();
     _expectedParametersByModule.insert(name, expectedParams);
 
@@ -179,7 +179,7 @@ void MatisseEngine::slot_currentJobProcessed()
 
 bool MatisseEngine::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters)
 {
-    ImageProvider* imageProvider = NULL;
+    InputDataProvider* imageProvider = NULL;
     QList<Processor*> processorList;
     RasterProvider* rasterProvider = NULL;
 
@@ -513,7 +513,7 @@ void MatisseEngine::init(){
         QPluginLoader loader(imageProvidersDir.absoluteFilePath(fileName));
         if(QObject *pluginObject = loader.instance()) { // On prend l'instance de notre plugin sous forme de QObject. On vérifie en même temps s'il n'y a pas d'erreur.
 
-            ImageProvider* newInstance = qobject_cast<ImageProvider *>(pluginObject); // On réinterprète alors notre QObject
+            InputDataProvider* newInstance = qobject_cast<InputDataProvider *>(pluginObject); // On réinterprète alors notre QObject
             qDebug() << "ImageProvider DLL " << newInstance->name() << " loaded.";
             _imageProviders.insert(newInstance->name(), newInstance);
 
@@ -548,7 +548,7 @@ void MatisseEngine::init(){
 }
 
 
-JobTask::JobTask(ImageProvider* imageProvider, QList<Processor*> processors, RasterProvider* rasterProvider,
+JobTask::JobTask(InputDataProvider* imageProvider, QList<Processor*> processors, RasterProvider* rasterProvider,
                  JobDefinition &jobDefinition, MatisseParameters *parameters )
     : m_user_log_file(NULL),
       _imageProvider(imageProvider),

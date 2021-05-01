@@ -20,14 +20,14 @@ namespace MatisseCommon {
 /// Les methodes de cycle de vie virtuelles pures \ref configure(Context * , MatisseParameters *)\ref start() \ref stop() doivent être implémentées par les classes dérivées.
 /// Elles sont appelées par le moteur à chaque exécution d'un assemblage.
 ///
-class ImageProvider : public QObject, public LifecycleComponent
+class InputDataProvider : public QObject, public LifecycleComponent
 {
     Q_OBJECT
     Q_INTERFACES(MatisseCommon::LifecycleComponent)
 public:
 
-    explicit ImageProvider(QObject *parent, QString name, QString comment, quint16 outNumber);
-    virtual ~ImageProvider();
+    explicit InputDataProvider(QObject *parent, QString name, QString comment, quint16 outNumber);
+    virtual ~InputDataProvider();
 
 
 
@@ -79,5 +79,5 @@ private:
 
 };
 }
-Q_DECLARE_INTERFACE(MatisseCommon::ImageProvider, "Ifremer.ImageProvider/1.1")
+Q_DECLARE_INTERFACE(MatisseCommon::InputDataProvider, "Ifremer.InputDataProvider/1.1")
 #endif // IMAGEPROVIDER_H

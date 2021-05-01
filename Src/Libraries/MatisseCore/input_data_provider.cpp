@@ -1,8 +1,8 @@
-﻿#include "ImageProvider.h"
+﻿#include "input_data_provider.h"
 
 using namespace MatisseCommon;
 
-ImageProvider::ImageProvider(QObject *parent, QString name, QString comment, quint16 outNumber) :
+InputDataProvider::InputDataProvider(QObject *parent, QString name, QString comment, quint16 outNumber) :
     QObject(parent),
     LifecycleComponent(name, "[SOURCE " + name + "]: "),
     _comment(comment),
@@ -11,22 +11,22 @@ ImageProvider::ImageProvider(QObject *parent, QString name, QString comment, qui
 {
 }
 
-ImageProvider::~ImageProvider()
+InputDataProvider::~InputDataProvider()
 {
 
 }
 
 
-QString ImageProvider::comment() const
+QString InputDataProvider::comment() const
 {
     return _comment;
 }
-bool ImageProvider::isRealTime() const
+bool InputDataProvider::isRealTime() const
 {
     return _isRealTime;
 }
 
-void ImageProvider::setIsRealTime(bool isRealTime)
+void InputDataProvider::setIsRealTime(bool isRealTime)
 {
     _isRealTime = isRealTime;
 }

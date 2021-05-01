@@ -2,7 +2,7 @@
 #define DTPICTUREFILESETIMAGEPROVIDER_H
 
 
-#include "ImageProvider.h"
+#include "input_data_provider.h"
 #include "Dim2FileReader.h"
 #include "PictureFileSet.h"
 #include "ImageSet.h"
@@ -10,10 +10,10 @@
 
 using namespace MatisseCommon;
 
-class DTPictureFileSetImageProvider : public ImageProvider
+class DTPictureFileSetImageProvider : public InputDataProvider
 {
     Q_OBJECT
-    Q_INTERFACES(MatisseCommon::ImageProvider)
+    Q_INTERFACES(MatisseCommon::InputDataProvider)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     Q_PLUGIN_METADATA(IID "DTPictureFileSetImageProvider")

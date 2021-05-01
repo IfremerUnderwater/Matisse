@@ -166,7 +166,7 @@ void AssemblyGui::initProcessorWidgets()
 
 
     qDebug() << "Available ImageProviders " << _server.getAvailableImageProviders().size();
-    foreach (ImageProvider * imageProvider, _server.getAvailableImageProviders()) {
+    foreach (InputDataProvider * imageProvider, _server.getAvailableImageProviders()) {
         qDebug() << "Add imageProvider " << imageProvider->name();
         SourceWidget * srcWidget = new SourceWidget();
         srcWidget->setName(imageProvider->name());
