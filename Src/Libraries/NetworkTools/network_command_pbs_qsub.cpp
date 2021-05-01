@@ -1,4 +1,4 @@
-#include "SshCommandPbsQsub.h"
+#include "network_command_pbs_qsub.h"
 
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -6,18 +6,18 @@
 
 namespace MatisseTools {
 
-SshCommandPbsQsub::SshCommandPbsQsub() :
+NetworkCommandPbsQsub::NetworkCommandPbsQsub() :
 	NetworkCommand("qsub", 1)
 {
 }
 
-bool SshCommandPbsQsub::checkArguments() 
+bool NetworkCommandPbsQsub::checkArguments()
 {
 	// Nothing
   return true;
 }
 
-void SshCommandPbsQsub::checkExecuted() 
+void NetworkCommandPbsQsub::checkExecuted()
 {
   bool found_echo = false;
   QRegularExpression qsub_id_exp(QString::fromUtf8("^(\\d+)\\.(.*)$"));

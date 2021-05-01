@@ -7,7 +7,7 @@
 #include "FileUtils.h"
 #include "RemoteFileDialog.h"
 #include "network_action.h"
-#include "SshCommandPbsQsub.h"
+#include "network_command_pbs_qsub.h"
 #include "ToolsCommon.h"
 
 using namespace MatisseCommon;
@@ -399,7 +399,7 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
   /* Create PBS qsub command */
   QString remote_script_path =
       remote_job_bundle_path + '/' + target_script_file_name;
-  SshCommandPbsQsub* qsub_cmd = new SshCommandPbsQsub();
+  NetworkCommandPbsQsub* qsub_cmd = new NetworkCommandPbsQsub();
   qsub_cmd->arg(remote_script_path);
   QString qsub_cmd_text = qsub_cmd->fullCommandString();
   m_jobs_by_command.insert(qsub_cmd, _job_name);
@@ -972,7 +972,7 @@ void RemoteJobHelper::sl_onShellOutputReceived(NetworkAction* _action,
     _action->terminate();
 
     /* If qsub command : signal job scheduled */
-    SshCommandPbsQsub* qsub_cmd = qobject_cast<SshCommandPbsQsub*>(command);
+    NetworkCommandPbsQsub* qsub_cmd = qobject_cast<NetworkCommandPbsQsub*>(command);
     if (qsub_cmd) {
 
       QString job_name = m_jobs_by_command.value(qsub_cmd);

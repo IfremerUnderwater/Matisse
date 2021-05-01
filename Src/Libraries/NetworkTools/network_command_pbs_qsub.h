@@ -5,12 +5,12 @@
 
 namespace MatisseTools {
 
-class SshCommandPbsQsub : public NetworkCommand 
+class NetworkCommandPbsQsub : public NetworkCommand
 {
   Q_OBJECT
 
 public:
-  explicit SshCommandPbsQsub();
+  explicit NetworkCommandPbsQsub();
 
   int jobId() { return m_job_id; }
   QString node() { return m_node; }
