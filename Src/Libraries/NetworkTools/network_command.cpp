@@ -1,4 +1,4 @@
-#include "SshCommand.h"
+#include "network_command.h"
 
 #include <QStringList>
 #include <QRegularExpression>
@@ -6,7 +6,7 @@
 
 namespace MatisseTools {
 
-SshCommand::SshCommand(QString _command, int _min_args, int _max_args) : 
+NetworkCommand::NetworkCommand(QString _command, int _min_args, int _max_args) :
   m_command(_command),
   m_arguments(), 
   m_output_stream(),
@@ -35,7 +35,7 @@ SshCommand::SshCommand(QString _command, int _min_args, int _max_args) :
   }
 }
 
-QString SshCommand::fullCommandString() 
+QString NetworkCommand::fullCommandString()
 {
   if (!m_full_command_string.isEmpty()) 
   {
@@ -61,7 +61,7 @@ QString SshCommand::fullCommandString()
   return m_full_command_string;
 }
 
-SshCommand& SshCommand::arg(QString _arg) 
+NetworkCommand& NetworkCommand::arg(QString _arg)
 {
   if (!m_is_valid)
   {
@@ -93,7 +93,7 @@ SshCommand& SshCommand::arg(QString _arg)
   return *this;
 }
 
-void SshCommand::appendOutputStream(QByteArray _output_stream) {
+void NetworkCommand::appendOutputStream(QByteArray _output_stream) {
   qDebug() << _output_stream;
 
   if (!m_codec) {
@@ -114,7 +114,7 @@ void SshCommand::appendOutputStream(QByteArray _output_stream) {
   checkExecuted();
 }
 
-void SshCommand::appendErrorStream(QByteArray _error_stream) 
+void NetworkCommand::appendErrorStream(QByteArray _error_stream)
 {
   qDebug() << _error_stream;
 
@@ -127,14 +127,14 @@ void SshCommand::appendErrorStream(QByteArray _error_stream)
   m_error_stream.append(_error_stream);
 }
 
-bool SshCommand::isExecuted() 
+bool NetworkCommand::isExecuted()
 { 
   return m_is_executed; 
 }
 
-bool SshCommand::isSuccessfull() { return m_is_successfull; }
+bool NetworkCommand::isSuccessfull() { return m_is_successfull; }
 
-QString SshCommand::output() 
+QString NetworkCommand::output()
 {
   if (m_output_stream.isEmpty()) 
   {
@@ -151,7 +151,7 @@ QString SshCommand::output()
   return output; 
 }
 
-QString SshCommand::error() 
+QString NetworkCommand::error()
 { 
   if (m_error_stream.isEmpty()) {
     return QString();
@@ -166,9 +166,9 @@ QString SshCommand::error()
   return error;
 }
 
-QString SshCommand::cmdErrorMessage() { return m_cmd_error_msg; }
+QString NetworkCommand::cmdErrorMessage() { return m_cmd_error_msg; }
 
-void SshCommand::checkCompletion() 
+void NetworkCommand::checkCompletion()
 { 
   if (!checkArgCount()) 
   {
@@ -180,7 +180,7 @@ void SshCommand::checkCompletion()
   }
 }
 
-bool SshCommand::checkArgCount() 
+bool NetworkCommand::checkArgCount()
 {
   int nb_args = m_arguments.count();
 
@@ -197,7 +197,7 @@ bool SshCommand::checkArgCount()
   return true;
 }
 
-void SshCommand::normalizeOutput() 
+void NetworkCommand::normalizeOutput()
 {
   m_output = m_codec->toUnicode(m_output_stream);
 
@@ -231,11 +231,11 @@ void SshCommand::normalizeOutput()
   }
 }
 
-void SshCommand::normalizeError() 
+void NetworkCommand::normalizeError()
 {
 }
 
-void SshCommand::checkExecuted() 
+void NetworkCommand::checkExecuted()
 {
 }
 

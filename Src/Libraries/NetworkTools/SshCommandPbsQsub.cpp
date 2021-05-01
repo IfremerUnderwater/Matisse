@@ -7,7 +7,7 @@
 namespace MatisseTools {
 
 SshCommandPbsQsub::SshCommandPbsQsub() :
-	SshCommand("qsub", 1)
+	NetworkCommand("qsub", 1)
 {
 }
 

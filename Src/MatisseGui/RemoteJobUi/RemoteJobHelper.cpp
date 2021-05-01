@@ -768,7 +768,7 @@ void RemoteJobHelper::clearPendingActionQueue() {
     NetworkAction* action = m_pending_action_queue.dequeue();
 
     if (m_commands_by_action.contains(action)) {
-      SshCommand* command = m_commands_by_action.value(action);
+      NetworkCommand* command = m_commands_by_action.value(action);
       if (m_jobs_by_command.contains(command)) {
         m_jobs_by_command.remove(command);      
       }
@@ -951,7 +951,7 @@ void RemoteJobHelper::sl_onShellOutputReceived(NetworkAction* _action,
     return;
   }
 
-  SshCommand* command = m_commands_by_action.value(_action);
+  NetworkCommand* command = m_commands_by_action.value(_action);
   if (!command) 
   {
     qCritical() << "RemoteJobHelper: shell output received, no command found for action " << _action->type();
@@ -1028,7 +1028,7 @@ void RemoteJobHelper::sl_onShellErrorReceived(NetworkAction* _action,
     return;
   }
 
-  SshCommand* command = m_commands_by_action.value(_action);
+  NetworkCommand* command = m_commands_by_action.value(_action);
   if (!command) {
     qCritical() << "RemoteJobHelper: shell error received, no command found for action " << _action->type();
     return;

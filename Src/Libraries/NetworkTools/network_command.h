@@ -1,5 +1,5 @@
-#ifndef MATISSE_SSH_COMMAND_H_
-#define MATISSE_SSH_COMMAND_H_
+#ifndef MATISSE_NETWORK_COMMAND_H_
+#define MATISSE_NETWORK_COMMAND_H_
 
 #include <QByteArray>
 #include <QList>
@@ -8,17 +8,17 @@
 
 namespace MatisseTools {
 
-class SshCommand :
+class NetworkCommand :
   public QObject
 {
   Q_OBJECT
 
 public:
-  explicit SshCommand(QString _command, int _min_args, int _max_args = -1);
+  explicit NetworkCommand(QString _command, int _min_args, int _max_args = -1);
 
   QString fullCommandString();
 
-  SshCommand & arg(QString _arg);
+  NetworkCommand & arg(QString _arg);
   void appendOutputStream(QByteArray _output_stream);
   void appendErrorStream(QByteArray _error_stream);
   bool isExecuted();
@@ -64,4 +64,4 @@ private:
 
 }
 
-#endif  // MATISSE_SSH_COMMAND_H_
+#endif  // MATISSE_NETWORK_COMMAND_H_

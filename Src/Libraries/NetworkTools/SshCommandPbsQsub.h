@@ -1,11 +1,11 @@
 #ifndef MATISSE_SSH_COMMAND_PBS_QSUB_H_
 #define MATISSE_SSH_COMMAND_PBS_QSUB_H_
 
-#include "SshCommand.h"
+#include "network_command.h"
 
 namespace MatisseTools {
 
-class SshCommandPbsQsub : public SshCommand 
+class SshCommandPbsQsub : public NetworkCommand 
 {
   Q_OBJECT
 

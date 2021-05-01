@@ -1,5 +1,5 @@
-#ifndef MATISSE_QSSH_CLIENT_H_
-#define MATISSE_QSSH_CLIENT_H_
+#ifndef MATISSE_SFTP_CLIENT_H_
+#define MATISSE_SFTP_CLIENT_H_
 
 #include "network_client.h"
 
@@ -89,4 +89,4 @@ public:
 
 }
 
-#endif  // MATISSE_QSSH_CLIENT_H_
+#endif  // MATISSE_SFTP_CLIENT_H_
