@@ -3,7 +3,7 @@ add_library(NetworkTools
     SshCommand.cpp
     SshCommandPbsQsub.cpp
     network_client.cpp
-    QSshClient.cpp
+    sftp_client.cpp
 )
 	
 #qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} NetworkTools_fr.ts NetworkTools_en.ts)

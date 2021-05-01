@@ -1,4 +1,4 @@
-#include "QSshClient.h"
+#include "sftp_client.h"
 
 #include <QFileInfo>
 #include <QRegularExpression>
@@ -9,7 +9,7 @@
 namespace MatisseCommon 
 {
 
-QSshClient::QSshClient(QObject* parent)
+SftpClient::SftpClient(QObject* parent)
     : NetworkClient(parent),
   m_connection(NULL),
   m_obsolete_connections(),
@@ -19,7 +19,7 @@ QSshClient::QSshClient(QObject* parent)
   m_progress_matrix() 
 {}
 
-void QSshClient::upload(QString _local_path, QString _remote_path,
+void SftpClient::upload(QString _local_path, QString _remote_path,
                         bool _is_dir_upload) {
   qDebug() << tr("QSshClient: Uploading file %1 to %2 ...")
                   .arg(_local_path)
@@ -57,7 +57,7 @@ void QSshClient::upload(QString _local_path, QString _remote_path,
   }
 }
 
-void QSshClient::download(QString _remote_path, QString _local_path,
+void SftpClient::download(QString _remote_path, QString _local_path,
                           bool _is_dir_download) 
 {
   if (_is_dir_download) {
@@ -83,7 +83,7 @@ void QSshClient::download(QString _remote_path, QString _local_path,
 
 }
 
-void QSshClient::dirContent(QString _remote_dir_path,
+void SftpClient::dirContent(QString _remote_dir_path,
                             FileTypeFilters _flags,
                             QStringList _file_filters)
 {
@@ -109,9 +109,9 @@ void QSshClient::dirContent(QString _remote_dir_path,
   }
 }
 
-void QSshClient::init() {}
+void SftpClient::init() {}
 
-void QSshClient::resetConnection() { 
+void SftpClient::resetConnection() {
   if (m_connected) {
     qDebug() << "QSshClient: Closing SSH/SFTP connection...";
     m_connection->disconnectFromHost();
@@ -127,16 +127,16 @@ void QSshClient::resetConnection() {
   }
 }
 
-void QSshClient::clearActions() { 
+void SftpClient::clearActions() {
   clearConnectionAndActionQueue();
 }
 
-void QSshClient::resume() {
+void SftpClient::resume() {
   /* Try to reconnect after failed login */
   connectToRemoteHost();
 }
 
-void QSshClient::processAction() {
+void SftpClient::processAction() {
   if (!m_connected) {
     if (!m_waiting_for_connection) {
       connectToRemoteHost();
@@ -168,7 +168,7 @@ void QSshClient::processAction() {
   m_current_action->init();
 }
 
-void QSshClient::connectToRemoteHost() {
+void SftpClient::connectToRemoteHost() {
   qDebug() << QString("QSshClient: Connecting to host %1 as %2 ...")
                   .arg(m_host)
                   .arg(m_creds->username());
@@ -194,7 +194,7 @@ void QSshClient::connectToRemoteHost() {
   m_connection->connectToHost();
 }
 
-void QSshClient::createSftpChannel() {
+void SftpClient::createSftpChannel() {
   qDebug() << "QSshClient: Creating SFTP channel...";
 
   m_channel = m_connection->createSftpChannel();
@@ -222,7 +222,7 @@ void QSshClient::createSftpChannel() {
   m_channel->initialize();
 }
 
-void QSshClient::createRemoteShell(QString& command) {
+void SftpClient::createRemoteShell(QString& command) {
   qDebug() << "QSshClient: Creating remote shell...";
 
   m_shell = m_connection->createRemoteShell();
@@ -248,7 +248,7 @@ void QSshClient::createRemoteShell(QString& command) {
   m_last_signalled_progress = 10;
 }
 
-void QSshClient::closeRemoteShell() 
+void SftpClient::closeRemoteShell()
 {
   if (!m_shell) 
   {
@@ -265,7 +265,7 @@ void QSshClient::closeRemoteShell()
 }
 
 
-void QSshClient::executeCommand() {
+void SftpClient::executeCommand() {
   QString commandAndNl = m_shell_command.append("\n");
 
   qDebug()
@@ -274,7 +274,7 @@ void QSshClient::executeCommand() {
   m_shell->write(commandAndNl.toLatin1());
 }
 
-void QSshClient::startDownloadDir(QString _remote_path, QString _local_path) 
+void SftpClient::startDownloadDir(QString _remote_path, QString _local_path)
 {
   qDebug() << tr("QSshClient: Downloading dir %1 to %2 ...")
                   .arg(_remote_path)
@@ -292,7 +292,7 @@ void QSshClient::startDownloadDir(QString _remote_path, QString _local_path)
   }
 }
 
-void QSshClient::reinitProgressIndicators(quint64 _transfer_size, quint32 _matrix_size) {
+void SftpClient::reinitProgressIndicators(quint64 _transfer_size, quint32 _matrix_size) {
   m_current_transfer_size = _transfer_size; 
   m_total_received_bytes = 0;
   m_progress_matrix.clear();
@@ -303,7 +303,7 @@ void QSshClient::reinitProgressIndicators(quint64 _transfer_size, quint32 _matri
 }
 
 
-void QSshClient::sl_onConnected() {
+void SftpClient::sl_onConnected() {
   qDebug() << "QSshClient: Connected";
 
   m_connected = true;
@@ -314,7 +314,7 @@ void QSshClient::sl_onConnected() {
   }
 }
 
-void QSshClient::sl_onDisconnected() {
+void SftpClient::sl_onDisconnected() {
   qDebug() << "QSshClient: disconnected";
 
   QObject* emitter = sender();
@@ -351,7 +351,7 @@ void QSshClient::sl_onDisconnected() {
   clearConnectionAndActionQueue();
 }
 
-void QSshClient::sl_onConnectionError(QSsh::SshError err) {
+void SftpClient::sl_onConnectionError(QSsh::SshError err) {
   qCritical() << "QSshClient: Connection error" << err;
 
   mapConnectionError(err);
@@ -367,7 +367,7 @@ void QSshClient::sl_onConnectionError(QSsh::SshError err) {
   emit si_connectionFailed(m_current_cx_error);
 }
 
-void QSshClient::clearConnectionAndActionQueue() {
+void SftpClient::clearConnectionAndActionQueue() {
   m_connected = false;
   m_waiting_for_connection = false;
 
@@ -397,17 +397,17 @@ void QSshClient::clearConnectionAndActionQueue() {
   }
 }
 
-void QSshClient::sl_onChannelInitialized() {
+void SftpClient::sl_onChannelInitialized() {
   qDebug() << "QSshClient: Channel Initialized";
 
   m_current_action->execute();
 }
 
-void QSshClient::sl_onChannelError(const QString& err) {
+void SftpClient::sl_onChannelError(const QString& err) {
   qCritical() << "QSshClient: Error: " << err;
 }
 
-void QSshClient::sl_onChannelClosed() {
+void SftpClient::sl_onChannelClosed() {
   qDebug() << "QSshClient: Channel closed";
   disconnect(this, SLOT(sl_onChannelInitialized()));
   disconnect(this, SLOT(sl_onChannelError(const QString&)));
@@ -428,7 +428,7 @@ void QSshClient::sl_onChannelClosed() {
   }
 }
 
-void QSshClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_type,
+void SftpClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_type,
                               const QString& _err_msg) {
   
   if (_error_type != QSsh::SftpError::NoError) {
@@ -486,7 +486,7 @@ void QSshClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_ty
   m_channel->closeChannel();
 }
 
-void QSshClient::sl_onTransferProgress(QSsh::SftpJobId job, quint64 progress,
+void SftpClient::sl_onTransferProgress(QSsh::SftpJobId job, quint64 progress,
                                     quint64 total) {
   //qDebug() << QString("QSshClient: Upload job %1 progress %2 out of %3 bytes")
   //                .arg(job)
@@ -545,7 +545,7 @@ void QSshClient::sl_onTransferProgress(QSsh::SftpJobId job, quint64 progress,
   emit si_progressUpdate(rounded_progress);
 }
 
-void QSshClient::sl_onShellStarted() {
+void SftpClient::sl_onShellStarted() {
   qDebug() << "QSshClient: Shell started";
 
   /* Signal 30% progress on shell established */
@@ -555,7 +555,7 @@ void QSshClient::sl_onShellStarted() {
   m_current_action->execute();
 }
 
-void QSshClient::sl_onReadyReadStandardOutput() {
+void SftpClient::sl_onReadyReadStandardOutput() {
   qDebug() << "QSshClient: ready read standard output";
 
   if (!m_current_action || m_current_action->isTerminated()) 
@@ -590,7 +590,7 @@ void QSshClient::sl_onReadyReadStandardOutput() {
   }
 }
 
-void QSshClient::sl_onReadyReadStandardError() {
+void SftpClient::sl_onReadyReadStandardError() {
   qDebug() << "QSshClient: ready read standard error";
 
   if (!m_current_action || m_current_action->isTerminated()) {
@@ -608,7 +608,7 @@ void QSshClient::sl_onReadyReadStandardError() {
   emit si_shellErrorReceived(m_current_action, errorStream);
 }
 
-void QSshClient::sl_onShellClosed(int exitStatus) {
+void SftpClient::sl_onShellClosed(int exitStatus) {
   qDebug() << "QSshClient: Shell closed";
 
   disconnect(this, SLOT(sl_onShellClosed(int)));
@@ -624,7 +624,7 @@ void QSshClient::sl_onShellClosed(int exitStatus) {
   }
 }
 
-void QSshClient::sl_onFileInfoAvailable(
+void SftpClient::sl_onFileInfoAvailable(
     QSsh::SftpJobId _job, const QList<QSsh::SftpFileInfo>& _file_info_list) 
 {
   qDebug() << QString("QSshClient: Received %1 file info elements")
@@ -729,7 +729,7 @@ void QSshClient::sl_onFileInfoAvailable(
 
 }
 
-void QSshClient::mapConnectionError(QSsh::SshError _err) {
+void SftpClient::mapConnectionError(QSsh::SshError _err) {
   switch (_err) {
     case QSsh::SshError::SshNoError:
       m_current_cx_error = ConnectionError::NoError;
@@ -775,7 +775,7 @@ void QSshClient::mapConnectionError(QSsh::SshError _err) {
   qDebug() << QString("SSH connection error occurred : ") << m_current_cx_error;
 }
 
-void QSshClient::mapTransferError(QSsh::SftpError _err) 
+void SftpClient::mapTransferError(QSsh::SftpError _err)
 {
   switch (_err) {
     case QSsh::SftpError::NoError:

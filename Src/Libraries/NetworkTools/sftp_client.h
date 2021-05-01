@@ -12,13 +12,13 @@ using namespace QSsh;
 
 namespace MatisseCommon {
 
-class QSshClient :
+class SftpClient :
     public NetworkClient
 {
     Q_OBJECT
 
 public:
-    explicit QSshClient(QObject* parent = nullptr);
+    explicit SftpClient(QObject* parent = nullptr);
 
     void resume();
     void init();
