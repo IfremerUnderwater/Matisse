@@ -36,7 +36,7 @@ QList<InputDataProvider*> const MatisseEngine::getAvailableImageProviders() {
     return _imageProviders.values();
 }
 
-const QList<RasterProvider *> MatisseEngine::getAvailableRasterProviders()
+const QList<OutputDataWriter *> MatisseEngine::getAvailableRasterProviders()
 {
     return _rasterProviders.values();
 }
@@ -91,7 +91,7 @@ void MatisseEngine::addParametersForRasterProvider(QString name)
         return;
     }
 
-    RasterProvider* destination = _rasterProviders.value(name);
+    OutputDataWriter* destination = _rasterProviders.value(name);
     QList<MatisseParameter> expectedParams = destination->expectedParameters();
     _expectedParametersByModule.insert(name, expectedParams);
 
@@ -181,7 +181,7 @@ bool MatisseEngine::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jo
 {
     InputDataProvider* imageProvider = NULL;
     QList<Processor*> processorList;
-    RasterProvider* rasterProvider = NULL;
+    OutputDataWriter* rasterProvider = NULL;
 
     qDebug() << "Check assembly";
 
@@ -533,7 +533,7 @@ void MatisseEngine::init(){
         QPluginLoader loader(rasterProvidersDir.absoluteFilePath(fileName));
         if(QObject *pluginObject = loader.instance()) { // On prend l'instance de notre plugin sous forme de QObject. On vérifie en même temps s'il n'y a pas d'erreur.
 
-            RasterProvider* newInstance = qobject_cast<RasterProvider *>(pluginObject); // On réinterprète alors notre QObject
+            OutputDataWriter* newInstance = qobject_cast<OutputDataWriter *>(pluginObject); // On réinterprète alors notre QObject
             qDebug() << "RasterProvider DLL " << newInstance->name() << " loaded.";
             _rasterProviders.insert(newInstance->name(), newInstance);
 
@@ -548,7 +548,7 @@ void MatisseEngine::init(){
 }
 
 
-JobTask::JobTask(InputDataProvider* imageProvider, QList<Processor*> processors, RasterProvider* rasterProvider,
+JobTask::JobTask(InputDataProvider* imageProvider, QList<Processor*> processors, OutputDataWriter* rasterProvider,
                  JobDefinition &jobDefinition, MatisseParameters *parameters )
     : m_user_log_file(NULL),
       _imageProvider(imageProvider),

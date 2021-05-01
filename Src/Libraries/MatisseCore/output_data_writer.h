@@ -13,7 +13,7 @@
 
 namespace MatisseCommon {
 
-class RasterProvider : public QObject, public ImageListener, public LifecycleComponent  {
+class OutputDataWriter : public QObject, public ImageListener, public LifecycleComponent  {
     Q_OBJECT
     Q_INTERFACES(MatisseCommon::ImageListener)
     Q_INTERFACES(MatisseCommon::LifecycleComponent)
@@ -24,8 +24,8 @@ public:
     quint16 inNumber() {return _inNumber;}
 
 
-    explicit RasterProvider(QObject *parent, QString name, QString comment, quint16 inNumber =1);
-    virtual ~RasterProvider();
+    explicit OutputDataWriter(QObject *parent, QString name, QString comment, quint16 inNumber =1);
+    virtual ~OutputDataWriter();
 
     ImageSet *imageSet() const;
     void setImageSet(ImageSet *imageSet);
@@ -52,6 +52,6 @@ private:
 
 
 }
-Q_DECLARE_INTERFACE(MatisseCommon::RasterProvider, "Ifremer.RasterProvider/1.1")
+Q_DECLARE_INTERFACE(MatisseCommon::OutputDataWriter, "Ifremer.OutputDataWriter/1.1")
 
 #endif // RASTERPROVIDER_H

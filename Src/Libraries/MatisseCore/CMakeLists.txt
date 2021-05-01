@@ -3,7 +3,7 @@ add_library(MatisseCore
     LifecycleComponent.cpp	
     Processor.cpp
     input_data_provider.cpp
-    RasterProvider.cpp
+    output_data_writer.cpp
     MatisseEngine.cpp
     KeyValueList.cpp
     AssemblyDefinition.cpp

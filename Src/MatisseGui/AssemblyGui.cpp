@@ -181,7 +181,7 @@ void AssemblyGui::initProcessorWidgets()
     }
 
     qDebug() << "Available RasterProviders " << _server.getAvailableRasterProviders().size();
-    foreach (RasterProvider * rasterProvider, _server.getAvailableRasterProviders()) {
+    foreach (OutputDataWriter * rasterProvider, _server.getAvailableRasterProviders()) {
         qDebug() << "Add rasterProvider " << rasterProvider->name();
         DestinationWidget * destWidget = new DestinationWidget();
         destWidget->setName(rasterProvider->name());

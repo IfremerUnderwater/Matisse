@@ -8,7 +8,7 @@ Q_EXPORT_PLUGIN2(ReconstructionLister, ReconstructionLister)
 #endif
 
 ReconstructionLister::ReconstructionLister(QObject *parent):
-    RasterProvider(NULL, "ReconstructionLister", "", 1)
+    OutputDataWriter(NULL, "ReconstructionLister", "", 1)
 {
     Q_UNUSED(parent)
     addExpectedParameter("dataset_param", "output_dir");

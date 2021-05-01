@@ -2,17 +2,17 @@
 #define ReconstructionLister_H
 
 
-#include "RasterProvider.h"
+#include "output_data_writer.h"
 #include "PictureFileSet.h"
 #include "ImageSet.h"
 #include "FileImage.h"
 
 using namespace MatisseCommon;
 
-class ReconstructionLister : public RasterProvider
+class ReconstructionLister : public OutputDataWriter
 {
     Q_OBJECT
-    Q_INTERFACES(MatisseCommon::RasterProvider)
+    Q_INTERFACES(MatisseCommon::OutputDataWriter)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     Q_PLUGIN_METADATA(IID "ReconstructionLister")

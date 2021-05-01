@@ -3,7 +3,7 @@
 
 
 #include "Processor.h"
-#include "RasterProvider.h"
+#include "output_data_writer.h"
 
 using namespace MatisseCommon;
 
@@ -11,10 +11,10 @@ using namespace MatisseCommon;
  * DrawBlend2DMosaic
  * @brief  DrawBlend2DMosaic draw plane mosaic (2D model or 3D model projected on a 2D plane)
  */
-class DrawBlend2DMosaic : public RasterProvider
+class DrawBlend2DMosaic : public OutputDataWriter
 {
     Q_OBJECT
-    Q_INTERFACES(MatisseCommon::RasterProvider)
+    Q_INTERFACES(MatisseCommon::OutputDataWriter)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     Q_PLUGIN_METADATA(IID "DrawBlend2DMosaic")

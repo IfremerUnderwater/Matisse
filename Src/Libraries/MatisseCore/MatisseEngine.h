@@ -12,7 +12,7 @@
 
 #include "Processor.h"
 #include "input_data_provider.h"
-#include "RasterProvider.h"
+#include "output_data_writer.h"
 #include "JobServer.h"
 #include "FileUtils.h"
 #include "MatisseParametersManager.h"
@@ -35,7 +35,7 @@ class JobTask : public QObject{
     Q_OBJECT
 
 public:
-    explicit JobTask(InputDataProvider *imageProvider, QList<Processor *> processors, RasterProvider *rasterProvider , JobDefinition &jobDefinition, MatisseParameters *parameters);
+    explicit JobTask(InputDataProvider *imageProvider, QList<Processor *> processors, OutputDataWriter *rasterProvider , JobDefinition &jobDefinition, MatisseParameters *parameters);
     virtual ~JobTask();
     void stop(bool cancel=false);
     JobDefinition &jobDefinition() const;
@@ -68,7 +68,7 @@ private:
     Context* _context;
     InputDataProvider* _imageProvider;
     QList<Processor*> _processors;
-    RasterProvider* _rasterProvider;
+    OutputDataWriter* _rasterProvider;
     JobDefinition &_jobDefinition;
     MatisseParameters *_matParameters;
     MatisseParameters *_assemblyParameters;
@@ -92,7 +92,7 @@ public:
 
     QList<Processor*> const getAvailableProcessors();
     QList<InputDataProvider*> const getAvailableImageProviders();
-    QList<RasterProvider*> const getAvailableRasterProviders();
+    QList<OutputDataWriter*> const getAvailableRasterProviders();
 
     void addParametersForImageProvider(QString name);
     void addParametersForProcessor(QString name);
@@ -136,7 +136,7 @@ private:
     MatisseParametersManager* _dicoParamMgr;
     QHash<QString, Processor*> _processors;
     QHash<QString, InputDataProvider*> _imageProviders;
-    QHash<QString, RasterProvider*> _rasterProviders;
+    QHash<QString, OutputDataWriter*> _rasterProviders;
     QHash<QString, QList<MatisseParameter> > _expectedParametersByModule;
     QString _messageStr;
     bool _errorFlag;

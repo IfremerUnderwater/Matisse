@@ -21,7 +21,7 @@ Q_EXPORT_PLUGIN2(DrawBlend2DMosaic, DrawBlend2DMosaic)
 
 
 DrawBlend2DMosaic::DrawBlend2DMosaic() :
-    RasterProvider(NULL, "DrawBlend2DMosaic", "DrawBlend2DMosaic", 1)
+    OutputDataWriter(NULL, "DrawBlend2DMosaic", "DrawBlend2DMosaic", 1)
 {
     qDebug() << logPrefix() << "DrawBlend2DMosaic in constructor...";
 

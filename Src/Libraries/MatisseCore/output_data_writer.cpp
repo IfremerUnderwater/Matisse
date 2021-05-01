@@ -1,8 +1,8 @@
-﻿#include "RasterProvider.h"
+﻿#include "output_data_writer.h"
 
 using namespace MatisseCommon;
 
-RasterProvider::RasterProvider(QObject *parent, QString name, QString comment, quint16 inNumber) :
+OutputDataWriter::OutputDataWriter(QObject *parent, QString name, QString comment, quint16 inNumber) :
     QObject(parent),
     LifecycleComponent(name, "[DESTINATION " + name + "]: "),
     _comment(comment),
@@ -11,17 +11,17 @@ RasterProvider::RasterProvider(QObject *parent, QString name, QString comment, q
 {
 }
 
-RasterProvider::~RasterProvider()
+OutputDataWriter::~OutputDataWriter()
 {
 }
 
 
-ImageSet *RasterProvider::imageSet() const
+ImageSet *OutputDataWriter::imageSet() const
 {
     return _imageSet;
 }
 
-void RasterProvider::setImageSet(ImageSet *imageSet)
+void OutputDataWriter::setImageSet(ImageSet *imageSet)
 {
     _imageSet = imageSet;
 }
