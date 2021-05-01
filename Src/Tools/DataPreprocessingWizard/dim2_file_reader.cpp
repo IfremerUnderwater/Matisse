@@ -92,7 +92,8 @@ bool Dim2FileReader::loadFileToMemory()
                     m_depth.push_back(pair);
 
                     pair.second = fields[9].toDouble();
-                    m_alt.push_back(pair);
+                    if(pair.second>0)
+                        m_alt.push_back(pair);
 
                     pair.second = DEG2RAD*fields[10].toDouble();
                     m_yaw.push_back(pair);

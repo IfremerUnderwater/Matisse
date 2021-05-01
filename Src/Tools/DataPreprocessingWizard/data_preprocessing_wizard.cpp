@@ -104,7 +104,7 @@ void  DataPreprocessingWizard::sl_selectDim2File()
 void  DataPreprocessingWizard::sl_selectMaskFile()
 {
     QString mask_file = QFileDialog::getOpenFileName(this,
-        tr("Open tiff or png file"), "./", tr("Mask file (*.tiff *.dim2)"));
+        tr("Open tiff or png file"), "./", tr("Mask file (*.tiff)"));
 
     if (!mask_file.isEmpty())
     {
@@ -139,9 +139,15 @@ void DataPreprocessingWizard::sl_pageChanged(int _page_idx)
             m_data_path = ui->data_path_line->text();
             m_data_type = ui->data_type_combo->currentText();
             if (m_data_type == "Video")
+            {
                 checkAndFillVideoFiles(m_data_path);
+                ui->extract_rate_sb->setEnabled(true);
+            }
             else
+            {
                 checkAndFillPhotoFiles(m_data_path);
+                ui->extract_rate_sb->setEnabled(false);
+            }
         }else
         {
             this->back();
@@ -716,6 +722,18 @@ void DataPreprocessingWizard::sl_finished(int _state)
         else
             m_nav_file = new NavFileReader("");
 
+        if (!m_nav_file->isValid() && m_data_type == "Video")
+        {
+
+            if (QMessageBox::question(this, "Wrong navigation file", "You're processing a video and the navigation file you provided is not valid. Do you still want to process data ?",
+                QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+            {
+                QMessageBox::information(this, tr("Canceled"),
+                    tr("Preprocessing canceled"));
+                return;
+            }
+        }
+
         if (ui->use_rt_dim2_cb->isChecked())
         {
             QString rt_dim2_file = ui->rt_dim2_file->text();
@@ -723,7 +741,11 @@ void DataPreprocessingWizard::sl_finished(int _state)
                 m_dim2_file = new Dim2FileReader(rt_dim2_file); 
         }
         else
+        {
+            QMessageBox::information(this, tr("Wrong dim2 file"),
+                tr("You required the use of a dim2 file for the altitude but the file provided is not valid !"));
             m_dim2_file = new Dim2FileReader("");
+        }
 
         if (m_data_type == "Video")
         {
