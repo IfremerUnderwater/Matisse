@@ -67,12 +67,6 @@ void WelcomeDialog::on_progModeLauncherButton_clicked()
     emit signal_launchApplication(PROGRAMMING);
 }
 
-void WelcomeDialog::on_realTimeModeLauncherButton_clicked()
-{
-    hide();
-    emit signal_launchApplication(REAL_TIME);
-}
-
 void WelcomeDialog::on_configModeLauncherButton_clicked()
 {
     hide();

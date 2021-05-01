@@ -1,5 +1,5 @@
-#ifndef WELCOMEDIALOG_H
-#define WELCOMEDIALOG_H
+#ifndef MATISSE_WELCOME_DIALOG_H_
+#define MATISSE_WELCOME_DIALOG_H_
 
 #include <QDialog>
 
@@ -30,7 +30,6 @@ signals:
 
 private slots:
     void on_progModeLauncherButton_clicked();
-    void on_realTimeModeLauncherButton_clicked();
     void on_configModeLauncherButton_clicked();
     void on_deferredTimeModeLauncherButton_clicked();
 
@@ -44,4 +43,4 @@ private:
 };
 }
 
-#endif // WELCOMEDIALOG_H
+#endif // MATISSE_WELCOME_DIALOG_H_

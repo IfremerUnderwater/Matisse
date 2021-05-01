@@ -266,7 +266,6 @@ void AssemblyGui::initUserActions()
     connect(_importAssemblyAct, SIGNAL(triggered()), this, SLOT(slot_importAssembly()));
     connect(_exportJobAct, SIGNAL(triggered()), this, SLOT(slot_exportJob()));
     connect(_importJobAct, SIGNAL(triggered()), this, SLOT(slot_importJob()));
-    connect(_checkNetworkRxAct, SIGNAL(triggered()), this, SLOT(slot_checkNetworkRx()));
     connect(_dayNightModeAct, SIGNAL(triggered()), this, SLOT(slot_swapDayNightDisplay()));
     connect(_mapToolbarAct, SIGNAL(triggered()), _userFormWidget, SLOT(slot_showHideToolbar()));
     connect(_exportMapViewAct, SIGNAL(triggered()), this, SLOT(slot_exportMapToImage()));
@@ -488,22 +487,18 @@ void AssemblyGui::initStylesheetSelection()
     setStyleSheet("");
 
     _stylesheetByAppMode.insert(PROGRAMMING, "lnf/MatisseModeProg.css");
-    _stylesheetByAppMode.insert(REAL_TIME, "lnf/MatisseModeRt.css");
     _stylesheetByAppMode.insert(POST_PROCESSING, "lnf/MatisseModeDt.css");
     _stylesheetByAppMode.insert(APP_CONFIG, "lnf/MatisseModeProg.css");
 
     _wheelColorsByMode.insert(PROGRAMMING, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.orange%>").arg("<%color.orange2%>"));
-    _wheelColorsByMode.insert(REAL_TIME, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.blue%>").arg("<%color.blue2%>"));
     _wheelColorsByMode.insert(POST_PROCESSING, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.mauve%>").arg("<%color.mauve2%>"));
     _wheelColorsByMode.insert(APP_CONFIG, QString("%1-%2-%3").arg("<%color.grey%>").arg("<%color.orange%>").arg("<%color.orange2%>"));
 
     _colorsByMode1.insert(PROGRAMMING, QString("orange"));
-    _colorsByMode1.insert(REAL_TIME, QString("blue"));
     _colorsByMode1.insert(POST_PROCESSING, QString("mauve"));
     _colorsByMode1.insert(APP_CONFIG, QString("grey"));
 
     _colorsByMode2.insert(PROGRAMMING, QString("orange2"));
-    _colorsByMode2.insert(REAL_TIME, QString("blue2"));
     _colorsByMode2.insert(POST_PROCESSING, QString("mauve2"));
     _colorsByMode2.insert(APP_CONFIG, QString("grey2"));
 
@@ -592,7 +587,6 @@ void AssemblyGui::initMainMenu()
     _preprocessingTool = new QAction(this);
     m_camera_manager_tool = new QAction(this);
     m_camera_calib_tool = new QAction(this);
-    _checkNetworkRxAct = new QAction(this);
 
     _toolMenu->addAction(_appConfigAct);
     _toolMenu->addSeparator();
@@ -601,7 +595,6 @@ void AssemblyGui::initMainMenu()
     _toolMenu->addAction(m_camera_manager_tool);
     _toolMenu->addAction(m_camera_calib_tool);
     _toolMenu->addSeparator();
-    _toolMenu->addAction(_checkNetworkRxAct);
 
 
     /* HELP MENU */
@@ -731,11 +724,11 @@ void AssemblyGui::loadAssembliesAndJobsLists(bool doExpand)
         AssemblyDefinition *assembly = _processDataManager->getAssembly(assemblyName);
 
         // RT or DT assemblies are displayed according to application mode
-        if (_activeApplicationMode == REAL_TIME && !assembly->isRealTime()) {
-            continue;
-        } else if (_activeApplicationMode == POST_PROCESSING && assembly->isRealTime()) {
-            continue;
-        }
+//        if (_activeApplicationMode == REAL_TIME && !assembly->isRealTime()) {
+//            continue;
+//        } else if (_activeApplicationMode == POST_PROCESSING && assembly->isRealTime()) {
+//            continue;
+//        }
 
         addAssemblyInTree(assembly);
     }
@@ -813,18 +806,13 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
 
     /* activation des actions selon mode applicatif */
     bool hasExpertFeatures = (mode == PROGRAMMING);
-    bool hasRealTimeFeatures = (mode == PROGRAMMING || mode == REAL_TIME);
 
     _visuModeButton->setVisible(hasExpertFeatures);
     _createAssemblyAct->setVisible(hasExpertFeatures);
     _saveAssemblyAct->setVisible(hasExpertFeatures);
 
-    _checkNetworkRxAct->setVisible(hasRealTimeFeatures);
-
-    // affichage du mode pour TR/TD (sinon affichage de la vue)
-    if (mode == REAL_TIME) {
-        _activeViewOrModeLabel->setText(tr("Mode : Real time"));
-    } else if(mode == POST_PROCESSING){
+    // affichage du mode pour TD (sinon affichage de la vue)
+    if(mode == POST_PROCESSING){
         _activeViewOrModeLabel->setText(tr("Mode : Post-processing"));
     }
 
@@ -1403,15 +1391,6 @@ void AssemblyGui::slot_duplicateAssembly()
                               .arg(assemblyName));
     }
 
-}
-
-void AssemblyGui::slot_checkNetworkRx()
-{
-    NetworkCheckDialog dialog(this);
-    dialog.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-    if (dialog.exec() != QDialog::Accepted) {
-        return;
-    }
 }
 
 void AssemblyGui::slot_swapDayNightDisplay()
@@ -2918,10 +2897,8 @@ void AssemblyGui::slot_newJob()
     kvl.append("name");
     kvl.append("comment");
 
-    if (!assembly->isRealTime()) {
-        kvl.append(DATASET_PARAM_DATASET_DIR);
-        kvl.append(DATASET_PARAM_NAVIGATION_FILE);
-    }
+    kvl.append(DATASET_PARAM_DATASET_DIR);
+    kvl.append(DATASET_PARAM_NAVIGATION_FILE);
 
     /* Key value list is initialized with default dataset preferences */
     kvl.set(DATASET_PARAM_OUTPUT_DIR, _preferences->defaultResultPath());
@@ -3177,7 +3154,7 @@ QTreeWidgetItem *AssemblyGui::addAssemblyInTree(AssemblyDefinition * assembly)
     _assembliesItems.insert(assembly->name(), assemblyItem);
 
     KeyValueList *props = new KeyValueList();
-    props->insert("RealTime", QString::number(assembly->isRealTime()));
+//    props->insert("RealTime", QString::number(assembly->isRealTime()));
     props->insert("Version", assembly->version());
     props->insert("Valid", QString::number(assembly->usable()));
     props->insert("Author", assembly->author());
@@ -3326,8 +3303,6 @@ void AssemblyGui::retranslate()
     _preprocessingTool->setText(tr("Launch preprocessing tool"));
     m_camera_manager_tool->setText(tr("Launch camera manager"));
     m_camera_calib_tool->setText(tr("Launch camera calibration tool"));
-    _checkNetworkRxAct->setText(tr("Check network reception"));
-
 
     /* MENU AIDE */
     _helpMenu->setTitle(tr("HELP"));
@@ -3448,7 +3423,7 @@ void AssemblyGui::slot_newAssembly()
     _newAssembly->setName(displayName);
     _newAssembly->setCreationDate(QDate::fromString(fields.getValue("Date")));
     _newAssembly->setDate(fields.getValue("Date"));
-    _newAssembly->setIsRealTime(QVariant(QString(fields.getValue("RealTime"))).toBool());
+//    _newAssembly->setIsRealTime(QVariant(QString(fields.getValue("RealTime"))).toBool());
     _newAssembly->setVersion(fields.getValue("Version"));
     _newAssembly->setAuthor(fields.getValue("Author"));
     _newAssembly->setUsable(fields.getValue("Valid").toInt());
@@ -3496,7 +3471,6 @@ void AssemblyGui::enableActions()
     _preprocessingTool->setEnabled(_isMapView);
     m_camera_manager_tool->setEnabled(_isMapView);
     m_camera_calib_tool->setEnabled(_isMapView);
-    _checkNetworkRxAct->setEnabled(_isMapView);
 
     if (lastAction == SELECT_ASSEMBLY || lastAction == SAVE_ASSEMBLY) {
         _exportAssemblyAct->setEnabled(true);

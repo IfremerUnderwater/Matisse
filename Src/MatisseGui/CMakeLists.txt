@@ -27,7 +27,7 @@ add_executable(MatisseGui
     JobManagementUi/RestoreJobsDialog.cpp
     ParametersUi/ParametersDialog.cpp
     ParametersUi/ParametersFoldButton.cpp
-    RealTimeUi/NetworkCheckDialog.cpp
+#    RealTimeUi/NetworkCheckDialog.cpp
     RemoteJobUi/RemoteJobHelper.cpp
     RemoteJobUi/RemoteFileDialog.cpp
     RemoteJobUi/RemoteProgressDialog.cpp

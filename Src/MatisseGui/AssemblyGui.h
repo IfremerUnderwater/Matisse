@@ -31,7 +31,7 @@
 #include "PreferencesDialog.h"
 #include "DuplicateDialog.h"
 #include "RestoreJobsDialog.h"
-#include "NetworkCheckDialog.h"
+//#include "NetworkCheckDialog.h"
 #include "data_viewer.h"
 #include "assembly_editor.h"
 #include "Dim2FileReader.h"
@@ -250,7 +250,6 @@ private:
     QAction* m_camera_manager_tool;
     QAction* m_camera_calib_tool;
     QAction* _videoToImageToolAct;
-    QAction* _checkNetworkRxAct;
     QAction* _userManualAct;
     QAction* _aboutAct;
 
@@ -393,7 +392,6 @@ protected slots:
     void slot_restoreJobs();
     void slot_duplicateJob();
     void slot_duplicateAssembly();
-    void slot_checkNetworkRx();
     void slot_swapDayNightDisplay();
     void slot_exportMapToImage();
     void slot_launchPreprocessingTool();
