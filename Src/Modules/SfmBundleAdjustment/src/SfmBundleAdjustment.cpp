@@ -97,16 +97,23 @@ void SfmBundleAdjustment::checkForNewFiles()
     export_folder.setNameFilters(QStringList() << "*.ply");
     QStringList file_list = export_folder.entryList();
 
+    bool can_show_a_model = false;
+    QString model_path;
+
     foreach(QString ply_file, file_list)
     {
         QFileInfo ply_file_info(m_out_complete_path_str + QDir::separator() + ply_file);
         QDateTime ply_last_mod = ply_file_info.lastModified();
         if (ply_last_mod > m_start_time && ply_last_mod > m_last_ply_time)
         {
-            emit signal_show3DFileOnMainView(ply_file_info.absoluteFilePath());
+            model_path = ply_file_info.absoluteFilePath();
             m_last_ply_time = ply_last_mod;
+            can_show_a_model = true;
         }
     }
+
+    if (can_show_a_model)
+        emit signal_show3DFileOnMainView(model_path);
 }
 
 bool SfmBundleAdjustment::splitMatchesFiles()
@@ -445,6 +452,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
     QDir matches_path_dir(m_matches_path);
 
     // Split matches into matches files
+    m_matches_files_list.clear();
     if (!this->splitMatchesFiles())
         return;
 
@@ -477,7 +485,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
         }
 
         emit signal_processCompletion(-1); // cannot monitor percentage
-        emit signal_userInformation(QString("Sfm bundle adj %1/%2").arg(i+1).arg(m_matches_files_list.size()));
+        emit signal_userInformation(QString("Reconstruct 3D part %1/%2").arg(i+1).arg(m_matches_files_list.size()));
 
         // Fill out path
         m_out_complete_path_str = absoluteOutputTempDir() + SEP + "ModelPart"+QString("_%1").arg(rc->components_ids[i]);
