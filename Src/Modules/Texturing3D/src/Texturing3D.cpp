@@ -223,7 +223,7 @@ void Texturing3D::onFlush(quint32 port)
     static const QString SEP = QDir::separator();
 
     emit signal_processCompletion(0);
-    emit signal_userInformation("Texturing3D start");
+    emit signal_userInformation("Texturing started");
 
     // Get context
     QVariant *object = _context->getObject("reconstruction_context");
@@ -237,7 +237,7 @@ void Texturing3D::onFlush(quint32 port)
     {
 
         // Convert model to mvs-texturing
-        emit signal_userInformation("Texturing3D convert");
+        emit signal_userInformation("Texturing convertion");
         
         QString scene_dir_i = m_outdir + QDir::separator() + "ModelPart" + QString("_%1").arg(rc->components_ids[i]);
         QString mesh_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".ply";
@@ -248,7 +248,7 @@ void Texturing3D::onFlush(quint32 port)
             continue;
 
         // Texture model
-        emit signal_userInformation("Texturing3D texturing");
+        emit signal_userInformation("Texturing model");
 
         QString cmdLine = TexreconExe;
         bool ok = false;
@@ -277,33 +277,33 @@ void Texturing3D::onFlush(quint32 port)
             {
                 // init
                 emit signal_processCompletion((qint8)-1);
-                emit signal_userInformation("texrecon : Load mesh...");
+                emit signal_userInformation("Texturing : Load mesh...");
             }
 
             if(output.contains("Generating texture views:"))
             {
-                emit signal_userInformation("texrecon : Gen. texture views...");
+                emit signal_userInformation("Texturing : Gen. texture views...");
             }
 
             if(output.contains("Building adjacency graph:"))
             {
-                emit signal_userInformation("texrecon : Build. adj graphs...");
+                emit signal_userInformation("Texturing : Build. adj graphs...");
             }
 
             if(output.contains("View selection:"))
             {
-                emit signal_userInformation("texrecon : View selection...");
+                emit signal_userInformation("Texturing : View selection...");
             }
 
             if(output.contains("\tCalculating face qualities "))
             {
-                emit signal_userInformation("texrecon : calc face qual...");
+                emit signal_userInformation("Texturing : calc face qual...");
             }
 
             if(output.contains("\tWriting data cost file"))
             {
                 initer = true;
-                emit signal_userInformation("texrecon : writing data cost...");
+                emit signal_userInformation("Texturing : writing data cost...");
             }
 
             if(initer && output.startsWith("\t"))
@@ -313,49 +313,49 @@ void Texturing3D::onFlush(quint32 port)
                 // "	0000	0	1.10237e+06	0.017"
                 QStringList list = output.mid(1).split("\t");
                 if(list.count() > 2)
-                    emit signal_userInformation("texrecon : view sel. iter " + list.at(1));
+                    emit signal_userInformation("Texturing : view sel. iter " + list.at(1));
             }
 
             if(output.contains("Generating texture patches:"))
             {
                 initer = false;
-                emit signal_userInformation("texrecon : gen text. patches...");
+                emit signal_userInformation("Texturing : gen text. patches");
             }
 
             if(output.contains("Running global seam leveling:"))
             {
                 initer = false;
-                emit signal_userInformation("texrecon : global seam level...");
+                emit signal_userInformation("Texturing : global seam level");
             }
 
             if(output.contains("\tAdjusting texture patches"))
             {
                 initer = false;
-                emit signal_userInformation("texrecon : adj text. patches...");
+                emit signal_userInformation("Texturing : adj text. patches");
             }
 
             if(output.contains("Running local seam leveling:"))
             {
                 initer = false;
-                emit signal_userInformation("texrecon : local seam level...");
+                emit signal_userInformation("Texturing : local seam level");
             }
 
             if(output.contains("Generating texture atlases:"))
             {
                 initer = false;
-                emit signal_userInformation("texrecon : gen. text. atlas...");
+                emit signal_userInformation("Texturing : gen. text. atlas");
             }
 
             if(output.contains("\tFinalizing texture atlases"))
             {
                 initer = false;
-                emit signal_userInformation("texrecon : final. text. atlas...");
+                emit signal_userInformation("Texturing : final. text. atlas");
             }
 
             if(output.contains("Building objmodel:"))
             {
                 initer = false;
-                emit signal_userInformation("texrecon : build objmodel...");
+                emit signal_userInformation("Texturing : saving model");
             }
 
             qDebug() << output;
@@ -365,7 +365,7 @@ void Texturing3D::onFlush(quint32 port)
         writeKml(scene_dir_i, m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + "_texrecon");
 
         emit signal_processCompletion(100);
-        emit signal_userInformation("Texturing3D end");
+        emit signal_userInformation("Texturing : finished");
 
     }
 

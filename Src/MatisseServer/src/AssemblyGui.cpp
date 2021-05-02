@@ -271,6 +271,7 @@ void AssemblyGui::initUserActions()
     connect(_mapToolbarAct, SIGNAL(triggered()), _userFormWidget, SLOT(slot_showHideToolbar()));
     connect(_exportMapViewAct, SIGNAL(triggered()), this, SLOT(slot_exportMapToImage()));
     connect(_preprocessingTool, SIGNAL(triggered()), this, SLOT(slot_launchPreprocessingTool()));
+    connect(m_nmea_nav_extrator_tool, SIGNAL(triggered()), this, SLOT(slot_launchNmeaExtractorTool()));
     connect(m_camera_manager_tool, SIGNAL(triggered()), this, SLOT(slot_launchCameraManagerTool()));
     connect(m_camera_calib_tool, SIGNAL(triggered()), this, SLOT(slot_launchCameraCalibTool()));
     
@@ -590,6 +591,7 @@ void AssemblyGui::initMainMenu()
 
     _appConfigAct = new QAction(this);
     _preprocessingTool = new QAction(this);
+    m_nmea_nav_extrator_tool = new QAction(this);
     m_camera_manager_tool = new QAction(this);
     m_camera_calib_tool = new QAction(this);
     _checkNetworkRxAct = new QAction(this);
@@ -597,6 +599,7 @@ void AssemblyGui::initMainMenu()
     _toolMenu->addAction(_appConfigAct);
     _toolMenu->addSeparator();
     _toolMenu->addAction(_preprocessingTool);
+    _toolMenu->addAction(m_nmea_nav_extrator_tool);
     _toolMenu->addSeparator();
     _toolMenu->addAction(m_camera_manager_tool);
     _toolMenu->addAction(m_camera_calib_tool);
@@ -1471,8 +1474,30 @@ void AssemblyGui::slot_launchPreprocessingTool()
     QFileInfo toolPathFile(toolPath);
 
     if (!toolPathFile.exists()) {
-        qCritical() << QString("Could not find exposure tool exe file '%1'").arg(toolPath);
+        qCritical() << QString("Could not find preprocessing tool exe file '%1'").arg(toolPath);
         QMessageBox::critical(this, tr("Tool not found"), tr("Preprocessing tool not found in file '%1'").arg(toolPath));
+        return;
+    }
+
+    QUrl url = QUrl::fromLocalFile(toolPathFile.absoluteFilePath());
+    QDesktopServices::openUrl(url);
+}
+
+void AssemblyGui::slot_launchNmeaExtractorTool()
+{
+    QMap<QString, QString> externalTools = _systemDataManager->getExternalTools();
+    if (!externalTools.contains("nmeaNavExtractor")) {
+        qCritical() << "nmeaNavExtractor tool not defined in settings";
+        QMessageBox::critical(this, tr("Incomplete system configuration"), tr("NmeaNavExtractor tool not defined in system configuration"));
+        return;
+    }
+
+    QString toolPath = externalTools.value("nmeaNavExtractor");
+    QFileInfo toolPathFile(toolPath);
+
+    if (!toolPathFile.exists()) {
+        qCritical() << QString("Could not find NmeaNavExtractor tool exe file '%1'").arg(toolPath);
+        QMessageBox::critical(this, tr("Tool not found"), tr("NmeaNavExtractor tool not found in file '%1'").arg(toolPath));
         return;
     }
 
@@ -3327,6 +3352,7 @@ void AssemblyGui::retranslate()
     _toolMenu->setTitle(tr("TOOLS"));
     _appConfigAct->setText(tr("Configure settings for application"));
     _preprocessingTool->setText(tr("Launch preprocessing tool"));
+    m_nmea_nav_extrator_tool->setText(tr("Launch nmea nav extrator"));
     m_camera_manager_tool->setText(tr("Launch camera manager"));
     m_camera_calib_tool->setText(tr("Launch camera calibration tool"));
     _checkNetworkRxAct->setText(tr("Check network reception"));
@@ -3497,6 +3523,7 @@ void AssemblyGui::enableActions()
     _exportMapViewAct->setEnabled(_isMapView);
     _mapToolbarAct->setEnabled(_isMapView);
     _preprocessingTool->setEnabled(_isMapView);
+    m_nmea_nav_extrator_tool->setEnabled(_isMapView);
     m_camera_manager_tool->setEnabled(_isMapView);
     m_camera_calib_tool->setEnabled(_isMapView);
     _checkNetworkRxAct->setEnabled(_isMapView);

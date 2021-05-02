@@ -30,5 +30,6 @@
 	<!-- External tools definition -->
 	<ExternalTools>
         <ExternalTool name="preprocessingTool" exePath="DataPreprocessingWizard.exe"/>
+		<ExternalTool name="nmeaNavExtractor" exePath="NmeaNavExtractor.exe"/>
     </ExternalTools>
 </MatisseSettings>
