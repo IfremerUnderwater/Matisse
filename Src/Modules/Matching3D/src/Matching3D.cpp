@@ -373,7 +373,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
     QString qSfM_Data_Filename = absoluteOutputTempDir() + SEP + "matches" + SEP + "sfm_data.bin";
     QString sOutDir = absoluteOutputTempDir() + SEP + "matches";
 
-    emit signal_userInformation("Match 3D : Compute Matches");
+    emit signal_userInformation("Matching : Compute Matches");
     emit signal_processCompletion(0);
 
     // Compute Matches *****************************************************************************************************
@@ -768,7 +768,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
     }
 
     emit signal_processCompletion(100);
-    emit signal_userInformation("Match 3D - ended");
+    emit signal_userInformation("Matching ended");
 
     return true;
 }

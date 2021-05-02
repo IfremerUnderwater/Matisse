@@ -78,7 +78,7 @@ void ProjectiveCamera::setScalingFactor(const qreal &scalingFactor)
     if (scalingFactor >= 1){
         _scalingFactor = 1;
     }else if (scalingFactor <= 0){
-        exit(1);
+        _scalingFactor = 1;
     }else{
         _scalingFactor = scalingFactor;
     }

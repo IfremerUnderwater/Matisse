@@ -57,8 +57,8 @@ public:
         C_Progress::restart(ulExpected_count, msg); //-- Initialize the base class
         if (!msg.empty())
         {
-            QString qmsg = logPrefix() + QString::fromStdString(msg).remove('\n');
-            emit signal_userInformation(QString::fromStdString(msg));
+            QString qmsg = "Matching :" + QString::fromStdString(msg).remove('\n').remove('-');
+            emit signal_userInformation(qmsg);
         }
 
     } // restart

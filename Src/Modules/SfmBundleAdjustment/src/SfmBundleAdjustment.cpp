@@ -97,16 +97,23 @@ void SfmBundleAdjustment::checkForNewFiles()
     export_folder.setNameFilters(QStringList() << "*.ply");
     QStringList file_list = export_folder.entryList();
 
+    bool can_show_a_model = false;
+    QString model_path;
+
     foreach(QString ply_file, file_list)
     {
         QFileInfo ply_file_info(m_out_complete_path_str + QDir::separator() + ply_file);
         QDateTime ply_last_mod = ply_file_info.lastModified();
         if (ply_last_mod > m_start_time && ply_last_mod > m_last_ply_time)
         {
-            emit signal_show3DFileOnMainView(ply_file_info.absoluteFilePath());
+            model_path = ply_file_info.absoluteFilePath();
             m_last_ply_time = ply_last_mod;
+            can_show_a_model = true;
         }
     }
+
+    if (can_show_a_model)
+        emit signal_show3DFileOnMainView(model_path);
 }
 
 bool SfmBundleAdjustment::splitMatchesFiles()
@@ -363,6 +370,39 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
             stlplus::create_filespec(_out_dir.toStdString(), "cloud_and_poses", ".ply"),
             ESfM_Data(ALL));
 
+        // Compute residual sfm to nav error
+        std::vector<Vec3> X_SfM, X_GPS;
+        for (const auto& view_it : sfmEngine.Get_SfM_Data().GetViews())
+        {
+            const sfm::ViewPriors* prior = dynamic_cast<sfm::ViewPriors*>(view_it.second.get());
+            if (prior != nullptr && prior->b_use_pose_center_ && sfmEngine.Get_SfM_Data().IsPoseAndIntrinsicDefined(prior))
+            {
+                X_SfM.push_back(sfmEngine.Get_SfM_Data().GetPoses().at(prior->id_pose).center());
+                X_GPS.push_back(prior->pose_center_);
+            }
+        }
+
+        Vec3 error;
+        double rms_error = 0;
+        if (X_GPS.size() > 0)
+        {
+            for (int i = 0; i < X_GPS.size(); i++)
+            {
+                error = X_GPS[i] - X_SfM[i];
+                rms_error += error.squaredNorm();
+            }
+
+            rms_error = sqrt(rms_error / (double)X_GPS.size());
+            QString proc_info = logPrefix() + QString("RMS error between nav and sfm = %1 m").arg(rms_error);
+            emit signal_addToLog(proc_info);
+
+            if (rms_error > 2)
+            {
+                emit signal_showInformationMessage(tr("RMS error too high"),tr("The RMS error between optical navigation and vehicle navigation is quite high (%1 m). You should double check the vehicle navigation.").arg(rms_error));
+            }
+
+        }
+
         return true;
     }
     return false;
@@ -412,6 +452,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
     QDir matches_path_dir(m_matches_path);
 
     // Split matches into matches files
+    m_matches_files_list.clear();
     if (!this->splitMatchesFiles())
         return;
 
@@ -444,7 +485,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
         }
 
         emit signal_processCompletion(-1); // cannot monitor percentage
-        emit signal_userInformation(QString("Sfm bundle adj %1/%2").arg(i+1).arg(m_matches_files_list.size()));
+        emit signal_userInformation(QString("Reconstruct 3D part %1/%2").arg(i+1).arg(m_matches_files_list.size()));
 
         // Fill out path
         m_out_complete_path_str = absoluteOutputTempDir() + SEP + "ModelPart"+QString("_%1").arg(rc->components_ids[i]);

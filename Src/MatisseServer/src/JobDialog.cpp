@@ -109,6 +109,11 @@ void JobDialog::slot_close()
             return;
         }
 
+        if (!_ui->_LE_navigationFile->text().endsWith("dim2"))
+        {
+            QMessageBox::warning(this, tr("Wrong navigation file"), tr("The navigation file you selected is not a dim2 file. If you want your model to be scaled you should use a dim2 file or have exif metadata in the images."));
+        }
+
         QString filename(name);
         filename.replace(" ", "_").append(".xml");
         QFileInfo info(_jobsPath + QDir::separator() + filename);
@@ -190,7 +195,7 @@ void JobDialog::slot_selectDir()
 void JobDialog::slot_selectFile()
 {
     QString selFile;
-    QDir dataRoot("./");
+    QDir dataRoot(_ui->_LE_dataPath->text());
     QString currentPath = dataRoot.path();
     QString fieldText;
 
@@ -204,17 +209,23 @@ void JobDialog::slot_selectFile()
         }
     }
 
-    selFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Select navigation file"), currentPath, "Nav files (*.dim2 *.txt)");
+    selFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Select navigation file"), currentPath, "Nav files (*.dim2)");
 
     if (selFile.isEmpty()) {
         return;
     }
 
+    if (!selFile.endsWith("dim2"))
+    {
+        QMessageBox::warning(this, tr("Wrong navigation file"), tr("The navigation file you selected is not a dim2 file. If you want your model to be scaled you should use a dim2 file or have exif metadata in the images."));
+        return;
+    }
+
     // Chemin relatif si fichier contenu dans l'arborescence de données par défaut
-    QString rootPath = dataRoot.absolutePath();
+    /*QString rootPath = dataRoot.absolutePath();
     if (selFile.startsWith(rootPath)) {
         selFile = dataRoot.relativeFilePath(selFile);
-    }
+    }*/
 
     _ui->_LE_navigationFile->setText(selFile);
 }
