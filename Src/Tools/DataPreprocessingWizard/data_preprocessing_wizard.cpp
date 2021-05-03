@@ -738,12 +738,15 @@ void DataPreprocessingWizard::sl_finished(int _state)
         {
             QString rt_dim2_file = ui->rt_dim2_file->text();
             if (!rt_dim2_file.isEmpty())
-                m_dim2_file = new Dim2FileReader(rt_dim2_file); 
+                m_dim2_file = new Dim2FileReader(rt_dim2_file);
+            else
+            {
+                QMessageBox::information(this, tr("Wrong dim2 file"),
+                    tr("You required the use of a dim2 file for the altitude but the file provided is not valid !"));
+            }
         }
         else
         {
-            QMessageBox::information(this, tr("Wrong dim2 file"),
-                tr("You required the use of a dim2 file for the altitude but the file provided is not valid !"));
             m_dim2_file = new Dim2FileReader("");
         }
 
