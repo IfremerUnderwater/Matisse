@@ -15,6 +15,7 @@
 #include "ProcessDataManager.h"
 #include "RemoteProgressDialog.h"
 #include "network_client.h"
+#include "network_file_client.h"
 #include "network_command.h"
 
 using namespace MatisseCommon;
@@ -77,7 +78,7 @@ signals:
 
 private slots:
   void sl_onTransferFinished(NetworkAction *_action);
-  void sl_onTransferFailed(NetworkAction* _action, NetworkClient::TransferError _err);
+  void sl_onTransferFailed(NetworkAction* _action, TransferError _err);
   void sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents);
   void sl_onShellOutputReceived(NetworkAction* _action, QByteArray _output);
   void sl_onShellErrorReceived(NetworkAction* _action, QByteArray _error);
@@ -85,7 +86,7 @@ private slots:
 public slots:
   void sl_onUserLogin(QString password);
   void sl_onUserLoginCanceled();
-  void sl_onConnectionFailed(NetworkClient::ConnectionError _err);
+  void sl_onConnectionFailed(ConnectionError _err);
 
 private:
     QWidget* m_job_launcher = NULL;
@@ -112,8 +113,8 @@ private:
     QString m_container_image_path; // path to server container image
 
 
-    void connectGatewaySignals();
-    void disconnectGatewaySignals();
+    void connectNetworkClientSignals();
+    void disconnectNetworkClientSignals();
     bool checkPreferences();
     void checkHostAndCredentials();
     bool checkRemoteExecutionActive(QString _customMessage);

@@ -21,6 +21,7 @@
 #include <QSettings>
 #include "network_client.h"
 #include "sftp_client.h"
+#include "ssh_client.h"
 #include "RemoteJobHelper.h"
 
 using namespace MatisseServer;
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
     ProcessDataManager processDataManager(dataRootDir, userDataPath);
 
     /* Create remote process gateways and UI helper */
-    NetworkClient* ssh_client = new SftpClient();
+    NetworkClient* ssh_client = new SshClient();
     NetworkClient* sftp_client = new SftpClient();
     RemoteJobHelper remoteJobHelper;
     remoteJobHelper.setSshClient(ssh_client);

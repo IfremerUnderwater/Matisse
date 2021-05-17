@@ -1,6 +1,30 @@
 #include "network_action_send_command.h"
 
-NetworkActionSendCommand::NetworkActionSendCommand()
+namespace MatisseCommon {
+
+NetworkActionSendCommand::NetworkActionSendCommand(QString _command_string) :
+    NetworkCommandAction(NetworkActionType::SendCommand),
+    m_command(_command_string)
 {
 
 }
+
+void NetworkActionSendCommand::init() {
+    qDebug() << "NetworkActionSendCommand: init";
+    emit si_createRemoteShell(m_command);
+}
+
+void NetworkActionSendCommand::execute() {
+    qDebug() << "NetworkActionSendCommand: execute";
+    emit si_executeCommand();
+}
+
+void NetworkActionSendCommand::doTerminate() {
+    qDebug() << "NetworkActionSendCommand: closing remote shell";
+    emit si_closeRemoteShell();
+}
+
+QString NetworkActionSendCommand::progressMessage() {
+    return QString("Executing command '%1'").arg(m_command); }
+
+} // namespace MatisseCommon

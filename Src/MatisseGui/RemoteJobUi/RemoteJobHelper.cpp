@@ -7,6 +7,11 @@
 #include "FileUtils.h"
 #include "RemoteFileDialog.h"
 #include "network_action.h"
+#include "network_action_upload_file.h"
+#include "network_action_upload_dir.h"
+#include "network_action_download_dir.h"
+#include "network_action_dir_content.h"
+#include "network_action_send_command.h"
 #include "network_command_pbs_qsub.h"
 #include "ToolsCommon.h"
 
@@ -93,7 +98,7 @@ void RemoteJobHelper::init() {
   m_is_remote_exec_on = checkPreferences();
   m_host_and_creds_known = false;
 
-  connectGatewaySignals();
+  connectNetworkClientSignals();
 }
 
 void RemoteJobHelper::reinit() 
@@ -255,8 +260,8 @@ void RemoteJobHelper::uploadDataset(QString _job_name) {
 
   /* Create and enqueue upload action */
   NetworkAction* action =
-      new UploadDirAction(m_sftp_client, local_dataset_dir_path,
-                                          m_server_settings->datasetsPath());
+      new NetworkActionUploadDir(local_dataset_dir_path,
+                                 m_server_settings->datasetsPath());
   action->setMetainfo("dataset");
   m_pending_action_queue.enqueue(action);
   m_jobs_by_action.insert(action, _job_name);
@@ -275,7 +280,7 @@ void RemoteJobHelper::selectRemoteDataset(QString _job_name) {
   m_selected_remote_dataset_path = "";
 
   NetworkAction* action =
-      new ListDirContentAction(m_sftp_client, m_server_settings->datasetsPath(),
+      new NetworkActionDirContent(m_server_settings->datasetsPath(),
                                FileTypeFilter::Dirs);
 
   m_pending_action_queue.enqueue(action);
@@ -391,7 +396,7 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
 
   /* Enqueue action for job bundle upload  */
   NetworkAction* job_upload_action =
-      new UploadDirAction(m_sftp_client, job_export_path, remote_jobs_root);
+      new NetworkActionUploadDir(job_export_path, remote_jobs_root);
   job_upload_action->setMetainfo("job");
   m_pending_action_queue.enqueue(job_upload_action);
   m_jobs_by_action.insert(job_upload_action, _job_name);
@@ -405,7 +410,7 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
   m_jobs_by_command.insert(qsub_cmd, _job_name);
 
   /* Enqueue action for qsub command */
-  NetworkAction* qsub_cmd_action = new SendCommandAction(m_ssh_client, qsub_cmd_text);
+  NetworkAction* qsub_cmd_action = new NetworkActionSendCommand(qsub_cmd_text);
   m_commands_by_action.insert(qsub_cmd_action, qsub_cmd);
   m_pending_action_queue.enqueue(qsub_cmd_action);
 
@@ -509,7 +514,7 @@ void RemoteJobHelper::downloadResults(QString _job_name)
     }
   }
 
-  DownloadDirAction *action = new DownloadDirAction(m_sftp_client, remote_dir_path, local_base_dir_path);
+  NetworkAction *action = new NetworkActionDownloadDir(remote_dir_path, local_base_dir_path);
   m_pending_action_queue.enqueue(action);
   m_jobs_by_action.insert(action, _job_name);
 
@@ -555,40 +560,40 @@ void RemoteJobHelper::setServerSettings(MatisseRemoteServerSettings* _server_set
   m_server_settings = _server_settings;
 }
 
-void RemoteJobHelper::connectGatewaySignals() {
+void RemoteJobHelper::connectNetworkClientSignals() {
   connect(m_sftp_client,
-          SIGNAL(si_connectionFailed(NetworkClient::ConnectionError)),
-          SLOT(sl_onConnectionFailed(NetworkClient::ConnectionError)));  
+          SIGNAL(si_connectionFailed(ConnectionError)),
+          SLOT(sl_onConnectionFailed(ConnectionError)));
   connect(m_sftp_client, SIGNAL(si_transferFinished(NetworkAction*)),
           SLOT(sl_onTransferFinished(NetworkAction*)));
   connect(m_sftp_client,
-          SIGNAL(si_transferFailed(NetworkAction*, NetworkClient::TransferError)),
-          SLOT(sl_onTransferFailed(NetworkAction*, NetworkClient::TransferError)));
+          SIGNAL(si_transferFailed(NetworkAction*, TransferError)),
+          SLOT(sl_onTransferFailed(NetworkAction*, TransferError)));
   connect(m_sftp_client, SIGNAL(si_dirContents(QList<NetworkFileInfo*>)),
           SLOT(sl_onDirContentsReceived(QList<NetworkFileInfo*>)));
 
-  connect(m_ssh_client, SIGNAL(si_connectionFailed(NetworkClient::ConnectionError)),
-          SLOT(sl_onConnectionFailed(NetworkClient::ConnectionError)));
+  connect(m_ssh_client, SIGNAL(si_connectionFailed(ConnectionError)),
+          SLOT(sl_onConnectionFailed(ConnectionError)));
   connect(m_ssh_client, SIGNAL(si_shellOutputReceived(NetworkAction*, QByteArray)),
           SLOT(sl_onShellOutputReceived(NetworkAction*, QByteArray)));
   connect(m_ssh_client, SIGNAL(si_shellErrorReceived(NetworkAction*, QByteArray)),
           SLOT(sl_onShellErrorReceived(NetworkAction*, QByteArray)));
 }
 
-void RemoteJobHelper::disconnectGatewaySignals() { 
-  disconnect(this, SLOT(sl_onConnectionFailed(NetworkClient::ConnectionError)));
+void RemoteJobHelper::disconnectNetworkClientSignals() {
+  disconnect(this, SLOT(sl_onConnectionFailed(ConnectionError)));
   disconnect(this, SLOT(sl_onTransferFinished(NetworkAction*)));
-  disconnect(this, SLOT(sl_onTransferFailed(NetworkAction*, NetworkClient::TransferError)));
+  disconnect(this, SLOT(sl_onTransferFailed(NetworkAction*, TransferError)));
   disconnect(this, SLOT(sl_onDirContentsReceived(QList<NetworkFileInfo*>)));
   disconnect(this, SLOT(sl_onShellOutputReceived(NetworkAction*, QByteArray)));
   disconnect(this, SLOT(sl_onShellErrorReceived(NetworkAction*, QByteArray)));
   
-  disconnect(m_sftp_client, SIGNAL(si_connectionFailed(NetworkClient::ConnectionError)));
+  disconnect(m_sftp_client, SIGNAL(si_connectionFailed(ConnectionError)));
   disconnect(m_sftp_client, SIGNAL(si_transferFinished(NetworkAction*)));
-  disconnect(m_sftp_client, SIGNAL(si_transferFailed(NetworkAction*, NetworkClient::TransferError)));
+  disconnect(m_sftp_client, SIGNAL(si_transferFailed(NetworkAction*, TransferError)));
   disconnect(m_sftp_client, SIGNAL(si_dirContents(QList<NetworkFileInfo*>)));
 
-  disconnect(m_ssh_client, SIGNAL(si_connectionFailed(NetworkClient::ConnectionError)));
+  disconnect(m_ssh_client, SIGNAL(si_connectionFailed(ConnectionError)));
   disconnect(m_ssh_client, SIGNAL(si_shellOutputReceived(NetworkAction*, QByteArray)));
   disconnect(m_ssh_client, SIGNAL(si_shellErrorReceived(NetworkAction*, QByteArray)));
 }
@@ -800,7 +805,7 @@ void RemoteJobHelper::sl_onTransferFinished(NetworkAction *_action) {
   
   if (_action->type() == NetworkAction::NetworkActionType::DownloadDir) {
 
-    DownloadDirAction* dl_action = static_cast<DownloadDirAction*>(_action);
+    NetworkActionDownloadDir* dl_action = static_cast<NetworkActionDownloadDir*>(_action);
 
     /* Updating job file with result files */
     JobDefinition* job = m_data_manager->getJob(job_name);
@@ -836,7 +841,7 @@ void RemoteJobHelper::sl_onTransferFinished(NetworkAction *_action) {
 
   } else if (_action->type() == NetworkAction::NetworkActionType::UploadDir) {
 
-    UploadDirAction* ul_action = static_cast<UploadDirAction*>(_action);
+    NetworkActionUploadDir* ul_action = static_cast<NetworkActionUploadDir*>(_action);
 
     if (ul_action->metainfo() == "dataset") {
       QMessageBox::information(
@@ -859,7 +864,7 @@ void RemoteJobHelper::sl_onTransferFinished(NetworkAction *_action) {
 }
 
 void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
-                                          NetworkClient::TransferError _err) 
+                                          TransferError _err)
 {
   QString failed_host = m_prefs->remoteFileServer();
 
@@ -900,8 +905,8 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents
     name_filters << "*.dim2"
                  << "*.txt";
 
-    NetworkAction* action = new ListDirContentAction(
-        m_sftp_client, m_selected_remote_dataset_path,
+    NetworkAction* action = new NetworkActionDirContent(
+        m_selected_remote_dataset_path,
         FileTypeFilter::Files, name_filters);
 
     m_pending_action_queue.enqueue(action);
@@ -1044,14 +1049,14 @@ void RemoteJobHelper::sl_onShellErrorReceived(NetworkAction* _action,
   }
 }
 
-void RemoteJobHelper::sl_onConnectionFailed(NetworkClient::ConnectionError _err) {
+void RemoteJobHelper::sl_onConnectionFailed(ConnectionError _err) {
   
   QObject* emitter = sender();
 
   QString failed_host = (emitter == m_ssh_client) ? 
     m_prefs->remoteCommandServer() : m_prefs->remoteFileServer();
 
-  if (_err == NetworkClient::ConnectionError::AuthenticationError) {
+  if (_err == ConnectionError::AuthenticationError) {
     qWarning() << QString("Authentication to remote host '%1' failed, retry login...").arg(failed_host);
 
     /* Invalidate credentials */

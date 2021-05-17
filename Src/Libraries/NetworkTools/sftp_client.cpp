@@ -5,115 +5,146 @@
 #include <QRegularExpressionMatch>
 
 #include "FileUtils.h"
+#include "network_action_download_dir.h"
 
 namespace MatisseCommon 
 {
 
-SftpClient::SftpClient(QObject* parent)
-    : NetworkClient(parent),
+SftpClient::SftpClient()
+    : NetworkFileClient(),
   m_connection(NULL),
   m_obsolete_connections(),
   m_dir_contents_buffer(),
   m_dir_contents_received(false), 
   m_file_filters(),
   m_progress_matrix() 
-{}
-
-void SftpClient::upload(QString _local_path, QString _remote_path,
-                        bool _is_dir_upload) {
-  qDebug() << tr("QSshClient: Uploading file %1 to %2 ...")
-                  .arg(_local_path)
-                  .arg(_remote_path);
-
-  /* Init progress indicators */
-  quint32 file_count;
-  quint64 transfer_size;
-
-  if (_is_dir_upload) {
-    transfer_size = FileUtils::dirSize(_local_path); 
-    file_count = FileUtils::fileCount(_local_path);
-  } else {
-    QFileInfo file(_local_path); // Assume file exists (checked by calling action)
-    transfer_size = file.size();
-    file_count = 1;
-  }
-
-  reinitProgressIndicators(transfer_size, file_count);
-
-  /* Starting appropriate task */
-  QSsh::SftpJobId job;
-
-  if (_is_dir_upload) {
-    job = m_channel->uploadDir(_local_path, _remote_path);
-  } else {
-    job = m_channel->uploadFile(_local_path, _remote_path,
-                                QSsh::SftpOverwriteExisting);
-  }
-
-  if (job != QSsh::SftpInvalidJob) {
-    qDebug() << "QSshClient: Starting job #" << job;
-  } else {
-    qCritical() << "QSshClient: Invalid Job";
-  }
-}
-
-void SftpClient::download(QString _remote_path, QString _local_path,
-                          bool _is_dir_download) 
 {
-  if (_is_dir_download) {
-    /* Start by listing source dir contents to enable progress tracking */
-    /* Subdirs recursion not supported (will hang at 100% for a while if dir has subdirs) */
-    dirContent(_remote_path, FileTypeFilter::Files);
 
-  } else { // single file download
-    qDebug() << tr("QSshClient: Downloading file %1 to %2 ...")
-      .arg(_remote_path).arg(_local_path);
-
-    reinitProgressIndicators(0, 1); /* Transfer size is not known yet */
-    
-    QSsh::SftpJobId job = m_channel->downloadFile(_remote_path, _local_path,
-      QSsh::SftpOverwriteExisting);
-
-    if (job != QSsh::SftpInvalidJob) {
-      qDebug() << "QSshClient: Starting job #" << job;
-    } else {
-      qCritical() << "QSshClient: Invalid Job";
-    }
-  }
-
-}
-
-void SftpClient::dirContent(QString _remote_dir_path,
-                            FileTypeFilters _flags,
-                            QStringList _file_filters)
-{
-  qDebug() << tr("QSshClient: Listing content from dir %1 ...").arg(_remote_dir_path);
-
-  m_file_type_flags = _flags;
-  m_file_filters = _file_filters;
-
-  QSsh::SftpJobId job;
-
-  if (m_current_action->type() == NetworkAction::NetworkActionType::ListDirContent) {
-    // Do not signal progress if called prior to dir downloading
-    emit si_progressUpdate(10);
-    m_last_signalled_progress = 10;
-  }
-
-  job = m_channel->listDirectory(_remote_dir_path);
-
-  if (job != QSsh::SftpInvalidJob) {
-    qDebug() << "QSshClient: Starting job #" << job;
-  } else {
-    qCritical() << "QSshClient: Invalid Job";
-  }
 }
 
 void SftpClient::init() {}
 
+void SftpClient::sl_initFileChannel()
+{
+    qDebug() << "SFTP Client: Creating SFTP channel...";
+
+    m_channel = m_connection->createSftpChannel();
+
+    if (!m_channel) {
+      qCritical() << "SFTP Client: Unexpected error null channel";
+      return;
+    }
+
+    connect(m_channel.data(), SIGNAL(initialized()),
+            SLOT(sl_onChannelInitialized()));
+    connect(m_channel.data(), SIGNAL(channelError(const QString&)),
+            SLOT(sl_onChannelError(const QString&)));
+    connect(m_channel.data(),
+            SIGNAL(finished(QSsh::SftpJobId, const SftpError, const QString&)),
+            SLOT(sl_onOpfinished(QSsh::SftpJobId, const SftpError, const QString&)));
+    connect(m_channel.data(), SIGNAL(closed()), SLOT(sl_onChannelClosed()));
+    connect(m_channel.data(),
+            SIGNAL(transferProgress(QSsh::SftpJobId, quint64, quint64)),
+            SLOT(sl_onTransferProgress(QSsh::SftpJobId, quint64, quint64)));
+    connect(m_channel.data(),
+            SIGNAL(fileInfoAvailable(QSsh::SftpJobId, const QList<QSsh::SftpFileInfo>)),
+            SLOT(sl_onFileInfoAvailable(QSsh::SftpJobId, const QList<QSsh::SftpFileInfo>)));
+
+    m_channel->initialize();
+}
+
+void SftpClient::sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload)
+{
+    QString entity = (_is_dir_upload) ? "dir" : "file";
+    qDebug() << tr("SFTP Client: Uploading %1 %2 to %3 ...")
+                .arg(entity)
+                .arg(_local_path)
+                .arg(_remote_path);
+
+    /* Init progress indicators */
+    quint32 file_count;
+    quint64 transfer_size;
+
+    if (_is_dir_upload) {
+      transfer_size = FileUtils::dirSize(_local_path);
+      file_count = FileUtils::fileCount(_local_path);
+    } else {
+      QFileInfo file(_local_path); // Assume file exists (checked by calling action)
+      transfer_size = file.size();
+      file_count = 1;
+    }
+
+    reinitProgressIndicators(transfer_size, file_count);
+
+    /* Starting appropriate task */
+    QSsh::SftpJobId job;
+
+    if (_is_dir_upload) {
+      job = m_channel->uploadDir(_local_path, _remote_path);
+    } else {
+      job = m_channel->uploadFile(_local_path, _remote_path,
+                                  QSsh::SftpOverwriteExisting);
+    }
+
+    if (job != QSsh::SftpInvalidJob) {
+      qDebug() << "SFTP Client: Starting job #" << job;
+    } else {
+      qCritical() << "SFTP Client: Invalid Job";
+    }
+}
+
+void SftpClient::sl_download(QString _remote_path, QString _local_path, bool _is_dir_download)
+{
+    if (_is_dir_download) {
+      /* Start by listing source dir contents to enable progress tracking */
+      /* Subdirs recursion not supported (will hang at 100% for a while if dir has subdirs) */
+      sl_dirContent(_remote_path, FileTypeFilter::Files, QStringList());
+
+    } else { // single file download
+      qDebug() << tr("SFTP Client: Downloading file %1 to %2 ...")
+        .arg(_remote_path).arg(_local_path);
+
+      reinitProgressIndicators(0, 1); /* Transfer size is not known yet */
+
+      QSsh::SftpJobId job = m_channel->downloadFile(_remote_path, _local_path,
+        QSsh::SftpOverwriteExisting);
+
+      if (job != QSsh::SftpInvalidJob) {
+        qDebug() << "SFTP Client: Starting job #" << job;
+      } else {
+        qCritical() << "SFTP Client: Invalid Job";
+      }
+    }
+}
+
+void SftpClient::sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters)
+{
+    qDebug() << tr("SFTP Client: Listing content from dir %1 ...").arg(_remote_dir_path);
+
+    m_file_type_flags = _flags;
+    m_file_filters = _file_filters;
+
+    QSsh::SftpJobId job;
+
+    if (m_current_action->type() == NetworkAction::NetworkActionType::ListDirContent) {
+      // Do not signal progress if called prior to dir downloading
+      emit si_progressUpdate(10);
+      m_last_signalled_progress = 10;
+    }
+
+    job = m_channel->listDirectory(_remote_dir_path);
+
+    if (job != QSsh::SftpInvalidJob) {
+      qDebug() << "SFTP Client: Starting job #" << job;
+    } else {
+      qCritical() << "SFTP Client: Invalid Job";
+    }
+}
+
+
 void SftpClient::resetConnection() {
   if (m_connected) {
-    qDebug() << "QSshClient: Closing SSH/SFTP connection...";
+    qDebug() << "SFTP Client: Closing SSH/SFTP connection...";
     m_connection->disconnectFromHost();
     m_connected = false;
     m_waiting_for_connection = false;
@@ -123,7 +154,7 @@ void SftpClient::resetConnection() {
     clearConnectionAndActionQueue();
 
   } else {
-    qDebug() << "QSshClient: SSH/SFTP gateway not connected, ready to reconnect";  
+    qDebug() << "SFTP Client: SSH/SFTP gateway not connected, ready to reconnect";
   }
 }
 
@@ -145,31 +176,34 @@ void SftpClient::processAction() {
   }
 
   if (m_action_queue.isEmpty()) {
-    qWarning() << "QSshClient: SSH action queue empty, no action to process";
+    qWarning() << "SFTP Client: SSH action queue empty, no action to process";
     return;
   }
 
 
   /* Nominal case : free previous action instance */
   if (m_current_action) {
-    delete m_current_action;
+      disconnectAction(m_current_action);
+      delete m_current_action;
   }
 
   /* Clearing dir contents buffer if previous operation was listing dir contents (and buffer was filled) */
   if (!m_dir_contents_buffer.isEmpty()) {
-    qDebug() << "QSshClient: Clearing dir contents buffer for previous operation...";
+    qDebug() << "SFTP Client: Clearing dir contents buffer for previous operation...";
     m_dir_contents_received = false;
     qDeleteAll(m_dir_contents_buffer);
     m_dir_contents_buffer.clear();
   }
 
   m_current_action = m_action_queue.dequeue();
-  qDebug() << "QSshClient: Processing SSH action of type " << m_current_action->type();
+  connectAction(m_current_action);
+
+  qDebug() << "SFTP Client: Processing SSH action of type " << m_current_action->type();
   m_current_action->init();
 }
 
 void SftpClient::connectToRemoteHost() {
-  qDebug() << QString("QSshClient: Connecting to host %1 as %2 ...")
+  qDebug() << QString("SFTP Client: Connecting to host %1 as %2 ...")
                   .arg(m_host)
                   .arg(m_creds->username());
 
@@ -194,89 +228,10 @@ void SftpClient::connectToRemoteHost() {
   m_connection->connectToHost();
 }
 
-void SftpClient::createSftpChannel() {
-  qDebug() << "QSshClient: Creating SFTP channel...";
-
-  m_channel = m_connection->createSftpChannel();
-
-  if (!m_channel) {
-    qCritical() << "QSshClient: Unexpected error null channel";
-    return;
-  }
-
-  connect(m_channel.data(), SIGNAL(initialized()),
-          SLOT(sl_onChannelInitialized()));
-  connect(m_channel.data(), SIGNAL(channelError(const QString&)),
-          SLOT(sl_onChannelError(const QString&)));
-  connect(m_channel.data(),
-          SIGNAL(finished(QSsh::SftpJobId, const SftpError, const QString&)),
-          SLOT(sl_onOpfinished(QSsh::SftpJobId, const SftpError, const QString&)));
-  connect(m_channel.data(), SIGNAL(closed()), SLOT(sl_onChannelClosed()));
-  connect(m_channel.data(),
-          SIGNAL(transferProgress(QSsh::SftpJobId, quint64, quint64)),
-          SLOT(sl_onTransferProgress(QSsh::SftpJobId, quint64, quint64)));
-  connect(m_channel.data(),
-          SIGNAL(fileInfoAvailable(QSsh::SftpJobId, const QList<QSsh::SftpFileInfo>)),
-          SLOT(sl_onFileInfoAvailable(QSsh::SftpJobId, const QList<QSsh::SftpFileInfo>)));
-
-  m_channel->initialize();
-}
-
-void SftpClient::createRemoteShell(QString& command) {
-  qDebug() << "QSshClient: Creating remote shell...";
-
-  m_shell = m_connection->createRemoteShell();
-
-  if (!m_shell) {
-    qCritical() << "QSshClient: Unexpected error null shell";
-    return;
-  }
-
-  m_shell_command = command;
-
-  connect(m_shell.data(), SIGNAL(started()), SLOT(sl_onShellStarted()));
-  connect(m_shell.data(), SIGNAL(readyReadStandardOutput()),
-          SLOT(sl_onReadyReadStandardOutput()));
-  connect(m_shell.data(), SIGNAL(readyReadStandardError()),
-          SLOT(sl_onReadyReadStandardError()));
-  connect(m_shell.data(), SIGNAL(closed(int)), SLOT(sl_onShellClosed(int)));
-
-  m_shell->start();
-
-  /* Signal 10% progress for shell init (remote command process) */
-  emit si_progressUpdate(10);
-  m_last_signalled_progress = 10;
-}
-
-void SftpClient::closeRemoteShell()
-{
-  if (!m_shell) 
-  {
-    qCritical() << "QSshClient: trying to close shell, but shell is null";
-    return;
-  }
-
-  /* Disconnect all signals but shell closing so that no further output/error is received */
-  disconnect(this, SLOT(sl_onShellStarted()));
-  disconnect(this, SLOT(sl_onReadyReadStandardOutput()));
-  disconnect(this, SLOT(sl_onReadyReadStandardError()));
-
-  m_shell->close(); 
-}
-
-
-void SftpClient::executeCommand() {
-  QString commandAndNl = m_shell_command.append("\n");
-
-  qDebug()
-      << QString("QSshClient: remote shell send command %1").arg(commandAndNl);
-
-  m_shell->write(commandAndNl.toLatin1());
-}
 
 void SftpClient::startDownloadDir(QString _remote_path, QString _local_path)
 {
-  qDebug() << tr("QSshClient: Downloading dir %1 to %2 ...")
+  qDebug() << tr("SFTP Client: Downloading dir %1 to %2 ...")
                   .arg(_remote_path)
                   .arg(_local_path);
 
@@ -286,9 +241,9 @@ void SftpClient::startDownloadDir(QString _remote_path, QString _local_path)
     QSsh::SftpOverwriteMode::SftpOverwriteExisting);
 
   if (job != QSsh::SftpInvalidJob) {
-    qDebug() << "QSshClient: Starting job #" << job;
+    qDebug() << "SFTP Client: Starting job #" << job;
   } else {
-    qCritical() << "QSshClient: Invalid Job";
+    qCritical() << "SFTP Client: Invalid Job";
   }
 }
 
@@ -304,7 +259,7 @@ void SftpClient::reinitProgressIndicators(quint64 _transfer_size, quint32 _matri
 
 
 void SftpClient::sl_onConnected() {
-  qDebug() << "QSshClient: Connected";
+  qDebug() << "SFTP Client: Connected";
 
   m_connected = true;
   m_waiting_for_connection = false;
@@ -315,14 +270,14 @@ void SftpClient::sl_onConnected() {
 }
 
 void SftpClient::sl_onDisconnected() {
-  qDebug() << "QSshClient: disconnected";
+  qDebug() << "SFTP Client: disconnected";
 
   QObject* emitter = sender();
   SshConnection* expired_connection = static_cast<SshConnection*>(emitter);
 
   /* Case : the connection was closed by calling agent */
   if (m_obsolete_connections.contains(expired_connection)) {
-    qDebug() << "QSshClient: clearing obsolete connection";
+    qDebug() << "SFTP Client: clearing obsolete connection";
 
     disconnect(expired_connection, SIGNAL(connected()));
     disconnect(expired_connection, SIGNAL(error(QSsh::SshError)));
@@ -336,7 +291,7 @@ void SftpClient::sl_onDisconnected() {
 
   /* Unconsistent case : the connection is neither the current connection, nor tracked as an ancient connection */
   if (expired_connection != m_connection) {
-    qWarning() << "QSshClient: unknown connection object, clearing anyway";
+    qWarning() << "SFTP Client: unknown connection object, clearing anyway";
 
     disconnect(expired_connection, SIGNAL(connected()));
     disconnect(expired_connection, SIGNAL(error(QSsh::SshError)));
@@ -352,7 +307,7 @@ void SftpClient::sl_onDisconnected() {
 }
 
 void SftpClient::sl_onConnectionError(QSsh::SshError err) {
-  qCritical() << "QSshClient: Connection error" << err;
+  qCritical() << "SFTP Client: Connection error" << err;
 
   mapConnectionError(err);
 
@@ -377,7 +332,7 @@ void SftpClient::clearConnectionAndActionQueue() {
 
   if (!m_action_queue.isEmpty()) {
     qCritical() << QString(
-                       "QSshClient: Disconnected while %1 actions are still "
+                       "SFTP Client: Disconnected while %1 actions are still "
                        "pending in action queue, clearing queue...")
                        .arg(m_action_queue.count());
     qDeleteAll(m_action_queue);
@@ -386,8 +341,9 @@ void SftpClient::clearConnectionAndActionQueue() {
 
   /* free last action instance */
   if (m_current_action) {
-    delete m_current_action;
-    m_current_action = NULL;
+      disconnectAction(m_current_action);
+      delete m_current_action;
+      m_current_action = NULL;
   }
 
   /* free connection except if it was tracked as obsolete (connection reset by calling agent) */
@@ -398,17 +354,17 @@ void SftpClient::clearConnectionAndActionQueue() {
 }
 
 void SftpClient::sl_onChannelInitialized() {
-  qDebug() << "QSshClient: Channel Initialized";
+  qDebug() << "SFTP Client: Channel Initialized";
 
   m_current_action->execute();
 }
 
-void SftpClient::sl_onChannelError(const QString& err) {
-  qCritical() << "QSshClient: Error: " << err;
+void SftpClient::sl_onChannelError(const QString& _err) {
+  qCritical() << "SFTP Client: Error: " << _err;
 }
 
 void SftpClient::sl_onChannelClosed() {
-  qDebug() << "QSshClient: Channel closed";
+  qDebug() << "SFTP Client: Channel closed";
   disconnect(this, SLOT(sl_onChannelInitialized()));
   disconnect(this, SLOT(sl_onChannelError(const QString&)));
   disconnect(this, SLOT(sl_onOpfinished(QSsh::SftpJobId, const SftpError,
@@ -420,7 +376,7 @@ void SftpClient::sl_onChannelClosed() {
   m_channel = NULL;
 
   if (m_action_queue.isEmpty()) {
-    qDebug() << QString("QSshClient: Disconnecting from host %1...").arg(m_host);
+    qDebug() << QString("SFTP Client: Disconnecting from host %1...").arg(m_host);
     m_connection->disconnectFromHost();
   } else {
     /* If actions are still pending, start next action */
@@ -433,14 +389,14 @@ void SftpClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_ty
   
   if (_error_type != QSsh::SftpError::NoError) {
     qCritical()
-        << QString("QSshClient: Job #%1 failed : %2").arg(_job).arg(_err_msg);
+        << QString("SFTP Client: Job #%1 failed : %2").arg(_job).arg(_err_msg);
 
     mapTransferError(_error_type);  
     emit si_transferFailed(m_current_action, m_current_tx_error);
     return;
   }
   
-  qDebug() << "QSshClient: Finished job #" << _job << ": OK";
+  qDebug() << "SFTP Client: Finished job #" << _job << ": OK";
 
   if (m_dir_contents_received) { // Case job for listing dir contents complete
 
@@ -459,7 +415,7 @@ void SftpClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_ty
 
       reinitProgressIndicators(transfer_size, file_count);
 
-      DownloadDirAction* dl_action = static_cast<DownloadDirAction*>(m_current_action);
+      NetworkActionDownloadDir* dl_action = static_cast<NetworkActionDownloadDir*>(m_current_action);
       startDownloadDir(dl_action->remoteDir(), dl_action->localBaseDir());
       return; // do not close channel yet
     } 
@@ -467,7 +423,7 @@ void SftpClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_ty
     else { // nominal sub-case : ListDirContents action was explicitely called
 
       // notify manager
-      qDebug() << "QSshClient: signalling dir contents...";
+      qDebug() << "SFTP Client: signalling dir contents...";
 
       /* Copy buffer (maybe empty if elements were filtered) */
       QList<NetworkFileInfo*> dir_contents(m_dir_contents_buffer);
@@ -478,33 +434,35 @@ void SftpClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_ty
   } else { // Case : upload or download job complete
 
     // notify manager
-    qDebug() << "QSshClient: signalling download or upload complete...";
+    qDebug() << "SFTP Client: signalling download or upload complete...";
     emit si_transferFinished(m_current_action);
   }
 
-  qDebug() << "QSshClient: Closing channel...";
+  qDebug() << "SFTP Client: Closing channel...";
   m_channel->closeChannel();
 }
 
-void SftpClient::sl_onTransferProgress(QSsh::SftpJobId job, quint64 progress,
-                                    quint64 total) {
-  //qDebug() << QString("QSshClient: Upload job %1 progress %2 out of %3 bytes")
+void SftpClient::sl_onTransferProgress(QSsh::SftpJobId _job, quint64 _progress,
+                                    quint64 _total) {
+
+    /* Too verbose logs : activate only for debugging */
+    //qDebug() << QString("SFTP Client: Upload job %1 progress %2 out of %3 bytes")
   //                .arg(job)
   //                .arg(progress)
   //                .arg(total);
 
   if (m_current_transfer_size == 0) {
     if (m_current_action->type() == NetworkAction::NetworkActionType::DownloadFile) {
-      m_current_transfer_size = total; // total transfer size is being discovered with current file size
+      m_current_transfer_size = _total; // total transfer size is being discovered with current file size
     } else {
-      qCritical() << "QSshClient: current transfer size unknown (0), cannot signal progress";
+      qCritical() << "SFTP Client: current transfer size unknown (0), cannot signal progress";
       return; 
     }
   }
 
   if (m_progress_offset == 0) {
     /* Init offset with first job id */
-    m_progress_offset = job;
+    m_progress_offset = _job;
   }
 
   if (m_last_signalled_progress == 100) {
@@ -513,13 +471,13 @@ void SftpClient::sl_onTransferProgress(QSsh::SftpJobId job, quint64 progress,
   }
 
   /* Compute progress increment in bytes */
-  quint32 file_index = job - m_progress_offset;
+  quint32 file_index = _job - m_progress_offset;
   quint64 prev_progress = m_progress_matrix[file_index];
-  quint64 increment = progress - prev_progress;  
+  quint64 increment = _progress - prev_progress;
   m_total_received_bytes += increment;
 
   /* Update matrix */
-  m_progress_matrix[file_index] = progress;
+  m_progress_matrix[file_index] = _progress;
 
   /* Notify client process */
   float progress_rate = (float)m_total_received_bytes / (float)m_current_transfer_size;
@@ -529,7 +487,7 @@ void SftpClient::sl_onTransferProgress(QSsh::SftpJobId job, quint64 progress,
 
   if (rounded_progress < m_last_signalled_progress) {
     qCritical() << QString(
-                       "QsshClient: something went wrong while computing "
+                       "SFTP Client: something went wrong while computing "
                        "progress : previous=%1 ; new=%2")
                        .arg(m_last_signalled_progress)
                        .arg(rounded_progress);
@@ -545,89 +503,12 @@ void SftpClient::sl_onTransferProgress(QSsh::SftpJobId job, quint64 progress,
   emit si_progressUpdate(rounded_progress);
 }
 
-void SftpClient::sl_onShellStarted() {
-  qDebug() << "QSshClient: Shell started";
-
-  /* Signal 30% progress on shell established */
-  emit si_progressUpdate(30);
-  m_last_signalled_progress = 30;
-
-  m_current_action->execute();
-}
-
-void SftpClient::sl_onReadyReadStandardOutput() {
-  qDebug() << "QSshClient: ready read standard output";
-
-  if (!m_current_action || m_current_action->isTerminated()) 
-  {
-    qDebug() << "Command action already terminated, ignoring output...";
-    return;
-  }
-
-  if (!m_shell->isRunning()) 
-  {
-    qCritical() << "Shell not running properly, ignoring output...";
-    return;
-  }
-
-  QByteArray outputStream = m_shell->readAllStandardOutput();
-  emit si_shellOutputReceived(m_current_action, outputStream);
-
-  /* Increment from 60% progress on shell established */
-  int new_progress = 0;
-
-  if (m_last_signalled_progress < 60) {
-    new_progress = 60;
-  } else {
-    if (m_last_signalled_progress < 90) {
-      new_progress += 10;
-    }
-  }
-
-  if (new_progress > 0) {
-    emit si_progressUpdate(new_progress);
-    m_last_signalled_progress = new_progress;
-  }
-}
-
-void SftpClient::sl_onReadyReadStandardError() {
-  qDebug() << "QSshClient: ready read standard error";
-
-  if (!m_current_action || m_current_action->isTerminated()) {
-    qWarning() << "Command action already terminated, ignoring error...";
-    return;
-  }
-
-  if (!m_shell->isRunning()) 
-  {
-    qCritical() << "Shell not running properly, ignoring error...";
-    return;
-  }
-
-  QByteArray errorStream = m_shell->readAllStandardError();
-  emit si_shellErrorReceived(m_current_action, errorStream);
-}
-
-void SftpClient::sl_onShellClosed(int exitStatus) {
-  qDebug() << "QSshClient: Shell closed";
-
-  disconnect(this, SLOT(sl_onShellClosed(int)));
-
-  m_shell = NULL;
-
-  if (m_action_queue.isEmpty()) {
-    qDebug() << QString("QSshClient: Disconnecting from host %1...").arg(m_host);
-    m_connection->disconnectFromHost();
-  } else {
-    /* If actions are still pending, start next action */
-    processAction();
-  }
-}
-
 void SftpClient::sl_onFileInfoAvailable(
     QSsh::SftpJobId _job, const QList<QSsh::SftpFileInfo>& _file_info_list) 
 {
-  qDebug() << QString("QSshClient: Received %1 file info elements")
+    Q_UNUSED(_job)
+
+  qDebug() << QString("SFTP Client: Received %1 file info elements")
                   .arg(_file_info_list.count());
 
   m_dir_contents_received = true;

@@ -1,12 +1,31 @@
-#ifndef NETWORKFILEACTIONUPLOAD_H
-#define NETWORKFILEACTIONUPLOAD_H
+#ifndef MATISSE_NETWORK_ACTION_UPLOAD_FILE_H_
+#define MATISSE_NETWORK_ACTION_UPLOAD_FILE_H_
 
+#include <QtDebug>
+#include "network_file_action.h"
 
-class NetworkFileActionUpload : public NetworkFileAction
+namespace MatisseCommon {
+
+class NetworkActionUploadFile : public NetworkFileAction
 {
     Q_OBJECT
 public:
-    NetworkFileActionUpload();
+    explicit NetworkActionUploadFile(QString _local_file_path, QString _remote_path);
+    void init();
+    void execute();
+    QString localFilePath() { return m_local_file_path; }
+    QString remotePath() { return m_remote_path; }
+    QString progressMessage();
+
+protected:
+    void doTerminate();
+
+private:
+    QString m_local_file_path;
+    QString m_remote_path;
+
 };
 
-#endif // NETWORKFILEACTIONUPLOAD_H
+} // namespace MatisseCommon
+
+#endif // MATISSE_NETWORK_ACTION_UPLOAD_FILE_H_

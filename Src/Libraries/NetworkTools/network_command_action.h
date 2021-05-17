@@ -1,12 +1,22 @@
-#ifndef NETWORKCOMMANDACTION_H
-#define NETWORKCOMMANDACTION_H
+#ifndef MATISSE_NETWORK_COMMAND_ACTION_H_
+#define MATISSE_NETWORK_COMMAND_ACTION_H_
 
+#include "network_action.h"
 
-class NetworkCommandAction
+namespace MatisseCommon {
+
+class NetworkCommandAction : public NetworkAction
 {
     Q_OBJECT
 public:
-    NetworkCommandAction();
+    NetworkCommandAction(NetworkActionType _type);
+
+signals:
+    void si_createRemoteShell(QString& _command);
+    void si_closeRemoteShell();
+    void si_executeCommand();
 };
 
-#endif // NETWORKCOMMANDACTION_H
+} // namespace MatisseCommon
+
+#endif // MATISSE_NETWORK_COMMAND_ACTION_H_

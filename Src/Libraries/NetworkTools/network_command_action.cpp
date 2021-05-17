@@ -1,6 +1,11 @@
 #include "network_command_action.h"
 
-NetworkCommandAction::NetworkCommandAction()
+namespace MatisseCommon {
+
+NetworkCommandAction::NetworkCommandAction(NetworkActionType _type) :
+    NetworkAction(_type)
 {
 
 }
+
+} // namespace MatisseCommon
