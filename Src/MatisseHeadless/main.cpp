@@ -114,7 +114,9 @@ int main(int argc, char *argv[])
     QString settings_path = matisse_bin_path + QDir::separator() + "config" 
       + QDir::separator() + "MatisseSettings.xml";
 
-    SystemDataManager::instance()->readMatisseSettings(settings_path);
+    SystemDataManager* system_data_manager = SystemDataManager::instance();
+    system_data_manager->init();
+    system_data_manager->readMatisseSettings(settings_path);
     ProcessDataManager* process_data_manager = ProcessDataManager::instance();
     process_data_manager->init(data_root_path, data_xml_path);
 
