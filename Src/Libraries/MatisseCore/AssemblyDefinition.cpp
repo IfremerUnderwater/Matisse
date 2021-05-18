@@ -266,7 +266,6 @@ AssemblyDefinition *AssemblyDefinition::duplicate(QString newName, QString newFi
     newAssembly->setAuthor(_author);
     newAssembly->setComment(_comment);
     newAssembly->setUsable(_usable);
-    newAssembly->setIsRealTime(_isRealTime);
 
     QDateTime creationDate = QDateTime::currentDateTime();
     QString ts = creationDate.toString("dd/MM/yyyy");
@@ -320,16 +319,6 @@ void AssemblyDefinition::clearAllElements()
         _connectionDefs.removeOne(connDef);
         delete connDef;
     }
-}
-
-bool AssemblyDefinition::isRealTime() const
-{
-    return _isRealTime;
-}
-
-void AssemblyDefinition::setIsRealTime(bool isRealTime)
-{
-    _isRealTime = isRealTime;
 }
 
 

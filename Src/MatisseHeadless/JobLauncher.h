@@ -33,17 +33,10 @@ public:
     ~JobLauncher();
 
     void init();
-
-    void setSystemDataManager(SystemDataManager *_system_data_manager);
-    void setProcessDataManager(ProcessDataManager *_process_data_manager);
-
     void launchJob(QString _job_name);
 
 private:
     MatisseEngine m_engine;
-
-    SystemDataManager *m_system_data_manager;
-    ProcessDataManager *m_process_data_manager;
 
     AssemblyDefinition *m_new_assembly;
     AssemblyDefinition *m_current_assembly;
@@ -53,7 +46,6 @@ private:
 
 private:
     void initServer();
-
 
 signals:
     void signal_processRunning();

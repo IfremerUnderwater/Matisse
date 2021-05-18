@@ -419,7 +419,7 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
 
 void RemoteJobHelper::downloadResults(QString _job_name) 
 {
-  JobDefinition* job = m_data_manager->getJob(_job_name);
+  JobDefinition* job = ProcessDataManager::instance()->getJob(_job_name);
   RemoteJobDefinition* remote = job->remoteJobDefinition();
 
   if (!remote->isScheduled()) {
@@ -543,11 +543,6 @@ void RemoteJobHelper::setJobLauncher(QWidget* _job_launcher) {
 
 void RemoteJobHelper::setPreferences(MatissePreferences* _prefs) {
   m_prefs = _prefs;
-}
-
-void RemoteJobHelper::setDataManager(ProcessDataManager* _data_manager) 
-{
-  m_data_manager = _data_manager;
 }
 
 void RemoteJobHelper::setParametersManager(
@@ -807,8 +802,10 @@ void RemoteJobHelper::sl_onTransferFinished(NetworkAction *_action) {
 
     NetworkActionDownloadDir* dl_action = static_cast<NetworkActionDownloadDir*>(_action);
 
+    ProcessDataManager* data_manager = ProcessDataManager::instance();
+
     /* Updating job file with result files */
-    JobDefinition* job = m_data_manager->getJob(job_name);
+    JobDefinition* job = data_manager->getJob(job_name);
     ExecutionDefinition* exe = job->executionDefinition();
     exe->setExecuted(true);
     exe->setExecutionDate(
@@ -828,7 +825,7 @@ void RemoteJobHelper::sl_onTransferFinished(NetworkAction *_action) {
 
     exe->setResultFileNames(result_file_paths);
 
-    m_data_manager->writeJobFile(job, true);
+    data_manager->writeJobFile(job, true);
 
     QMessageBox::information(
         m_job_launcher, tr("Transfer complete"),
@@ -866,6 +863,8 @@ void RemoteJobHelper::sl_onTransferFinished(NetworkAction *_action) {
 void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
                                           TransferError _err)
 {
+    Q_UNUSED(_action)
+
   QString failed_host = m_prefs->remoteFileServer();
 
   hideProgress();  // in case of timeout
@@ -987,7 +986,9 @@ void RemoteJobHelper::sl_onShellOutputReceived(NetworkAction* _action,
         QDateTime timestamp = QDateTime::currentDateTime();
 
         /* Update job file */
-        JobDefinition* job = m_data_manager->getJob(job_name);
+        ProcessDataManager* data_manager = ProcessDataManager::instance();
+
+        JobDefinition* job = data_manager->getJob(job_name);
         if (!job) {
           qCritical() << QString(
                              "Job '%1' not found, could not update remote "
@@ -1001,7 +1002,7 @@ void RemoteJobHelper::sl_onShellOutputReceived(NetworkAction* _action,
         job->remoteJobDefinition()->setJobId(qsub_cmd->jobId());
         job->remoteJobDefinition()->setTimestamp(timestamp);
 
-        m_data_manager->writeJobFile(job, true);
+        data_manager->writeJobFile(job, true);
 
         /* Notify user */
         QMessageBox::information(

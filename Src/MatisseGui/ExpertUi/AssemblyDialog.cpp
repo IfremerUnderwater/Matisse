@@ -18,12 +18,6 @@ AssemblyDialog::AssemblyDialog(QWidget *parent, QString &name, KeyValueList &key
 
     if (_keyValue) {
         _ui->_LE_author->setText(keyValue.getValue("Author"));
-        bool isRealTime = QVariant(keyValue.getValue("RealTime")).toBool();
-        if (isRealTime) {
-            _ui->_RB_realTime->setChecked(true);
-        } else {
-            _ui->_RB_deferredTime->setChecked(true);
-        }
         _ui->_LE_version->setText(keyValue.getValue("Version"));
         _ui->_CK_valid->setChecked(keyValue.getValue("Valid").toShort());
         _ui->_TXT_comments->setText(keyValue.getValue("Comments"));
@@ -43,9 +37,6 @@ AssemblyDialog::AssemblyDialog(QWidget *parent, QString &name, KeyValueList &key
 
     } else {
         setWindowTitle(tr("Save processing chain..."));
-
-        _ui->_RB_deferredTime->setEnabled(false);
-        _ui->_RB_realTime->setEnabled(false);
 
         if (!isFirstTimeSave) {
             _ui->_LE_name->setEnabled(false);
@@ -78,8 +69,6 @@ void AssemblyDialog::slot_close()
         inputName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_+|~=`{}\\[\\]:\";'<>?,.\\\\/]")));
         *_name = inputName; // normalisation du nom saisi
         _keyValue->set("Author", _ui->_LE_author->text().trimmed());
-        bool isRealTime = _ui->_RB_realTime->isChecked();
-        _keyValue->set("RealTime", QString("%1").arg(isRealTime));
         _keyValue->set("Version", _ui->_LE_version->text().trimmed());
         _keyValue->set("Valid", QString("%1").arg(_ui->_CK_valid->isChecked()));
         _keyValue->set("Comments", _ui->_TXT_comments->toPlainText().trimmed());

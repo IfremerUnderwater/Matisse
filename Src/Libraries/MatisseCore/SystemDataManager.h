@@ -25,7 +25,12 @@ namespace MatisseTools {
 class SystemDataManager
 {
 public:
-    SystemDataManager(QString _bin_root_dir = ".");
+    static SystemDataManager* instance();
+
+    SystemDataManager(SystemDataManager const&) = delete;        // Disable copy
+    void operator=(SystemDataManager const&) = delete;   // Disable copy
+
+    void init(QString _bin_root_dir = ".");
 
     int port() const { return _port; }
     QString getUserDataPath() const { return _userDataPath; }
@@ -49,6 +54,9 @@ public:
     PlatformComparisonStatus *compareRemoteAndLocalPlatform();
 
 private:
+    SystemDataManager();
+    ~SystemDataManager();      // forbid to delete instance outside
+
     void getPlatformDump();
 
     QString _userDataPath;

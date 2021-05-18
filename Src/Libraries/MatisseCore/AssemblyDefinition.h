@@ -148,9 +148,6 @@ public:
     QDate creationDate() const;
     void setCreationDate(const QDate &creationDate);
 
-    bool isRealTime() const;
-    void setIsRealTime(bool isRealTime);
-
     QList<AssemblyDefinitionValidity> checkDefinition();
 
     AssemblyDefinition * duplicate(QString newName, QString newFileName);
@@ -169,7 +166,6 @@ private:
     QString _comment;
     QDate _creationDate;
     bool _usable;
-    bool _isRealTime;
 
     SourceDefinition *_sourceDefinition;
     QList<ProcessorDefinition*> _processorDefs;

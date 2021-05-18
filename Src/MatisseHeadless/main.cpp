@@ -114,15 +114,13 @@ int main(int argc, char *argv[])
     QString settings_path = matisse_bin_path + QDir::separator() + "config" 
       + QDir::separator() + "MatisseSettings.xml";
 
-    SystemDataManager systemDataManager;
-    systemDataManager.readMatisseSettings(settings_path);
-    ProcessDataManager processDataManager(data_root_path, data_xml_path);
+    SystemDataManager::instance()->readMatisseSettings(settings_path);
+    ProcessDataManager* process_data_manager = ProcessDataManager::instance();
+    process_data_manager->init(data_root_path, data_xml_path);
 
     /* Create main class and set params */
     JobLauncher jl;
 
-    jl.setSystemDataManager(&systemDataManager);
-    jl.setProcessDataManager(&processDataManager);
     jl.init();
 
     jl.launchJob(job_name);

@@ -125,18 +125,20 @@ int main(int argc, char *argv[])
 
     /* Create managers to be injected */
     CameraManager::instance().initializeFromDataBase();
-    SystemDataManager systemDataManager;
-    systemDataManager.readMatisseSettings(config_file_path);
-    QString dataRootDir = systemDataManager.getDataRootDir();
-    QString userDataPath = systemDataManager.getUserDataPath();
-    ProcessDataManager processDataManager(dataRootDir, userDataPath);
+    SystemDataManager* system_data_manager = SystemDataManager::instance();
+    system_data_manager->init();
+    system_data_manager->readMatisseSettings(config_file_path);
+    QString data_root_dir = system_data_manager->getDataRootDir();
+    QString user_data_path = system_data_manager->getUserDataPath();
+    ProcessDataManager* process_data_manager = ProcessDataManager::instance();
+    process_data_manager->init(data_root_dir, user_data_path);
 
     /* Create remote process gateways and UI helper */
     NetworkClient* ssh_client = new SshClient();
     NetworkClient* sftp_client = new SftpClient();
-    RemoteJobHelper remoteJobHelper;
-    remoteJobHelper.setSshClient(ssh_client);
-    remoteJobHelper.setSftpClient(sftp_client);
+    RemoteJobHelper remote_job_helper;
+    remote_job_helper.setSshClient(ssh_client);
+    remote_job_helper.setSftpClient(sftp_client);
 
     /* Create main window and set params */
     AssemblyGui w;
@@ -151,9 +153,7 @@ int main(int argc, char *argv[])
                 );
 
     w.setObjectName("_MW_assemblyGui");
-    w.setSystemDataManager(&systemDataManager);
-    w.setProcessDataManager(&processDataManager);
-    w.setRemoteJobHelper(&remoteJobHelper);
+    w.setRemoteJobHelper(&remote_job_helper);
     w.init();
     //w.loadDefaultStyleSheet();
     w.slot_showApplicationMode(POST_PROCESSING); // open directly to the most used mode ie : post processing

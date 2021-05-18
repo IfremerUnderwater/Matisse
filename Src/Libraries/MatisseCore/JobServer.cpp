@@ -4,9 +4,8 @@
 
 using namespace MatisseTools;
 
-JobServer::JobServer(int port, ProcessDataManager *processDataManager) :
+JobServer::JobServer(int port) :
     QObject(NULL),
-    _processDataManager(processDataManager),
     _socket(NULL)
 {
     connect(&_server, SIGNAL(newConnection()), this, SLOT(slot_clientConnected()));
@@ -63,10 +62,11 @@ void JobServer::slot_readData()
     if (datasStr.startsWith("$LISTJOBS")) {
          QString jobCmd;
 
+         ProcessDataManager* process_data_manager = ProcessDataManager::instance();
 
-         foreach (QString jobName, _processDataManager->getJobsNames()) {
+         foreach (QString jobName, process_data_manager->getJobsNames()) {
 
-             JobDefinition *def= _processDataManager->getJob(jobName);
+             JobDefinition *def= process_data_manager->getJob(jobName);
 
              bool isExecuted = def->executionDefinition()->executed();
              if(isExecuted) {

@@ -6,8 +6,6 @@ MatisseEngine::MatisseEngine(QObject *_parent, bool _is_server_mode) :
     QObject(_parent),
     m_is_server_mode(_is_server_mode),
     _jobLauncher(NULL),
-    _systemDataManager(NULL),
-    _processDataManager(NULL),
     _jobServer(NULL),
     _currentJob(NULL),
     _thread(NULL)
@@ -122,7 +120,7 @@ bool MatisseEngine::removeModuleAndExpectedParameters(QString name)
 MatisseParameters* MatisseEngine::buildMatisseParameters(JobDefinition &job) {
 
 
-    QString file = _processDataManager->getJobParametersFilePath(job.name());
+    QString file = ProcessDataManager::instance()->getJobParametersFilePath(job.name());
 
     qDebug() << "Chargement du fichier de paramètres : " << file;
     MatisseParameters* parameters = NULL;
@@ -394,7 +392,7 @@ bool MatisseEngine::processJob(JobDefinition &jobDefinition)
     qDebug() << "Dump parametres:" << parameters->dumpStructures();
 
     QString assemblyName = jobDefinition.assemblyName();
-    AssemblyDefinition * assemblyDefinition = _processDataManager->getAssembly(assemblyName);
+    AssemblyDefinition * assemblyDefinition = ProcessDataManager::instance()->getAssembly(assemblyName);
 
     if (!assemblyDefinition) {
         setMessageStr(tr("Cannot load assembly %1").arg(assemblyName));
@@ -464,12 +462,14 @@ QString MatisseEngine::messageStr()
 
 void MatisseEngine::init(){
 
-    _jobServer = new JobServer(_systemDataManager->port(), _processDataManager);
+    SystemDataManager* system_data_manager = SystemDataManager::instance();
+
+    _jobServer = new JobServer(system_data_manager->port());
 
     loadParametersDictionnary();
 
     // Load processors
-    QDir processorsDir = QDir(_systemDataManager->getDllPath() + QDir::separator() +  "processors");
+    QDir processorsDir = QDir(system_data_manager->getDllPath() + QDir::separator() +  "processors");
     setMessageStr();
 
 
@@ -507,7 +507,7 @@ void MatisseEngine::init(){
     }
 
     // Load imageProviders
-    QDir imageProvidersDir = QDir(_systemDataManager->getDllPath() + QDir::separator() + "imageProviders");
+    QDir imageProvidersDir = QDir(system_data_manager->getDllPath() + QDir::separator() + "imageProviders");
     foreach (QString fileName, imageProvidersDir.entryList(QStringList() << SHARED_DLL_EXT, QDir::Files)) {
         qDebug() <<"Loading ImageProvider DLL " << fileName;
         QPluginLoader loader(imageProvidersDir.absoluteFilePath(fileName));
@@ -526,7 +526,7 @@ void MatisseEngine::init(){
     }
 
     // Load rasterProviders
-    QDir rasterProvidersDir = QDir(_systemDataManager->getDllPath() + QDir::separator() + "rasterProviders");
+    QDir rasterProvidersDir = QDir(system_data_manager->getDllPath() + QDir::separator() + "rasterProviders");
 
     foreach (QString fileName, rasterProvidersDir.entryList(QStringList() << SHARED_DLL_EXT, QDir::Files)) {
         qDebug() <<"Loading RasterProvider DLL " << fileName;
@@ -837,9 +837,11 @@ bool MatisseEngine::loadParametersDictionnary()
 {
     QXmlSchema dictionnarySchema;
 
+    SystemDataManager* system_data_manager = SystemDataManager::instance();
+
     qDebug() << "Loading MatisseParametersDictionnary.xsd schema...";
 
-    QString dico_schema_path = _systemDataManager->getBinRootDir() +
+    QString dico_schema_path = system_data_manager->getBinRootDir() +
                     QDir::separator() + "schemas" + QDir::separator() +
                     "MatisseParametersDictionnary.xsd";
 
@@ -867,7 +869,7 @@ bool MatisseEngine::loadParametersDictionnary()
 
     qDebug() << "Loading dictionnary file...";
 
-    QString dico_path = _systemDataManager->getBinRootDir() +
+    QString dico_path = system_data_manager->getBinRootDir() +
                         QDir::separator() + "config" + QDir::separator() +
                         "MatisseParametersDictionnary.xml";
     //QFile dicoXmlFile("config/MatisseParametersDictionnary.xml");
@@ -893,16 +895,6 @@ bool MatisseEngine::loadParametersDictionnary()
 
     return true;
 }
-void MatisseEngine::setProcessDataManager(ProcessDataManager *processDataManager)
-{
-    _processDataManager = processDataManager;
-}
-
-void MatisseEngine::setSystemDataManager(SystemDataManager *systemDataManager)
-{
-    _systemDataManager = systemDataManager;
-}
-
 
 void MatisseEngine::setJobLauncher(QObject *jobLauncher)
 {

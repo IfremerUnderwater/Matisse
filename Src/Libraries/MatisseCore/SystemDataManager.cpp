@@ -1,17 +1,42 @@
 #include "SystemDataManager.h"
 
-using namespace MatisseTools;
+namespace MatisseTools {
 
-SystemDataManager::SystemDataManager(QString _bin_root_dir) :
-  _platformDump(NULL),
-  _remotePlatformDump(NULL), 
-  m_bin_root_dir(_bin_root_dir) 
+//// Singleton constructor
+SystemDataManager* SystemDataManager::instance()
 {
-  m_remote_server_settings = new MatisseRemoteServerSettings();
+    // create instance by lazy initialization
+    // guaranteed to be destroyed
+    // The instance object is created once and is persistent
+    // between 2 invocations of the instance() method
+    static SystemDataManager instance;
+
+    return &instance;
+}
+
+SystemDataManager::SystemDataManager() :
+  _platformDump(NULL),
+  _remotePlatformDump(NULL)
+{
+    m_remote_server_settings = new MatisseRemoteServerSettings();
+}
+
+SystemDataManager::~SystemDataManager()
+{
+
+}
+
+void SystemDataManager::init(QString _bin_root_dir)
+{
+    m_bin_root_dir = _bin_root_dir;
 }
 
 bool SystemDataManager::readMatisseSettings(QString filename)
 {
+    if (m_bin_root_dir.isEmpty()) {
+        qFatal("System data manager not initialized");
+    }
+
     QFileInfo fileIn(filename);
     if (!fileIn.exists()) {
         qFatal("%s\n",QString("Matisse settings file '%1' not found").arg(filename).toStdString().c_str());
@@ -519,5 +544,6 @@ QString SystemDataManager::getPlatformSummaryFilePath() const
     return _platformSummaryFilePath;
 }
 
+} // namespace MatisseTools
 
 

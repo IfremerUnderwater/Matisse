@@ -28,7 +28,15 @@ namespace MatisseTools {
 class ProcessDataManager
 {
 public:
-    ProcessDataManager(QString dataRootDir, QString userDataPath);
+    static ProcessDataManager* instance();
+    static ProcessDataManager* newTempInstance();
+    static void deleteTempInstance();
+
+    ProcessDataManager(ProcessDataManager const&) = delete;        // Disable copy
+    void operator=(ProcessDataManager const&) = delete;   // Disable copy
+
+    void init(QString _data_root_dir, QString _user_data_path);
+
 
     bool loadAssembliesAndJobs();
     void loadArchivedJobs(QString archivePath);
@@ -74,6 +82,8 @@ public:
     bool assemblyHasArchivedJob(QString assemblyName);
 
 private:
+    ProcessDataManager();
+    ~ProcessDataManager();
     void clearAssemblies();
     void clearJobs();
     void clearArchivedJobs();
@@ -82,29 +92,31 @@ private:
     bool duplicateElementParameters(QString fileName, QString newFileName, bool isAssembly);
     bool restoreArchivedJob(QString archivePath, QString jobToRestore);
 
-    QString _basePath;
+    static ProcessDataManager* m_temp_instance;
 
-    QXmlSchema _assembliesSchema;
+    QString m_base_path;
 
-    QString _jobsParametersPath;
-    QString _jobsPath;
-    QString _assembliesPath;
-    QString _assembliesParametersPath;
-    QString _schemaPath; // TODO provisoire
+    QXmlSchema m_assemblies_schema;
 
-    QString _assemblyFilePattern;
-    QString _assemblyParametersFilePattern;
-    QString _jobFilePattern;
-    QString _jobParametersFilePattern;
+    QString m_jobs_parameters_path;
+    QString m_jobs_path;
+    QString m__assemblies_path;
+    QString m_assemblies_parameters_path;
+    QString m_schema_path; // TODO provisoire
 
-    QHash<QString, AssemblyDefinition*> _assemblies;
-    QHash<QString, JobDefinition*> _jobs;
-    QMap<QString, JobDefinition*> _archivedJobs;
+    QString m_assembly_file_pattern;
+    QString m_assembly_parameters_file_pattern;
+    QString m_job_file_pattern;
+    QString m_job_parameters_file_pattern;
 
-    QMap<QString, QString> _assemblyNameByFileName;
-    QMap<QString, QString> _jobNameByFileName;
-    QMap<QString, QString> _archivedJobNameByFileName;
-    QMap<QString, QStringList*> _archivedJobsByAssembly;
+    QHash<QString, AssemblyDefinition*> m_assemblies;
+    QHash<QString, JobDefinition*> m_jobs;
+    QMap<QString, JobDefinition*> m_archived_jobs;
+
+    QMap<QString, QString> m_assembly_name_by_file_name;
+    QMap<QString, QString> m_job_name_by_file_name;
+    QMap<QString, QString> m_archived_job_name_by_file_name;
+    QMap<QString, QStringList*> m_archived_jobs_by_assembly;
 
     static const QString RELATIVE_EXECUTION_LOG_PATH;
 };

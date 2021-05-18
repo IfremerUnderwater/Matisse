@@ -6,7 +6,10 @@ using namespace MatisseServer;
 
 AssemblyGraphicsScene::AssemblyGraphicsScene(const QRectF &sceneRect, QObject *parent) :
     QGraphicsScene(sceneRect, parent),
-    _server(NULL), _processDataManager(NULL), _isSceneActive(false), _isAssemblyModified(false), _isAssemblyComplete(false)
+    _server(NULL),
+    _isSceneActive(false),
+    _isAssemblyModified(false),
+    _isAssemblyComplete(false)
 {
     //    _startPos = QPointF();
     //    _endPos = QPointF();
@@ -642,7 +645,7 @@ bool AssemblyGraphicsScene::loadAssembly(QString assemblyName)
 {
     qDebug() << "AssemblyGraphicsScene::loadAssembly" << assemblyName;
 
-    AssemblyDefinition * assembly = _processDataManager->getAssembly(assemblyName);
+    AssemblyDefinition * assembly = ProcessDataManager::instance()->getAssembly(assemblyName);
     if (!assembly) {
         QMessageBox::warning(_messageTargetWidget, tr("Invalid assembly"), tr("Assembly cannot be loaded..."));
         return false;
@@ -815,8 +818,5 @@ void AssemblyGraphicsScene::initViewport()
 {
     _viewport =  views().at(0)->viewport();
 }
-void AssemblyGraphicsScene::setProcessDataManager(ProcessDataManager *processDataManager)
-{
-    _processDataManager = processDataManager;
-}
+
 

@@ -68,7 +68,6 @@ public:
     void setSftpClient(NetworkClient *_sftp_client);
     void setJobLauncher(QWidget* _job_launcher);
     void setPreferences(MatissePreferences* _prefs);
-    void setDataManager(ProcessDataManager* _data_manager);
     void setParametersManager(MatisseParametersManager* _param_manager);
     void setServerSettings(MatisseRemoteServerSettings* _server_settings);
 
@@ -92,7 +91,6 @@ private:
     QWidget* m_job_launcher = NULL;
     PasswordDialog* m_password_dialog = NULL;
     RemoteProgressDialog* m_progress_dialog = NULL;
-    ProcessDataManager* m_data_manager = NULL;
     MatisseParametersManager* m_param_manager = NULL;
     MatisseRemoteServerSettings *m_server_settings = NULL;
 

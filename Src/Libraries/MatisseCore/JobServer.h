@@ -17,7 +17,7 @@ class JobServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit JobServer(int port, ProcessDataManager *processDataManager);
+    explicit JobServer(int port);
 
     void sendExecutionNotification(QString name);
 signals:
@@ -31,9 +31,7 @@ private:
 
 private:
     QTcpServer _server;
-    ProcessDataManager *_processDataManager;
     QTcpSocket *_socket;
-    //Xml *_xml;
 };
 }
 

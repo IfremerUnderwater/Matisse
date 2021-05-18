@@ -122,23 +122,18 @@ public:
     void resetOngoingProcessIndicators();
     void updatePreferredDatasetParameters();
 
-    void setSystemDataManager(SystemDataManager *systemDataManager);
-    void setProcessDataManager(ProcessDataManager *processDataManager);
     void setRemoteJobHelper(RemoteJobHelper *remoteJobHelper);
 
     void initMapFeatures();
 private:
     Ui::AssemblyGui *_ui;
     bool _isMapView;
-    MatisseEngine _server;
+    MatisseEngine m_engine;
 //    bool _canShow;
     UserActionContext _context;
 
-    SystemDataManager *_systemDataManager;
-    ProcessDataManager *_processDataManager;
     RemoteJobHelper *m_remote_job_helper;
 
-//    QString _settingsFile;
     QString _appVersion;
 
     QString _exportPath;

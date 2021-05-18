@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MatisseAssembly name="3D Dense FASTER" isRealTime="false" usable="true">
+<MatisseAssembly name="3D Dense FASTER" usable="true">
     <DescriptorFields>
         <Author>A.A</Author>
         <Version>1.0</Version>

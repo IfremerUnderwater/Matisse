@@ -107,9 +107,6 @@ public:
     QString messageStr();
     MatisseParametersManager * parametersManager() { return _dicoParamMgr; }
 
-    void setSystemDataManager(SystemDataManager *systemDataManager);
-    void setProcessDataManager(ProcessDataManager *processDataManager);
-
 signals:
     void signal_jobShowImageOnMainView(QString jobName, Image *image);
     void signal_userInformation(QString userText);
@@ -127,12 +124,9 @@ private:
 
     bool m_is_server_mode;
     QObject* _jobLauncher;
-    SystemDataManager *_systemDataManager;
-    ProcessDataManager *_processDataManager;
     JobServer *_jobServer;
     JobTask* _currentJob;
     QThread* _thread;
-    //Xml _xmlTool;
     MatisseParametersManager* _dicoParamMgr;
     QHash<QString, Processor*> _processors;
     QHash<QString, InputDataProvider*> _imageProviders;

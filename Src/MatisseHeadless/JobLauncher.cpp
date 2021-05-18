@@ -11,9 +11,8 @@ JobLauncher::JobLauncher(QObject *_parent) :
       m_engine(_parent, true), // initialize engine as server
       m_current_job(NULL),
       m_current_assembly(NULL),
-      m_new_assembly(NULL),
-      m_system_data_manager(NULL),
-      m_process_data_manager(NULL) {
+      m_new_assembly(NULL)
+{
   // useless but does not build otherwise -> ugly ..................
   GraphicalCharter &graph_charter = GraphicalCharter::instance();
   int a = graph_charter.dpiScaled(0);
@@ -30,19 +29,7 @@ JobLauncher::JobLauncher(QObject *_parent) :
 
 JobLauncher::~JobLauncher() {}
 
-void JobLauncher::setSystemDataManager(
-    SystemDataManager *_system_data_manager) {
-  m_system_data_manager = _system_data_manager;
-}
-
-void JobLauncher::setProcessDataManager(
-    ProcessDataManager *process_data_manager) {
-  m_process_data_manager = process_data_manager;
-}
-
 void JobLauncher::initServer() {
-  m_engine.setSystemDataManager(m_system_data_manager);
-  m_engine.setProcessDataManager(m_process_data_manager);
   m_engine.init();
 
   connect(&m_engine, SIGNAL(signal_jobProcessed(QString, bool)), this,
@@ -56,8 +43,10 @@ void JobLauncher::initServer() {
 void JobLauncher::init() {
   initServer();
 
+  ProcessDataManager* process_data_manager = ProcessDataManager::instance();
+
   /* Load elements */
-  bool load_status = m_process_data_manager->loadAssembliesAndJobs();
+  bool load_status = process_data_manager->loadAssembliesAndJobs();
   if (!load_status) {
     qCritical() << tr("Could not initialize job launcher");
     exit(1);
@@ -67,8 +56,10 @@ void JobLauncher::init() {
 void JobLauncher::launchJob(QString _job_name) {
   qDebug() << "Launching job...";
 
+  ProcessDataManager* process_data_manager = ProcessDataManager::instance();
+
   if (!m_current_job) {
-    m_current_job = m_process_data_manager->getJob(_job_name);
+    m_current_job = process_data_manager->getJob(_job_name);
 
     if (!m_current_job) {
       qCritical() << QString(
@@ -84,7 +75,7 @@ void JobLauncher::launchJob(QString _job_name) {
   QString assembly_name = m_current_job->assemblyName();
 
   AssemblyDefinition *assemblyDef =
-      m_process_data_manager->getAssembly(assembly_name);
+      process_data_manager->getAssembly(assembly_name);
   if (!assemblyDef) {
     qCritical() << "Assembly error" << assembly_name;
     return;
@@ -121,10 +112,12 @@ void JobLauncher::sl_jobProcessed(QString _job_name, bool _is_canceled) {
     }
 
     qDebug() << QString("Job '%1' executed").arg(_job_name);
-    JobDefinition *job_def = m_process_data_manager->getJob(_job_name);
+
+    ProcessDataManager* process_data_manager = ProcessDataManager::instance();
+    JobDefinition *job_def = process_data_manager->getJob(_job_name);
     QDateTime now = QDateTime::currentDateTime();
     job_def->executionDefinition()->setExecutionDate(now);
-    m_process_data_manager->writeJobFile(job_def, true);
+    process_data_manager->writeJobFile(job_def, true);
     exit(0);
   }
 }
