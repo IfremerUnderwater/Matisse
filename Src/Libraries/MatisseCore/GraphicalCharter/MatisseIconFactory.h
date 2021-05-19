@@ -7,7 +7,7 @@
 #include <QFile>
 #include <QUrl>
 
-#include "FileUtils.h"
+#include "file_utils.h"
 #include "IconizedWidgetWrapper.h"
 
 ///

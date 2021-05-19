@@ -14,7 +14,7 @@
 #include "RasterGeoreferencer.h"
 #include "file_img_exposure_compensate.h"
 #include "stdvectoperations.h"
-#include "FileUtils.h"
+#include "file_utils.h"
 #include <math.h>
 #include "gdal_translate_wrapper.h"
 #include "float.h"

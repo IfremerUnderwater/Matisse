@@ -1,4 +1,4 @@
-#include "PlatformDump.h"
+#include "platform_dump.h"
 
 using namespace MatisseTools;
 

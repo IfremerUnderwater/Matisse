@@ -4,7 +4,7 @@
 #include <QGridLayout>
 #include <QMessageBox>
 
-#include "FileUtils.h"
+#include "file_utils.h"
 #include "RemoteFileDialog.h"
 #include "network_action.h"
 #include "network_action_upload_file.h"

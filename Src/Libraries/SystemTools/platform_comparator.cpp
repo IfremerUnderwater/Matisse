@@ -1,4 +1,4 @@
-#include "PlatformComparator.h"
+#include "platform_comparator.h"
 
 using namespace MatisseTools;
 

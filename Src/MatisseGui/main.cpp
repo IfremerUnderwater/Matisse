@@ -6,7 +6,7 @@
 #include <QStyleFactory>
 #include <QApplication>
 
-#include "FileUtils.h"
+#include "file_utils.h"
 #include "FileImage.h"
 #include "ImageSet.h"
 #include "Dim2FileReader.h"

@@ -1,8 +1,8 @@
-#include "PlatformInspector.h"
+#include "platform_inspector.h"
 
 //#include "PlatformQgisComponent.h"
-#include "PlatformOpencvComponent.h"
-#include "PlatformOsgComponent.h"
+#include "platform_opencv_component.h"
+#include "platform_osg_component.h"
 
 using namespace MatisseTools;
 

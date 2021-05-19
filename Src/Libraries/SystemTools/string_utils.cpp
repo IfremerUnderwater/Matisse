@@ -1,4 +1,4 @@
-#include "StringUtils.h"
+#include "string_utils.h"
 
 
 QString StringUtils::substitutePlaceHolders(QString source, QMap<QString, QString> properties, QString placeHolderPattern)

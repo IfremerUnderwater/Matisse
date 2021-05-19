@@ -11,10 +11,10 @@
 
 #include "MatissePreferences.h"
 #include "MatisseRemoteServerSettings.h"
-#include "PlatformInspector.h"
-#include "PlatformDump.h"
-#include "PlatformComparator.h"
-#include "PlatformComparisonStatus.h"
+#include "platform_inspector.h"
+#include "platform_dump.h"
+#include "platform_comparator.h"
+#include "platform_comparison_status.h"
 
 namespace MatisseTools {
 

@@ -3,7 +3,7 @@
 
 #include "opencv2/core/version.hpp"
 
-#include "PlatformComponent.h"
+#include "platform_component.h"
 
 namespace MatisseTools {
 

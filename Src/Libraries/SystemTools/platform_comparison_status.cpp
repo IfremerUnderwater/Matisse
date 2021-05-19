@@ -1,4 +1,4 @@
-#include "PlatformComparisonStatus.h"
+#include "platform_comparison_status.h"
 
 using namespace MatisseTools;
 

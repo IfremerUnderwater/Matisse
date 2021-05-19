@@ -3,7 +3,7 @@
 #include <math.h>
 #endif
 
-#include "FileUtils.h"
+#include "file_utils.h"
 //#include "MosaicContext.h"
 #include "mosaic_drawer.h"
 #include "NavImage.h"

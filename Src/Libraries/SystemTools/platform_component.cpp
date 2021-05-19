@@ -1,4 +1,4 @@
-#include "PlatformComponent.h"
+#include "platform_component.h"
 
 using namespace MatisseTools;
 

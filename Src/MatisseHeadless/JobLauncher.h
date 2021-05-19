@@ -16,8 +16,8 @@
 #include "MatisseEngine.h"
 #include "SystemDataManager.h"
 #include "ProcessDataManager.h"
-#include "PlatformComparisonStatus.h"
-#include "StringUtils.h"
+#include "platform_comparison_status.h"
+#include "string_utils.h"
 
 using namespace MatisseTools;
 

@@ -2,7 +2,7 @@
 #define PLATFORMOSGCOMPONENT_H
 
 
-#include "PlatformComponent.h"
+#include "platform_component.h"
 
 
 namespace MatisseTools {

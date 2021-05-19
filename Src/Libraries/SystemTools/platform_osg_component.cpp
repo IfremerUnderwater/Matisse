@@ -1,4 +1,4 @@
-#include "PlatformOsgComponent.h"
+#include "platform_osg_component.h"
 #include <OpenThreads/Version>
 #include <osg/Version>
 

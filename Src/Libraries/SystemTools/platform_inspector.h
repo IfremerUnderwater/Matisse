@@ -6,8 +6,8 @@
 #include <QSysInfo>
 #include <QtDebug>
 
-#include "PlatformComponent.h"
-#include "PlatformDump.h"
+#include "platform_component.h"
+#include "platform_dump.h"
 
 namespace MatisseTools {
 

@@ -1,4 +1,4 @@
-#include "PlatformOpencvComponent.h"
+#include "platform_opencv_component.h"
 
 using namespace MatisseTools;
 

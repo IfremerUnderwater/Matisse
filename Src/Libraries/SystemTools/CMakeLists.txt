@@ -1,13 +1,13 @@
 add_library(SystemTools
-    FileUtils.cpp
-    StringUtils.cpp
-    PlatformComponent.cpp
-    PlatformInspector.cpp
-    PlatformDump.cpp
-    PlatformOpencvComponent.cpp
-    platformOsgComponent.cpp
-    PlatformComparisonStatus.cpp
-    PlatformComparator.cpp
+    file_utils.cpp
+    string_utils.cpp
+    platform_comparator.cpp
+    platform_comparison_status.cpp
+    platform_component.cpp
+    platform_dump.cpp
+    platform_inspector.cpp
+    platform_opencv_component.cpp
+    platform_osg_component.cpp
 )
 	
 #qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} SystemTools_fr.ts SystemTools_en.ts)
