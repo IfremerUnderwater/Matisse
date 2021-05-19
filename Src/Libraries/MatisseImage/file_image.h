@@ -5,8 +5,8 @@
 
 #include <QSharedPointer>
 
-#include "NavImage.h"
-#include "PictureFileSet.h"
+#include "nav_image.h"
+#include "picture_file_set.h"
 #include <QImageReader>
 
 

@@ -24,7 +24,7 @@
 #include "quazip5/JlCompress.h"
 #endif
 
-#include "StringUtils.h"
+#include "string_utils.h"
 
 // This pattern contains a placeholder (%1) to insert the property name pattern (defined in StringUtils.h)
 #define PROPERTY_DEFINITION_PATTERN     "%1\\s*\\=[^\\=]*"

@@ -1,6 +1,6 @@
 ﻿#include <QString>
 
-#include "Image.h"
+#include "image.h"
 
 using namespace MatisseCommon;
 using namespace cv;

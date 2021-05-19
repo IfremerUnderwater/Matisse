@@ -7,10 +7,10 @@
     <DefaultMosaicFilenamePrefix>MyProcessing</DefaultMosaicFilenamePrefix>
     <ProgrammingModeEnabled>false</ProgrammingModeEnabled>
     <Language>EN</Language>
-    <RemoteCommandServer>datarmor</RemoteCommandServer>
-	<RemoteFileServer>datarmor</RemoteFileServer>
-    <RemoteUsername>aarnaubec</RemoteUsername>
-    <RemoteUserEmail>aurelien.arnaubec@ifremer.fr</RemoteUserEmail>
-    <RemoteQueueName>omp</RemoteQueueName>
-	<RemoteNbOfCpus>32</RemoteNbOfCpus>
+    <RemoteCommandServer>51.210.7.224</RemoteCommandServer>
+        <RemoteFileServer>51.210.7.224</RemoteFileServer>
+    <RemoteUsername>bobby</RemoteUsername>
+    <RemoteUserEmail>bg@innosense.eu</RemoteUserEmail>
+    <RemoteQueueName>workq</RemoteQueueName>
+        <RemoteNbOfCpus>4</RemoteNbOfCpus>
 </MatissePreferences>

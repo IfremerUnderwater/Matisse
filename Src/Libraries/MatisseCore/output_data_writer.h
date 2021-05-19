@@ -1,12 +1,10 @@
 ﻿#ifndef RASTERPROVIDER_H
 #define RASTERPROVIDER_H
 
-
-
 #include "LifecycleComponent.h"
-#include "ImageListener.h"
-#include "Image.h"
-#include "ImageSet.h"
+#include "image_listener.h"
+#include "image.h"
+#include "image_set.h"
 #include "MatisseParameters.h"
 #include "Polygon.h"
 

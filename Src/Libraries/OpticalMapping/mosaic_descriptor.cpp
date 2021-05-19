@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <iterator>
-#include "RasterGeoreferencer.h"
+#include "raster_georeferencer.h"
 #include "Polygon.h"
 
 using namespace basicproc;

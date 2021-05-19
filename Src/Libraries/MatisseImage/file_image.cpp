@@ -1,4 +1,4 @@
-﻿#include "FileImage.h"
+﻿#include "file_image.h"
 #include <QDebug>
 
 using namespace cv;

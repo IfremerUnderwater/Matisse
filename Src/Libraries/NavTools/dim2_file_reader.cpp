@@ -1,4 +1,4 @@
-﻿#include "Dim2FileReader.h"
+﻿#include "dim2_file_reader.h"
 
 #define D2R (3.14159265358979323846 / 180.0)
 

@@ -1,6 +1,6 @@
 ﻿#include "BridgeModule.h"
 //#include "MosaicContext.h"
-#include "NavImage.h"
+#include "nav_image.h"
 
 #include "mosaic_descriptor.h"
 

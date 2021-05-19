@@ -34,7 +34,7 @@
 //#include "NetworkCheckDialog.h"
 #include "data_viewer.h"
 #include "assembly_editor.h"
-#include "Dim2FileReader.h"
+#include "dim2_file_reader.h"
 #include "StatusMessageWidget.h"
 #include "MatissePreferences.h"
 #include "HomeWidget.h"

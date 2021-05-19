@@ -1,5 +1,5 @@
 ﻿#include "Matching3D.h"
-#include "NavImage.h"
+#include "nav_image.h"
 
 #include <QProcess>
 #include <QElapsedTimer>

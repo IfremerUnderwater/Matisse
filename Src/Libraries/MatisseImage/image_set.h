@@ -6,8 +6,8 @@
 #include <QObject>
 #include <QList>
 
-#include "Image.h"
-#include "ImageListener.h"
+#include "image.h"
+#include "image_listener.h"
 
 namespace MatisseCommon {
 class ImageSet;

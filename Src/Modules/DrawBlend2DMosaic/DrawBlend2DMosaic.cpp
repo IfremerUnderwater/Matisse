@@ -6,10 +6,10 @@
 #include "file_utils.h"
 //#include "MosaicContext.h"
 #include "mosaic_drawer.h"
-#include "NavImage.h"
+#include "nav_image.h"
 #include "DrawBlend2DMosaic.h"
-#include "GeoTransform.h"
-#include "RasterGeoreferencer.h"
+#include "geo_transform.h"
+#include "raster_georeferencer.h"
 #include "mosaic_descriptor.h"
 
 using namespace cv;

@@ -3,9 +3,9 @@
 
 
 #include "output_data_writer.h"
-#include "PictureFileSet.h"
-#include "ImageSet.h"
-#include "FileImage.h"
+#include "picture_file_set.h"
+#include "image_set.h"
+#include "file_image.h"
 
 using namespace MatisseCommon;
 

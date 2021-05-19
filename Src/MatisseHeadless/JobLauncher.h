@@ -11,7 +11,7 @@
 #include <QtDebug>
 
 #include "KeyValueList.h"
-#include "Dim2FileReader.h"
+#include "dim2_file_reader.h"
 #include "MatissePreferences.h"
 #include "MatisseEngine.h"
 #include "SystemDataManager.h"

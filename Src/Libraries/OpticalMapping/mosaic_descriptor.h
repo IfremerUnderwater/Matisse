@@ -2,9 +2,9 @@
 #define MOSAIC_H
 
 
-#include "NavImage.h"
+#include "nav_image.h"
 #include "projective_camera.h"
-#include "GeoTransform.h"
+#include "geo_transform.h"
 #include <QVector>
 #include <QString>
 #include <QMetaType>

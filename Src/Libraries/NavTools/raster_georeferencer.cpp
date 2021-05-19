@@ -1,4 +1,4 @@
-#include "RasterGeoreferencer.h"
+#include "raster_georeferencer.h"
 #include <QDebug>
 
 #include <opencv2/core/core.hpp>

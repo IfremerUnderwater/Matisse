@@ -4,7 +4,7 @@
 
 
 #include <QObject>
-#include "Image.h"
+#include "image.h"
 
 namespace MatisseCommon {
 

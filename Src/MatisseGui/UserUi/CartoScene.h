@@ -3,8 +3,8 @@
 
 #include <QGraphicsView>
 
-#include "Image.h"
-#include "CartoImage.h"
+#include "image.h"
+#include "carto_image.h"
 
 class QGraphicsRectItem;
 class QGraphicsPixmapItem;

@@ -8,7 +8,7 @@
 #include <QFileInfo>
 #include <QSharedPointer>
 
-#include "InputSource.h"
+#include "input_source.h"
 namespace MatisseCommon {
 
 ///

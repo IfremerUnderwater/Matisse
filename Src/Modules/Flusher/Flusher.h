@@ -3,10 +3,10 @@
 
 
 #include "input_data_provider.h"
-#include "Dim2FileReader.h"
-#include "PictureFileSet.h"
-#include "ImageSet.h"
-#include "FileImage.h"
+#include "dim2_file_reader.h"
+#include "picture_file_set.h"
+#include "image_set.h"
+#include "file_image.h"
 
 using namespace MatisseCommon;
 

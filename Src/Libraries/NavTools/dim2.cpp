@@ -1,4 +1,4 @@
-#include "Dim2.h"
+#include "dim2.h"
 
 using namespace MatisseCommon;
 

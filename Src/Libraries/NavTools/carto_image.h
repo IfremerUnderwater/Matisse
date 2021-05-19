@@ -1,7 +1,7 @@
 #ifndef CARTOIMAGE_H
 #define CARTOIMAGE_H
 
-#include "Image.h"
+#include "image.h"
 
 #include <QRect>
 #include <QPoint>

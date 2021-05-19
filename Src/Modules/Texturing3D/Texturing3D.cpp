@@ -1,6 +1,6 @@
 ﻿#include "Texturing3D.h"
 #include "reconstructioncontext.h"
-#include "NavImage.h"
+#include "nav_image.h"
 
 #include <QFile>
 #include <QProcess>

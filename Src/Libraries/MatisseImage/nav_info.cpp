@@ -1,4 +1,4 @@
-﻿#include "NavInfo.h"
+﻿#include "nav_info.h"
 #include <cmath>
 
 using namespace std;

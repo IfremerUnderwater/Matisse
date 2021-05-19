@@ -1,11 +1,11 @@
 ﻿#include "Init3DRecon.h"
-#include "NavImage.h"
+#include "nav_image.h"
 
 #include "reconstructioncontext.h"
 
 #include "Polygon.h"
 
-#include "Dim2FileReader.h"
+#include "dim2_file_reader.h"
 #include <QElapsedTimer>
 
 //#define PROGRESS

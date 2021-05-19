@@ -6,10 +6,10 @@
 #include <QList>
 #include <QtPlugin>
 
-#include "ImageListener.h"
+#include "image_listener.h"
 #include "Context.h"
-#include "Image.h"
-#include "ImageSet.h"
+#include "image.h"
+#include "image_set.h"
 #include "MatisseParameters.h"
 #include "LifecycleComponent.h"
 #include "Polygon.h"

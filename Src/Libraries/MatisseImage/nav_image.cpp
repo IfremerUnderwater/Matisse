@@ -1,4 +1,4 @@
-﻿#include "NavImage.h"
+﻿#include "nav_image.h"
 
 using namespace MatisseCommon;
 

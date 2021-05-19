@@ -39,14 +39,14 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 #endif
 //#include <opencv2/opencv.hpp>
 
-#include "Image.h"
+#include "image.h"
 #include "Polygon.h"
 #include "GraphicalCharter.h"
 #include "MatisseIconFactory.h"
 #include "IconizedActionWrapper.h"
 
 #include "CartoScene.h"
-#include "CartoImage.h"
+#include "carto_image.h"
 #include <vector>
 
 using namespace MatisseCommon;

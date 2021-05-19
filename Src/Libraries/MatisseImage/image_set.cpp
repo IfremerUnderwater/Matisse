@@ -1,4 +1,4 @@
-﻿#include "ImageSet.h"
+﻿#include "image_set.h"
 #include <QDebug>
 
 using namespace MatisseCommon;

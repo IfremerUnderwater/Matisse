@@ -11,14 +11,14 @@
 #include <QFile>
 #include <QDir>
 #include "Polygon.h"
-#include "RasterGeoreferencer.h"
+#include "raster_georeferencer.h"
 #include "file_img_exposure_compensate.h"
 #include "stdvectoperations.h"
 #include "file_utils.h"
 #include <math.h>
 #include "gdal_translate_wrapper.h"
 #include "float.h"
-#include "FileImage.h"
+#include "file_image.h"
 
 using namespace std;
 using namespace cv;

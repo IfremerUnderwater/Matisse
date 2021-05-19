@@ -13,8 +13,8 @@
 
 #include <QtDebug>
 
-#include "Dim2.h"
-#include "NavInfo.h"
+#include "dim2.h"
+#include "nav_info.h"
 //#include "FileImage.h"
 
 namespace MatisseCommon {

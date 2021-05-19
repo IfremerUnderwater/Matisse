@@ -1,4 +1,4 @@
-#include "CartoImage.h"
+#include "carto_image.h"
 
 #ifdef _WIN32
 #include "gdal_priv.h"

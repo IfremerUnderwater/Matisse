@@ -5,8 +5,8 @@
 
 #include <QDateTime>
 
-#include "NavInfo.h"
-#include "Image.h"
+#include "nav_info.h"
+#include "image.h"
 
 namespace MatisseCommon {
 

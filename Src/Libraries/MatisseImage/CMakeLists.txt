@@ -1,10 +1,11 @@
 add_library(MatisseImage
-    Image.cpp
-    NavImage.cpp
-    NavInfo.cpp	
-	PictureFileSet.cpp
-    FileImage.cpp
-    ImageSet.cpp		
+    image.cpp
+    image_listener.cpp
+    image_set.cpp
+    file_image.cpp
+    nav_image.cpp
+    nav_info.cpp
+    picture_file_set.cpp
 )
 	
 #qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} NavTools_fr.ts NavTools_en.ts)

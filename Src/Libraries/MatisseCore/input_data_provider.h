@@ -5,8 +5,7 @@
 
 
 #include <QObject>
-#include "ImageSet.h"
-#include "ImageSet.h"
+#include "image_set.h"
 #include "Context.h"
 #include "LifecycleComponent.h"
 #include "Polygon.h"

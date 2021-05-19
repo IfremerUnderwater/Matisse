@@ -5,8 +5,8 @@
 #include <QStringList>
 #include <QtDebug>
 
-#include "PlatformDump.h"
-#include "PlatformComparisonStatus.h"
+#include "platform_dump.h"
+#include "platform_comparison_status.h"
 
 namespace MatisseTools {
 

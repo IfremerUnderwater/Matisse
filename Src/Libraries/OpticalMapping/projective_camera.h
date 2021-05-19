@@ -4,7 +4,7 @@
 
 
 #include <opencv2/opencv.hpp>
-#include <NavImage.h>
+#include <nav_image.h>
 
 using namespace MatisseCommon;
 

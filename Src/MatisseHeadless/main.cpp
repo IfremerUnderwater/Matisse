@@ -8,10 +8,10 @@
 #include <QProcessEnvironment>
 
 #include "file_utils.h"
-#include "FileImage.h"
-#include "ImageSet.h"
-#include "Dim2FileReader.h"
-#include "PictureFileSet.h"
+#include "file_image.h"
+#include "image_set.h"
+#include "dim2_file_reader.h"
+#include "picture_file_set.h"
 #include "Context.h"
 #include "MatisseParameters.h"
 #include "JobLauncher.h"
