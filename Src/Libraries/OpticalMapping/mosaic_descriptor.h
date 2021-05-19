@@ -3,7 +3,7 @@
 
 
 #include "NavImage.h"
-#include "ProjectiveCamera.h"
+#include "projective_camera.h"
 #include "GeoTransform.h"
 #include <QVector>
 #include <QString>

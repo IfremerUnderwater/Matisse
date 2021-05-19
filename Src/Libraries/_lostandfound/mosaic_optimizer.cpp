@@ -1,4 +1,4 @@
-#include "MosaicOptimizer.h"
+#include "mosaic_optimizer.h"
 
 MosaicOptimizer::MosaicOptimizer()
 {

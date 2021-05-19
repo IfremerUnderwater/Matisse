@@ -2,7 +2,7 @@
 //#include "MosaicContext.h"
 #include "NavImage.h"
 
-#include "MosaicDescriptor.h"
+#include "mosaic_descriptor.h"
 
 #include "Polygon.h"
 

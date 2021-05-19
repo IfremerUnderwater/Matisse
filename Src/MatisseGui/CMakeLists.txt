@@ -22,6 +22,7 @@ add_executable(MatisseGui
     ExpertUi/ProcessorWidget.cpp
     ExpertUi/DestinationWidget.cpp
     ExpertUi/ElementWidgetProvider.cpp
+    JobManagementUi/job_file_helper.cpp
     JobManagementUi/JobDialog.cpp
     JobManagementUi/DuplicateDialog.cpp
     JobManagementUi/RestoreJobsDialog.cpp

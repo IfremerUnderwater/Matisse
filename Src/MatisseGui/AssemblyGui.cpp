@@ -699,14 +699,6 @@ void AssemblyGui::loadAssembliesAndJobsLists(bool doExpand)
 
     foreach(QString assemblyName, validAssemblies) {
         AssemblyDefinition *assembly = process_data_manager->getAssembly(assemblyName);
-
-        // RT or DT assemblies are displayed according to application mode
-//        if (_activeApplicationMode == REAL_TIME && !assembly->isRealTime()) {
-//            continue;
-//        } else if (_activeApplicationMode == POST_PROCESSING && assembly->isRealTime()) {
-//            continue;
-//        }
-
         addAssemblyInTree(assembly);
     }
 
@@ -3430,7 +3422,6 @@ void AssemblyGui::slot_newAssembly()
     _newAssembly->setName(displayName);
     _newAssembly->setCreationDate(QDate::fromString(fields.getValue("Date")));
     _newAssembly->setDate(fields.getValue("Date"));
-//    _newAssembly->setIsRealTime(QVariant(QString(fields.getValue("RealTime"))).toBool());
     _newAssembly->setVersion(fields.getValue("Version"));
     _newAssembly->setAuthor(fields.getValue("Author"));
     _newAssembly->setUsable(fields.getValue("Valid").toInt());

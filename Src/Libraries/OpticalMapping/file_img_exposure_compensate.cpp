@@ -40,8 +40,8 @@
 //
 //M*/
 
-#include "FileImgPrecomp.hpp"
-#include "FileImgExposureCompensate.h"
+#include "file_img_precomp.hpp"
+#include "file_img_exposure_compensate.h"
 #include "opencv2/highgui/highgui.hpp"
 
 #include <QFile>

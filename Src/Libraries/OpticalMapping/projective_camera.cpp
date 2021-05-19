@@ -1,4 +1,4 @@
-#include "ProjectiveCamera.h"
+#include "projective_camera.h"
 #include <QDebug>
 
 using namespace cv;

@@ -1,9 +1,9 @@
 add_library(OpticalMapping    
-    MosaicDrawer.cpp
-    MosaicOptimizer.cpp
-    MosaicDescriptor.cpp
-    ProjectiveCamera.cpp
-    FileImgExposureCompensate.cpp)
+    mosaic_drawer.cpp
+    mosaic_descriptor.cpp
+    projective_camera.cpp
+    file_img_exposure_compensate.cpp
+    )
 
 include_directories(${QUAZIP_INCLUDE_DIRS})
 

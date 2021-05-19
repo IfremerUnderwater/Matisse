@@ -1,4 +1,4 @@
-#include "MosaicDescriptor.h"
+#include "mosaic_descriptor.h"
 #include <QDebug>
 #include <float.h>
 #include <algorithm>

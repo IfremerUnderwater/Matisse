@@ -2,7 +2,7 @@
 #define MOSAICDRAWER_H
 
 
-#include "MosaicDescriptor.h"
+#include "mosaic_descriptor.h"
 
 
 struct drawingOptions{
