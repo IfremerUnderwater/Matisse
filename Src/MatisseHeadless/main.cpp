@@ -13,11 +13,11 @@
 #include "dim2_file_reader.h"
 #include "picture_file_set.h"
 #include "Context.h"
-#include "MatisseParameters.h"
+#include "matisse_parameters.h"
 #include "JobLauncher.h"
 //#include "WelcomeDialog.h"
-#include "SystemDataManager.h"
-#include "ProcessDataManager.h"
+#include "system_data_manager.h"
+#include "process_data_manager.h"
 
 using namespace MatisseTools;
 using namespace MatisseCmd;

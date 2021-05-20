@@ -1,4 +1,4 @@
-#include "MatisseTreeItem.h"
+#include "matisse_tree_item.h"
 
 using namespace MatisseTools;
 

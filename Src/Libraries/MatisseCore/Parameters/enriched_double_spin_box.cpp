@@ -1,5 +1,5 @@
-#include "EnrichedDoubleSpinBox.h"
-#include "GraphicalCharter.h"
+#include "enriched_double_spin_box.h"
+#include "graphical_charter.h"
 
 using namespace MatisseTools;
 

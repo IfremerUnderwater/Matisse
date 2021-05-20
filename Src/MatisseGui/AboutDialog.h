@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "KeyValueList.h"
+#include "key_value_list.h"
 
 using namespace MatisseTools;
 

@@ -41,9 +41,9 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 
 #include "image.h"
 #include "Polygon.h"
-#include "GraphicalCharter.h"
-#include "MatisseIconFactory.h"
-#include "IconizedActionWrapper.h"
+#include "graphical_charter.h"
+#include "matisse_icon_factory.h"
+#include "iconized_action_wrapper.h"
 
 #include "CartoScene.h"
 #include "carto_image.h"

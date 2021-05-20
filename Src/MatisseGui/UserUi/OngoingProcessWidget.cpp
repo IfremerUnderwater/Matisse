@@ -1,6 +1,6 @@
 #include "OngoingProcessWidget.h"
 #include "ui_OngoingProcessWidget.h"
-#include "GraphicalCharter.h"
+#include "graphical_charter.h"
 
 OngoingProcessWidget::OngoingProcessWidget(QWidget *parent) :
     QFrame(parent),

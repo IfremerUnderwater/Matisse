@@ -10,12 +10,12 @@
 
 #include <QtDebug>
 
-#include "KeyValueList.h"
+#include "key_value_list.h"
 #include "dim2_file_reader.h"
-#include "MatissePreferences.h"
-#include "MatisseEngine.h"
-#include "SystemDataManager.h"
-#include "ProcessDataManager.h"
+#include "matisse_preferences.h"
+#include "matisse_engine.h"
+#include "system_data_manager.h"
+#include "process_data_manager.h"
 #include "platform_comparison_status.h"
 #include "string_utils.h"
 

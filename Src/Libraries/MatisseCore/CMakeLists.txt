@@ -1,49 +1,48 @@
 # add the executable
 add_library(MatisseCore
-    LifecycleComponent.cpp	
-    Processor.cpp
+    assembly_definition.cpp
+    job_definition.cpp
+    job_server.cpp
+    key_value_list.cpp
+    lifecycle_component.cpp
+    matisse_engine.cpp
+    matisse_preferences.cpp
+    matisse_remote_server_settings.cpp
+    process_data_manager.cpp
+    processor.cpp
     input_data_provider.cpp
     output_data_writer.cpp
-    MatisseEngine.cpp
-    KeyValueList.cpp
-    AssemblyDefinition.cpp
-    JobDefinition.cpp
-    JobServer.cpp
-    MatissePreferences.cpp
-    MatisseRemoteServerSettings.cpp
-    SystemDataManager.cpp
-    ProcessDataManager.cpp	
+    system_data_manager.cpp
     Camera/camera_manager.cpp
     Camera/camera_info.cpp
     Camera/camera_calib.cpp
     Parameters/MatisseDictionnaryLabels.h	
-    Parameters/MatisseParameters.cpp
+    Parameters/matisse_parameters.cpp
     # Temp location to resolve architectural issue
-    GraphicalCharter/GraphicalCharter.cpp
-    GraphicalCharter/MatisseIconFactory.cpp
-    GraphicalCharter/IconizedWidgetWrapper.cpp
-    GraphicalCharter/IconizedLabelWrapper.cpp
-    GraphicalCharter/IconizedButtonWrapper.cpp
-    GraphicalCharter/IconizedComboBoxItemWrapper.cpp
-    GraphicalCharter/MatisseTreeItem.cpp
-    GraphicalCharter/IconizedTreeItemWrapper.cpp
-    GraphicalCharter/IconizedActionWrapper.cpp	
-    Parameters/EnrichedComboBox.cpp
-    Parameters/EnrichedFormWidget.cpp
-    Parameters/EnrichedLineEdit.cpp
-    Parameters/EnrichedSpinBox.cpp
-    Parameters/EnrichedDoubleSpinBox.cpp
-    Parameters/EnrichedCheckBox.cpp
-    Parameters/EnrichedListBox.cpp
-    Parameters/EnrichedTableWidget.cpp
-	Parameters/EnrichedCamComboBox.cpp
-    Parameters/ParametersWidgetSkeleton.cpp
-    Parameters/EnrichedFileChooser.cpp
-	Parameters/MatisseParametersManager.cpp
-	Parameters/EnrichedDecimalValueWidget.cpp
-	Parameters/ParametersHeaderButton.cpp
-    Parameters/FoldUnfoldButton.cpp	
-	
+    GraphicalCharter/graphical_charter.cpp
+    GraphicalCharter/iconized_action_wrapper.cpp
+    GraphicalCharter/iconized_button_wrapper.cpp
+    GraphicalCharter/iconized_combo_box_item_wrapper.cpp
+    GraphicalCharter/iconized_label_wrapper.cpp
+    GraphicalCharter/iconized_tree_item_wrapper.cpp
+    GraphicalCharter/iconized_widget_wrapper.cpp
+    GraphicalCharter/matisse_icon_factory.cpp
+    GraphicalCharter/matisse_tree_item.cpp
+    Parameters/enriched_cam_combo_box.cpp
+    Parameters/enriched_check_box.cpp
+    Parameters/enriched_combo_box.cpp
+    Parameters/enriched_decimal_value_widget.cpp
+    Parameters/enriched_double_spin_box.cpp
+    Parameters/enriched_file_chooser.cpp
+    Parameters/enriched_form_widget.cpp
+    Parameters/enriched_line_edit.cpp
+    Parameters/enriched_list_box.cpp
+    Parameters/enriched_spin_box.cpp
+    Parameters/enriched_table_widget.cpp
+    Parameters/fold_unfold_button.cpp
+    Parameters/matisse_parameters_manager.cpp
+    Parameters/parameters_header_button.cpp
+    Parameters/parameters_widget_skeleton.cpp
 )
 	
 		

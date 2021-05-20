@@ -1,5 +1,5 @@
 ﻿#include "SfmBundleAdjustment.h"
-#include "reconstructioncontext.h"
+#include "reconstruction_context.h"
 #include <QProcess>
 #include <QElapsedTimer>
 

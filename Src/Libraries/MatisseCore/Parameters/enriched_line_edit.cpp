@@ -1,4 +1,4 @@
-﻿#include "EnrichedLineEdit.h"
+﻿#include "enriched_line_edit.h"
 
 using namespace MatisseTools;
 

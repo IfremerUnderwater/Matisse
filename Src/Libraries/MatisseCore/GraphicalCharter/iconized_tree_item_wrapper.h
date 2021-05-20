@@ -1,8 +1,8 @@
 #ifndef ICONIZEDTREEITEMWRAPPER_H
 #define ICONIZEDTREEITEMWRAPPER_H
 
-#include "MatisseTreeItem.h"
-#include "IconizedWidgetWrapper.h"
+#include "matisse_tree_item.h"
+#include "iconized_widget_wrapper.h"
 
 namespace MatisseTools {
 class IconizedTreeItemWrapper : public IconizedWidgetWrapper

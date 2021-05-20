@@ -1,4 +1,4 @@
-﻿#include "Processor.h"
+﻿#include "processor.h"
 #include <QDebug>
 
 using namespace MatisseCommon;

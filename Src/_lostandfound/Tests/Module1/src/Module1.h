@@ -6,7 +6,7 @@
 #include <QtDebug>
 
 
-#include "Processor.h"
+#include "processor.h"
 
 using namespace MatisseCommon;
 

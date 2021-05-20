@@ -1,6 +1,6 @@
 #include "MainMenuWidget.h"
 #include "ui_MainMenuWidget.h"
-#include "GraphicalCharter.h"
+#include "graphical_charter.h"
 
 #include <QVBoxLayout>
 #include <QMenuBar>

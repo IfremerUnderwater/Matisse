@@ -14,9 +14,9 @@
 #include <QXmlAttributes>
 #include <QtDebug>
 
-#include "KeyValueList.h"
-#include "AssemblyDefinition.h"
-#include "JobDefinition.h"
+#include "key_value_list.h"
+#include "assembly_definition.h"
+#include "job_definition.h"
 
 namespace MatisseTools {
 

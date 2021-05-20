@@ -1,7 +1,7 @@
 ﻿#include "Init3DRecon.h"
 #include "nav_image.h"
 
-#include "reconstructioncontext.h"
+#include "reconstruction_context.h"
 
 #include "Polygon.h"
 

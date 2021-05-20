@@ -1,5 +1,5 @@
-﻿#include "AssemblyDefinition.h"
-#include "JobDefinition.h"
+﻿#include "assembly_definition.h"
+#include "job_definition.h"
 
 using namespace MatisseTools;
 

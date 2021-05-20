@@ -3,7 +3,7 @@
 
 #include <QAction>
 
-#include "IconizedWidgetWrapper.h"
+#include "iconized_widget_wrapper.h"
 
 namespace MatisseTools {
 class IconizedActionWrapper : public IconizedWidgetWrapper

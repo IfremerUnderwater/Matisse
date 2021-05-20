@@ -4,7 +4,7 @@
 #include <QSpinBox>
 #include <QString>
 
-#include "EnrichedFormWidget.h"
+#include "enriched_form_widget.h"
 
 #define MIN_SINT32 -2147483647
 #define MAX_SINT32 2147483647

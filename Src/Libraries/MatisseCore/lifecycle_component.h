@@ -7,7 +7,7 @@
 #include <QtPlugin>
 
 #include "Context.h"
-#include "MatisseParameters.h"
+#include "matisse_parameters.h"
 
 namespace MatisseCommon {
 class LifecycleComponent

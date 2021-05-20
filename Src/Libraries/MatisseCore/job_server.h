@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QTcpServer>
-#include "ProcessDataManager.h"
+#include "process_data_manager.h"
 
 ///
 /// Class for serving jobs list and results location to QGIS plugin

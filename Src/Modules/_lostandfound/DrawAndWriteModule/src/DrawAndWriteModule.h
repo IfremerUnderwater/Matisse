@@ -2,7 +2,7 @@
 #define DrawAndWriteModule_H
 
 
-#include "Processor.h"
+#include "processor.h"
 #include "matlabcppinterface.h"
 
 

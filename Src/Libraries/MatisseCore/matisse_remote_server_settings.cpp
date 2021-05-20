@@ -1,4 +1,4 @@
-#include "MatisseRemoteServerSettings.h"
+#include "matisse_remote_server_settings.h"
 
 namespace MatisseTools {
 

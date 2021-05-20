@@ -6,7 +6,7 @@
 #include <QTableWidget>
 #include <QtDebug>
 
-#include "EnrichedDecimalValueWidget.h"
+#include "enriched_decimal_value_widget.h"
 
 namespace MatisseTools {
 

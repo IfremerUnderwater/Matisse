@@ -1,5 +1,5 @@
 #include "LiveProcessWheel.h"
-#include "GraphicalCharter.h"
+#include "graphical_charter.h"
 
 using namespace MatisseServer;
 using namespace MatisseCommon;

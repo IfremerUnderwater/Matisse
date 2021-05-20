@@ -1,5 +1,5 @@
-#include "MatisseParametersManager.h"
-#include "GraphicalCharter.h"
+#include "matisse_parameters_manager.h"
+#include "graphical_charter.h"
 
 using namespace MatisseCommon;
 using namespace MatisseTools;

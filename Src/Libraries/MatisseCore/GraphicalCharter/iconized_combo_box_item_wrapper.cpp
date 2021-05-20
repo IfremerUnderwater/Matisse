@@ -1,4 +1,4 @@
-#include "IconizedComboBoxItemWrapper.h"
+#include "iconized_combo_box_item_wrapper.h"
 
 using namespace MatisseTools;
 

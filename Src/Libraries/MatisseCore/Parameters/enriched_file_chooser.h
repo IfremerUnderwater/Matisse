@@ -7,10 +7,10 @@
 #include <QLineEdit>
 #include <QFileDialog>
 
-#include "ToolsCommon.h"
-#include "EnrichedFormWidget.h"
-#include "MatisseIconFactory.h"
-#include "IconizedButtonWrapper.h"
+#include "parameters_common.h"
+#include "enriched_form_widget.h"
+#include "matisse_icon_factory.h"
+#include "iconized_button_wrapper.h"
 
 namespace MatisseTools {
 

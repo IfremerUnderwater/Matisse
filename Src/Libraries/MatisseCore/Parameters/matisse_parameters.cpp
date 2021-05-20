@@ -1,4 +1,4 @@
-﻿#include "MatisseParameters.h"
+﻿#include "matisse_parameters.h"
 
 using namespace MatisseCommon;
 

@@ -16,10 +16,10 @@
 #include "DestinationWidget.h"
 #include "PipeWidget.h"
 #include "AssemblyGraphicsScene.h"
-#include "KeyValueList.h"
+#include "key_value_list.h"
 #include "ParametersDialog.h"
-#include "MatisseParametersManager.h"
-#include "ParametersWidgetSkeleton.h"
+#include "matisse_parameters_manager.h"
+#include "parameters_widget_skeleton.h"
 
 
 namespace Ui {

@@ -5,8 +5,8 @@
 #include <QHeaderView>
 #include <QScrollBar>
 
-#include "EnrichedTableWidget.h"
-#include "GraphicalCharter.h"
+#include "enriched_table_widget.h"
+#include "graphical_charter.h"
 
 using namespace MatisseTools;
 

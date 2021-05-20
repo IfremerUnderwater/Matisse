@@ -1,4 +1,4 @@
-#include "IconizedButtonWrapper.h"
+#include "iconized_button_wrapper.h"
 
 using namespace MatisseTools;
 

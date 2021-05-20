@@ -2,7 +2,7 @@
 
 #include "WelcomeDialog.h"
 #include "ui_WelcomeDialog.h"
-#include "GraphicalCharter.h"
+#include "graphical_charter.h"
 
 #include <QLabel>
 

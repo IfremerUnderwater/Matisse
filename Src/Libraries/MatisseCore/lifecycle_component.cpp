@@ -1,4 +1,4 @@
-﻿#include "LifecycleComponent.h"
+﻿#include "lifecycle_component.h"
 #include <QDir>
 
 using namespace MatisseCommon;

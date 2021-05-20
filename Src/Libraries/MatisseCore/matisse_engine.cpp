@@ -1,4 +1,4 @@
-#include "MatisseEngine.h"
+#include "matisse_engine.h"
 
 using namespace MatisseTools;
 

@@ -3,7 +3,7 @@
 
 #include <QAbstractButton>
 
-#include "IconizedWidgetWrapper.h"
+#include "iconized_widget_wrapper.h"
 
 namespace MatisseTools {
 class IconizedButtonWrapper : public IconizedWidgetWrapper

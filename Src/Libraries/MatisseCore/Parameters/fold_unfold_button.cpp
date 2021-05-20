@@ -1,4 +1,4 @@
-#include "FoldUnfoldButton.h"
+#include "fold_unfold_button.h"
 
 using namespace MatisseTools;
 

@@ -1,6 +1,6 @@
 ﻿#include <QDebug>
-#include "JobDefinition.h"
-#include "JobServer.h"
+#include "job_definition.h"
+#include "job_server.h"
 
 using namespace MatisseTools;
 

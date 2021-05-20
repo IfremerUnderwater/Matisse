@@ -1,4 +1,4 @@
-#include "IconizedLabelWrapper.h"
+#include "iconized_label_wrapper.h"
 
 using namespace MatisseTools;
 

@@ -1,7 +1,7 @@
 #ifndef MATLABCPPINTERFACE_H
 #define MATLABCPPINTERFACE_H
 
-#include "MatisseParameters.h"
+#include "matisse_parameters.h"
 #include "MosaicContext.h"
 #include "mclmcrrt.h"
 #include "mclcppclass.h"

@@ -2,7 +2,7 @@
 #define BridgeModule_H
 
 
-#include "Processor.h"
+#include "processor.h"
 
 using namespace MatisseCommon;
 

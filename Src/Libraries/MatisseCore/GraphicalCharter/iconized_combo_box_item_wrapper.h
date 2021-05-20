@@ -3,7 +3,7 @@
 
 #include <QComboBox>
 
-#include "IconizedWidgetWrapper.h"
+#include "iconized_widget_wrapper.h"
 
 namespace MatisseTools {
 class IconizedComboBoxItemWrapper : public IconizedWidgetWrapper

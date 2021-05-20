@@ -25,8 +25,8 @@
 #include "ProcessorWidget.h"
 #include "DestinationWidget.h"
 #include "PipeWidget.h"
-#include "KeyValueList.h"
-#include "MatisseEngine.h"
+#include "key_value_list.h"
+#include "matisse_engine.h"
 
 
 using namespace MatisseTools;

@@ -5,7 +5,7 @@
 #include <QStringList>
 #include <QtDebug>
 
-#include "EnrichedFormWidget.h"
+#include "enriched_form_widget.h"
 #include "camera_info.h"
 
 namespace MatisseTools {

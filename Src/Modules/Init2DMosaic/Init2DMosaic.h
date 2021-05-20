@@ -2,7 +2,7 @@
 #define Init2DMosaicModule_H
 
 
-#include "Processor.h"
+#include "processor.h"
 
 using namespace MatisseCommon;
 

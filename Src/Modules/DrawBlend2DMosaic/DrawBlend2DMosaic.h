@@ -2,7 +2,7 @@
 #define DrawBlend2DMosaic_H
 
 
-#include "Processor.h"
+#include "processor.h"
 #include "output_data_writer.h"
 
 using namespace MatisseCommon;

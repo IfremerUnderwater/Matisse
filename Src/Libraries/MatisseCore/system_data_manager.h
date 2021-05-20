@@ -9,8 +9,8 @@
 #include <QXmlAttributes>
 #include <QtDebug>
 
-#include "MatissePreferences.h"
-#include "MatisseRemoteServerSettings.h"
+#include "matisse_preferences.h"
+#include "matisse_remote_server_settings.h"
 #include "platform_inspector.h"
 #include "platform_dump.h"
 #include "platform_comparator.h"

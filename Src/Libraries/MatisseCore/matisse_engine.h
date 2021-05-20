@@ -10,14 +10,14 @@
 #include <QCryptographicHash>
 #include <QFile>
 
-#include "Processor.h"
+#include "processor.h"
 #include "input_data_provider.h"
 #include "output_data_writer.h"
-#include "JobServer.h"
+#include "job_server.h"
 #include "file_utils.h"
-#include "MatisseParametersManager.h"
-#include "SystemDataManager.h"
-#include "ProcessDataManager.h"
+#include "matisse_parameters_manager.h"
+#include "system_data_manager.h"
+#include "process_data_manager.h"
 
 using namespace MatisseCommon;
 

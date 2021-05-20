@@ -2,7 +2,7 @@
 #define InitMatchModule_H
 
 
-#include "Processor.h"
+#include "processor.h"
 #include "third_party/progress/progress.hpp"
 
 /**

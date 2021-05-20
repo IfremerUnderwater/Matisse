@@ -3,7 +3,7 @@
 
 #include <QLabel>
 
-#include "IconizedWidgetWrapper.h"
+#include "iconized_widget_wrapper.h"
 
 namespace MatisseTools {
 

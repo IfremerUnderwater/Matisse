@@ -1,9 +1,9 @@
 #ifndef PREFERENCESDIALOG_H
 #define PREFERENCESDIALOG_H
 
-#include "MatissePreferences.h"
-#include "MatisseIconFactory.h"
-#include "IconizedButtonWrapper.h"
+#include "matisse_preferences.h"
+#include "matisse_icon_factory.h"
+#include "iconized_button_wrapper.h"
 
 #include <QDialog>
 #include <QFileDialog>

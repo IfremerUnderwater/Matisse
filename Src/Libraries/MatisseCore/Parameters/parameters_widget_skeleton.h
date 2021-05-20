@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QGroupBox>
-#include "EnrichedFormWidget.h"
+#include "enriched_form_widget.h"
 
 namespace Ui {
 class ParametersWidgetSkeleton;

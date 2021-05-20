@@ -1,4 +1,4 @@
-#include "EnrichedDecimalValueWidget.h"
+#include "enriched_decimal_value_widget.h"
 
 using namespace MatisseTools;
 

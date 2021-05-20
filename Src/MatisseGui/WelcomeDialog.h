@@ -3,9 +3,9 @@
 
 #include <QDialog>
 
-#include "MatisseEngine.h"
-#include "MatisseIconFactory.h"
-#include "IconizedButtonWrapper.h"
+#include "matisse_engine.h"
+#include "matisse_icon_factory.h"
+#include "iconized_button_wrapper.h"
 
 namespace Ui {
 class WelcomeDialog;

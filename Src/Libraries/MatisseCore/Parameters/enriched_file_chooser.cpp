@@ -1,4 +1,4 @@
-#include "EnrichedFileChooser.h"
+#include "enriched_file_chooser.h"
 
 using namespace MatisseTools;
 

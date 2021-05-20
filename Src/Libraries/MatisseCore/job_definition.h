@@ -1,7 +1,7 @@
 ﻿#ifndef JOBDEFINITION_H
 #define JOBDEFINITION_H
 
-#include "AssemblyDefinition.h"
+#include "assembly_definition.h"
 
 ///
 /// Business object for jobs

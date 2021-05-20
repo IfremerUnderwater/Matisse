@@ -9,10 +9,10 @@
 #include <QQueue>
 #include <QtDebug>
 
-#include "MatisseParametersManager.h"
-#include "MatissePreferences.h"
-#include "MatisseRemoteServerSettings.h"
-#include "ProcessDataManager.h"
+#include "matisse_parameters_manager.h"
+#include "matisse_preferences.h"
+#include "matisse_remote_server_settings.h"
+#include "process_data_manager.h"
 #include "RemoteProgressDialog.h"
 #include "network_client.h"
 #include "network_file_client.h"

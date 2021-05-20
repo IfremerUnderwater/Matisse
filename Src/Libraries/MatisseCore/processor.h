@@ -10,8 +10,8 @@
 #include "Context.h"
 #include "image.h"
 #include "image_set.h"
-#include "MatisseParameters.h"
-#include "LifecycleComponent.h"
+#include "matisse_parameters.h"
+#include "lifecycle_component.h"
 #include "Polygon.h"
 
 namespace MatisseCommon {

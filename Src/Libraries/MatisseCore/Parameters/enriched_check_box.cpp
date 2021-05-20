@@ -1,4 +1,4 @@
-#include "EnrichedCheckBox.h"
+#include "enriched_check_box.h"
 
 using namespace MatisseTools;
 

@@ -1,4 +1,4 @@
-#include "EnrichedListBox.h"
+#include "enriched_list_box.h"
 
 using namespace MatisseTools;
 

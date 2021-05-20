@@ -1,4 +1,4 @@
-#include "IconizedActionWrapper.h"
+#include "iconized_action_wrapper.h"
 
 using namespace MatisseTools;
 

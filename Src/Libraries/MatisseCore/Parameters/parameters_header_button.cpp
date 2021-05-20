@@ -1,4 +1,4 @@
-#include "ParametersHeaderButton.h"
+#include "parameters_header_button.h"
 
 using namespace MatisseTools;
 

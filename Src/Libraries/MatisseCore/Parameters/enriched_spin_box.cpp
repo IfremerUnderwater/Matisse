@@ -1,6 +1,6 @@
 ﻿#include <QDebug>
-#include "GraphicalCharter.h"
-#include "EnrichedSpinBox.h"
+#include "graphical_charter.h"
+#include "enriched_spin_box.h"
 
 using namespace MatisseTools;
 

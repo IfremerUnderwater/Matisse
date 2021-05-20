@@ -7,7 +7,7 @@
 #include "MatisseVersionWidget.h"
 #include "VisuModeWidget.h"
 #include "OngoingProcessWidget.h"
-#include "GraphicalCharter.h"
+#include "graphical_charter.h"
 #include "RemoteJobHelper.h"
 
 using namespace MatisseTools;

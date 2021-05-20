@@ -1,4 +1,4 @@
-#include "EnrichedComboBox.h"
+#include "enriched_combo_box.h"
 
 using namespace MatisseTools;
 

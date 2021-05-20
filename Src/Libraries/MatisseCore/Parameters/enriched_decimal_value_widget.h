@@ -1,7 +1,7 @@
 #ifndef ENRICHEDDECIMALVALUEWIDGET_H
 #define ENRICHEDDECIMALVALUEWIDGET_H
 
-#include "EnrichedFormWidget.h"
+#include "enriched_form_widget.h"
 
 namespace MatisseTools {
 

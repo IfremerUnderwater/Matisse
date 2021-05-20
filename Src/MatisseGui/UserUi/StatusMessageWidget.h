@@ -5,8 +5,8 @@
 #include <QList>
 #include <QtDebug>
 
-#include "MatisseIconFactory.h"
-#include "IconizedComboBoxItemWrapper.h"
+#include "matisse_icon_factory.h"
+#include "iconized_combo_box_item_wrapper.h"
 
 using namespace MatisseTools;
 

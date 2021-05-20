@@ -1,5 +1,5 @@
-#include "ParametersWidgetSkeleton.h"
-#include "ui_ParametersWidgetSkeleton.h"
+#include "parameters_widget_skeleton.h"
+#include "ui_parameters_widget_skeleton.h"
 
 #include <QtDebug>
 

@@ -6,8 +6,8 @@
 #include <QtDebug>
 #include <qmath.h>
 
-#include "ToolsCommon.h"
-#include "EnrichedDecimalValueWidget.h"
+#include "parameters_common.h"
+#include "enriched_decimal_value_widget.h"
 
 #define MIN_REAL std::numeric_limits<float>::min()
 #define MAX_REAL std::numeric_limits<float>::max()

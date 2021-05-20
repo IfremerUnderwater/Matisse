@@ -1,4 +1,4 @@
-#include "MatisseIconFactory.h"
+#include "matisse_icon_factory.h"
 
 using namespace MatisseCommon;
 using namespace MatisseTools;

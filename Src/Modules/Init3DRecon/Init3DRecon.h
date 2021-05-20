@@ -2,7 +2,7 @@
 #define InitMatchModule_H
 
 
-#include "Processor.h"
+#include "processor.h"
 #include "openMVG/numeric/eigen_alias_definition.hpp"
 #include <GeographicLib/LocalCartesian.hpp>
 

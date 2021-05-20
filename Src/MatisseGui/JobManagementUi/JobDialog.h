@@ -11,10 +11,10 @@
 
 #include <QtDebug>
 
-#include "KeyValueList.h"
-#include "ToolsCommon.h"
-#include "MatisseIconFactory.h"
-#include "IconizedButtonWrapper.h"
+#include "key_value_list.h"
+#include "parameters_common.h"
+#include "matisse_icon_factory.h"
+#include "iconized_button_wrapper.h"
 
 
 using namespace MatisseTools;

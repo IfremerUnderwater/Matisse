@@ -8,7 +8,7 @@
 #include <QUrl>
 
 #include "file_utils.h"
-#include "IconizedWidgetWrapper.h"
+#include "iconized_widget_wrapper.h"
 
 ///
 /// Class for changing icon colors

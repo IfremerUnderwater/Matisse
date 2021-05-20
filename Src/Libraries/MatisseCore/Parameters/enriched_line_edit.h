@@ -4,7 +4,7 @@
 #include <QLineEdit>
 #include <QString>
 
-#include "EnrichedFormWidget.h"
+#include "enriched_form_widget.h"
 
 namespace MatisseTools {
 

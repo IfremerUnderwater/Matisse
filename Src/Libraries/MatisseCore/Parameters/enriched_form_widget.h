@@ -8,7 +8,7 @@
 #include <QString>
 #include <QSharedPointer>
 
-#include "GraphicalCharter.h"
+#include "graphical_charter.h"
 
 #include <limits>
 

@@ -3,7 +3,7 @@
 
 #include <QFileSystemWatcher>
 #include <QDateTime>
-#include "Processor.h"
+#include "processor.h"
 
 using namespace MatisseCommon;
 

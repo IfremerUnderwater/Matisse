@@ -1,4 +1,4 @@
-#include "GraphicalCharter.h"
+#include "graphical_charter.h"
 #include <QGuiApplication>
 #include <QScreen>
 

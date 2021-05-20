@@ -1,5 +1,5 @@
-#include "EnrichedFormWidget.h"
-#include "GraphicalCharter.h"
+#include "enriched_form_widget.h"
+#include "graphical_charter.h"
 
 using namespace MatisseTools;
 

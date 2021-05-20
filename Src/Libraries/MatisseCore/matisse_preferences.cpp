@@ -1,4 +1,4 @@
-#include "MatissePreferences.h"
+#include "matisse_preferences.h"
 
 
 QString MatissePreferences::importExportPath() const

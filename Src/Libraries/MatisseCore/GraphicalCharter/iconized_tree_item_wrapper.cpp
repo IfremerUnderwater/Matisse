@@ -1,4 +1,4 @@
-#include "IconizedTreeItemWrapper.h"
+#include "iconized_tree_item_wrapper.h"
 
 using namespace MatisseTools;
 

@@ -1,4 +1,4 @@
-#include "EnrichedCamComboBox.h"
+#include "enriched_cam_combo_box.h"
 #include "camera_manager.h"
 
 using namespace MatisseTools;

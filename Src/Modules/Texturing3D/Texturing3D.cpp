@@ -1,5 +1,5 @@
 ﻿#include "Texturing3D.h"
-#include "reconstructioncontext.h"
+#include "reconstruction_context.h"
 #include "nav_image.h"
 
 #include <QFile>

@@ -2,8 +2,8 @@
 #define PARAMETERSHEADERBUTTON_H
 
 #include <QPushButton>
-#include "FoldUnfoldButton.h"
-#include "ToolsCommon.h"
+#include "fold_unfold_button.h"
+#include "parameters_common.h"
 
 
 namespace MatisseTools {

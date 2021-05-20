@@ -1,5 +1,5 @@
 ﻿#include "Meshing3D.h"
-#include "reconstructioncontext.h"
+#include "reconstruction_context.h"
 #include "nav_image.h"
 
 #define OPENMVG_USE_OPENMP
