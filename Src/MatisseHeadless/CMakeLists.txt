@@ -1,7 +1,7 @@
 # add the executable
 add_executable(MatisseHeadless
     main.cpp
-    JobLauncher.cpp
+    job_launcher.cpp
 	)
 	
 	

@@ -1,6 +1,6 @@
 ﻿#include <QStyle>
 
-#include "JobLauncher.h"
+#include "job_launcher.h"
 #include "graphical_charter.h"
 
 using namespace MatisseTools;

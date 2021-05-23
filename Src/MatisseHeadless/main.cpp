@@ -14,7 +14,7 @@
 #include "picture_file_set.h"
 #include "Context.h"
 #include "matisse_parameters.h"
-#include "JobLauncher.h"
+#include "job_launcher.h"
 //#include "welcome_dialog.h"
 #include "system_data_manager.h"
 #include "process_data_manager.h"
