@@ -1,5 +1,5 @@
-#include "StatusMessageWidget.h"
-#include "ui_StatusMessageWidget.h"
+#include "status_message_widget.h"
+#include "ui_status_message_widget.h"
 
 StatusMessageWidget::StatusMessageWidget(QWidget *parent, MatisseIconFactory *iconFactory) :
     QWidget(parent),

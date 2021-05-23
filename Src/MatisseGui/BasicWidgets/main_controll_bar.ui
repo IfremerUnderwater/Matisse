@@ -230,31 +230,31 @@
   <customwidget>
    <class>HomeWidget</class>
    <extends>QFrame</extends>
-   <header>HomeWidget.h</header>
+   <header>home_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>VisuModeWidget</class>
    <extends>QFrame</extends>
-   <header>VisuModeWidget.h</header>
+   <header>visu_mode_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>MainMenuWidget</class>
    <extends>QFrame</extends>
-   <header>MainMenuWidget.h</header>
+   <header>main_menu_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>OngoingProcessWidget</class>
    <extends>QFrame</extends>
-   <header>OngoingProcessWidget.h</header>
+   <header>ongoing_process_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>MatisseVersionWidget</class>
    <extends>QFrame</extends>
-   <header>MatisseVersionWidget.h</header>
+   <header>matisse_version_widget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

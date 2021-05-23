@@ -1,7 +1,7 @@
 #include <QtDebug>
 
-#include "WelcomeDialog.h"
-#include "ui_WelcomeDialog.h"
+#include "welcome_dialog.h"
+#include "ui_welcome_dialog.h"
 #include "graphical_charter.h"
 
 #include <QLabel>

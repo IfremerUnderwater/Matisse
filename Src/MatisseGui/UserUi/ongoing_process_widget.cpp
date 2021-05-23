@@ -1,5 +1,5 @@
-#include "OngoingProcessWidget.h"
-#include "ui_OngoingProcessWidget.h"
+#include "ongoing_process_widget.h"
+#include "ui_ongoing_process_widget.h"
 #include "graphical_charter.h"
 
 OngoingProcessWidget::OngoingProcessWidget(QWidget *parent) :

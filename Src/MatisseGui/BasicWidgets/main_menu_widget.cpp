@@ -1,5 +1,5 @@
-#include "MainMenuWidget.h"
-#include "ui_MainMenuWidget.h"
+#include "main_menu_widget.h"
+#include "ui_main_menu_widget.h"
 #include "graphical_charter.h"
 
 #include <QVBoxLayout>

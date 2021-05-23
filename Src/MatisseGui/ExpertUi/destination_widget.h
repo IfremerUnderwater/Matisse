@@ -1,7 +1,7 @@
 ﻿#ifndef DESTINATIONWIDGET_H
 #define DESTINATIONWIDGET_H
 
-#include "ElementWidget.h"
+#include "element_widget.h"
 
 namespace MatisseServer {
 class DestinationWidget : public ElementWidget

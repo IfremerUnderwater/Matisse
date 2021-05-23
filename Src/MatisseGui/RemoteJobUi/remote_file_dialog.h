@@ -6,7 +6,7 @@
 #include <QDialog>
 
 #include "network_client.h"
-#include "TreeModel.h"
+#include "tree_model.h"
 
 using namespace MatisseCommon;
 using namespace MatisseTools;

@@ -1,5 +1,5 @@
-#include "PreferencesDialog.h"
-#include "ui_PreferencesDialog.h"
+#include "preferences_dialog.h"
+#include "ui_preferences_dialog.h"
 
 using namespace MatisseServer;
 

@@ -47,8 +47,8 @@
 
 #include <QtGui>
 
-#include "TreeItem.h"
-#include "TreeModel.h"
+#include "tree_item.h"
+#include "tree_model.h"
 
 namespace MatisseTools {
 

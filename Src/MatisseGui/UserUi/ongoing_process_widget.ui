@@ -288,7 +288,7 @@
   <customwidget>
    <class>MatisseServer::LiveProcessWheel</class>
    <extends>QWidget</extends>
-   <header>LiveProcessWheel.h</header>
+   <header>live_process_wheel.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

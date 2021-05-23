@@ -2,31 +2,31 @@
 #include <QDesktopWidget>
 #include <QMessageBox>
 
-#include "AssemblyGui.h"
-#include "ui_AssemblyGui.h"
-#include "MatisseVersionWidget.h"
-#include "VisuModeWidget.h"
-#include "OngoingProcessWidget.h"
+#include "main_gui.h"
+#include "ui_main_gui.h"
+#include "matisse_version_widget.h"
+#include "visu_mode_widget.h"
+#include "ongoing_process_widget.h"
 #include "graphical_charter.h"
-#include "RemoteJobHelper.h"
+#include "remote_job_helper.h"
 
 using namespace MatisseTools;
 using namespace MatisseServer;
 
-const QString AssemblyGui::PREFERENCES_FILEPATH = QString("config/MatissePreferences.xml");
-const QString AssemblyGui::ASSEMBLY_EXPORT_PREFIX = QString("assembly_export_");
-const QString AssemblyGui::JOB_EXPORT_PREFIX = QString("job_export_");
-const QString AssemblyGui::JOB_REMOTE_PREFIX = QString("job_remote_");
-const QString AssemblyGui::DEFAULT_EXCHANGE_PATH = QString("exchange");
-const QString AssemblyGui::DEFAULT_ARCHIVE_PATH = QString("archive");
-const QString AssemblyGui::DEFAULT_REMOTE_PATH = QString("remote");
-const QString AssemblyGui::DEFAULT_RESULT_PATH = QString("./outReconstruction");
-const QString AssemblyGui::DEFAULT_MOSAIC_PREFIX = QString("MyProcess");
+const QString MainGui::PREFERENCES_FILEPATH = QString("config/MatissePreferences.xml");
+const QString MainGui::ASSEMBLY_EXPORT_PREFIX = QString("assembly_export_");
+const QString MainGui::JOB_EXPORT_PREFIX = QString("job_export_");
+const QString MainGui::JOB_REMOTE_PREFIX = QString("job_remote_");
+const QString MainGui::DEFAULT_EXCHANGE_PATH = QString("exchange");
+const QString MainGui::DEFAULT_ARCHIVE_PATH = QString("archive");
+const QString MainGui::DEFAULT_REMOTE_PATH = QString("remote");
+const QString MainGui::DEFAULT_RESULT_PATH = QString("./outReconstruction");
+const QString MainGui::DEFAULT_MOSAIC_PREFIX = QString("MyProcess");
 
-AssemblyGui::AssemblyGui(QWidget *parent) :
+MainGui::MainGui(QWidget *parent) :
 
     QMainWindow(parent),
-    _ui(new Ui::AssemblyGui),
+    _ui(new Ui::MainGui),
     _isNightDisplayMode(false),
     _isMapView(false), // initialized to false (creation) so it will be swapped to true (map) at init
     _currentJob(NULL),
@@ -62,14 +62,14 @@ AssemblyGui::AssemblyGui(QWidget *parent) :
 
 }
 
-AssemblyGui::~AssemblyGui()
+MainGui::~MainGui()
 {
     delete _iconFactory;
     delete _ui;
     //qDebug() << "Delete Gui";
 }
 
-void AssemblyGui::initDateTimeDisplay()
+void MainGui::initDateTimeDisplay()
 {
     slot_updateTimeDisplay();
     _dateTimeTimer = new QTimer(this);
@@ -78,7 +78,7 @@ void AssemblyGui::initDateTimeDisplay()
     _dateTimeTimer->start();
 }
 
-void AssemblyGui::updatePreferredDatasetParameters()
+void MainGui::updatePreferredDatasetParameters()
 {
     KeyValueList kvl;
     kvl.insert(DATASET_PARAM_OUTPUT_DIR, _preferences->defaultResultPath());
@@ -87,12 +87,12 @@ void AssemblyGui::updatePreferredDatasetParameters()
     m_engine.parametersManager()->pushPreferredDatasetParameters(kvl);
 }
 
-void AssemblyGui::setRemoteJobHelper(RemoteJobHelper *remoteJobHelper)
+void MainGui::setRemoteJobHelper(RemoteJobHelper *remoteJobHelper)
 {
     m_remote_job_helper = remoteJobHelper;
 }
 
-void AssemblyGui::initPreferences()
+void MainGui::initPreferences()
 {
     _preferences = new MatissePreferences();
 
@@ -123,7 +123,7 @@ void AssemblyGui::initPreferences()
     _archivePath = _preferences->archivePath();
 }
 
-void AssemblyGui::initParametersWidget()
+void MainGui::initParametersWidget()
 {
     _parametersDock = _ui->_SCA_parametersDock;
 
@@ -136,7 +136,7 @@ void AssemblyGui::initParametersWidget()
     connect(_parametersWidget, SIGNAL(signal_valuesModified(bool)), this, SLOT(slot_modifiedParameters(bool)));
 }
 
-void AssemblyGui::initProcessorWidgets()
+void MainGui::initProcessorWidgets()
 {
     qDebug() << "Available processors " << m_engine.getAvailableProcessors().size();
     foreach (Processor * processor, m_engine.getAvailableProcessors()) {
@@ -186,7 +186,7 @@ void AssemblyGui::initProcessorWidgets()
     }
 }
 
-void AssemblyGui::lookupChildWidgets()
+void MainGui::lookupChildWidgets()
 {
     // Recherche des boutons d'action et système
     _visuModeButton = findChild<QToolButton*>(QString("_TBU_visuModeSwap"));
@@ -219,7 +219,7 @@ void AssemblyGui::lookupChildWidgets()
     _expertFormWidget = _ui->_WID_creationSceneContainer;
 }
 
-void AssemblyGui::initProcessWheelSignalling()
+void MainGui::initProcessWheelSignalling()
 {
     connect(this, SIGNAL(signal_processRunning()), _liveProcessWheel, SLOT(slot_processRunning()));
     connect(this, SIGNAL(signal_processStopped()), _liveProcessWheel, SLOT(slot_processStopped()));
@@ -227,7 +227,7 @@ void AssemblyGui::initProcessWheelSignalling()
     connect(this, SIGNAL(signal_updateWheelColors(QString)), _liveProcessWheel, SLOT(slot_updateWheelColors(QString)));
 }
 
-void AssemblyGui::initUserActions()
+void MainGui::initUserActions()
 {
     /* Assembly tree actions */
     connect(_ui->_TRW_assemblies, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(slot_selectAssemblyOrJob(QTreeWidgetItem*,int)));
@@ -285,7 +285,7 @@ void AssemblyGui::initUserActions()
     connect(_ui->_PB_parameterFold, SIGNAL(clicked(bool)), this, SLOT(slot_foldUnfoldParameters()));
 }
 
-void AssemblyGui::initServer()
+void MainGui::initServer()
 {
     m_engine.init();
 
@@ -295,7 +295,7 @@ void AssemblyGui::initServer()
     connect(&m_engine, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
 }
 
-void AssemblyGui::initAssemblyCreationScene()
+void MainGui::initAssemblyCreationScene()
 {
     _expertFormWidget->getScene()->setServer(&m_engine);
     _expertFormWidget->getScene()->setElementWidgetProvider(this);
@@ -305,7 +305,7 @@ void AssemblyGui::initAssemblyCreationScene()
     connect(_expertFormWidget->getScene(), SIGNAL(signal_assemblyComplete(bool)), this, SLOT(slot_assemblyComplete(bool)));
 }
 
-void AssemblyGui::initWelcomeDialog()
+void MainGui::initWelcomeDialog()
 {   
     _welcomeDialog = new WelcomeDialog(this, _iconFactory, _preferences->programmingModeEnabled());
     _welcomeDialog->setObjectName("_D_welcomeDialog");
@@ -314,7 +314,7 @@ void AssemblyGui::initWelcomeDialog()
 
 }
 
-void AssemblyGui::initMapFeatures()
+void MainGui::initMapFeatures()
 {
     _userFormWidget->setIconFactory(_iconFactory);
     _userFormWidget->initCanvas();
@@ -329,7 +329,7 @@ void AssemblyGui::initMapFeatures()
 
 }
 
-void AssemblyGui::dpiScaleWidgets()
+void MainGui::dpiScaleWidgets()
 {
     GraphicalCharter &graph_charter = GraphicalCharter::instance();
     int dpi_cb_height = graph_charter.dpiScaled(CONTROLLBAR_HEIGHT);
@@ -383,7 +383,7 @@ void AssemblyGui::dpiScaleWidgets()
 
 }
 
-void AssemblyGui::init()
+void MainGui::init()
 {
     initLanguages();
 
@@ -438,7 +438,7 @@ void AssemblyGui::init()
 
 }
 
-void AssemblyGui::initRemoteJobHelper()
+void MainGui::initRemoteJobHelper()
 {
   m_remote_job_helper->setJobLauncher(this);
   m_remote_job_helper->setParametersManager(m_engine.parametersManager());
@@ -449,7 +449,7 @@ void AssemblyGui::initRemoteJobHelper()
           SLOT(sl_onRemoteJobResultsReceived(QString)));
 }
 
-void AssemblyGui::initIconFactory()
+void MainGui::initIconFactory()
 {
     _currentColorSet = FileUtils::readPropertiesFile("lnf/MatisseColorsDay.properties");
     _iconFactory = new MatisseIconFactory(_currentColorSet, "grey", "orange", "orange2");
@@ -458,7 +458,7 @@ void AssemblyGui::initIconFactory()
     connect(this, SIGNAL(signal_updateAppModeColors(QString,QString)), _iconFactory, SLOT(slot_updateAppModeColors(QString,QString)));
 }
 
-void AssemblyGui::initStylesheetSelection()
+void MainGui::initStylesheetSelection()
 {
     setStyleSheet("");
 
@@ -512,7 +512,7 @@ void AssemblyGui::initStylesheetSelection()
     connect(this, SIGNAL(signal_updateColorPalette(QMap<QString,QString>)), _userFormWidget, SLOT(slot_updateColorPalette(QMap<QString,QString>)));
 }
 
-void AssemblyGui::initMainMenu()
+void MainGui::initMainMenu()
 {
     /* Identifying container widget */
     QWidget* menuContainer = findChild<QWidget*>(QString("mainMenuWidget"));
@@ -593,7 +593,7 @@ void AssemblyGui::initMainMenu()
 
 }
 
-void AssemblyGui::initContextMenus()
+void MainGui::initContextMenus()
 {
     /* Actions pour menu contextuel Traitement */
     _createJobAct = new QAction(this);
@@ -619,7 +619,7 @@ void AssemblyGui::initContextMenus()
     _ui->_TRW_assemblies->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-void AssemblyGui::initVersionDisplay()
+void MainGui::initVersionDisplay()
 {
     _appVersion = SystemDataManager::instance()->getVersion();
     QStringList versionItems = _appVersion.split(".");
@@ -639,7 +639,7 @@ void AssemblyGui::initVersionDisplay()
     _matisseVersionlabel->setText(fullVersionLabel);
 }
 
-bool AssemblyGui::loadResultToCartoView(QString resultFile_p, bool remove_previous_scenes)
+bool MainGui::loadResultToCartoView(QString resultFile_p, bool remove_previous_scenes)
 {
     QFileInfo infoResult(resultFile_p);
 
@@ -673,7 +673,7 @@ bool AssemblyGui::loadResultToCartoView(QString resultFile_p, bool remove_previo
 }
 
 
-void AssemblyGui::loadAssembliesAndJobsLists(bool doExpand)
+void MainGui::loadAssembliesAndJobsLists(bool doExpand)
 {
     /* Clearing tree and lists */
     _ui->_TRW_assemblies->clear();
@@ -724,7 +724,7 @@ void AssemblyGui::loadAssembliesAndJobsLists(bool doExpand)
     }
 }
 
-void AssemblyGui::loadStyleSheet(ApplicationMode mode)
+void MainGui::loadStyleSheet(ApplicationMode mode)
 {
     emit signal_updateAppModeColors(_colorsByMode1.value(mode), _colorsByMode2.value(mode));
 
@@ -800,13 +800,13 @@ void AssemblyGui::loadStyleSheet(ApplicationMode mode)
 }
 
 
-void AssemblyGui::loadDefaultStyleSheet()
+void MainGui::loadDefaultStyleSheet()
 {
     loadStyleSheet(POST_PROCESSING);
 }
 
 
-bool AssemblyGui::promptAssemblyNotSaved() {
+bool MainGui::promptAssemblyNotSaved() {
 
     bool confirmAction = true;
 
@@ -847,7 +847,7 @@ bool AssemblyGui::promptAssemblyNotSaved() {
 }
 
 
-void AssemblyGui::checkAndSelectAssembly(QString selectedAssemblyName)
+void MainGui::checkAndSelectAssembly(QString selectedAssemblyName)
 {
     if (_newAssembly) {
 
@@ -895,7 +895,7 @@ void AssemblyGui::checkAndSelectAssembly(QString selectedAssemblyName)
 }
 
 
-void AssemblyGui::promptJobNotSaved()
+void MainGui::promptJobNotSaved()
 {
     if (_jobParameterModified) {
         if (!_currentJob) {
@@ -925,7 +925,7 @@ void AssemblyGui::promptJobNotSaved()
 }
 
 
-void AssemblyGui::checkAndSelectJob(QTreeWidgetItem* selectedItem)
+void MainGui::checkAndSelectJob(QTreeWidgetItem* selectedItem)
 {
     if (_jobParameterModified) {
         if (!_currentJob) {
@@ -950,7 +950,7 @@ void AssemblyGui::checkAndSelectJob(QTreeWidgetItem* selectedItem)
     }
 }
 
-void AssemblyGui::resetOngoingProcessIndicators()
+void MainGui::resetOngoingProcessIndicators()
 {
     // Reset and hide ongoing process indicator on selection of another assembly / job
     _ongoingProcessInfolabel->setText("");
@@ -960,7 +960,7 @@ void AssemblyGui::resetOngoingProcessIndicators()
     emit signal_processStopped(); // to reset wheel if previous job was frozen
 }
 
-void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int column)
+void MainGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int column)
 {
     Q_UNUSED(column)
 
@@ -1029,13 +1029,13 @@ void AssemblyGui::slot_selectAssemblyOrJob(QTreeWidgetItem * selectedItem, int c
     }
 }
 
-void AssemblyGui::slot_updateTimeDisplay()
+void MainGui::slot_updateTimeDisplay()
 {
     QDateTime current = QDateTime::currentDateTime();
     _currentDateTimeLabel->setText(current.toString("dd/MM/yyyy hh:mm"));
 }
 
-void AssemblyGui::slot_updatePreferences()
+void MainGui::slot_updatePreferences()
 {
     /* hide parameters view to display the dialog on top the dark background */
     bool previousFoldingState = _ui->_PB_parameterFold->getIsUnfolded();
@@ -1066,13 +1066,13 @@ void AssemblyGui::slot_updatePreferences()
     doFoldUnfoldParameters(previousFoldingState);
 }
 
-void AssemblyGui::slot_foldUnfoldParameters()
+void MainGui::slot_foldUnfoldParameters()
 {    
     bool isUnfoldAction = _ui->_PB_parameterFold->getIsUnfolded();
     doFoldUnfoldParameters(isUnfoldAction, true);
 }
 
-void AssemblyGui::slot_showUserManual()
+void MainGui::slot_showUserManual()
 {
     QString userManualFileName = "help/MatisseHelp_" + _currentLanguage + ".pdf";
 
@@ -1088,7 +1088,7 @@ void AssemblyGui::slot_showUserManual()
     QDesktopServices::openUrl(url);
 }
 
-void AssemblyGui::slot_showAboutBox()
+void MainGui::slot_showAboutBox()
 {
     KeyValueList meta;
     meta.append("version", _appVersion);
@@ -1100,7 +1100,7 @@ void AssemblyGui::slot_showAboutBox()
     }
 }
 
-void AssemblyGui::createExportDir()
+void MainGui::createExportDir()
 {
     QString importExportDir = _preferences->importExportPath();
     if (importExportDir.isEmpty()) {
@@ -1118,7 +1118,7 @@ void AssemblyGui::createExportDir()
 }
 
 
-void AssemblyGui::createImportDir()
+void MainGui::createImportDir()
 {
     QString importExportDir = _preferences->importExportPath();
     if (importExportDir.isEmpty()) {
@@ -1135,7 +1135,7 @@ void AssemblyGui::createImportDir()
     }
 }
 
-void AssemblyGui::checkArchiveDirCreated()
+void MainGui::checkArchiveDirCreated()
 {
     QString archiveDirPath = _preferences->archivePath();
     if (archiveDirPath.isEmpty()) {
@@ -1152,7 +1152,7 @@ void AssemblyGui::checkArchiveDirCreated()
     }
 }
 
-void AssemblyGui::checkRemoteDirCreated()
+void MainGui::checkRemoteDirCreated()
 {
   bool already_checked = !m_remote_output_path.isEmpty();
 
@@ -1170,7 +1170,7 @@ void AssemblyGui::checkRemoteDirCreated()
   }
 }
 
-void MatisseServer::AssemblyGui::updateJobStatus(
+void MatisseServer::MainGui::updateJobStatus(
     QString _job_name, QTreeWidgetItem *_item, MessageIndicatorLevel _indicator,
     QString _message) 
 {
@@ -1191,27 +1191,27 @@ void MatisseServer::AssemblyGui::updateJobStatus(
   showStatusMessage(msg, OK);
 }
 
-void AssemblyGui::slot_exportAssembly()
+void MainGui::slot_exportAssembly()
 {
     executeExportWorkflow(false);
 }
 
-void AssemblyGui::slot_importAssembly()
+void MainGui::slot_importAssembly()
 {
     executeImportWorkflow();
 }
 
-void AssemblyGui::slot_exportJob()
+void MainGui::slot_exportJob()
 {
     executeExportWorkflow(true);
 }
 
-void AssemblyGui::slot_importJob()
+void MainGui::slot_importJob()
 {
     executeImportWorkflow(true);
 }
 
-void AssemblyGui::slot_goToResult()
+void MainGui::slot_goToResult()
 {
   /* Guard unconsistent cases (this slot is assumed by selecting a previously executed job) */
   if (!_currentJob) {
@@ -1245,7 +1245,7 @@ void AssemblyGui::slot_goToResult()
   QDesktopServices::openUrl(url);
 }
 
-void AssemblyGui::slot_archiveJob()
+void MainGui::slot_archiveJob()
 {
     checkArchiveDirCreated();
 
@@ -1270,7 +1270,7 @@ void AssemblyGui::slot_archiveJob()
     }
 }
 
-void AssemblyGui::slot_restoreJobs()
+void MainGui::slot_restoreJobs()
 {
     if (!_currentAssembly) {
         qCritical() << "Could not identify selected assembly, impossible to restore jobs";
@@ -1298,7 +1298,7 @@ void AssemblyGui::slot_restoreJobs()
 
 }
 
-void AssemblyGui::slot_duplicateJob()
+void MainGui::slot_duplicateJob()
 {
     if (!_currentJob) {
         qCritical() << "The selected job cannot be identified, impossible to duplicate";
@@ -1332,7 +1332,7 @@ void AssemblyGui::slot_duplicateJob()
     }
 }
 
-void AssemblyGui::slot_duplicateAssembly()
+void MainGui::slot_duplicateAssembly()
 {
     if (!_currentAssembly) {
         qCritical() << "The selected assembly cannot be identified, impossible to duplicate";
@@ -1367,7 +1367,7 @@ void AssemblyGui::slot_duplicateAssembly()
 
 }
 
-void AssemblyGui::slot_swapDayNightDisplay()
+void MainGui::slot_swapDayNightDisplay()
 {
     _isNightDisplayMode = !_isNightDisplayMode;
 
@@ -1386,7 +1386,7 @@ void AssemblyGui::slot_swapDayNightDisplay()
     emit signal_updateColorPalette(_currentColorSet);
 }
 
-void AssemblyGui::slot_exportMapToImage()
+void MainGui::slot_exportMapToImage()
 {
     if (_exportPath.isEmpty()) {
         createExportDir();
@@ -1408,7 +1408,7 @@ void AssemblyGui::slot_exportMapToImage()
 }
 
 
-void AssemblyGui::slot_launchPreprocessingTool()
+void MainGui::slot_launchPreprocessingTool()
 {
     QMap<QString, QString> externalTools = SystemDataManager::instance()->getExternalTools();
     if (!externalTools.contains("preprocessingTool")) {
@@ -1430,12 +1430,12 @@ void AssemblyGui::slot_launchPreprocessingTool()
     QDesktopServices::openUrl(url);
 }
 
-void AssemblyGui::slot_launchCameraManagerTool()
+void MainGui::slot_launchCameraManagerTool()
 {
     m_camera_manager_tool_dialog.show();
 }
 
-void MatisseServer::AssemblyGui::slot_launchCameraCalibTool()
+void MatisseServer::MainGui::slot_launchCameraCalibTool()
 {
     m_camera_calib_tool_dialog.show();
 }
@@ -1462,7 +1462,7 @@ void MatisseServer::AssemblyGui::slot_launchCameraCalibTool()
 //    QDesktopServices::openUrl(url);
 //}
 
-void AssemblyGui::executeExportWorkflow(bool isJobExportAction, bool isForRemoteExecution) {
+void MainGui::executeExportWorkflow(bool isJobExportAction, bool isForRemoteExecution) {
     if (isForRemoteExecution && ! isJobExportAction) {
         qCritical() << "Unconsistent call cannot be executed : assembly export for remote execution";
         return;
@@ -1620,7 +1620,7 @@ void AssemblyGui::executeExportWorkflow(bool isJobExportAction, bool isForRemote
 }
 
 
-void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
+void MainGui::executeImportWorkflow(bool isJobImportAction) {
     if (_importPath.isEmpty()) {
         createImportDir();
     }
@@ -2198,7 +2198,7 @@ void AssemblyGui::executeImportWorkflow(bool isJobImportAction) {
 }
 
 
-void AssemblyGui::doFoldUnfoldParameters(bool doUnfold, bool isExplicitAction)
+void MainGui::doFoldUnfoldParameters(bool doUnfold, bool isExplicitAction)
 {
     if (doUnfold) {
         qDebug() << "Unfolding parameters";
@@ -2218,7 +2218,7 @@ void AssemblyGui::doFoldUnfoldParameters(bool doUnfold, bool isExplicitAction)
 }
 
 
-void AssemblyGui::freezeJobUserAction(bool freeze_p)
+void MainGui::freezeJobUserAction(bool freeze_p)
 {
     if(freeze_p){
         _ui->_TRW_assemblies->setEnabled(false);
@@ -2230,7 +2230,7 @@ void AssemblyGui::freezeJobUserAction(bool freeze_p)
 }
 
 
-bool AssemblyGui::checkArchivePathChange()
+bool MainGui::checkArchivePathChange()
 {
     if (!_archivePath.isEmpty()) {
         QString newArchivePath = _preferences->archivePath();
@@ -2265,7 +2265,7 @@ bool AssemblyGui::checkArchivePathChange()
     return true;
 }
 
-void AssemblyGui::slot_showApplicationMode(ApplicationMode mode)
+void MainGui::slot_showApplicationMode(ApplicationMode mode)
 {
     qDebug() << "Start application in mode " << mode;
     _activeApplicationMode = mode;
@@ -2315,7 +2315,7 @@ void AssemblyGui::slot_showApplicationMode(ApplicationMode mode)
     }
 }
 
-void AssemblyGui::slot_goHome()
+void MainGui::slot_goHome()
 {
     bool confirmAction = true;
 
@@ -2340,23 +2340,23 @@ void AssemblyGui::slot_goHome()
     }
 }
 
-void AssemblyGui::slot_show3DFileOnMainView(QString filepath_p)
+void MainGui::slot_show3DFileOnMainView(QString filepath_p)
 {
     _userFormWidget->load3DFile(filepath_p);
 }
 
-void AssemblyGui::slot_addRasterFileToMap(QString filepath_p)
+void MainGui::slot_addRasterFileToMap(QString filepath_p)
 {
     _userFormWidget->loadRasterFile(filepath_p);
 }
 
-void AssemblyGui::slot_addToLog(QString _loggin_text)
+void MainGui::slot_addToLog(QString _loggin_text)
 {
     _ui->_TW_infoTabs->setCurrentIndex(1);
     _ui->_QTE_loggingText->append(_loggin_text);
 }
 
-void AssemblyGui::saveAssemblyAndReload(AssemblyDefinition *assembly)
+void MainGui::saveAssemblyAndReload(AssemblyDefinition *assembly)
 {
     /* Save assembly and associated parameters */
     QString assemblyName = assembly->name();
@@ -2389,7 +2389,7 @@ void AssemblyGui::saveAssemblyAndReload(AssemblyDefinition *assembly)
     }
 }
 
-void AssemblyGui::slot_saveAssembly()
+void MainGui::slot_saveAssembly()
 {
     if (_newAssembly) {
 
@@ -2472,7 +2472,7 @@ void AssemblyGui::slot_saveAssembly()
 
 
 
-void AssemblyGui::displayAssemblyProperties(AssemblyDefinition *selectedAssembly)
+void MainGui::displayAssemblyProperties(AssemblyDefinition *selectedAssembly)
 {
     GraphicalCharter &graph_chart = GraphicalCharter::instance();
 
@@ -2516,7 +2516,7 @@ void AssemblyGui::displayAssemblyProperties(AssemblyDefinition *selectedAssembly
     _ui->_TRW_assemblyInfo->setItemWidget(_assemblyCommentPropertyItem, 0, _assemblyCommentPropertyItemText);
 }
 
-void AssemblyGui::loadAssemblyParameters(AssemblyDefinition *selectedAssembly)
+void MainGui::loadAssemblyParameters(AssemblyDefinition *selectedAssembly)
 {
     // reinitialisation des parametres avec leurs valeurs par defaut
     m_engine.parametersManager()->restoreParametersDefaultValues();
@@ -2533,7 +2533,7 @@ void AssemblyGui::loadAssemblyParameters(AssemblyDefinition *selectedAssembly)
     m_engine.parametersManager()->loadParameters(selectedAssembly->name(), true);
 }
 
-void AssemblyGui::displayAssembly(QString assemblyName) {
+void MainGui::displayAssembly(QString assemblyName) {
 
     _ui->_TRW_assemblyInfo->clear();
     if(_userFormWidget) {
@@ -2566,7 +2566,7 @@ void AssemblyGui::displayAssembly(QString assemblyName) {
 }
 
 // TODO Verif modif chrisar & ifremer simultanee (bug reload)
-void AssemblyGui::displayJob(QString jobName, bool forceReload)
+void MainGui::displayJob(QString jobName, bool forceReload)
 {
     GraphicalCharter &graph_chart = GraphicalCharter::instance();
 
@@ -2704,7 +2704,7 @@ void AssemblyGui::displayJob(QString jobName, bool forceReload)
     delete[] jobResultImageItems;
 }
 
-void AssemblyGui::selectAssembly(QString assemblyName, bool reloadAssembly)
+void MainGui::selectAssembly(QString assemblyName, bool reloadAssembly)
 {
     bool found = false;
 
@@ -2731,7 +2731,7 @@ void AssemblyGui::selectAssembly(QString assemblyName, bool reloadAssembly)
     }
 }
 
-void AssemblyGui::selectJob(QString jobName, bool reloadJob)
+void MainGui::selectJob(QString jobName, bool reloadJob)
 {
     bool found = false;
 
@@ -2762,7 +2762,7 @@ void AssemblyGui::selectJob(QString jobName, bool reloadJob)
 }
 
 
-void AssemblyGui::deleteAssemblyAndReload(bool promptUser)
+void MainGui::deleteAssemblyAndReload(bool promptUser)
 {
     QTreeWidgetItem * selectedItem = _ui->_TRW_assemblies->currentItem();
     if (!selectedItem) {
@@ -2857,14 +2857,14 @@ void AssemblyGui::deleteAssemblyAndReload(bool promptUser)
 
 
 
-void AssemblyGui::slot_deleteAssembly()
+void MainGui::slot_deleteAssembly()
 {
     qDebug() << "Delete selected assembly";
 
     deleteAssemblyAndReload(true);
 }
 
-void AssemblyGui::slot_newJob()
+void MainGui::slot_newJob()
 {
     // fold parameters widget so the dialog is displayed on top of the dark background
     doFoldUnfoldParameters(false);
@@ -2953,7 +2953,7 @@ void AssemblyGui::slot_newJob()
     enableActions();
 }
 
-void AssemblyGui::slot_saveJob()
+void MainGui::slot_saveJob()
 {
     qDebug() << "Save current job";
 
@@ -3022,7 +3022,7 @@ void AssemblyGui::slot_saveJob()
 }
 
 
-void AssemblyGui::slot_deleteJob()
+void MainGui::slot_deleteJob()
 {
     qDebug() << "Delete current job";
     QTreeWidgetItem * selectedItem = _ui->_TRW_assemblies->currentItem();
@@ -3079,7 +3079,7 @@ void AssemblyGui::slot_deleteJob()
     doFoldUnfoldParameters(false);
 }
 
-void AssemblyGui::slot_assemblyContextMenuRequested(const QPoint &pos)
+void MainGui::slot_assemblyContextMenuRequested(const QPoint &pos)
 {
     QTreeWidgetItem* item = _ui->_TRW_assemblies->itemAt(pos);
 
@@ -3140,12 +3140,12 @@ void AssemblyGui::slot_assemblyContextMenuRequested(const QPoint &pos)
 
 }
 
-void AssemblyGui::showError(QString title, QString message) {
+void MainGui::showError(QString title, QString message) {
     qCritical() << title << " - " << message;
     QMessageBox::warning(this, title, message);
 }
 
-QTreeWidgetItem *AssemblyGui::addAssemblyInTree(AssemblyDefinition * assembly)
+QTreeWidgetItem *MainGui::addAssemblyInTree(AssemblyDefinition * assembly)
 {
     QTreeWidgetItem * assemblyItem = new QTreeWidgetItem(QStringList() << assembly->name());
     assemblyItem->setData(0, Qt::UserRole,assembly->filename());
@@ -3166,7 +3166,7 @@ QTreeWidgetItem *AssemblyGui::addAssemblyInTree(AssemblyDefinition * assembly)
     return assemblyItem;
 }
 
-QTreeWidgetItem *AssemblyGui::addJobInTree(JobDefinition * job, bool isNewJob)
+QTreeWidgetItem *MainGui::addJobInTree(JobDefinition * job, bool isNewJob)
 {
     bool executed = false;
 
@@ -3205,14 +3205,14 @@ QTreeWidgetItem *AssemblyGui::addJobInTree(JobDefinition * job, bool isNewJob)
     return jobItem;
 }
 
-void AssemblyGui::initStatusBar()
+void MainGui::initStatusBar()
 {
     _statusMessageWidget = new StatusMessageWidget(this, _iconFactory);
     _statusMessageWidget->setObjectName("_WID_statusMessage");
     statusBar()->addPermanentWidget(_statusMessageWidget, 10);
 }
 
-void AssemblyGui::showStatusMessage(QString message, MessageIndicatorLevel level)
+void MainGui::showStatusMessage(QString message, MessageIndicatorLevel level)
 {
     if (message.isEmpty()) {
         return;
@@ -3225,7 +3225,7 @@ void AssemblyGui::showStatusMessage(QString message, MessageIndicatorLevel level
 }
 
 
-void AssemblyGui::initLanguages()
+void MainGui::initLanguages()
 {
     _serverTranslator_en = new QTranslator();
     _serverTranslator_en->load("i18n/MatisseServer_en");
@@ -3245,7 +3245,7 @@ void AssemblyGui::initLanguages()
     qApp->installTranslator(_toolsTranslator_fr);
 }
 
-void AssemblyGui::updateLanguage(QString language, bool forceRetranslation)
+void MainGui::updateLanguage(QString language, bool forceRetranslation)
 {
     if (language == _currentLanguage) {
         if (forceRetranslation) {
@@ -3275,7 +3275,7 @@ void AssemblyGui::updateLanguage(QString language, bool forceRetranslation)
     }
 }
 
-void AssemblyGui::retranslate()
+void MainGui::retranslate()
 {
     qDebug() << "Translating static and contextual menu items...";
 
@@ -3333,7 +3333,7 @@ void AssemblyGui::retranslate()
 
 
 // Dynamic translation
-void AssemblyGui::changeEvent(QEvent *event)
+void MainGui::changeEvent(QEvent *event)
 {
     if (event->type() == QEvent::LanguageChange)
     {
@@ -3344,7 +3344,7 @@ void AssemblyGui::changeEvent(QEvent *event)
     }
 }
 
-void AssemblyGui::slot_maximizeOrRestore()
+void MainGui::slot_maximizeOrRestore()
 {
     if (isMaximized()) {
         showNormal();
@@ -3357,7 +3357,7 @@ void AssemblyGui::slot_maximizeOrRestore()
     }
 }
 
-void AssemblyGui::slot_quit()
+void MainGui::slot_quit()
 {
     bool confirmAction = true;
 
@@ -3376,12 +3376,12 @@ void AssemblyGui::slot_quit()
     }
 }
 
-void AssemblyGui::slot_moveWindow(const QPoint &pos)
+void MainGui::slot_moveWindow(const QPoint &pos)
 {
     move(pos);
 }
 
-void AssemblyGui::slot_clearAssembly()
+void MainGui::slot_clearAssembly()
 {
     //_expertFormWidget -> resetAssemblyForm();
     _ui->_LW_inputs->clearSelection();
@@ -3392,7 +3392,7 @@ void AssemblyGui::slot_clearAssembly()
     _ui->_TW_creationViewTabs->setCurrentIndex(0);
 }
 
-void AssemblyGui::slot_newAssembly()
+void MainGui::slot_newAssembly()
 {
     // fold parameters widget so the dialog is displayed on top of the dark background
     doFoldUnfoldParameters(false);
@@ -3459,7 +3459,7 @@ void AssemblyGui::slot_newAssembly()
     //    _updateAssemblyPropertiesAct->setVisible(false);
 }
 
-void AssemblyGui::enableActions()
+void MainGui::enableActions()
 {
     UserAction lastAction = _context.lastActionPerformed();
 
@@ -3510,7 +3510,7 @@ void AssemblyGui::enableActions()
     /* Job contextual menu items are always active as jobs are only visible in the map view */
 }
 
-SourceWidget *AssemblyGui::getSourceWidget(QString name)
+SourceWidget *MainGui::getSourceWidget(QString name)
 {
     SourceWidget * wid = _availableSources.value(name, 0);
 
@@ -3526,7 +3526,7 @@ SourceWidget *AssemblyGui::getSourceWidget(QString name)
     return newWidget;
 }
 
-ProcessorWidget *AssemblyGui::getProcessorWidget(QString name)
+ProcessorWidget *MainGui::getProcessorWidget(QString name)
 {
     ProcessorWidget * wid = _availableProcessors.value(name, 0);
 
@@ -3542,7 +3542,7 @@ ProcessorWidget *AssemblyGui::getProcessorWidget(QString name)
     return newWidget;
 }
 
-DestinationWidget *AssemblyGui::getDestinationWidget(QString name)
+DestinationWidget *MainGui::getDestinationWidget(QString name)
 {
     DestinationWidget * wid = _availableDestinations.value(name, 0);
 
@@ -3559,13 +3559,13 @@ DestinationWidget *AssemblyGui::getDestinationWidget(QString name)
 }
 
 
-void AssemblyGui::applyNewApplicationContext()
+void MainGui::applyNewApplicationContext()
 {
     bool isExpert = (_activeApplicationMode == PROGRAMMING);
     m_engine.parametersManager()->applyApplicationContext(isExpert, !_isMapView);
 }
 
-void AssemblyGui::slot_swapMapOrCreationView()
+void MainGui::slot_swapMapOrCreationView()
 {
     qDebug() << "Current view displayed : " << ((_isMapView) ? "map" : "creation");
 
@@ -3653,7 +3653,7 @@ void AssemblyGui::slot_swapMapOrCreationView()
 }
 
 
-void AssemblyGui::slot_launchJob()
+void MainGui::slot_launchJob()
 {
     qDebug() << "Launching job...";
 
@@ -3815,7 +3815,7 @@ void AssemblyGui::slot_launchJob()
     //setActionsStates(_lastJobLaunchedItem);
 }
 
-void AssemblyGui::sl_launchRemoteJob()
+void MainGui::sl_launchRemoteJob()
 {
     qDebug() << "Launching remote job...";
 
@@ -3825,7 +3825,7 @@ void AssemblyGui::sl_launchRemoteJob()
 }
 
 
-void AssemblyGui::sl_uploadJobData()
+void MainGui::sl_uploadJobData()
 {
     if (!_currentJob) {
       qCritical() << "No job selected, cannot upload job data";
@@ -3837,7 +3837,7 @@ void AssemblyGui::sl_uploadJobData()
     m_remote_job_helper->uploadDataset(job_name);
 }
 
-void MatisseServer::AssemblyGui::sl_selectRemoteJobData() 
+void MatisseServer::MainGui::sl_selectRemoteJobData()
 {
   if (!_currentJob) {
     qCritical() << "No job selected, cannot select remote job data";
@@ -3849,7 +3849,7 @@ void MatisseServer::AssemblyGui::sl_selectRemoteJobData()
   m_remote_job_helper->selectRemoteDataset(job_name);
 }
 
-void AssemblyGui::sl_downloadJobResults() 
+void MainGui::sl_downloadJobResults()
 {
   if (!_currentJob) {
     qCritical() << "No job selected, cannot download results";
@@ -3863,7 +3863,7 @@ void AssemblyGui::sl_downloadJobResults()
   m_remote_job_helper->downloadResults(job_name);
 }
 
-void AssemblyGui::sl_onRemoteJobResultsReceived(
+void MainGui::sl_onRemoteJobResultsReceived(
     QString _job_name) 
 {
   /* Reselect job */
@@ -3877,7 +3877,7 @@ void AssemblyGui::sl_onRemoteJobResultsReceived(
   displayJob(_job_name, true);
 }
 
-void AssemblyGui::slot_stopJob()
+void MainGui::slot_stopJob()
 {
     QString jobName = _lastJobLaunchedItem->data(0, Qt::UserRole).toString();
     qDebug() << "Stopping job " << jobName.toLatin1();
@@ -3914,7 +3914,7 @@ void AssemblyGui::slot_stopJob()
 
 }
 
-void AssemblyGui::slot_jobShowImageOnMainView(QString name, Image *image)
+void MainGui::slot_jobShowImageOnMainView(QString name, Image *image)
 {
     Q_UNUSED(name)
     if (image) {
@@ -3923,13 +3923,13 @@ void AssemblyGui::slot_jobShowImageOnMainView(QString name, Image *image)
     }
 }
 
-void AssemblyGui::slot_userInformation(QString userText)
+void MainGui::slot_userInformation(QString userText)
 {
     //qDebug() << "Received user information : " << userText;
     _ongoingProcessInfolabel->setText(userText);
 }
 
-void AssemblyGui::slot_processCompletion(quint8 percentComplete)
+void MainGui::slot_processCompletion(quint8 percentComplete)
 {
     //qDebug() << "Received process completion signal : " << percentComplete;
 
@@ -3951,18 +3951,18 @@ void AssemblyGui::slot_processCompletion(quint8 percentComplete)
     }
 }
 
-void AssemblyGui::slot_showInformationMessage(QString title, QString message)
+void MainGui::slot_showInformationMessage(QString title, QString message)
 {
     QMessageBox::information(this, title, message);
 }
 
-void AssemblyGui::slot_showErrorMessage(QString title, QString message)
+void MainGui::slot_showErrorMessage(QString title, QString message)
 {
     QMessageBox::critical(this, title, message);
 }
 
 
-void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
+void MainGui::slot_jobProcessed(QString name, bool isCancelled) {
     //qDebug() << "Job done : " << name;
     //_userFormWidget->switchCartoViewTo(QGisMapLayer);
 
@@ -4007,7 +4007,7 @@ void AssemblyGui::slot_jobProcessed(QString name, bool isCancelled) {
     }
 }
 
-void AssemblyGui::slot_assembliesReload()
+void MainGui::slot_assembliesReload()
 {
     loadAssembliesAndJobsLists(_isMapView);
 
@@ -4023,7 +4023,7 @@ void AssemblyGui::slot_assembliesReload()
     _currentJob = NULL;
 }
 
-void AssemblyGui::slot_modifiedParameters(bool changed)
+void MainGui::slot_modifiedParameters(bool changed)
 {
     //qDebug() << "Receiving parameter value update flag : " << changed;
 
@@ -4053,7 +4053,7 @@ void AssemblyGui::slot_modifiedParameters(bool changed)
     }
 }
 
-void AssemblyGui::slot_modifiedAssembly()
+void MainGui::slot_modifiedAssembly()
 {
     //qDebug() << "Received assembly modified notification";
 
@@ -4065,7 +4065,7 @@ void AssemblyGui::slot_modifiedAssembly()
     enableActions();
 }
 
-void AssemblyGui::slot_assemblyComplete(bool isComplete)
+void MainGui::slot_assemblyComplete(bool isComplete)
 {
     //qDebug() << "Received assembly completeness flag : " << isComplete;
 
@@ -4073,7 +4073,7 @@ void AssemblyGui::slot_assemblyComplete(bool isComplete)
     //    _saveAssemblyAct->setEnabled(isComplete); // assembly can be saved only if assembly is complete
 }
 
-void AssemblyGui::handleJobModified()
+void MainGui::handleJobModified()
 {
     if (!_currentJob) {
         qCritical() << "A job was modified but current job is not found";
@@ -4101,7 +4101,7 @@ void AssemblyGui::handleJobModified()
     }
 }
 
-void AssemblyGui::handleAssemblyModified()
+void MainGui::handleAssemblyModified()
 {
     if (_newAssembly) {
         //qDebug() << "Updated new assembly " << _newAssembly->name();
@@ -4134,7 +4134,7 @@ void AssemblyGui::handleAssemblyModified()
     }
 }
 
-QString AssemblyGui::getActualAssemblyOrJobName(QTreeWidgetItem* currentItem)
+QString MainGui::getActualAssemblyOrJobName(QTreeWidgetItem* currentItem)
 {
     QString assemblyOrJobName = currentItem->text(0);
     /* case job parameters were modified */
@@ -4146,7 +4146,7 @@ QString AssemblyGui::getActualAssemblyOrJobName(QTreeWidgetItem* currentItem)
     return assemblyOrJobName;
 }
 
-QString AssemblyGui::getActualNewAssemblyName()
+QString MainGui::getActualNewAssemblyName()
 {
     if (!_newAssembly) {
         qCritical() << "No new assembly identified";

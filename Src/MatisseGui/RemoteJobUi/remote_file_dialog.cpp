@@ -1,5 +1,5 @@
-#include "RemoteFileDialog.h"
-#include "ui_RemoteFileDialog.h"
+#include "remote_file_dialog.h"
+#include "ui_remote_file_dialog.h"
 
 #include <QDialogButtonBox>
 #include <QPushButton>

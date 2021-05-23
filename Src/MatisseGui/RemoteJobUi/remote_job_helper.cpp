@@ -1,11 +1,11 @@
-#include "RemoteJobHelper.h"
+#include "remote_job_helper.h"
 
 #include <QFileInfo>
 #include <QGridLayout>
 #include <QMessageBox>
 
 #include "file_utils.h"
-#include "RemoteFileDialog.h"
+#include "remote_file_dialog.h"
 #include "network_action.h"
 #include "network_action_upload_file.h"
 #include "network_action_upload_dir.h"

@@ -21,26 +21,25 @@
 
 #include <QtDebug>
 
-#include "ElementWidgetProvider.h"
-#include "AssemblyGraphicsScene.h"
+#include "element_widget_provider.h"
+#include "assembly_graphics_scene.h"
 #include "key_value_list.h"
 #include "matisse_engine.h"
 #include "graphical_charter.h"
-#include "AssemblyDialog.h"
-#include "JobDialog.h"
-#include "PreferencesDialog.h"
-#include "DuplicateDialog.h"
-#include "RestoreJobsDialog.h"
-//#include "NetworkCheckDialog.h"
+#include "assembly_dialog.h"
+#include "job_dialog.h"
+#include "preferences_dialog.h"
+#include "duplicate_dialog.h"
+#include "restore_jobs_dialog.h"
 #include "data_viewer.h"
 #include "assembly_editor.h"
 #include "dim2_file_reader.h"
-#include "StatusMessageWidget.h"
+#include "status_message_widget.h"
 #include "matisse_preferences.h"
-#include "HomeWidget.h"
-#include "MatisseMenu.h"
-#include "LiveProcessWheel.h"
-#include "AboutDialog.h"
+#include "home_widget.h"
+#include "matisse_menu.h"
+#include "live_process_wheel.h"
+#include "about_dialog.h"
 #include "system_data_manager.h"
 #include "process_data_manager.h"
 #include "platform_comparison_status.h"
@@ -50,14 +49,14 @@
 #include "iconized_label_wrapper.h"
 #include "iconized_tree_item_wrapper.h"
 #include "matisse_tree_item.h"
-#include "WelcomeDialog.h"
+#include "welcome_dialog.h"
 #include "camera_manager_tool.h"
 #include "camera_calib_dialog.h"
-#include "RemoteJobHelper.h"
+#include "remote_job_helper.h"
 
 
 namespace Ui {
-class AssemblyGui;
+class MainGui;
 }
 
 namespace MatisseServer {
@@ -99,13 +98,13 @@ private:
     UserAction _lastActionPerformed;
 };
 
-class AssemblyGui : public QMainWindow, ElementWidgetProvider
+class MainGui : public QMainWindow, ElementWidgetProvider
 {
     Q_OBJECT
     
 public:
-    explicit AssemblyGui(QWidget *parent = 0);
-    ~AssemblyGui();
+    explicit MainGui(QWidget *parent = 0);
+    ~MainGui();
 //    bool setSettingsFile(QString settings);
 //    bool isShowable();
     void init();
@@ -126,7 +125,7 @@ public:
 
     void initMapFeatures();
 private:
-    Ui::AssemblyGui *_ui;
+    Ui::MainGui *_ui;
     bool _isMapView;
     MatisseEngine m_engine;
 //    bool _canShow;

@@ -1,5 +1,5 @@
-﻿#include "AssemblyDialog.h"
-#include "ui_AssemblyDialog.h"
+﻿#include "assembly_dialog.h"
+#include "ui_assembly_dialog.h"
 
 using namespace MatisseServer;
 

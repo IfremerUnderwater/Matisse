@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AssemblyGui</class>
- <widget class="QMainWindow" name="AssemblyGui">
+ <class>MainGui</class>
+ <widget class="QMainWindow" name="MainGui">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -26,7 +26,7 @@
    <string>Matisse 3</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
+   <iconset>
     <normaloff>:/png/ifremer-grand.png</normaloff>:/png/ifremer-grand.png</iconset>
   </property>
   <property name="animated">
@@ -467,8 +467,8 @@
                   <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'MS Shell Dlg 2'; font-size:8.25pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                 </widget>
                </item>
@@ -985,7 +985,7 @@ p, li { white-space: pre-wrap; }
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../icons.qrc">
+         <iconset>
           <normaloff>:/qss_icons/icons/Roue.svg</normaloff>:/qss_icons/icons/Roue.svg</iconset>
         </property>
        </widget>
@@ -1027,13 +1027,13 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>MainControllBar</class>
    <extends>QFrame</extends>
-   <header>MainControllBar.h</header>
+   <header>main_controll_bar.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>MatisseTabWidget</class>
    <extends>QTabWidget</extends>
-   <header>MatisseTabWidget.h</header>
+   <header>matisse_tab_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -1045,7 +1045,7 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>MatisseServer::ParametersFoldButton</class>
    <extends>QPushButton</extends>
-   <header>ParametersFoldButton.h</header>
+   <header>parameters_fold_button.h</header>
   </customwidget>
  </customwidgets>
  <resources>

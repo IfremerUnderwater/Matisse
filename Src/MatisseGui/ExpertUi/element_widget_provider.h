@@ -1,9 +1,9 @@
 #ifndef ELEMENTWIDGETPROVIDER_H
 #define ELEMENTWIDGETPROVIDER_H
 
-#include "SourceWidget.h"
-#include "ProcessorWidget.h"
-#include "DestinationWidget.h"
+#include "source_widget.h"
+#include "processor_widget.h"
+#include "destination_widget.h"
 
 
 namespace MatisseServer {

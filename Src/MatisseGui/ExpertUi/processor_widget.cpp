@@ -1,4 +1,4 @@
-﻿#include "ProcessorWidget.h"
+﻿#include "processor_widget.h"
 
 using namespace MatisseServer;
 

@@ -1,5 +1,5 @@
-#include "VisuModeWidget.h"
-#include "ui_VisuModeWidget.h"
+#include "visu_mode_widget.h"
+#include "ui_visu_mode_widget.h"
 
 VisuModeWidget::VisuModeWidget(QWidget *parent) :
     QFrame(parent),

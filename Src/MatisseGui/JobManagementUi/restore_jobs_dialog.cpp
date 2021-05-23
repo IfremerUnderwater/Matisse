@@ -1,5 +1,5 @@
-#include "RestoreJobsDialog.h"
-#include "ui_RestoreJobsDialog.h"
+#include "restore_jobs_dialog.h"
+#include "ui_restore_jobs_dialog.h"
 
 using namespace MatisseServer;
 

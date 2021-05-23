@@ -9,15 +9,15 @@
 #include <QAbstractScrollArea>
 #include <QResizeEvent>
 
-#include "AssemblyGraphicsScene.h"
+#include "assembly_graphics_scene.h"
 
-#include "SourceWidget.h"
-#include "ProcessorWidget.h"
-#include "DestinationWidget.h"
-#include "PipeWidget.h"
-#include "AssemblyGraphicsScene.h"
+#include "source_widget.h"
+#include "processor_widget.h"
+#include "destination_widget.h"
+#include "pipe_widget.h"
+#include "assembly_graphics_scene.h"
 #include "key_value_list.h"
-#include "ParametersDialog.h"
+#include "parameters_dialog.h"
 #include "matisse_parameters_manager.h"
 #include "parameters_widget_skeleton.h"
 

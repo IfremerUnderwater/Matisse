@@ -1,4 +1,4 @@
-﻿#include "PipeWidget.h"
+﻿#include "pipe_widget.h"
 
 using namespace MatisseServer;
 

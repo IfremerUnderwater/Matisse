@@ -1,5 +1,5 @@
-#include "DuplicateDialog.h"
-#include "ui_DuplicateDialog.h"
+#include "duplicate_dialog.h"
+#include "ui_duplicate_dialog.h"
 #include <QRegExpValidator>
 
 using namespace MatisseServer;

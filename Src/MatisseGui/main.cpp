@@ -13,7 +13,7 @@
 #include "picture_file_set.h"
 #include "Context.h"
 #include "matisse_parameters.h"
-#include "AssemblyGui.h"
+#include "main_gui.h"
 #include "system_data_manager.h"
 #include "process_data_manager.h"
 #include "camera_manager.h"
@@ -22,7 +22,7 @@
 #include "network_client.h"
 #include "sftp_client.h"
 #include "ssh_client.h"
-#include "RemoteJobHelper.h"
+#include "remote_job_helper.h"
 
 using namespace MatisseServer;
 using namespace MatisseTools;
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
     remote_job_helper.setSftpClient(sftp_client);
 
     /* Create main window and set params */
-    AssemblyGui w;
+    MainGui w;
 
     w.setGeometry(
                 QStyle::alignedRect(

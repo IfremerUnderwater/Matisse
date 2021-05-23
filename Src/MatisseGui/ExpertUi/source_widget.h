@@ -1,7 +1,7 @@
 ﻿#ifndef SOURCEWIDGET_H
 #define SOURCEWIDGET_H
 
-#include "ElementWidget.h"
+#include "element_widget.h"
 
 namespace MatisseServer {
 class SourceWidget : public ElementWidget

@@ -1,5 +1,5 @@
-﻿#include "ParametersDialog.h"
-#include "ui_ParametersDialog.h"
+﻿#include "parameters_dialog.h"
+#include "ui_parameters_dialog.h"
 
 using namespace MatisseServer;
 

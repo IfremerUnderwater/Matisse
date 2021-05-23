@@ -19,12 +19,12 @@
 #include <QAction>
 #include <QMainWindow>
 
-#include "ElementWidget.h"
-#include "ElementWidgetProvider.h"
-#include "SourceWidget.h"
-#include "ProcessorWidget.h"
-#include "DestinationWidget.h"
-#include "PipeWidget.h"
+#include "element_widget.h"
+#include "element_widget_provider.h"
+#include "source_widget.h"
+#include "processor_widget.h"
+#include "destination_widget.h"
+#include "pipe_widget.h"
 #include "key_value_list.h"
 #include "matisse_engine.h"
 

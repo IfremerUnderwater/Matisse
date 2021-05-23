@@ -1,4 +1,4 @@
-#include "MatisseMenu.h"
+#include "matisse_menu.h"
 
 
 MatisseMenu::MatisseMenu(QWidget* parent) : QMenu(parent)

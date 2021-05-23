@@ -172,7 +172,7 @@
   <customwidget>
    <class>WheelGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>WheelGraphicsView.h</header>
+   <header>wheel_graphics_view.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -1,6 +1,6 @@
-﻿#include "AssemblyGraphicsScene.h"
+﻿#include "assembly_graphics_scene.h"
 #include "assembly_editor.h"
-#include "AssemblyGui.h"
+#include "main_gui.h"
 
 using namespace MatisseServer;
 

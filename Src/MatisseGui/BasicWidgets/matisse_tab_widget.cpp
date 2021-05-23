@@ -1,4 +1,4 @@
-#include "MatisseTabWidget.h"
+#include "matisse_tab_widget.h"
 
 #include <QTabBar>
 #include <QtDebug>

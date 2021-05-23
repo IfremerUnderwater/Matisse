@@ -13,7 +13,7 @@
 #include "matisse_preferences.h"
 #include "matisse_remote_server_settings.h"
 #include "process_data_manager.h"
-#include "RemoteProgressDialog.h"
+#include "remote_progress_dialog.h"
 #include "network_client.h"
 #include "network_file_client.h"
 #include "network_command.h"

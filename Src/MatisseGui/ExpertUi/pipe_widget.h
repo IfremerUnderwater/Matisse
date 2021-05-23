@@ -1,7 +1,7 @@
 ﻿#ifndef PIPEWIDGET_H
 #define PIPEWIDGET_H
 
-#include "ElementWidget.h"
+#include "element_widget.h"
 
 namespace MatisseServer {
 class PipeWidget : public ElementWidget

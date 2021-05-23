@@ -1,4 +1,4 @@
-#include "WheelGraphicsView.h"
+#include "wheel_graphics_view.h"
 #include <QScrollBar>
 #include <QWheelEvent>
 #include <QMouseEvent>

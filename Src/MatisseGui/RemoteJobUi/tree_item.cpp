@@ -46,7 +46,7 @@
 
 #include <QStringList>
 
-#include "TreeItem.h"
+#include "tree_item.h"
 
 namespace MatisseTools {
 

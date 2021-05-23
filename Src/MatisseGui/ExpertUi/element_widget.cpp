@@ -1,5 +1,5 @@
-﻿#include "ElementWidget.h"
-#include "AssemblyGraphicsScene.h"
+﻿#include "element_widget.h"
+#include "assembly_graphics_scene.h"
 
 using namespace MatisseServer;
 

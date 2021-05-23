@@ -1,5 +1,5 @@
-#include "HomeWidget.h"
-#include "ui_HomeWidget.h"
+#include "home_widget.h"
+#include "ui_home_widget.h"
 
 #include <QtDebug>
 

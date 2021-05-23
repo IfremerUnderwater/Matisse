@@ -1,46 +1,45 @@
 # add the executable
 add_executable(MatisseGui
     main.cpp
-    AssemblyGui.cpp
-    WelcomeDialog.cpp
-    AboutDialog.cpp
-    BasicWidgets/MainControllBar.cpp
-    BasicWidgets/MainMenuWidget.cpp	
-    BasicWidgets/MatisseMenu.cpp	
-	BasicWidgets/MatisseVersionWidget.cpp
-    BasicWidgets/HomeWidget.cpp
-    BasicWidgets/VisuModeWidget.cpp
-    BasicWidgets/MatisseTabWidget.cpp
+    about_dialog.cpp
+    main_gui.cpp
+    welcome_dialog.cpp
+    BasicWidgets/home_widget.cpp
+    BasicWidgets/main_controll_bar.cpp
+    BasicWidgets/main_menu_widget.cpp
+    BasicWidgets/matisse_menu.cpp
+    BasicWidgets/matisse_tab_widget.cpp
+    BasicWidgets/matisse_version_widget.cpp
+    BasicWidgets/visu_mode_widget.cpp
     CameraUi/camera_manager_tool.cpp
     CameraUi/camera_calib_dialog.cpp
     ExpertUi/assembly_editor.cpp
-    ExpertUi/AssemblyDialog.cpp
-    ExpertUi/AssemblyGraphicsScene.cpp
-    ExpertUi/PipeWidget.cpp
-    ExpertUi/ElementWidget.cpp
-    ExpertUi/SourceWidget.cpp
-    ExpertUi/ProcessorWidget.cpp
-    ExpertUi/DestinationWidget.cpp
-    ExpertUi/ElementWidgetProvider.cpp
+    ExpertUi/assembly_dialog.cpp
+    ExpertUi/assembly_graphics_scene.cpp
+    ExpertUi/destination_widget.cpp
+    ExpertUi/element_widget.cpp
+    ExpertUi/element_widget_provider.cpp
+    ExpertUi/pipe_widget.cpp
+    ExpertUi/processor_widget.cpp
+    ExpertUi/source_widget.cpp
+    JobManagementUi/duplicate_dialog.cpp
+    JobManagementUi/job_dialog.cpp
     JobManagementUi/job_file_helper.cpp
-    JobManagementUi/JobDialog.cpp
-    JobManagementUi/DuplicateDialog.cpp
-    JobManagementUi/RestoreJobsDialog.cpp
-    ParametersUi/ParametersDialog.cpp
-    ParametersUi/ParametersFoldButton.cpp
-#    RealTimeUi/NetworkCheckDialog.cpp
-    RemoteJobUi/RemoteJobHelper.cpp
-    RemoteJobUi/RemoteFileDialog.cpp
-    RemoteJobUi/RemoteProgressDialog.cpp
-    RemoteJobUi/TreeItem.cpp
-    RemoteJobUi/TreeModel.cpp
+    JobManagementUi/restore_jobs_dialog.cpp
+    ParametersUi/parameters_dialog.cpp
+    ParametersUi/parameters_fold_button.cpp
+    RemoteJobUi/remote_file_dialog.cpp
+    RemoteJobUi/remote_job_helper.cpp
+    RemoteJobUi/remote_progress_dialog.cpp
+    RemoteJobUi/tree_item.cpp
+    RemoteJobUi/tree_model.cpp
     UserUi/data_viewer.cpp
-    UserUi/CartoScene.cpp
-    UserUi/WheelGraphicsView.cpp
-    UserUi/LiveProcessWheel.cpp
-    UserUi/StatusMessageWidget.cpp
-    UserUi/OngoingProcessWidget.cpp
-    UserUi/PreferencesDialog.cpp
+    UserUi/carto_scene.cpp
+    UserUi/live_process_wheel.cpp
+    UserUi/ongoing_process_widget.cpp
+    UserUi/preferences_dialog.cpp
+    UserUi/status_message_widget.cpp
+    UserUi/wheel_graphics_view.cpp
     UserUi/OSG3DViewer/kml_handler.cpp
     UserUi/OSG3DViewer/point3d.cpp
     UserUi/OSG3DViewer/osg_widget_tool.cpp

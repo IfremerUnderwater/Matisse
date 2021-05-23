@@ -1,7 +1,7 @@
 ﻿#ifndef PROCESSORWIDGET_H
 #define PROCESSORWIDGET_H
 
-#include "ElementWidget.h"
+#include "element_widget.h"
 
 namespace MatisseServer {
 class ProcessorWidget : public ElementWidget

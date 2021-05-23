@@ -1,4 +1,4 @@
-﻿#include "SourceWidget.h"
+﻿#include "source_widget.h"
 
 using namespace MatisseServer;
 

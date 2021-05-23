@@ -1,5 +1,5 @@
-#include "RemoteProgressDialog.h"
-#include "ui_RemoteProgressDialog.h"
+#include "remote_progress_dialog.h"
+#include "ui_remote_progress_dialog.h"
 
 #include <QtDebug>
 

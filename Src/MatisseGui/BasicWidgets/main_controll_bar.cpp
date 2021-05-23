@@ -1,5 +1,5 @@
-#include "MainControllBar.h"
-#include "ui_MainControllBar.h"
+#include "main_controll_bar.h"
+#include "ui_main_controll_bar.h"
 
 #include <QDebug>
 #include <QToolButton>
