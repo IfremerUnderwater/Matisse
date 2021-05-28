@@ -1,4 +1,6 @@
-add_library(Init2DMosaic SHARED Init2DMosaic.cpp)
+add_library(Init2DMosaic SHARED
+    init_2d_mosaic.cpp
+    )
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(Init2DMosaic PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)

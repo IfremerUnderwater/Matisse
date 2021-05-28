@@ -1,4 +1,6 @@
-add_library(Matching3D SHARED Matching3D.cpp)
+add_library(Matching3D SHARED
+    matching_3d.cpp
+    )
 
 include_directories(${OPENMVG_INSTALL_PATH}/include/openMVG_dependencies)
 

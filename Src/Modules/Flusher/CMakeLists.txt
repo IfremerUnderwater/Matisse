@@ -1,4 +1,6 @@
-add_library(Flusher SHARED Flusher.cpp)
+add_library(Flusher SHARED
+    flusher.cpp
+    )
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(Flusher PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)

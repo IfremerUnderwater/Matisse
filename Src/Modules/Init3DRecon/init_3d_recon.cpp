@@ -1,4 +1,4 @@
-﻿#include "Init3DRecon.h"
+﻿#include "init_3d_recon.h"
 #include "nav_image.h"
 
 #include "reconstruction_context.h"

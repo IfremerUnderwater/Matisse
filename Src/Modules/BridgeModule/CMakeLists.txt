@@ -1,4 +1,6 @@
-add_library(BridgeModule SHARED BridgeModule.cpp)
+add_library(BridgeModule SHARED
+    bridge_module.cpp
+    )
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(BridgeModule PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)

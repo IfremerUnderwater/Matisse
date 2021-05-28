@@ -3,14 +3,13 @@
 #include <math.h>
 #endif
 
+#include "draw_blend_2dmosaic.h"
 #include "file_utils.h"
-//#include "MosaicContext.h"
+#include "geo_transform.h"
+#include "mosaic_descriptor.h"
 #include "mosaic_drawer.h"
 #include "nav_image.h"
-#include "DrawBlend2DMosaic.h"
-#include "geo_transform.h"
 #include "raster_georeferencer.h"
-#include "mosaic_descriptor.h"
 
 using namespace cv;
 

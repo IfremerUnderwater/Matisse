@@ -1,9 +1,6 @@
-﻿#include "BridgeModule.h"
-//#include "MosaicContext.h"
-#include "nav_image.h"
-
+﻿#include "bridge_module.h"
 #include "mosaic_descriptor.h"
-
+#include "nav_image.h"
 #include "Polygon.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)

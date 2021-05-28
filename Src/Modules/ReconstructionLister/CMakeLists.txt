@@ -1,4 +1,6 @@
-add_library(ReconstructionLister SHARED ReconstructionLister.cpp)
+add_library(ReconstructionLister SHARED
+    reconstruction_lister.cpp
+    )
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(ReconstructionLister PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)

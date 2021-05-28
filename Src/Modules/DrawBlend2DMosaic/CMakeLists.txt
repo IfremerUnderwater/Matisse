@@ -1,4 +1,6 @@
-add_library(DrawBlend2DMosaic SHARED DrawBlend2DMosaic.cpp)
+add_library(DrawBlend2DMosaic SHARED
+    draw_blend_2dmosaic.cpp
+    )
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(DrawBlend2DMosaic PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)

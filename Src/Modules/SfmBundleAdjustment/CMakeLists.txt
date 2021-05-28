@@ -1,4 +1,6 @@
-add_library(SfmBundleAdjustment SHARED SfmBundleAdjustment.cpp)
+add_library(SfmBundleAdjustment SHARED
+    sfm_bundle_adjustment.cpp
+    )
 
 target_link_libraries(SfmBundleAdjustment
 	MatisseCore

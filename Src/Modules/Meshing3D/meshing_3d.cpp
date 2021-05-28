@@ -1,9 +1,9 @@
-﻿#include "Meshing3D.h"
+﻿#include "meshing_3d.h"
 #include "reconstruction_context.h"
 #include "nav_image.h"
 
 #define OPENMVG_USE_OPENMP
-#include "MVGMVSInterface.h"
+#include "mvg_mvs_interface.h"
 
 #include <QProcess>
 #include <QElapsedTimer>

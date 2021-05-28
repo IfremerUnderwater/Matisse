@@ -1,4 +1,6 @@
-add_library(PointCloudDensify SHARED PointCloudDensify.cpp)
+add_library(PointCloudDensify SHARED
+    point_cloud_densify.cpp
+    )
 
 target_link_libraries(PointCloudDensify
 	MatisseCore

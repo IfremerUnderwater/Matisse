@@ -1,7 +1,7 @@
 ﻿#include <QDir>
 
 #include "reconstruction_context.h"
-#include "ReconstructionLister.h"
+#include "reconstruction_lister.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(ReconstructionLister, ReconstructionLister)

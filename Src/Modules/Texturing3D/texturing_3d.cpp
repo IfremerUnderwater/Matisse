@@ -1,4 +1,4 @@
-﻿#include "Texturing3D.h"
+﻿#include "texturing_3d.h"
 #include "reconstruction_context.h"
 #include "nav_image.h"
 

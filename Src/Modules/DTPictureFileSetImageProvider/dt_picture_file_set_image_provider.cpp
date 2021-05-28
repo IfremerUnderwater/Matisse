@@ -1,6 +1,6 @@
 ﻿#include <QDir>
 
-#include "DTPictureFileSetImageProvider.h"
+#include "dt_picture_file_set_image_provider.h"
 #include "file_utils.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)

@@ -1,9 +1,9 @@
-﻿#include "PointCloudDensify.h"
+﻿#include "point_cloud_densify.h"
 #include "reconstruction_context.h"
 #include "nav_image.h"
 
 #define OPENMVG_USE_OPENMP
-#include "MVGMVSInterface.h"
+#include "mvg_mvs_interface.h"
 
 #include <QProcess>
 #include <QElapsedTimer>

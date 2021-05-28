@@ -1,4 +1,4 @@
-﻿#include "Init2DMosaic.h"
+﻿#include "init_2d_mosaic.h"
 //#include "MosaicContext.h"
 #include "nav_image.h"
 

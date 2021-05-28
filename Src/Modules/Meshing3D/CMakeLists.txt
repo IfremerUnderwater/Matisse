@@ -1,4 +1,6 @@
-add_library(Meshing3D SHARED Meshing3D.cpp)
+add_library(Meshing3D SHARED
+    meshing_3d.cpp
+    )
 
 target_link_libraries(Meshing3D
 	MatisseCore

@@ -1,4 +1,6 @@
-add_library(DTPictureFileSetImageProvider SHARED DTPictureFileSetImageProvider.cpp)
+add_library(DTPictureFileSetImageProvider SHARED
+    dt_picture_file_set_image_provider.cpp
+    )
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(DTPictureFileSetImageProvider PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)

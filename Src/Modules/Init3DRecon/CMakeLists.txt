@@ -1,4 +1,6 @@
-add_library(Init3DRecon SHARED Init3DRecon.cpp)
+add_library(Init3DRecon SHARED
+    init_3d_recon.cpp
+    )
 
 target_link_libraries(Init3DRecon PRIVATE
     MatisseCore

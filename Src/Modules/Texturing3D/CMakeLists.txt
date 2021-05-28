@@ -1,4 +1,6 @@
-add_library(Texturing3D SHARED Texturing3D.cpp)
+add_library(Texturing3D SHARED
+    texturing_3d.cpp
+    )
 
 target_link_libraries(Texturing3D
 	MatisseCore
