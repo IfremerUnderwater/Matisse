@@ -1,5 +1,5 @@
-#include "DictionnaryValidator.h"
-#include "ui_DictionnaryValidator.h"
+#include "dictionnary_validator.h"
+#include "ui_dictionnary_validator.h"
 
 const QString DictionnaryValidator::HEADER_TEMPLATE_PATH = QString("../../template/MatisseDictionnaryLabels.h");
 const QString DictionnaryValidator::HEADER_GEN_PATH = QString("../../gen/MatisseDictionnaryLabels.h");

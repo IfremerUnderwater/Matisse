@@ -1,4 +1,4 @@
-#include "DictionnaryValidator.h"
+#include "dictionnary_validator.h"
 #include <QApplication>
 #include <QTextCodec>
 
