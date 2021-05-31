@@ -23,6 +23,8 @@
 #include "imageprocessing.h"
 #include "preprocessing_correction.h"
 
+using namespace image_processing;
+
 double RAD2DEG=180/M_PI;
 
 DataPreprocessingWizard::DataPreprocessingWizard(QWidget *parent) :

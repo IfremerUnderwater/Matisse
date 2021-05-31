@@ -6,6 +6,8 @@ using namespace cv;
 using namespace std;
 using namespace basic_processing;
 
+namespace image_processing {
+
 void histogramStretch(Mat &_in_img, Mat &_in_mask, Point _low_high_in, Point _low_high_out,  Mat &_stretched_img, bool _gamma_undo)
 {
 
@@ -243,3 +245,5 @@ double gamma_undo(double _input, double _gamma_value)
 {
     return pow(_input, 1.0/_gamma_value);
 }
+
+} // namespace image_processing

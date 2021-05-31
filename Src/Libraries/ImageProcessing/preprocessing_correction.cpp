@@ -16,6 +16,8 @@ using namespace std;
 using namespace cv;
 using namespace basic_processing;
 
+namespace image_processing {
+
 PreprocessingCorrection::PreprocessingCorrection(int _ws, QWidget* _parent):m_ws(_ws),
 m_lowres_comp_scaling(1.0),
 m_prepro_img_scaling(1.0),
@@ -410,3 +412,5 @@ void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _co
 		m_sat_thres = 0.001;
 
 }
+
+} // namespace image_processing
