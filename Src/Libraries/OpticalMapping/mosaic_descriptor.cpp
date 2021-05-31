@@ -7,7 +7,7 @@
 #include "raster_georeferencer.h"
 #include "Polygon.h"
 
-using namespace basicproc;
+using namespace basic_processing;
 using namespace cv;
 
 MosaicDescriptor::MosaicDescriptor():_mosaicOrigin(0,0,0),
@@ -390,8 +390,8 @@ void MosaicDescriptor::decimateImagesFromOverlap(double minOverlap_p, double max
 
     for (int i_next=1; i_next<(cameraNodes().size()-1 ); i_next++){
 
-        double area_ratio_1 = vpImagesPoly.at(i_curr)->clipArea(*vpImagesPoly.at(i_next), basicproc::INT)/vpImagesPoly.at(i_curr)->area();
-        double area_ratio_2 = vpImagesPoly.at(i_next)->clipArea(*vpImagesPoly.at(i_next+1), basicproc::INT)/vpImagesPoly.at(i_next)->area();
+        double area_ratio_1 = vpImagesPoly.at(i_curr)->clipArea(*vpImagesPoly.at(i_next), basic_processing::INT)/vpImagesPoly.at(i_curr)->area();
+        double area_ratio_2 = vpImagesPoly.at(i_next)->clipArea(*vpImagesPoly.at(i_next+1), basic_processing::INT)/vpImagesPoly.at(i_next)->area();
 
         if (area_ratio_1<maxOverlap_p || area_ratio_2<minOverlap_p){
             keptIndexes.push_back(true);
@@ -457,11 +457,11 @@ void MosaicDescriptor::decimateImagesUntilNoOverlap()
 
     for (int i = 1; i < cameraNodes().size(); i++) {
 
-        double inter_area = poly_union->clipArea(*vpImagesPoly.at(i), basicproc::INT);
+        double inter_area = poly_union->clipArea(*vpImagesPoly.at(i), basic_processing::INT);
 
         if (inter_area <eps) {
             keptIndexes.push_back(true);
-            poly_union->clip(*vpImagesPoly.at(i), *temp_union, basicproc::UNION);
+            poly_union->clip(*vpImagesPoly.at(i), *temp_union, basic_processing::UNION);
             *poly_union = *temp_union;
         }
         else {

@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     qInstallMsgHandler(myMessageOutput);
 #endif
 
-    qRegisterMetaType< basicproc::Polygon >();
+    qRegisterMetaType< basic_processing::Polygon >();
 
     /* Define default encoding for all text streaming */
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));

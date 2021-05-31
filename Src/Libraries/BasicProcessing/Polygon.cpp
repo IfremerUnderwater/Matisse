@@ -2,11 +2,12 @@
 #include "stdvectoperations.h"
 #include <cfloat>
 
-using namespace basicproc;
 using namespace std;
 
+namespace basic_processing {
 
-Polygon::Polygon():_modifSinceUpdate(true)
+Polygon::Polygon():
+    _modifSinceUpdate(true)
 {
     _gpcPolygon.contour = NULL;
     _gpcPolygon.hole = NULL;
@@ -355,5 +356,7 @@ void Polygon::operator =(Polygon &polyB_p)
     this->updatePolygonFromGpc();
 
 }
+
+} // namespace basic_processing
 
 

@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace cv;
+using namespace basic_processing;
 
 PreprocessingCorrection::PreprocessingCorrection(int _ws, QWidget* _parent):m_ws(_ws),
 m_lowres_comp_scaling(1.0),

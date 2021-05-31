@@ -3,6 +3,8 @@
 #include <math.h>
 
 using namespace cv;
+using namespace std;
+using namespace basic_processing;
 
 void histogramStretch(Mat &_in_img, Mat &_in_mask, Point _low_high_in, Point _low_high_out,  Mat &_stretched_img, bool _gamma_undo)
 {

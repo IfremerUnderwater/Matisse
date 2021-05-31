@@ -1,5 +1,5 @@
-#ifndef POLYGON_H
-#define POLYGON_H
+#ifndef MATISSE_POLYGON_H_
+#define MATISSE_POLYGON_H_
 
 
 #include "gpc.h"
@@ -8,7 +8,7 @@
 #include <QString>
 #include <QMetaType>
 
-namespace basicproc {
+namespace basic_processing {
 
 
 typedef struct                      /* Vertex list structure             */
@@ -118,8 +118,8 @@ private:
 
 };
 
-}
+} // namespace basic_processing
 
-Q_DECLARE_METATYPE(basicproc::Polygon)
+Q_DECLARE_METATYPE(basic_processing::Polygon)
 
-#endif // POLYGON_H
+#endif // MATISSE_POLYGON_H_

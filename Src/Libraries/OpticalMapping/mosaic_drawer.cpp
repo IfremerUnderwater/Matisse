@@ -23,7 +23,7 @@
 using namespace std;
 using namespace cv;
 using namespace cv::detail;
-using namespace basicproc;
+using namespace basic_processing;
 using namespace MatisseCommon;
 
 MosaicDrawer::MosaicDrawer(QString drawingOptions)
@@ -612,7 +612,7 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
             for (int k=0; k < mosaicD_p.cameraNodes().size(); k++){
 
                 Polygon *imgBlockIntersection = new Polygon;
-                vpImagesPoly[k]->clip(*currentBlockPolygon,*imgBlockIntersection,basicproc::INT);
+                vpImagesPoly[k]->clip(*currentBlockPolygon,*imgBlockIntersection,basic_processing::INT);
 
                 if (!imgBlockIntersection->isEmpty()){
 
@@ -723,7 +723,7 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
         for (int l=0; l < camNum; l++) {
 
             Polygon *imgBlockInter = new Polygon();
-            vpImagesPoly[vvBlocksImgIndexes[k]->at(l)]->clip(*(vpEffBlocksPoly[k]),*imgBlockInter,basicproc::INT);
+            vpImagesPoly[vvBlocksImgIndexes[k]->at(l)]->clip(*(vpEffBlocksPoly[k]),*imgBlockInter,basic_processing::INT);
 
             ProjectiveCamera* Cam = mosaicD_p.cameraNodes().at(vvBlocksImgIndexes[k]->at(l));
 
@@ -791,7 +791,7 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
         for (unsigned int l=k+1; l<vpEffBlocksPoly.size(); l++){
 
             Polygon *blocksPairInter = new Polygon();
-            vpEffBlocksPoly[k]->clip(*(vpEffBlocksPoly[l]),*blocksPairInter,basicproc::INT);
+            vpEffBlocksPoly[k]->clip(*(vpEffBlocksPoly[l]),*blocksPairInter,basic_processing::INT);
             double tl_x1,tl_y1,br_x1,br_y1;
             double tl_x2,tl_y2,br_x2,br_y2;
 
@@ -868,10 +868,10 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
             for (unsigned int j=i+1; j<vpBlocksPairIntersectPoly.size(); j++){
 
                 // Intersect junctions
-                vpBlocksPairIntersectPoly[i]->clip(*(vpBlocksPairIntersectPoly[j]),tempPoly1,basicproc::INT);
+                vpBlocksPairIntersectPoly[i]->clip(*(vpBlocksPairIntersectPoly[j]),tempPoly1,basic_processing::INT);
 
                 // Add intersection
-                junctionInterPoly.clip(tempPoly1,tempPoly2,basicproc::UNION);
+                junctionInterPoly.clip(tempPoly1,tempPoly2,basic_processing::UNION);
 
                 // Affect
                 junctionInterPoly = tempPoly2;
@@ -931,7 +931,7 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
             for (unsigned int l=0; l<vpEffBlocksPoly.size(); l++){
 
                 Polygon *blockJunctionInter = new Polygon();
-                currentJunction->clip(*(vpEffBlocksPoly[l]),*blockJunctionInter,basicproc::INT);
+                currentJunction->clip(*(vpEffBlocksPoly[l]),*blockJunctionInter,basic_processing::INT);
                 double tl_x,tl_y,br_x,br_y;
                 double tlBlock_x,tlBlock_y,brBlock_x,brBlock_y;
 

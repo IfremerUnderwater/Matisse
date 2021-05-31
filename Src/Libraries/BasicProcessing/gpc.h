@@ -30,11 +30,12 @@ Copyright: (C) 1997-2004, Advanced Interfaces Group,
 ===========================================================================
 */
 
-#ifndef __gpc_h
-#define __gpc_h
+#ifndef MATISSE_GPC_H_
+#define MATISSE_GPC_H_
 
 #include <stdio.h>
 
+namespace basic_processing {
 
 /*
 ===========================================================================
@@ -124,7 +125,10 @@ void gpc_free_polygon        (gpc_polygon     *polygon);
 
 void gpc_free_tristrip       (gpc_tristrip    *tristrip);
 
+} // namespace basic_processing
+
 #endif
+
 
 /*
 ===========================================================================
