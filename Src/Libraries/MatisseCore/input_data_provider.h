@@ -10,6 +10,7 @@
 #include "lifecycle_component.h"
 #include "Polygon.h"
 
+using namespace matisse_image;
 
 namespace MatisseCommon {
 ///

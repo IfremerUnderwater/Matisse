@@ -1,5 +1,5 @@
-﻿#ifndef FILEIMAGE_H
-#define FILEIMAGE_H
+﻿#ifndef MATISSE_FILE_IMAGE_H_
+#define MATISSE_FILE_IMAGE_H_
 
 
 
@@ -10,7 +10,7 @@
 #include <QImageReader>
 
 
-namespace MatisseCommon {
+namespace matisse_image {
 ///
 /// \brief The Image provenant d'un fichier
 ///
@@ -87,4 +87,4 @@ protected:
 
 }
 
-#endif // FILEIMAGE_H
+#endif // MATISSE_FILE_IMAGE_H_

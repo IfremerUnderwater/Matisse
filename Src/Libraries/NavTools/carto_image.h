@@ -6,7 +6,9 @@
 #include <QRect>
 #include <QPoint>
 
-class CartoImage : public MatisseCommon::Image
+using namespace matisse_image;
+
+class CartoImage : public Image
 {
 public:
     CartoImage();

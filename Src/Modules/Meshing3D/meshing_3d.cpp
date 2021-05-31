@@ -78,7 +78,7 @@ bool Meshing3D::configure()
     return true;
 }
 
-void Meshing3D::onNewImage(quint32 port, MatisseCommon::Image &image)
+void Meshing3D::onNewImage(quint32 port, matisse_image::Image &image)
 {
     Q_UNUSED(port)
 

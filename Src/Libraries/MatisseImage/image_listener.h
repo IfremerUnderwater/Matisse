@@ -1,12 +1,11 @@
-﻿#ifndef IMAGELISTENER_H
-#define IMAGELISTENER_H
-
+﻿#ifndef MATISSE_IMAGE_LISTENER_H_
+#define MATISSE_IMAGE_LISTENER_H_
 
 
 #include <QObject>
 #include "image.h"
 
-namespace MatisseCommon {
+namespace matisse_image {
 
 ///
 /// \brief Interface de notification d'arrivée de nouvelle image
@@ -28,5 +27,5 @@ public:
 };
 
 }
-Q_DECLARE_INTERFACE(MatisseCommon::ImageListener, "Ifremer.ImageListener/1.1")
-#endif // IMAGELISTENER_H
+Q_DECLARE_INTERFACE(matisse_image::ImageListener, "Ifremer.ImageListener/1.1")
+#endif // MATISSE_IMAGE_LISTENER_H_

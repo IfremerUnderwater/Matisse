@@ -1,7 +1,7 @@
 ﻿#include "image_set.h"
 #include <QDebug>
 
-using namespace MatisseCommon;
+namespace matisse_image {
 
 Image *ImageSet::getImage(int imageNumber)
 {
@@ -143,3 +143,4 @@ void ImageSet::setOutPort(ImageSetPort *outPort)
     _outPort = outPort;
 }
 
+} // namespace matisse_image

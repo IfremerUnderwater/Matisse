@@ -12,8 +12,10 @@
 static bool gdalLoaded = false;
 
 using namespace cv;
+using namespace matisse_image;
 
-CartoImage::CartoImage() : MatisseCommon::Image()
+CartoImage::CartoImage() :
+    Image()
 {
     if(!gdalLoaded)
     {

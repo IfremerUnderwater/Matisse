@@ -2,6 +2,7 @@
 #include <QDebug>
 
 using namespace cv;
+using namespace matisse_image;
 
 ProjectiveCamera::ProjectiveCamera():_scalingFactor(1),_scalingFactorIsSet(false),
     _KIsSet(false)
@@ -64,7 +65,7 @@ NavImage *ProjectiveCamera::image() const
     return _image;
 }
 
-void ProjectiveCamera::setImage(MatisseCommon::NavImage *image)
+void ProjectiveCamera::setImage(NavImage *image)
 {
     _image = image;
 }

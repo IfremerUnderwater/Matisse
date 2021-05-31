@@ -1,6 +1,6 @@
 ﻿#include "picture_file_set.h"
 
-using namespace MatisseCommon;
+namespace matisse_image {
 
 PictureFileSet::PictureFileSet(QString rootDirname, QString dim2Filename, bool writable):_rootDirname(rootDirname),
     _dim2Filename(dim2Filename),
@@ -73,3 +73,5 @@ bool PictureFileSet::dim2FileIsValid()
 //{
 //    return QSharedPointer<PictureFileSet>(new PictureFileSet());
 //}
+
+} // namespace matisse_image

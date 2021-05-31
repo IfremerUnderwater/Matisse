@@ -1,14 +1,12 @@
-﻿#ifndef NAVIMAGE_H
-#define NAVIMAGE_H
-
-
+﻿#ifndef MATISSE_NAV_IMAGE_H_
+#define MATISSE_NAV_IMAGE_H_
 
 #include <QDateTime>
 
 #include "nav_info.h"
 #include "image.h"
 
-namespace MatisseCommon {
+namespace matisse_image {
 
 ///
 /// \brief Image associée à une information de navigation
@@ -49,4 +47,4 @@ protected:
 };
 }
 
-#endif // NAVIMAGE_H
+#endif // MATISSE_NAV_IMAGE_H_

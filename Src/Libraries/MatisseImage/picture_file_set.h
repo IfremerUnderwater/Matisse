@@ -1,6 +1,5 @@
-﻿#ifndef PICTUREFILESET_H
-#define PICTUREFILESET_H
-
+﻿#ifndef MATISSE_PICTURE_FILE_SET_H_
+#define MATISSE_PICTURE_FILE_SET_H_
 
 
 #include <QString>
@@ -9,7 +8,8 @@
 #include <QSharedPointer>
 
 #include "input_source.h"
-namespace MatisseCommon {
+
+namespace matisse_image {
 
 ///
 /// \brief Racine de l'arborescence d'une série d'image
@@ -49,4 +49,4 @@ private:
     bool _writable;
 };
 }
-#endif // PICTUREFILESET_H
+#endif // MATISSE_PICTURE_FILE_SET_H_

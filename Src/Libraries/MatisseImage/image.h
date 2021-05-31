@@ -1,17 +1,14 @@
-﻿#ifndef IMAGE_H
-#define IMAGE_H
+﻿#ifndef MATISSE_IMAGE_H_
+#define MATISSE_IMAGE_H_
 
 
 
 #include <QSharedData>
 #include <QExplicitlySharedDataPointer>
 
-//#include <opencv/cv.h>
 #include <opencv2/opencv.hpp>
 
-//using namespace cv;
-
-namespace MatisseCommon {
+namespace matisse_image {
 
 ///
 /// \brief Classe de base de manipulation des Image dans Matisse.
@@ -79,4 +76,4 @@ protected:
 
 }
 
-#endif // IMAGE_H
+#endif // MATISSE_IMAGE_H_

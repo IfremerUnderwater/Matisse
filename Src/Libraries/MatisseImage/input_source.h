@@ -1,9 +1,9 @@
-﻿#ifndef INPUTSOURCE_H
-#define INPUTSOURCE_H
+﻿#ifndef MATISSE_INPUT_SOURCE_H_
+#define MATISSE_INPUT_SOURCE_H_
 
 
 
-namespace MatisseCommon {
+namespace matisse_image {
 
 ///
 /// \brief Classe de base des sources d'image.
@@ -17,4 +17,4 @@ public:
 
 }
 
-#endif // INPUTSOURCE_H
+#endif // MATISSE_INPUT_SOURCE_H_

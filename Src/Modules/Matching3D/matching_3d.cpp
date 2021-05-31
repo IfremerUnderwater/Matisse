@@ -110,7 +110,7 @@ bool Matching3D::configure()
     return true;
 }
 
-void Matching3D::onNewImage(quint32 port, MatisseCommon::Image &image)
+void Matching3D::onNewImage(quint32 port, matisse_image::Image &image)
 {
     Q_UNUSED(port)
 
@@ -264,7 +264,7 @@ bool Matching3D::computeFeatures()
     // - if no file, compute features
     {
         system::Timer timer;
-        Image<unsigned char> imageGray;
+        openMVG::image::Image<unsigned char> imageGray;
 
         /*C_Progress_display my_progress_bar(sfm_data.GetViews().size(),
             std::cout, "\n- EXTRACT FEATURES -\n");*/
@@ -298,7 +298,7 @@ bool Matching3D::computeFeatures()
                 //
                 // Look if there is occlusion feature mask
                 //
-                Image<unsigned char>* mask = nullptr; // The mask is null by default
+                openMVG::image::Image<unsigned char>* mask = nullptr; // The mask is null by default
 
                 const std::string
                     mask_filename_local =
@@ -307,7 +307,7 @@ bool Matching3D::computeFeatures()
                     mask__filename_global =
                     stlplus::create_filespec(sfm_data.s_root_path, "mask", "png");
 
-                Image<unsigned char> imageMask;
+                openMVG::image::Image<unsigned char> imageMask;
                 // Try to read the local mask
                 if (stlplus::file_exists(mask_filename_local))
                 {

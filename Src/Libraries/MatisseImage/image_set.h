@@ -1,6 +1,5 @@
-﻿#ifndef IMAGESET_H
-#define IMAGESET_H
-
+﻿#ifndef MATISSE_IMAGE_SET_H_
+#define MATISSE_IMAGE_SET_H_
 
 
 #include <QObject>
@@ -9,7 +8,8 @@
 #include "image.h"
 #include "image_listener.h"
 
-namespace MatisseCommon {
+namespace matisse_image {
+
 class ImageSet;
 
 ///
@@ -139,4 +139,4 @@ private:
 };
 }
 
-#endif // IMAGESET_H
+#endif // MATISSE_IMAGE_SET_H_

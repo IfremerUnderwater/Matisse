@@ -8,12 +8,13 @@
 #include "matisse_parameters.h"
 #include "Polygon.h"
 
+using namespace matisse_image;
 
 namespace MatisseCommon {
 
 class OutputDataWriter : public QObject, public ImageListener, public LifecycleComponent  {
     Q_OBJECT
-    Q_INTERFACES(MatisseCommon::ImageListener)
+    Q_INTERFACES(matisse_image::ImageListener)
     Q_INTERFACES(MatisseCommon::LifecycleComponent)
 public:
 

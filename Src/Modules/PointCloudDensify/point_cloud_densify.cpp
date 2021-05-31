@@ -64,7 +64,7 @@ bool PointCloudDensify::configure()
     return true;
 }
 
-void PointCloudDensify::onNewImage(quint32 port, MatisseCommon::Image &image)
+void PointCloudDensify::onNewImage(quint32 port, matisse_image::Image &image)
 {
     Q_UNUSED(port)
 

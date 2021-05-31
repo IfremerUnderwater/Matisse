@@ -2,8 +2,9 @@
 
 #include "image.h"
 
-using namespace MatisseCommon;
 using namespace cv;
+
+namespace matisse_image {
 
 Image::Image():_id(-1),
     _imageData(0)
@@ -77,4 +78,4 @@ QString Image::dumpAttr()
 
 }
 
-
+} // namespace matisse_image

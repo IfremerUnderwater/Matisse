@@ -1,5 +1,5 @@
-﻿#ifndef NAVINFO_H
-#define NAVINFO_H
+﻿#ifndef MATISSE_NAV_INFO_H_
+#define MATISSE_NAV_INFO_H_
 
 
 
@@ -25,7 +25,7 @@
 #endif
 
 
-namespace MatisseCommon {
+namespace matisse_image {
 
 #define InvalidValue NAN
 
@@ -127,4 +127,4 @@ private:
     double _tilt;
 };
 }
-#endif // NAVINFO_H
+#endif // MATISSE_NAV_INFO_H_

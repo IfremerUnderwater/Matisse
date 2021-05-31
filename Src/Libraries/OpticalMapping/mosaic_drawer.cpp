@@ -24,7 +24,7 @@ using namespace std;
 using namespace cv;
 using namespace cv::detail;
 using namespace basic_processing;
-using namespace MatisseCommon;
+using namespace matisse_image;
 
 MosaicDrawer::MosaicDrawer(QString drawingOptions)
 {
@@ -1198,7 +1198,7 @@ QStringList MosaicDrawer::outputMosaicImagesAsIs(const MosaicDescriptor& mosaicD
     // Loop on all images
     for (int k = 0; k < mosaicD_p.cameraNodes().size(); k++) {
 
-        FileImage* input_image = dynamic_cast<MatisseCommon::FileImage*>(mosaicD_p.cameraNodes().at(k)->image());
+        FileImage* input_image = dynamic_cast<matisse_image::FileImage*>(mosaicD_p.cameraNodes().at(k)->image());
 
         if (input_image != nullptr)
         {

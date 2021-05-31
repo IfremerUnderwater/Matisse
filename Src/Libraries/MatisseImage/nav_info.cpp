@@ -8,7 +8,7 @@ using namespace std;
 //      int isinf(double x) { return !isnan(x) && isnan(x - x); }
 //#endif
 
-using namespace MatisseCommon;
+namespace matisse_image {
 
 NavInfo::NavInfo(quint32 dive, QDateTime time, double longitude, double latitude, double depth, double altitude, double yaw, double roll, double pitch, double vx, double vy, double vz)
 {
@@ -418,7 +418,7 @@ void NavInfo::setTilt(const double &tilt)
     _tilt = tilt;
 }
 
-
+} // namespace matisse_image
 
 
 

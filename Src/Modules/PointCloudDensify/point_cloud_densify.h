@@ -25,7 +25,7 @@ public:
     virtual bool start();
     virtual bool stop();
     virtual void onFlush(quint32 port);
-    virtual void onNewImage(quint32 port, MatisseCommon::Image &image);
+    virtual void onNewImage(quint32 port, matisse_image::Image &image);
 
     /** @brief Initializer of the C_Progress class
 * @param expected_count The number of step of the process

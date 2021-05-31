@@ -1,22 +1,21 @@
 ﻿#include "nav_image.h"
 
-using namespace MatisseCommon;
+namespace matisse_image {
 
-
-MatisseCommon::NavImage::NavImage(const MatisseCommon::NavImage &other):Image(other),
+NavImage::NavImage(const NavImage &other):Image(other),
     _navInfo(other._navInfo)
 {
 }
 
 
-MatisseCommon::NavImage::NavImage(int id, cv::Mat *imageData, MatisseCommon::NavInfo navInfo):Image(id, imageData),
+NavImage::NavImage(int id, cv::Mat *imageData, NavInfo navInfo):Image(id, imageData),
     _navInfo(navInfo)
 {
 
 }
 
 
-void MatisseCommon::NavImage::setNavInfo(MatisseCommon::NavInfo navInfo)
+void NavImage::setNavInfo(NavInfo navInfo)
 {
     _navInfo = navInfo;
 }
@@ -27,7 +26,7 @@ NavInfo &NavImage::navInfo()
 }
 
 
-QString MatisseCommon::NavImage::dumpAttr()
+QString NavImage::dumpAttr()
 {
     QString ret(Image::dumpAttr());
     ret += _navInfo.dump();
@@ -35,3 +34,5 @@ QString MatisseCommon::NavImage::dumpAttr()
     return ret;
 
 }
+
+} // namespace matisse_image

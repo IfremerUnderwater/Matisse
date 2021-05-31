@@ -17,6 +17,8 @@
 #include "nav_info.h"
 //#include "FileImage.h"
 
+using namespace matisse_image;
+
 namespace MatisseCommon {
 
 ///

@@ -6,7 +6,7 @@
 #include <opencv2/opencv.hpp>
 #include <nav_image.h>
 
-using namespace MatisseCommon;
+using namespace matisse_image;
 
 class ProjectiveCamera
 {
@@ -32,7 +32,7 @@ public:
     void setV_R_C(const cv::Mat &V_R_C);
 
     NavImage *image() const;
-    void setImage(MatisseCommon::NavImage *image);
+    void setImage(NavImage *image);
 
     double scalingFactor() const;
     void setScalingFactor(const double &scalingFactor);
@@ -86,7 +86,7 @@ private:
     bool _KIsSet;
 
     // Image taken in the camera plane with the vehicule navigation
-    MatisseCommon::NavImage *_image;
+    NavImage *_image;
 
 
 };

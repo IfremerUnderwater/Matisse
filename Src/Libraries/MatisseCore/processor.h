@@ -14,6 +14,8 @@
 #include "lifecycle_component.h"
 #include "Polygon.h"
 
+using namespace matisse_image;
+
 namespace MatisseCommon {
 
 ///
@@ -22,7 +24,7 @@ namespace MatisseCommon {
 class Processor : public QObject, public ImageListener, public LifecycleComponent
 {
     Q_OBJECT
-    Q_INTERFACES(MatisseCommon::ImageListener)
+    Q_INTERFACES(matisse_image::ImageListener)
     Q_INTERFACES(MatisseCommon::LifecycleComponent)
 public:
 

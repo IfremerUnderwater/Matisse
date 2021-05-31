@@ -2,8 +2,8 @@
 #include <QDebug>
 
 using namespace cv;
-using namespace MatisseCommon;
 
+namespace matisse_image {
 
 FileImage::FileImage(PictureFileSet *pictureFileSet, QString fileName, QString sourceName, QString sourceFormat, int id, NavInfo navInfo):NavImage(id, NULL, navInfo),
     _fileName(fileName),
@@ -103,3 +103,4 @@ int FileImage::height()
     }
 }
 
+} // namespace matisse_image
