@@ -1,6 +1,6 @@
 #include "network_action_upload_file.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 NetworkActionUploadFile::NetworkActionUploadFile(QString _local_file_path, QString _remote_path) :
     NetworkFileAction(NetworkActionType::UploadFile)
@@ -37,4 +37,4 @@ void NetworkActionUploadFile::doTerminate()
 
 }
 
-} // namespace MatisseCommon
+} // namespace network_tools

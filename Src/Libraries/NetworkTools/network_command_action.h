@@ -1,9 +1,9 @@
-#ifndef MATISSE_NETWORK_COMMAND_ACTION_H_
-#define MATISSE_NETWORK_COMMAND_ACTION_H_
+#ifndef NETWORK_TOOLS_COMMAND_ACTION_H_
+#define NETWORK_TOOLS_COMMAND_ACTION_H_
 
 #include "network_action.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 class NetworkCommandAction : public NetworkAction
 {
@@ -17,6 +17,6 @@ signals:
     void si_executeCommand();
 };
 
-} // namespace MatisseCommon
+} // namespace network_tools
 
-#endif // MATISSE_NETWORK_COMMAND_ACTION_H_
+#endif // NETWORK_TOOLS_COMMAND_ACTION_H_

@@ -1,7 +1,6 @@
 #include "network_action_download_dir.h"
 
-namespace MatisseCommon {
-
+namespace network_tools {
 
 NetworkActionDownloadDir::NetworkActionDownloadDir(QString _remote_dir,
                                                    QString _local_base_dir) :
@@ -39,4 +38,4 @@ void NetworkActionDownloadDir::doTerminate()
 
 }
 
-} // namespace MatisseCommon
+} // namespace network_tools

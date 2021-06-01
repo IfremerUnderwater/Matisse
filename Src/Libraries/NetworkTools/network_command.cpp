@@ -4,7 +4,7 @@
 #include <QRegularExpression>
 #include <QtDebug>
 
-namespace MatisseTools {
+namespace network_tools {
 
 NetworkCommand::NetworkCommand(QString _command, int _min_args, int _max_args) :
   m_command(_command),
@@ -241,4 +241,4 @@ void NetworkCommand::checkExecuted()
 
 
 
-}
+} // namespace network_tools

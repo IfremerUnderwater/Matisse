@@ -1,10 +1,10 @@
-#ifndef MATISSE_NETWORK_ACTION_DIR_CONTENT_H_
-#define MATISSE_NETWORK_ACTION_DIR_CONTENT_H_
+#ifndef NETWORK_TOOLS_NETWORK_ACTION_DIR_CONTENT_H_
+#define NETWORK_TOOLS_NETWORK_ACTION_DIR_CONTENT_H_
 
 #include <QtDebug>
 #include "network_file_action.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 class NetworkActionDirContent : public NetworkFileAction
 {
@@ -31,6 +31,6 @@ private:
     QStringList m_file_filters;
 };
 
-} // namespace MatisseCommon
+} // namespace network_tools
 
-#endif // MATISSE_NETWORK_ACTION_DIR_CONTENT_H_
+#endif // NETWORK_TOOLS_NETWORK_ACTION_DIR_CONTENT_H_

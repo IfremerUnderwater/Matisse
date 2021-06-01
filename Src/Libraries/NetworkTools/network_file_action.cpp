@@ -1,6 +1,6 @@
 #include "network_file_action.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 NetworkFileAction::NetworkFileAction(NetworkActionType _type) :
     NetworkAction(_type)
@@ -8,4 +8,4 @@ NetworkFileAction::NetworkFileAction(NetworkActionType _type) :
 
 }
 
-} // namespace MatisseCommon
+} // namespace network_tools

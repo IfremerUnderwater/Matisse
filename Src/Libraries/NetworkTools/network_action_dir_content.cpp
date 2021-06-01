@@ -2,7 +2,7 @@
 
 #include <QRegularExpression>
 
-namespace MatisseCommon {
+namespace network_tools {
 
 NetworkActionDirContent::NetworkActionDirContent(QString _remote_dir,
                                                  FileTypeFilters _flags,
@@ -50,4 +50,4 @@ void NetworkActionDirContent::doTerminate()
 
 }
 
-} // namespace MatisseCommon
+} // namespace network_tools

@@ -1,5 +1,5 @@
-#ifndef MATISSE_SFTP_CLIENT_H_
-#define MATISSE_SFTP_CLIENT_H_
+#ifndef NETWORK_TOOLS_SFTP_CLIENT_H_
+#define NETWORK_TOOLS_SFTP_CLIENT_H_
 
 #include "sshconnection.h"
 #include "sftpchannel.h"
@@ -8,7 +8,7 @@
 
 using namespace QSsh;
 
-namespace MatisseCommon {
+namespace network_tools {
 
 class SftpClient :
     public NetworkFileClient
@@ -61,11 +61,11 @@ protected slots:
         quint64 m_total_received_bytes = 0;
         quint32 m_progress_offset = 0; // first job id for progress tracking
         
-        SftpChannel::Ptr m_channel;
-        SshConnection* m_connection;
-        QSet<SshConnection*> m_obsolete_connections;
+        QSsh::SftpChannel::Ptr m_channel;
+        QSsh::SshConnection* m_connection;
+        QSet<QSsh::SshConnection*> m_obsolete_connections;
     };
 
-}
+} // namespace network_tools
 
-#endif  // MATISSE_SFTP_CLIENT_H_
+#endif  // NETWORK_TOOLS_SFTP_CLIENT_H_

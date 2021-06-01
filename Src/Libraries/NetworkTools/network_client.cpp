@@ -1,6 +1,6 @@
 #include "network_client.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 NetworkClientCredentials::NetworkClientCredentials(QString _username, QString _password) {
   if (_username.isNull() || _username.isEmpty()) {
@@ -49,4 +49,4 @@ void NetworkClient::setCredentials(NetworkClientCredentials *creds) {
 
 QString NetworkClient::username() { return m_creds->username(); }
 
-}  // namespace MatisseCommon
+}  // namespace network_tools

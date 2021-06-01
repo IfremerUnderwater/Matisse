@@ -7,8 +7,10 @@
 #include "file_utils.h"
 #include "network_action_download_dir.h"
 
-namespace MatisseCommon 
-{
+using namespace QSsh;
+using namespace MatisseCommon;
+
+namespace network_tools {
 
 SftpClient::SftpClient()
     : NetworkFileClient(),
@@ -699,7 +701,7 @@ void SftpClient::mapTransferError(QSsh::SftpError _err)
   qDebug() << QString("SFTP error occurred : ") << m_current_tx_error;
 }
 
-} // namespace MatisseCommon
+} // namespace network_tools
 
 
 

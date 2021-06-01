@@ -1,9 +1,9 @@
-#ifndef MATISSE_NETWORK_COMMAND_CLIENT_H_
-#define MATISSE_NETWORK_COMMAND_CLIENT_H_
+#ifndef NETWORK_TOOLS_COMMAND_CLIENT_H_
+#define NETWORK_TOOLS_COMMAND_CLIENT_H_
 
 #include "network_client.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 class NetworkCommandClient : public NetworkClient
 {
@@ -26,6 +26,6 @@ protected:
 
 };
 
-} // MatisseCommon
+} // namespace network_tools
 
-#endif // MATISSE_NETWORK_COMMAND_CLIENT_H_
+#endif // NETWORK_TOOLS_COMMAND_CLIENT_H_

@@ -1,5 +1,5 @@
-#ifndef MATISSE_NETWORK_CLIENT_H_
-#define MATISSE_NETWORK_CLIENT_H_
+#ifndef NETWORK_TOOLS_NETWORK_CLIENT_H_
+#define NETWORK_TOOLS_NETWORK_CLIENT_H_
 
 #include <QDateTime>
 #include <QFlags>
@@ -9,7 +9,7 @@
 
 #include "network_action.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 class NetworkClientCredentials
 {
@@ -129,6 +129,6 @@ protected:
 };
 
 
-}
+} // namespace network_tools
 
-#endif // MATISSE_NETWORK_CLIENT_H_
+#endif // NETWORK_TOOLS_NETWORK_CLIENT_H_

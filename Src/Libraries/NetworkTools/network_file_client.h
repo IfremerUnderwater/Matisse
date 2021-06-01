@@ -1,10 +1,9 @@
-#ifndef MATISSE_NETWORK_FILE_CLIENT_H_
-#define MATISSE_NETWORK_FILE_CLIENT_H_
+#ifndef NETWORK_TOOLS_NETWORK_FILE_CLIENT_H_
+#define NETWORK_TOOLS_NETWORK_FILE_CLIENT_H_
 
 #include "network_client.h"
 
-namespace MatisseCommon {
-
+namespace network_tools {
 
 class NetworkFileClient : public NetworkClient
 {
@@ -31,6 +30,6 @@ protected:
     TransferError m_current_tx_error = TransferError::NoError;
 };
 
-} // namespace MatisseCommon
+} // namespace network_tools
 
-#endif // MATISSE_NETWORK_FILE_CLIENT_H_
+#endif // NETWORK_TOOLS_NETWORK_FILE_CLIENT_H_

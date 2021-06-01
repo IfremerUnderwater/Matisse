@@ -1,9 +1,9 @@
-#ifndef MATISSE_NETWORK_FILE_ACTION_H_
-#define MATISSE_NETWORK_FILE_ACTION_H_
+#ifndef NETWORK_TOOLS_NETWORK_FILE_ACTION_H_
+#define NETWORK_TOOLS_NETWORK_FILE_ACTION_H_
 
 #include "network_action.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 class NetworkFileAction : public NetworkAction
 {
@@ -18,6 +18,6 @@ signals:
     void si_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters);
 };
 
-} // namespace MatisseCommon
+} // namespace network_tools
 
-#endif // MATISSE_NETWORK_FILE_ACTION_H_
+#endif // NETWORK_TOOLS_NETWORK_FILE_ACTION_H_

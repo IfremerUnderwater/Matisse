@@ -1,6 +1,6 @@
 #include "network_action_send_command.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 NetworkActionSendCommand::NetworkActionSendCommand(QString _command_string) :
     NetworkCommandAction(NetworkActionType::SendCommand),
@@ -27,4 +27,4 @@ void NetworkActionSendCommand::doTerminate() {
 QString NetworkActionSendCommand::progressMessage() {
     return QString("Executing command '%1'").arg(m_command); }
 
-} // namespace MatisseCommon
+} // namespace network_tools

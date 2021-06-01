@@ -1,6 +1,6 @@
 #include "ssh_client.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 SshClient::SshClient() :
     NetworkCommandClient()
@@ -326,7 +326,7 @@ void SshClient::sl_onDisconnected() {
   qDebug() << "SSH Client: disconnected";
 
   QObject* emitter = sender();
-  SshConnection* expired_connection = static_cast<SshConnection*>(emitter);
+  QSsh::SshConnection* expired_connection = static_cast<QSsh::SshConnection*>(emitter);
 
   /* Case : the connection was closed by calling agent */
   if (m_obsolete_connections.contains(expired_connection)) {
@@ -375,4 +375,4 @@ void SshClient::sl_onConnectionError(QSsh::SshError err) {
   emit si_connectionFailed(m_current_cx_error);
 }
 
-} // namespace MatisseCommon
+} // namespace network_tools

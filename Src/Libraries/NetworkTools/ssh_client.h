@@ -1,5 +1,5 @@
-#ifndef SSHCLIENT_H
-#define SSHCLIENT_H
+#ifndef NETWORK_TOOLS_SSH_CLIENT_H_
+#define NETWORK_TOOLS_SSH_CLIENT_H_
 
 #include <QtDebug>
 #include "sshconnection.h"
@@ -7,9 +7,7 @@
 #include "network_action.h"
 #include "network_command_client.h"
 
-using namespace QSsh;
-
-namespace MatisseCommon {
+namespace network_tools {
 
 class SshClient : public NetworkCommandClient
 {
@@ -47,13 +45,13 @@ private:
     void mapConnectionError(QSsh::SshError _err);
 
 
-    SshRemoteProcess::Ptr m_shell;
-    SshConnection* m_connection;
-    QSet<SshConnection*> m_obsolete_connections;
+    QSsh::SshRemoteProcess::Ptr m_shell;
+    QSsh::SshConnection* m_connection;
+    QSet<QSsh::SshConnection*> m_obsolete_connections;
 
     QString m_shell_command;
 };
 
-} // namespace MatisseCommon
+} // namespace network_tools
 
-#endif // SSHCLIENT_H
+#endif // NETWORK_TOOLS_SSH_CLIENT_H_

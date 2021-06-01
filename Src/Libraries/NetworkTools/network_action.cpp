@@ -5,7 +5,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
-namespace MatisseCommon {
+namespace network_tools {
 
 NetworkAction::NetworkAction(NetworkActionType type) {
   m_type = type;
@@ -154,4 +154,4 @@ void NetworkAction::terminate()
 
 //void DownloadDirAction::doTerminate() {}
 
-}  // namespace MatisseCommon
+}  // namespace network_tools

@@ -1,6 +1,6 @@
 #include "network_file_client.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 NetworkFileClient::NetworkFileClient() : NetworkClient()
 {
@@ -23,4 +23,4 @@ void NetworkFileClient::disconnectAction(NetworkAction *_action)
     disconnect(_action, SIGNAL(si_dirContent(QString, FileTypeFilters, QStringList)), this, SLOT(sl_dirContent(QString, FileTypeFilters, QStringList)));
 }
 
-} // namespace MatisseCommon
+} // namespace network_tools

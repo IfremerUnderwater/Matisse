@@ -18,7 +18,7 @@
 #include "network_file_client.h"
 #include "network_command.h"
 
-using namespace MatisseCommon;
+using namespace network_tools;
 using namespace MatisseTools;
 
 namespace MatisseServer {
@@ -101,8 +101,8 @@ private:
     MatissePreferences* m_prefs = NULL;
     bool m_is_remote_exec_on = true;
     QQueue<NetworkAction*> m_pending_action_queue;
-    QMap<NetworkAction*, MatisseTools::NetworkCommand*> m_commands_by_action;
-    QMap<MatisseTools::NetworkCommand*, QString> m_jobs_by_command;
+    QMap<NetworkAction*, NetworkCommand*> m_commands_by_action;
+    QMap<NetworkCommand*, QString> m_jobs_by_command;
     QMap<NetworkAction*, QString> m_jobs_by_action;
     QString m_selected_remote_dataset_path;
     QString m_current_job_name;

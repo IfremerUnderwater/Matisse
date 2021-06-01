@@ -4,7 +4,7 @@
 #include <QRegularExpressionMatch>
 #include <QtDebug>
 
-namespace MatisseTools {
+namespace network_tools {
 
 NetworkCommandPbsQsub::NetworkCommandPbsQsub() :
 	NetworkCommand("qsub", 1)
@@ -86,4 +86,4 @@ void NetworkCommandPbsQsub::checkExecuted()
   }
 }
 
-}  // namespace MatisseTools
+}  // namespace network_tools

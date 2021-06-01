@@ -8,8 +8,6 @@
 #include "network_client.h"
 #include "tree_model.h"
 
-using namespace MatisseCommon;
-using namespace MatisseTools;
 
 namespace Ui {
 class RemoteFileDialog;
@@ -23,8 +21,8 @@ class RemoteFileTreeModelFactory : public QObject
 
  public:
   RemoteFileTreeModelFactory();
-  TreeModel *createModel(QString _root_folder_name,
-                         QList<NetworkFileInfo *> _file_info);
+  MatisseTools::TreeModel *createModel(QString _root_folder_name,
+                         QList<network_tools::NetworkFileInfo *> _file_info);
 };
 
 
@@ -32,7 +30,7 @@ class RemoteFileDialog : public QDialog {
   Q_OBJECT
 
  public:
-  RemoteFileDialog(TreeModel *_model, QWidget *parent);
+  RemoteFileDialog(MatisseTools::TreeModel *_model, QWidget *parent);
   QString selectedFile() { return m_selected_file; }
 
  protected slots:

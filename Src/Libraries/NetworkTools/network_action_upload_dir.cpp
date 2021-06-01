@@ -1,6 +1,6 @@
 #include "network_action_upload_dir.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 NetworkActionUploadDir::NetworkActionUploadDir(QString _local_dir, QString _remote_base_dir) :
     NetworkFileAction(NetworkActionType::UploadDir)
@@ -38,4 +38,4 @@ void NetworkActionUploadDir::doTerminate()
 
 }
 
-} // namespace MatisseCommon
+} // namespace network_tools

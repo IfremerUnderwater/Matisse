@@ -10,7 +10,6 @@
 using namespace cv;
 using namespace nav_tools;
 
-
 DataViewer::DataViewer(QWidget *parent) :
     QWidget(parent),
     _ui(new Ui::DataViewer),

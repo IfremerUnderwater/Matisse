@@ -1,9 +1,9 @@
-#ifndef MATISSE_SSH_COMMAND_PBS_QSUB_H_
-#define MATISSE_SSH_COMMAND_PBS_QSUB_H_
+#ifndef NETWORK_TOOLS_NETWORK_COMMAND_PBS_QSUB_H_
+#define NETWORK_TOOLS_NETWORK_COMMAND_PBS_QSUB_H_
 
 #include "network_command.h"
 
-namespace MatisseTools {
+namespace network_tools {
 
 class NetworkCommandPbsQsub : public NetworkCommand
 {
@@ -24,6 +24,6 @@ private:
   QString m_node;
 };
 
-}  // namespace MatisseTools
+}  // namespace network_tools
 
-#endif // MATISSE_SSH_COMMAND_PBS_QSUB_H_
+#endif // NETWORK_TOOLS_NETWORK_COMMAND_PBS_QSUB_H_

@@ -1,12 +1,12 @@
-#ifndef MATISSE_NETWORK_COMMAND_H_
-#define MATISSE_NETWORK_COMMAND_H_
+#ifndef NETWORK_TOOLS_NETWORK_COMMAND_H_
+#define NETWORK_TOOLS_NETWORK_COMMAND_H_
 
 #include <QByteArray>
 #include <QList>
 #include <QObject>
 #include <QTextCodec>
 
-namespace MatisseTools {
+namespace network_tools {
 
 class NetworkCommand :
   public QObject
@@ -62,6 +62,6 @@ private:
   QString m_error; // raw error string received from shell standard error channel
 };
 
-}
+} // namespace network_tools
 
-#endif  // MATISSE_NETWORK_COMMAND_H_
+#endif  // NETWORK_TOOLS_NETWORK_COMMAND_H_

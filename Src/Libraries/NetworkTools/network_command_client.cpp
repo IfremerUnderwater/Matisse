@@ -1,6 +1,6 @@
 #include "network_command_client.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 NetworkCommandClient::NetworkCommandClient() :
     NetworkClient()
@@ -22,5 +22,5 @@ void NetworkCommandClient::disconnectAction(NetworkAction *_action)
     disconnect(_action, SIGNAL(si_executeCommand()), this, SLOT(sl_executeCommand()));
 }
 
-} // namespace MatisseCommon
+} // namespace network_tools
 

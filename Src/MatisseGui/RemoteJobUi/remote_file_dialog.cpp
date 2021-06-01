@@ -5,6 +5,9 @@
 #include <QPushButton>
 #include <QtDebug>
 
+using namespace MatisseTools;
+using namespace network_tools;
+
 namespace MatisseServer
 {
 

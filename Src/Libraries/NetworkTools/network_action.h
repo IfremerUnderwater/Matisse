@@ -1,10 +1,10 @@
-#ifndef MATISSE_NETWORK_ACTION_H_
-#define MATISSE_NETWORK_ACTION_H_
+#ifndef NETWORK_TOOLS_NETWORK_ACTION_H_
+#define NETWORK_TOOLS_NETWORK_ACTION_H_
 
 #include <QDir>
 #include <QObject>
 
-namespace MatisseCommon {
+namespace network_tools {
 
 enum class FileTypeFilter {
   Dirs = 0x001,
@@ -185,6 +185,6 @@ private:
 //	QString m_local_base_dir;
 //};
 
-}
+} // namespace network_tools
 
-#endif  // MATISSE_NETWORK_ACTION_H_
+#endif  // NETWORK_TOOLS_NETWORK_ACTION_H_

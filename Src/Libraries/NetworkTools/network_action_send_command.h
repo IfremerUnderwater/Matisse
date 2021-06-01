@@ -1,10 +1,10 @@
-#ifndef MATISSE_NETWORK_ACTION_SEND_COMMAND_H_
-#define MATISSE_NETWORK_ACTION_SEND_COMMAND_H_
+#ifndef NETWORK_TOOLS_NETWORK_ACTION_SEND_COMMAND_H_
+#define NETWORK_TOOLS_NETWORK_ACTION_SEND_COMMAND_H_
 
 #include <QtDebug>
 #include "network_command_action.h"
 
-namespace MatisseCommon {
+namespace network_tools {
 
 class NetworkActionSendCommand : public NetworkCommandAction
 {
@@ -26,6 +26,6 @@ private:
     QString m_response;
 };
 
-} // namespace MatisseCommon
+} // namespace network_tools
 
-#endif // MATISSE_NETWORK_ACTION_SEND_COMMAND_H_
+#endif // NETWORK_TOOLS_NETWORK_ACTION_SEND_COMMAND_H_
