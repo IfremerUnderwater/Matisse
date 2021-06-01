@@ -10,6 +10,7 @@
 #endif
 
 using namespace cv;
+using namespace nav_tools;
 
 CartoScene::CartoScene() : QGraphicsScene(/*QObject *parent = Q_NULLPTR)*/)
 {

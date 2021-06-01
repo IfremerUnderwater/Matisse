@@ -36,7 +36,7 @@ public:
     CartoScene();
 
     // add geo referenced image
-    void addCartoImage(CartoImage *image);
+    void addCartoImage(nav_tools::CartoImage *image);
 
     void reloadVisibleImageWithNewScaleFactor(QGraphicsView * view);
 

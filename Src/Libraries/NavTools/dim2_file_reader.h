@@ -1,5 +1,5 @@
-﻿#ifndef DIM2FILEREADER_H
-#define DIM2FILEREADER_H
+﻿#ifndef NAV_TOOLS_DIM2_FILE_READER_H_
+#define NAV_TOOLS_DIM2_FILE_READER_H_
 
 
 
@@ -15,11 +15,10 @@
 
 #include "dim2.h"
 #include "nav_info.h"
-//#include "FileImage.h"
 
 using namespace matisse_image;
 
-namespace MatisseCommon {
+namespace nav_tools {
 
 ///
 /// \brief Classe de chargement de chargement de fichier DIM2.
@@ -100,4 +99,4 @@ private:
 
 }
 
-#endif // DIM2FILEREADER_H
+#endif // NAV_TOOLS_DIM2_FILE_READER_H_

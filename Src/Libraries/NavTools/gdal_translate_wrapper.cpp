@@ -2,6 +2,8 @@
 #include <QProcess>
 #include <QDebug>
 
+namespace nav_tools {
+
 GdalTranslateWrapper::GdalTranslateWrapper()
 {
 
@@ -24,4 +26,6 @@ void GdalTranslateWrapper::geoReferenceFile(QString _input_file, QString _outpou
         QString output = gdal_translate_proc.readAllStandardOutput() + gdal_translate_proc.readAllStandardError();
         qDebug() << output;
     }
+}
+
 }

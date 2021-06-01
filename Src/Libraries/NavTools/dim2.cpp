@@ -1,6 +1,6 @@
 #include "dim2.h"
 
-using namespace MatisseCommon;
+namespace nav_tools {
 
 Dim2::Dim2(QString args):
     _validityArray(DIM2_FIELDS_NUMBER, '0')
@@ -483,6 +483,8 @@ void Dim2::setTag(const QString &tag)
 {
     _tag = tag;
 }
+
+} // namespace nav_tools
 
 
 

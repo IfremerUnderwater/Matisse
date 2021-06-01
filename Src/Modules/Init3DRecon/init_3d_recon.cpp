@@ -40,6 +40,7 @@ using namespace openMVG::exif;
 using namespace openMVG::geodesy;
 //using namespace openMVG::image;
 using namespace openMVG::sfm;
+using namespace nav_tools;
 
 typedef enum
 {

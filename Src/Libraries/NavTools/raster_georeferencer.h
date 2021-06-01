@@ -1,5 +1,5 @@
-#ifndef RASTERGEOREFERENCER_H
-#define RASTERGEOREFERENCER_H
+#ifndef NAV_TOOLS_RASTER_GEO_REFERENCER_H_
+#define NAV_TOOLS_RASTER_GEO_REFERENCER_H_
 
 
 
@@ -22,9 +22,7 @@
 #include <QString>
 #include <QStringList>
 
-//using namespace cv;
-
-namespace MatisseCommon {
+namespace nav_tools {
 
 /*! This class is an encapsulation of gdal_translate code to create GeoTiff from a memory raster*/
 
@@ -90,4 +88,4 @@ private:
 
 }
 
-#endif // RASTERGEOREFERENCER_H
+#endif // NAV_TOOLS_RASTER_GEO_REFERENCER_H_

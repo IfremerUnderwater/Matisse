@@ -2,7 +2,7 @@
 
 #define D2R (3.14159265358979323846 / 180.0)
 
-using namespace MatisseCommon;
+namespace nav_tools {
 
 Dim2FileReader::Dim2FileReader(QString filename, quint32 firstLine, quint32 lastLine, quint32 step):
     _filename(filename),
@@ -140,3 +140,5 @@ bool Dim2FileReader::addDim2Line(QString datasLine)
 
     return true;
 }
+
+} // namespace nav_tools

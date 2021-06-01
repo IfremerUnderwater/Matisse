@@ -14,6 +14,8 @@ static bool gdalLoaded = false;
 using namespace cv;
 using namespace matisse_image;
 
+namespace nav_tools {
+
 CartoImage::CartoImage() :
     Image()
 {
@@ -122,3 +124,5 @@ qreal CartoImage::getRotationAngle()
     qreal angle = atan2(_adfGeoTransform[2], _adfGeoTransform[1]);
     return angle;
 }
+
+} // namespace nav_tools

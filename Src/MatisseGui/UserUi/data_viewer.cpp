@@ -8,6 +8,7 @@
 #include "osg_widget.h"
 
 using namespace cv;
+using namespace nav_tools;
 
 
 DataViewer::DataViewer(QWidget *parent) :

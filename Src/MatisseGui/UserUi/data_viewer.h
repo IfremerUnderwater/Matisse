@@ -49,7 +49,6 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 #include "carto_image.h"
 #include <vector>
 
-using namespace MatisseCommon;
 using namespace MatisseTools;
 
 class OSGWidget;
@@ -76,7 +75,7 @@ public:
 
 signals:
 //    void signal_addRasterToCartoView(QgsRasterLayer * rasterLayer_p);
-    void signal_addRasterToCartoView(CartoImage  * image_p);
+    void signal_addRasterToCartoView(nav_tools::CartoImage  * image_p);
     void signal_addRasterToImageView(Image  * image_p);
     void signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool remove_previous_scenes_p);
 
@@ -105,7 +104,7 @@ public:
     void initMapToolBar();
     void clear();
     void displayImage(Image *image);
-    void displayCartoImage(CartoImage *image);
+    void displayCartoImage(nav_tools::CartoImage *image);
     void resetJobForm();
     void loadRasterFile(QString filename);
     void load3DFile(QString filename_p, bool remove_previous_scenes_p=true);
@@ -120,7 +119,7 @@ public:
     QStringList supportedImageFormat() const;
 
 protected slots:
-    void slot_addRasterToCartoView(CartoImage *image_p);
+    void slot_addRasterToCartoView(nav_tools::CartoImage *image_p);
     void slot_addRasterToImageView(Image *image_p);
     void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool _remove_previous_scenes=true);
     void slot_showMapContextMenu(const QPoint& pos_p);

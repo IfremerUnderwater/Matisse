@@ -7,6 +7,8 @@
 Q_EXPORT_PLUGIN2(DTPictureFileSetImageProvider, DTPictureFileSetImageProvider)
 #endif
 
+using namespace nav_tools;
+
 DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *parent):
     InputDataProvider(NULL, "DTPictureFileSetImageProvider", "", 1),
     _pictureFileSet(NULL),

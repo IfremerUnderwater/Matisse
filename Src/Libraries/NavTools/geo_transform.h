@@ -1,5 +1,5 @@
-#ifndef GEOTRANSFORM_H
-#define GEOTRANSFORM_H
+#ifndef NAV_TOOLS_GEO_TRANSFORM_H_
+#define NAV_TOOLS_GEO_TRANSFORM_H_
 
 
 
@@ -66,4 +66,4 @@ public:
 
 }
 
-#endif // GEOTRANSFORM_H
+#endif // NAV_TOOLS_GEO_TRANSFORM_H_

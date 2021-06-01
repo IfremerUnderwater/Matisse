@@ -7,8 +7,9 @@
 #include "raster_georeferencer.h"
 #include "Polygon.h"
 
-using namespace basic_processing;
 using namespace cv;
+using namespace basic_processing;
+using namespace nav_tools;
 
 MosaicDescriptor::MosaicDescriptor():_mosaicOrigin(0,0,0),
     _pixelSize(0,0),_mosaicSize(0,0), _utmHemisphere("UNDEF"),

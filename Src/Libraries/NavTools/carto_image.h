@@ -1,5 +1,5 @@
-#ifndef CARTOIMAGE_H
-#define CARTOIMAGE_H
+#ifndef NAV_TOOLS_CARTO_IMAGE_H_
+#define NAV_TOOLS_CARTO_IMAGE_H_
 
 #include "image.h"
 
@@ -7,6 +7,8 @@
 #include <QPoint>
 
 using namespace matisse_image;
+
+namespace nav_tools {
 
 class CartoImage : public Image
 {
@@ -51,4 +53,6 @@ private:
     QString _fileName;
 };
 
-#endif // CARTOIMAGE_H
+} // namespace nav_tools
+
+#endif // NAV_TOOLS_CARTO_IMAGE_H_

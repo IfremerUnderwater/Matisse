@@ -1,5 +1,5 @@
-﻿#ifndef DIM2_H
-#define DIM2_H
+﻿#ifndef NAV_TOOLS_DIM2_H_
+#define NAV_TOOLS_DIM2_H_
 
 
 
@@ -10,7 +10,7 @@
 #include <QStringList>
 #include <QByteArray>
 
-namespace MatisseCommon {
+namespace nav_tools {
 
 // Nombre de champs (time + date = 1champ...)
 #define DIM2_FIELDS_NUMBER 29
@@ -149,4 +149,4 @@ private:
 };
 
 }
-#endif // DIM2_H
+#endif // NAV_TOOLS_DIM2_H_

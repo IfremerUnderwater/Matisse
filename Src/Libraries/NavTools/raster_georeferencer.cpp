@@ -9,7 +9,8 @@
 
 using namespace cv;
 using namespace std;
-using namespace MatisseCommon;
+
+namespace nav_tools {
 
 static int ArgIsNumeric( const char * );
 static void AttachMetadata( GDALDatasetH, char ** );
@@ -1650,4 +1651,6 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
 
     return hOutDS == NULL;
 }
+
+} // namespace nav_tools
 
