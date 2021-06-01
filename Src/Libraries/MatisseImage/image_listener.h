@@ -1,5 +1,5 @@
-﻿#ifndef MATISSE_IMAGE_LISTENER_H_
-#define MATISSE_IMAGE_LISTENER_H_
+﻿#ifndef MATISSE_IMAGE_IMAGE_LISTENER_H_
+#define MATISSE_IMAGE_IMAGE_LISTENER_H_
 
 
 #include <QObject>
@@ -28,4 +28,4 @@ public:
 
 }
 Q_DECLARE_INTERFACE(matisse_image::ImageListener, "Ifremer.ImageListener/1.1")
-#endif // MATISSE_IMAGE_LISTENER_H_
+#endif // MATISSE_IMAGE_IMAGE_LISTENER_H_

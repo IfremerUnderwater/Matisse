@@ -1,5 +1,5 @@
-#ifndef MATISSE_POLYGON_H_
-#define MATISSE_POLYGON_H_
+#ifndef BASIC_PROCESSING_POLYGON_H_
+#define BASIC_PROCESSING_POLYGON_H_
 
 
 #include "gpc.h"
@@ -122,4 +122,4 @@ private:
 
 Q_DECLARE_METATYPE(basic_processing::Polygon)
 
-#endif // MATISSE_POLYGON_H_
+#endif // BASIC_PROCESSING_POLYGON_H_

@@ -1,5 +1,5 @@
-﻿#ifndef MATISSE_IMAGE_H_
-#define MATISSE_IMAGE_H_
+﻿#ifndef MATISSE_IMAGE_IMAGE_H_
+#define MATISSE_IMAGE_IMAGE_H_
 
 
 
@@ -76,4 +76,4 @@ protected:
 
 }
 
-#endif // MATISSE_IMAGE_H_
+#endif // MATISSE_IMAGE_IMAGE_H_

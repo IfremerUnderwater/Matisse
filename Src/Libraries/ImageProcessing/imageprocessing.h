@@ -1,5 +1,5 @@
-#ifndef MATISSE_IMAGE_PROCESSING_H_
-#define MATISSE_IMAGE_PROCESSING_H_
+#ifndef IMAGE_PROCESSING_IMAGEPROCESSING_H_
+#define IMAGE_PROCESSING_IMAGEPROCESSING_H_
 
 #include <opencv2/opencv.hpp>
 #include <vector>
@@ -51,4 +51,4 @@ double gamma_undo(double _input, double _gamma_value=5.0);
 
 } // namespace image_processing
 
-#endif // MATISSE_IMAGE_PROCESSING_H_
+#endif // IMAGE_PROCESSING_IMAGEPROCESSING_H_

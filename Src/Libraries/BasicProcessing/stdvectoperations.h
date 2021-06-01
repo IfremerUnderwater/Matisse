@@ -1,5 +1,5 @@
-#ifndef MATISSE_STDVECTOPERATIONS_H_
-#define MATISSE_STDVECTOPERATIONS_H_
+#ifndef BASIC_PROCESSING_STDVECTOPERATIONS_H_
+#define BASIC_PROCESSING_STDVECTOPERATIONS_H_
 
 #include <vector>
 
@@ -45,5 +45,5 @@ std::vector<double> doubleQuantiles(std::vector<double> _v, std::vector<double> 
 
 } // namespace basic_processing
 
-#endif // MATISSE_STDVECTOPERATIONS_H_
+#endif // BASIC_PROCESSING_STDVECTOPERATIONS_H_
 

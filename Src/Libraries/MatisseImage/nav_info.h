@@ -1,5 +1,5 @@
-﻿#ifndef MATISSE_NAV_INFO_H_
-#define MATISSE_NAV_INFO_H_
+﻿#ifndef MATISSE_IMAGE_NAV_INFO_H_
+#define MATISSE_IMAGE_NAV_INFO_H_
 
 
 
@@ -127,4 +127,4 @@ private:
     double _tilt;
 };
 }
-#endif // MATISSE_NAV_INFO_H_
+#endif // MATISSE_IMAGE_NAV_INFO_H_

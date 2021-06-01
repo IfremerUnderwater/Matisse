@@ -1,5 +1,5 @@
-﻿#ifndef MATISSE_IMAGE_SET_H_
-#define MATISSE_IMAGE_SET_H_
+﻿#ifndef MATISSE_IMAGE_IMAGE_SET_H_
+#define MATISSE_IMAGE_IMAGE_SET_H_
 
 
 #include <QObject>
@@ -139,4 +139,4 @@ private:
 };
 }
 
-#endif // MATISSE_IMAGE_SET_H_
+#endif // MATISSE_IMAGE_IMAGE_SET_H_

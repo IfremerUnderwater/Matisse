@@ -1,5 +1,5 @@
-﻿#ifndef MATISSE_PICTURE_FILE_SET_H_
-#define MATISSE_PICTURE_FILE_SET_H_
+﻿#ifndef MATISSE_IMAGE_PICTURE_FILE_SET_H_
+#define MATISSE_IMAGE_PICTURE_FILE_SET_H_
 
 
 #include <QString>
@@ -49,4 +49,4 @@ private:
     bool _writable;
 };
 }
-#endif // MATISSE_PICTURE_FILE_SET_H_
+#endif // MATISSE_IMAGE_PICTURE_FILE_SET_H_

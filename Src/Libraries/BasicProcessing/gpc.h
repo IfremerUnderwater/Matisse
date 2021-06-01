@@ -30,8 +30,8 @@ Copyright: (C) 1997-2004, Advanced Interfaces Group,
 ===========================================================================
 */
 
-#ifndef MATISSE_GPC_H_
-#define MATISSE_GPC_H_
+#ifndef BASIC_PROCESSING_GPC_H_
+#define BASIC_PROCESSING_GPC_H_
 
 #include <stdio.h>
 
