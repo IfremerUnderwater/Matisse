@@ -1,5 +1,5 @@
-#ifndef STRINGUTILS_H
-#define STRINGUTILS_H
+#ifndef SYSTEM_TOOLS_STRING_UTILS_H_
+#define SYSTEM_TOOLS_STRING_UTILS_H_
 
 
 
@@ -14,6 +14,8 @@
 #define PLACEHOLDER_PATTERN_XML_2       "\\{&(%1)&\\}"          // Placeholder pattern compatible with XML syntax (for embedding in pattern #1)
 #define PLACEHOLDER_PATTERN_DEFAULT     PLACEHOLDER_PATTERN_CSS
 
+namespace system_tools {
+
 class StringUtils
 {
 public:
@@ -21,4 +23,6 @@ public:
                                           QString placeHolderPattern = QString(PLACEHOLDER_PATTERN_DEFAULT));
 };
 
-#endif // STRINGUTILS_H
+} // namespace system_tools
+
+#endif // SYSTEM_TOOLS_STRING_UTILS_H_

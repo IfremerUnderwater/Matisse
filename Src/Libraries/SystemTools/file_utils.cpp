@@ -1,6 +1,6 @@
 ﻿#include "file_utils.h"
 
-namespace MatisseCommon {
+namespace system_tools {
 
 /// \brief Removes a directory and all its contents recursively
 ///
@@ -480,7 +480,7 @@ void FileUtils::removeAllTempDirectories(QString prefix) {
   }
 }
 
-quint64 MatisseCommon::FileUtils::dirSize(QString _dir_path,
+quint64 FileUtils::dirSize(QString _dir_path,
                                              bool _include_subdirs) {
   
   quint64 total_size = 0;
@@ -563,4 +563,4 @@ QString FileUtils::resolveUnixPath(QString _file_spec) {
   return _file_spec;
 }
 
-}  // namespace MatisseCommon
+}  // namespace system_tools

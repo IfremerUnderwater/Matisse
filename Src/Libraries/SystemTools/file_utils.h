@@ -1,6 +1,5 @@
-﻿#ifndef FILE_UTILS_H
-#define FILE_UTILS_H
-
+﻿#ifndef SYSTEM_TOOLS_FILE_UTILS_H_
+#define SYSTEM_TOOLS_FILE_UTILS_H_
 
 
 #include <QtDebug>
@@ -32,7 +31,7 @@
 #define TEMP_DIR_MAX_TRIALS             3
 #define DEFAULT_TEMP_DIR_PREFIX         "matisse-"
 
-namespace MatisseCommon {
+namespace system_tools {
 
 
 class FileUtils
@@ -50,5 +49,7 @@ public:
     static quint32 fileCount(QString _dir_path, bool _include_subdirs = false);
     static QString resolveUnixPath(QString _file_spec);
 };
-}
-#endif // FILE_UTILS_H
+
+} // namespace system_tools
+
+#endif // SYSTEM_TOOLS_FILE_UTILS_H_

@@ -1,6 +1,6 @@
 #include "platform_dump.h"
 
-using namespace MatisseTools;
+namespace system_tools {
 
 PlatformDump::PlatformDump() :
     _componentsInfo(NULL)
@@ -67,7 +67,7 @@ void PlatformDump::setMatisseVersion(const QString &matisseVersion)
     _matisseVersion = matisseVersion;
 }
 
-
+} // namespace system_tools
 
 
 

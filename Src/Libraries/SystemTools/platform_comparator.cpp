@@ -1,6 +1,6 @@
 #include "platform_comparator.h"
 
-using namespace MatisseTools;
+namespace system_tools {
 
 PlatformComparator::PlatformComparator() :
     _status(NULL)
@@ -231,4 +231,6 @@ PlatformComparisonStatus *PlatformComparator::compare(PlatformDump *localPlatfor
 
     return _status;
 }
+
+} // namespace system_tools
 

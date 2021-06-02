@@ -17,6 +17,7 @@
 
 using namespace MatisseCommon;
 using namespace MatisseTools;
+using namespace system_tools;
 
 namespace MatisseServer {
 

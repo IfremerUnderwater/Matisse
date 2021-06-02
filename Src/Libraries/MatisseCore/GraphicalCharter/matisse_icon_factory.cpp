@@ -1,6 +1,6 @@
 #include "matisse_icon_factory.h"
 
-using namespace MatisseCommon;
+using namespace system_tools;
 using namespace MatisseTools;
 
 MatisseIconFactory::MatisseIconFactory(QMap<QString, QString> defaultColorPalette, QString defaultStatusColorAlias, QString defaultModeColorAlias1, QString defaultModeColorAlias2) :

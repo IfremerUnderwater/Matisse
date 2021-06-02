@@ -1,11 +1,11 @@
-#ifndef PLATFORMCOMPARISONSTATUS_H
-#define PLATFORMCOMPARISONSTATUS_H
+#ifndef SYSTEM_TOOLS_PLATFORM_COMPARISON_STATUS_H_
+#define SYSTEM_TOOLS_PLATFORM_COMPARISON_STATUS_H_
 
 #include <QMap>
 #include <QString>
 #include <QStringList>
 
-namespace MatisseTools {
+namespace system_tools {
 
 enum VersionCompare {
     SAME,
@@ -58,6 +58,6 @@ private:
     QStringList _platformGapMessages;
 };
 
-}
+} // namespace system_tools
 
-#endif // PLATFORMCOMPARISONSTATUS_H
+#endif // SYSTEM_TOOLS_PLATFORM_COMPARISON_STATUS_H_

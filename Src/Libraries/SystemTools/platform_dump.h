@@ -1,10 +1,10 @@
-#ifndef PLATFORMDUMP_H
-#define PLATFORMDUMP_H
+#ifndef SYSTEM_TOOLS_PLATFORM_DUMP_H_
+#define SYSTEM_TOOLS_PLATFORM_DUMP_H_
 
 #include <QString>
 #include <QMap>
 
-namespace MatisseTools {
+namespace system_tools {
 
 class PlatformDump
 {
@@ -36,6 +36,6 @@ private:
     QString _envVariables;
 };
 
-}
+} // namespace system_tools
 
-#endif // PLATFORMDUMP_H
+#endif // SYSTEM_TOOLS_PLATFORM_DUMP_H_

@@ -1,9 +1,9 @@
-#ifndef PLATFORMCOMPONENT_H
-#define PLATFORMCOMPONENT_H
+#ifndef SYSTEM_TOOLS_PLATFORM_COMPONENT_H_
+#define SYSTEM_TOOLS_PLATFORM_COMPONENT_H_
 
 #include <QString>
 
-namespace MatisseTools {
+namespace system_tools {
 
 class PlatformComponent
 {
@@ -18,6 +18,6 @@ private:
     QString _name;
 };
 
-}
+} // namespace system_tools
 
 #endif // DEPENDENCYINSPECTOR_H

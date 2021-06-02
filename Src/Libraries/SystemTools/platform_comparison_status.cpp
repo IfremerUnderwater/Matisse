@@ -1,6 +1,6 @@
 #include "platform_comparison_status.h"
 
-using namespace MatisseTools;
+namespace system_tools {
 
 PlatformComparisonStatus::PlatformComparisonStatus() :
     _doesMatch(false),
@@ -70,6 +70,7 @@ void PlatformComparisonStatus::addPlaformGapMessage(QString message)
     _platformGapMessages.append(message);
 }
 
+} // namespace system_tools
 
 
 

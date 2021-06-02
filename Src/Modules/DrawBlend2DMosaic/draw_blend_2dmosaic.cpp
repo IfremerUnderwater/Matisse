@@ -12,6 +12,7 @@
 #include "raster_georeferencer.h"
 
 using namespace cv;
+using namespace system_tools;
 
 // Export de la classe DrawAndWriteModule dans la bibliotheque de plugin DrawAndWriteModule
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)

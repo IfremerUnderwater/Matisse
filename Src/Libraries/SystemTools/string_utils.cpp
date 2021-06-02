@@ -1,5 +1,6 @@
 #include "string_utils.h"
 
+namespace system_tools {
 
 QString StringUtils::substitutePlaceHolders(QString source, QMap<QString, QString> properties, QString placeHolderPattern)
 {
@@ -29,3 +30,5 @@ QString StringUtils::substitutePlaceHolders(QString source, QMap<QString, QStrin
 
     return current;
 }
+
+} // namespace system_tools

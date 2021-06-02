@@ -16,6 +16,8 @@
 #include "platform_comparator.h"
 #include "platform_comparison_status.h"
 
+using namespace system_tools;
+
 namespace MatisseTools {
 
 ///

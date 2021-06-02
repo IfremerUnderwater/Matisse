@@ -26,6 +26,7 @@ using namespace cv::detail;
 using namespace basic_processing;
 using namespace matisse_image;
 using namespace nav_tools;
+using namespace system_tools;
 
 MosaicDrawer::MosaicDrawer(QString drawingOptions)
 {

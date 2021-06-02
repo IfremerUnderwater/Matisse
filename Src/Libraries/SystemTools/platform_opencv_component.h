@@ -1,11 +1,11 @@
-#ifndef PLATFORMOPENCVCOMPONENT_H
-#define PLATFORMOPENCVCOMPONENT_H
+#ifndef SYSTEM_TOOLS_PLATFORM_OPENCV_COMPONENT_H_
+#define SYSTEM_TOOLS_PLATFORM_OPENCV_COMPONENT_H_
 
 #include "opencv2/core/version.hpp"
 
 #include "platform_component.h"
 
-namespace MatisseTools {
+namespace system_tools {
 
 class PlatformOpencvComponent : public PlatformComponent
 {
@@ -15,6 +15,6 @@ public:
     virtual QString getVersionInfo();
 };
 
-}
+} // namespace system_tools
 
-#endif // PLATFORMOPENCVCOMPONENT_H
+#endif // SYSTEM_TOOLS_PLATFORM_OPENCV_COMPONENT_H_

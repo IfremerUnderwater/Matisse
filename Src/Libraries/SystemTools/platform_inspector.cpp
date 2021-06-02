@@ -1,10 +1,9 @@
 #include "platform_inspector.h"
 
-//#include "PlatformQgisComponent.h"
 #include "platform_opencv_component.h"
 #include "platform_osg_component.h"
 
-using namespace MatisseTools;
+namespace system_tools {
 
 PlatformInspector::PlatformInspector() :
     _dump(NULL)
@@ -116,4 +115,5 @@ PlatformDump *PlatformInspector::getDump() const
     return _dump;
 }
 
+} // namespace system_tools
 

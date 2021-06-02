@@ -1,11 +1,11 @@
-#ifndef PLATFORMOSGCOMPONENT_H
-#define PLATFORMOSGCOMPONENT_H
+#ifndef SYSTEM_TOOLS_PLATFORM_OSG_COMPONENT_H_
+#define SYSTEM_TOOLS_PLATFORM_OSG_COMPONENT_H_
 
 
 #include "platform_component.h"
 
 
-namespace MatisseTools {
+namespace system_tools {
 
 class PlatformOsgComponent : public PlatformComponent
 {
@@ -14,7 +14,7 @@ public:
     virtual QString getVersionInfo();
 };
 
-}
+} // namespace system_tools
 
 
-#endif // PLATFORMOSGCOMPONENT_H
+#endif // SYSTEM_TOOLS_PLATFORM_OSG_COMPONENT_H_

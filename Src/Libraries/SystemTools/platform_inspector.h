@@ -1,5 +1,5 @@
-#ifndef PLATFORMINSPECTOR_H
-#define PLATFORMINSPECTOR_H
+#ifndef SYSTEM_TOOLS_PLATFORM_INSPECTOR_H_
+#define SYSTEM_TOOLS_PLATFORM_INSPECTOR_H_
 
 #include <QList>
 #include <QProcess>
@@ -9,7 +9,7 @@
 #include "platform_component.h"
 #include "platform_dump.h"
 
-namespace MatisseTools {
+namespace system_tools {
 
 class PlatformInspector
 {
@@ -27,6 +27,6 @@ private:
     PlatformDump *_dump;
 };
 
-}
+} // namespace system_tools
 
-#endif // PLATFORMINSPECTOR_H
+#endif // SYSTEM_TOOLS_PLATFORM_INSPECTOR_H_

@@ -2,15 +2,17 @@
 #include <OpenThreads/Version>
 #include <osg/Version>
 
-using namespace MatisseTools;
+namespace system_tools {
 
 PlatformOsgComponent::PlatformOsgComponent() :
     PlatformComponent("OpenSceneGraph")
 {
 }
 
-QString MatisseTools::PlatformOsgComponent::getVersionInfo()
+QString PlatformOsgComponent::getVersionInfo()
 {
     QString version = osgGetVersion();
     return version;
 }
+
+} // namespace system_tools

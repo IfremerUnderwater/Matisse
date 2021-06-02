@@ -8,7 +8,7 @@
 #include "network_action_download_dir.h"
 
 using namespace QSsh;
-using namespace MatisseCommon;
+using namespace system_tools;
 
 namespace network_tools {
 

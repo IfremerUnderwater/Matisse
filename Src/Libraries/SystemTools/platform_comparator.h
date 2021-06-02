@@ -1,5 +1,5 @@
-#ifndef PLATFORMCOMPARATOR_H
-#define PLATFORMCOMPARATOR_H
+#ifndef SYSTEM_TOOLS_PLATFORM_COMPARATOR_H_
+#define SYSTEM_TOOLS_PLATFORM_COMPARATOR_H_
 
 #include <QObject>
 #include <QStringList>
@@ -8,7 +8,7 @@
 #include "platform_dump.h"
 #include "platform_comparison_status.h"
 
-namespace MatisseTools {
+namespace system_tools {
 
 class PlatformComparator : public QObject
 {
@@ -23,6 +23,6 @@ private:
     void compareElementVersions(QString localVersion, QString remoteVersion, PlatformElementCompare &versionCompare);
 };
 
-}
+} // namespace system_tools
 
-#endif // PLATFORMCOMPARATOR_H
+#endif // SYSTEM_TOOLS_PLATFORM_COMPARATOR_H_
