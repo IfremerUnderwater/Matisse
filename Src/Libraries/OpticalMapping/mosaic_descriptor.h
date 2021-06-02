@@ -1,5 +1,5 @@
-#ifndef MOSAIC_H
-#define MOSAIC_H
+#ifndef OPTICAL_MAPPING_MOSAIC_DESCRIPTOR_H_
+#define OPTICAL_MAPPING_MOSAIC_DESCRIPTOR_H_
 
 
 #include "nav_image.h"
@@ -9,9 +9,8 @@
 #include <QString>
 #include <QMetaType>
 
-using namespace MatisseCommon;
-//using namespace cv;
 
+namespace optical_mapping {
 
 // Positionning and scaling parameters
 struct MosaicSizesAndExtent {
@@ -110,7 +109,7 @@ protected:
     QString _utmHemisphere;
     int _utmZone;
 
-    GeoTransform _T;
+    nav_tools::GeoTransform _T;
 
     bool _camerasOwner;
     bool _isInitialized;
@@ -132,7 +131,9 @@ protected:
 
 };
 
-Q_DECLARE_METATYPE(QVector<ProjectiveCamera *> *)
-Q_DECLARE_METATYPE(MosaicDescriptor *)
+} // namespace optical_mapping
 
-#endif // MOSAIC_H
+Q_DECLARE_METATYPE(QVector<optical_mapping::ProjectiveCamera *> *)
+Q_DECLARE_METATYPE(optical_mapping::MosaicDescriptor *)
+
+#endif // OPTICAL_MAPPING_MOSAIC_DESCRIPTOR_H_

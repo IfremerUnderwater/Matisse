@@ -28,6 +28,8 @@ using namespace matisse_image;
 using namespace nav_tools;
 using namespace system_tools;
 
+namespace optical_mapping {
+
 MosaicDrawer::MosaicDrawer(QString drawingOptions)
 {
 
@@ -1212,3 +1214,5 @@ QStringList MosaicDrawer::outputMosaicImagesAsIs(const MosaicDescriptor& mosaicD
 
     return outputFiles;
 }
+
+} // namespace optical_mapping

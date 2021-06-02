@@ -9,7 +9,7 @@
 #include <QStringList>
 #include <opencv2/opencv.hpp>
 
-namespace MatisseCommon {
+namespace nav_tools {
 
 ///
 /// \brief The GeoTransform class is based on the Proj4, OpenCV and Qt libraries and provide geographic & geometric operations

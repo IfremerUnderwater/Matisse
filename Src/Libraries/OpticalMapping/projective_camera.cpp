@@ -4,6 +4,8 @@
 using namespace cv;
 using namespace matisse_image;
 
+namespace optical_mapping {
+
 ProjectiveCamera::ProjectiveCamera():_scalingFactor(1),_scalingFactorIsSet(false),
     _KIsSet(false)
 {
@@ -180,7 +182,7 @@ void ProjectiveCamera::setM_H_i_metric(const cv::Mat &m_H_i_metric)
     _m_H_i_metric = m_H_i_metric;
 }
 
-
+} // namespace optical_mapping
 
 
 

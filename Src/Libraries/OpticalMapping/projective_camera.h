@@ -1,5 +1,5 @@
-#ifndef PROJECTIVECAMERA_H
-#define PROJECTIVECAMERA_H
+#ifndef OPTICAL_MAPPING_PROJECTIVE_CAMERA_H_
+#define OPTICAL_MAPPING_PROJECTIVE_CAMERA_H_
 
 
 
@@ -7,6 +7,8 @@
 #include <nav_image.h>
 
 using namespace matisse_image;
+
+namespace optical_mapping {
 
 class ProjectiveCamera
 {
@@ -91,4 +93,6 @@ private:
 
 };
 
-#endif // PROJECTIVECAMERA_H
+} // namespace optical_mapping
+
+#endif // OPTICAL_MAPPING_PROJECTIVE_CAMERA_H_

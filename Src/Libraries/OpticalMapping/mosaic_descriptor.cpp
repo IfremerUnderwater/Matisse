@@ -11,6 +11,8 @@ using namespace cv;
 using namespace basic_processing;
 using namespace nav_tools;
 
+namespace optical_mapping {
+
 MosaicDescriptor::MosaicDescriptor():_mosaicOrigin(0,0,0),
     _pixelSize(0,0),_mosaicSize(0,0), _utmHemisphere("UNDEF"),
     _utmZone(-1),_camerasOwner(true), _isInitialized(false)
@@ -492,3 +494,5 @@ void MosaicDescriptor::decimateImagesUntilNoOverlap()
     delete poly_union;
     delete temp_union;
 }
+
+} // namespace optical_mapping

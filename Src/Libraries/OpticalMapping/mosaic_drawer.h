@@ -1,9 +1,10 @@
-#ifndef MOSAICDRAWER_H
-#define MOSAICDRAWER_H
+#ifndef OPTICAL_MAPPING_MOSAIC_DRAWER_H_
+#define OPTICAL_MAPPING_MOSAIC_DRAWER_H_
 
 
 #include "mosaic_descriptor.h"
 
+namespace optical_mapping {
 
 struct drawingOptions{
     bool tryGpu;
@@ -111,4 +112,6 @@ private:
 
 };
 
-#endif // MOSAICDRAWER_H
+} // namespace optical_mapping
+
+#endif // OPTICAL_MAPPING_MOSAIC_DRAWER_H_

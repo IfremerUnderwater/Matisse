@@ -13,6 +13,7 @@
 
 using namespace cv;
 using namespace system_tools;
+using namespace optical_mapping;
 
 // Export de la classe DrawAndWriteModule dans la bibliotheque de plugin DrawAndWriteModule
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)

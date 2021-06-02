@@ -51,6 +51,7 @@
 
 using namespace std;
 
+namespace optical_mapping {
 
 Ptr<FileImgExposureCompensator> FileImgExposureCompensator::createDefault(int type)
 {
@@ -213,3 +214,4 @@ vector<double> FileImgGainCompensator::gains() const
     return gains_vec;
 }
 
+} // namespace optical_mapping

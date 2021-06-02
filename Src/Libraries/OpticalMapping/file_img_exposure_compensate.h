@@ -47,16 +47,16 @@
  * */
 
 
-#ifndef __FILEIMAGE_EXPOSURE_COMPENSATE_HPP__
-#define __FILEIMAGE_EXPOSURE_COMPENSATE_HPP__
+#ifndef OPTICAL_MAPPING_FILE_IMG_EXPOSURE_COMPENSATE_H_
+#define OPTICAL_MAPPING_FILE_IMG_EXPOSURE_COMPENSATE_H_
 
 #include <QString>
 #include <opencv2/core/core.hpp>
 
-//using namespace MatisseCommon;
 using namespace cv;
 using namespace detail;
 
+namespace optical_mapping {
 
 class FileImgExposureCompensator
 {
@@ -90,5 +90,6 @@ private:
     Mat_<double> gains_;
 };
 
+} // namespace optical_mapping
 
-#endif // __FILEIMAGE_EXPOSURE_COMPENSATE_HPP__
+#endif // OPTICAL_MAPPING_FILE_IMG_EXPOSURE_COMPENSATE_H_

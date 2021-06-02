@@ -7,7 +7,7 @@
 #include <QDebug>
 #include <cmath>
 
-using namespace MatisseCommon;
+namespace nav_tools {
 
 GeoTransform::GeoTransform()
 {
@@ -140,3 +140,5 @@ cv::Mat GeoTransform::RotZ(double a)
 
     return R;
 }
+
+} // namespace nav_tools

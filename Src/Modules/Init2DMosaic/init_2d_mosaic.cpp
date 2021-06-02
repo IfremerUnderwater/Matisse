@@ -10,6 +10,9 @@
 Q_EXPORT_PLUGIN2(Init2DMosaic, Init2DMosaic)
 #endif
 
+using namespace nav_tools;
+using namespace optical_mapping;
+
 Init2DMosaic::Init2DMosaic() :
     Processor(NULL, "Init2DMosaic", "Init 2D mosaic Descriptor with navigation", 1, 1)
 {
