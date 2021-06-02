@@ -1,11 +1,11 @@
-#ifndef ICONIZEDWIDGETWRAPPER_H
-#define ICONIZEDWIDGETWRAPPER_H
+#ifndef MATISSE_ICONIZED_WIDGET_WRAPPER_H_
+#define MATISSE_ICONIZED_WIDGET_WRAPPER_H_
 
 #include <QIcon>
 #include <QPixmap>
 #include <QWidget>
 
-namespace MatisseTools {
+namespace matisse {
 
 class IconizedWidgetWrapper : public QObject
 {
@@ -28,6 +28,7 @@ private:
     bool _isValid;
     QObject *_widget;
 };
-}
 
-#endif // ICONIZEDWIDGETWRAPPER_H
+} // namespace matisse
+
+#endif // MATISSE_ICONIZED_WIDGET_WRAPPER_H_

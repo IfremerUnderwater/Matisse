@@ -1,8 +1,9 @@
 #include "camera_info.h"
 #include <QStringList>
 
-using namespace MatisseCommon;
 using namespace cv;
+
+namespace matisse {
 
 CameraInfo::CameraInfo():m_camera_name(""),
     m_distortion_model(1),
@@ -220,3 +221,5 @@ bool CameraInfo::fromQString(QString _value)
     return true;
 
 }
+
+} // namespace matisse

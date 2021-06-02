@@ -8,7 +8,7 @@
 #include "matisse_icon_factory.h"
 #include "iconized_combo_box_item_wrapper.h"
 
-using namespace MatisseTools;
+using namespace matisse;
 
 namespace Ui {
 class StatusMessageWidget;

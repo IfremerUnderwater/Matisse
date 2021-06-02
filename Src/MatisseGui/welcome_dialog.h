@@ -11,7 +11,7 @@ namespace Ui {
 class WelcomeDialog;
 }
 
-using namespace MatisseTools;
+using namespace matisse;
 
 namespace MatisseServer {
 

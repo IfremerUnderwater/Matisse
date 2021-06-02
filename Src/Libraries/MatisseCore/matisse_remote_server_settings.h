@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-namespace MatisseTools {
+namespace matisse {
 
 class RemoteServerSetting {
  public:
@@ -71,6 +71,6 @@ class MatisseRemoteServerSettings : public QObject {
   RemoteServerSetting m_results_subdir;
 };
 
-} // namespace MatisseTools
+} // namespace matisse
 
 #endif // MATISSE_REMOTE_SERVER_SETTINGS_H

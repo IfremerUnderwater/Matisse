@@ -2,7 +2,7 @@
 #include "ui_assembly_editor.h"
 
 
-using namespace MatisseTools;
+using namespace matisse;
 using namespace MatisseServer;
 
 

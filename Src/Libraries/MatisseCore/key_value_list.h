@@ -1,5 +1,5 @@
-﻿#ifndef KEYVALUELIST_H
-#define KEYVALUELIST_H
+﻿#ifndef MATISSE_KEY_VALUE_LIST_H_
+#define MATISSE_KEY_VALUE_LIST_H_
 
 #include <QPair>
 #include <QList>
@@ -11,7 +11,8 @@
 ///
 
 
-namespace MatisseTools {
+namespace matisse {
+
 class KeyValueList
 {
 public:
@@ -30,6 +31,7 @@ private:
     QStringList _keys;
     QStringList _values;
 };
-}
 
-#endif // KEYVALUELIST_H
+} // namespace matisse
+
+#endif // MATISSE_KEY_VALUE_LIST_H_

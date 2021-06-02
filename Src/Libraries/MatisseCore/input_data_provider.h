@@ -1,7 +1,5 @@
-﻿#ifndef IMAGEPROVIDER_H
-#define IMAGEPROVIDER_H
-
-
+﻿#ifndef MATISSE_INPUT_DATA_PROVIDER_H_
+#define MATISSE_INPUT_DATA_PROVIDER_H_
 
 
 #include <QObject>
@@ -12,7 +10,8 @@
 
 using namespace matisse_image;
 
-namespace MatisseCommon {
+namespace matisse {
+
 ///
 /// \brief Classe de base des fournisseurs d'image
 /// Un fournisseur d'image possède plusieurs port de sortie d'image. Les ports de sortie sont connectés aux ports d'entrées des Processors par assemblage.
@@ -23,7 +22,7 @@ namespace MatisseCommon {
 class InputDataProvider : public QObject, public LifecycleComponent
 {
     Q_OBJECT
-    Q_INTERFACES(MatisseCommon::LifecycleComponent)
+    Q_INTERFACES(matisse::LifecycleComponent)
 public:
 
     explicit InputDataProvider(QObject *parent, QString name, QString comment, quint16 outNumber);
@@ -78,6 +77,8 @@ private:
     bool _isRealTime;
 
 };
-}
-Q_DECLARE_INTERFACE(MatisseCommon::InputDataProvider, "Ifremer.InputDataProvider/1.1")
-#endif // IMAGEPROVIDER_H
+
+} // namespace matisse
+
+Q_DECLARE_INTERFACE(matisse::InputDataProvider, "Ifremer.InputDataProvider/1.1")
+#endif // MATISSE_INPUT_DATA_PROVIDER_H_

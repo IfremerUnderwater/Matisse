@@ -22,16 +22,16 @@ enum EPairMode
     PAIR_FROM_FILE = 2
 };
 
-//using namespace MatisseCommon;
+using namespace matisse;
 
 /**
  * Module1
  * @brief  Exemple de module pour implementer un algorithme de traitement dans Matisse
  */
-class Matching3D : public MatisseCommon::Processor, public C_Progress
+class Matching3D : public Processor, public C_Progress
 {
     Q_OBJECT
-    Q_INTERFACES(MatisseCommon::Processor)
+    Q_INTERFACES(matisse::Processor)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     Q_PLUGIN_METADATA(IID "Matching3D")

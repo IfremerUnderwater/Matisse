@@ -19,7 +19,7 @@
 #include "system_data_manager.h"
 #include "process_data_manager.h"
 
-using namespace MatisseTools;
+using namespace matisse;
 using namespace MatisseCmd;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)

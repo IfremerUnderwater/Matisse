@@ -15,7 +15,7 @@
 #include "network_command_pbs_qsub.h"
 #include "parameters_common.h"
 
-using namespace MatisseCommon;
+using namespace matisse;
 using namespace MatisseTools;
 using namespace system_tools;
 

@@ -19,7 +19,7 @@
 #include "platform_comparison_status.h"
 #include "string_utils.h"
 
-using namespace MatisseTools;
+using namespace matisse;
 
 namespace MatisseCmd {
 

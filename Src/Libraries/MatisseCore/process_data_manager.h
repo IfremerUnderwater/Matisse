@@ -1,5 +1,5 @@
-﻿#ifndef PROCESS_DATA_MANAGER_H
-#define PROCESS_DATA_MANAGER_H
+﻿#ifndef MATISSE_PROCESS_DATA_MANAGER_H_
+#define MATISSE_PROCESS_DATA_MANAGER_H_
 
 #include <QString>
 #include <QStringList>
@@ -18,7 +18,7 @@
 #include "assembly_definition.h"
 #include "job_definition.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 ///
 /// \brief The ProcessDataManager class is used for reading writing business data for assemblies, jobs and parameters
@@ -120,6 +120,7 @@ private:
 
     static const QString RELATIVE_EXECUTION_LOG_PATH;
 };
-}
 
-#endif // PROCESS_DATA_MANAGER_H
+} // namespace matisse
+
+#endif // MATISSE_PROCESS_DATA_MANAGER_H_

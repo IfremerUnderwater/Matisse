@@ -3,7 +3,7 @@
 #include "job_launcher.h"
 #include "graphical_charter.h"
 
-using namespace MatisseTools;
+using namespace matisse;
 
 namespace MatisseCmd {
 

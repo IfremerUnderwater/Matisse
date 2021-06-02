@@ -1,5 +1,5 @@
-#ifndef CAMCALIB_H
-#define CAMCALIB_H
+#ifndef MATISSE_CAMERA_CALIB_H_
+#define MATISSE_CAMERA_CALIB_H_
 
 #include <QObject>
 #include <QString>
@@ -23,13 +23,14 @@
 
 using namespace std;
 
+namespace matisse {
 
 class CameraCalib:public QObject
 {
     Q_OBJECT
 public:
     CameraCalib(vector<string>& imagelist, cv::Size board_size, float square_size, QTextEdit *_text_logger);
-    void calibrateMono(MatisseCommon::CameraInfo& _cam_info, double& _reproj_error, bool _display_corners = false);
+    void calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _display_corners = false);
 
 private:
     void checkAndReorderCorners(vector<cv::Point2f> &_corners);
@@ -44,4 +45,6 @@ private:
     void sig_logCalib(QString _message);
 };
 
-#endif // CAMCALIB_H
+} // namespace matisse
+
+#endif // MATISSE_CAMERA_CALIB_H_

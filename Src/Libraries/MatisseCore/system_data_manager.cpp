@@ -1,6 +1,6 @@
 #include "system_data_manager.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 //// Singleton constructor
 SystemDataManager* SystemDataManager::instance()
@@ -544,6 +544,6 @@ QString SystemDataManager::getPlatformSummaryFilePath() const
     return _platformSummaryFilePath;
 }
 
-} // namespace MatisseTools
+} // namespace matisse
 
 

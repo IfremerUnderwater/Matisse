@@ -9,10 +9,10 @@
  * Meshing3D
  * @brief  This module create a 3D Mesh from sparse of dense 3D point cloud (both openMVG and openMVS formats are supported)
  */
-class Meshing3D : public MatisseCommon::Processor, public C_Progress
+class Meshing3D : public matisse::Processor, public C_Progress
 {
     Q_OBJECT
-    Q_INTERFACES(MatisseCommon::Processor)
+    Q_INTERFACES(matisse::Processor)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     Q_PLUGIN_METADATA(IID "Meshing3D")

@@ -7,7 +7,7 @@
 #include "fold_unfold_button.h"
 #include "graphical_charter.h"
 
-using namespace MatisseTools;
+using namespace matisse;
 
 namespace MatisseServer {
 

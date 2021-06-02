@@ -10,7 +10,7 @@
 
 #include <QtDebug>
 
-using namespace MatisseTools;
+using namespace matisse;
 
 namespace Ui {
 class PreferencesDialog;

@@ -1,5 +1,6 @@
 #include "matisse_preferences.h"
 
+namespace matisse {
 
 QString MatissePreferences::importExportPath() const
 {
@@ -136,3 +137,4 @@ MatissePreferences::MatissePreferences()
     
 }
 
+} // namespace matisse

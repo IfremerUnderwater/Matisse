@@ -1,6 +1,6 @@
 #include "enriched_file_chooser.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 EnrichedFileChooser::EnrichedFileChooser(QWidget *parent,  MatisseIconFactory *iconFactory, QString label, ParameterShow type, QString defaultValue) :
     EnrichedFormWidget(parent)
@@ -70,3 +70,5 @@ void EnrichedFileChooser::slot_clicked() {
         slot_valueChanged();
     }
 }
+
+} // namespace matisse

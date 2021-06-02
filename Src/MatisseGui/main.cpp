@@ -25,8 +25,7 @@
 #include "remote_job_helper.h"
 
 using namespace MatisseServer;
-using namespace MatisseTools;
-using namespace MatisseCommon;
+using namespace matisse;
 
 
 

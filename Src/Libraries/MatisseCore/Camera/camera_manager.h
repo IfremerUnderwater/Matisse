@@ -1,12 +1,12 @@
-#ifndef CAMERA_MANAGER_H
-#define CAMERA_MANAGER_H
+#ifndef MATISSE_CAMERA_MANAGER_H_
+#define MATISSE_CAMERA_MANAGER_H_
 
 #include "camera_info.h"
 #include <QMap>
 #include <QDir>
 #include <QObject>
 
-namespace MatisseCommon {
+namespace matisse {
 
 class CameraManager:public QObject
 {
@@ -41,6 +41,6 @@ signals:
     void signal_cameraListChanged();
 };
 
-}
+} // namespace matisse
 
-#endif // CAMERA_MANAGER_H
+#endif // MATISSE_CAMERA_MANAGER_H_

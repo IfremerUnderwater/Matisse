@@ -1,5 +1,5 @@
-#ifndef ENRICHEDCOMBOBOX_H
-#define ENRICHEDCOMBOBOX_H
+#ifndef MATISSE_ENRICHED_COMBO_BOX_H_
+#define MATISSE_ENRICHED_COMBO_BOX_H_
 
 #include <QComboBox>
 #include <QStringList>
@@ -7,7 +7,7 @@
 
 #include "enriched_form_widget.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 class EnrichedComboBox : public EnrichedFormWidget
 {
@@ -32,5 +32,7 @@ private:
         qint32 _defaultIndex;
         qint32 _initialIndex;
 };
-}
-#endif // ENRICHEDCOMBOBOX_H
+
+} // namespace matisse
+
+#endif // MATISSE_ENRICHED_COMBO_BOX_H_

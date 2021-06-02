@@ -1,6 +1,5 @@
-﻿#ifndef PROCESSOR_H
-#define PROCESSOR_H
-
+﻿#ifndef MATISSE_PROCESSOR_H_
+#define MATISSE_PROCESSOR_H_
 
 
 #include <QList>
@@ -16,7 +15,7 @@
 
 using namespace matisse_image;
 
-namespace MatisseCommon {
+namespace matisse {
 
 ///
 /// \brief Classe de base des modules chargeables dans MatisseServer
@@ -25,7 +24,7 @@ class Processor : public QObject, public ImageListener, public LifecycleComponen
 {
     Q_OBJECT
     Q_INTERFACES(matisse_image::ImageListener)
-    Q_INTERFACES(MatisseCommon::LifecycleComponent)
+    Q_INTERFACES(matisse::LifecycleComponent)
 public:
 
     
@@ -104,7 +103,9 @@ protected:
 
     void fatalErrorExit(QString message);
 };
-}
-Q_DECLARE_INTERFACE(MatisseCommon::Processor, "Ifremer.Processor/1.1")
 
-#endif // PROCESSOR_H
+} // namespace matisse
+
+Q_DECLARE_INTERFACE(matisse::Processor, "Ifremer.Processor/1.1")
+
+#endif // MATISSE_PROCESSOR_H_

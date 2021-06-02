@@ -1,6 +1,6 @@
 ﻿#include "input_data_provider.h"
 
-using namespace MatisseCommon;
+namespace matisse {
 
 InputDataProvider::InputDataProvider(QObject *parent, QString name, QString comment, quint16 outNumber) :
     QObject(parent),
@@ -31,6 +31,7 @@ void InputDataProvider::setIsRealTime(bool isRealTime)
     _isRealTime = isRealTime;
 }
 
+} // namespace matisse
 
 
 

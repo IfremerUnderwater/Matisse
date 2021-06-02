@@ -7,7 +7,7 @@
 #include <QMenu>
 #include <QVBoxLayout>
 
-using namespace MatisseCommon;
+using namespace matisse;
 
 MainMenuWidget::MainMenuWidget(QWidget *parent) :
     QFrame(parent),

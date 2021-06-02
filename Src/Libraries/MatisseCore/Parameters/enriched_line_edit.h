@@ -1,12 +1,12 @@
-#ifndef ENRICHEDLINEEDIT_H
-#define ENRICHEDLINEEDIT_H
+#ifndef MATISSE_ENRICHED_LINE_EDIT_H_
+#define MATISSE_ENRICHED_LINE_EDIT_H_
 
 #include <QLineEdit>
 #include <QString>
 
 #include "enriched_form_widget.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 class EnrichedLineEdit : public EnrichedFormWidget
 {
@@ -30,6 +30,6 @@ private:
 
 };
 
-}
+} // namespace matisse
 
-#endif // ENRICHEDLINEEDIT_H
+#endif // MATISSE_ENRICHED_LINE_EDIT_H_

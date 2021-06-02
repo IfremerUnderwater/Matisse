@@ -1,5 +1,5 @@
-﻿#ifndef JOBSERVER_H
-#define JOBSERVER_H
+﻿#ifndef MATISSE_JOB_SERVER_H_
+#define MATISSE_JOB_SERVER_H_
 
 #include <QObject>
 #include <QTcpSocket>
@@ -11,8 +11,8 @@
 ///
 
 
+namespace matisse {
 
-namespace MatisseTools {
 class JobServer : public QObject
 {
     Q_OBJECT
@@ -33,6 +33,7 @@ private:
     QTcpServer _server;
     QTcpSocket *_socket;
 };
-}
 
-#endif // JOBSERVER_H
+} // namespace matisse
+
+#endif // MATISSE_JOB_SERVER_H_

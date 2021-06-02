@@ -1,6 +1,6 @@
 ﻿#include "process_data_manager.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 const QString ProcessDataManager::RELATIVE_EXECUTION_LOG_PATH = QString("log");
 
@@ -1255,4 +1255,4 @@ bool ProcessDataManager::assemblyHasArchivedJob(QString assemblyName)
     return m_archived_jobs_by_assembly.contains(assemblyName);
 }
 
-} // namespace MatisseTools
+} // namespace matisse

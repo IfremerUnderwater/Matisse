@@ -1,5 +1,5 @@
-#ifndef MATISSEENGINE_H
-#define MATISSEENGINE_H
+#ifndef MATISSE_MATISSE_ENGINE_H_
+#define MATISSE_MATISSE_ENGINE_H_
 
 #include <QString>
 #include <QTcpSocket>
@@ -19,9 +19,8 @@
 #include "system_data_manager.h"
 #include "process_data_manager.h"
 
-using namespace MatisseCommon;
 
-namespace MatisseTools {
+namespace matisse {
 
 enum ApplicationMode {
     PROGRAMMING,
@@ -136,7 +135,7 @@ private:
     bool _errorFlag;
 };
 
-}
+} // namespace matisse
 
 
-#endif // MATISSEENGINE_H
+#endif // MATISSE_MATISSE_ENGINE_H_

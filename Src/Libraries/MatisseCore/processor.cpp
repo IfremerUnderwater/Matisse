@@ -1,7 +1,7 @@
 ﻿#include "processor.h"
 #include <QDebug>
 
-using namespace MatisseCommon;
+namespace matisse {
 
 Processor::Processor(QObject *parent, QString name, QString comment, quint16 inNumber, quint16 outNumber) :
     QObject(parent),
@@ -75,4 +75,4 @@ void Processor::fatalErrorExit(QString message)
       emit signal_fatalError();
 }
 
-
+} // namespace matisse

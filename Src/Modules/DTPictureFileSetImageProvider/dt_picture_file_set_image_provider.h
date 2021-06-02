@@ -8,12 +8,12 @@
 #include "image_set.h"
 #include "file_image.h"
 
-using namespace MatisseCommon;
+using namespace matisse;
 
 class DTPictureFileSetImageProvider : public InputDataProvider
 {
     Q_OBJECT
-    Q_INTERFACES(MatisseCommon::InputDataProvider)
+    Q_INTERFACES(matisse::InputDataProvider)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     Q_PLUGIN_METADATA(IID "DTPictureFileSetImageProvider")

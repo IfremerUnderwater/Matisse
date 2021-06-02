@@ -3,7 +3,7 @@
 
 #include <QtDebug>
 
-using namespace MatisseTools;
+namespace matisse {
 
 ParametersWidgetSkeleton::ParametersWidgetSkeleton(QWidget *parent) :
     QWidget(parent),
@@ -54,3 +54,5 @@ void ParametersWidgetSkeleton::changeEvent(QEvent *event)
         emit signal_translateParameters();
     }
 }
+
+} // namespace matisse

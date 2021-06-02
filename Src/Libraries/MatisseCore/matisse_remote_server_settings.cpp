@@ -1,6 +1,6 @@
 #include "matisse_remote_server_settings.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 RemoteServerSetting::RemoteServerSetting() {
 }
@@ -123,4 +123,4 @@ QString MatisseRemoteServerSettings::resultsPathBound() {
   return results_path_bound;
 }
 
-}  // namespace MatisseTools
+}  // namespace matisse

@@ -1,5 +1,5 @@
-#ifndef ENRICHEDCAMCOMBOBOX_H
-#define ENRICHEDCAMCOMBOBOX_H
+#ifndef MATISSE_ENRICHED_CAM_COMBO_BOX_H_
+#define MATISSE_ENRICHED_CAM_COMBO_BOX_H_
 
 #include <QComboBox>
 #include <QStringList>
@@ -8,7 +8,7 @@
 #include "enriched_form_widget.h"
 #include "camera_info.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 class EnrichedCamComboBox : public EnrichedFormWidget
 {
@@ -34,8 +34,10 @@ private:
         qint32 m_default_index;
         qint32 m_initial_index;
 
-        MatisseCommon::CameraInfo m_cam_info;
+        CameraInfo m_cam_info;
 
 };
-}
-#endif // ENRICHEDCAMCOMBOBOX_H
+
+} // namespace matisse
+
+#endif // MATISSE_ENRICHED_CAM_COMBO_BOX_H_

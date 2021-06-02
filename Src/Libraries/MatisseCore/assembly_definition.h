@@ -1,5 +1,5 @@
-﻿#ifndef ASSEMBLY_H
-#define ASSEMBLY_H
+﻿#ifndef MATISSE_ASSEMBLY_DEFINITION_H_
+#define MATISSE_ASSEMBLY_DEFINITION_H_
 
 #include <QObject>
 #include <QtGlobal>
@@ -13,7 +13,7 @@
 /// Business object for assemblies
 ///
 
-namespace MatisseTools {
+namespace matisse {
 
 enum AssemblyDefinitionValidity {
     VALID = 0,
@@ -173,6 +173,7 @@ private:
     DestinationDefinition *_destinationDefinition;
 
 };
-}
 
-#endif // ASSEMBLY_H
+} // namespace matisse
+
+#endif // MATISSE_ASSEMBLY_DEFINITION_H_

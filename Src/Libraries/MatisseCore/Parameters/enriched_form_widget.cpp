@@ -1,14 +1,14 @@
 #include "enriched_form_widget.h"
 #include "graphical_charter.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 QSharedPointer<QFontMetrics> EnrichedFormWidget::_metrics;
 
 EnrichedFormWidget::EnrichedFormWidget(QWidget *parent) :
     QWidget(parent)
 {
-    MatisseCommon::GraphicalCharter &graph_chart = MatisseCommon::GraphicalCharter::instance();
+    GraphicalCharter &graph_chart = GraphicalCharter::instance();
 
     if(_metrics == NULL) {
         _metrics = QSharedPointer<QFontMetrics>(new QFontMetrics(QFont(MATISSE_FONT_TYPE, MATISSE_FONT_DEFAULT_SIZE_PT)));
@@ -27,7 +27,7 @@ void EnrichedFormWidget::setValue(QString newValue)
 
 void EnrichedFormWidget::setWidget(QString label, QWidget *widget, bool wrapWidget)
 {
-    MatisseCommon::GraphicalCharter &graph_chart = MatisseCommon::GraphicalCharter::instance();
+    GraphicalCharter &graph_chart = GraphicalCharter::instance();
 
     if (!label.isEmpty()) {
         label.append(":");
@@ -89,3 +89,5 @@ void EnrichedFormWidget::slot_valueChanged()
     swapColor(hasValueChanged);
     emit signal_valueChanged(hasValueChanged);
 }
+
+} // namespace matisse

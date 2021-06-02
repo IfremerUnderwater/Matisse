@@ -1,6 +1,6 @@
 #include "fold_unfold_button.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 FoldUnfoldButton::FoldUnfoldButton(QWidget *parent) : QPushButton(parent),
     _isUnfolded(false)
@@ -23,5 +23,7 @@ void FoldUnfoldButton::flip()
 {
     setIsUnfolded(!_isUnfolded);
 }
+
+} // namespace matisse
 
 

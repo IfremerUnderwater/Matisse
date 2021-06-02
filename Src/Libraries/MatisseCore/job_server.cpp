@@ -2,7 +2,7 @@
 #include "job_definition.h"
 #include "job_server.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 JobServer::JobServer(int port) :
     QObject(NULL),
@@ -111,3 +111,5 @@ bool JobServer::sendCmd(QString data) {
     }
     return ret;
 }
+
+} // namespace matisse

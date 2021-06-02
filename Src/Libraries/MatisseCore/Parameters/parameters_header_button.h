@@ -1,12 +1,12 @@
-#ifndef PARAMETERSHEADERBUTTON_H
-#define PARAMETERSHEADERBUTTON_H
+#ifndef MATISSE_PARAMETERS_HEADER_BUTTON_H_
+#define MATISSE_PARAMETERS_HEADER_BUTTON_H_
 
 #include <QPushButton>
 #include "fold_unfold_button.h"
 #include "parameters_common.h"
 
 
-namespace MatisseTools {
+namespace matisse {
 
 class ParametersHeaderButton : public FoldUnfoldButton
 {
@@ -24,6 +24,6 @@ private:
     ParameterLevel _level;
 };
 
-}
+} // namespace matisse
 
-#endif // PARAMETERSHEADERBUTTON_H
+#endif // MATISSE_PARAMETERS_HEADER_BUTTON_H_

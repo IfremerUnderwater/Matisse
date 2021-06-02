@@ -1,11 +1,12 @@
-#ifndef ICONIZEDBUTTONWRAPPER_H
-#define ICONIZEDBUTTONWRAPPER_H
+#ifndef MATISSE_ICONIZED_BUTTON_WRAPPER_H_
+#define MATISSE_ICONIZED_BUTTON_WRAPPER_H_
 
 #include <QAbstractButton>
 
 #include "iconized_widget_wrapper.h"
 
-namespace MatisseTools {
+namespace matisse {
+
 class IconizedButtonWrapper : public IconizedWidgetWrapper
 {
 public:
@@ -16,6 +17,7 @@ public:
 private:
     QAbstractButton *_button;
 };
-}
 
-#endif // ICONIZEDBUTTONWRAPPER_H
+} // namespace matisse
+
+#endif // MATISSE_ICONIZED_BUTTON_WRAPPER_H_

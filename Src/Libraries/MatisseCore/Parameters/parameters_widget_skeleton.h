@@ -1,5 +1,5 @@
-#ifndef PARAMETERSWIDGETSKELETON_H
-#define PARAMETERSWIDGETSKELETON_H
+#ifndef MATISSE_PARAMETERS_WIDGET_SKELETON_H_
+#define MATISSE_PARAMETERS_WIDGET_SKELETON_H_
 
 #include <QWidget>
 #include <QGroupBox>
@@ -9,7 +9,7 @@ namespace Ui {
 class ParametersWidgetSkeleton;
 }
 
-namespace MatisseTools {
+namespace matisse {
 
 class ParametersWidgetSkeleton : public QWidget
 {
@@ -38,6 +38,6 @@ private:
     QList<QObject*>_modifiedValues;
 };
 
-}
+} // namespace matisse
 
-#endif // PARAMETERSWIDGETSKELETON_H
+#endif // MATISSE_PARAMETERS_WIDGET_SKELETON_H_

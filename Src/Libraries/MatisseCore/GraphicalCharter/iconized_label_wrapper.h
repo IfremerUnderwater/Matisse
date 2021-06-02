@@ -1,11 +1,11 @@
-#ifndef ICONIZEDLABELWRAPPER_H
-#define ICONIZEDLABELWRAPPER_H
+#ifndef MATISSE_ICONIZED_LABEL_WRAPPER_H_
+#define MATISSE_ICONIZED_LABEL_WRAPPER_H_
 
 #include <QLabel>
 
 #include "iconized_widget_wrapper.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 class IconizedLabelWrapper : public IconizedWidgetWrapper
 {
@@ -18,6 +18,6 @@ private:
     QLabel *_label;
 };
 
-}
+} // namespace matisse
 
-#endif // ICONIZEDLABELWRAPPER_H
+#endif // MATISSE_ICONIZED_LABEL_WRAPPER_H_

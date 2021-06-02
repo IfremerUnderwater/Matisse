@@ -1,5 +1,5 @@
-#ifndef MATISSEICONFACTORY_H
-#define MATISSEICONFACTORY_H
+#ifndef MATISSE_MATISSE_ICON_FACTORY_H_
+#define MATISSE_MATISSE_ICON_FACTORY_H_
 
 #include <QMap>
 #include <QList>
@@ -15,7 +15,8 @@
 ///
 
 
-namespace MatisseTools {
+namespace matisse {
+
 class MatisseIconSpec {
 public:
     QString _sourceIconPath;
@@ -60,6 +61,7 @@ private:
 
     bool _isAppModeContext;
 };
-}
 
-#endif // MATISSEICONFACTORY_H
+} // namespace matisse
+
+#endif // MATISSE_MATISSE_ICON_FACTORY_H_

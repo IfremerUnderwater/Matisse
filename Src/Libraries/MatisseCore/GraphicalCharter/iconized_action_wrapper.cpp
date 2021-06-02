@@ -1,6 +1,6 @@
 #include "iconized_action_wrapper.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 IconizedActionWrapper::IconizedActionWrapper(QAction *action) :
     IconizedWidgetWrapper(action, true),
@@ -13,4 +13,6 @@ void IconizedActionWrapper::setIcon(const QIcon &icon)
 {
     _action->setIcon(icon);
 }
+
+} // namespace matisse
 

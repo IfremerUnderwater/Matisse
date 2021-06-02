@@ -1,6 +1,6 @@
 ﻿#include "assembly_definition.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 AssemblyDefinition::AssemblyDefinition(QObject *parent) :
     QObject(parent),
@@ -45,17 +45,17 @@ DestinationDefinition * AssemblyDefinition::destinationDefinition() const
     return _destinationDefinition;
 }
 
-void AssemblyDefinition::setDestinationDefinition(MatisseTools::DestinationDefinition *destinationDefinition)
+void AssemblyDefinition::setDestinationDefinition(DestinationDefinition *destinationDefinition)
 {
     _destinationDefinition = destinationDefinition;
 }
 
-QString MatisseTools::AssemblyDefinition::filename() const
+QString AssemblyDefinition::filename() const
 {
     return _filename;
 }
 
-void MatisseTools::AssemblyDefinition::setFilename(const QString &filename)
+void AssemblyDefinition::setFilename(const QString &filename)
 {
     _filename = filename;
 }
@@ -321,4 +321,4 @@ void AssemblyDefinition::clearAllElements()
     }
 }
 
-
+} // namespace matisse

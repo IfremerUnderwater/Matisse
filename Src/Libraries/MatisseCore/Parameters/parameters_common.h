@@ -1,9 +1,9 @@
-#ifndef TOOLSCOMMON_H
-#define TOOLSCOMMON_H
+#ifndef MATISSE_PARAMETERS_COMMON_H_
+#define MATISSE_PARAMETERS_COMMON_H_
 
 #include <QVariant>
 
-namespace MatisseTools {
+namespace matisse {
 
 
 #define InfInt qPow(2,31)-1
@@ -101,5 +101,7 @@ struct Enums {
     QString _name;
     QList<EnumValue> _values;
 };
-}
-#endif // TOOLSCOMMON_H
+
+} // namespace matisse
+
+#endif // MATISSE_PARAMETERS_COMMON_H_

@@ -19,7 +19,7 @@
 #include "network_command.h"
 
 using namespace network_tools;
-using namespace MatisseTools;
+using namespace matisse;
 
 namespace MatisseServer {
 

@@ -1,5 +1,5 @@
-#ifndef MATISSEPARAMETERSMANAGER_H
-#define MATISSEPARAMETERSMANAGER_H
+#ifndef MATISSE_MATISSE_PARAMETERS_MANAGER_H_
+#define MATISSE_MATISSE_PARAMETERS_MANAGER_H_
 
 #include <QObject>
 #include <QDialog>
@@ -31,7 +31,7 @@
 #include "parameters_header_button.h"
 #include "matisse_icon_factory.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 class MatisseParametersManager : public QObject
 {
@@ -134,6 +134,6 @@ private:
     static double _epsilon;
 };
 
-}
+} // namespace matisse
 
-#endif // MATISSEPARAMETERSMANAGER_H
+#endif // MATISSE_MATISSE_PARAMETERS_MANAGER_H_

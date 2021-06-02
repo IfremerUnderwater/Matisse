@@ -29,7 +29,7 @@
 #include "matisse_engine.h"
 
 
-using namespace MatisseTools;
+using namespace matisse;
 
 namespace MatisseServer {
 

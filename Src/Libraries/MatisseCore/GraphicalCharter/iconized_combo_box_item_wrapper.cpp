@@ -1,6 +1,6 @@
 #include "iconized_combo_box_item_wrapper.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 IconizedComboBoxItemWrapper::IconizedComboBoxItemWrapper(QComboBox *comboBox, int initialItemIndex) :
     IconizedWidgetWrapper(comboBox, true),
@@ -15,3 +15,5 @@ void IconizedComboBoxItemWrapper::setIcon(const QIcon &icon)
 {
     _comboBox->setItemIcon(_itemIndex, icon);
 }
+
+} // namespace matisse

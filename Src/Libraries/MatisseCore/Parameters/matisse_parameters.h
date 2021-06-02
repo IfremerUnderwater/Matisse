@@ -1,5 +1,5 @@
-﻿#ifndef MOSAICPARAMETERS_H
-#define MOSAICPARAMETERS_H
+﻿#ifndef MATISSE_MATISSE_PARAMETERS_H_
+#define MATISSE_MATISSE_PARAMETERS_H_
 
 #include <QtCore>
 #include <QString>
@@ -16,7 +16,7 @@
 #define InfInt qPow(2,31)-1
 #define InfDouble exp((double)100)
 
-namespace MatisseCommon {
+namespace matisse {
 
 
 //structures utilitaires
@@ -146,6 +146,7 @@ private:
     static QRegExp _boolRegExpTrue;
     static QRegExp _boolRegExpFalse;
 };
-}
 
-#endif // MOSAICPARAMETERS_H
+} // namespace matisse
+
+#endif // MATISSE_MATISSE_PARAMETERS_H_

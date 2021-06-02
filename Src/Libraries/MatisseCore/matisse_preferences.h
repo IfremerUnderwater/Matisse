@@ -1,10 +1,12 @@
-#ifndef MATISSEPREFERENCES_H
-#define MATISSEPREFERENCES_H
+#ifndef MATISSE_MATISSE_PREFERENCES_H_
+#define MATISSE_MATISSE_PREFERENCES_H_
 
 #include <QObject>
 #include <QtGlobal>
 #include <QString>
 #include <QDateTime>
+
+namespace matisse {
 
 ///
 /// \brief The MatissePreferences class is the business class for Matisse preferences
@@ -60,4 +62,6 @@ public:
     void setRemoteNbOfCpus(const int _remote_nb_of_cpus);
 };
 
-#endif // MATISSEPREFERENCES_H
+} // namespace matisse
+
+#endif // MATISSE_MATISSE_PREFERENCES_H_

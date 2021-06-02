@@ -1,5 +1,5 @@
-#ifndef ENRICHEDSPINBOX_H
-#define ENRICHEDSPINBOX_H
+#ifndef MATISSE_ENRICHED_SPIN_BOX_H_
+#define MATISSE_ENRICHED_SPIN_BOX_H_
 
 #include <QSpinBox>
 #include <QString>
@@ -9,7 +9,7 @@
 #define MIN_SINT32 -2147483647
 #define MAX_SINT32 2147483647
 
-namespace MatisseTools {
+namespace matisse {
 
 class EnrichedSpinBox : public EnrichedFormWidget
 {
@@ -32,6 +32,7 @@ private:
     qint32 _minValueInt;
     qint32 _maxValueInt;
 };
-}
 
-#endif // ENRICHEDSPINBOX_H
+} // namespace matisse
+
+#endif // MATISSE_ENRICHED_SPIN_BOX_H_

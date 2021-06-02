@@ -9,7 +9,7 @@
 #include "camera_manager.h"
 
 
-using namespace MatisseCommon;
+using namespace matisse;
 using namespace cv;
 
 CameraManagerTool::CameraManagerTool(QWidget *parent) :

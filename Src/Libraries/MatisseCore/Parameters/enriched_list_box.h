@@ -1,5 +1,5 @@
-#ifndef ENRICHEDLISTBOX_H
-#define ENRICHEDLISTBOX_H
+#ifndef MATISSE_ENRICHED_LIST_BOX_H_
+#define MATISSE_ENRICHED_LIST_BOX_H_
 
 #include <QListWidget>
 #include <QStringList>
@@ -7,7 +7,7 @@
 
 #include "enriched_form_widget.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 class EnrichedListBox : public EnrichedFormWidget
 {
@@ -30,4 +30,4 @@ private:
     int _defaultValueIndex;
 };
 }
-#endif // ENRICHEDLISTBOX_H
+#endif // MATISSE_ENRICHED_LIST_BOX_H_

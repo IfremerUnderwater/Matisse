@@ -1,6 +1,6 @@
 ﻿#include "enriched_line_edit.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 EnrichedLineEdit::EnrichedLineEdit(QWidget *parent, QString label, QString defaultValue):
     EnrichedFormWidget(parent)
@@ -40,3 +40,5 @@ void EnrichedLineEdit::applyValue(QString newValue)
 //{
 //    swapColor(currentValueChanged());
 //}
+
+} // namespace matisse

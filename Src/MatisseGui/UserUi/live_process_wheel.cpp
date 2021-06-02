@@ -2,7 +2,7 @@
 #include "graphical_charter.h"
 
 using namespace MatisseServer;
-using namespace MatisseCommon;
+using namespace matisse;
 
 LiveProcessWheel::LiveProcessWheel(QWidget *parent) : QWidget(parent),
     _state(INACTIVE), _currentHour(0), _firstRound(true), _msForOneHourClockTurn(80)

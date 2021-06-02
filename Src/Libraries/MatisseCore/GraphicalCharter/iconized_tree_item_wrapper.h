@@ -1,10 +1,11 @@
-#ifndef ICONIZEDTREEITEMWRAPPER_H
-#define ICONIZEDTREEITEMWRAPPER_H
+#ifndef MATISSE_ICONIZED_TREE_ITEM_WRAPPER_H_
+#define MATISSE_ICONIZED_TREE_ITEM_WRAPPER_H_
 
 #include "matisse_tree_item.h"
 #include "iconized_widget_wrapper.h"
 
-namespace MatisseTools {
+namespace matisse {
+
 class IconizedTreeItemWrapper : public IconizedWidgetWrapper
 {
 public:
@@ -15,6 +16,7 @@ private:
     MatisseTreeItem *_item;
     int _iconColumn;
 };
-}
 
-#endif // ICONIZEDTREEITEMWRAPPER_H
+} // namespace matisse
+
+#endif // MATISSE_ICONIZED_TREE_ITEM_WRAPPER_H_

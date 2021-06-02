@@ -1,5 +1,5 @@
-#ifndef ENRICHEDFILECHOOSER_H
-#define ENRICHEDFILECHOOSER_H
+#ifndef MATISSE_ENRICHED_FILE_CHOOSER_H_
+#define MATISSE_ENRICHED_FILE_CHOOSER_H_
 
 #include <QWidget>
 #include <QHBoxLayout>
@@ -12,7 +12,7 @@
 #include "matisse_icon_factory.h"
 #include "iconized_button_wrapper.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 //    enum FileChooserType{
 //        DIR,
@@ -41,5 +41,7 @@ public slots:
     void slot_clicked();
 
 };
-}
-#endif // ENRICHEDFILECHOOSER_H
+
+} // namespace matisse
+
+#endif // MATISSE_ENRICHED_FILE_CHOOSER_H_

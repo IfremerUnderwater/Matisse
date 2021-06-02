@@ -1,6 +1,6 @@
 ﻿#include "output_data_writer.h"
 
-using namespace MatisseCommon;
+namespace matisse {
 
 OutputDataWriter::OutputDataWriter(QObject *parent, QString name, QString comment, quint16 inNumber) :
     QObject(parent),
@@ -25,3 +25,5 @@ void OutputDataWriter::setImageSet(ImageSet *imageSet)
 {
     _imageSet = imageSet;
 }
+
+} // namespace matisse

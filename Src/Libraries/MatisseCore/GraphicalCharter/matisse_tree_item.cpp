@@ -1,9 +1,11 @@
 #include "matisse_tree_item.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 MatisseTreeItem::MatisseTreeItem(QTreeWidgetItem *parent, const QStringList &strings) :
     QTreeWidgetItem(parent, strings, Type)
 {
 }
+
+} // namespace matisse
 

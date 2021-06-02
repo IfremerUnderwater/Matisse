@@ -1,5 +1,5 @@
-#ifndef ENRICHEDCHECKBOX_H
-#define ENRICHEDCHECKBOX_H
+#ifndef MATISSE_ENRICHED_CHECK_BOX_H_
+#define MATISSE_ENRICHED_CHECK_BOX_H_
 
 #include <QtCore>
 #include <QCheckBox>
@@ -7,7 +7,7 @@
 
 #include "enriched_form_widget.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 class EnrichedCheckBox : public EnrichedFormWidget
 {
@@ -30,6 +30,7 @@ private:
     QCheckBox * _check;
 
 };
-}
 
-#endif // ENRICHEDCHECKBOX_H
+} // namespace matisse
+
+#endif // MATISSE_ENRICHED_CHECK_BOX_H_

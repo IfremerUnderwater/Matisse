@@ -1,11 +1,12 @@
-#ifndef ICONIZEDCOMBOBOXITEMWRAPPER_H
-#define ICONIZEDCOMBOBOXITEMWRAPPER_H
+#ifndef MATISSE_ICONIZED_COMBO_BOX_ITEM_WRAPPER_H_
+#define MATISSE_ICONIZED_COMBO_BOX_ITEM_WRAPPER_H_
 
 #include <QComboBox>
 
 #include "iconized_widget_wrapper.h"
 
-namespace MatisseTools {
+namespace matisse {
+
 class IconizedComboBoxItemWrapper : public IconizedWidgetWrapper
 {
 public:
@@ -17,6 +18,7 @@ private:
     QComboBox *_comboBox;
     int _itemIndex;
 };
-}
 
-#endif // ICONIZEDCOMBOBOXITEMWRAPPER_H
+} // namespace matisse
+
+#endif // MATISSE_ICONIZED_COMBO_BOX_ITEM_WRAPPER_H_

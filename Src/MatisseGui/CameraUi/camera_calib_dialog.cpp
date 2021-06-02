@@ -13,7 +13,7 @@
 #include "camera_info.h"
 #include "camera_manager.h"
 
-using namespace MatisseCommon;
+using namespace matisse;
 
 CameraCalibDialog::CameraCalibDialog(QWidget *parent) :
     QDialog(parent),

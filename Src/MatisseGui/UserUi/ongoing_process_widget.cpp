@@ -2,6 +2,8 @@
 #include "ui_ongoing_process_widget.h"
 #include "graphical_charter.h"
 
+using namespace matisse;
+
 OngoingProcessWidget::OngoingProcessWidget(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::OngoingProcessWidget)
@@ -11,7 +13,7 @@ OngoingProcessWidget::OngoingProcessWidget(QWidget *parent) :
 
 void OngoingProcessWidget::dpiScale()
 {
-    MatisseCommon::GraphicalCharter &graph_charter = MatisseCommon::GraphicalCharter::instance();
+    GraphicalCharter &graph_charter = GraphicalCharter::instance();
     int dpi_cb_height = graph_charter.dpiScaled(CONTROLLBAR_HEIGHT);
 
     int dpi_stop_wh = graph_charter.dpiScaled(CB_STOP_BUTTON_ICON);

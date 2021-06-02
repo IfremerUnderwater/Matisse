@@ -1,6 +1,6 @@
 #include "parameters_header_button.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 ParametersHeaderButton::ParametersHeaderButton(QWidget *parent, ParameterLevel level) :
     FoldUnfoldButton(parent),
@@ -22,6 +22,8 @@ ParameterLevel ParametersHeaderButton::getLevel() const
 {
     return _level;
 }
+
+} // namespace matisse
 
 
 

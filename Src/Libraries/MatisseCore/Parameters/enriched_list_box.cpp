@@ -1,6 +1,6 @@
 #include "enriched_list_box.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 EnrichedListBox::EnrichedListBox(QWidget *parent, QString label, QStringList values, QString defaultValue):
     EnrichedFormWidget(parent)
@@ -44,3 +44,5 @@ void EnrichedListBox::restoreDefaultValue()
     _list->setCurrentRow(_defaultValueIndex);
     connect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
 }
+
+} // namespace matisse

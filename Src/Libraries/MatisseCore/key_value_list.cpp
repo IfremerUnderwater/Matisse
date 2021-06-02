@@ -1,7 +1,6 @@
 ﻿#include "key_value_list.h"
 
-using namespace MatisseTools;
-
+namespace matisse {
 
 KeyValueList::KeyValueList()
 {
@@ -83,3 +82,5 @@ QString KeyValueList::getValue(QString key)
     }
     return _values.at(index);
 }
+
+} // namespace matisse

@@ -10,7 +10,7 @@
 #include "graphical_charter.h"
 #include "remote_job_helper.h"
 
-using namespace MatisseTools;
+using namespace matisse;
 using namespace MatisseServer;
 
 const QString MainGui::PREFERENCES_FILEPATH = QString("config/MatissePreferences.xml");

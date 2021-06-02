@@ -1,7 +1,8 @@
 #include "matisse_icon_factory.h"
 
 using namespace system_tools;
-using namespace MatisseTools;
+
+namespace matisse {
 
 MatisseIconFactory::MatisseIconFactory(QMap<QString, QString> defaultColorPalette, QString defaultStatusColorAlias, QString defaultModeColorAlias1, QString defaultModeColorAlias2) :
     _currentColorPalette(defaultColorPalette),
@@ -335,3 +336,5 @@ bool MatisseIconFactory::generateIcon(IconizedWidgetWrapper *widgetWrapper, QStr
 
     return true;
 }
+
+} // namespace matisse

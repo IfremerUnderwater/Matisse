@@ -1,5 +1,5 @@
-﻿#ifndef LIFECYCLECOMPONENT_H
-#define LIFECYCLECOMPONENT_H
+﻿#ifndef MATISSE_LIFECYCLE_COMPONENT_H_
+#define MATISSE_LIFECYCLE_COMPONENT_H_
 
 
 
@@ -9,7 +9,8 @@
 #include "Context.h"
 #include "matisse_parameters.h"
 
-namespace MatisseCommon {
+namespace matisse {
+
 class LifecycleComponent
 {
 public:
@@ -144,6 +145,8 @@ private:
     volatile bool _isStarted;
     volatile bool _isCancelled;
 };
-}
-Q_DECLARE_INTERFACE(MatisseCommon::LifecycleComponent, "Ifremer.LifecycleComponent/1.1")
-#endif // LIFECYCLECOMPONENT_H
+
+} // namespace matisse
+
+Q_DECLARE_INTERFACE(matisse::LifecycleComponent, "Ifremer.LifecycleComponent/1.1")
+#endif // MATISSE_LIFECYCLE_COMPONENT_H_

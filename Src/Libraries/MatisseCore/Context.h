@@ -1,12 +1,12 @@
-﻿#ifndef CONTEXT_H
-#define CONTEXT_H
+﻿#ifndef MATISSE_CONTEXT_H_
+#define MATISSE_CONTEXT_H_
 
 
 #include <QVariant>
 #include <QHash>
 #include <QList>
 
-namespace MatisseCommon {
+namespace matisse {
 
 ///
 /// \brief Classe de partage de données entre instances de Processors et d'ImageProvider lors de l'execution d'un assemblage
@@ -39,6 +39,7 @@ private:
     QHash<QString, QVariant*> _variants;
     // TODO Utiliser une map de QVariant
 };
-}
 
-#endif // CONTEXT_H
+} // namespace matisse
+
+#endif // MATISSE_CONTEXT_H_

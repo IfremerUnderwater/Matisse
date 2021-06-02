@@ -1,6 +1,6 @@
 #include "enriched_decimal_value_widget.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 EnrichedDecimalValueWidget::EnrichedDecimalValueWidget(QWidget *parent) :
     EnrichedFormWidget(parent),
@@ -27,3 +27,5 @@ QString EnrichedDecimalValueWidget::withDecimalPrecision(QString matrixCellValue
     QString cellValueWithPrecision = QString::number(cellValueAsDouble, 'f', _precision);
     return cellValueWithPrecision;
 }
+
+} // namespace matisse

@@ -1,6 +1,6 @@
 #include "iconized_widget_wrapper.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 IconizedWidgetWrapper::IconizedWidgetWrapper(QObject *widget, bool hasIcon) :
     _hasIcon(hasIcon),
@@ -28,4 +28,6 @@ bool IconizedWidgetWrapper::isValid() const
 {
     return _isValid;
 }
+
+} // namespace matisse
 

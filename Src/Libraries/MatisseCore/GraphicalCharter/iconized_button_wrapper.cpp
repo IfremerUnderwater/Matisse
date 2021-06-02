@@ -1,6 +1,6 @@
 #include "iconized_button_wrapper.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 IconizedButtonWrapper::IconizedButtonWrapper(QAbstractButton *button) :
     IconizedWidgetWrapper(button, true),
@@ -14,3 +14,4 @@ void IconizedButtonWrapper::setIcon(const QIcon &icon)
     _button->setIcon(icon);
 }
 
+} // namespace matisse

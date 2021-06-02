@@ -1,5 +1,5 @@
-#ifndef GRAPHICALCHARTER_H
-#define GRAPHICALCHARTER_H
+#ifndef MATISSE_GRAPHICAL_CHARTER_H_
+#define MATISSE_GRAPHICAL_CHARTER_H_
 
 
 
@@ -52,7 +52,7 @@
 
 #define ASSEMBLY_PROPS_LABEL_WIDTH      140
 
-namespace MatisseCommon {
+namespace matisse {
 
 class GraphicalCharter
 {
@@ -81,6 +81,6 @@ private:
     double m_dpi;
 };
 
-}
+} // namespace matisse
 
-#endif // GRAPHICALCHARTER_H
+#endif // MATISSE_GRAPHICAL_CHARTER_H_

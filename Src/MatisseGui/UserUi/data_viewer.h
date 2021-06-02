@@ -49,7 +49,7 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 #include "carto_image.h"
 #include <vector>
 
-using namespace MatisseTools;
+using namespace matisse;
 using namespace nav_tools;
 
 class OSGWidget;

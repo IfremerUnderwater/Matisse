@@ -1,10 +1,10 @@
-#ifndef MATISSETREEITEM_H
-#define MATISSETREEITEM_H
+#ifndef MATISSE_MATISSE_TREE_ITEM_H_
+#define MATISSE_MATISSE_TREE_ITEM_H_
 
 #include <QObject>
 #include <QTreeWidgetItem>
 
-namespace MatisseTools {
+namespace matisse {
 
 /* Subclassing QTreeWidgetItem to add QObject inheritance */
 class MatisseTreeItem : public QTreeWidgetItem, public QObject
@@ -14,6 +14,7 @@ public:
 
     MatisseTreeItem(QTreeWidgetItem *parent, const QStringList & strings);
 };
-}
 
-#endif // MATISSETREEITEM_H
+} // namespace matisse
+
+#endif // MATISSE_MATISSE_TREE_ITEM_H_

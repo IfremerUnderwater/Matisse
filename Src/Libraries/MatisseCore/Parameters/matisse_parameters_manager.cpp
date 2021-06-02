@@ -1,8 +1,7 @@
 #include "matisse_parameters_manager.h"
 #include "graphical_charter.h"
 
-using namespace MatisseCommon;
-using namespace MatisseTools;
+namespace matisse {
 
 QMap<QString, ParameterType> MatisseParametersManager::_enumTypes;
 QMap<QString, ParameterLevel> MatisseParametersManager::_enumLevels;
@@ -1381,4 +1380,5 @@ QStringList MatisseParametersManager::getEnums(Parameter param)
     return ret;
 }
 
+} // namespace matisse
 

@@ -1,5 +1,5 @@
-#ifndef ENRICHEDTABLEWIDGET_H
-#define ENRICHEDTABLEWIDGET_H
+#ifndef MATISSE_ENRICHED_TABLE_WIDGET_H_
+#define MATISSE_ENRICHED_TABLE_WIDGET_H_
 
 #include <QString>
 #include <QStringList>
@@ -8,7 +8,7 @@
 
 #include "enriched_decimal_value_widget.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 class EnrichedTableWidget : public EnrichedDecimalValueWidget
 {
@@ -31,6 +31,7 @@ protected slots:
 private:
     QTableWidget * _table;
 };
-}
 
-#endif // ENRICHEDTABLEWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_ENRICHED_TABLE_WIDGET_H_

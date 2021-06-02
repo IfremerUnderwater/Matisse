@@ -8,12 +8,12 @@
 #include "enriched_table_widget.h"
 #include "graphical_charter.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 EnrichedTableWidget::EnrichedTableWidget(QWidget *parent, QString label, quint8 cols, quint8 rows, QStringList defaultValues, QString formatTemplate) :
     EnrichedDecimalValueWidget(parent)
 {
-    MatisseCommon::GraphicalCharter &graph_chart = MatisseCommon::GraphicalCharter::instance();
+    GraphicalCharter &graph_chart = GraphicalCharter::instance();
     quint32 colWidth = graph_chart.dpiScaled(PARAM_TABLE_COL_WIDTH_MAX);
     if (!formatTemplate.isEmpty()) {
         colWidth = getTextFieldWidth(formatTemplate) + graph_chart.dpiScaled(PARAM_TABLE_CELL_PADDING);
@@ -129,4 +129,6 @@ void EnrichedTableWidget::restoreDefaultValue()
 
     connect(_table, SIGNAL(cellChanged(int,int)), this, SLOT(slot_valueChanged()));
 }
+
+} // namespace matisse
 

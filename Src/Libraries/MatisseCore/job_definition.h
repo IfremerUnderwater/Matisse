@@ -1,5 +1,5 @@
-﻿#ifndef JOBDEFINITION_H
-#define JOBDEFINITION_H
+﻿#ifndef MATISSE_JOB_DEFINITION_H_
+#define MATISSE_JOB_DEFINITION_H_
 
 #include "assembly_definition.h"
 
@@ -8,7 +8,7 @@
 ///
 
 
-namespace MatisseTools {
+namespace matisse {
 
 class ExecutionDefinition {
     friend class JobDefinition;
@@ -91,6 +91,7 @@ private:
     ExecutionDefinition *_executionDefinition;
     RemoteJobDefinition* m_remote_job_definition;
 };
-}
 
-#endif // JOBDEFINITION_H
+} // namespace matisse
+
+#endif // MATISSE_JOB_DEFINITION_H_

@@ -1,7 +1,7 @@
 #include "camera_manager.h"
 #include <QStandardPaths>
 
-using namespace MatisseCommon;
+namespace matisse {
 
 //// Constructor & Dectructor
 CameraManager &CameraManager::instance()
@@ -105,4 +105,6 @@ QDir CameraManager::camInfoDir() const
 {
     return m_cam_info_dir;
 }
+
+} // namespace matisse
 

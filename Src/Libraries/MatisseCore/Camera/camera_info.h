@@ -1,10 +1,10 @@
-#ifndef CAMERAINFO_H
-#define CAMERAINFO_H
+#ifndef MATISSE_CAMERA_INFO_H_
+#define MATISSE_CAMERA_INFO_H_
 
 #include <QString>
 #include <opencv2/opencv.hpp>
 
-namespace MatisseCommon {
+namespace matisse {
 
 class CameraInfo
 {
@@ -44,6 +44,6 @@ private:
     int m_full_sensor_height;
 };
 
-}
+} // namespace matisse
 
-#endif // CAMERAINFO_H
+#endif // MATISSE_CAMERA_INFO_H_

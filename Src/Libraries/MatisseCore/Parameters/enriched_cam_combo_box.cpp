@@ -1,8 +1,7 @@
 #include "enriched_cam_combo_box.h"
 #include "camera_manager.h"
 
-using namespace MatisseTools;
-using namespace MatisseCommon;
+namespace matisse {
 
 EnrichedCamComboBox::EnrichedCamComboBox(QWidget *parent, QString label, QString defaultValue):
     EnrichedFormWidget(parent),
@@ -106,3 +105,5 @@ void EnrichedCamComboBox::restoreDefaultValue()
     m_cam_info.fromQString(_defaultValue);
     connect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
 }
+
+} // namespace matisse

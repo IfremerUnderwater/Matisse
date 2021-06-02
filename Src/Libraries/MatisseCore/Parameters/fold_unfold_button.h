@@ -1,9 +1,9 @@
-#ifndef FOLDUNFOLDBUTTON_H
-#define FOLDUNFOLDBUTTON_H
+#ifndef MATISSE_FOLD_UNFOLD_BUTTON_H_
+#define MATISSE_FOLD_UNFOLD_BUTTON_H_
 
 #include <QPushButton>
 
-namespace MatisseTools {
+namespace matisse {
 
 class FoldUnfoldButton : public QPushButton
 {
@@ -27,4 +27,4 @@ private:
 
 }
 
-#endif // FOLDUNFOLDBUTTON_H
+#endif // MATISSE_FOLD_UNFOLD_BUTTON_H_

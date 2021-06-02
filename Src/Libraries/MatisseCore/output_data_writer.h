@@ -1,5 +1,5 @@
-﻿#ifndef RASTERPROVIDER_H
-#define RASTERPROVIDER_H
+﻿#ifndef MATISSE_OUTPUT_DATA_WRITER_H_
+#define MATISSE_OUTPUT_DATA_WRITER_H_
 
 #include "lifecycle_component.h"
 #include "image_listener.h"
@@ -10,12 +10,12 @@
 
 using namespace matisse_image;
 
-namespace MatisseCommon {
+namespace matisse {
 
 class OutputDataWriter : public QObject, public ImageListener, public LifecycleComponent  {
     Q_OBJECT
     Q_INTERFACES(matisse_image::ImageListener)
-    Q_INTERFACES(MatisseCommon::LifecycleComponent)
+    Q_INTERFACES(matisse::LifecycleComponent)
 public:
 
     // Accesseurs
@@ -49,8 +49,8 @@ private:
 
 };
 
+} // namespace matisse
 
-}
-Q_DECLARE_INTERFACE(MatisseCommon::OutputDataWriter, "Ifremer.OutputDataWriter/1.1")
+Q_DECLARE_INTERFACE(matisse::OutputDataWriter, "Ifremer.OutputDataWriter/1.1")
 
-#endif // RASTERPROVIDER_H
+#endif // MATISSE_OUTPUT_DATA_WRITER_H_

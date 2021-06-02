@@ -1,6 +1,6 @@
 #include "matisse_engine.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 MatisseEngine::MatisseEngine(QObject *_parent, bool _is_server_mode) :
     QObject(_parent),
@@ -900,3 +900,5 @@ void MatisseEngine::setJobLauncher(QObject *jobLauncher)
 {
     _jobLauncher = jobLauncher;
 }
+
+} // namespace matisse

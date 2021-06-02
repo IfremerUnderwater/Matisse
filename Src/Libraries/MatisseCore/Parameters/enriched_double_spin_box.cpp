@@ -1,12 +1,12 @@
 #include "enriched_double_spin_box.h"
 #include "graphical_charter.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue):
     EnrichedDecimalValueWidget(parent)
 {
-    MatisseCommon::GraphicalCharter &graph_chart = MatisseCommon::GraphicalCharter::instance();
+    GraphicalCharter &graph_chart = GraphicalCharter::instance();
     _spin = new QDoubleSpinBox(this);
     _spin->setFixedWidth(graph_chart.dpiScaled(PARAM_SPINBOX_WIDTH));
     minValue = minValue.trimmed().toLower();
@@ -119,3 +119,5 @@ void EnrichedDoubleSpinBox::restoreDefaultValue()
     _spin->setValue(defaultValueReal);
     connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
 }
+
+} // namespace matisse

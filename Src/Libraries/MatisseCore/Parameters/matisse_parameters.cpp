@@ -1,6 +1,6 @@
 ﻿#include "matisse_parameters.h"
 
-using namespace MatisseCommon;
+namespace matisse {
 
 QRegExp MatisseParameters::_boolRegExpTrue("^(true|1)$");
 QRegExp MatisseParameters::_boolRegExpFalse("^(false|0)$");
@@ -325,3 +325,5 @@ Matrix6x1 MatisseParameters::getMatrix6x1ParamValue(QString paramStructName, QSt
 
     return values;
 }
+
+} // namespace matisse

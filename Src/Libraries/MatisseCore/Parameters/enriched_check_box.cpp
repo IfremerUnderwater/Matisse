@@ -1,6 +1,6 @@
 #include "enriched_check_box.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 EnrichedCheckBox::EnrichedCheckBox(QWidget *parent, QString label, bool checked) :
     EnrichedFormWidget(parent)
@@ -49,3 +49,5 @@ void EnrichedCheckBox::applyValue(QString newValue)
     _check->setChecked(checked);
     connect(_check, SIGNAL(stateChanged(int)), this, SLOT(slot_valueChanged()));
 }
+
+} // namespace matisse

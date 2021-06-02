@@ -1,9 +1,9 @@
-#ifndef ENRICHEDDECIMALVALUEWIDGET_H
-#define ENRICHEDDECIMALVALUEWIDGET_H
+#ifndef MATISSE_ENRICHED_DECIMAL_VALUE_WIDGET_H_
+#define MATISSE_ENRICHED_DECIMAL_VALUE_WIDGET_H_
 
 #include "enriched_form_widget.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 /* Base class for enriched form classes displaying decimal values */
 class EnrichedDecimalValueWidget : public EnrichedFormWidget
@@ -20,6 +20,6 @@ private:
     quint8 _precision;
 };
 
-}
+} // namespace matisse
 
-#endif // ENRICHEDDECIMALVALUEWIDGET_H
+#endif // MATISSE_ENRICHED_DECIMAL_VALUE_WIDGET_H_

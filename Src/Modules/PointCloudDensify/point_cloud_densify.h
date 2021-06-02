@@ -9,10 +9,10 @@
  * PointCloudDensify
  * @brief  This module get sparse point cloud and densify it using openMVS librarie
  */
-class PointCloudDensify : public MatisseCommon::Processor, public C_Progress
+class PointCloudDensify : public matisse::Processor, public C_Progress
 {
     Q_OBJECT
-    Q_INTERFACES(MatisseCommon::Processor)
+    Q_INTERFACES(matisse::Processor)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     Q_PLUGIN_METADATA(IID "PointCloudDensify")

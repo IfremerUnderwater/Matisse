@@ -1,7 +1,7 @@
 ﻿#include "assembly_definition.h"
 #include "job_definition.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 JobDefinition::JobDefinition(QString name, QString assemblyName, QString assemblyVersion)
     : _name(name),
@@ -156,3 +156,4 @@ void RemoteJobDefinition::setTimestamp(QDateTime _timestamp) {
   m_timestamp = _timestamp;
 }
 
+} // namespace matisse

@@ -2,7 +2,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 
-using namespace MatisseCommon;
+namespace matisse {
 
 //// Constructor & Dectructor
 GraphicalCharter &GraphicalCharter::instance()
@@ -30,4 +30,6 @@ int GraphicalCharter::dpiScaled(int _ref_pixel_size)
 {
     return (int)((double)_ref_pixel_size*(m_dpi)/((double)REF_DPI));
 }
+
+} // namespace matisse
 

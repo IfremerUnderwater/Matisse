@@ -1,5 +1,5 @@
-#ifndef ENRICHEDDOUBLESPINBOX_H
-#define ENRICHEDDOUBLESPINBOX_H
+#ifndef MATISSE_ENRICHED_DOUBLE_SPIN_BOX_H_
+#define MATISSE_ENRICHED_DOUBLE_SPIN_BOX_H_
 
 #include <QDoubleSpinBox>
 #include <QString>
@@ -12,7 +12,7 @@
 #define MIN_REAL std::numeric_limits<float>::min()
 #define MAX_REAL std::numeric_limits<float>::max()
 
-namespace MatisseTools {
+namespace matisse {
 
 class EnrichedDoubleSpinBox : public EnrichedDecimalValueWidget
 {
@@ -37,6 +37,7 @@ private:
     double _minValueReal;
     double _maxValueReal;
 };
-}
 
-#endif // ENRICHEDDOUBLESPINBOX_H
+} // namespace matisse
+
+#endif // MATISSE_ENRICHED_DOUBLE_SPIN_BOX_H_

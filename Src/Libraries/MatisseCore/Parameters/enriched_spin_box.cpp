@@ -2,12 +2,12 @@
 #include "graphical_charter.h"
 #include "enriched_spin_box.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 EnrichedSpinBox::EnrichedSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue):
     EnrichedFormWidget(parent)
 {
-    MatisseCommon::GraphicalCharter &graph_chart = MatisseCommon::GraphicalCharter::instance();
+    GraphicalCharter &graph_chart = GraphicalCharter::instance();
 
     _spin = new QSpinBox(this);
     _spin->setFixedWidth(graph_chart.dpiScaled(PARAM_SPINBOX_WIDTH));
@@ -158,3 +158,5 @@ void EnrichedSpinBox::restoreDefaultValue()
     _spin->setValue(defaultValueInt);
     connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
 }
+
+} // namespace matisse

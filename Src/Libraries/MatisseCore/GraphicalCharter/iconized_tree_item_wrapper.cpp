@@ -1,6 +1,6 @@
 #include "iconized_tree_item_wrapper.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 IconizedTreeItemWrapper::IconizedTreeItemWrapper(MatisseTreeItem *item, int iconColumn) :
     IconizedWidgetWrapper(item, true)
@@ -13,5 +13,7 @@ void IconizedTreeItemWrapper::setIcon(const QIcon &icon)
 {
     _item->setIcon(_iconColumn, icon);
 }
+
+} // namespace matisse
 
 

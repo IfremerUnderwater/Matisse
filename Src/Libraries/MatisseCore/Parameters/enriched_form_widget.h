@@ -1,5 +1,5 @@
-#ifndef ENRICHEDFORMWIDGET_H
-#define ENRICHEDFORMWIDGET_H
+#ifndef MATISSE_ENRICHED_FORM_WIDGET_H_
+#define MATISSE_ENRICHED_FORM_WIDGET_H_
 
 #include <QWidget>
 #include <QFontMetrics>
@@ -12,7 +12,8 @@
 
 #include <limits>
 
-namespace MatisseTools {
+namespace matisse {
+
 class EnrichedFormWidget : public QWidget
 {
     Q_OBJECT
@@ -58,5 +59,7 @@ public slots:
     void slot_valueChanged();
 
 };
-}
-#endif // ENRICHEDFORMWIDGET_H
+
+} // namespace matisse
+
+#endif // MATISSE_ENRICHED_FORM_WIDGET_H_

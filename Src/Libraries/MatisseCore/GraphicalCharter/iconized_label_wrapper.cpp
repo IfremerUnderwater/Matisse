@@ -1,6 +1,6 @@
 #include "iconized_label_wrapper.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 IconizedLabelWrapper::IconizedLabelWrapper(QLabel *label) :
     IconizedWidgetWrapper(label, false),
@@ -13,5 +13,5 @@ void IconizedLabelWrapper::setPixmap(const QPixmap &pixmap)
     _label->setPixmap(pixmap);
 }
 
-
+} // namespace matisse
 

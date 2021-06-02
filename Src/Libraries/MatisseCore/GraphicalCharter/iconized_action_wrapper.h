@@ -1,11 +1,12 @@
-#ifndef ICONIZEDACTIONWRAPPER_H
-#define ICONIZEDACTIONWRAPPER_H
+#ifndef MATISSE_ICONIZED_ACTION_WRAPPER_H_
+#define MATISSE_ICONIZED_ACTION_WRAPPER_H_
 
 #include <QAction>
 
 #include "iconized_widget_wrapper.h"
 
-namespace MatisseTools {
+namespace matisse {
+
 class IconizedActionWrapper : public IconizedWidgetWrapper
 {
 public:
@@ -15,6 +16,7 @@ public:
 private:
     QAction *_action;
 };
-}
 
-#endif // ICONIZEDACTIONWRAPPER_H
+} // namespace matisse
+
+#endif // MATISSE_ICONIZED_ACTION_WRAPPER_H_

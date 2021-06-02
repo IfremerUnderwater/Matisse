@@ -1,5 +1,5 @@
-#ifndef SYSTEMDATAMANAGER_H
-#define SYSTEMDATAMANAGER_H
+#ifndef MATISSE_SYSTEM_DATA_MANAGER_H_
+#define MATISSE_SYSTEM_DATA_MANAGER_H_
 
 #include <QString>
 #include <QDate>
@@ -18,7 +18,7 @@
 
 using namespace system_tools;
 
-namespace MatisseTools {
+namespace matisse {
 
 ///
 /// \brief The SystemDataManager class class is used for reading writing system data
@@ -80,6 +80,6 @@ private:
     PlatformComparator _platformComparator;
 };
 
-}
+} // namespace matisse
 
-#endif // SYSTEMDATAMANAGER_H
+#endif // MATISSE_SYSTEM_DATA_MANAGER_H_

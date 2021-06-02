@@ -1,6 +1,6 @@
 #include "enriched_combo_box.h"
 
-using namespace MatisseTools;
+namespace matisse {
 
 EnrichedComboBox::EnrichedComboBox(QWidget *parent, QString label, QStringList values, QString defaultValue):
     EnrichedFormWidget(parent)
@@ -53,3 +53,5 @@ void EnrichedComboBox::restoreDefaultValue()
     _combo->setCurrentIndex(_defaultIndex);
     connect(_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
 }
+
+} // namespace matisse

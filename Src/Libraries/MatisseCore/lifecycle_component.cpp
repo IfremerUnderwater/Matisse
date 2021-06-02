@@ -1,7 +1,7 @@
 ﻿#include "lifecycle_component.h"
 #include <QDir>
 
-using namespace MatisseCommon;
+namespace matisse {
 
 LifecycleComponent::LifecycleComponent(QString name, QString logPrefix)
 : _name(name),
@@ -104,4 +104,6 @@ QString LifecycleComponent::absoluteOutputTempDir()
 
     return temp_path.path();
 }
+
+} // namespace matisse
 

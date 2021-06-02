@@ -3,7 +3,8 @@
 
 
 using namespace cv;
-using namespace MatisseCommon;
+
+namespace matisse {
 
 CameraCalib::CameraCalib(vector<string>& imagelist, Size board_size, float square_size, QTextEdit* _text_logger = nullptr) :m_imagelist(imagelist),
 m_board_size(board_size),
@@ -197,3 +198,5 @@ void CameraCalib::sig_logCalib(QString _message)
 	if (m_text_logger)
 		m_text_logger->append(_message);
 }
+
+} // namespace matisse
