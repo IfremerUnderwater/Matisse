@@ -1,11 +1,11 @@
-﻿#ifndef DrawBlend2DMosaic_H
-#define DrawBlend2DMosaic_H
+﻿#ifndef MATISSE_DRAW_BLEND_2D_MOSAIC_H_
+#define MATISSE_DRAW_BLEND_2D_MOSAIC_H_
 
 
 #include "processor.h"
 #include "output_data_writer.h"
 
-using namespace matisse;
+namespace matisse {
 
 /**
  * DrawBlend2DMosaic
@@ -36,4 +36,6 @@ private:
     QString _outputDirnameStr;
 };
 
-#endif // DrawBlend2DMosaic_H
+} // namespace matisse
+
+#endif // MATISSE_DRAW_BLEND_2D_MOSAIC_H_

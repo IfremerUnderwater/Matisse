@@ -1,10 +1,10 @@
-﻿#ifndef InitMatchModule_H
-#define InitMatchModule_H
+﻿#ifndef MATISSE_TEXTURING_3D_H_
+#define MATISSE_TEXTURING_3D_H_
 
 
 #include "processor.h"
 
-using namespace matisse;
+namespace matisse {
 
 /**
  * Module1
@@ -36,4 +36,6 @@ private:
     void writeKml(QString model_path, QString model_prefix);
 };
 
-#endif // InitMatchModule_H
+} // namespace matisse
+
+#endif // MATISSE_TEXTURING_3D_H_

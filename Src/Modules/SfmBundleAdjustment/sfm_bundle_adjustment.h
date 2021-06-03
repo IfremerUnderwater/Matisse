@@ -1,11 +1,11 @@
-﻿#ifndef InitMatchModule_H
-#define InitMatchModule_H
+﻿#ifndef MATISSE_SFM_BUNDLE_ADJUSTMENT_H_
+#define MATISSE_SFM_BUNDLE_ADJUSTMENT_H_
 
 #include <QFileSystemWatcher>
 #include <QDateTime>
 #include "processor.h"
 
-using namespace matisse;
+namespace matisse {
 
 /**
  * Module1
@@ -46,4 +46,6 @@ private:
 
 };
 
-#endif // InitMatchModule_H
+} // namespace matisse
+
+#endif // MATISSE_SFM_BUNDLE_ADJUSTMENT_H_

@@ -28,6 +28,16 @@
 #include <string>
 #include <vector>
 
+using namespace openMVG;
+using namespace openMVG::cameras;
+using namespace openMVG::sfm;
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+Q_EXPORT_PLUGIN2(SfmBundleAdjustment, SfmBundleAdjustment)
+#endif
+
+namespace matisse {
+
 enum class ESfMSceneInitializer
 {
     INITIALIZE_EXISTING_POSES,
@@ -55,14 +65,6 @@ bool StringToEnum_ESfMSceneInitializer
     scene_initializer = it->second;
     return true;
 }
-
-using namespace openMVG;
-using namespace openMVG::cameras;
-using namespace openMVG::sfm;
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-Q_EXPORT_PLUGIN2(SfmBundleAdjustment, SfmBundleAdjustment)
-#endif
 
 SfmBundleAdjustment::SfmBundleAdjustment() :
     Processor(NULL, "SfmBundleAdjustment", "Estimate camera positions and 3D sparse points", 1, 1),
@@ -467,4 +469,6 @@ void SfmBundleAdjustment::onFlush(quint32 port)
     flush(0);
 
 }
+
+} // namespace matisse
 

@@ -39,6 +39,8 @@ using namespace openMVG::sfm;
 Q_EXPORT_PLUGIN2(Texturing3D, Texturing3D)
 #endif
 
+namespace matisse {
+
 // proccess stars (total 51 stars for 100 %)
 // 0%   10   20   30   40   50   60   70   80   90   100%
 // |----|----|----|----|----|----|----|----|----|----|
@@ -381,4 +383,6 @@ void Texturing3D::onFlush(quint32 port)
     flush(0);
 
 }
+
+} // namespace matisse
 

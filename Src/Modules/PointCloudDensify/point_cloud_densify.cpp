@@ -43,6 +43,8 @@ using namespace openMVG::sfm;
 Q_EXPORT_PLUGIN2(PointCloudDensify, PointCloudDensify)
 #endif
 
+namespace matisse {
+
 PointCloudDensify::PointCloudDensify() :
     Processor(NULL, "PointCloudDensify", "Densify a 3D sparse point cloud", 1, 1)
 {
@@ -282,4 +284,6 @@ void PointCloudDensify::onFlush(quint32 port)
     flush(0);
 
 }
+
+} // namespace matisse
 

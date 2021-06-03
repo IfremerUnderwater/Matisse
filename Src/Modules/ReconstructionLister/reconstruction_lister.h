@@ -1,5 +1,5 @@
-﻿#ifndef ReconstructionLister_H
-#define ReconstructionLister_H
+﻿#ifndef MATISSE_RECONSTRUCTION_LISTER_H_
+#define MATISSE_RECONSTRUCTION_LISTER_H_
 
 
 #include "output_data_writer.h"
@@ -7,7 +7,7 @@
 #include "image_set.h"
 #include "file_image.h"
 
-using namespace matisse;
+namespace matisse {
 
 class ReconstructionLister : public OutputDataWriter
 {
@@ -38,4 +38,6 @@ public slots:
     
 };
 
-#endif // ReconstructionLister_H
+} // namespace matisse
+
+#endif // MATISSE_RECONSTRUCTION_LISTER_H_

@@ -1,5 +1,4 @@
 ﻿#include "init_2d_mosaic.h"
-//#include "MosaicContext.h"
 #include "nav_image.h"
 
 #include "mosaic_descriptor.h"
@@ -12,6 +11,8 @@ Q_EXPORT_PLUGIN2(Init2DMosaic, Init2DMosaic)
 
 using namespace nav_tools;
 using namespace optical_mapping;
+
+namespace matisse {
 
 Init2DMosaic::Init2DMosaic() :
     Processor(NULL, "Init2DMosaic", "Init 2D mosaic Descriptor with navigation", 1, 1)
@@ -187,4 +188,6 @@ void Init2DMosaic::onFlush(quint32 port)
     flush(0);
 
 }
+
+} // namespace matisse
 

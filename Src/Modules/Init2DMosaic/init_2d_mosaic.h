@@ -1,10 +1,10 @@
-﻿#ifndef Init2DMosaicModule_H
-#define Init2DMosaicModule_H
+﻿#ifndef MATISSE_INIT_2D_MOSAIC_H_
+#define MATISSE_INIT_2D_MOSAIC_H_
 
 
 #include "processor.h"
 
-using namespace matisse;
+namespace matisse {
 
 /**
  * Init2DMosaic
@@ -29,5 +29,7 @@ public:
     virtual void onNewImage(quint32 port, Image &image);
 };
 
-#endif // Init2DMosaicModule_H
+} // namespace matisse
+
+#endif // MATISSE_INIT_2D_MOSAIC_H_
 

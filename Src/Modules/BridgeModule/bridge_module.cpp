@@ -7,6 +7,8 @@
 Q_EXPORT_PLUGIN2(BridgeModule, BridgeModule)
 #endif
 
+namespace matisse {
+
 BridgeModule::BridgeModule() :
     Processor(NULL, "BridgeModule", "This bridge does nothing for the moment", 1, 1)
 {
@@ -47,6 +49,7 @@ void BridgeModule::onFlush(quint32 port)
     Q_UNUSED(port)
     // Flush next module port
     flush(0);
-
 }
+
+} // namespace matisse
 

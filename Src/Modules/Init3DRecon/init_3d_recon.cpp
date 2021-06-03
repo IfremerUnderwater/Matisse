@@ -33,7 +33,6 @@
 #include <vector>
 
 
-
 using namespace openMVG;
 using namespace openMVG::cameras;
 using namespace openMVG::exif;
@@ -42,17 +41,20 @@ using namespace openMVG::geodesy;
 using namespace openMVG::sfm;
 using namespace nav_tools;
 
+
+// Export de la classe InitMatchModule dans la bibliotheque de plugin InitMatchModule
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+Q_EXPORT_PLUGIN2(Init3DRecon, Init3DRecon)
+#endif
+
+namespace matisse {
+
 typedef enum
 {
     DIM2,
     EXIF,
     NONE
 }NavMode;
-
-// Export de la classe InitMatchModule dans la bibliotheque de plugin InitMatchModule
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-Q_EXPORT_PLUGIN2(Init3DRecon, Init3DRecon)
-#endif
 
 /// Get camera matrix "f;0;ppx;0;f;ppy;0;0;1"
 /// With f,ppx,ppy as valid numerical value
@@ -633,4 +635,6 @@ void Init3DRecon::onFlush(quint32 port)
 
     flush(0);
 }
+
+} // namespace matisse
 

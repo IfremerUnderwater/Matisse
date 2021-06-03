@@ -10,6 +10,8 @@ Q_EXPORT_PLUGIN2(DTPictureFileSetImageProvider, DTPictureFileSetImageProvider)
 using namespace nav_tools;
 using namespace system_tools;
 
+namespace matisse {
+
 DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *parent):
     InputDataProvider(NULL, "DTPictureFileSetImageProvider", "", 1),
     _pictureFileSet(NULL),
@@ -145,4 +147,6 @@ bool DTPictureFileSetImageProvider::stop()
     _imageSet->clear();
     return true;
 }
+
+} // namespace matisse
 

@@ -1,9 +1,11 @@
-﻿#ifndef InitMatchModule_H
-#define InitMatchModule_H
+﻿#ifndef MATISSE_MESHING_3D_H_
+#define MATISSE_MESHING_3D_H_
 
 
 #include "processor.h"
 #include "third_party/progress/progress.hpp"
+
+namespace matisse {
 
 /**
  * Meshing3D
@@ -59,4 +61,6 @@ private:
     bool meshing(QString _mvs_data_file);
 };
 
-#endif // InitMatchModule_H
+} // namespace matisse
+
+#endif // MATISSE_MESHING_3D_H_

@@ -7,6 +7,8 @@
 Q_EXPORT_PLUGIN2(ReconstructionLister, ReconstructionLister)
 #endif
 
+namespace matisse {
+
 ReconstructionLister::ReconstructionLister(QObject *parent):
     OutputDataWriter(NULL, "ReconstructionLister", "", 1)
 {
@@ -93,4 +95,6 @@ QList<QFileInfo> ReconstructionLister::rastersInfo()
 {
     return _rastersInfo;
 }
+
+} // namespace matisse
 

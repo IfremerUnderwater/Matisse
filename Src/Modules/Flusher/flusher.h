@@ -1,5 +1,5 @@
-﻿#ifndef FLUSHER_H
-#define FLUSHER_H
+﻿#ifndef MATISSE_FLUSHER_H_
+#define MATISSE_FLUSHER_H_
 
 
 #include "input_data_provider.h"
@@ -8,7 +8,7 @@
 #include "image_set.h"
 #include "file_image.h"
 
-using namespace matisse;
+namespace matisse {
 
 class Flusher : public InputDataProvider
 {
@@ -39,4 +39,6 @@ public slots:
     
 };
 
-#endif // FLUSHER_H
+} // namespace matisse
+
+#endif // MATISSE_FLUSHER_H_

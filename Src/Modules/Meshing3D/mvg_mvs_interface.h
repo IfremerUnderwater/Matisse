@@ -1,5 +1,5 @@
-#ifndef _INTERFACE_MVS_H_
-#define _INTERFACE_MVS_H_
+#ifndef MATISSE_MESHING_3D_MVG_MVS_INTERFACE_H_
+#define MATISSE_MESHING_3D_MVG_MVS_INTERFACE_H_
 
 
 // I N C L U D E S /////////////////////////////////////////////////
@@ -758,4 +758,4 @@ bool exportToOpenMVS(
   return true;
 }
 
-#endif // _INTERFACE_MVS_H_
+#endif // MATISSE_MESHING_3D_MVG_MVS_INTERFACE_H_

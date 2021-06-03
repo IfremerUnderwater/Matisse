@@ -1,12 +1,12 @@
-﻿#ifndef InitMatchModule_H
-#define InitMatchModule_H
+﻿#ifndef MATISSE_INIT_3D_RECON_H_
+#define MATISSE_INIT_3D_RECON_H_
 
 
 #include "processor.h"
 #include "openMVG/numeric/eigen_alias_definition.hpp"
 #include <GeographicLib/LocalCartesian.hpp>
 
-using namespace matisse;
+namespace matisse {
 
 /**
  * Init3DRecon
@@ -37,4 +37,6 @@ public:
     virtual void onNewImage(quint32 port, Image &image);
 };
 
-#endif // InitMatchModule_H
+} // namespace matisse
+
+#endif // MATISSE_INIT_3D_RECON_H_

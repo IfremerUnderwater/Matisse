@@ -5,6 +5,8 @@
 Q_EXPORT_PLUGIN2(Flusher, Flusher)
 #endif
 
+namespace matisse {
+
 Flusher::Flusher(QObject *parent):
     InputDataProvider(NULL, "Flusher", "Flusher", 1),
     _pictureFileSet(NULL),
@@ -19,7 +21,6 @@ Flusher::~Flusher()
 {
 
 }
-
 
 
 ImageSet * Flusher::imageSet(quint16 port)
@@ -48,4 +49,7 @@ bool Flusher::stop()
     _imageSet->clear();
     return true;
 }
+
+} // namespace matisse
+
 

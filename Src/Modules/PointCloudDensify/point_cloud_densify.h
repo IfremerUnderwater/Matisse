@@ -1,9 +1,11 @@
-﻿#ifndef InitDensifyModule_H
-#define InitDensifyModule_H
+﻿#ifndef MATISSE_POINT_CLOUD_DENSIFY_H_
+#define MATISSE_POINT_CLOUD_DENSIFY_H_
 
 
 #include "processor.h"
 #include "third_party/progress/progress.hpp"
+
+namespace matisse {
 
 /**
  * PointCloudDensify
@@ -59,4 +61,6 @@ private:
     bool DensifyPointCloud(QString _scene_dir, QString _scene_file);
 };
 
-#endif // InitDensifyModule_H
+} // namespace matisse
+
+#endif // MATISSE_POINT_CLOUD_DENSIFY_H_

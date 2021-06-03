@@ -20,6 +20,7 @@ using namespace optical_mapping;
 Q_EXPORT_PLUGIN2(DrawBlend2DMosaic, DrawBlend2DMosaic)
 #endif
 
+namespace matisse {
 
 DrawBlend2DMosaic::DrawBlend2DMosaic() :
     OutputDataWriter(NULL, "DrawBlend2DMosaic", "DrawBlend2DMosaic", 1)
@@ -218,5 +219,6 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     emit signal_processCompletion(100);
 }
 
+} // namespace matisse
 
 

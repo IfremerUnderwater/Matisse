@@ -1,10 +1,10 @@
-﻿#ifndef BridgeModule_H
-#define BridgeModule_H
+﻿#ifndef MATISSE_BRIDGE_MODULE_H_
+#define MATISSE_BRIDGE_MODULE_H_
 
 
 #include "processor.h"
 
-using namespace matisse;
+namespace matisse {
 
 /**
  * BridgeModule
@@ -29,4 +29,6 @@ public:
     virtual void onNewImage(quint32 port, Image &image);
 };
 
-#endif // BridgeModule_H
+} // namespace matisse
+
+#endif // MATISSE_BRIDGE_MODULE_H_

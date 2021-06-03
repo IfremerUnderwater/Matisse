@@ -1,5 +1,5 @@
-﻿#ifndef DTPICTUREFILESETIMAGEPROVIDER_H
-#define DTPICTUREFILESETIMAGEPROVIDER_H
+﻿#ifndef MATISSE_DT_PICTURE_FILE_SET_IMAGE_PROVIDER_H_
+#define MATISSE_DT_PICTURE_FILE_SET_IMAGE_PROVIDER_H_
 
 
 #include "input_data_provider.h"
@@ -8,7 +8,7 @@
 #include "image_set.h"
 #include "file_image.h"
 
-using namespace matisse;
+namespace matisse {
 
 class DTPictureFileSetImageProvider : public InputDataProvider
 {
@@ -40,4 +40,6 @@ public slots:
     
 };
 
-#endif // DTPICTUREFILESETIMAGEPROVIDER_H
+} // namespace matisse
+
+#endif // MATISSE_DT_PICTURE_FILE_SET_IMAGE_PROVIDER_H_

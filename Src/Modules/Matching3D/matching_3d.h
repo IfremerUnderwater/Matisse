@@ -1,9 +1,11 @@
-﻿#ifndef InitMatchModule_H
-#define InitMatchModule_H
+﻿#ifndef MATISSE_MATCHING_3D_H_
+#define MATISSE_MATCHING_3D_H_
 
 
 #include "processor.h"
 #include "third_party/progress/progress.hpp"
+
+namespace matisse {
 
 enum EGeometricModel
 {
@@ -74,4 +76,6 @@ private:
     } // display_tic
 };
 
-#endif // InitMatchModule_H
+} // namespace matisse
+
+#endif // MATISSE_MATCHING_3D_H_

@@ -38,6 +38,7 @@ using namespace openMVG::sfm;
 Q_EXPORT_PLUGIN2(Meshing3D, Meshing3D)
 #endif
 
+namespace matisse {
 
 namespace OPT {
     float fDistInsert;
@@ -281,4 +282,6 @@ void Meshing3D::onFlush(quint32 port)
     flush(0);
 
 }
+
+} // namespace matisse
 

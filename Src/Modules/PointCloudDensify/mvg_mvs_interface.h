@@ -1,5 +1,5 @@
-#ifndef _INTERFACE_MVS_H_
-#define _INTERFACE_MVS_H_
+#ifndef MATISSE_POINT_CLOUD_DENSIFY_INTERFACE_MVG_MVS_H_
+#define MATISSE_POINT_CLOUD_DENSIFY_INTERFACE_MVG_MVS_H_
 
 
 // I N C L U D E S /////////////////////////////////////////////////
@@ -758,4 +758,4 @@ bool exportToOpenMVS(
   return true;
 }
 
-#endif // _INTERFACE_MVS_H_
+#endif // MATISSE_POINT_CLOUD_DENSIFY_INTERFACE_MVG_MVS_H_

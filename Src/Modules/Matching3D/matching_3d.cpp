@@ -71,6 +71,7 @@ using namespace std;
 Q_EXPORT_PLUGIN2(Matching3D, Matching3D)
 #endif
 
+namespace matisse {
 
 features::EDESCRIBER_PRESET stringToEnum(const QString& sPreset)
 {
@@ -810,3 +811,5 @@ void Matching3D::onFlush(quint32 port)
     flush(0);
 
 }
+
+} // namespace matisse
