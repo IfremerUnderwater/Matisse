@@ -5,11 +5,9 @@
 #include <QPushButton>
 #include <QtDebug>
 
-using namespace MatisseTools;
 using namespace network_tools;
 
-namespace MatisseServer
-{
+namespace matisse {
 
 RemoteFileDialog::RemoteFileDialog(TreeModel *_model, QWidget *_parent)
     : QDialog(_parent), _ui(new Ui::RemoteFileDialog), m_selected_file() {
@@ -108,4 +106,4 @@ TreeModel *RemoteFileTreeModelFactory::createModel(QString _root_folder_name, QL
   return new TreeModel(data_as_string, headers);
 }
 
-}  // namespace MatisseServer
+}  // namespace matisse

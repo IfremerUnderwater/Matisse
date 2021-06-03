@@ -2,7 +2,7 @@
 #include "ui_duplicate_dialog.h"
 #include <QRegExpValidator>
 
-using namespace MatisseServer;
+namespace matisse {
 
 DuplicateDialog::DuplicateDialog(QWidget *parent, QString originalName, QString &newName, bool isAssembly, QStringList existingElements, QStringList archivedJobs) :
     QDialog(parent),
@@ -68,4 +68,6 @@ void DuplicateDialog::slot_close()
         accept();
     }
 }
+
+} // namespace matisse
 

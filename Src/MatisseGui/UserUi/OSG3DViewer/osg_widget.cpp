@@ -57,6 +57,8 @@
 #include "geometry_type_count_visitor.h"
 #include "shader_color.h"
 
+namespace matisse {
+
 struct SnapImage : public osg::Camera::DrawCallback {
     SnapImage(osg::GraphicsContext* _gc,const std::string& _filename, QPointF &_ref_lat_lon,osg::BoundingBox _box, double _pixel_size) :
         m_filename( _filename ),
@@ -2303,3 +2305,5 @@ void OSGWidget::setColorPalette(ShaderColor::Palette _palette)
         }
     }
 }
+
+} // namespace matisse

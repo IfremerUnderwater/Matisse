@@ -1,6 +1,6 @@
 ﻿#include "processor_widget.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 void ProcessorWidget::drawSymbol(QPainter * painter, bool forIcon) {
 
@@ -41,3 +41,5 @@ void ProcessorWidget::drawSymbol(QPainter * painter, bool forIcon) {
 
     _bodyRect = tempRect;
 }
+
+} // namespace matisse

@@ -1,5 +1,5 @@
-#ifndef DUPLICATEDIALOG_H
-#define DUPLICATEDIALOG_H
+#ifndef MATISSE_DUPLICATE_DIALOG_H_
+#define MATISSE_DUPLICATE_DIALOG_H_
 
 #include <QDialog>
 #include <QMessageBox>
@@ -10,7 +10,7 @@ namespace Ui {
     class DuplicateDialog;
 }
 
-namespace MatisseServer {
+namespace matisse {
 
 
 class DuplicateDialog : public QDialog
@@ -35,7 +35,7 @@ private:
     QStringList _archivedJobs;
 };
 
-}
+} // namespace matisse
 
 
-#endif // DUPLICATEDIALOG_H
+#endif // MATISSE_DUPLICATE_DIALOG_H_

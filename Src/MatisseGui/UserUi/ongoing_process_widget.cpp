@@ -2,7 +2,7 @@
 #include "ui_ongoing_process_widget.h"
 #include "graphical_charter.h"
 
-using namespace matisse;
+namespace matisse {
 
 OngoingProcessWidget::OngoingProcessWidget(QWidget *parent) :
     QFrame(parent),
@@ -46,3 +46,5 @@ void OngoingProcessWidget::changeEvent(QEvent *event)
         ui->retranslateUi(this);
     }
 }
+
+} // namespace matisse

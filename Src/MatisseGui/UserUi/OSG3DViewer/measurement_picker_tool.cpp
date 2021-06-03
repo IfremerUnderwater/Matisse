@@ -2,6 +2,8 @@
 #include "osg_widget.h"
 #include "osg_widget_tool.h"
 
+namespace matisse {
+
 MeasurementPickerTool::MeasurementPickerTool(QObject *parent) : QObject(parent)
 {
     start();
@@ -45,3 +47,5 @@ void MeasurementPickerTool::slot_toolClicked(int _x, int _y)
         emit signal_noNodeClicked();
     }
 }
+
+} // namespace matisse

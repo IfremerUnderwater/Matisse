@@ -1,10 +1,12 @@
-#ifndef MATISSEMENU_H
-#define MATISSEMENU_H
+#ifndef MATISSE_MATISSE_MENU_H_
+#define MATISSE_MATISSE_MENU_H_
 
 #include <QWidget>
 #include <QMenu>
 #include <QShowEvent>
 #include <QString>
+
+namespace matisse {
 
 class MatisseMenu : public QMenu
 {
@@ -14,5 +16,6 @@ public:
     void showEvent(QShowEvent * event);
 };
 
+} // namespace matisse
 
-#endif // MATISSEMENU_H
+#endif // MATISSE_MATISSE_MENU_H_

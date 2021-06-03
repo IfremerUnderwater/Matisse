@@ -1,9 +1,10 @@
-﻿#ifndef PROCESSORWIDGET_H
-#define PROCESSORWIDGET_H
+﻿#ifndef MATISSE_PROCESSOR_WIDGET_H_
+#define MATISSE_PROCESSOR_WIDGET_H_
 
 #include "element_widget.h"
 
-namespace MatisseServer {
+namespace matisse {
+
 class ProcessorWidget : public ElementWidget
 {
 //    Q_OBJECT
@@ -18,6 +19,7 @@ signals:
 public slots:
     
 };
-}
 
-#endif // PROCESSORWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_PROCESSOR_WIDGET_H_

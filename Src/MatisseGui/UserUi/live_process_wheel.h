@@ -1,5 +1,5 @@
-#ifndef LIVEPROCESSWHEEL_H
-#define LIVEPROCESSWHEEL_H
+#ifndef MATISSE_LIVE_PROCESS_WHEEL_H_
+#define MATISSE_LIVE_PROCESS_WHEEL_H_
 
 #include <QtDebug>
 #include <QWidget>
@@ -8,7 +8,7 @@
 #include <QTimer>
 #include <qmath.h>
 
-namespace MatisseServer {
+namespace matisse {
 
 enum WheelState {
     INACTIVE,
@@ -64,6 +64,6 @@ private:
     //    bool _wheelInitialized;
 };
 
-}
+} // namespace matisse
 
-#endif // LIVEPROCESSWHEEL_H
+#endif // MATISSE_LIVE_PROCESS_WHEEL_H_

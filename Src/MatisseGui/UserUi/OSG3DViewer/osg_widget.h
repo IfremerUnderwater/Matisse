@@ -1,5 +1,5 @@
-#ifndef OSG_WIDGET_H
-#define OSG_WIDGET_H
+#ifndef MATISSE_OSG_WIDGET_H_
+#define MATISSE_OSG_WIDGET_H_
 
 #include <QGLWidget>
 #include "shader_color.h"
@@ -48,6 +48,8 @@ typedef void (APIENTRY *GLDEBUGPROC)(GLenum source,GLenum type,GLuint id,GLenum 
 #endif
 
 #define INVALID_VALUE 100000
+
+namespace matisse {
 
 class OSGWidget : public QOpenGLWidget
 {
@@ -312,4 +314,6 @@ private:
     OverlayWidget *m_overlay;
 };
 
-#endif // OSG_WIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_OSG_WIDGET_H_

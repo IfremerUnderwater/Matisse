@@ -1,5 +1,5 @@
-#ifndef PREFERENCESDIALOG_H
-#define PREFERENCESDIALOG_H
+#ifndef MATISSE_PREFERENCES_DIALOG_H_
+#define MATISSE_PREFERENCES_DIALOG_H_
 
 #include "matisse_preferences.h"
 #include "matisse_icon_factory.h"
@@ -10,13 +10,12 @@
 
 #include <QtDebug>
 
-using namespace matisse;
-
 namespace Ui {
 class PreferencesDialog;
 }
 
-namespace MatisseServer {
+namespace matisse {
+
 class PreferencesDialog : public QDialog
 {
     Q_OBJECT
@@ -39,6 +38,7 @@ protected slots:
     void slot_validatePrefixInput();
     //void slot_restorePrefixInput(QString newText);
 };
-}
 
-#endif // PREFERENCESDIALOG_H
+} // namespace matisse
+
+#endif // MATISSE_PREFERENCES_DIALOG_H_

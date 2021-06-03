@@ -9,6 +9,8 @@ using namespace std;
 
 #include "math.h"
 
+namespace matisse {
+
 BoxVisitor::BoxVisitor() : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
 {
     m_x_min = numeric_limits<double>::max();
@@ -68,3 +70,5 @@ void BoxVisitor::apply( osg::Geode &geode )
     m_box = osg::BoundingBox(m_x_min, m_y_min, m_z_min, m_x_max, m_y_max, m_z_max);
 
 }
+
+} // namespace matisse

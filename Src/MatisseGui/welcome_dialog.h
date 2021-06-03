@@ -11,9 +11,7 @@ namespace Ui {
 class WelcomeDialog;
 }
 
-using namespace matisse;
-
-namespace MatisseServer {
+namespace matisse {
 
 class WelcomeDialog : public QDialog
 {
@@ -41,6 +39,7 @@ private:
     Ui::WelcomeDialog *ui;
     QLabel* _matisseWelcomeLabel;
 };
-}
+
+} // namespace matisse
 
 #endif // MATISSE_WELCOME_DIALOG_H_

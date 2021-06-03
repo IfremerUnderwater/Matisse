@@ -2,9 +2,7 @@
 #include "ui_assembly_editor.h"
 
 
-using namespace matisse;
-using namespace MatisseServer;
-
+namespace matisse {
 
 AssemblyEditor::AssemblyEditor(QWidget *parent) :
     QWidget(parent),
@@ -65,3 +63,5 @@ void AssemblyEditor::resetAssemblyForm()
     _ui->_GRW_assembly->invalidateScene();
     _ui->_GRW_assembly->update();
 }
+
+} // namespace matisse

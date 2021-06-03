@@ -1,5 +1,5 @@
-﻿#ifndef PARAMETERSDIALOG_H
-#define PARAMETERSDIALOG_H
+﻿#ifndef MATISSE_PARAMETERS_WIDGET_H_
+#define MATISSE_PARAMETERS_WIDGET_H_
 
 #include <QDialog>
 #include <QFileInfo>
@@ -13,13 +13,12 @@
 
 #include "key_value_list.h"
 
-using namespace matisse;
-
 namespace Ui {
 class ParametersDialog;
 }
 
-namespace MatisseServer {
+namespace matisse {
+
 class ParametersDialog : public QDialog
 {
     Q_OBJECT
@@ -46,6 +45,7 @@ protected slots:
     void slot_filename(QString name);
     void slot_save();
 };
-}
 
-#endif // PARAMETERSDIALOG_H
+} // namespace matisse
+
+#endif // MATISSE_PARAMETERS_WIDGET_H_

@@ -3,6 +3,8 @@
 
 #include <QtDebug>
 
+namespace matisse {
+
 HomeWidget::HomeWidget(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::HomeWidget)
@@ -20,3 +22,5 @@ void HomeWidget::slot_goHome()
 {
     emit signal_goHome();
 }
+
+} // namespace matisse

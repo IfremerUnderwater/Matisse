@@ -50,7 +50,7 @@
 #include "tree_item.h"
 #include "tree_model.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 TreeModel::TreeModel(const QString &data, const QStringList _headers, QObject *parent)
     : QAbstractItemModel(parent) {
@@ -209,4 +209,4 @@ void TreeModel::setupModelData(const QStringList &lines, TreeItem *parent) {
 }
 
 
-}  // namespace MatisseTools
+}  // namespace matisse

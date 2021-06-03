@@ -65,7 +65,7 @@
       <enum>QLayout::SetMinimumSize</enum>
      </property>
      <item>
-      <widget class="HomeWidget" name="homeWidget">
+      <widget class="matisse::HomeWidget" name="homeWidget">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -96,7 +96,7 @@
       </widget>
      </item>
      <item>
-      <widget class="MatisseVersionWidget" name="matisseVersionWidget">
+      <widget class="matisse::MatisseVersionWidget" name="matisseVersionWidget">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -127,7 +127,7 @@
       </widget>
      </item>
      <item>
-      <widget class="VisuModeWidget" name="visuModeWidget">
+      <widget class="matisse::VisuModeWidget" name="visuModeWidget">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>20</horstretch>
@@ -158,7 +158,7 @@
       </widget>
      </item>
      <item>
-      <widget class="MainMenuWidget" name="mainMenuWidget">
+      <widget class="matisse::MainMenuWidget" name="mainMenuWidget">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -192,7 +192,7 @@
       </widget>
      </item>
      <item>
-      <widget class="OngoingProcessWidget" name="ongoingProcessWidget">
+      <widget class="matisse::OngoingProcessWidget" name="ongoingProcessWidget">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -228,31 +228,31 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>HomeWidget</class>
+   <class>matisse::HomeWidget</class>
    <extends>QFrame</extends>
    <header>home_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>VisuModeWidget</class>
+   <class>matisse::VisuModeWidget</class>
    <extends>QFrame</extends>
    <header>visu_mode_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>MainMenuWidget</class>
+   <class>matisse::MainMenuWidget</class>
    <extends>QFrame</extends>
    <header>main_menu_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>OngoingProcessWidget</class>
+   <class>matisse::OngoingProcessWidget</class>
    <extends>QFrame</extends>
    <header>ongoing_process_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>MatisseVersionWidget</class>
+   <class>matisse::MatisseVersionWidget</class>
    <extends>QFrame</extends>
    <header>matisse_version_widget.h</header>
    <container>1</container>

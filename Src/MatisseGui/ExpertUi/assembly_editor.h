@@ -1,5 +1,5 @@
-﻿#ifndef EXPERTFORMWIDGET_H
-#define EXPERTFORMWIDGET_H
+﻿#ifndef MATISSE_ASSEMBLY_EDITOR_H_
+#define MATISSE_ASSEMBLY_EDITOR_H_
 
 #include <QWidget>
 #include <QModelIndex>
@@ -26,7 +26,7 @@ namespace Ui {
 class AssemblyEditor;
 }
 
-namespace MatisseServer {
+namespace matisse {
 
 class AssemblyEditor : public QWidget
 {
@@ -64,6 +64,6 @@ signals:
     //void signal_usedParameters(bool);
 };
 
-}
+} // namespace matisse
 
-#endif // EXPERTFORMWIDGET_H
+#endif // MATISSE_ASSEMBLY_EDITOR_H_

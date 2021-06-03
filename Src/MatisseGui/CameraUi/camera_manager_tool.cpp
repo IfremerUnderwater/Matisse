@@ -8,9 +8,9 @@
 #include "camera_info.h"
 #include "camera_manager.h"
 
-
-using namespace matisse;
 using namespace cv;
+
+namespace matisse {
 
 CameraManagerTool::CameraManagerTool(QWidget *parent) :
     QDialog(parent),
@@ -292,3 +292,5 @@ void CameraManagerTool::slot_distModelChanged(int _dist_model)
 
     }
 }
+
+} // namespace matisse

@@ -5,6 +5,8 @@
 
 #include <limits>
 
+namespace matisse {
+
 MinMaxComputationVisitor::MinMaxComputationVisitor() : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
 {
     // init to "invalid" values
@@ -59,3 +61,5 @@ void MinMaxComputationVisitor::apply( osg::Geode &geode )
         }
     }
 }
+
+} // namespace matisse

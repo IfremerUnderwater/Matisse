@@ -94,7 +94,7 @@
         <number>0</number>
        </property>
        <item row="0" column="0">
-        <widget class="WheelGraphicsView" name="_GV_view"/>
+        <widget class="matisse::WheelGraphicsView" name="_GV_view"/>
        </item>
       </layout>
      </widget>
@@ -157,20 +157,20 @@
        </item>
       </layout>
      </widget>
-     <widget class="OSGWidget" name="_OSG_viewer"/>
+     <widget class="matisse::OSGWidget" name="_OSG_viewer"/>
     </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>OSGWidget</class>
+   <class>matisse::OSGWidget</class>
    <extends>QWidget</extends>
    <header>osg_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>WheelGraphicsView</class>
+   <class>matisse::WheelGraphicsView</class>
    <extends>QGraphicsView</extends>
    <header>wheel_graphics_view.h</header>
   </customwidget>

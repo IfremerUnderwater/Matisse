@@ -1,9 +1,10 @@
-﻿#ifndef SOURCEWIDGET_H
-#define SOURCEWIDGET_H
+﻿#ifndef MATISSE_SOURCE_WIDGET_H_
+#define MATISSE_SOURCE_WIDGET_H_
 
 #include "element_widget.h"
 
-namespace MatisseServer {
+namespace matisse {
+
 class SourceWidget : public ElementWidget
 {
 //    Q_OBJECT
@@ -28,6 +29,7 @@ signals:
 public slots:
 
 };
-}
 
-#endif // SOURCEWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_SOURCE_WIDGET_H_

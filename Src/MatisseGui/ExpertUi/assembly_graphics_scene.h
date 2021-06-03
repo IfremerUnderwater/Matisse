@@ -1,5 +1,5 @@
-﻿#ifndef ASSEMBLYGRAPHICSSCENE_H
-#define ASSEMBLYGRAPHICSSCENE_H
+﻿#ifndef MATISSE_ASSEMBLY_GRAPHICS_SCENE_H_
+#define MATISSE_ASSEMBLY_GRAPHICS_SCENE_H_
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
@@ -29,9 +29,7 @@
 #include "matisse_engine.h"
 
 
-using namespace matisse;
-
-namespace MatisseServer {
+namespace matisse {
 
 class AssemblyGraphicsScene : public QGraphicsScene
 {
@@ -90,6 +88,7 @@ signals:
 public slots:
     void slot_sceneChanged(const QList<QRectF> & region);
 };
-}
 
-#endif // ASSEMBLYGRAPHICSSCENE_H
+} // namespace matisse
+
+#endif // MATISSE_ASSEMBLY_GRAPHICS_SCENE_H_

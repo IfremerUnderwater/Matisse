@@ -6,7 +6,7 @@
 
 #include <QLabel>
 
-using namespace MatisseServer;
+namespace matisse {
 
 WelcomeDialog::WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory, bool isProgrammingModeEnabled) :
     QDialog(parent),
@@ -86,3 +86,5 @@ void WelcomeDialog::changeEvent(QEvent *event)
         ui->retranslateUi(this);
     }
 }
+
+} // namespace matisse

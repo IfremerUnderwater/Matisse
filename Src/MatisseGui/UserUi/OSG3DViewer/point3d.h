@@ -1,7 +1,9 @@
-#ifndef POINT
-#define POINT
+#ifndef MATISSE_POINT3D_H_
+#define MATISSE_POINT3D_H_
 
 #include <QJsonObject>
+
+namespace matisse {
 
 struct Point3D
 {
@@ -19,5 +21,7 @@ struct Point3D
     void encode(QJsonObject & _obj);
 };
 
-#endif // POINT
+} // namespace matisse
+
+#endif // MATISSE_POINT3D_H_
 

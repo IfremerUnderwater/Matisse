@@ -1,11 +1,13 @@
-#ifndef MATISSEVERSIONWIDGET_H
-#define MATISSEVERSIONWIDGET_H
+#ifndef MATISSE_MATISSE_VERSION_WIDGET_H_
+#define MATISSE_MATISSE_VERSION_WIDGET_H_
 
 #include <QFrame>
 
 namespace Ui {
 class MatisseVersionWidget;
 }
+
+namespace matisse {
 
 class MatisseVersionWidget : public QFrame
 {
@@ -19,4 +21,6 @@ private:
     Ui::MatisseVersionWidget *ui;
 };
 
-#endif // MATISSEVERSIONWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_MATISSE_VERSION_WIDGET_H_

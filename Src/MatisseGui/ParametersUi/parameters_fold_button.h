@@ -1,5 +1,5 @@
-#ifndef PARAMETERSFOLDBUTTON_H
-#define PARAMETERSFOLDBUTTON_H
+#ifndef MATISSE_PARAMETERS_FOLD_BUTTON_H_
+#define MATISSE_PARAMETERS_FOLD_BUTTON_H_
 
 #include <QtDebug>
 #include <QPainter>
@@ -7,9 +7,7 @@
 #include "fold_unfold_button.h"
 #include "graphical_charter.h"
 
-using namespace matisse;
-
-namespace MatisseServer {
+namespace matisse {
 
 class ParametersFoldButton : public FoldUnfoldButton
 {
@@ -37,6 +35,6 @@ private:
     static const quint8 ARROW_WING_HEIGHT;
 };
 
-}
+} // namespace matisse
 
-#endif // PARAMETERSFOLDBUTTON_H
+#endif // MATISSE_PARAMETERS_FOLD_BUTTON_H_

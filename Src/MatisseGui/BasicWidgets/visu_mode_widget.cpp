@@ -1,6 +1,8 @@
 #include "visu_mode_widget.h"
 #include "ui_visu_mode_widget.h"
 
+namespace matisse {
+
 VisuModeWidget::VisuModeWidget(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::VisuModeWidget)
@@ -20,3 +22,5 @@ void VisuModeWidget::changeEvent(QEvent *event)
         ui->retranslateUi(this);
     }
 }
+
+} // namespace matisse

@@ -1,5 +1,6 @@
 #include "matisse_menu.h"
 
+namespace matisse {
 
 MatisseMenu::MatisseMenu(QWidget* parent) : QMenu(parent)
 {
@@ -17,3 +18,5 @@ void MatisseMenu::showEvent(QShowEvent *event)
     QPoint p = this->pos();
     this->move(p.x(), parent->mapToGlobal(parent->pos()).y() + parent->height());
 }
+
+} // namespace matisse

@@ -48,7 +48,7 @@
 
 #include "tree_item.h"
 
-namespace MatisseTools {
+namespace matisse {
 
 TreeItem::TreeItem(const QList<QVariant> &data, TreeItem *parent) {
   parentItem = parent;
@@ -76,4 +76,4 @@ int TreeItem::row() const {
   return 0;
 }
 
-}  // namespace MatisseTools
+}  // namespace matisse

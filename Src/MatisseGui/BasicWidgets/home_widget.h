@@ -1,11 +1,13 @@
-#ifndef HOMEWIDGET_H
-#define HOMEWIDGET_H
+#ifndef MATISSE_HOME_WIDGET_H_
+#define MATISSE_HOME_WIDGET_H_
 
 #include <QFrame>
 
 namespace Ui {
 class HomeWidget;
 }
+
+namespace matisse {
 
 class HomeWidget : public QFrame
 {
@@ -25,4 +27,6 @@ private:
     Ui::HomeWidget *ui;
 };
 
-#endif // HOMEWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_HOME_WIDGET_H_

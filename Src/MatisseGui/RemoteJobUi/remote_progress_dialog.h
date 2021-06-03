@@ -7,7 +7,7 @@ namespace Ui {
 class RemoteProgressDialog;
 }
 
-namespace MatisseServer {
+namespace matisse {
 
 class RemoteProgressDialog : public QDialog {
   Q_OBJECT
@@ -24,6 +24,6 @@ public slots:
   Ui::RemoteProgressDialog *_ui;
 };
 
-}  // namespace MatisseServer
+}  // namespace matisse
 
 #endif // MATISSE_REMOTE_PROGRESS_DIALOG_H_

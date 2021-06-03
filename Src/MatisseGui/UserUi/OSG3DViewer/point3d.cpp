@@ -1,5 +1,7 @@
 #include "point3d.h"
 
+namespace matisse {
+
 // from JSon to object
 void Point3D::decode(QJsonObject & _obj)
 {
@@ -24,3 +26,5 @@ void Point3D::encode(QJsonObject & _obj)
     _obj.insert("y", QJsonValue(y));
     _obj.insert("z", QJsonValue(z));
 }
+
+} // namespace matisse

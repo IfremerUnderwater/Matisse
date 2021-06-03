@@ -1,6 +1,8 @@
 #include "overlay_widget.h"
 #include <QPainter>
 
+namespace matisse {
+
 OverlayWidget::OverlayWidget(QWidget *parent) : QWidget(parent)
 {
     resize(80, 255);
@@ -41,4 +43,6 @@ void OverlayWidget::paintEvent(QPaintEvent * /*event*/)
         painter.drawLine( width() - 20,y , width(), y);
     }
 }
+
+} // namespace matisse
 

@@ -1,8 +1,10 @@
-#ifndef OVERLAYWIDGET_H
-#define OVERLAYWIDGET_H
+#ifndef MATISSE_OVERLAY_WIDGET_H_
+#define MATISSE_OVERLAY_WIDGET_H_
 
 #include <QWidget>
 #include "shader_color.h"
+
+namespace matisse {
 
 class OverlayWidget : public QWidget
 {
@@ -28,4 +30,6 @@ private:
     ShaderColor::Palette m_colorPalette;
 };
 
-#endif // OVERLAYWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_OVERLAY_WIDGET_H_

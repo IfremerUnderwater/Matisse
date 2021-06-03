@@ -1,12 +1,12 @@
-#ifndef ELEMENTWIDGETPROVIDER_H
-#define ELEMENTWIDGETPROVIDER_H
+#ifndef MATISSE_ELEMENT_WIDGET_PROVIDER_H_
+#define MATISSE_ELEMENT_WIDGET_PROVIDER_H_
 
 #include "source_widget.h"
 #include "processor_widget.h"
 #include "destination_widget.h"
 
 
-namespace MatisseServer {
+namespace matisse {
 
 class ElementWidgetProvider
 {
@@ -16,6 +16,6 @@ public:
     virtual DestinationWidget * getDestinationWidget(QString name) = 0;
 };
 
-}
+} // namespace matisse
 
-#endif // ELEMENTWIDGETPROVIDER_H
+#endif // MATISSE_ELEMENT_WIDGET_PROVIDER_H_

@@ -10,6 +10,8 @@
 
 static inline double sqr(const double _x) { return _x * _x; }
 
+namespace matisse {
+
 AreaComputationVisitor::AreaComputationVisitor() : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
 {
     m_area=0;
@@ -92,3 +94,5 @@ void AreaComputationVisitor::apply( osg::Geode &geode )
         }
     }
 }
+
+} // namespace matisse

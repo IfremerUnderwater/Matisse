@@ -1,9 +1,11 @@
-#ifndef BOX_VISITOR_H
-#define BOX_VISITOR_H
+#ifndef MATISSE_BOX_VISITOR_H_
+#define MATISSE_BOX_VISITOR_H_
 
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/NodeVisitor>
+
+namespace matisse {
 
 class BoxVisitor : public osg::NodeVisitor
 {
@@ -26,4 +28,6 @@ private :
     double m_z_max;
 };
 
-#endif // BOX_VISITOR_H
+} // namespace matisse
+
+#endif // MATISSE_BOX_VISITOR_H_

@@ -1,6 +1,7 @@
 #include "shader_color.h"
 #include <osg/Vec3f>
 
+namespace matisse {
 
 static osg::Vec3f HSVSpectrum(float x)
 {
@@ -158,3 +159,5 @@ const char *ShaderColor::paletteName(const ShaderColor::Palette _palette)
         return "";
     }
 }
+
+} // namespace matisse

@@ -1,11 +1,13 @@
-#ifndef CAM_CALIB_DIALOG_H
-#define CAM_CALIB_DIALOG_H
+#ifndef MATISSE_CAMERA_CALIB_DIALOG_H_
+#define MATISSE_CAMERA_CALIB_DIALOG_H_
 
 #include <QDialog>
 
 namespace Ui {
 class CameraCalibDialog;
 }
+
+namespace matisse {
 
 class CameraCalibDialog : public QDialog
 {
@@ -25,4 +27,6 @@ private slots:
     void slot_onCalibrateCameras();
 };
 
-#endif // CAM_CALIB_DIALOG_H
+}
+
+#endif // MATISSE_CAMERA_CALIB_DIALOG_H_

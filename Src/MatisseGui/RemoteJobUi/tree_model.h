@@ -49,9 +49,10 @@
 #include <QModelIndex>
 #include <QVariant>
 
+namespace matisse {
+
 class TreeItem;
 
-namespace MatisseTools {
 
 class TreeModel : public QAbstractItemModel {
   Q_OBJECT
@@ -79,6 +80,6 @@ class TreeModel : public QAbstractItemModel {
   bool m_parents_selectable = false;
 };
 
-}  // namespace MatisseTools
+} // namespace matisse
 
 #endif  // MATISSE_TREE_MODEL_H_

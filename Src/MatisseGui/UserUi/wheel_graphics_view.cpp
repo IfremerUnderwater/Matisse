@@ -5,6 +5,8 @@
 #include <QApplication>
 #include <math.h>
 
+namespace matisse {
+
 void WheelGraphicsView::setZoomFactor(qreal zoom, const QPoint * optMousePos)
  {
     // limits for zooming
@@ -82,3 +84,5 @@ void WheelGraphicsView::setZoomFactor(qreal zoom, const QPoint * optMousePos)
 
      QGraphicsView::mouseReleaseEvent(event);
  }
+
+} // namespace matisse

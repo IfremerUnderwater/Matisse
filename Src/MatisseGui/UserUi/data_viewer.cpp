@@ -10,6 +10,8 @@
 using namespace cv;
 using namespace nav_tools;
 
+namespace matisse {
+
 DataViewer::DataViewer(QWidget *parent) :
     QWidget(parent),
     _ui(new Ui::DataViewer),
@@ -538,3 +540,5 @@ void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p, bool remove
 
     emit signal_add3DSceneToCartoView(node, remove_previous_scenes_p);
 }
+
+} // namespace matisse

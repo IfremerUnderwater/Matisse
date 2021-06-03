@@ -1,7 +1,7 @@
 #include "job_dialog.h"
 #include "ui_job_dialog.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 JobDialog::JobDialog(QWidget *parent, MatisseIconFactory *iconFactory, KeyValueList *keyValues, QString jobsPath, QStringList existingJobNames, QStringList archivedJobNames) :
     QDialog(parent),
@@ -218,3 +218,5 @@ void JobDialog::slot_selectFile()
 
     _ui->_LE_navigationFile->setText(selFile);
 }
+
+} // namespace matisse

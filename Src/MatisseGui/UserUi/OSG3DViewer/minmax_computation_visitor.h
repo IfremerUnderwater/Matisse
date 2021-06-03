@@ -1,8 +1,10 @@
-#ifndef MINMAXCOMPUTATIONVISITOR_H
-#define MINMAXCOMPUTATIONVISITOR_H
+#ifndef MATISSE_MIN_MAX_COMPUTATION_VISITOR_H_
+#define MATISSE_MIN_MAX_COMPUTATION_VISITOR_H_
 
 #include <osg/Geode>
 #include <osg/NodeVisitor>
+
+namespace matisse {
 
 class MinMaxComputationVisitor : public osg::NodeVisitor
 {
@@ -21,4 +23,6 @@ private:
     float m_max;
 };
 
-#endif // MINMAXCOMPUTATIONVISITOR_H
+} // namespace matisse
+
+#endif // MATISSE_MIN_MAX_COMPUTATION_VISITOR_H_

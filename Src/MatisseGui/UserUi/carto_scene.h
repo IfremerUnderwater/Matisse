@@ -1,5 +1,5 @@
-#ifndef CARTOSCENE_H
-#define CARTOSCENE_H
+#ifndef MATISSE_CARTO_SCENE_H_
+#define MATISSE_CARTO_SCENE_H_
 
 #include <QGraphicsView>
 
@@ -8,6 +8,8 @@
 
 class QGraphicsRectItem;
 class QGraphicsPixmapItem;
+
+namespace matisse {
 
 class CartoScene : public QGraphicsScene
 {
@@ -83,4 +85,6 @@ private:
 
 };
 
-#endif // CARTOSCENE_H
+} // namespace matisse
+
+#endif // MATISSE_CARTO_SCENE_H_

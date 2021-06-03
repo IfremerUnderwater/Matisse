@@ -1,5 +1,5 @@
-﻿#ifndef ELEMENTWIDGET_H
-#define ELEMENTWIDGET_H
+﻿#ifndef MATISSE_ELEMENT_WIDGET_H_
+#define MATISSE_ELEMENT_WIDGET_H_
 
 #include <QObject>
 #include <QColor>
@@ -20,7 +20,8 @@
 #include <QMetaObject>
 #include <QtDebug>
 
-namespace MatisseServer {
+namespace matisse {
+
 enum UserItemType { ElementType = QGraphicsItem::UserType +1,
         SourceType,
         ProcessorType,
@@ -102,6 +103,7 @@ signals:
 public slots:
 
 };
-}
 
-#endif // ELEMENTWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_ELEMENT_WIDGET_H_

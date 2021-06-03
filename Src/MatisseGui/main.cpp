@@ -24,10 +24,7 @@
 #include "ssh_client.h"
 #include "remote_job_helper.h"
 
-using namespace MatisseServer;
 using namespace matisse;
-
-
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {

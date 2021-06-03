@@ -1,18 +1,18 @@
-﻿#ifndef ASSEMBLYDIALOG_H
-#define ASSEMBLYDIALOG_H
+﻿#ifndef MATISSE_ASSEMBLY_DIALOG_H_
+#define MATISSE_ASSEMBLY_DIALOG_H_
 
 #include <QDialog>
 #include <QDateTime>
 
 #include "key_value_list.h"
 
-using namespace matisse;
 
 namespace Ui {
 class AssemblyDialog;
 }
 
-namespace MatisseServer {
+namespace matisse {
+
 class AssemblyDialog : public QDialog
 {
     Q_OBJECT
@@ -35,5 +35,7 @@ public slots:
 signals:
     void signal_showWelcome();
 };
-}
-#endif // ASSEMBLYDIALOG_H
+
+} // namespace matisse
+
+#endif // MATISSE_ASSEMBLY_DIALOG_H_

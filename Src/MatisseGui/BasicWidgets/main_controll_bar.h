@@ -1,5 +1,5 @@
-#ifndef MAINCONTROLLBAR_H
-#define MAINCONTROLLBAR_H
+#ifndef MATISSE_MAIN_CONTROLL_BAR_H_
+#define MATISSE_MAIN_CONTROLL_BAR_H_
 
 #include <QFrame>
 #include <QMouseEvent>
@@ -7,6 +7,8 @@
 namespace Ui {
 class MainControllBar;
 }
+
+namespace matisse {
 
 class MainControllBar : public QFrame
 {
@@ -35,4 +37,6 @@ signals:
     void signal_moveWindow(const QPoint &newPos);
 };
 
-#endif // MAINCONTROLLBAR_H
+} // namespace matisse
+
+#endif // MATISSE_MAIN_CONTROLL_BAR_H_

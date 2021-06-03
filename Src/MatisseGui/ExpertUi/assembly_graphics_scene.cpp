@@ -2,7 +2,7 @@
 #include "assembly_editor.h"
 #include "main_gui.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 AssemblyGraphicsScene::AssemblyGraphicsScene(const QRectF &sceneRect, QObject *parent) :
     QGraphicsScene(sceneRect, parent),
@@ -818,5 +818,7 @@ void AssemblyGraphicsScene::initViewport()
 {
     _viewport =  views().at(0)->viewport();
 }
+
+} // namespace matisse
 
 

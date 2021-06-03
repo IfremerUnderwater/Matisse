@@ -1,7 +1,7 @@
 #include "preferences_dialog.h"
 #include "ui_preferences_dialog.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFactory, MatissePreferences *prefs, bool allowProgrammingModeActivation) :
     QDialog(parent),
@@ -164,3 +164,5 @@ void PreferencesDialog::slot_validatePrefixInput()
 //        _ui->_LE_defaultMosaicPrefix->setText(_prefixBuffer);
 //    }
 //}
+
+} // namespace matisse

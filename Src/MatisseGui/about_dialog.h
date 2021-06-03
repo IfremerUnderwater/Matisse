@@ -1,17 +1,16 @@
-#ifndef ABOUTDIALOG_H
-#define ABOUTDIALOG_H
+#ifndef MATISSE_ABOUT_DIALOG_H_
+#define MATISSE_ABOUT_DIALOG_H_
 
 #include <QDialog>
 
 #include "key_value_list.h"
 
-using namespace matisse;
 
 namespace Ui {
     class AboutDialog;
 }
 
-namespace MatisseServer {
+namespace matisse {
 
 class AboutDialog : public QDialog
 {
@@ -27,6 +26,6 @@ private:
     Ui::AboutDialog *_ui;
 };
 
-}
+} // namespace matisse
 
-#endif // ABOUTDIALOG_H
+#endif // MATISSE_ABOUT_DIALOG_H_

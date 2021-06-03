@@ -1,6 +1,8 @@
 #include "status_message_widget.h"
 #include "ui_status_message_widget.h"
 
+namespace matisse {
+
 StatusMessageWidget::StatusMessageWidget(QWidget *parent, MatisseIconFactory *iconFactory) :
     QWidget(parent),
     _ui(new Ui::StatusMessageWidget),
@@ -61,3 +63,5 @@ void StatusMessageWidget::slot_clearMessages()
     _itemWrappers.clear();
     _ui->_CB_messages->clear();
 }
+
+} // namespace matisse

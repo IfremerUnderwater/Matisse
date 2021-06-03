@@ -1,5 +1,5 @@
-﻿#ifndef ASSEMBLYGUI_H
-#define ASSEMBLYGUI_H
+﻿#ifndef MATISSE_MAIN_GUI_H_
+#define MATISSE_MAIN_GUI_H_
 
 #include <QMainWindow>
 #include <QModelIndex>
@@ -59,7 +59,7 @@ namespace Ui {
 class MainGui;
 }
 
-namespace MatisseServer {
+namespace matisse {
 
 enum MessageIndicatorLevel {
         IDLE,
@@ -408,6 +408,7 @@ signals:
     void signal_updateExecutionStatusColor(QString newStatusColorAlias);
     void signal_updateAppModeColors(QString newAppModeColorAlias1, QString newAppModeColorAlias2);
 };
-}
 
-#endif // ASSEMBLYGUI_H
+} // namespace matisse
+
+#endif // MATISSE_MAIN_GUI_H_

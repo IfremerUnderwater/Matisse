@@ -3,6 +3,8 @@
 
 #include <QColor>
 
+namespace matisse {
+
 class ShaderColor
 {
 public:
@@ -19,5 +21,7 @@ public:
     static const char * paletteName(const Palette _palette = Rainbow);
 
 };
+
+} // namespace matisse
 
 #endif // SHADERCOLOR_H

@@ -1,11 +1,13 @@
-#ifndef CAMERA_MANAGER_TOOL_H
-#define CAMERA_MANAGER_TOOL_H
+#ifndef MATISSE_CAMERA_MANAGER_TOOL_H_
+#define MATISSE_CAMERA_MANAGER_TOOL_H_
 
 #include <QDialog>
 
 namespace Ui {
 class CameraManagerTool;
 }
+
+namespace matisse {
 
 class CameraManagerTool : public QDialog
 {
@@ -27,5 +29,7 @@ private slots:
     void slot_cameraSelected(QString _selected_item);
     void slot_distModelChanged(int _dist_model);
 };
+
+} // namespace matisse
 
 #endif // CAMERA_MANAGER_H

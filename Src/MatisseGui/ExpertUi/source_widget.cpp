@@ -1,6 +1,6 @@
 ﻿#include "source_widget.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 SourceWidget::SourceWidget(QGraphicsItem *parent):ElementWidget(parent)
 {
@@ -70,3 +70,5 @@ void SourceWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     event->accept();
 }
 */
+
+} // namespace matisse

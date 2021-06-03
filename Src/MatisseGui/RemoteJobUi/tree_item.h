@@ -48,7 +48,7 @@
 #include <QList>
 #include <QVariant>
 
-namespace MatisseTools {
+namespace matisse {
 
 class TreeItem {
  public:
@@ -70,6 +70,6 @@ class TreeItem {
   TreeItem *parentItem;
 };
 
-}  // namespace MatisseTools
+}  // namespace matisse
 
 #endif  // MATISSE_TREE_ITEM_H_

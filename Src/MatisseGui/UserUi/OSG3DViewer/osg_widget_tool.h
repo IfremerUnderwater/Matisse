@@ -1,9 +1,11 @@
-#ifndef OSG_WIDGET_TOOL_H
-#define OSG_WIDGET_TOOL_H
+#ifndef MATISSE_OSG_WIDGET_TOOL_H_
+#define MATISSE_OSG_WIDGET_TOOL_H_
 
 #include <QObject>
 
 #include "point3d.h"
+
+namespace matisse {
 
 class OSGWidget;
 
@@ -56,4 +58,6 @@ private:
     type m_current_type;
 };
 
-#endif // OSG_WIDGET_TOOL_H
+} // namespace matisse
+
+#endif // MATISSE_OSG_WIDGET_TOOL_H_

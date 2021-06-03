@@ -1,5 +1,5 @@
-#ifndef MATISSE_REMOTE_JOB_MANAGER_H_
-#define MATISSE_REMOTE_JOB_MANAGER_H_
+#ifndef MATISSE_REMOTE_JOB_HELPER_H_
+#define MATISSE_REMOTE_JOB_HELPER_H_
 
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -19,9 +19,8 @@
 #include "network_command.h"
 
 using namespace network_tools;
-using namespace matisse;
 
-namespace MatisseServer {
+namespace matisse {
 
 class PasswordDialog : public QDialog {
   Q_OBJECT
@@ -124,6 +123,6 @@ private:
     void clearPendingActionQueue();
 };
 
-}
+} // namespace matisse
 
-#endif // MATISSE_REMOTE_JOB_MANAGER_H_
+#endif // MATISSE_REMOTE_JOB_HELPER_H_

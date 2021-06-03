@@ -2,7 +2,7 @@
 #include "ui_about_dialog.h"
 
 
-using namespace MatisseServer;
+namespace matisse {
 
 AboutDialog::AboutDialog(QWidget *parent, KeyValueList meta) :
     QDialog(parent),
@@ -28,4 +28,6 @@ void AboutDialog::slot_close()
 {
     accept();
 }
+
+} // namespace matisse
 

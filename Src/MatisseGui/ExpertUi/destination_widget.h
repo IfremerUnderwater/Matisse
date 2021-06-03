@@ -1,9 +1,10 @@
-﻿#ifndef DESTINATIONWIDGET_H
-#define DESTINATIONWIDGET_H
+﻿#ifndef MATISSE_DESTINATION_WIDGET_H_
+#define MATISSE_DESTINATION_WIDGET_H_
 
 #include "element_widget.h"
 
-namespace MatisseServer {
+namespace matisse {
+
 class DestinationWidget : public ElementWidget
 {
 //    Q_OBJECT
@@ -17,6 +18,7 @@ signals:
 public slots:
     
 };
-}
 
-#endif // DESTINATIONWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_DESTINATION_WIDGET_H_

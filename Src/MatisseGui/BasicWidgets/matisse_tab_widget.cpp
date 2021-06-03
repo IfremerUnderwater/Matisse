@@ -3,6 +3,8 @@
 #include <QTabBar>
 #include <QtDebug>
 
+namespace matisse {
+
 MatisseTabWidget::MatisseTabWidget(QWidget* parent) :
     QTabWidget(parent)
 {
@@ -28,5 +30,7 @@ void MatisseTabWidget::setObjectName(const QString &name)
     QObject::setObjectName(name);
     tabBar()->setObjectName(name + "-tabbar");
 }
+
+} // namespace matisse
 
 

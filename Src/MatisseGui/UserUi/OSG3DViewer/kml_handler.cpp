@@ -22,6 +22,8 @@ using kmldom::StylePtr;
 using kmldom::StyleMapPtr;
 using kmldom::StyleSelectorPtr;
 
+namespace matisse {
+
 KMLHandler::KMLHandler()
 {
 
@@ -118,4 +120,6 @@ double KMLHandler::getModelAlt()
     else
         return 0.;
 }
+
+} // namespace matisse
 

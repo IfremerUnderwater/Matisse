@@ -1,11 +1,13 @@
-#ifndef MAINMENUWIDGET_H
-#define MAINMENUWIDGET_H
+#ifndef MATISSE_MAIN_MENU_WIDGET_H_
+#define MATISSE_MAIN_MENU_WIDGET_H_
 
 #include <QFrame>
 
 namespace Ui {
 class MainMenuWidget;
 }
+
+namespace matisse {
 
 class MainMenuWidget : public QFrame
 {
@@ -22,4 +24,6 @@ private:
     Ui::MainMenuWidget *ui;
 };
 
-#endif // MAINMENUWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_MAIN_MENU_WIDGET_H_

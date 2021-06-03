@@ -1,7 +1,7 @@
 ﻿#include "parameters_dialog.h"
 #include "ui_parameters_dialog.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 QString ParametersDialog::_filenameExp = "(\\w+\\s+)+";
 QString ParametersDialog::_diacriticLetters = QString::fromUtf8("ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ");
@@ -109,3 +109,5 @@ void ParametersDialog::slot_save()
     }
     accept();
 }
+
+} // namespace matisse

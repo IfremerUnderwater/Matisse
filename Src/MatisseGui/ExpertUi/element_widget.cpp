@@ -1,7 +1,7 @@
 ﻿#include "element_widget.h"
 #include "assembly_graphics_scene.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 ElementWidget::ElementWidget(QGraphicsItem *parent) :
     QObject(0),
@@ -292,3 +292,5 @@ void ElementWidget::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 
 //    }
 //}
+
+} // namespace matisse

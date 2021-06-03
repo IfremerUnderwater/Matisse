@@ -13,7 +13,7 @@ namespace Ui {
 class RemoteFileDialog;
 }
 
-namespace MatisseServer {
+namespace matisse {
 
 class RemoteFileTreeModelFactory : public QObject
 {
@@ -21,7 +21,7 @@ class RemoteFileTreeModelFactory : public QObject
 
  public:
   RemoteFileTreeModelFactory();
-  MatisseTools::TreeModel *createModel(QString _root_folder_name,
+  TreeModel *createModel(QString _root_folder_name,
                          QList<network_tools::NetworkFileInfo *> _file_info);
 };
 
@@ -30,7 +30,7 @@ class RemoteFileDialog : public QDialog {
   Q_OBJECT
 
  public:
-  RemoteFileDialog(MatisseTools::TreeModel *_model, QWidget *parent);
+  RemoteFileDialog(TreeModel *_model, QWidget *parent);
   QString selectedFile() { return m_selected_file; }
 
  protected slots:
@@ -43,6 +43,6 @@ class RemoteFileDialog : public QDialog {
   QString m_selected_file;
 };
 
-}  // namespace MatisseServer
+}  // namespace matisse
 
 #endif // MATISSE_REMOTE_FILE_DIALOG_H_

@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QToolButton>
 
+namespace matisse {
+
 MainControllBar::MainControllBar(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::MainControllBar)
@@ -52,4 +54,6 @@ void MainControllBar::changeEvent(QEvent *event)
         ui->retranslateUi(this);
     }
 }
+
+} // namespace matisse
 

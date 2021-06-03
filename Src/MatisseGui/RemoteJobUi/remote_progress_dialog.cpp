@@ -3,7 +3,7 @@
 
 #include <QtDebug>
 
-namespace MatisseServer
+namespace matisse
 {
 
 RemoteProgressDialog::RemoteProgressDialog(QWidget *parent)
@@ -34,4 +34,4 @@ void RemoteProgressDialog::sl_onProgressUpdate(int _new_value)
   _ui->m_PB_transfer_progress->setValue(_new_value);
 }
 
-}  // namespace MatisseServer
+}  // namespace matisse

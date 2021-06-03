@@ -1,6 +1,6 @@
 ﻿#include "destination_widget.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 void DestinationWidget::drawSymbol(QPainter *painter, bool forIcon)
 {
@@ -34,3 +34,5 @@ void DestinationWidget::drawSymbol(QPainter *painter, bool forIcon)
 
     _bodyRect = tempRect;
 }
+
+} // namespace matisse

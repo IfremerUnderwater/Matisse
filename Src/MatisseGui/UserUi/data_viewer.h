@@ -1,5 +1,5 @@
-﻿#ifndef USERFORMWIDGET_H
-#define USERFORMWIDGET_H
+﻿#ifndef MATISSE_DATA_VIEWER_H_
+#define MATISSE_DATA_VIEWER_H_
 
 #include <QWidget>
 #include <QMenu>
@@ -8,6 +8,7 @@
 #include <QGraphicsView>
 #include <QThread>
 #include <QListWidget>
+#include <QLabel>
 
 
 #include <osg/ref_ptr>
@@ -49,16 +50,17 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 #include "carto_image.h"
 #include <vector>
 
-using namespace matisse;
 using namespace nav_tools;
 
-class OSGWidget;
 
 namespace Ui {
 class DataViewer;
 }
 
-class QLabel;
+
+namespace matisse {
+
+class OSGWidget;
 
 enum CartoViewType { QGisMapLayer, QImageView, OpenSceneGraphView };
 
@@ -175,5 +177,6 @@ private:
 
 };
 
+} // namespace matisse
 
-#endif // USERFORMWIDGET_H
+#endif // MATISSE_DATA_VIEWER_H_

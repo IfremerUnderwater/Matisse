@@ -17,13 +17,12 @@
 #include "iconized_button_wrapper.h"
 
 
-using namespace matisse;
-
 namespace Ui {
 class JobDialog;
 }
 
-namespace MatisseServer {
+namespace matisse {
+
 class JobDialog : public QDialog
 {
     Q_OBJECT
@@ -51,6 +50,7 @@ public slots:
     void slot_selectDir();
     void slot_selectFile();
 };
-}
+
+} // namespace matisse
 
 #endif // JOBDIALOG_H

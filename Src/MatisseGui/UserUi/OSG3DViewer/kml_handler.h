@@ -1,10 +1,12 @@
-#ifndef KML_HANDLER_H
-#define KML_HANDLER_H
+#ifndef MATISSE_KML_HANDLER_H_
+#define MATISSE_KML_HANDLER_H_
 
 #include <iostream>
 #include <string>
 #include "kml/dom.h"
 #include "kml/base/file.h"
+
+namespace matisse {
 
 class KMLHandler
 {
@@ -25,4 +27,6 @@ private:
     kmldom::LocationPtr m_model_location;
 };
 
-#endif // KML_HANDLER_H
+} // namespace matisse
+
+#endif // MATISSE_KML_HANDLER_H_

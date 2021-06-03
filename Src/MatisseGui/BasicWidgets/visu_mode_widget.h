@@ -1,11 +1,13 @@
-#ifndef VISUMODEWIDGET_H
-#define VISUMODEWIDGET_H
+#ifndef MATISSE_VISU_MODE_WIDGET_H_
+#define MATISSE_VISU_MODE_WIDGET_H_
 
 #include <QFrame>
 
 namespace Ui {
 class VisuModeWidget;
 }
+
+namespace matisse {
 
 class VisuModeWidget : public QFrame
 {
@@ -22,4 +24,6 @@ private:
     Ui::VisuModeWidget *ui;
 };
 
-#endif // VISUMODEWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_VISU_MODE_WIDGET_H_

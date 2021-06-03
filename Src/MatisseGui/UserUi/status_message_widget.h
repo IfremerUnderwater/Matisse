@@ -1,5 +1,5 @@
-#ifndef STATUSMESSAGEWIDGET_H
-#define STATUSMESSAGEWIDGET_H
+#ifndef MATISSE_STATUS_MESSAGE_WIDGET_H_
+#define MATISSE_STATUS_MESSAGE_WIDGET_H_
 
 #include <QWidget>
 #include <QList>
@@ -8,11 +8,12 @@
 #include "matisse_icon_factory.h"
 #include "iconized_combo_box_item_wrapper.h"
 
-using namespace matisse;
 
 namespace Ui {
 class StatusMessageWidget;
 }
+
+namespace matisse {
 
 class StatusMessageWidget : public QWidget
 {
@@ -35,4 +36,6 @@ private:
     QList<IconizedComboBoxItemWrapper *> _itemWrappers;
 };
 
-#endif // STATUSMESSAGEWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_STATUS_MESSAGE_WIDGET_H_

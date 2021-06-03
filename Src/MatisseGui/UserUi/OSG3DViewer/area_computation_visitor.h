@@ -1,8 +1,10 @@
-#ifndef AREA_COMPUTATION_VISITOR_H
-#define AREA_COMPUTATION_VISITOR_H
+#ifndef MATISSE_AREA_COMPUTATION_VISITOR_H_
+#define MATISSE_AREA_COMPUTATION_VISITOR_H_
 
 #include <osg/Geode>
 #include <osg/NodeVisitor>
+
+namespace matisse {
 
 class AreaComputationVisitor : public osg::NodeVisitor
 {
@@ -19,4 +21,6 @@ private :
     double m_area;
 };
 
-#endif // AREA_COMPUTATION_VISITOR_H
+} // namespace matisse
+
+#endif // MATISSE_AREA_COMPUTATION_VISITOR_H_

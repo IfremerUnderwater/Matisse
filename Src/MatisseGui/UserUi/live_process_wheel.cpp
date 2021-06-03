@@ -1,8 +1,7 @@
 #include "live_process_wheel.h"
 #include "graphical_charter.h"
 
-using namespace MatisseServer;
-using namespace matisse;
+namespace matisse {
 
 LiveProcessWheel::LiveProcessWheel(QWidget *parent) : QWidget(parent),
     _state(INACTIVE), _currentHour(0), _firstRound(true), _msForOneHourClockTurn(80)
@@ -264,3 +263,5 @@ void LiveProcessWheel::slot_updateWheelColors(QString colors)
     inactivateWheel();
     repaint();
 }
+
+} // namespace matisse

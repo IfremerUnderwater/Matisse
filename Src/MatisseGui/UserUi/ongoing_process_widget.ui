@@ -126,7 +126,7 @@
     </layout>
    </item>
    <item>
-    <widget class="MatisseServer::LiveProcessWheel" name="_WID_liveProcessWheel" native="true">
+    <widget class="matisse::LiveProcessWheel" name="_WID_liveProcessWheel" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -286,7 +286,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MatisseServer::LiveProcessWheel</class>
+   <class>matisse::LiveProcessWheel</class>
    <extends>QWidget</extends>
    <header>live_process_wheel.h</header>
    <container>1</container>

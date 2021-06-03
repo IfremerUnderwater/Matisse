@@ -10,8 +10,7 @@
 #include "graphical_charter.h"
 #include "remote_job_helper.h"
 
-using namespace matisse;
-using namespace MatisseServer;
+namespace matisse {
 
 const QString MainGui::PREFERENCES_FILEPATH = QString("config/MatissePreferences.xml");
 const QString MainGui::ASSEMBLY_EXPORT_PREFIX = QString("assembly_export_");
@@ -1170,7 +1169,7 @@ void MainGui::checkRemoteDirCreated()
   }
 }
 
-void MatisseServer::MainGui::updateJobStatus(
+void MainGui::updateJobStatus(
     QString _job_name, QTreeWidgetItem *_item, MessageIndicatorLevel _indicator,
     QString _message) 
 {
@@ -1435,7 +1434,7 @@ void MainGui::slot_launchCameraManagerTool()
     m_camera_manager_tool_dialog.show();
 }
 
-void MatisseServer::MainGui::slot_launchCameraCalibTool()
+void MainGui::slot_launchCameraCalibTool()
 {
     m_camera_calib_tool_dialog.show();
 }
@@ -3837,7 +3836,7 @@ void MainGui::sl_uploadJobData()
     m_remote_job_helper->uploadDataset(job_name);
 }
 
-void MatisseServer::MainGui::sl_selectRemoteJobData()
+void MainGui::sl_selectRemoteJobData()
 {
   if (!_currentJob) {
     qCritical() << "No job selected, cannot select remote job data";
@@ -4163,4 +4162,6 @@ QString MainGui::getActualNewAssemblyName()
 
     return assemblyName;
 }
+
+} // namespace matisse
 

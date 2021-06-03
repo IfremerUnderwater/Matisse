@@ -13,7 +13,7 @@
 #include "camera_info.h"
 #include "camera_manager.h"
 
-using namespace matisse;
+namespace matisse {
 
 CameraCalibDialog::CameraCalibDialog(QWidget *parent) :
     QDialog(parent),
@@ -112,4 +112,6 @@ void CameraCalibDialog::slot_onCalibrateCameras()
     ui->log_text_edit->append(tr("Your camera has been calibrated and added to database. You can find it in the camera manager"));
 
 }
+
+} // namespace matisse
 

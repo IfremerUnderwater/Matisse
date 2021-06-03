@@ -1,6 +1,6 @@
 #include "parameters_fold_button.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 const quint8 ParametersFoldButton::ARROW_LINE_WIDTH = 8;
 const quint8 ParametersFoldButton::ARROW_LINE_HEIGHT = 10;
@@ -96,3 +96,4 @@ void ParametersFoldButton::slot_updateColorPalette(QMap<QString, QString> newCol
     repaint();
 }
 
+} // namespace matisse

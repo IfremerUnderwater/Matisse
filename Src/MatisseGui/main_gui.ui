@@ -50,7 +50,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="MainControllBar" name="_MCB_controllBar">
+     <widget class="matisse::MainControllBar" name="_MCB_controllBar">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -281,7 +281,7 @@
             <number>0</number>
            </property>
            <item row="0" column="0">
-            <widget class="MatisseTabWidget" name="_TW_infoTabs">
+            <widget class="matisse::MatisseTabWidget" name="_TW_infoTabs">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -514,7 +514,7 @@ p, li { white-space: pre-wrap; }
             <number>0</number>
            </property>
            <item row="0" column="0">
-            <widget class="MatisseTabWidget" name="_TW_creationViewTabs">
+            <widget class="matisse::MatisseTabWidget" name="_TW_creationViewTabs">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -890,7 +890,7 @@ p, li { white-space: pre-wrap; }
            <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="DataViewer" name="_WID_mapViewSceneContainer">
+           <widget class="matisse::DataViewer" name="_WID_mapViewSceneContainer">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -904,7 +904,7 @@ p, li { white-space: pre-wrap; }
              </size>
             </property>
            </widget>
-           <widget class="MatisseServer::AssemblyEditor" name="_WID_creationSceneContainer">
+           <widget class="matisse::AssemblyEditor" name="_WID_creationSceneContainer">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -959,7 +959,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
-       <widget class="MatisseServer::ParametersFoldButton" name="_PB_parameterFold">
+       <widget class="matisse::ParametersFoldButton" name="_PB_parameterFold">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -1020,30 +1020,30 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DataViewer</class>
+   <class>matisse::DataViewer</class>
    <extends>QWidget</extends>
    <header>data_viewer.h</header>
   </customwidget>
   <customwidget>
-   <class>MainControllBar</class>
+   <class>matisse::MainControllBar</class>
    <extends>QFrame</extends>
    <header>main_controll_bar.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>MatisseTabWidget</class>
+   <class>matisse::MatisseTabWidget</class>
    <extends>QTabWidget</extends>
    <header>matisse_tab_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>MatisseServer::AssemblyEditor</class>
+   <class>matisse::AssemblyEditor</class>
    <extends>QWidget</extends>
    <header>assembly_editor.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>MatisseServer::ParametersFoldButton</class>
+   <class>matisse::ParametersFoldButton</class>
    <extends>QPushButton</extends>
    <header>parameters_fold_button.h</header>
   </customwidget>

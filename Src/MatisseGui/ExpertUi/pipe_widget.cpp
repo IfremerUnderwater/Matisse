@@ -1,6 +1,6 @@
 ﻿#include "pipe_widget.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 int PipeWidget::_currentColorIndex = 0;
 QList<QRgb> PipeWidget::_colorsList = QList<QRgb>();
@@ -283,3 +283,5 @@ void PipeWidget::clone(PipeWidget *other)
     _startLine = other->_startLine;
     _endLine = other->_endLine;
 }
+
+} // namespace matisse

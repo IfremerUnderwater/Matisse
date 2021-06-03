@@ -7,7 +7,7 @@
 #include <QMenu>
 #include <QVBoxLayout>
 
-using namespace matisse;
+namespace matisse {
 
 MainMenuWidget::MainMenuWidget(QWidget *parent) :
     QFrame(parent),
@@ -39,3 +39,5 @@ void MainMenuWidget::changeEvent(QEvent *event)
         ui->retranslateUi(this);
     }
 }
+
+} // namespace matisse

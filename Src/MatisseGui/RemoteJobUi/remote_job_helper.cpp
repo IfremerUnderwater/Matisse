@@ -15,11 +15,9 @@
 #include "network_command_pbs_qsub.h"
 #include "parameters_common.h"
 
-using namespace matisse;
-using namespace MatisseTools;
 using namespace system_tools;
 
-namespace MatisseServer {
+namespace matisse {
 
 PasswordDialog::PasswordDialog(QWidget* _parent) : QDialog(_parent) {
   setupUi();
@@ -1100,5 +1098,5 @@ void RemoteJobHelper::sl_onUserLoginCanceled() {
   m_is_last_action_command = false;
 }
 
-} // namespace MatisseServer
+} // namespace matisse
 

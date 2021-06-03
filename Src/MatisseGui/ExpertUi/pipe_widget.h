@@ -1,9 +1,10 @@
-﻿#ifndef PIPEWIDGET_H
-#define PIPEWIDGET_H
+﻿#ifndef MATISSE_PIPE_WIDGET_H_
+#define MATISSE_PIPE_WIDGET_H_
 
 #include "element_widget.h"
 
-namespace MatisseServer {
+namespace matisse {
+
 class PipeWidget : public ElementWidget
 {
 
@@ -57,6 +58,7 @@ signals:
 public slots:
     
 };
-}
 
-#endif // PIPEWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_PIPE_WIDGET_H_

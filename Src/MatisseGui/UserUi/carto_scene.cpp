@@ -12,6 +12,8 @@
 using namespace cv;
 using namespace nav_tools;
 
+namespace matisse {
+
 CartoScene::CartoScene() : QGraphicsScene(/*QObject *parent = Q_NULLPTR)*/)
 {
     _envelope.setRect(0,0,0,0);
@@ -258,3 +260,5 @@ void CartoScene::showSceneBoundingRectangle(const bool show)
             _rectEnv->hide();
     }
 }
+
+} // namespace matisse

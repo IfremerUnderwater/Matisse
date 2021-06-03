@@ -1,6 +1,8 @@
 #include "osg_widget.h"
 #include "osg_widget_tool.h"
 
+namespace matisse {
+
 OSGWidgetTool *OSGWidgetTool::s_instance = 0;
 
 OSGWidgetTool::OSGWidgetTool() : m_current_type(OSGWidgetTool::None)
@@ -152,4 +154,6 @@ void OSGWidgetTool::slot_removeLastPointTool()
         emit signal_removeLastPointTool();
     }
 }
+
+} // namespace matisse
 

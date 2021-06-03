@@ -1,7 +1,9 @@
-#ifndef WHEELGRAPHICSVIEW_H
-#define WHEELGRAPHICSVIEW_H
+#ifndef MATISSE_WHEEL_GRAPHICS_VIEW_H_
+#define MATISSE_WHEEL_GRAPHICS_VIEW_H_
 
 #include <QGraphicsView>
+
+namespace matisse {
 
 // QGraphicsView with
 //      Zoom with mouse wheel
@@ -38,4 +40,6 @@ private:
     qreal _zoom;
 };
 
-#endif // WHEELGRAPHICSVIEW_H
+} // namespace matisse
+
+#endif // MATISSE_WHEEL_GRAPHICS_VIEW_H_

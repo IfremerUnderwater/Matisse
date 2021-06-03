@@ -1,8 +1,10 @@
-#ifndef MEASUREMENTPICKERTOOL_H
-#define MEASUREMENTPICKERTOOL_H
+#ifndef MATISSE_MEASUREMENT_PICKER_TOOL_H_
+#define MATISSE_MEASUREMENT_PICKER_TOOL_H_
 
 #include <QObject>
 #include <osg/Node>
+
+namespace matisse {
 
 class MeasurementPickerTool : public QObject
 {
@@ -20,6 +22,8 @@ signals:
     void signal_noNodeClicked();
 };
 
-#endif // MEASUREMENTPICKERTOOL_H
+} // namespace matisse
+
+#endif // MATISSE_MEASUREMENT_PICKER_TOOL_H_
 
 

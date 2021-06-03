@@ -1,11 +1,13 @@
-#ifndef ONGOINGPROCESSWIDGET_H
-#define ONGOINGPROCESSWIDGET_H
+#ifndef MATISSE_ONGOING_PROCESS_WIDGET_H_
+#define MATISSE_ONGOING_PROCESS_WIDGET_H_
 
 #include <QFrame>
 
 namespace Ui {
 class OngoingProcessWidget;
 }
+
+namespace matisse {
 
 class OngoingProcessWidget : public QFrame
 {
@@ -23,4 +25,6 @@ private:
     Ui::OngoingProcessWidget *ui;
 };
 
-#endif // ONGOINGPROCESSWIDGET_H
+} // namespace matisse
+
+#endif // MATISSE_ONGOING_PROCESS_WIDGET_H_

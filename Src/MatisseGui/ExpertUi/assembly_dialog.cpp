@@ -1,7 +1,7 @@
 ﻿#include "assembly_dialog.h"
 #include "ui_assembly_dialog.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 AssemblyDialog::AssemblyDialog(QWidget *parent, QString &name, KeyValueList &keyValue, bool isNewAssembly, bool isFirstTimeSave) :
     QDialog(parent),
@@ -77,3 +77,5 @@ void AssemblyDialog::slot_close()
         accept();
     }
 }
+
+} // namespace matisse

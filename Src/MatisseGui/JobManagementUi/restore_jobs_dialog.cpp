@@ -1,7 +1,7 @@
 #include "restore_jobs_dialog.h"
 #include "ui_restore_jobs_dialog.h"
 
-using namespace MatisseServer;
+namespace matisse {
 
 RestoreJobsDialog::RestoreJobsDialog(QWidget *parent, QString assemblyName, QStringList archivedJobs, QStringList &jobsToRestore) :
     QDialog(parent),
@@ -49,3 +49,5 @@ void RestoreJobsDialog::slot_close()
         accept();
     }
 }
+
+} // namespace matisse
