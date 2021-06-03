@@ -15,12 +15,10 @@
 #include "Context.h"
 #include "matisse_parameters.h"
 #include "job_launcher.h"
-//#include "welcome_dialog.h"
 #include "system_data_manager.h"
 #include "process_data_manager.h"
 
 using namespace matisse;
-using namespace MatisseCmd;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {

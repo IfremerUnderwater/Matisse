@@ -3,9 +3,7 @@
 #include "job_launcher.h"
 #include "graphical_charter.h"
 
-using namespace matisse;
-
-namespace MatisseCmd {
+namespace matisse {
 
 JobLauncher::JobLauncher(QObject *_parent) : 
       m_engine(_parent, true), // initialize engine as server
@@ -126,4 +124,4 @@ void JobLauncher::sl_userInformation(QString _user_information) {
   qDebug() << "==> User Information : " << _user_information;
 }
 
-}  // namespace MatisseCmd
+}  // namespace matisse

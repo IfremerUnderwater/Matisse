@@ -1,5 +1,5 @@
-﻿#ifndef JOB_LAUNCHER_H
-#define JOB_LAUNCHER_H
+﻿#ifndef MATISSE_JOB_LAUNCHER_H_
+#define MATISSE_JOB_LAUNCHER_H_
 
 #include <QDateTime>
 #include <QFile>
@@ -19,9 +19,7 @@
 #include "platform_comparison_status.h"
 #include "string_utils.h"
 
-using namespace matisse;
-
-namespace MatisseCmd {
+namespace matisse {
 
 
 class JobLauncher : public QObject
@@ -57,6 +55,7 @@ public slots:
     void sl_processCompletion(quint8 _ret_code);
     void sl_userInformation(QString _user_information);
 };
-}
 
-#endif // JOB_LAUNCHER_H
+} // namespace matisse
+
+#endif // MATISSE_JOB_LAUNCHER_H_
