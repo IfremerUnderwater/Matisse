@@ -2,34 +2,34 @@
 
 namespace matisse_image {
 
-NavImage::NavImage(const NavImage &other):Image(other),
-    _navInfo(other._navInfo)
+NavImage::NavImage(const NavImage &_other):Image(_other),
+    m_nav_info(_other.m_nav_info)
 {
 }
 
 
-NavImage::NavImage(int id, cv::Mat *imageData, NavInfo navInfo):Image(id, imageData),
-    _navInfo(navInfo)
+NavImage::NavImage(int _id, cv::Mat *_image_data, NavInfo _nav_info):Image(_id, _image_data),
+    m_nav_info(_nav_info)
 {
 
 }
 
 
-void NavImage::setNavInfo(NavInfo navInfo)
+void NavImage::setNavInfo(NavInfo _nav_info)
 {
-    _navInfo = navInfo;
+    m_nav_info = _nav_info;
 }
 
 NavInfo &NavImage::navInfo()
 {
-    return _navInfo;
+    return m_nav_info;
 }
 
 
 QString NavImage::dumpAttr()
 {
     QString ret(Image::dumpAttr());
-    ret += _navInfo.dump();
+    ret += m_nav_info.dump();
 
     return ret;
 

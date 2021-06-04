@@ -20,32 +20,32 @@ public:
 
     ///
     /// \brief Constructeur
-    /// \param pictureFileSet référentiel fichier racine des images
-    /// \param fileName nom de fichier de l'image
-    /// \param sourceName nom de la source de l'image
-    /// \param sourceFormat format de l'image
-    /// \param id identifiant de l'image
-    /// \param navInfo informations de navigation
+    /// \param _picture_file_set référentiel fichier racine des images
+    /// \param _file_name nom de fichier de l'image
+    /// \param _source_name nom de la source de l'image
+    /// \param _source_format format de l'image
+    /// \param _id identifiant de l'image
+    /// \param _nav_info informations de navigation
     ///
-    FileImage(PictureFileSet * pictureFileSet, QString fileName, QString sourceName, QString sourceFormat, int id, NavInfo navInfo);
+    FileImage(PictureFileSet * _picture_file_set, QString _file_name, QString _source_name, QString _source_format, int m_id, NavInfo _nav_info);
 
     ///
     /// \brief Constructeur de copie
     /// \param other
     ///
-    FileImage(const FileImage & other);
+    FileImage(const FileImage & _other);
 
     ~FileImage();
 
-    QString getFileName() {  return _fileName;  }
+    QString getFileName() {  return m_file_name;  }
 	
-	QString getFullFilePath() {  return _pictureFileSet->rootDirname() + "/" +_fileName;  }
+    QString getFullFilePath() {  return m_picture_file_set->rootDirname() + "/" +m_file_name;  }
 
-    QString getSourceName() { return _sourceName; }
+    QString getSourceName() { return m_source_name; }
 
-    QString getSourceFormat() { return _sourceFormat;  }
+    QString getSourceFormat() { return m_source_format;  }
 
-    PictureFileSet * getPictureFileSet() { return _pictureFileSet;  }
+    PictureFileSet * getPictureFileSet() { return m_picture_file_set;  }
 
     ///
     /// \brief Construction d'image Mat en lazy-loading
@@ -75,13 +75,13 @@ public:
     void setScaleFactor(double scaleFactor);
 
 protected:
-    QString _fileName;
-    QString _sourceName;
-    QString _sourceFormat;
-    PictureFileSet * _pictureFileSet;
-    QImageReader *_imReader;
+    QString m_file_name;
+    QString m_source_name;
+    QString m_source_format;
+    PictureFileSet * m_picture_file_set;
+    QImageReader *m_im_reader;
 
-    double _scaleFactor;
+    double m_scale_factor;
 
 };
 

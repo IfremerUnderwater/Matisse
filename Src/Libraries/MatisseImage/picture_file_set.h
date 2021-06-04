@@ -19,11 +19,11 @@ class PictureFileSet : public InputSource
 public:
     ///
     /// \brief Constructeur
-    /// \param rootDirname chemin absolu vers la racine
-    /// \param dim2Filename nom du fichier DIM2
-    /// \param writable mode d'accès aux fichiers images
+    /// \param _root_dir_name chemin absolu vers la racine
+    /// \param _dim2_file_name nom du fichier DIM2
+    /// \param _writable mode d'accès aux fichiers images
     ///
-    PictureFileSet(QString rootDirname = "", QString dim2Filename = "", bool writable = false);
+    PictureFileSet(QString _root_dir_name = "", QString _dim2_file_name = "", bool _writable = false);
 
 
     QString rootDirname();
@@ -44,9 +44,9 @@ public:
 
 
 private:
-    QString _rootDirname;
-    QString _dim2Filename;
-    bool _writable;
+    QString m_root_dir_name;
+    QString m_dim2_file_name;
+    bool m_writable;
 };
 }
 #endif // MATISSE_IMAGE_PICTURE_FILE_SET_H_

@@ -16,12 +16,12 @@ public:
     virtual ~ImageListener() {}
     ///
     /// \brief Notifie l'arrivée d'une nouvelle image sur le port d'entrée
-    /// \param port
-    /// \param image
+    /// \param _port
+    /// \param _image
     ///
-    virtual void onNewImage(quint32 port, Image &image) = 0;
+    virtual void onNewImage(quint32 _port, Image &_image) = 0;
 
-    virtual void onFlush(quint32 port) = 0;
+    virtual void onFlush(quint32 _port) = 0;
 
 
 };

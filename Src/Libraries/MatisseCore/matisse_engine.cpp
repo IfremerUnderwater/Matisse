@@ -291,18 +291,18 @@ bool MatisseEngine::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jo
         ImageSetPort *inPort = new ImageSetPort();
         quint32 outPortNumber = conDef->startLine();
         quint32 inPortNumber = conDef->endLine();
-        outPort->portNumber = outPortNumber;
-        inPort->portNumber = inPortNumber;
+        outPort->port_number = outPortNumber;
+        inPort->port_number = inPortNumber;
         if (startOrder==0) {
-            outPort->imageSet = imageProvider->imageSet(outPortNumber);
+            outPort->image_set = imageProvider->imageSet(outPortNumber);
         } else {
             qDebug() << "  Creation de out port processor ";
             // Creation d'un imageset vide
-            outPort->imageSet = new ImageSet();
+            outPort->image_set = new ImageSet();
 
         }
 
-        inPort->imageSet=outPort->imageSet;
+        inPort->image_set=outPort->image_set;
 
 
         outProcessorPorts->append(outPort);
@@ -330,9 +330,9 @@ bool MatisseEngine::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jo
                 processor->setInputPortList(inPorts);
                 foreach (ImageSetPort* inPort, *inPorts)
                 {
-                    qDebug() << "  Port entrant " << inPort->portNumber;
-                    inPort->imageSet->setOutPort(inPort);
-                    inPort->imageListener = processor;
+                    qDebug() << "  Port entrant " << inPort->port_number;
+                    inPort->image_set->setOutPort(inPort);
+                    inPort->image_listener = processor;
                 }
             }
             QList<ImageSetPort *> * outPorts =  outProcessorPortsByOrder.value(order);
@@ -350,10 +350,10 @@ bool MatisseEngine::buildJobTask(AssemblyDefinition &assembly, JobDefinition &jo
     QList<ImageSetPort *> * inPorts =  inProcessorPortsByOrder.value(order);
     if (inPorts && inPorts->size()==1) {
         ImageSetPort* inPort = inPorts->at(0);
-        qDebug() << "Raster  Port entrant " << inPort->portNumber;
-        rasterProvider->setImageSet(inPort->imageSet);
-        inPort->imageSet->setOutPort(inPort);
-        inPort->imageListener = rasterProvider;
+        qDebug() << "Raster  Port entrant " << inPort->port_number;
+        rasterProvider->setImageSet(inPort->image_set);
+        inPort->image_set->setOutPort(inPort);
+        inPort->image_listener = rasterProvider;
     }
 
 

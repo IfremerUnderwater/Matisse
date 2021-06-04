@@ -5,36 +5,37 @@ using namespace cv;
 
 namespace matisse_image {
 
-FileImage::FileImage(PictureFileSet *pictureFileSet, QString fileName, QString sourceName, QString sourceFormat, int id, NavInfo navInfo):NavImage(id, NULL, navInfo),
-    _fileName(fileName),
-    _sourceName(sourceName),
-    _sourceFormat(sourceFormat),
-    _pictureFileSet(pictureFileSet)
+FileImage::FileImage(PictureFileSet *_picture_file_set, QString _file_name, QString _source_name, QString _source_format, int _id, NavInfo _nav_info):
+    NavImage(_id, NULL, _nav_info),
+    m_file_name(_file_name),
+    m_source_name(_source_name),
+    m_source_format(_source_format),
+    m_picture_file_set(_picture_file_set)
 {
-    _imReader = new QImageReader(_pictureFileSet->rootDirname() + "/" +_fileName);
-    _scaleFactor = 1.0;
+    m_im_reader = new QImageReader(m_picture_file_set->rootDirname() + "/" +m_file_name);
+    m_scale_factor = 1.0;
 }
 
-FileImage::FileImage(const FileImage &other):NavImage(other),
-    _fileName(other._fileName),
-    _sourceName(other._sourceName),
-    _sourceFormat(other._sourceFormat),
-    _pictureFileSet(other._pictureFileSet)
+FileImage::FileImage(const FileImage &_other):NavImage(_other),
+    m_file_name(_other.m_file_name),
+    m_source_name(_other.m_source_name),
+    m_source_format(_other.m_source_format),
+    m_picture_file_set(_other.m_picture_file_set)
 {
-    _imReader = new QImageReader(_pictureFileSet->rootDirname() + "/" +_fileName);
+    m_im_reader = new QImageReader(m_picture_file_set->rootDirname() + "/" +m_file_name);
 }
 
 FileImage::~FileImage()
 {
-    delete _imReader;
+    delete m_im_reader;
 }
 
 QString FileImage::dumpAttr()
 {
     QString ret(NavImage::dumpAttr());
-    ret += "fileName = " + _fileName + "\n";
-    ret += "sourceName = " + _sourceName + "\n";
-    ret += "sourceFormat = " + _sourceFormat + "\n";
+    ret += "fileName = " + m_file_name + "\n";
+    ret += "sourceName = " + m_source_name + "\n";
+    ret += "sourceFormat = " + m_source_format + "\n";
 
     return ret;
 
@@ -42,44 +43,44 @@ QString FileImage::dumpAttr()
 
 double FileImage::getScaleFactor() const
 {
-    return _scaleFactor;
+    return m_scale_factor;
 }
 
-void FileImage::setScaleFactor(double scaleFactor)
+void FileImage::setScaleFactor(double _scale_factor)
 {
-    _scaleFactor = scaleFactor;
+    m_scale_factor = _scale_factor;
 }
 
 Mat *FileImage::imageData() {
 
-    if ( _imageData == 0) {
+    if ( m_image_data == 0) {
         // chargement de l'image
         // normalement elle existe car vérifiée dans le provider...
-        if (!_pictureFileSet == 0) {
-            std::string filePath =  QString(_pictureFileSet -> rootDirname() + "/" +_fileName).toStdString();
+        if (!m_picture_file_set == 0) {
+            std::string file_path =  QString(m_picture_file_set -> rootDirname() + "/" +m_file_name).toStdString();
 
-            if (_scaleFactor < 1.0){
-                _imageData = new Mat();
-                Mat fullSizeImg = imread(filePath, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-                resize(fullSizeImg, *_imageData, cv::Size(0, 0), _scaleFactor, _scaleFactor);
+            if (m_scale_factor < 1.0){
+                m_image_data = new Mat();
+                Mat fullSizeImg = imread(file_path, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+                resize(fullSizeImg, *m_image_data, cv::Size(0, 0), m_scale_factor, m_scale_factor);
             }else{
-                _imageData = new Mat(imread(filePath, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION));
+                m_image_data = new Mat(imread(file_path, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION));
             }
         }
     }
 
-    return _imageData;
+    return m_image_data;
 }
 
 int FileImage::width()
 {
-    if(_imageData != 0){
+    if(m_image_data != 0){
         // If image is loaded send info from memory
-        return _imageData->cols;
+        return m_image_data->cols;
     }else{
         // If not send info from reader (no image loading)
-        if(_imReader){
-            return _scaleFactor*_imReader->size().width();
+        if(m_im_reader){
+            return m_scale_factor*m_im_reader->size().width();
         }else{
             qDebug() << "Image Size cannot be read";
             exit(1);
@@ -89,13 +90,13 @@ int FileImage::width()
 
 int FileImage::height()
 {
-    if(_imageData != 0){
+    if(m_image_data != 0){
         // If image is loaded send info from memory
-        return _imageData->rows;
+        return m_image_data->rows;
     }else{
         // If not send info from reader (no image loading)
-        if(_imReader){
-            return _scaleFactor*_imReader->size().height();
+        if(m_im_reader){
+            return m_scale_factor*m_im_reader->size().height();
         }else{
             qDebug() << "Image Size cannot be read";
             exit(1);

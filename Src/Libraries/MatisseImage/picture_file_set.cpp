@@ -2,21 +2,22 @@
 
 namespace matisse_image {
 
-PictureFileSet::PictureFileSet(QString rootDirname, QString dim2Filename, bool writable):_rootDirname(rootDirname),
-    _dim2Filename(dim2Filename),
-    _writable(writable)
+PictureFileSet::PictureFileSet(QString _root_dir_name, QString _dim2_file_name, bool _writable):
+    m_root_dir_name(_root_dir_name),
+    m_dim2_file_name(_dim2_file_name),
+    m_writable(_writable)
 {
 
 }
 
 QString PictureFileSet::rootDirname()
 {
-    return _rootDirname;
+    return m_root_dir_name;
 }
 
 QString PictureFileSet::dim2Filename()
 {
-    return _dim2Filename;
+    return m_dim2_file_name;
 }
 
 
@@ -28,12 +29,12 @@ bool PictureFileSet::isValid()
 
 bool PictureFileSet::rootDirnameIsValid()
 {
-    if (_rootDirname.isEmpty()) {
+    if (m_root_dir_name.isEmpty()) {
         return false;
     }
-    QFileInfo info(_rootDirname);
+    QFileInfo info(m_root_dir_name);
     bool ret = info.exists() && info.isDir() && info.isReadable();
-    if (_writable) {
+    if (m_writable) {
         ret = info.isWritable() && ret;
     }
 
@@ -42,16 +43,16 @@ bool PictureFileSet::rootDirnameIsValid()
 
 bool PictureFileSet::dim2FileIsValid()
 {
-    if (_dim2Filename.isEmpty()) {
+    if (m_dim2_file_name.isEmpty()) {
         return false;
     }
 
     bool ret = rootDirnameIsValid();
     if (ret) {
-        QString filename = _rootDirname + "/" + _dim2Filename;
+        QString filename = m_root_dir_name + "/" + m_dim2_file_name;
         QFileInfo info(filename);
         if (!info.exists()) {
-            if (_writable) {
+            if (m_writable) {
                 QFile newFile(filename);
                 ret = newFile.open(QIODevice::ReadWrite);
                 newFile.close();
@@ -60,7 +61,7 @@ bool PictureFileSet::dim2FileIsValid()
             }
         } else {
             ret = info.isFile() && info.isReadable();
-            if (_writable) {
+            if (m_writable) {
                 ret = info.isWritable() && ret;
             }
         }

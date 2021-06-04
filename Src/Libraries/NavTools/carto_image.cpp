@@ -38,9 +38,9 @@ CartoImage::CartoImage() :
 
 bool CartoImage::loadFile(QString filename_p)
 {
-    _id = 0;
+    m_id = 0;
     if (filename_p.isEmpty()) {
-        _id = -1;
+        m_id = -1;
         return false;
     }
 
@@ -76,7 +76,7 @@ bool CartoImage::loadFile(QString filename_p)
     }
 
     Mat readImage = imread(_fileName.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-    _imageData = new Mat(readImage);
+    m_image_data = new Mat(readImage);
 
     return true;
 }
@@ -84,8 +84,8 @@ bool CartoImage::loadFile(QString filename_p)
 QRectF CartoImage::getEnvelope()
 {
     // rotation
-    qreal XMAX = _imageData->cols-1;
-    qreal YMAX = _imageData->rows-1;
+    qreal XMAX = m_image_data->cols-1;
+    qreal YMAX = m_image_data->rows-1;
     qreal left = min(xGeo(0,0), xGeo(XMAX, 0));
     left = min(left,  xGeo(0, YMAX));
     left = min(left,  xGeo(XMAX, YMAX));
@@ -108,14 +108,14 @@ QRectF CartoImage::getEnvelope()
 // width of image (and not containing envelope)
 qreal CartoImage::widthGeo()
 {
-    qreal XMAX = _imageData->cols-1;
+    qreal XMAX = m_image_data->cols-1;
     return hypot( xGeo(XMAX, 0) - xGeo(0,0),  yGeo(XMAX, 0) - yGeo(0,0));
 }
 
 // height of image (and not containing envelope)
 qreal CartoImage::heightGeo()
 {
-    qreal YMAX = _imageData->rows-1;
+    qreal YMAX = m_image_data->rows-1;
     return hypot( xGeo(0, YMAX) - xGeo(0,0), yGeo(0, YMAX) - yGeo(0,0));
 }
 

@@ -73,8 +73,8 @@ void Init2DMosaic::onFlush(quint32 port)
 
     // Find imageSet corresponding to this port
     foreach (ImageSetPort *ImSet,*_inputPortList){
-        if (ImSet->portNumber == port){
-            imageSet = ImSet->imageSet;
+        if (ImSet->port_number == port){
+            imageSet = ImSet->image_set;
             break;
         }
     }

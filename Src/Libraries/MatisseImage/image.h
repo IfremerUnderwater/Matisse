@@ -21,18 +21,18 @@ public:
 
     ///
     /// \brief Copie une image.
-    /// \param other Image origine
-    ///  \param shallowCopy Si vrai, l'image Mat sous jacente est elle-même copiée
+    /// \param _other Image origine
+    ///  \param _shallow_copy Si vrai, l'image Mat sous jacente est elle-même copiée
     ///
-    Image(const Image &other, bool shallowCopy=true);
+    Image(const Image &_other, bool _shallow_copy=true);
 
     ///
     /// \brief Construit une image à partir d'une image OpenCV Mat
     /// Fonction réservée aux ImageProvider
-    /// \param id
-    /// \param imageData
+    /// \param _id
+    /// \param _image_data
     ///
-    Image(int id, cv::Mat * imageData = 0);
+    Image(int m_id, cv::Mat * _image_data = 0);
 
     ///
     /// \brief Destructeur. Détruit l'image OpenCV sous-jacente
@@ -40,13 +40,13 @@ public:
     virtual ~Image();
 
 
-    int id() { return _id; }
+    int id() { return m_id; }
 
     ///
     /// \brief Retourne l'image OpenCV associée
     /// \return
     ///
-    virtual cv::Mat * imageData() { return _imageData;}
+    virtual cv::Mat * imageData() { return m_image_data;}
     void releaseImageData();
 
     ///
@@ -68,8 +68,8 @@ public:
 
 protected:
     //QExplicitlySharedDataPointer<ImageData> _imageData;
-    int _id;
-    cv::Mat * _imageData;
+    int m_id;
+    cv::Mat * m_image_data;
 };
 
 

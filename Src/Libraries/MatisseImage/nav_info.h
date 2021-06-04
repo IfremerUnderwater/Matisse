@@ -35,96 +35,96 @@ namespace matisse_image {
 class NavInfo
 {
 public:
-    NavInfo(quint32 dive = 0, QDateTime time = QDateTime(), double longitude = InvalidValue, double latitude = InvalidValue, double depth = InvalidValue, double altitude = InvalidValue, double yaw = InvalidValue, double roll = InvalidValue, double pitch = InvalidValue, double vx = InvalidValue, double vy = InvalidValue, double vz = InvalidValue);
-    NavInfo(QString dive, QString time, QString longitude, QString latitude, QString depth, QString altitude, QString yaw, QString roll, QString pitch, QString vx, QString vy, QString vz);
+    NavInfo(quint32 _dive = 0, QDateTime _time = QDateTime(), double _longitude = InvalidValue, double _latitude = InvalidValue, double _depth = InvalidValue, double _altitude = InvalidValue, double _yaw = InvalidValue, double _roll = InvalidValue, double _pitch = InvalidValue, double _vx = InvalidValue, double _vy = InvalidValue, double _vz = InvalidValue);
+    NavInfo(QString _dive, QString _time, QString _longitude, QString _latitude, QString _depth, QString _altitude, QString _yaw, QString _roll, QString _pitch, QString _vx, QString _vy, QString _vz);
 
-    void setInfo(quint32 dive = 0, QDateTime time = QDateTime(), double longitude = InvalidValue, double latitude = InvalidValue, double depth = InvalidValue, double altitude = InvalidValue, double yaw = InvalidValue, double roll = InvalidValue, double pitch = InvalidValue, double vx = InvalidValue, double vy = InvalidValue, double vz = InvalidValue, double pan=0.0, double tilt=-M_PI_2);
-    void setInfo(QString dive, QString time, QString longitude, QString latitude, QString depth, QString altitude, QString yaw, QString roll, QString pitch, QString vx, QString vy, QString vz);
+    void setInfo(quint32 _dive = 0, QDateTime _time = QDateTime(), double _longitude = InvalidValue, double _latitude = InvalidValue, double _depth = InvalidValue, double _altitude = InvalidValue, double _yaw = InvalidValue, double _roll = InvalidValue, double _pitch = InvalidValue, double _vx = InvalidValue, double _vy = InvalidValue, double _vz = InvalidValue, double _pan=0.0, double _tilt=-M_PI_2);
+    void setInfo(QString _dive, QString _time, QString _longitude, QString _latitude, QString _depth, QString _altitude, QString _yaw, QString _roll, QString _pitch, QString _vx, QString _vy, QString _vz);
     void setInfo(QStringList args);
 
     quint32 diveNumber() const;
-    void setDiveNumber(const quint32 &diveNumber);
-    void setDiveNumber(const QString &arg);
+    void setDiveNumber(const quint32 &_dive_number);
+    void setDiveNumber(const QString &_arg);
 
     QDateTime timeInfo() const;
-    void setTimeInfo(const QDateTime &timeInfo);
-    void setTimeInfo(const QString &arg);
+    void setTimeInfo(const QDateTime &_time_info);
+    void setTimeInfo(const QString &_arg);
 
     double longitude() const;
     double latitude() const;
-    void setLatLon(const double &latitude,const double &longitude);
-    void setLatLon(const QString &arg_lat, const QString &arg_lon);
+    void setLatLon(const double &_latitude,const double &_longitude);
+    void setLatLon(const QString &_arg_lat, const QString &_arg_lon);
 
     double depth() const;
-    void setDepth(const double &depth);
-    void setDepth(const QString &arg);
+    void setDepth(const double &_depth);
+    void setDepth(const QString &_arg);
 
     double altitude() const;
-    void setAltitude(const double &altitude);
-    void setAltitude(const QString &arg);
+    void setAltitude(const double &_altitude);
+    void setAltitude(const QString &_arg);
 
     double yaw() const;
-    void setYaw(const double &yaw);
-    void setYaw(const QString &arg);
+    void setYaw(const double &_yaw);
+    void setYaw(const QString &_arg);
 
     double roll() const;
-    void setRoll(const double &roll);
-    void setRoll(const QString &arg);
+    void setRoll(const double &_roll);
+    void setRoll(const QString &_arg);
 
     double pitch() const;
-    void setPitch(const double &pitch);
-    void setPitch(const QString &arg);
+    void setPitch(const double &_pitch);
+    void setPitch(const QString &_arg);
 
     double vx() const;
-    void setVx(const double &vx);
-    void setVx(const QString &arg);
+    void setVx(const double &_vx);
+    void setVx(const QString &_arg);
 
     double vy() const;
-    void setVy(const double &vy);
-    void setVy(const QString &arg);
+    void setVy(const double &_vy);
+    void setVy(const QString &_arg);
 
     double vz() const;
-    void setVz(const double &vz);
-    void setVz(const QString &arg);
+    void setVz(const double &_vz);
+    void setVz(const QString &_arg);
 
     bool isValid(QString flags = "11111111");
 
     QString dump();
 
     double utmX() const;
-    void setUtmX(const double &utmX);
+    void setUtmX(const double &_utm_x);
 
     double utmY() const;
-    void setUtmY(const double &utmY);
+    void setUtmY(const double &_utm_y);
 
     QString utmZone() const;
-    void setUtmZone(const QString &utmZone);
+    void setUtmZone(const QString &_utm_zone);
 
     double pan() const;
-    void setPan(const double &pan);
+    void setPan(const double &_pan);
 
     double tilt() const;
-    void setTilt(const double &tilt);
+    void setTilt(const double &_tilt);
 
 private:
-    quint32 _diveNumber;
-    QDateTime _timeInfo;
-    double _utmX;
-    double _utmY;
-    QString _utmZone;
-    double _longitude;
-    double _latitude;
-    double _depth;
-    double _altitude;
-    double _yaw;
-    double _roll;
-    double _pitch;
-    double _vx;
-    double _vy;
-    double _vz;
+    quint32 m_dive_number;
+    QDateTime m_time_info;
+    double m_utm_x;
+    double m_utm_y;
+    QString m_utm_zone;
+    double m_longitude;
+    double m_latitude;
+    double m_depth;
+    double m_altitude;
+    double m_yaw;
+    double m_roll;
+    double m_pitch;
+    double m_vx;
+    double m_vy;
+    double m_vz;
 
-    double _pan;
-    double _tilt;
+    double m_pan;
+    double m_tilt;
 };
 }
 #endif // MATISSE_IMAGE_NAV_INFO_H_

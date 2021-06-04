@@ -19,20 +19,20 @@ public:
     /// \brief Constructeur de copie
     ///
     /// Le NaviInfo est copié.
-    /// \param other
+    /// \param _other
     ///
-    NavImage(const NavImage & other);
+    NavImage(const NavImage & _other);
 
     ///
     /// \brief Constructeur d'une image à partir de sa structure OpenCV Mat et de son NavInfo
-    /// \param id
-    /// \param imageData
-    /// \param navInfo
+    /// \param _id
+    /// \param _image_data
+    /// \param _nav_info
     ///
-    NavImage(int id, cv::Mat * imageData, NavInfo navInfo);
+    NavImage(int _id, cv::Mat * _image_data, NavInfo _nav_info);
 
 
-    void setNavInfo( NavInfo navInfo);
+    void setNavInfo( NavInfo _nav_info);
 
     NavInfo & navInfo();
 
@@ -43,7 +43,7 @@ public:
     virtual QString dumpAttr();
 
 protected:
-    NavInfo _navInfo;
+    NavInfo m_nav_info;
 };
 }
 

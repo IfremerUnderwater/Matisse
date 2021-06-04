@@ -6,53 +6,53 @@ using namespace cv;
 
 namespace matisse_image {
 
-Image::Image():_id(-1),
-    _imageData(0)
+Image::Image():m_id(-1),
+    m_image_data(0)
 {
 }
 
 
-Image::Image(const Image &other, bool shallowCopy): _id(other._id)
+Image::Image(const Image &_other, bool _shallow_copy): m_id(_other.m_id)
 {
-    Mat * imageData = other._imageData;
-    if (imageData) {
-        if (shallowCopy) {
-            _imageData = imageData;
+    Mat * image_data = _other.m_image_data;
+    if (image_data) {
+        if (_shallow_copy) {
+            m_image_data = image_data;
         }
         else {
-            _imageData = new Mat(*imageData);
+            m_image_data = new Mat(*image_data);
         }
     } else {
-        _imageData = new Mat();
+        m_image_data = new Mat();
     }
 }
 
 
-Image::Image(int id, Mat *imageData):_id(id)
+Image::Image(int _id, Mat *_image_data):m_id(_id)
 {
-    if (imageData) {
-        _imageData = new Mat(*imageData);
+    if (_image_data) {
+        m_image_data = new Mat(*_image_data);
     } else {
-        _imageData = 0;
+        m_image_data = 0;
     }
 }
 
 Image::~Image() {
-    delete _imageData;
+    delete m_image_data;
 }
 
 void Image::releaseImageData()
 {
-    if (_imageData) {
-        delete _imageData;
-        _imageData = 0;
+    if (m_image_data) {
+        delete m_image_data;
+        m_image_data = 0;
     }
 }
 
 int Image::width()
 {
-    if(_imageData != 0){
-        return _imageData->cols;
+    if(m_image_data != 0){
+        return m_image_data->cols;
     }else{
         return -1;
     }
@@ -60,8 +60,8 @@ int Image::width()
 
 int Image::height()
 {
-    if(_imageData != 0){
-        return _imageData->rows;
+    if(m_image_data != 0){
+        return m_image_data->rows;
     }else{
         return -1;
     }

@@ -26,8 +26,8 @@ void Processor::postImage(quint32 port, Image &image)
 
     bool found = false;
     foreach (ImageSetPort *imageSetPort, *_outputPortList ) {
-        if (imageSetPort->portNumber == port) {
-            imageSetPort->imageSet->addImage(&image);
+        if (imageSetPort->port_number == port) {
+            imageSetPort->image_set->addImage(&image);
             found = true;
             break;
         }
@@ -41,8 +41,8 @@ void Processor::flush(quint32 port)
 {
     bool found = false;
     foreach (ImageSetPort *imageSetPort, *_outputPortList ) {
-        if (imageSetPort->portNumber == port) {
-            imageSetPort->imageSet->flush();
+        if (imageSetPort->port_number == port) {
+            imageSetPort->image_set->flush();
             found = true;
             break;
         }

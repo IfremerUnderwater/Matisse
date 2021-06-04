@@ -3,72 +3,72 @@
 
 namespace matisse_image {
 
-Image *ImageSet::getImage(int imageNumber)
+Image *ImageSet::getImage(int _image_number)
 {
 
-        Image * retImage = 0;
-        if (_images.size() > imageNumber) {
-            retImage = _images[imageNumber];
-            if (_dropImages) {
-                _images.removeAt(imageNumber);
+        Image * ret_image = 0;
+        if (m_images.size() > _image_number) {
+            ret_image = m_images[_image_number];
+            if (m_drop_images) {
+                m_images.removeAt(_image_number);
             }
         }
 
-        return retImage;
+        return ret_image;
 
 
 }
 
 QList<Image *> ImageSet::getAllImages()
 {
-    return _images;
+    return m_images;
 }
 
-QList<Image *> ImageSet::getImages(int size, int imageNumber)
+QList<Image *> ImageSet::getImages(int _size, int _image_number)
 {
-    QList<Image *> retImages;
-    int maxIndex = imageNumber + size;
-    if (_images.size() > maxIndex) {
-        retImages = _images.mid(imageNumber, size);
-        if (_dropImages) {
-            for(int index = imageNumber; index < maxIndex; index++)
+    QList<Image *> ret_images;
+    int max_index = _image_number + _size;
+    if (m_images.size() > max_index) {
+        ret_images = m_images.mid(_image_number, _size);
+        if (m_drop_images) {
+            for(int index = _image_number; index < max_index; index++)
             {
-                _images.removeAt(index);
+                m_images.removeAt(index);
             }
         }
     }
-    return retImages;
+    return ret_images;
 }
 
 int ImageSet::getNumberOfImages()
 {
-    return _images.size();
+    return m_images.size();
 }
 
 int ImageSet::getMaxSize()
 {
-    return _maxSize;
+    return m_max_size;
 }
 
-bool ImageSet::addImage(Image *image)
+bool ImageSet::addImage(Image *_image)
 {
     bool ret = true;
-    if (_maxSize > -1) {
-        if (_images.size() < _maxSize) {
-            _images.append(image);
-        } else if (_dropImages){
-            _images.removeFirst();
-            _images.append(image);
+    if (m_max_size > -1) {
+        if (m_images.size() < m_max_size) {
+            m_images.append(_image);
+        } else if (m_drop_images){
+            m_images.removeFirst();
+            m_images.append(_image);
         } else {
             ret = false;
         }
     } else {
-        _images.append(image);
+        m_images.append(_image);
     }
 
-    if (_outPort) {
-        ImageListener *listener = _outPort->imageListener;
-        listener->onNewImage(_outPort->portNumber, *image);
+    if (m_out_port) {
+        ImageListener *listener = m_out_port->image_listener;
+        listener->onNewImage(m_out_port->port_number, *_image);
     } else {
         qDebug() << "ADD IMAGE: pas de port attache";
     }
@@ -76,33 +76,33 @@ bool ImageSet::addImage(Image *image)
     return ret;
 }
 
-bool ImageSet::addImages(QList<Image *> images)
+bool ImageSet::addImages(QList<Image *> _images)
 {
     bool ret = true;
-    int count = images.size();
-    if (_maxSize > -1) {
-        if ((_images.size() + count) > _maxSize) {
-            if (_dropImages) {
-                if (count > _maxSize) {
+    int count = _images.size();
+    if (m_max_size > -1) {
+        if ((m_images.size() + count) > m_max_size) {
+            if (m_drop_images) {
+                if (count > m_max_size) {
                     ret = false;
                 } else {
-                    count -= _maxSize - _images.size();
+                    count -= m_max_size - m_images.size();
                     while (count > 0) {
-                        _images.removeFirst();
+                        m_images.removeFirst();
                         count --;
                     }
-                    _images.append(images);
+                    m_images.append(_images);
                 }
             } else {
                 ret = false;
             }
 
         } else {
-            _images.append(images);
+            m_images.append(_images);
         }
 
     } else {
-        _images.append(images);
+        m_images.append(_images);
     }
 
     return ret;
@@ -110,9 +110,9 @@ bool ImageSet::addImages(QList<Image *> images)
 
 void ImageSet::flush()
 {
-    if (_outPort) {
-        ImageListener *listener = _outPort->imageListener;
-        listener->onFlush(_outPort->portNumber);
+    if (m_out_port) {
+        ImageListener *listener = m_out_port->image_listener;
+        listener->onFlush(m_out_port->port_number);
     } else {
         qDebug() << "FLUSH: pas de port attache";
     }
@@ -120,27 +120,27 @@ void ImageSet::flush()
 
 void ImageSet::clear()
 {
-    _images.clear();
+    m_images.clear();
 }
 
 
 QString ImageSet::dumpAttr()
 {
     QString ret("ImageSet:\n");
-    ret += QString("\tsize = %1\n").arg(_images.size());
-    ret += QString("\tmaxSize = %1\n").arg(_maxSize);
-    ret += QString("\tdropImages = %1\n").arg(_dropImages);
+    ret += QString("\tsize = %1\n").arg(m_images.size());
+    ret += QString("\tmaxSize = %1\n").arg(m_max_size);
+    ret += QString("\tdropImages = %1\n").arg(m_drop_images);
 
     return ret;
 }
 ImageSetPort *ImageSet::outPort() const
 {
-    return _outPort;
+    return m_out_port;
 }
 
 void ImageSet::setOutPort(ImageSetPort *outPort)
 {
-    _outPort = outPort;
+    m_out_port = outPort;
 }
 
 } // namespace matisse_image
