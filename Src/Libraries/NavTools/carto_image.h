@@ -14,11 +14,11 @@ class CartoImage : public Image
 {
 public:
     CartoImage();
-    bool loadFile(QString filename_p);
+    bool loadFile(QString _filename);
 
     typedef double GeoTransform[6];
     GeoTransform & getGeoTransform() {
-        return _adfGeoTransform;
+        return m_adf_geo_transform;
     }
 
     // returns envelope (with conversion from GeoTIFF)
@@ -26,16 +26,16 @@ public:
 
     // conversions
     //Xgeo = GT(0) + Xpixel*GT(1) + Yline*GT(2)
-    qreal xGeo(qreal XPixel, qreal YLine)
+    qreal xGeo(qreal x_pixel, qreal _y_line)
     {
-        return _adfGeoTransform[0] + XPixel*_adfGeoTransform[1] + YLine*_adfGeoTransform[2];
+        return m_adf_geo_transform[0] + x_pixel*m_adf_geo_transform[1] + _y_line*m_adf_geo_transform[2];
     }
 
     //Ygeo = GT(3) + Xpixel*GT(4) + Yline*GT(5)
-    qreal yGeo(qreal XPixel, qreal YLine)
+    qreal yGeo(qreal _x_pixel, qreal _y_line)
     {
         // !!!! row order (positive up in geographic coords, positive down in device coordinates)
-        return -(_adfGeoTransform[3] + XPixel*_adfGeoTransform[4] + YLine*_adfGeoTransform[5]);
+        return -(m_adf_geo_transform[3] + _x_pixel*m_adf_geo_transform[4] + _y_line*m_adf_geo_transform[5]);
     }
 
     // width of image (and not containing envelope)
@@ -47,10 +47,10 @@ public:
     // in rd
     qreal getRotationAngle();
 
-    QString fileName() const { return _fileName; }
+    QString fileName() const { return m_file_name; }
 private:
-    GeoTransform _adfGeoTransform;
-    QString _fileName;
+    GeoTransform m_adf_geo_transform;
+    QString m_file_name;
 };
 
 } // namespace nav_tools

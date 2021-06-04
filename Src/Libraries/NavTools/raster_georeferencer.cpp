@@ -12,20 +12,20 @@ using namespace std;
 
 namespace nav_tools {
 
-static int ArgIsNumeric( const char * );
-static void AttachMetadata( GDALDatasetH, char ** );
-static void CopyBandInfo( GDALRasterBand * poSrcBand, GDALRasterBand * poDstBand,
-                          int bCanCopyStatsMetadata, int bCopyScale, int bCopyNoData );
-static int bSubCall = FALSE;
+static int argIsNumeric(const char * _psz_arg);
+static void attachMetadata( GDALDatasetH, char ** );
+static void copyBandInfo( GDALRasterBand * _po_src_band, GDALRasterBand * _po_dst_band,
+                          int _b_can_copy_stats_metadata, int _b_copy_scale, int _b_copy_no_data );
+static int b_sub_call = FALSE;
 
 /*  ******************************************************************* */
 /*           Kept usage from old command line gdal_translate            */
 /* ******************************************************************** */
 
-static void Usage(const char* pszErrorMsg = NULL, int bShort = TRUE)
+static void usage(const char* _psz_error_msg = NULL, int _b_short = TRUE)
 
 {
-    int	iDr;
+    int	i_dr;
 
     printf( "Usage: gdal_translate [--help-general] [--long-usage]\n"
             "       [-ot {Byte/Int16/UInt16/UInt32/Int32/Float32/Float64/\n"
@@ -40,33 +40,33 @@ static void Usage(const char* pszErrorMsg = NULL, int bShort = TRUE)
             "       [-co \"NAME=VALUE\"]* [-stats]\n"
             "       src_dataset dst_dataset\n" );
 
-    if( !bShort )
+    if( !_b_short )
     {
         printf( "\n%s\n\n", GDALVersionInfo( "--version" ) );
         printf( "The following format drivers are configured and support output:\n" );
-        for( iDr = 0; iDr < GDALGetDriverCount(); iDr++ )
+        for( i_dr = 0; i_dr < GDALGetDriverCount(); i_dr++ )
         {
-            GDALDriverH hDriver = GDALGetDriver(iDr);
+            GDALDriverH h_driver = GDALGetDriver(i_dr);
 
-            if( GDALGetMetadataItem( hDriver, GDAL_DCAP_CREATE, NULL ) != NULL
-                    || GDALGetMetadataItem( hDriver, GDAL_DCAP_CREATECOPY,
+            if( GDALGetMetadataItem( h_driver, GDAL_DCAP_CREATE, NULL ) != NULL
+                    || GDALGetMetadataItem( h_driver, GDAL_DCAP_CREATECOPY,
                                             NULL ) != NULL )
             {
                 printf( "  %s: %s\n",
-                        GDALGetDriverShortName( hDriver ),
-                        GDALGetDriverLongName( hDriver ) );
+                        GDALGetDriverShortName( h_driver ),
+                        GDALGetDriverLongName( h_driver ) );
             }
         }
     }
 
-    if( pszErrorMsg != NULL )
-        fprintf(stderr, "\nFAILURE: %s\n", pszErrorMsg);
+    if( _psz_error_msg != NULL )
+        fprintf(stderr, "\nFAILURE: %s\n", _psz_error_msg);
 
     exit(1);
 }
 
 /* -------------------------------------------------------------------- */
-/*                      CheckExtensionConsistency()                     */
+/*                      checkExtensionConsistency()                     */
 /*                                                                      */
 /*      Check that the target file extension is consistant with the     */
 /*      requested driver. Actually, we only warn in cases where the     */
@@ -75,70 +75,70 @@ static void Usage(const char* pszErrorMsg = NULL, int bShort = TRUE)
 /* -------------------------------------------------------------------- */
 
 
-void CheckExtensionConsistency(const char* pszDestFilename,
-                               const char* pszDriverName)
+void checkExtensionConsistency(const char* _psz_dest_filename,
+                               const char* _psz_driver_name)
 {
 
-    char* pszDestExtension = CPLStrdup(CPLGetExtension(pszDestFilename));
-    if (pszDestExtension[0] != '\0')
+    char* psz_dest_extension = CPLStrdup(CPLGetExtension(_psz_dest_filename));
+    if (psz_dest_extension[0] != '\0')
     {
-        int nDriverCount = GDALGetDriverCount();
-        CPLString osConflictingDriverList;
-        for(int i=0;i<nDriverCount;i++)
+        int n_driver_count = GDALGetDriverCount();
+        CPLString os_conflicting_driver_list;
+        for(int i=0;i<n_driver_count;i++)
         {
-            GDALDriverH hDriver = GDALGetDriver(i);
-            const char* pszDriverExtension =
-                    GDALGetMetadataItem( hDriver, GDAL_DMD_EXTENSION, NULL );
-            if (pszDriverExtension && EQUAL(pszDestExtension, pszDriverExtension))
+            GDALDriverH h_driver = GDALGetDriver(i);
+            const char* psz_driver_extension =
+                    GDALGetMetadataItem( h_driver, GDAL_DMD_EXTENSION, NULL );
+            if (psz_driver_extension && EQUAL(psz_dest_extension, psz_driver_extension))
             {
-                if (GDALGetDriverByName(pszDriverName) != hDriver)
+                if (GDALGetDriverByName(_psz_driver_name) != h_driver)
                 {
-                    if (osConflictingDriverList.size())
-                        osConflictingDriverList += ", ";
-                    osConflictingDriverList += GDALGetDriverShortName(hDriver);
+                    if (os_conflicting_driver_list.size())
+                        os_conflicting_driver_list += ", ";
+                    os_conflicting_driver_list += GDALGetDriverShortName(h_driver);
                 }
                 else
                 {
                     /* If the request driver allows the used extension, then */
                     /* just stop iterating now */
-                    osConflictingDriverList = "";
+                    os_conflicting_driver_list = "";
                     break;
                 }
             }
         }
-        if (osConflictingDriverList.size())
+        if (os_conflicting_driver_list.size())
         {
             fprintf(stderr,
                     "Warning: The target file has a '%s' extension, which is normally used by the %s driver%s,\n"
                     "but the requested output driver is %s. Is it really what you want ?\n",
-                    pszDestExtension,
-                    osConflictingDriverList.c_str(),
-                    strchr(osConflictingDriverList.c_str(), ',') ? "s" : "",
-                    pszDriverName);
+                    psz_dest_extension,
+                    os_conflicting_driver_list.c_str(),
+                    strchr(os_conflicting_driver_list.c_str(), ',') ? "s" : "",
+                    _psz_driver_name);
         }
     }
 
-    CPLFree(pszDestExtension);
+    CPLFree(psz_dest_extension);
 }
 
 /* -------------------------------------------------------------------- */
-/*                        EarlySetConfigOptions()                       */
+/*                        earlySetConfigOptions()                       */
 /* -------------------------------------------------------------------- */
 
-void EarlySetConfigOptions( int argc, char ** argv )
+void earlySetConfigOptions( int _argc, char ** _argv )
 {
     /* Must process some config options before GDALAllRegister() or OGRRegisterAll(), */
     /* but we can't call GDALGeneralCmdLineProcessor() or OGRGeneralCmdLineProcessor(), */
     /* because it needs the drivers to be registered for the --format or --formats options */
-    for( int i = 1; i < argc; i++ )
+    for( int i = 1; i < _argc; i++ )
     {
-        if( EQUAL(argv[i],"--config") && i + 2 < argc &&
-                (EQUAL(argv[i + 1], "GDAL_SKIP") ||
-                 EQUAL(argv[i + 1], "GDAL_DRIVER_PATH") ||
-                 EQUAL(argv[i + 1], "OGR_SKIP") ||
-                 EQUAL(argv[i + 1], "OGR_DRIVER_PATH")) )
+        if( EQUAL(_argv[i],"--config") && i + 2 < _argc &&
+                (EQUAL(_argv[i + 1], "GDAL_SKIP") ||
+                 EQUAL(_argv[i + 1], "GDAL_DRIVER_PATH") ||
+                 EQUAL(_argv[i + 1], "OGR_SKIP") ||
+                 EQUAL(_argv[i + 1], "OGR_DRIVER_PATH")) )
         {
-            CPLSetConfigOption( argv[i+1], argv[i+2] );
+            CPLSetConfigOption( _argv[i+1], _argv[i+2] );
 
             i += 2;
         }
@@ -147,99 +147,99 @@ void EarlySetConfigOptions( int argc, char ** argv )
 
 
 /************************************************************************/
-/*                              SrcToDst()                              */
+/*                              srcToDst()                              */
 /************************************************************************/
 
-static void SrcToDst( double dfX, double dfY,
-                      int nSrcXOff, int nSrcYOff,
-                      int nSrcXSize, int nSrcYSize,
-                      int nDstXOff, int nDstYOff,
-                      int nDstXSize, int nDstYSize,
-                      double &dfXOut, double &dfYOut )
+static void srcToDst( double _df_x, double _df_y,
+                      int _n_src_x_off, int _n_src_y_off,
+                      int _n_src_x_size, int _n_src_y_size,
+                      int _n_dst_x_off, int _n_dst_y_Off,
+                      int _n_dst_x_size, int _n_dst_y_size,
+                      double &_df_x_out, double &_df_y_out )
 
 {
-    dfXOut = ((dfX - nSrcXOff) / nSrcXSize) * nDstXSize + nDstXOff;
-    dfYOut = ((dfY - nSrcYOff) / nSrcYSize) * nDstYSize + nDstYOff;
+    _df_x_out = ((_df_x - _n_src_x_off) / _n_src_x_size) * _n_dst_x_size + _n_dst_x_off;
+    _df_y_out = ((_df_y - _n_src_y_off) / _n_src_y_size) * _n_dst_y_size + _n_dst_y_Off;
 }
 
 /************************************************************************/
-/*                          GetSrcDstWindow()                           */
+/*                          fixSrcDstWindow()                           */
 /************************************************************************/
 
-static int FixSrcDstWindow( int* panSrcWin, int* panDstWin,
-                            int nSrcRasterXSize,
-                            int nSrcRasterYSize )
+static int fixSrcDstWindow( int* _pan_src_win, int* _pan_dst_win,
+                            int _n_src_raster_x_size,
+                            int _n_src_raster_y_size )
 
 {
-    const int nSrcXOff = panSrcWin[0];
-    const int nSrcYOff = panSrcWin[1];
-    const int nSrcXSize = panSrcWin[2];
-    const int nSrcYSize = panSrcWin[3];
+    const int n_src_x_off = _pan_src_win[0];
+    const int n_src_y_off = _pan_src_win[1];
+    const int n_src_x_size = _pan_src_win[2];
+    const int n_src_y_size = _pan_src_win[3];
 
-    const int nDstXOff = panDstWin[0];
-    const int nDstYOff = panDstWin[1];
-    const int nDstXSize = panDstWin[2];
-    const int nDstYSize = panDstWin[3];
+    const int n_dst_x_off = _pan_dst_win[0];
+    const int n_dst_y_off = _pan_dst_win[1];
+    const int n_dst_x_size = _pan_dst_win[2];
+    const int n_dst_y_size = _pan_dst_win[3];
 
-    int bModifiedX = FALSE, bModifiedY = FALSE;
+    int b_modified_x = FALSE, b_modified_y = FALSE;
 
-    int nModifiedSrcXOff = nSrcXOff;
-    int nModifiedSrcYOff = nSrcYOff;
+    int n_modified_src_x_off = n_src_x_off;
+    int n_modified_src_y_off = n_src_y_off;
 
-    int nModifiedSrcXSize = nSrcXSize;
-    int nModifiedSrcYSize = nSrcYSize;
+    int n_modified_src_x_size = n_src_x_size;
+    int n_modified_src_y_size = n_src_y_size;
 
     /* -------------------------------------------------------------------- */
     /*      Clamp within the bounds of the available source data.           */
     /* -------------------------------------------------------------------- */
-    if( nModifiedSrcXOff < 0 )
+    if( n_modified_src_x_off < 0 )
     {
-        nModifiedSrcXSize += nModifiedSrcXOff;
-        nModifiedSrcXOff = 0;
+        n_modified_src_x_size += n_modified_src_x_off;
+        n_modified_src_x_off = 0;
 
-        bModifiedX = TRUE;
+        b_modified_x = TRUE;
     }
 
-    if( nModifiedSrcYOff < 0 )
+    if( n_modified_src_y_off < 0 )
     {
-        nModifiedSrcYSize += nModifiedSrcYOff;
-        nModifiedSrcYOff = 0;
-        bModifiedY = TRUE;
+        n_modified_src_y_size += n_modified_src_y_off;
+        n_modified_src_y_off = 0;
+        b_modified_y = TRUE;
     }
 
-    if( nModifiedSrcXOff + nModifiedSrcXSize > nSrcRasterXSize )
+    if( n_modified_src_x_off + n_modified_src_x_size > _n_src_raster_x_size )
     {
-        nModifiedSrcXSize = nSrcRasterXSize - nModifiedSrcXOff;
-        bModifiedX = TRUE;
+        n_modified_src_x_size = _n_src_raster_x_size - n_modified_src_x_off;
+        b_modified_x = TRUE;
     }
 
-    if( nModifiedSrcYOff + nModifiedSrcYSize > nSrcRasterYSize )
+    if( n_modified_src_y_off + n_modified_src_y_size > _n_src_raster_y_size )
     {
-        nModifiedSrcYSize = nSrcRasterYSize - nModifiedSrcYOff;
-        bModifiedY = TRUE;
+        n_modified_src_y_size = _n_src_raster_y_size - n_modified_src_y_off;
+        b_modified_y = TRUE;
     }
 
     /* -------------------------------------------------------------------- */
     /*      Don't do anything if the requesting region is completely off    */
     /*      the source image.                                               */
     /* -------------------------------------------------------------------- */
-    if( nModifiedSrcXOff >= nSrcRasterXSize
-            || nModifiedSrcYOff >= nSrcRasterYSize
-            || nModifiedSrcXSize <= 0 || nModifiedSrcYSize <= 0 )
+    if( n_modified_src_x_off >= _n_src_raster_x_size
+            || n_modified_src_y_off >= _n_src_raster_y_size
+            || n_modified_src_x_size <= 0 || n_modified_src_y_size <= 0 )
     {
         return FALSE;
     }
 
-    panSrcWin[0] = nModifiedSrcXOff;
-    panSrcWin[1] = nModifiedSrcYOff;
-    panSrcWin[2] = nModifiedSrcXSize;
-    panSrcWin[3] = nModifiedSrcYSize;
+    _pan_src_win[0] = n_modified_src_x_off;
+    _pan_src_win[1] = n_modified_src_y_off;
+    _pan_src_win[2] = n_modified_src_x_size;
+    _pan_src_win[3] = n_modified_src_y_size;
 
     /* -------------------------------------------------------------------- */
     /*      If we haven't had to modify the source rectangle, then the      */
     /*      destination rectangle must be the whole region.                 */
     /* -------------------------------------------------------------------- */
-    if( !bModifiedX && !bModifiedY )
+    if( !b_modified_x && !b_modified_y )
         return TRUE;
 
     /* -------------------------------------------------------------------- */
@@ -247,56 +247,56 @@ static int FixSrcDstWindow( int* panSrcWin, int* panDstWin,
     /*      destination buffer coordinates in case the output region is     */
     /*      less than the whole buffer.                                     */
     /* -------------------------------------------------------------------- */
-    double dfDstULX, dfDstULY, dfDstLRX, dfDstLRY;
+    double df_dst_ulx, df_dst_uly, df_dst_lrx, df_dst_lry;
 
-    SrcToDst( nModifiedSrcXOff, nModifiedSrcYOff,
-              nSrcXOff, nSrcYOff,
-              nSrcXSize, nSrcYSize,
-              nDstXOff, nDstYOff,
-              nDstXSize, nDstYSize,
-              dfDstULX, dfDstULY );
-    SrcToDst( nModifiedSrcXOff + nModifiedSrcXSize, nModifiedSrcYOff + nModifiedSrcYSize,
-              nSrcXOff, nSrcYOff,
-              nSrcXSize, nSrcYSize,
-              nDstXOff, nDstYOff,
-              nDstXSize, nDstYSize,
-              dfDstLRX, dfDstLRY );
+    srcToDst( n_modified_src_x_off, n_modified_src_y_off,
+              n_src_x_off, n_src_y_off,
+              n_src_x_size, n_src_y_size,
+              n_dst_x_off, n_dst_y_off,
+              n_dst_x_size, n_dst_y_size,
+              df_dst_ulx, df_dst_uly );
+    srcToDst( n_modified_src_x_off + n_modified_src_x_size, n_modified_src_y_off + n_modified_src_y_size,
+              n_src_x_off, n_src_y_off,
+              n_src_x_size, n_src_y_size,
+              n_dst_x_off, n_dst_y_off,
+              n_dst_x_size, n_dst_y_size,
+              df_dst_lrx, df_dst_lry );
 
-    int nModifiedDstXOff = nDstXOff;
-    int nModifiedDstYOff = nDstYOff;
-    int nModifiedDstXSize = nDstXSize;
-    int nModifiedDstYSize = nDstYSize;
+    int n_modified_dst_x_off = n_dst_x_off;
+    int n_modified_dst_y_off = n_dst_y_off;
+    int n_modified_dst_x_size = n_dst_x_size;
+    int n_modified_dst_y_size = n_dst_y_size;
 
-    if( bModifiedX )
+    if( b_modified_x )
     {
-        nModifiedDstXOff = (int) ((dfDstULX - nDstXOff)+0.001);
-        nModifiedDstXSize = (int) ((dfDstLRX - nDstXOff)+0.001)
-                - nModifiedDstXOff;
+        n_modified_dst_x_off = (int) ((df_dst_ulx - n_dst_x_off)+0.001);
+        n_modified_dst_x_size = (int) ((df_dst_lrx - n_dst_x_off)+0.001)
+                - n_modified_dst_x_off;
 
-        nModifiedDstXOff = MAX(0,nModifiedDstXOff);
-        if( nModifiedDstXOff + nModifiedDstXSize > nDstXSize )
-            nModifiedDstXSize = nDstXSize - nModifiedDstXOff;
+        n_modified_dst_x_off = MAX(0,n_modified_dst_x_off);
+        if( n_modified_dst_x_off + n_modified_dst_x_size > n_dst_x_size )
+            n_modified_dst_x_size = n_dst_x_size - n_modified_dst_x_off;
     }
 
-    if( bModifiedY )
+    if( b_modified_y )
     {
-        nModifiedDstYOff = (int) ((dfDstULY - nDstYOff)+0.001);
-        nModifiedDstYSize = (int) ((dfDstLRY - nDstYOff)+0.001)
-                - nModifiedDstYOff;
+        n_modified_dst_y_off = (int) ((df_dst_uly - n_dst_y_off)+0.001);
+        n_modified_dst_y_size = (int) ((df_dst_lry - n_dst_y_off)+0.001)
+                - n_modified_dst_y_off;
 
-        nModifiedDstYOff = MAX(0,nModifiedDstYOff);
-        if( nModifiedDstYOff + nModifiedDstYSize > nDstYSize )
-            nModifiedDstYSize = nDstYSize - nModifiedDstYOff;
+        n_modified_dst_y_off = MAX(0,n_modified_dst_y_off);
+        if( n_modified_dst_y_off + n_modified_dst_y_size > n_dst_y_size )
+            n_modified_dst_y_size = n_dst_y_size - n_modified_dst_y_off;
     }
 
-    if( nModifiedDstXSize < 1 || nModifiedDstYSize < 1 )
+    if( n_modified_dst_x_size < 1 || n_modified_dst_y_size < 1 )
         return FALSE;
     else
     {
-        panDstWin[0] = nModifiedDstXOff;
-        panDstWin[1] = nModifiedDstYOff;
-        panDstWin[2] = nModifiedDstXSize;
-        panDstWin[3] = nModifiedDstYSize;
+        _pan_dst_win[0] = n_modified_dst_x_off;
+        _pan_dst_win[1] = n_modified_dst_y_off;
+        _pan_dst_win[2] = n_modified_dst_x_size;
+        _pan_dst_win[3] = n_modified_dst_y_size;
 
         return TRUE;
     }
@@ -311,197 +311,197 @@ enum
 
 #define CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(nExtraArg) \
     do { if (i + nExtraArg >= argc) \
-    Usage(CPLSPrintf("%s option requires %d argument(s)", argv[i], nExtraArg)); } while(0)
+    usage(CPLSPrintf("%s option requires %d argument(s)", argv[i], nExtraArg)); } while(0)
 
 
 
 
 /************************************************************************/
-/*                            ArgIsNumeric()                            */
+/*                            argIsNumeric()                            */
 /************************************************************************/
 
-int ArgIsNumeric( const char *pszArg )
+int argIsNumeric( const char *_psz_arg )
 
 {
-    return CPLGetValueType(pszArg) != CPL_VALUE_STRING;
+    return CPLGetValueType(_psz_arg) != CPL_VALUE_STRING;
 }
 
 /************************************************************************/
-/*                           AttachMetadata()                           */
+/*                           attachMetadata()                           */
 /************************************************************************/
 
-static void AttachMetadata( GDALDatasetH hDS, char **papszMetadataOptions )
+static void attachMetadata( GDALDatasetH _h_ds, char **_papsz_metadata_options )
 
 {
-    int nCount = CSLCount(papszMetadataOptions);
+    int n_count = CSLCount(_papsz_metadata_options);
     int i;
 
-    for( i = 0; i < nCount; i++ )
+    for( i = 0; i < n_count; i++ )
     {
-        char    *pszKey = NULL;
-        const char *pszValue;
+        char    *psz_key = NULL;
+        const char *psz_value;
 
-        pszValue = CPLParseNameValue( papszMetadataOptions[i], &pszKey );
-        GDALSetMetadataItem(hDS,pszKey,pszValue,NULL);
-        CPLFree( pszKey );
+        psz_value = CPLParseNameValue( _papsz_metadata_options[i], &psz_key );
+        GDALSetMetadataItem(_h_ds,psz_key,psz_value,NULL);
+        CPLFree( psz_key );
     }
 
-    CSLDestroy( papszMetadataOptions );
+    CSLDestroy( _papsz_metadata_options );
 }
 
 /************************************************************************/
-/*                           CopyBandInfo()                            */
+/*                           copyBandInfo()                            */
 /************************************************************************/
 
 /* A bit of a clone of VRTRasterBand::CopyCommonInfoFrom(), but we need */
 /* more and more custom behaviour in the context of gdal_translate ... */
 
-static void CopyBandInfo( GDALRasterBand * poSrcBand, GDALRasterBand * poDstBand,
-                          int bCanCopyStatsMetadata, int bCopyScale, int bCopyNoData )
+static void copyBandInfo(GDALRasterBand * _po_src_band, GDALRasterBand * _po_dst_band,
+                          int _b_can_copy_stats_metadata, int _b_copy_scale, int _b_copy_no_data )
 
 {
-    int bSuccess;
-    double dfNoData;
+    int b_success;
+    double df_no_data;
 
-    if (bCanCopyStatsMetadata)
+    if (_b_can_copy_stats_metadata)
     {
-        poDstBand->SetMetadata( poSrcBand->GetMetadata() );
+        _po_dst_band->SetMetadata( _po_src_band->GetMetadata() );
     }
     else
     {
-        char** papszMetadata = poSrcBand->GetMetadata();
-        char** papszMetadataNew = NULL;
-        for( int i = 0; papszMetadata != NULL && papszMetadata[i] != NULL; i++ )
+        char** papsz_metadata = _po_src_band->GetMetadata();
+        char** papsz_metadata_new = NULL;
+        for( int i = 0; papsz_metadata != NULL && papsz_metadata[i] != NULL; i++ )
         {
-            if (strncmp(papszMetadata[i], "STATISTICS_", 11) != 0)
-                papszMetadataNew = CSLAddString(papszMetadataNew, papszMetadata[i]);
+            if (strncmp(papsz_metadata[i], "STATISTICS_", 11) != 0)
+                papsz_metadata_new = CSLAddString(papsz_metadata_new, papsz_metadata[i]);
         }
-        poDstBand->SetMetadata( papszMetadataNew );
-        CSLDestroy(papszMetadataNew);
+        _po_dst_band->SetMetadata( papsz_metadata_new );
+        CSLDestroy(papsz_metadata_new);
     }
 
-    poDstBand->SetColorTable( poSrcBand->GetColorTable() );
-    poDstBand->SetColorInterpretation(poSrcBand->GetColorInterpretation());
-    if( strlen(poSrcBand->GetDescription()) > 0 )
-        poDstBand->SetDescription( poSrcBand->GetDescription() );
+    _po_dst_band->SetColorTable( _po_src_band->GetColorTable() );
+    _po_dst_band->SetColorInterpretation(_po_src_band->GetColorInterpretation());
+    if( strlen(_po_src_band->GetDescription()) > 0 )
+        _po_dst_band->SetDescription( _po_src_band->GetDescription() );
 
-    if (bCopyNoData)
+    if (_b_copy_no_data)
     {
-        dfNoData = poSrcBand->GetNoDataValue( &bSuccess );
-        if( bSuccess )
-            poDstBand->SetNoDataValue( dfNoData );
+        df_no_data = _po_src_band->GetNoDataValue( &b_success );
+        if( b_success )
+            _po_dst_band->SetNoDataValue( df_no_data );
     }
 
-    if (bCopyScale)
+    if (_b_copy_scale)
     {
-        poDstBand->SetOffset( poSrcBand->GetOffset() );
-        poDstBand->SetScale( poSrcBand->GetScale() );
+        _po_dst_band->SetOffset( _po_src_band->GetOffset() );
+        _po_dst_band->SetScale( _po_src_band->GetScale() );
     }
 
-    poDstBand->SetCategoryNames( poSrcBand->GetCategoryNames() );
-    if( !EQUAL(poSrcBand->GetUnitType(),"") )
-        poDstBand->SetUnitType( poSrcBand->GetUnitType() );
+    _po_dst_band->SetCategoryNames( _po_src_band->GetCategoryNames() );
+    if( !EQUAL(_po_src_band->GetUnitType(),"") )
+        _po_dst_band->SetUnitType( _po_src_band->GetUnitType() );
 
 }
 
 
 // Beginning of class implementation ************************************************************************
 
-RasterGeoreferencer::RasterGeoreferencer():pszFormat("GTiff")
+RasterGeoreferencer::RasterGeoreferencer():m_psz_format("GTiff")
 {
-    bFormatExplicitelySet = FALSE;
-    panBandList = NULL; /* negative value of panBandList[i] means mask band of ABS(panBandList[i]) */
-    nBandCount = 0;
-    bDefBands = TRUE;
-    adfGeoTransform = (double*)malloc(6*sizeof(double));
-    eOutputType = GDT_Unknown;
-    nOXSize = 0;
-    nOYSize = 0;
-    pszOXSize=NULL;
-    pszOYSize=NULL;
-    papszCreateOptions = NULL;
-    anSrcWin = (int*)malloc(4*sizeof(int));
-    bStrict = FALSE;
-    bScale = FALSE;
-    bHaveScaleSrc = FALSE;
-    bUnscale=FALSE;
-    dfScaleSrcMin=0.0;
-    dfScaleSrcMax=255.0;
-    dfScaleDstMin=0.0;
-    dfScaleDstMax=255.0;
-    papszMetadataOptions = NULL;
-    pszOutputSRS = NULL;
-    bQuiet = FALSE;
-    bGotBounds = FALSE;
-    pfnProgress = GDALTermProgress;
-    nGCPCount = 0;
-    pasGCPs = NULL;
-    iSrcFileArg = -1;
-    iDstFileArg = -1;
-    bCopySubDatasets = FALSE;
-    adfULLR = (double*)malloc(4*sizeof(double));
-    adfULLR[0]=0; adfULLR[1]=0; adfULLR[2]=0; adfULLR[3]=0;
-    bSetNoData = FALSE;
-    bUnsetNoData = FALSE;
-    dfNoDataReal = 0.0;
-    nRGBExpand = 0;
-    bParsedMaskArgument = FALSE;
-    eMaskMode = MASK_AUTO;
-    nMaskBand = 0; /* negative value means mask band of ABS(nMaskBand) */
-    bStats = FALSE, bApproxStats = FALSE;
-    bErrorOnPartiallyOutside = FALSE;
-    bErrorOnCompletelyOutside = FALSE;
-    pszDest = NULL;
+    m_b_format_explicitely_set = FALSE;
+    m_pan_band_list = NULL; /* negative value of panBandList[i] means mask band of ABS(panBandList[i]) */
+    m_n_band_count = 0;
+    m_b_def_bands = TRUE;
+    m_adf_geo_transform = (double*)malloc(6*sizeof(double));
+    m_e_output_type = GDT_Unknown;
+    m_n_ox_size = 0;
+    m_n_oy_size = 0;
+    m_psz_ox_size=NULL;
+    m_psz_oy_size=NULL;
+    m_papsz_create_options = NULL;
+    m_an_src_win = (int*)malloc(4*sizeof(int));
+    m_b_strict = FALSE;
+    m_b_scale = FALSE;
+    m_b_have_scale_src = FALSE;
+    m_b_unscale=FALSE;
+    m_df_scale_src_min=0.0;
+    m_df_scale_src_max=255.0;
+    m_df_scale_dst_min=0.0;
+    m_df_scale_dst_max=255.0;
+    m_papsz_metadata_options = NULL;
+    m_psz_output_srs = NULL;
+    m_b_quiet = FALSE;
+    m_b_got_bounds = FALSE;
+    m_pfn_progress = GDALTermProgress;
+    m_n_gcp_count = 0;
+    m_pas_gcps = NULL;
+    m_i_src_file_arg = -1;
+    m_i_dst_file_arg = -1;
+    b_copy_sub_datasets = FALSE;
+    m_adf_ullr = (double*)malloc(4*sizeof(double));
+    m_adf_ullr[0]=0; m_adf_ullr[1]=0; m_adf_ullr[2]=0; m_adf_ullr[3]=0;
+    m_b_set_no_data = FALSE;
+    m_b_unset_no_data = FALSE;
+    m_df_no_data_real = 0.0;
+    m_n_rgb_expand = 0;
+    m_b_parsed_mask_argument = FALSE;
+    m_e_mask_mode = MASK_AUTO;
+    m_n_mask_band = 0; /* negative value means mask band of ABS(nMaskBand) */
+    m_b_stats = FALSE, m_b_approx_stats = FALSE;
+    m_b_error_on_partially_outside = FALSE;
+    m_b_error_on_completely_outside = FALSE;
+    m_psz_dest = NULL;
 
 }
 
 RasterGeoreferencer::~RasterGeoreferencer()
 {
-    free(adfGeoTransform);
-    free(anSrcWin);
-    free(adfULLR);
+    free(m_adf_geo_transform);
+    free(m_an_src_win);
+    free(m_adf_ullr);
 }
 
-int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outputFile, QString cmdLineOptions)
+int RasterGeoreferencer::writeGeoFile(Mat &_raster, Mat &_raster_mask, QString _output_file, QString _cmd_line_options)
 {
 
 
 
     // Complete arguments for exe name and mask
-    QString localArgv;
-    if(raster.channels()>1){
-        localArgv= QString("WriteGeoFile ") + cmdLineOptions + QString(" -mask 4 --config GDAL_TIFF_INTERNAL_MASK YES ") + outputFile;
+    QString local_argv;
+    if(_raster.channels()>1){
+        local_argv= QString("WriteGeoFile ") + _cmd_line_options + QString(" -mask 4 --config GDAL_TIFF_INTERNAL_MASK YES ") + _output_file;
     }else{
-        localArgv= QString("WriteGeoFile ") + cmdLineOptions + QString(" -mask 2 --config GDAL_TIFF_INTERNAL_MASK YES ") + outputFile;
+        local_argv= QString("WriteGeoFile ") + _cmd_line_options + QString(" -mask 2 --config GDAL_TIFF_INTERNAL_MASK YES ") + _output_file;
     }
 
-    fprintf(stderr,"%s\n", localArgv.toStdString().c_str());
+    fprintf(stderr,"%s\n", local_argv.toStdString().c_str());
 
     // recreate argc and argv for options parsing **************************************
 
-    QStringList cmdQuoteSplitList = localArgv.split("\"");
-    QStringList argvList;
+    QStringList cmd_quote_split_list = local_argv.split("\"");
+    QStringList argv_list;
 
     int i=1;
 
     // isolate quote separated argument as a unique argument and split others on space
-    foreach(QString arguments, cmdQuoteSplitList){
+    foreach(QString arguments, cmd_quote_split_list){
 
         if (i%2 == 0){
-            argvList += arguments;
+            argv_list += arguments;
         }else{
-            argvList += arguments.split(" ",QString::SkipEmptyParts);
+            argv_list += arguments.split(" ",QString::SkipEmptyParts);
         }
         i++;
     }
-    argvList.removeAll(" ");
+    argv_list.removeAll(" ");
 
-    int argc = argvList.length();
+    int argc = argv_list.length();
     char **argv;
     argv = (char **)malloc(argc*sizeof(char*));
 
     i=0;
-    foreach(QString argument, argvList){
+    foreach(QString argument, argv_list){
 
         argv[i] = (char*) malloc(sizeof(char)*argument.size());
         strcpy ( argv[i], argument.toStdString().c_str() );
@@ -510,18 +510,18 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
 
     // *********************************************************************************
 
-    anSrcWin[0] = 0;
-    anSrcWin[1] = 0;
-    anSrcWin[2] = 0;
-    anSrcWin[3] = 0;
+    m_an_src_win[0] = 0;
+    m_an_src_win[1] = 0;
+    m_an_src_win[2] = 0;
+    m_an_src_win[3] = 0;
 
-    dfULX = dfULY = dfLRX = dfLRY = 0.0;
+    m_df_ulx = m_df_uly = m_df_lrx = m_df_lry = 0.0;
 
     /* Check strict compilation and runtime library version as we use C++ API */
     if (! GDAL_CHECK_VERSION(argv[0]))
         exit(1);
 
-    EarlySetConfigOptions(argc, argv);
+    earlySetConfigOptions(argc, argv);
 
     /* -------------------------------------------------------------------- */
     /*      Register standard GDAL drivers, and process generic GDAL        */
@@ -544,121 +544,121 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
             return 0;
         }
         else if( EQUAL(argv[i],"--help") )
-            Usage();
+            usage();
         else if ( EQUAL(argv[i], "--long-usage") )
         {
-            Usage(NULL, FALSE);
+            usage(NULL, FALSE);
         }
         else if( EQUAL(argv[i],"-of") && i < argc-1 )
         {
-            pszFormat = argv[++i];
-            bFormatExplicitelySet = TRUE;
+            m_psz_format = argv[++i];
+            m_b_format_explicitely_set = TRUE;
         }
 
         else if( EQUAL(argv[i],"-q") || EQUAL(argv[i],"-quiet") )
         {
-            bQuiet = TRUE;
-            pfnProgress = GDALDummyProgress;
+            m_b_quiet = TRUE;
+            m_pfn_progress = GDALDummyProgress;
         }
 
         else if( EQUAL(argv[i],"-ot") )
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(1);
-            int	iType;
+            int	i_type;
 
-            for( iType = 1; iType < GDT_TypeCount; iType++ )
+            for( i_type = 1; i_type < GDT_TypeCount; i_type++ )
             {
-                if( GDALGetDataTypeName((GDALDataType)iType) != NULL
-                        && EQUAL(GDALGetDataTypeName((GDALDataType)iType),
+                if( GDALGetDataTypeName((GDALDataType)i_type) != NULL
+                        && EQUAL(GDALGetDataTypeName((GDALDataType)i_type),
                                  argv[i+1]) )
                 {
-                    eOutputType = (GDALDataType) iType;
+                    m_e_output_type = (GDALDataType) i_type;
                 }
             }
 
-            if( eOutputType == GDT_Unknown )
+            if( m_e_output_type == GDT_Unknown )
             {
-                Usage(CPLSPrintf("Unknown output pixel type: %s.", argv[i+1] ));
+                usage(CPLSPrintf("Unknown output pixel type: %s.", argv[i+1] ));
             }
             i++;
         }
         else if( EQUAL(argv[i],"-b") )
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(1);
-            const char* pszBand = argv[i+1];
+            const char* psz_band = argv[i+1];
             int bMask = FALSE;
-            if (EQUAL(pszBand, "mask"))
-                pszBand = "mask,1";
-            if (EQUALN(pszBand, "mask,", 5))
+            if (EQUAL(psz_band, "mask"))
+                psz_band = "mask,1";
+            if (EQUALN(psz_band, "mask,", 5))
             {
                 bMask = TRUE;
-                pszBand += 5;
+                psz_band += 5;
                 /* If we use tha source mask band as a regular band */
                 /* don't create a target mask band by default */
-                if( !bParsedMaskArgument )
-                    eMaskMode = MASK_DISABLED;
+                if( !m_b_parsed_mask_argument )
+                    m_e_mask_mode = MASK_DISABLED;
             }
-            int nBand = atoi(pszBand);
-            if( nBand < 1 )
+            int n_band = atoi(psz_band);
+            if( n_band < 1 )
             {
-                Usage(CPLSPrintf( "Unrecognizable band number (%s).", argv[i+1] ));
+                usage(CPLSPrintf( "Unrecognizable band number (%s).", argv[i+1] ));
             }
             i++;
 
-            nBandCount++;
-            panBandList = (int *)
-                    CPLRealloc(panBandList, sizeof(int) * nBandCount);
-            panBandList[nBandCount-1] = nBand;
+            m_n_band_count++;
+            m_pan_band_list = (int *)
+                    CPLRealloc(m_pan_band_list, sizeof(int) * m_n_band_count);
+            m_pan_band_list[m_n_band_count-1] = n_band;
             if (bMask)
-                panBandList[nBandCount-1] *= -1;
+                m_pan_band_list[m_n_band_count-1] *= -1;
 
-            if( panBandList[nBandCount-1] != nBandCount )
-                bDefBands = FALSE;
+            if( m_pan_band_list[m_n_band_count-1] != m_n_band_count )
+                m_b_def_bands = FALSE;
         }
         else if( EQUAL(argv[i],"-mask") )
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(1);
-            bParsedMaskArgument = TRUE;
-            const char* pszBand = argv[i+1];
-            if (EQUAL(pszBand, "none"))
+            m_b_parsed_mask_argument = TRUE;
+            const char* psz_band = argv[i+1];
+            if (EQUAL(psz_band, "none"))
             {
-                eMaskMode = MASK_DISABLED;
+                m_e_mask_mode = MASK_DISABLED;
             }
-            else if (EQUAL(pszBand, "auto"))
+            else if (EQUAL(psz_band, "auto"))
             {
-                eMaskMode = MASK_AUTO;
+                m_e_mask_mode = MASK_AUTO;
             }
             else
             {
-                int bMask = FALSE;
-                if (EQUAL(pszBand, "mask"))
-                    pszBand = "mask,1";
-                if (EQUALN(pszBand, "mask,", 5))
+                int b_mask = FALSE;
+                if (EQUAL(psz_band, "mask"))
+                    psz_band = "mask,1";
+                if (EQUALN(psz_band, "mask,", 5))
                 {
-                    bMask = TRUE;
-                    pszBand += 5;
+                    b_mask = TRUE;
+                    psz_band += 5;
                 }
-                int nBand = atoi(pszBand);
-                if( nBand < 1 )
+                int n_band = atoi(psz_band);
+                if( n_band < 1 )
                 {
-                    Usage(CPLSPrintf( "Unrecognizable band number (%s).", argv[i+1] ));
+                    usage(CPLSPrintf( "Unrecognizable band number (%s).", argv[i+1] ));
                 }
 
-                eMaskMode = MASK_USER;
-                nMaskBand = nBand;
-                if (bMask)
-                    nMaskBand *= -1;
+                m_e_mask_mode = MASK_USER;
+                m_n_mask_band = n_band;
+                if (b_mask)
+                    m_n_mask_band *= -1;
             }
             i ++;
         }
         else if( EQUAL(argv[i],"-not_strict")  )
-            bStrict = FALSE;
+            m_b_strict = FALSE;
 
         else if( EQUAL(argv[i],"-strict")  )
-            bStrict = TRUE;
+            m_b_strict = TRUE;
 
         else if( EQUAL(argv[i],"-sds")  )
-            bCopySubDatasets = TRUE;
+            b_copy_sub_datasets = TRUE;
 
         else if( EQUAL(argv[i],"-gcp") )
         {
@@ -666,22 +666,22 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
             char* endptr = NULL;
             /* -gcp pixel line easting northing [elev] */
 
-            nGCPCount++;
-            pasGCPs = (GDAL_GCP *)
-                    CPLRealloc( pasGCPs, sizeof(GDAL_GCP) * nGCPCount );
-            GDALInitGCPs( 1, pasGCPs + nGCPCount - 1 );
+            m_n_gcp_count++;
+            m_pas_gcps = (GDAL_GCP *)
+                    CPLRealloc( m_pas_gcps, sizeof(GDAL_GCP) * m_n_gcp_count );
+            GDALInitGCPs( 1, m_pas_gcps + m_n_gcp_count - 1 );
 
-            pasGCPs[nGCPCount-1].dfGCPPixel = CPLAtofM(argv[++i]);
-            pasGCPs[nGCPCount-1].dfGCPLine = CPLAtofM(argv[++i]);
-            pasGCPs[nGCPCount-1].dfGCPX = CPLAtofM(argv[++i]);
-            pasGCPs[nGCPCount-1].dfGCPY = CPLAtofM(argv[++i]);
+            m_pas_gcps[m_n_gcp_count-1].dfGCPPixel = CPLAtofM(argv[++i]);
+            m_pas_gcps[m_n_gcp_count-1].dfGCPLine = CPLAtofM(argv[++i]);
+            m_pas_gcps[m_n_gcp_count-1].dfGCPX = CPLAtofM(argv[++i]);
+            m_pas_gcps[m_n_gcp_count-1].dfGCPY = CPLAtofM(argv[++i]);
             if( argv[i+1] != NULL
                     && (CPLStrtod(argv[i+1], &endptr) != 0.0 || argv[i+1][0] == '0') )
             {
                 /* Check that last argument is really a number and not a filename */
                 /* looking like a number (see ticket #863) */
                 if (endptr && *endptr == 0)
-                    pasGCPs[nGCPCount-1].dfGCPZ = CPLAtofM(argv[++i]);
+                    m_pas_gcps[m_n_gcp_count-1].dfGCPZ = CPLAtofM(argv[++i]);
             }
 
             /* should set id and info? */
@@ -692,12 +692,12 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(1);
             if (EQUAL(argv[i+1], "none"))
             {
-                bUnsetNoData = TRUE;
+                m_b_unset_no_data = TRUE;
             }
             else
             {
-                bSetNoData = TRUE;
-                dfNoDataReal = CPLAtofM(argv[i+1]);
+                m_b_set_no_data = TRUE;
+                m_df_no_data_real = CPLAtofM(argv[i+1]);
             }
             i += 1;
         }
@@ -705,12 +705,12 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
         else if( EQUAL(argv[i],"-a_ullr") )
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(4);
-            adfULLR[0] = CPLAtofM(argv[i+1]);
-            adfULLR[1] = CPLAtofM(argv[i+2]);
-            adfULLR[2] = CPLAtofM(argv[i+3]);
-            adfULLR[3] = CPLAtofM(argv[i+4]);
+            m_adf_ullr[0] = CPLAtofM(argv[i+1]);
+            m_adf_ullr[1] = CPLAtofM(argv[i+2]);
+            m_adf_ullr[2] = CPLAtofM(argv[i+3]);
+            m_adf_ullr[3] = CPLAtofM(argv[i+4]);
 
-            bGotBounds = TRUE;
+            m_b_got_bounds = TRUE;
 
             i += 4;
         }
@@ -718,86 +718,86 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
         else if( EQUAL(argv[i],"-co") )
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(1);
-            papszCreateOptions = CSLAddString( papszCreateOptions, argv[++i] );
+            m_papsz_create_options = CSLAddString( m_papsz_create_options, argv[++i] );
         }
 
         else if( EQUAL(argv[i],"-scale") )
         {
-            bScale = TRUE;
-            if( i < argc-2 && ArgIsNumeric(argv[i+1]) )
+            m_b_scale = TRUE;
+            if( i < argc-2 && argIsNumeric(argv[i+1]) )
             {
-                bHaveScaleSrc = TRUE;
-                dfScaleSrcMin = CPLAtofM(argv[i+1]);
-                dfScaleSrcMax = CPLAtofM(argv[i+2]);
+                m_b_have_scale_src = TRUE;
+                m_df_scale_src_min = CPLAtofM(argv[i+1]);
+                m_df_scale_src_max = CPLAtofM(argv[i+2]);
                 i += 2;
             }
-            if( i < argc-2 && bHaveScaleSrc && ArgIsNumeric(argv[i+1]) )
+            if( i < argc-2 && m_b_have_scale_src && argIsNumeric(argv[i+1]) )
             {
-                dfScaleDstMin = CPLAtofM(argv[i+1]);
-                dfScaleDstMax = CPLAtofM(argv[i+2]);
+                m_df_scale_dst_min = CPLAtofM(argv[i+1]);
+                m_df_scale_dst_max = CPLAtofM(argv[i+2]);
                 i += 2;
             }
             else
             {
-                dfScaleDstMin = 0.0;
-                dfScaleDstMax = 255.999;
+                m_df_scale_dst_min = 0.0;
+                m_df_scale_dst_max = 255.999;
             }
         }
 
         else if( EQUAL(argv[i], "-unscale") )
         {
-            bUnscale = TRUE;
+            m_b_unscale = TRUE;
         }
 
         else if( EQUAL(argv[i],"-mo") )
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(1);
-            papszMetadataOptions = CSLAddString( papszMetadataOptions,
+            m_papsz_metadata_options = CSLAddString( m_papsz_metadata_options,
                                                  argv[++i] );
         }
 
         else if( EQUAL(argv[i],"-outsize") )
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(2);
-            pszOXSize = argv[++i];
-            pszOYSize = argv[++i];
+            m_psz_ox_size = argv[++i];
+            m_psz_oy_size = argv[++i];
         }
 
         else if( EQUAL(argv[i],"-srcwin") )
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(4);
-            anSrcWin[0] = atoi(argv[++i]);
-            anSrcWin[1] = atoi(argv[++i]);
-            anSrcWin[2] = atoi(argv[++i]);
-            anSrcWin[3] = atoi(argv[++i]);
+            m_an_src_win[0] = atoi(argv[++i]);
+            m_an_src_win[1] = atoi(argv[++i]);
+            m_an_src_win[2] = atoi(argv[++i]);
+            m_an_src_win[3] = atoi(argv[++i]);
         }
 
         else if( EQUAL(argv[i],"-projwin") )
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(4);
-            dfULX = CPLAtofM(argv[++i]);
-            dfULY = CPLAtofM(argv[++i]);
-            dfLRX = CPLAtofM(argv[++i]);
-            dfLRY = CPLAtofM(argv[++i]);
+            m_df_ulx = CPLAtofM(argv[++i]);
+            m_df_uly = CPLAtofM(argv[++i]);
+            m_df_lrx = CPLAtofM(argv[++i]);
+            m_df_lry = CPLAtofM(argv[++i]);
         }
 
         else if( EQUAL(argv[i],"-epo") )
         {
-            bErrorOnPartiallyOutside = TRUE;
-            bErrorOnCompletelyOutside = TRUE;
+            m_b_error_on_partially_outside = TRUE;
+            m_b_error_on_completely_outside = TRUE;
         }
 
         else  if( EQUAL(argv[i],"-eco") )
         {
-            bErrorOnCompletelyOutside = TRUE;
+            m_b_error_on_completely_outside = TRUE;
         }
 
         else if( EQUAL(argv[i],"-a_srs") )
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(1);
-            OGRSpatialReference oOutputSRS;
+            OGRSpatialReference o_output_srs;
 
-            if( oOutputSRS.SetFromUserInput( argv[i+1] ) != OGRERR_NONE )
+            if( o_output_srs.SetFromUserInput( argv[i+1] ) != OGRERR_NONE )
             {
                 fprintf( stderr, "Failed to process SRS definition: %s\n",
                          argv[i+1] );
@@ -805,7 +805,7 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
                 exit( 1 );
             }
 
-            oOutputSRS.exportToWkt( &pszOutputSRS );
+            o_output_srs.exportToWkt( &m_psz_output_srs );
             i++;
         }
 
@@ -813,14 +813,14 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
         {
             CHECK_HAS_ENOUGH_ADDITIONAL_ARGS(1);
             if (EQUAL(argv[i+1], "gray"))
-                nRGBExpand = 1;
+                m_n_rgb_expand = 1;
             else if (EQUAL(argv[i+1], "rgb"))
-                nRGBExpand = 3;
+                m_n_rgb_expand = 3;
             else if (EQUAL(argv[i+1], "rgba"))
-                nRGBExpand = 4;
+                m_n_rgb_expand = 4;
             else
             {
-                Usage(CPLSPrintf( "Value %s unsupported. Only gray, rgb or rgba are supported.",
+                usage(CPLSPrintf( "Value %s unsupported. Only gray, rgb or rgba are supported.",
                                   argv[i] ));
             }
             i++;
@@ -828,101 +828,101 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
 
         else if( EQUAL(argv[i], "-stats") )
         {
-            bStats = TRUE;
-            bApproxStats = FALSE;
+            m_b_stats = TRUE;
+            m_b_approx_stats = FALSE;
         }
         else if( EQUAL(argv[i], "-approx_stats") )
         {
-            bStats = TRUE;
-            bApproxStats = TRUE;
+            m_b_stats = TRUE;
+            m_b_approx_stats = TRUE;
         }
 
         else if( argv[i][0] == '-' )
         {
-            Usage(CPLSPrintf("Unkown option name '%s'", argv[i]));
+            usage(CPLSPrintf("Unkown option name '%s'", argv[i]));
         }
-        else if( pszDest == NULL )
+        else if( m_psz_dest == NULL )
         {
-            pszDest = argv[i];
-            iDstFileArg = i;
-            printf( "pszDest = %s \n", pszDest );
+            m_psz_dest = argv[i];
+            m_i_dst_file_arg = i;
+            printf( "pszDest = %s \n", m_psz_dest );
         }
 
         else
         {
-            Usage("Too many command options.");
+            usage("Too many command options.");
         }
     }
 
-    if( pszDest == NULL )
+    if( m_psz_dest == NULL )
     {
-        Usage("No target dataset specified.");
+        usage("No target dataset specified.");
     }
 
-    if( strcmp(pszDest, "/vsistdout/") == 0)
+    if( strcmp(m_psz_dest, "/vsistdout/") == 0)
     {
-        bQuiet = TRUE;
-        pfnProgress = GDALDummyProgress;
+        m_b_quiet = TRUE;
+        m_pfn_progress = GDALDummyProgress;
     }
 
-    if (!bQuiet && !bFormatExplicitelySet)
-        CheckExtensionConsistency(pszDest, pszFormat);
+    if (!m_b_quiet && !m_b_format_explicitely_set)
+        checkExtensionConsistency(m_psz_dest, m_psz_format);
 
     /* -------------------------------------------------------------------- */
     /*      Attempt to open source file.                                    */
     /* -------------------------------------------------------------------- */
 
     cout <<  "Nb of registered drivers = " << GetGDALDriverManager()->GetDriverCount() << std::endl ;
-    inputDriver = GetGDALDriverManager()->GetDriverByName("MEM");
+    m_input_driver = GetGDALDriverManager()->GetDriverByName("MEM");
 
-    if(! inputDriver)                              // Check for invalid input
+    if(! m_input_driver)                              // Check for invalid input
     {
         cout <<  "Could not create the input driver" << std::endl ;
         return -1;
     }
 
 
-    if(! raster.data || ! rasterMask.data)                              // Check for invalid input
+    if(! _raster.data || ! _raster_mask.data)                              // Check for invalid input
     {
         cout <<  "Raster data is incomplete" << std::endl ;
         return -1;
     }
 
 
-    GDALRasterBand *pBand;
-    if (raster.channels()>1){
-        poDataset = inputDriver->Create ("", raster.cols, raster.rows, 4, GDT_Byte, NULL);
+    GDALRasterBand *p_band;
+    if (_raster.channels()>1){
+        m_po_dataset = m_input_driver->Create ("", _raster.cols, _raster.rows, 4, GDT_Byte, NULL);
     }else{
-        poDataset = inputDriver->Create ("", raster.cols, raster.rows, 2, GDT_Byte, NULL);
+        m_po_dataset = m_input_driver->Create ("", _raster.cols, _raster.rows, 2, GDT_Byte, NULL);
     }
 
     //Copy raster data & mask
-    if (raster.channels()>1){
+    if (_raster.channels()>1){
 
         vector<Mat> rasterChannels(3);
-        split(raster, rasterChannels);
+        split(_raster, rasterChannels);
 
         for(int k=0;k<3;k++){
-            pBand = poDataset->GetRasterBand(3-k);
-            pBand->RasterIO(GF_Write,0,0,raster.cols,raster.rows,rasterChannels[k].data,raster.cols,raster.rows,GDT_Byte,0,0);
+            p_band = m_po_dataset->GetRasterBand(3-k);
+            p_band->RasterIO(GF_Write,0,0,_raster.cols,_raster.rows,rasterChannels[k].data,_raster.cols,_raster.rows,GDT_Byte,0,0);
         }
 
-        pBand = poDataset->GetRasterBand(4);
-        pBand->RasterIO(GF_Write,0,0,rasterMask.cols,rasterMask.rows,rasterMask.data,raster.cols,raster.rows,GDT_Byte,0,0);
+        p_band = m_po_dataset->GetRasterBand(4);
+        p_band->RasterIO(GF_Write,0,0,_raster_mask.cols,_raster_mask.rows,_raster_mask.data,_raster.cols,_raster.rows,GDT_Byte,0,0);
 
     }else{
-        pBand = poDataset->GetRasterBand(1);
-        pBand->RasterIO(GF_Write,0,0,raster.cols,raster.rows,raster.data,raster.cols,raster.rows,GDT_Byte,0,0);
+        p_band = m_po_dataset->GetRasterBand(1);
+        p_band->RasterIO(GF_Write,0,0,_raster.cols,_raster.rows,_raster.data,_raster.cols,_raster.rows,GDT_Byte,0,0);
 
-        pBand = poDataset->GetRasterBand(2);
-        pBand->RasterIO(GF_Write,0,0,raster.cols,raster.rows,rasterMask.data,raster.cols,raster.rows,GDT_Byte,0,0);
+        p_band = m_po_dataset->GetRasterBand(2);
+        p_band->RasterIO(GF_Write,0,0,_raster.cols,_raster.rows,_raster_mask.data,_raster.cols,_raster.rows,GDT_Byte,0,0);
     }
 
 
 
-    hDataset = poDataset; // C++ -> C casting for retrocompat
+    m_h_dataset = m_po_dataset; // C++ -> C casting for retrocompat
 
-    if( hDataset == NULL )
+    if( m_h_dataset == NULL )
     {
         fprintf( stderr,
                  "GDALOpen failed - %d\n%s\n",
@@ -936,51 +936,51 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
     /* -------------------------------------------------------------------- */
     /*      Collect some information from the source file.                  */
     /* -------------------------------------------------------------------- */
-    nRasterXSize = GDALGetRasterXSize( hDataset );
-    nRasterYSize = GDALGetRasterYSize( hDataset );
+    m_n_raster_x_size = GDALGetRasterXSize( m_h_dataset );
+    m_n_raster_y_size = GDALGetRasterYSize( m_h_dataset );
 
-    if( !bQuiet )
-        printf( "Input file size is %d, %d\n", nRasterXSize, nRasterYSize );
+    if( !m_b_quiet )
+        printf( "Input file size is %d, %d\n", m_n_raster_x_size, m_n_raster_y_size );
 
-    if( anSrcWin[2] == 0 && anSrcWin[3] == 0 )
+    if( m_an_src_win[2] == 0 && m_an_src_win[3] == 0 )
     {
-        anSrcWin[2] = nRasterXSize;
-        anSrcWin[3] = nRasterYSize;
+        m_an_src_win[2] = m_n_raster_x_size;
+        m_an_src_win[3] = m_n_raster_y_size;
     }
 
     /* -------------------------------------------------------------------- */
     /*	Build band list to translate					*/
     /* -------------------------------------------------------------------- */
-    if( nBandCount == 0 )
+    if( m_n_band_count == 0 )
     {
-        nBandCount = GDALGetRasterCount( hDataset );
-        if( nBandCount == 0 )
+        m_n_band_count = GDALGetRasterCount( m_h_dataset );
+        if( m_n_band_count == 0 )
         {
             fprintf( stderr, "Input file has no bands, and so cannot be translated.\n" );
             GDALDestroyDriverManager();
             exit(1 );
         }
 
-        panBandList = (int *) CPLMalloc(sizeof(int)*nBandCount);
-        for( i = 0; i < nBandCount; i++ )
-            panBandList[i] = i+1;
+        m_pan_band_list = (int *) CPLMalloc(sizeof(int)*m_n_band_count);
+        for( i = 0; i < m_n_band_count; i++ )
+            m_pan_band_list[i] = i+1;
     }
     else
     {
-        for( i = 0; i < nBandCount; i++ )
+        for( i = 0; i < m_n_band_count; i++ )
         {
-            if( ABS(panBandList[i]) > GDALGetRasterCount(hDataset) )
+            if( ABS(m_pan_band_list[i]) > GDALGetRasterCount(m_h_dataset) )
             {
                 fprintf( stderr,
                          "Band %d requested, but only bands 1 to %d available.\n",
-                         ABS(panBandList[i]), GDALGetRasterCount(hDataset) );
+                         ABS(m_pan_band_list[i]), GDALGetRasterCount(m_h_dataset) );
                 GDALDestroyDriverManager();
                 exit( 2 );
             }
         }
 
-        if( nBandCount != GDALGetRasterCount( hDataset ) )
-            bDefBands = FALSE;
+        if( m_n_band_count != GDALGetRasterCount( m_h_dataset ) )
+            m_b_def_bands = FALSE;
     }
 
     /* -------------------------------------------------------------------- */
@@ -990,98 +990,98 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
     /*      while the anSrcWin is xoff, yoff, xsize, ysize with the         */
     /*      xoff,yoff being the ulx, uly in pixel/line.                     */
     /* -------------------------------------------------------------------- */
-    if( dfULX != 0.0 || dfULY != 0.0
-            || dfLRX != 0.0 || dfLRY != 0.0 )
+    if( m_df_ulx != 0.0 || m_df_uly != 0.0
+            || m_df_lrx != 0.0 || m_df_lry != 0.0 )
     {
-        double	adfGeoTransform[6];
+        double	adf_geo_transform[6];
 
-        GDALGetGeoTransform( hDataset, adfGeoTransform );
+        GDALGetGeoTransform( m_h_dataset, adf_geo_transform );
 
-        if( adfGeoTransform[2] != 0.0 || adfGeoTransform[4] != 0.0 )
+        if( adf_geo_transform[2] != 0.0 || adf_geo_transform[4] != 0.0 )
         {
             fprintf( stderr,
                      "The -projwin option was used, but the geotransform is\n"
                      "rotated.  This configuration is not supported.\n" );
-            GDALClose( hDataset );
-            CPLFree( panBandList );
+            GDALClose( m_h_dataset );
+            CPLFree( m_pan_band_list );
             GDALDestroyDriverManager();
             exit( 1 );
         }
 
-        anSrcWin[0] = (int)
-                ((dfULX - adfGeoTransform[0]) / adfGeoTransform[1] + 0.001);
-        anSrcWin[1] = (int)
-                ((dfULY - adfGeoTransform[3]) / adfGeoTransform[5] + 0.001);
+        m_an_src_win[0] = (int)
+                ((m_df_ulx - adf_geo_transform[0]) / adf_geo_transform[1] + 0.001);
+        m_an_src_win[1] = (int)
+                ((m_df_uly - adf_geo_transform[3]) / adf_geo_transform[5] + 0.001);
 
-        anSrcWin[2] = (int) ((dfLRX - dfULX) / adfGeoTransform[1] + 0.5);
-        anSrcWin[3] = (int) ((dfLRY - dfULY) / adfGeoTransform[5] + 0.5);
+        m_an_src_win[2] = (int) ((m_df_lrx - m_df_ulx) / adf_geo_transform[1] + 0.5);
+        m_an_src_win[3] = (int) ((m_df_lry - m_df_uly) / adf_geo_transform[5] + 0.5);
 
-        if( !bQuiet )
+        if( !m_b_quiet )
             fprintf( stdout,
                      "Computed -srcwin %d %d %d %d from projected window.\n",
-                     anSrcWin[0],
-                    anSrcWin[1],
-                    anSrcWin[2],
-                    anSrcWin[3] );
+                     m_an_src_win[0],
+                    m_an_src_win[1],
+                    m_an_src_win[2],
+                    m_an_src_win[3] );
     }
 
     /* -------------------------------------------------------------------- */
     /*      Verify source window dimensions.                                */
     /* -------------------------------------------------------------------- */
-    if( anSrcWin[2] <= 0 || anSrcWin[3] <= 0 )
+    if( m_an_src_win[2] <= 0 || m_an_src_win[3] <= 0 )
     {
         fprintf( stderr,
                  "Error: %s-srcwin %d %d %d %d has negative width and/or height.\n",
-                 ( dfULX != 0.0 || dfULY != 0.0 || dfLRX != 0.0 || dfLRY != 0.0 ) ? "Computed " : "",
-                 anSrcWin[0],
-                anSrcWin[1],
-                anSrcWin[2],
-                anSrcWin[3] );
+                 ( m_df_ulx != 0.0 || m_df_uly != 0.0 || m_df_lrx != 0.0 || m_df_lry != 0.0 ) ? "Computed " : "",
+                 m_an_src_win[0],
+                m_an_src_win[1],
+                m_an_src_win[2],
+                m_an_src_win[3] );
         exit( 1 );
     }
 
     /* -------------------------------------------------------------------- */
     /*      Verify source window dimensions.                                */
     /* -------------------------------------------------------------------- */
-    else if( anSrcWin[0] < 0 || anSrcWin[1] < 0
-             || anSrcWin[0] + anSrcWin[2] > GDALGetRasterXSize(hDataset)
-             || anSrcWin[1] + anSrcWin[3] > GDALGetRasterYSize(hDataset) )
+    else if( m_an_src_win[0] < 0 || m_an_src_win[1] < 0
+             || m_an_src_win[0] + m_an_src_win[2] > GDALGetRasterXSize(m_h_dataset)
+             || m_an_src_win[1] + m_an_src_win[3] > GDALGetRasterYSize(m_h_dataset) )
     {
-        int bCompletelyOutside = anSrcWin[0] + anSrcWin[2] <= 0 ||
-                anSrcWin[1] + anSrcWin[3] <= 0 ||
-                anSrcWin[0] >= GDALGetRasterXSize(hDataset) ||
-                anSrcWin[1] >= GDALGetRasterYSize(hDataset);
-        int bIsError = bErrorOnPartiallyOutside || (bCompletelyOutside && bErrorOnCompletelyOutside);
-        if( !bQuiet || bIsError )
+        int b_completely_outside = m_an_src_win[0] + m_an_src_win[2] <= 0 ||
+                m_an_src_win[1] + m_an_src_win[3] <= 0 ||
+                m_an_src_win[0] >= GDALGetRasterXSize(m_h_dataset) ||
+                m_an_src_win[1] >= GDALGetRasterYSize(m_h_dataset);
+        int b_is_error = m_b_error_on_partially_outside || (b_completely_outside && m_b_error_on_completely_outside);
+        if( !m_b_quiet || b_is_error )
         {
             fprintf( stderr,
                      "%s: %s-srcwin %d %d %d %d falls %s outside raster extent.%s\n",
-                     (bIsError) ? "Error" : "Warning",
-                     ( dfULX != 0.0 || dfULY != 0.0 || dfLRX != 0.0 || dfLRY != 0.0 ) ? "Computed " : "",
-                     anSrcWin[0],
-                    anSrcWin[1],
-                    anSrcWin[2],
-                    anSrcWin[3],
-                    (bCompletelyOutside) ? "completely" : "partially",
-                    (bIsError) ? "" : " Going on however." );
+                     (b_is_error) ? "Error" : "Warning",
+                     ( m_df_ulx != 0.0 || m_df_uly != 0.0 || m_df_lrx != 0.0 || m_df_lry != 0.0 ) ? "Computed " : "",
+                     m_an_src_win[0],
+                    m_an_src_win[1],
+                    m_an_src_win[2],
+                    m_an_src_win[3],
+                    (b_completely_outside) ? "completely" : "partially",
+                    (b_is_error) ? "" : " Going on however." );
         }
-        if( bIsError )
+        if( b_is_error )
             exit(1);
     }
 
     /* -------------------------------------------------------------------- */
     /*      Find the output driver.                                         */
     /* -------------------------------------------------------------------- */
-    hDriver = GDALGetDriverByName( pszFormat );
-    if( hDriver == NULL )
+    m_h_driver = GDALGetDriverByName( m_psz_format );
+    if( m_h_driver == NULL )
     {
-        int	iDr;
+        int	i_dr;
 
-        printf( "Output driver `%s' not recognised.\n", pszFormat );
+        printf( "Output driver `%s' not recognised.\n", m_psz_format );
         printf( "The following format drivers are configured and support output:\n" );
-        for( iDr = 0; iDr < GDALGetDriverCount(); iDr++ )
+        for( i_dr = 0; i_dr < GDALGetDriverCount(); i_dr++ )
         {
-            GDALDriverH hDriver = GDALGetDriver(iDr);
+            GDALDriverH hDriver = GDALGetDriver(i_dr);
 
             if( GDALGetMetadataItem( hDriver, GDAL_DCAP_CREATE, NULL ) != NULL
                     || GDALGetMetadataItem( hDriver, GDAL_DCAP_CREATECOPY,
@@ -1093,13 +1093,13 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
             }
         }
         printf( "\n" );
-        Usage();
+        usage();
 
-        GDALClose( hDataset );
-        CPLFree( panBandList );
+        GDALClose( m_h_dataset );
+        CPLFree( m_pan_band_list );
         GDALDestroyDriverManager();
         CSLDestroy( argv );
-        CSLDestroy( papszCreateOptions );
+        CSLDestroy( m_papsz_create_options );
         exit( 1 );
     }
 
@@ -1111,240 +1111,240 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
     /* -------------------------------------------------------------------- */
 
 
-    int bSpatialArrangementPreserved = (
-                anSrcWin[0] == 0 && anSrcWin[1] == 0
-            && anSrcWin[2] == GDALGetRasterXSize(hDataset)
-            && anSrcWin[3] == GDALGetRasterYSize(hDataset)
-            && pszOXSize == NULL && pszOYSize == NULL );
+    int b_spatial_arrangement_preserved = (
+                m_an_src_win[0] == 0 && m_an_src_win[1] == 0
+            && m_an_src_win[2] == GDALGetRasterXSize(m_h_dataset)
+            && m_an_src_win[3] == GDALGetRasterYSize(m_h_dataset)
+            && m_psz_ox_size == NULL && m_psz_oy_size == NULL );
 
-    if( eOutputType == GDT_Unknown
-            && !bScale && !bUnscale
-            && CSLCount(papszMetadataOptions) == 0 && bDefBands
-            && eMaskMode == MASK_AUTO
-            && bSpatialArrangementPreserved
-            && nGCPCount == 0 && !bGotBounds
-            && pszOutputSRS == NULL && !bSetNoData && !bUnsetNoData
-            && nRGBExpand == 0 && !bStats )
+    if( m_e_output_type == GDT_Unknown
+            && !m_b_scale && !m_b_unscale
+            && CSLCount(m_papsz_metadata_options) == 0 && m_b_def_bands
+            && m_e_mask_mode == MASK_AUTO
+            && b_spatial_arrangement_preserved
+            && m_n_gcp_count == 0 && !m_b_got_bounds
+            && m_psz_output_srs == NULL && !m_b_set_no_data && !m_b_unset_no_data
+            && m_n_rgb_expand == 0 && !m_b_stats )
     {
 
-        hOutDS = GDALCreateCopy( hDriver, pszDest, hDataset,
-                                 bStrict, papszCreateOptions,
-                                 pfnProgress, NULL );
+        m_h_out_ds = GDALCreateCopy( m_h_driver, m_psz_dest, m_h_dataset,
+                                 m_b_strict, m_papsz_create_options,
+                                 m_pfn_progress, NULL );
 
-        if( hOutDS != NULL )
-            GDALClose( hOutDS );
+        if( m_h_out_ds != NULL )
+            GDALClose( m_h_out_ds );
 
-        GDALClose( hDataset );
+        GDALClose( m_h_dataset );
 
-        CPLFree( panBandList );
+        CPLFree( m_pan_band_list );
 
-        if( !bSubCall )
+        if( !b_sub_call )
         {
             GDALDumpOpenDatasets( stderr );
             GDALDestroyDriverManager();
         }
 
         CSLDestroy( argv );
-        CSLDestroy( papszCreateOptions );
+        CSLDestroy( m_papsz_create_options );
 
-        return hOutDS == NULL;
+        return m_h_out_ds == NULL;
     }
 
     /* -------------------------------------------------------------------- */
     /*      Establish some parameters.                                      */
     /* -------------------------------------------------------------------- */
-    if( pszOXSize == NULL )
+    if( m_psz_ox_size == NULL )
     {
-        nOXSize = anSrcWin[2];
-        nOYSize = anSrcWin[3];
+        m_n_ox_size = m_an_src_win[2];
+        m_n_oy_size = m_an_src_win[3];
     }
     else
     {
-        nOXSize = (int) ((pszOXSize[strlen(pszOXSize)-1]=='%'
-                         ? CPLAtofM(pszOXSize)/100*anSrcWin[2] : atoi(pszOXSize)));
-        nOYSize = (int) ((pszOYSize[strlen(pszOYSize)-1]=='%'
-                         ? CPLAtofM(pszOYSize)/100*anSrcWin[3] : atoi(pszOYSize)));
+        m_n_ox_size = (int) ((m_psz_ox_size[strlen(m_psz_ox_size)-1]=='%'
+                         ? CPLAtofM(m_psz_ox_size)/100*m_an_src_win[2] : atoi(m_psz_ox_size)));
+        m_n_oy_size = (int) ((m_psz_oy_size[strlen(m_psz_oy_size)-1]=='%'
+                         ? CPLAtofM(m_psz_oy_size)/100*m_an_src_win[3] : atoi(m_psz_oy_size)));
     }
 
     /* ==================================================================== */
     /*      Create a virtual dataset.                                       */
     /* ==================================================================== */
-    VRTDataset *poVDS;
+    VRTDataset *po_vds;
 
     /* -------------------------------------------------------------------- */
     /*      Make a virtual clone.                                           */
     /* -------------------------------------------------------------------- */
-    poVDS = (VRTDataset *) VRTCreate( nOXSize, nOYSize );
+    po_vds = (VRTDataset *) VRTCreate( m_n_ox_size, m_n_oy_size );
 
-    if( nGCPCount == 0 )
+    if( m_n_gcp_count == 0 )
     {
-        if( pszOutputSRS != NULL )
+        if( m_psz_output_srs != NULL )
         {
-            poVDS->SetProjection( pszOutputSRS );
+            po_vds->SetProjection( m_psz_output_srs );
         }
         else
         {
-            pszProjection = GDALGetProjectionRef( hDataset );
-            if( pszProjection != NULL && strlen(pszProjection) > 0 )
-                poVDS->SetProjection( pszProjection );
+            m_psz_projection = GDALGetProjectionRef( m_h_dataset );
+            if( m_psz_projection != NULL && strlen(m_psz_projection) > 0 )
+                po_vds->SetProjection( m_psz_projection );
         }
     }
 
-    if( bGotBounds )
+    if( m_b_got_bounds )
     {
-        adfGeoTransform[0] = adfULLR[0];
-        adfGeoTransform[1] = (adfULLR[2] - adfULLR[0]) / nOXSize;
-        adfGeoTransform[2] = 0.0;
-        adfGeoTransform[3] = adfULLR[1];
-        adfGeoTransform[4] = 0.0;
-        adfGeoTransform[5] = (adfULLR[3] - adfULLR[1]) / nOYSize;
+        m_adf_geo_transform[0] = m_adf_ullr[0];
+        m_adf_geo_transform[1] = (m_adf_ullr[2] - m_adf_ullr[0]) / m_n_ox_size;
+        m_adf_geo_transform[2] = 0.0;
+        m_adf_geo_transform[3] = m_adf_ullr[1];
+        m_adf_geo_transform[4] = 0.0;
+        m_adf_geo_transform[5] = (m_adf_ullr[3] - m_adf_ullr[1]) / m_n_oy_size;
 
-        poVDS->SetGeoTransform( adfGeoTransform );
+        po_vds->SetGeoTransform( m_adf_geo_transform );
     }
 
-    else if( GDALGetGeoTransform( hDataset, adfGeoTransform ) == CE_None
-             && nGCPCount == 0 )
+    else if( GDALGetGeoTransform( m_h_dataset, m_adf_geo_transform ) == CE_None
+             && m_n_gcp_count == 0 )
     {
-        adfGeoTransform[0] += anSrcWin[0] * adfGeoTransform[1]
-                + anSrcWin[1] * adfGeoTransform[2];
-        adfGeoTransform[3] += anSrcWin[0] * adfGeoTransform[4]
-                + anSrcWin[1] * adfGeoTransform[5];
+        m_adf_geo_transform[0] += m_an_src_win[0] * m_adf_geo_transform[1]
+                + m_an_src_win[1] * m_adf_geo_transform[2];
+        m_adf_geo_transform[3] += m_an_src_win[0] * m_adf_geo_transform[4]
+                + m_an_src_win[1] * m_adf_geo_transform[5];
 
-        adfGeoTransform[1] *= anSrcWin[2] / (double) nOXSize;
-        adfGeoTransform[2] *= anSrcWin[3] / (double) nOYSize;
-        adfGeoTransform[4] *= anSrcWin[2] / (double) nOXSize;
-        adfGeoTransform[5] *= anSrcWin[3] / (double) nOYSize;
+        m_adf_geo_transform[1] *= m_an_src_win[2] / (double) m_n_ox_size;
+        m_adf_geo_transform[2] *= m_an_src_win[3] / (double) m_n_oy_size;
+        m_adf_geo_transform[4] *= m_an_src_win[2] / (double) m_n_ox_size;
+        m_adf_geo_transform[5] *= m_an_src_win[3] / (double) m_n_oy_size;
 
-        poVDS->SetGeoTransform( adfGeoTransform );
+        po_vds->SetGeoTransform( m_adf_geo_transform );
     }
 
-    if( nGCPCount != 0 )
+    if( m_n_gcp_count != 0 )
     {
-        const char *pszGCPProjection = pszOutputSRS;
+        const char *pszGCPProjection = m_psz_output_srs;
 
         if( pszGCPProjection == NULL )
-            pszGCPProjection = GDALGetGCPProjection( hDataset );
+            pszGCPProjection = GDALGetGCPProjection( m_h_dataset );
         if( pszGCPProjection == NULL )
             pszGCPProjection = "";
 
-        poVDS->SetGCPs( nGCPCount, pasGCPs, pszGCPProjection );
+        po_vds->SetGCPs( m_n_gcp_count, m_pas_gcps, pszGCPProjection );
 
-        GDALDeinitGCPs( nGCPCount, pasGCPs );
-        CPLFree( pasGCPs );
+        GDALDeinitGCPs( m_n_gcp_count, m_pas_gcps );
+        CPLFree( m_pas_gcps );
     }
 
-    else if( GDALGetGCPCount( hDataset ) > 0 )
+    else if( GDALGetGCPCount( m_h_dataset ) > 0 )
     {
-        GDAL_GCP *pasGCPs;
-        int       nGCPs = GDALGetGCPCount( hDataset );
+        GDAL_GCP *pas_gcps;
+        int       n_gcps = GDALGetGCPCount( m_h_dataset );
 
-        pasGCPs = GDALDuplicateGCPs( nGCPs, GDALGetGCPs( hDataset ) );
+        pas_gcps = GDALDuplicateGCPs( n_gcps, GDALGetGCPs( m_h_dataset ) );
 
-        for( i = 0; i < nGCPs; i++ )
+        for( i = 0; i < n_gcps; i++ )
         {
-            pasGCPs[i].dfGCPPixel -= anSrcWin[0];
-            pasGCPs[i].dfGCPLine  -= anSrcWin[1];
-            pasGCPs[i].dfGCPPixel *= (nOXSize / (double) anSrcWin[2] );
-            pasGCPs[i].dfGCPLine  *= (nOYSize / (double) anSrcWin[3] );
+            pas_gcps[i].dfGCPPixel -= m_an_src_win[0];
+            pas_gcps[i].dfGCPLine  -= m_an_src_win[1];
+            pas_gcps[i].dfGCPPixel *= (m_n_ox_size / (double) m_an_src_win[2] );
+            pas_gcps[i].dfGCPLine  *= (m_n_oy_size / (double) m_an_src_win[3] );
         }
 
-        poVDS->SetGCPs( nGCPs, pasGCPs,
-                        GDALGetGCPProjection( hDataset ) );
+        po_vds->SetGCPs( n_gcps, pas_gcps,
+                        GDALGetGCPProjection( m_h_dataset ) );
 
-        GDALDeinitGCPs( nGCPs, pasGCPs );
-        CPLFree( pasGCPs );
+        GDALDeinitGCPs( n_gcps, pas_gcps );
+        CPLFree( pas_gcps );
     }
 
     /* -------------------------------------------------------------------- */
     /*      To make the VRT to look less awkward (but this is optional      */
     /*      in fact), avoid negative values.                                */
     /* -------------------------------------------------------------------- */
-    int anDstWin[4];
-    anDstWin[0] = 0;
-    anDstWin[1] = 0;
-    anDstWin[2] = nOXSize;
-    anDstWin[3] = nOYSize;
+    int an_dst_win[4];
+    an_dst_win[0] = 0;
+    an_dst_win[1] = 0;
+    an_dst_win[2] = m_n_ox_size;
+    an_dst_win[3] = m_n_oy_size;
 
-    FixSrcDstWindow( anSrcWin, anDstWin,
-                     GDALGetRasterXSize(hDataset),
-                     GDALGetRasterYSize(hDataset) );
+    fixSrcDstWindow( m_an_src_win, an_dst_win,
+                     GDALGetRasterXSize(m_h_dataset),
+                     GDALGetRasterYSize(m_h_dataset) );
 
     /* -------------------------------------------------------------------- */
     /*      Transfer generally applicable metadata.                         */
     /* -------------------------------------------------------------------- */
-    char** papszMetadata = CSLDuplicate(((GDALDataset*)hDataset)->GetMetadata());
-    if ( bScale || bUnscale || eOutputType != GDT_Unknown )
+    char** papsz_metadata = CSLDuplicate(((GDALDataset*)m_h_dataset)->GetMetadata());
+    if ( m_b_scale || m_b_unscale || m_e_output_type != GDT_Unknown )
     {
         /* Remove TIFFTAG_MINSAMPLEVALUE and TIFFTAG_MAXSAMPLEVALUE */
         /* if the data range may change because of options */
-        char** papszIter = papszMetadata;
-        while(papszIter && *papszIter)
+        char** papsz_iter = papsz_metadata;
+        while(papsz_iter && *papsz_iter)
         {
-            if (EQUALN(*papszIter, "TIFFTAG_MINSAMPLEVALUE=", 23) ||
-                    EQUALN(*papszIter, "TIFFTAG_MAXSAMPLEVALUE=", 23))
+            if (EQUALN(*papsz_iter, "TIFFTAG_MINSAMPLEVALUE=", 23) ||
+                    EQUALN(*papsz_iter, "TIFFTAG_MAXSAMPLEVALUE=", 23))
             {
-                CPLFree(*papszIter);
-                memmove(papszIter, papszIter+1, sizeof(char*) * (CSLCount(papszIter+1)+1));
+                CPLFree(*papsz_iter);
+                memmove(papsz_iter, papsz_iter+1, sizeof(char*) * (CSLCount(papsz_iter+1)+1));
             }
             else
-                papszIter++;
+                papsz_iter++;
         }
     }
-    poVDS->SetMetadata( papszMetadata );
-    CSLDestroy( papszMetadata );
-    AttachMetadata( (GDALDatasetH) poVDS, papszMetadataOptions );
+    po_vds->SetMetadata( papsz_metadata );
+    CSLDestroy( papsz_metadata );
+    attachMetadata( (GDALDatasetH) po_vds, m_papsz_metadata_options );
 
-    const char* pszInterleave = GDALGetMetadataItem(hDataset, "INTERLEAVE", "IMAGE_STRUCTURE");
-    if (pszInterleave)
-        poVDS->SetMetadataItem("INTERLEAVE", pszInterleave, "IMAGE_STRUCTURE");
+    const char* psz_interleave = GDALGetMetadataItem(m_h_dataset, "INTERLEAVE", "IMAGE_STRUCTURE");
+    if (psz_interleave)
+        po_vds->SetMetadataItem("INTERLEAVE", psz_interleave, "IMAGE_STRUCTURE");
 
     /* -------------------------------------------------------------------- */
     /*      Transfer metadata that remains valid if the spatial             */
     /*      arrangement of the data is unaltered.                           */
     /* -------------------------------------------------------------------- */
-    if( bSpatialArrangementPreserved )
+    if( b_spatial_arrangement_preserved )
     {
-        char **papszMD;
+        char **papsz_md;
 
-        papszMD = ((GDALDataset*)hDataset)->GetMetadata("RPC");
-        if( papszMD != NULL )
-            poVDS->SetMetadata( papszMD, "RPC" );
+        papsz_md = ((GDALDataset*)m_h_dataset)->GetMetadata("RPC");
+        if( papsz_md != NULL )
+            po_vds->SetMetadata( papsz_md, "RPC" );
 
-        papszMD = ((GDALDataset*)hDataset)->GetMetadata("GEOLOCATION");
-        if( papszMD != NULL )
-            poVDS->SetMetadata( papszMD, "GEOLOCATION" );
+        papsz_md = ((GDALDataset*)m_h_dataset)->GetMetadata("GEOLOCATION");
+        if( papsz_md != NULL )
+            po_vds->SetMetadata( papsz_md, "GEOLOCATION" );
     }
 
-    int nSrcBandCount = nBandCount;
+    int n_src_band_count = m_n_band_count;
 
-    if (nRGBExpand != 0)
+    if (m_n_rgb_expand != 0)
     {
-        GDALRasterBand  *poSrcBand;
-        poSrcBand = ((GDALDataset *)
-                     hDataset)->GetRasterBand(ABS(panBandList[0]));
-        if (panBandList[0] < 0)
-            poSrcBand = poSrcBand->GetMaskBand();
-        GDALColorTable* poColorTable = poSrcBand->GetColorTable();
-        if (poColorTable == NULL)
+        GDALRasterBand  *po_src_band;
+        po_src_band = ((GDALDataset *)
+                     m_h_dataset)->GetRasterBand(ABS(m_pan_band_list[0]));
+        if (m_pan_band_list[0] < 0)
+            po_src_band = po_src_band->GetMaskBand();
+        GDALColorTable* po_color_table = po_src_band->GetColorTable();
+        if (po_color_table == NULL)
         {
-            fprintf(stderr, "Error : band %d has no color table\n", ABS(panBandList[0]));
-            GDALClose( hDataset );
-            CPLFree( panBandList );
+            fprintf(stderr, "Error : band %d has no color table\n", ABS(m_pan_band_list[0]));
+            GDALClose( m_h_dataset );
+            CPLFree( m_pan_band_list );
             GDALDestroyDriverManager();
             CSLDestroy( argv );
-            CSLDestroy( papszCreateOptions );
+            CSLDestroy( m_papsz_create_options );
             exit( 1 );
         }
 
         /* Check that the color table only contains gray levels */
         /* when using -expand gray */
-        if (nRGBExpand == 1)
+        if (m_n_rgb_expand == 1)
         {
-            int nColorCount = poColorTable->GetColorEntryCount();
-            int nColor;
-            for( nColor = 0; nColor < nColorCount; nColor++ )
+            int n_color_count = po_color_table->GetColorEntryCount();
+            int n_color;
+            for( n_color = 0; n_color < n_color_count; n_color++ )
             {
-                const GDALColorEntry* poEntry = poColorTable->GetColorEntry(nColor);
+                const GDALColorEntry* poEntry = po_color_table->GetColorEntry(n_color);
                 if (poEntry->c1 != poEntry->c2 || poEntry->c1 != poEntry->c2)
                 {
                     fprintf(stderr, "Warning : color table contains non gray levels colors\n");
@@ -1353,10 +1353,10 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
             }
         }
 
-        if (nBandCount == 1)
-            nBandCount = nRGBExpand;
-        else if (nBandCount == 2 && (nRGBExpand == 3 || nRGBExpand == 4))
-            nBandCount = nRGBExpand;
+        if (m_n_band_count == 1)
+            m_n_band_count = m_n_rgb_expand;
+        else if (m_n_band_count == 2 && (m_n_rgb_expand == 3 || m_n_rgb_expand == 4))
+            m_n_band_count = m_n_rgb_expand;
         else
         {
             fprintf(stderr, "Error : invalid use of -expand option.\n");
@@ -1365,122 +1365,122 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
     }
 
     int bFilterOutStatsMetadata =
-            (bScale || bUnscale || !bSpatialArrangementPreserved || nRGBExpand != 0);
+            (m_b_scale || m_b_unscale || !b_spatial_arrangement_preserved || m_n_rgb_expand != 0);
 
     /* ==================================================================== */
     /*      Process all bands.                                              */
     /* ==================================================================== */
-    for( i = 0; i < nBandCount; i++ )
+    for( i = 0; i < m_n_band_count; i++ )
     {
-        VRTSourcedRasterBand   *poVRTBand;
-        GDALRasterBand  *poSrcBand;
-        GDALDataType    eBandType;
-        int             nComponent = 0;
+        VRTSourcedRasterBand   *po_vrt_band;
+        GDALRasterBand  *po_src_band;
+        GDALDataType    e_band_type;
+        int             n_component = 0;
 
-        int nSrcBand;
-        if (nRGBExpand != 0)
+        int n_src_band;
+        if (m_n_rgb_expand != 0)
         {
-            if (nSrcBandCount == 2 && nRGBExpand == 4 && i == 3)
-                nSrcBand = panBandList[1];
+            if (n_src_band_count == 2 && m_n_rgb_expand == 4 && i == 3)
+                n_src_band = m_pan_band_list[1];
             else
             {
-                nSrcBand = panBandList[0];
-                nComponent = i + 1;
+                n_src_band = m_pan_band_list[0];
+                n_component = i + 1;
             }
         }
         else
-            nSrcBand = panBandList[i];
+            n_src_band = m_pan_band_list[i];
 
-        poSrcBand = ((GDALDataset *) hDataset)->GetRasterBand(ABS(nSrcBand));
+        po_src_band = ((GDALDataset *) m_h_dataset)->GetRasterBand(ABS(n_src_band));
 
         /* -------------------------------------------------------------------- */
         /*      Select output data type to match source.                        */
         /* -------------------------------------------------------------------- */
-        if( eOutputType == GDT_Unknown )
-            eBandType = poSrcBand->GetRasterDataType();
+        if( m_e_output_type == GDT_Unknown )
+            e_band_type = po_src_band->GetRasterDataType();
         else
-            eBandType = eOutputType;
+            e_band_type = m_e_output_type;
 
         /* -------------------------------------------------------------------- */
         /*      Create this band.                                               */
         /* -------------------------------------------------------------------- */
-        poVDS->AddBand( eBandType, NULL );
-        poVRTBand = (VRTSourcedRasterBand *) poVDS->GetRasterBand( i+1 );
-        if (nSrcBand < 0)
+        po_vds->AddBand( e_band_type, NULL );
+        po_vrt_band = (VRTSourcedRasterBand *) po_vds->GetRasterBand( i+1 );
+        if (n_src_band < 0)
         {
-            poVRTBand->AddMaskBandSource(poSrcBand,
-                                         anSrcWin[0], anSrcWin[1],
-                    anSrcWin[2], anSrcWin[3],
-                    anDstWin[0], anDstWin[1],
-                    anDstWin[2], anDstWin[3]);
+            po_vrt_band->AddMaskBandSource(po_src_band,
+                                         m_an_src_win[0], m_an_src_win[1],
+                    m_an_src_win[2], m_an_src_win[3],
+                    an_dst_win[0], an_dst_win[1],
+                    an_dst_win[2], an_dst_win[3]);
             continue;
         }
 
         /* -------------------------------------------------------------------- */
         /*      Do we need to collect scaling information?                      */
         /* -------------------------------------------------------------------- */
-        double dfScale=1.0, dfOffset=0.0;
+        double df_scale=1.0, df_offset=0.0;
 
-        if( bScale && !bHaveScaleSrc )
+        if( m_b_scale && !m_b_have_scale_src )
         {
-            double	adfCMinMax[2];
-            GDALComputeRasterMinMax( poSrcBand, TRUE, adfCMinMax );
-            dfScaleSrcMin = adfCMinMax[0];
-            dfScaleSrcMax = adfCMinMax[1];
+            double	adf_c_min_max[2];
+            GDALComputeRasterMinMax( po_src_band, TRUE, adf_c_min_max );
+            m_df_scale_src_min = adf_c_min_max[0];
+            m_df_scale_src_max = adf_c_min_max[1];
         }
 
-        if( bScale )
+        if( m_b_scale )
         {
-            if( dfScaleSrcMax == dfScaleSrcMin )
-                dfScaleSrcMax += 0.1;
-            if( dfScaleDstMax == dfScaleDstMin )
-                dfScaleDstMax += 0.1;
+            if( m_df_scale_src_max == m_df_scale_src_min )
+                m_df_scale_src_max += 0.1;
+            if( m_df_scale_dst_max == m_df_scale_dst_min )
+                m_df_scale_dst_max += 0.1;
 
-            dfScale = (dfScaleDstMax - dfScaleDstMin)
-                    / (dfScaleSrcMax - dfScaleSrcMin);
-            dfOffset = -1 * dfScaleSrcMin * dfScale + dfScaleDstMin;
+            df_scale = (m_df_scale_dst_max - m_df_scale_dst_min)
+                    / (m_df_scale_src_max - m_df_scale_src_min);
+            df_offset = -1 * m_df_scale_src_min * df_scale + m_df_scale_dst_min;
         }
 
-        if( bUnscale )
+        if( m_b_unscale )
         {
-            dfScale = poSrcBand->GetScale();
-            dfOffset = poSrcBand->GetOffset();
+            df_scale = po_src_band->GetScale();
+            df_offset = po_src_band->GetOffset();
         }
 
         /* -------------------------------------------------------------------- */
         /*      Create a simple or complex data source depending on the         */
         /*      translation type required.                                      */
         /* -------------------------------------------------------------------- */
-        if( bUnscale || bScale || (nRGBExpand != 0 && i < nRGBExpand) )
+        if( m_b_unscale || m_b_scale || (m_n_rgb_expand != 0 && i < m_n_rgb_expand) )
         {
-            poVRTBand->AddComplexSource( poSrcBand,
-                                         anSrcWin[0], anSrcWin[1],
-                    anSrcWin[2], anSrcWin[3],
-                    anDstWin[0], anDstWin[1],
-                    anDstWin[2], anDstWin[3],
-                    dfOffset, dfScale,
+            po_vrt_band->AddComplexSource( po_src_band,
+                                         m_an_src_win[0], m_an_src_win[1],
+                    m_an_src_win[2], m_an_src_win[3],
+                    an_dst_win[0], an_dst_win[1],
+                    an_dst_win[2], an_dst_win[3],
+                    df_offset, df_scale,
                     VRT_NODATA_UNSET,
-                    nComponent );
+                    n_component );
         }
         else
-            poVRTBand->AddSimpleSource( poSrcBand,
-                                        anSrcWin[0], anSrcWin[1],
-                    anSrcWin[2], anSrcWin[3],
-                    anDstWin[0], anDstWin[1],
-                    anDstWin[2], anDstWin[3] );
+            po_vrt_band->AddSimpleSource( po_src_band,
+                                        m_an_src_win[0], m_an_src_win[1],
+                    m_an_src_win[2], m_an_src_win[3],
+                    an_dst_win[0], an_dst_win[1],
+                    an_dst_win[2], an_dst_win[3] );
 
         /* -------------------------------------------------------------------- */
         /*      In case of color table translate, we only set the color         */
         /*      interpretation other info copied by CopyBandInfo are            */
         /*      not relevant in RGB expansion.                                  */
         /* -------------------------------------------------------------------- */
-        if (nRGBExpand == 1)
+        if (m_n_rgb_expand == 1)
         {
-            poVRTBand->SetColorInterpretation( GCI_GrayIndex );
+            po_vrt_band->SetColorInterpretation( GCI_GrayIndex );
         }
-        else if (nRGBExpand != 0 && i < nRGBExpand)
+        else if (m_n_rgb_expand != 0 && i < m_n_rgb_expand)
         {
-            poVRTBand->SetColorInterpretation( (GDALColorInterp) (GCI_RedBand + i) );
+            po_vrt_band->SetColorInterpretation( (GDALColorInterp) (GCI_RedBand + i) );
         }
 
         /* -------------------------------------------------------------------- */
@@ -1488,168 +1488,168 @@ int RasterGeoreferencer::WriteGeoFile(Mat &raster, Mat &rasterMask, QString outp
         /* -------------------------------------------------------------------- */
         else
         {
-            CopyBandInfo( poSrcBand, poVRTBand,
-                          !bStats && !bFilterOutStatsMetadata,
-                          !bUnscale,
-                          !bSetNoData && !bUnsetNoData );
+            copyBandInfo( po_src_band, po_vrt_band,
+                          !m_b_stats && !bFilterOutStatsMetadata,
+                          !m_b_unscale,
+                          !m_b_set_no_data && !m_b_unset_no_data );
         }
 
         /* -------------------------------------------------------------------- */
         /*      Set a forcable nodata value?                                    */
         /* -------------------------------------------------------------------- */
-        if( bSetNoData )
+        if( m_b_set_no_data )
         {
-            double dfVal = dfNoDataReal;
-            int bClamped = FALSE, bRounded = FALSE;
+            double df_val = m_df_no_data_real;
+            int b_clamped = FALSE, b_rounded = FALSE;
 
 #define CLAMP(val,type,minval,maxval) \
-    do { if (val < minval) { bClamped = TRUE; val = minval; } \
-    else if (val > maxval) { bClamped = TRUE; val = maxval; } \
-    else if (val != (type)val) { bRounded = TRUE; val = (type)(val + 0.5); } } \
+    do { if (val < minval) { b_clamped = TRUE; val = minval; } \
+    else if (val > maxval) { b_clamped = TRUE; val = maxval; } \
+    else if (val != (type)val) { b_rounded = TRUE; val = (type)(val + 0.5); } } \
     while(0)
 
-            switch(eBandType)
+            switch(e_band_type)
             {
             case GDT_Byte:
-                CLAMP(dfVal, GByte, 0.0, 255.0);
+                CLAMP(df_val, GByte, 0.0, 255.0);
                 break;
             case GDT_Int16:
-                CLAMP(dfVal, GInt16, -32768.0, 32767.0);
+                CLAMP(df_val, GInt16, -32768.0, 32767.0);
                 break;
             case GDT_UInt16:
-                CLAMP(dfVal, GUInt16, 0.0, 65535.0);
+                CLAMP(df_val, GUInt16, 0.0, 65535.0);
                 break;
             case GDT_Int32:
-                CLAMP(dfVal, GInt32, -2147483648.0, 2147483647.0);
+                CLAMP(df_val, GInt32, -2147483648.0, 2147483647.0);
                 break;
             case GDT_UInt32:
-                CLAMP(dfVal, GUInt32, 0.0, 4294967295.0);
+                CLAMP(df_val, GUInt32, 0.0, 4294967295.0);
                 break;
             default:
                 break;
             }
 
-            if (bClamped)
+            if (b_clamped)
             {
                 printf( "for band %d, nodata value has been clamped "
                         "to %.0f, the original value being out of range.\n",
-                        i + 1, dfVal);
+                        i + 1, df_val);
             }
-            else if(bRounded)
+            else if(b_rounded)
             {
                 printf("for band %d, nodata value has been rounded "
                        "to %.0f, %s being an integer datatype.\n",
-                       i + 1, dfVal,
-                       GDALGetDataTypeName(eBandType));
+                       i + 1, df_val,
+                       GDALGetDataTypeName(e_band_type));
             }
 
-            poVRTBand->SetNoDataValue( dfVal );
+            po_vrt_band->SetNoDataValue( df_val );
         }
 
-        if (eMaskMode == MASK_AUTO &&
-                (GDALGetMaskFlags(GDALGetRasterBand(hDataset, 1)) & GMF_PER_DATASET) == 0 &&
-                (poSrcBand->GetMaskFlags() & (GMF_ALL_VALID | GMF_NODATA)) == 0)
+        if (m_e_mask_mode == MASK_AUTO &&
+                (GDALGetMaskFlags(GDALGetRasterBand(m_h_dataset, 1)) & GMF_PER_DATASET) == 0 &&
+                (po_src_band->GetMaskFlags() & (GMF_ALL_VALID | GMF_NODATA)) == 0)
         {
-            if (poVRTBand->CreateMaskBand(poSrcBand->GetMaskFlags()) == CE_None)
+            if (po_vrt_band->CreateMaskBand(po_src_band->GetMaskFlags()) == CE_None)
             {
                 VRTSourcedRasterBand* hMaskVRTBand =
-                        (VRTSourcedRasterBand*)poVRTBand->GetMaskBand();
-                hMaskVRTBand->AddMaskBandSource(poSrcBand,
-                                                anSrcWin[0], anSrcWin[1],
-                        anSrcWin[2], anSrcWin[3],
-                        anDstWin[0], anDstWin[1],
-                        anDstWin[2], anDstWin[3] );
+                        (VRTSourcedRasterBand*)po_vrt_band->GetMaskBand();
+                hMaskVRTBand->AddMaskBandSource(po_src_band,
+                                                m_an_src_win[0], m_an_src_win[1],
+                        m_an_src_win[2], m_an_src_win[3],
+                        an_dst_win[0], an_dst_win[1],
+                        an_dst_win[2], an_dst_win[3] );
             }
         }
     }
 
-    if (eMaskMode == MASK_USER)
+    if (m_e_mask_mode == MASK_USER)
     {
         GDALRasterBand *poSrcBand =
-                (GDALRasterBand*)GDALGetRasterBand(hDataset, ABS(nMaskBand));
-        if (poSrcBand && poVDS->CreateMaskBand(GMF_PER_DATASET) == CE_None)
+                (GDALRasterBand*)GDALGetRasterBand(m_h_dataset, ABS(m_n_mask_band));
+        if (poSrcBand && po_vds->CreateMaskBand(GMF_PER_DATASET) == CE_None)
         {
             VRTSourcedRasterBand* hMaskVRTBand = (VRTSourcedRasterBand*)
-                    GDALGetMaskBand(GDALGetRasterBand((GDALDatasetH)poVDS, 1));
-            if (nMaskBand > 0)
+                    GDALGetMaskBand(GDALGetRasterBand((GDALDatasetH)po_vds, 1));
+            if (m_n_mask_band > 0)
                 hMaskVRTBand->AddSimpleSource(poSrcBand,
-                                              anSrcWin[0], anSrcWin[1],
-                        anSrcWin[2], anSrcWin[3],
-                        anDstWin[0], anDstWin[1],
-                        anDstWin[2], anDstWin[3] );
+                                              m_an_src_win[0], m_an_src_win[1],
+                        m_an_src_win[2], m_an_src_win[3],
+                        an_dst_win[0], an_dst_win[1],
+                        an_dst_win[2], an_dst_win[3] );
             else
                 hMaskVRTBand->AddMaskBandSource(poSrcBand,
-                                                anSrcWin[0], anSrcWin[1],
-                        anSrcWin[2], anSrcWin[3],
-                        anDstWin[0], anDstWin[1],
-                        anDstWin[2], anDstWin[3] );
+                                                m_an_src_win[0], m_an_src_win[1],
+                        m_an_src_win[2], m_an_src_win[3],
+                        an_dst_win[0], an_dst_win[1],
+                        an_dst_win[2], an_dst_win[3] );
         }
     }
     else
-        if (eMaskMode == MASK_AUTO && nSrcBandCount > 0 &&
-                GDALGetMaskFlags(GDALGetRasterBand(hDataset, 1)) == GMF_PER_DATASET)
+        if (m_e_mask_mode == MASK_AUTO && n_src_band_count > 0 &&
+                GDALGetMaskFlags(GDALGetRasterBand(m_h_dataset, 1)) == GMF_PER_DATASET)
         {
-            if (poVDS->CreateMaskBand(GMF_PER_DATASET) == CE_None)
+            if (po_vds->CreateMaskBand(GMF_PER_DATASET) == CE_None)
             {
                 VRTSourcedRasterBand* hMaskVRTBand = (VRTSourcedRasterBand*)
-                        GDALGetMaskBand(GDALGetRasterBand((GDALDatasetH)poVDS, 1));
-                hMaskVRTBand->AddMaskBandSource((GDALRasterBand*)GDALGetRasterBand(hDataset, 1),
-                                                anSrcWin[0], anSrcWin[1],
-                        anSrcWin[2], anSrcWin[3],
-                        anDstWin[0], anDstWin[1],
-                        anDstWin[2], anDstWin[3] );
+                        GDALGetMaskBand(GDALGetRasterBand((GDALDatasetH)po_vds, 1));
+                hMaskVRTBand->AddMaskBandSource((GDALRasterBand*)GDALGetRasterBand(m_h_dataset, 1),
+                                                m_an_src_win[0], m_an_src_win[1],
+                        m_an_src_win[2], m_an_src_win[3],
+                        an_dst_win[0], an_dst_win[1],
+                        an_dst_win[2], an_dst_win[3] );
             }
         }
 
     /* -------------------------------------------------------------------- */
     /*      Compute stats if required.                                      */
     /* -------------------------------------------------------------------- */
-    if (bStats)
+    if (m_b_stats)
     {
-        for( i = 0; i < poVDS->GetRasterCount(); i++ )
+        for( i = 0; i < po_vds->GetRasterCount(); i++ )
         {
-            double dfMin, dfMax, dfMean, dfStdDev;
-            poVDS->GetRasterBand(i+1)->ComputeStatistics( bApproxStats,
-                                                          &dfMin, &dfMax, &dfMean, &dfStdDev, GDALDummyProgress, NULL );
+            double df_min, df_max, df_mean, df_std_dev;
+            po_vds->GetRasterBand(i+1)->ComputeStatistics( m_b_approx_stats,
+                                                          &df_min, &df_max, &df_mean, &df_std_dev, GDALDummyProgress, NULL );
         }
     }
 
     /* -------------------------------------------------------------------- */
     /*      Write to the output file using CopyCreate().                    */
     /* -------------------------------------------------------------------- */
-    hOutDS = GDALCreateCopy( hDriver, pszDest, (GDALDatasetH) poVDS,
-                             bStrict, papszCreateOptions,
-                             pfnProgress, NULL );
-    if( hOutDS != NULL )
+    m_h_out_ds = GDALCreateCopy( m_h_driver, m_psz_dest, (GDALDatasetH) po_vds,
+                             m_b_strict, m_papsz_create_options,
+                             m_pfn_progress, NULL );
+    if( m_h_out_ds != NULL )
     {
         int bHasGotErr = FALSE;
         CPLErrorReset();
-        GDALFlushCache( hOutDS );
+        GDALFlushCache( m_h_out_ds );
         if (CPLGetLastErrorType() != CE_None)
             bHasGotErr = TRUE;
-        GDALClose( hOutDS );
+        GDALClose( m_h_out_ds );
         if (bHasGotErr)
-            hOutDS = NULL;
+            m_h_out_ds = NULL;
     }
 
-    GDALClose( (GDALDatasetH) poVDS );
+    GDALClose( (GDALDatasetH) po_vds );
 
-    GDALClose( hDataset );
+    GDALClose( m_h_dataset );
 
-    CPLFree( panBandList );
+    CPLFree( m_pan_band_list );
 
-    CPLFree( pszOutputSRS );
+    CPLFree( m_psz_output_srs );
 
-    if( !bSubCall )
+    if( !b_sub_call )
     {
         GDALDumpOpenDatasets( stderr );
         GDALDestroyDriverManager();
     }
 
     CSLDestroy( argv );
-    CSLDestroy( papszCreateOptions );
+    CSLDestroy( m_papsz_create_options );
 
-    return hOutDS == NULL;
+    return m_h_out_ds == NULL;
 }
 
 } // namespace nav_tools

@@ -2,197 +2,197 @@
 
 namespace nav_tools {
 
-Dim2::Dim2(QString args):
-    _validityArray(DIM2_FIELDS_NUMBER, '0')
+Dim2::Dim2(QString _args):
+    m_validity_array(DIM2_FIELDS_NUMBER, '0')
 {
-    QStringList argsList = args.split(";");
-    int nbArgs = argsList.length();
+    QStringList args_list = _args.split(";");
+    int nb_args = args_list.length();
     bool ok;
-    for(int noArg = 0; noArg < nbArgs; noArg++) {
-        switch(noArg) {
+    for(int no_arg = 0; no_arg < nb_args; no_arg++) {
+        switch(no_arg) {
             case 0: {
                 // dive
-                setDiveNumber(argsList.at(noArg).toULong(&ok));
+                setDiveNumber(args_list.at(no_arg).toULong(&ok));
             }
             break;
         case 1: {
             // date
-            setDateTime(QDate::fromString(argsList.at(noArg).trimmed(), "dd/MM/yyyy"));
+            setDateTime(QDate::fromString(args_list.at(no_arg).trimmed(), "dd/MM/yyyy"));
         }
         break;
         case 2: {
             // time
-            QDateTime currentDate = dateTime();
-            currentDate.setTime(QTime::fromString(argsList.at(noArg).trimmed(), "hh:mm:ss.zzz"));
-            setDateTime(currentDate);
+            QDateTime current_date = dateTime();
+            current_date.setTime(QTime::fromString(args_list.at(no_arg).trimmed(), "hh:mm:ss.zzz"));
+            setDateTime(current_date);
             ok = dateTime().isValid();
         }
         break;
 
         case 3: {
             // src
-            setSource(argsList.at(noArg).trimmed());
+            setSource(args_list.at(no_arg).trimmed());
             ok = !source().isEmpty();
          }
         break;
 
         case 4: {
             // format
-            setFormat(argsList.at(noArg).trimmed());
+            setFormat(args_list.at(no_arg).trimmed());
             ok = !format().isEmpty();
          }
         break;
 
         case 5: {
             // name
-            setFilename(argsList.at(noArg).trimmed());
+            setFilename(args_list.at(no_arg).trimmed());
             ok = !filename().isEmpty();
          }
         break;
 
         case 6: {
             // latitude
-            setLatitude(argsList.at(noArg).toDouble(&ok));
+            setLatitude(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 7: {
             // longitude
-            setLongitude(argsList.at(noArg).toDouble(&ok));
+            setLongitude(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 8: {
             // depth
-            setDepth(argsList.at(noArg).toDouble(&ok));
+            setDepth(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 9: {
             // altitude
-            setAltitude(argsList.at(noArg).toDouble(&ok));
+            setAltitude(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 10: {
             // yaw
-            setYaw(argsList.at(noArg).toDouble(&ok));
+            setYaw(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 11: {
             // roll
-            setRoll(argsList.at(noArg).toDouble(&ok));
+            setRoll(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 12: {
             // pitch
-            setPitch(argsList.at(noArg).toDouble(&ok));
+            setPitch(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 13: {
             // vx
-            setVx(argsList.at(noArg).toDouble(&ok));
+            setVx(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 14: {
             // vy
-            setVy(argsList.at(noArg).toDouble(&ok));
+            setVy(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 15: {
             // vz
-            setVz(argsList.at(noArg).toDouble(&ok));
+            setVz(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 16: {
             // vrx
-            setVrx(argsList.at(noArg).toDouble(&ok));
+            setVrx(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 17: {
             // vry
-            setVry(argsList.at(noArg).toDouble(&ok));
+            setVry(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 18: {
             // vrz
-            setVrz(argsList.at(noArg).toDouble(&ok));
+            setVrz(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 19: {
             // main pan
-            setMainPan(argsList.at(noArg).toDouble(&ok));
+            setMainPan(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 20: {
             // main tilt
-            setMainTilt(argsList.at(noArg).toDouble(&ok));
+            setMainTilt(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 21: {
             // main zoom
-            setMainZoom(argsList.at(noArg).toDouble(&ok));
+            setMainZoom(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 22: {
             // main focus
-            setMainFocus(argsList.at(noArg).toDouble(&ok));
+            setMainFocus(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 23: {
             // main iris
-            setMainIris(argsList.at(noArg).toDouble(&ok));
+            setMainIris(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 24: {
             // vertical zoom
-            setVerticalZoom(argsList.at(noArg).toDouble(&ok));
+            setVerticalZoom(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 25: {
             // vertical focus
-            setVerticalFocus(argsList.at(noArg).toDouble(&ok));
+            setVerticalFocus(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 26: {
             // vertical iris
-            setVerticalIris(argsList.at(noArg).toDouble(&ok));
+            setVerticalIris(args_list.at(no_arg).toDouble(&ok));
          }
         break;
 
         case 27: {
             // event
-            setEvent(argsList.at(noArg).trimmed());
+            setEvent(args_list.at(no_arg).trimmed());
             ok = !event().isEmpty();
          }
         break;
 
         case 28: {
             // tag
-            setTag(argsList.at(noArg).trimmed());
+            setTag(args_list.at(no_arg).trimmed());
             ok = !tag().isEmpty();
          }
         break;
 
         case 29: {
             // comment
-            setComment(argsList.at(noArg).trimmed());
+            setComment(args_list.at(no_arg).trimmed());
             ok = !comment().isEmpty();
          }
         break;
@@ -205,10 +205,10 @@ Dim2::Dim2(QString args):
             flag[0] = '0';
         }
 
-        if (noArg == 0) {
-                _validityArray.replace(0, 1, flag);
-        } else if (noArg > 1) {
-            _validityArray.replace(noArg-1, 1, flag);
+        if (no_arg == 0) {
+                m_validity_array.replace(0, 1, flag);
+        } else if (no_arg > 1) {
+            m_validity_array.replace(no_arg-1, 1, flag);
         }
 
     }
@@ -217,271 +217,271 @@ Dim2::Dim2(QString args):
 
 QString Dim2::comment() const
 {
-    return _comment;
+    return m_comment;
 }
 
-void Dim2::setComment(const QString &comment)
+void Dim2::setComment(const QString &_comment)
 {
-    _comment = comment;
+    m_comment = _comment;
 }
 double Dim2::mainZoom() const
 {
-    return _mainZoom;
+    return m_main_zoom;
 }
 
-void Dim2::setMainZoom(const double &mainZoom)
+void Dim2::setMainZoom(const double &_main_zoom)
 {
-    _mainZoom = mainZoom;
+    m_main_zoom = _main_zoom;
 }
 
 quint32 Dim2::diveNumber() const
 {
-    return _diveNumber;
+    return m_dive_number;
 }
 
-void Dim2::setDiveNumber(const quint32 &diveNumber)
+void Dim2::setDiveNumber(const quint32 &_dive_number)
 {
-    _diveNumber = diveNumber;
+    m_dive_number = _dive_number;
 }
 QDateTime Dim2::dateTime() const
 {
-    return _dateTime;
+    return m_date_time;
 }
 
-void Dim2::setDateTime(const QDateTime &dateTime)
+void Dim2::setDateTime(const QDateTime &_date_time)
 {
-    _dateTime = dateTime;
+    m_date_time = _date_time;
 }
 
-void Dim2::setDateTime(const QDate &date)
+void Dim2::setDateTime(const QDate &_date)
 {
-    _dateTime = QDateTime(date);
+    m_date_time = QDateTime(_date);
 }
 
 QString Dim2::source() const
 {
-    return _source;
+    return m_source;
 }
 
-void Dim2::setSource(const QString &source)
+void Dim2::setSource(const QString &_source)
 {
-    _source = source;
+    m_source = _source;
 }
 QString Dim2::format() const
 {
-    return _format;
+    return m_format;
 }
 
-void Dim2::setFormat(const QString &format)
+void Dim2::setFormat(const QString &_format)
 {
-    _format = format;
+    m_format = _format;
 }
 QString Dim2::filename() const
 {
-    return _filename;
+    return m_filename;
 }
 
-void Dim2::setFilename(const QString &filename)
+void Dim2::setFilename(const QString &_filename)
 {
-    _filename = filename;
+    m_filename = _filename;
 }
 double Dim2::latitude() const
 {
-    return _latitude;
+    return m_latitude;
 }
 
-void Dim2::setLatitude(const double &latitude)
+void Dim2::setLatitude(const double &_latitude)
 {
-    _latitude = latitude;
+    m_latitude = _latitude;
 }
 double Dim2::longitude() const
 {
-    return _longitude;
+    return m_longitude;
 }
 
-void Dim2::setLongitude(const double &longitude)
+void Dim2::setLongitude(const double &_longitude)
 {
-    _longitude = longitude;
+    m_longitude = _longitude;
 }
 double Dim2::depth() const
 {
-    return _depth;
+    return m_depth;
 }
 
-void Dim2::setDepth(const double &depth)
+void Dim2::setDepth(const double &_depth)
 {
-    _depth = depth;
+    m_depth = _depth;
 }
 double Dim2::altitude() const
 {
-    return _altitude;
+    return m_altitude;
 }
 
-void Dim2::setAltitude(const double &altitude)
+void Dim2::setAltitude(const double &_altitude)
 {
-    _altitude = altitude;
+    m_altitude = _altitude;
 }
 double Dim2::yaw() const
 {
-    return _yaw;
+    return m_yaw;
 }
 
-void Dim2::setYaw(const double &yaw)
+void Dim2::setYaw(const double &_yaw)
 {
-    _yaw = yaw;
+    m_yaw = _yaw;
 }
 double Dim2::roll() const
 {
-    return _roll;
+    return m_roll;
 }
 
-void Dim2::setRoll(const double &roll)
+void Dim2::setRoll(const double &_roll)
 {
-    _roll = roll;
+    m_roll = _roll;
 }
 double Dim2::pitch() const
 {
-    return _pitch;
+    return m_pitch;
 }
 
-void Dim2::setPitch(const double &pitch)
+void Dim2::setPitch(const double &_pitch)
 {
-    _pitch = pitch;
+    m_pitch = _pitch;
 }
 double Dim2::vx() const
 {
-    return _vx;
+    return m_vx;
 }
 
-void Dim2::setVx(const double &vx)
+void Dim2::setVx(const double &_vx)
 {
-    _vx = vx;
+    m_vx = _vx;
 }
 double Dim2::vy() const
 {
-    return _vy;
+    return m_vy;
 }
 
-void Dim2::setVy(const double &vy)
+void Dim2::setVy(const double &_vy)
 {
-    _vy = vy;
+    m_vy = _vy;
 }
 double Dim2::vz() const
 {
-    return _vz;
+    return m_vz;
 }
 
-void Dim2::setVz(const double &vz)
+void Dim2::setVz(const double &_vz)
 {
-    _vz = vz;
+    m_vz = _vz;
 }
 double Dim2::vrx() const
 {
-    return _vrx;
+    return m_vrx;
 }
 
-void Dim2::setVrx(const double &vrx)
+void Dim2::setVrx(const double &_vrx)
 {
-    _vrx = vrx;
+    m_vrx = _vrx;
 }
 double Dim2::vry() const
 {
-    return _vry;
+    return m_vry;
 }
 
-void Dim2::setVry(const double &vry)
+void Dim2::setVry(const double &_vry)
 {
-    _vry = vry;
+    m_vry = _vry;
 }
 double Dim2::vrz() const
 {
-    return _vrz;
+    return m_vrz;
 }
 
-void Dim2::setVrz(const double &vrz)
+void Dim2::setVrz(const double &_vrz)
 {
-    _vrz = vrz;
+    m_vrz = _vrz;
 }
 double Dim2::mainPan() const
 {
-    return _mainPan;
+    return m_main_pan;
 }
 
-void Dim2::setMainPan(const double &mainPan)
+void Dim2::setMainPan(const double &_main_pan)
 {
-    _mainPan = mainPan;
+    m_main_pan = _main_pan;
 }
 double Dim2::mainTilt() const
 {
-    return _mainTilt;
+    return m_main_tilt;
 }
 
-void Dim2::setMainTilt(const double &mainTilt)
+void Dim2::setMainTilt(const double &_main_tilt)
 {
-    _mainTilt = mainTilt;
+    m_main_tilt = _main_tilt;
 }
 double Dim2::mainFocus() const
 {
-    return _mainFocus;
+    return m_main_focus;
 }
 
-void Dim2::setMainFocus(const double &mainFocus)
+void Dim2::setMainFocus(const double &_main_focus)
 {
-    _mainFocus = mainFocus;
+    m_main_focus = _main_focus;
 }
 double Dim2::mainIris() const
 {
-    return _mainIris;
+    return m_main_iris;
 }
 
-void Dim2::setMainIris(const double &mainIris)
+void Dim2::setMainIris(const double &_main_iris)
 {
-    _mainIris = mainIris;
+    m_main_iris = _main_iris;
 }
 double Dim2::verticalZoom() const
 {
-    return _verticalZoom;
+    return m_vertical_zoom;
 }
 
-void Dim2::setVerticalZoom(const double &verticalZoom)
+void Dim2::setVerticalZoom(const double &_vertical_zoom)
 {
-    _verticalZoom = verticalZoom;
+    m_vertical_zoom = _vertical_zoom;
 }
 double Dim2::verticalFocus() const
 {
-    return _verticalFocus;
+    return m_vertical_focus;
 }
 
-void Dim2::setVerticalFocus(const double &verticalFocus)
+void Dim2::setVerticalFocus(const double &_vertical_focus)
 {
-    _verticalFocus = verticalFocus;
+    m_vertical_focus = _vertical_focus;
 }
 double Dim2::verticalIris() const
 {
-    return _verticalIris;
+    return m_vertical_iris;
 }
 
-void Dim2::setVerticalIris(const double &verticalIris)
+void Dim2::setVerticalIris(const double &_vertical_iris)
 {
-    _verticalIris = verticalIris;
+    m_vertical_iris = _vertical_iris;
 }
 QString Dim2::event() const
 {
-    return _event;
+    return m_event;
 }
 
-void Dim2::setEvent(const QString &event)
+void Dim2::setEvent(const QString &_event)
 {
-    _event = event;
+    m_event = _event;
 }
 QString Dim2::tag() const
 {
-    return _tag;
+    return m_tag;
 }
 
-void Dim2::setTag(const QString &tag)
+void Dim2::setTag(const QString &_tag)
 {
-    _tag = tag;
+    m_tag = _tag;
 }
 
 } // namespace nav_tools

@@ -28,52 +28,52 @@ class Dim2FileReader
 public:
     ///
     /// \brief Constructeur. Appelle la methode readDim2File()
-    /// \param filename le nom du fichier DIM2 à charger
-    /// \param firstLine première ligne à lire
-    /// \param lastLine dernière ligne à lire
-    /// \param step pas entre lignes
+    /// \param _filename le nom du fichier DIM2 à charger
+    /// \param _first_line première ligne à lire
+    /// \param _last_line dernière ligne à lire
+    /// \param _step pas entre lignes
     ///
-    Dim2FileReader(QString filename = "", quint32 firstLine = 1, quint32 lastLine = 999999, quint32 step = 1);
+    Dim2FileReader(QString _filename = "", quint32 _first_line = 1, quint32 _last_line = 999999, quint32 _step = 1);
     
     
     virtual ~Dim2FileReader();
 
     ///
     /// \brief Lit le fichier DIM2 et construit un NavInfo pour chaque ligne du fichier.
-    /// \param firstLine première ligne à lire
-    /// \param lastLine dernière ligne à lire
-    /// \param step pas entre lignes
+    /// \param _first_line première ligne à lire
+    /// \param _last_line dernière ligne à lire
+    /// \param _step pas entre lignes
     /// \return true si le fichier a été lu correctement
     ///
-    bool readDim2File(quint32 firstLine = 1, quint32 lastLine = 999999, quint32 step = 1);
+    bool readDim2File(quint32 _first_line = 1, quint32 _last_line = 999999, quint32 _step = 1);
    
     ///
     /// \brief Retourne le nom de l'image à l'index dans la collection des lignes lues
-    /// \param imageId
+    /// \param _image_id
     /// \return
     ///
-    QString getImageFilename(quint32 imageId);
+    QString getImageFilename(quint32 _image_id);
 
     ///
     /// \brief Retourne le nom de la source de l'image à l'index dans la collection des lignes lues
-    /// \param imageId
+    /// \param _image_id
     /// \return
     ///
-    QString getImageSource(quint32 imageId);
+    QString getImageSource(quint32 _image_id);
 
     ///
     /// \brief Retourne le format de l'image à l'index dans la collection des lignes lues
-    /// \param imageId
+    /// \param _image_id
     /// \return
     ///
-    QString getImageFormat(quint32 imageId);
+    QString getImageFormat(quint32 _image_id);
 
     ///
     /// \brief Retourne les informations NavInfo correspondant à l'index dans la collection des lignes lues
-    /// \param imageId
+    /// \param _image_id
     /// \return
     ///
-    NavInfo getNavInfo(quint32 imageId);
+    NavInfo getNavInfo(quint32 _image_id);
 
     int getNumberOfImages();
 
@@ -90,11 +90,11 @@ public:
     QString getFilename();
 
 private:
-    QString _filename;
-    QList<Dim2> _dim2Lines;
+    QString m_filename;
+    QList<Dim2> m_dim2_lines;
 
-    bool _fileIsValid;
-    bool addDim2Line(QString datasLine);
+    bool m_file_is_valid;
+    bool addDim2Line(QString _data_line);
 };
 
 }

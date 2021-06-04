@@ -122,7 +122,7 @@ void Init2DMosaic::onFlush(quint32 port)
 
         GeoTransform T;
 
-        V_R_C = T.RotZ(V_Pose_C(0,5))*T.RotY(V_Pose_C(0,4))*T.RotX(V_Pose_C(0,3));
+        V_R_C = T.rotZ(V_Pose_C(0,5))*T.rotY(V_Pose_C(0,4))*T.rotX(V_Pose_C(0,3));
 
     }
 

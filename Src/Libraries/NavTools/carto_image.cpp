@@ -9,7 +9,7 @@
 
 #include <QFileInfo>
 
-static bool gdalLoaded = false;
+static bool gdal_loaded = false;
 
 using namespace cv;
 using namespace matisse_image;
@@ -19,40 +19,40 @@ namespace nav_tools {
 CartoImage::CartoImage() :
     Image()
 {
-    if(!gdalLoaded)
+    if(!gdal_loaded)
     {
         GDALAllRegister();
-        gdalLoaded = true;
+        gdal_loaded = true;
     }
 
     // in case of north up images, the GT(2) and GT(4) coefficients are zero,
     // and the GT(1) is pixel width, and GT(5) is pixel height.
     // The (GT(0),GT(3)) position is the top left corner of the top left pixel of the raster.
-    _adfGeoTransform[0] = 0;
-    _adfGeoTransform[1] = 1;
-    _adfGeoTransform[2] = 0;
-    _adfGeoTransform[3] = 0;
-    _adfGeoTransform[4] = 0;
-    _adfGeoTransform[5] = 1;
+    m_adf_geo_transform[0] = 0;
+    m_adf_geo_transform[1] = 1;
+    m_adf_geo_transform[2] = 0;
+    m_adf_geo_transform[3] = 0;
+    m_adf_geo_transform[4] = 0;
+    m_adf_geo_transform[5] = 1;
 }
 
-bool CartoImage::loadFile(QString filename_p)
+bool CartoImage::loadFile(QString _filename)
 {
     m_id = 0;
-    if (filename_p.isEmpty()) {
+    if (_filename.isEmpty()) {
         m_id = -1;
         return false;
     }
 
-    QFileInfo fileInfo(filename_p);
-    _fileName = fileInfo.absoluteFilePath();
+    QFileInfo fileInfo(_filename);
+    m_file_name = fileInfo.absoluteFilePath();
 
     // geotiff data
-    GDALDataset  *poDataset;
-    poDataset = (GDALDataset *) GDALOpen( fileInfo.absoluteFilePath().toStdString().c_str(), GA_ReadOnly );
-    if( poDataset != NULL )
+    GDALDataset  *po_dataset;
+    po_dataset = (GDALDataset *) GDALOpen( fileInfo.absoluteFilePath().toStdString().c_str(), GA_ReadOnly );
+    if( po_dataset != NULL )
     {
-        if( poDataset->GetGeoTransform( _adfGeoTransform ) == CE_None )
+        if( po_dataset->GetGeoTransform( m_adf_geo_transform ) == CE_None )
         {
             // OK = _adfGeoTransform filled
             //            printf( "Origin = (%.6f,%.6f)\n",
@@ -65,18 +65,18 @@ bool CartoImage::loadFile(QString filename_p)
             // in case of north up images, the GT(2) and GT(4) coefficients are zero,
             // and the GT(1) is pixel width, and GT(5) is pixel height.
             // The (GT(0),GT(3)) position is the top left corner of the top left pixel of the raster.
-            _adfGeoTransform[0] = 0;
-            _adfGeoTransform[1] = 1;
-            _adfGeoTransform[2] = 0;
-            _adfGeoTransform[3] = 0;
-            _adfGeoTransform[4] = 0;
-            _adfGeoTransform[5] = 1;
+            m_adf_geo_transform[0] = 0;
+            m_adf_geo_transform[1] = 1;
+            m_adf_geo_transform[2] = 0;
+            m_adf_geo_transform[3] = 0;
+            m_adf_geo_transform[4] = 0;
+            m_adf_geo_transform[5] = 1;
         }
-        GDALClose(poDataset);
+        GDALClose(po_dataset);
     }
 
-    Mat readImage = imread(_fileName.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-    m_image_data = new Mat(readImage);
+    Mat read_image = imread(m_file_name.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+    m_image_data = new Mat(read_image);
 
     return true;
 }
@@ -84,23 +84,23 @@ bool CartoImage::loadFile(QString filename_p)
 QRectF CartoImage::getEnvelope()
 {
     // rotation
-    qreal XMAX = m_image_data->cols-1;
-    qreal YMAX = m_image_data->rows-1;
-    qreal left = min(xGeo(0,0), xGeo(XMAX, 0));
-    left = min(left,  xGeo(0, YMAX));
-    left = min(left,  xGeo(XMAX, YMAX));
+    qreal xmax = m_image_data->cols-1;
+    qreal ymax = m_image_data->rows-1;
+    qreal left = min(xGeo(0,0), xGeo(xmax, 0));
+    left = min(left,  xGeo(0, ymax));
+    left = min(left,  xGeo(xmax, ymax));
 
-    qreal right = max(xGeo(0,0), xGeo(XMAX, 0));
-    right = max(right,  xGeo(0, YMAX));
-    right = max(right,  xGeo(XMAX, YMAX));
+    qreal right = max(xGeo(0,0), xGeo(xmax, 0));
+    right = max(right,  xGeo(0, ymax));
+    right = max(right,  xGeo(xmax, ymax));
 
-    qreal top = min(yGeo(0,0), yGeo(XMAX, 0));
-    top = min(top,  yGeo(0, YMAX));
-    top = min(top,  yGeo(XMAX, YMAX));
+    qreal top = min(yGeo(0,0), yGeo(xmax, 0));
+    top = min(top,  yGeo(0, ymax));
+    top = min(top,  yGeo(xmax, ymax));
 
-    qreal bottom = max(yGeo(0,0), yGeo(XMAX, 0));
-    bottom = max(bottom,  yGeo(0, YMAX));
-    bottom = max(bottom,  yGeo(XMAX, YMAX));
+    qreal bottom = max(yGeo(0,0), yGeo(xmax, 0));
+    bottom = max(bottom,  yGeo(0, ymax));
+    bottom = max(bottom,  yGeo(xmax, ymax));
 
     return QRectF(left, top, right - left, bottom - top);
 }
@@ -108,20 +108,20 @@ QRectF CartoImage::getEnvelope()
 // width of image (and not containing envelope)
 qreal CartoImage::widthGeo()
 {
-    qreal XMAX = m_image_data->cols-1;
-    return hypot( xGeo(XMAX, 0) - xGeo(0,0),  yGeo(XMAX, 0) - yGeo(0,0));
+    qreal xmax = m_image_data->cols-1;
+    return hypot( xGeo(xmax, 0) - xGeo(0,0),  yGeo(xmax, 0) - yGeo(0,0));
 }
 
 // height of image (and not containing envelope)
 qreal CartoImage::heightGeo()
 {
-    qreal YMAX = m_image_data->rows-1;
-    return hypot( xGeo(0, YMAX) - xGeo(0,0), yGeo(0, YMAX) - yGeo(0,0));
+    qreal ymax = m_image_data->rows-1;
+    return hypot( xGeo(0, ymax) - xGeo(0,0), yGeo(0, ymax) - yGeo(0,0));
 }
 
 qreal CartoImage::getRotationAngle()
 {
-    qreal angle = atan2(_adfGeoTransform[2], _adfGeoTransform[1]);
+    qreal angle = atan2(m_adf_geo_transform[2], m_adf_geo_transform[1]);
     return angle;
 }
 

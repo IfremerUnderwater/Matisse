@@ -117,7 +117,7 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
     meanLat /= (double)_cameraNodes.size();
     meanLon /= (double)_cameraNodes.size();
 
-    if ( !(_T.LatLongToUTM(meanLat, meanLon, X, Y, utmZone, false)) ){
+    if ( !(_T.latLongToUTM(meanLat, meanLon, X, Y, utmZone, false)) ){
         qDebug() << "Cannot retrieve UTM Zone\n";
         exit(1);
     }else{
@@ -130,7 +130,7 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
     // Compute at the same time min and max for X & Y and meanAlt
     foreach (ProjectiveCamera* Cam, _cameraNodes) {
 
-        if ( !(_T.LatLongToUTM(Cam->image()->navInfo().latitude(),
+        if ( !(_T.latLongToUTM(Cam->image()->navInfo().latitude(),
                                Cam->image()->navInfo().longitude(),
                                X, Y, utmZone, true)) ){
             qDebug() << "Cannot convert point to UTM\n";
@@ -171,7 +171,7 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> cameras_p
 
     // Compute the Transformation 3D Mosaic Frame -> 3D World Frame: W_X = W_R_M * M_X + W_T_M
     // Mosaic Rotation w.r.t. 3D World Frame
-    _W_R_M = _T.RotX(CV_PI);
+    _W_R_M = _T.rotX(CV_PI);
     // Mosaic Translation w.r.t. 3D World Frame
     // (The mosaic is translated according to the X, Y origin but not in moved in Z).
     _W_T_M = (cv::Mat_<double>(3,1) << _mosaicOrigin.x, _mosaicOrigin.y, 0 );
@@ -208,7 +208,7 @@ void MosaicDescriptor::computeCameraHomography(ProjectiveCamera *camera_p)
     //  Rotation in X (Pi): Point Z axis of the vehicle looking down.
     //  Rotation in Y (Pitch): Pitch in the vehicle frame.
     //  Rotation in X (Roll): Roll in the vehicle frame.
-    _W_R_V = _T.RotZ ( CV_PI / 2 ) * _T.RotZ ( Yaw ) * _T.RotX ( CV_PI ) * _T.RotY ( navdata->pitch() ) * _T.RotX ( navdata->roll() );
+    _W_R_V = _T.rotZ ( CV_PI / 2 ) * _T.rotZ ( Yaw ) * _T.rotX ( CV_PI ) * _T.rotY ( navdata->pitch() ) * _T.rotX ( navdata->roll() );
     // Vehicle Translation w.r.t. 3D World Frame
     _W_T_V = (cv::Mat_<double>(3,1) << navdata->utmX(), navdata->utmY(), navdata->altitude() );
 
@@ -349,7 +349,7 @@ void MosaicDescriptor::writeToGeoTiff(Mat &raster_p, Mat &rasterMask_p, QString 
             .arg(mosaic_ullr().at<double>(2,0),0,'f',2)
             .arg(mosaic_ullr().at<double>(3,0),0,'f',2);
     RasterGeoreferencer rasterGeoref;
-    rasterGeoref.WriteGeoFile(raster_p,rasterMask_p,filePath_p,gdalOptions);
+    rasterGeoref.writeGeoFile(raster_p,rasterMask_p,filePath_p,gdalOptions);
 
 }
 

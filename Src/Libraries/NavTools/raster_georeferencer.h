@@ -33,56 +33,56 @@ public:
     ~RasterGeoreferencer();
 
     ///
-    /// \brief WriteGeoFile write a georeferenced file using memory raster (this method is the class version of the command line gdal_translate)
-    /// \param raster opencv image of the raster data
-    /// \param rasterMask opencv image of the raster mask (0 not to be seen, 255 valid area)
-    /// \param outputFile path and name of the output geofile
-    /// \param cmdLineOptions gdal options as would be provided to gdal_translate function (see gdal doc for exhaustive list)
+    /// \brief writeGeoFile write a georeferenced file using memory raster (this method is the class version of the command line gdal_translate)
+    /// \param _raster opencv image of the raster data
+    /// \param _raster_mask opencv image of the raster mask (0 not to be seen, 255 valid area)
+    /// \param _output_file path and name of the output geofile
+    /// \param _cmd_line_options gdal options as would be provided to gdal_translate function (see gdal doc for exhaustive list)
     /// \return 0 on success
     ///
-    int WriteGeoFile(cv::Mat &raster, cv::Mat &rasterMask, QString outputFile, QString cmdLineOptions);
+    int writeGeoFile(cv::Mat &_raster, cv::Mat &_raster_mask, QString _output_file, QString _cmd_line_options);
 
 private:
 
-    GDALDataset         *poDataset;
-    GDALDatasetH	    hDataset, hOutDS;
-    int			        nRasterXSize, nRasterYSize;
-    const char		    *pszDest, *pszFormat ;
-    int                 bFormatExplicitelySet;
-    GDALDriverH		    hDriver;
-    GDALDriver          *inputDriver;
-    int			        *panBandList; /* negative value of panBandList[i] means mask band of ABS(panBandList[i]) */
-    int                 nBandCount, bDefBands;
-    double		        *adfGeoTransform;
-    GDALDataType	    eOutputType;
-    int			        nOXSize, nOYSize;
-    char		        *pszOXSize, *pszOYSize;
-    char                **papszCreateOptions;
-    int                 *anSrcWin, bStrict;
-    const char          *pszProjection;
-    int                 bScale, bHaveScaleSrc, bUnscale;
-    double	            dfScaleSrcMin, dfScaleSrcMax;
-    double              dfScaleDstMin, dfScaleDstMax;
-    double              dfULX, dfULY, dfLRX, dfLRY;
-    char                **papszMetadataOptions;
-    char                *pszOutputSRS;
-    int                 bQuiet, bGotBounds;
-    GDALProgressFunc    pfnProgress;
-    int                 nGCPCount;
-    GDAL_GCP            *pasGCPs;
-    int                 iSrcFileArg, iDstFileArg;
-    int                 bCopySubDatasets;
-    double              *adfULLR;
-    int                 bSetNoData;
-    int                 bUnsetNoData;
-    double		        dfNoDataReal;
-    int                 nRGBExpand;
-    int                 bParsedMaskArgument;
-    int                 eMaskMode;
-    int                 nMaskBand;
-    int                 bStats, bApproxStats;
-    int                 bErrorOnPartiallyOutside;
-    int                 bErrorOnCompletelyOutside;
+    GDALDataset         *m_po_dataset;
+    GDALDatasetH	    m_h_dataset, m_h_out_ds;
+    int			        m_n_raster_x_size, m_n_raster_y_size;
+    const char		    *m_psz_dest, *m_psz_format ;
+    int                 m_b_format_explicitely_set;
+    GDALDriverH		    m_h_driver;
+    GDALDriver          *m_input_driver;
+    int			        *m_pan_band_list; /* negative value of panBandList[i] means mask band of ABS(panBandList[i]) */
+    int                 m_n_band_count, m_b_def_bands;
+    double		        *m_adf_geo_transform;
+    GDALDataType	    m_e_output_type;
+    int			        m_n_ox_size, m_n_oy_size;
+    char		        *m_psz_ox_size, *m_psz_oy_size;
+    char                **m_papsz_create_options;
+    int                 *m_an_src_win, m_b_strict;
+    const char          *m_psz_projection;
+    int                 m_b_scale, m_b_have_scale_src, m_b_unscale;
+    double	            m_df_scale_src_min, m_df_scale_src_max;
+    double              m_df_scale_dst_min, m_df_scale_dst_max;
+    double              m_df_ulx, m_df_uly, m_df_lrx, m_df_lry;
+    char                **m_papsz_metadata_options;
+    char                *m_psz_output_srs;
+    int                 m_b_quiet, m_b_got_bounds;
+    GDALProgressFunc    m_pfn_progress;
+    int                 m_n_gcp_count;
+    GDAL_GCP            *m_pas_gcps;
+    int                 m_i_src_file_arg, m_i_dst_file_arg;
+    int                 b_copy_sub_datasets;
+    double              *m_adf_ullr;
+    int                 m_b_set_no_data;
+    int                 m_b_unset_no_data;
+    double		        m_df_no_data_real;
+    int                 m_n_rgb_expand;
+    int                 m_b_parsed_mask_argument;
+    int                 m_e_mask_mode;
+    int                 m_n_mask_band;
+    int                 m_b_stats, m_b_approx_stats;
+    int                 m_b_error_on_partially_outside;
+    int                 m_b_error_on_completely_outside;
 
 };
 
