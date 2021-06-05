@@ -33,13 +33,13 @@ protected slots:
 
         void sl_onConnected();
         void sl_onDisconnected();
-        void sl_onConnectionError(QSsh::SshError);
+        void sl_onConnectionError(QSsh::SshError _err);
         void sl_onChannelInitialized();
-        void sl_onChannelError(const QString& err);
+        void sl_onChannelError(const QString& _err);
         void sl_onChannelClosed();
-        void sl_onOpfinished(QSsh::SftpJobId job, const SftpError errorType, const QString& error = QString());
-        void sl_onTransferProgress(QSsh::SftpJobId job, quint64 progress, quint64 total);
-        void sl_onFileInfoAvailable(QSsh::SftpJobId job, const QList<QSsh::SftpFileInfo>& fileInfoList); 
+        void sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_type, const QString& _error = QString());
+        void sl_onTransferProgress(QSsh::SftpJobId _job, quint64 _progress, quint64 _total);
+        void sl_onFileInfoAvailable(QSsh::SftpJobId _job, const QList<QSsh::SftpFileInfo>& _file_info_list);
 
     private:
         void processAction();

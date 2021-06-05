@@ -12,8 +12,8 @@ public:
     NetworkCommandClient();
 
 signals:
-    void si_shellOutputReceived(NetworkAction *action, QByteArray output);
-    void si_shellErrorReceived(NetworkAction *action, QByteArray error);
+    void si_shellOutputReceived(NetworkAction *_action, QByteArray _output);
+    void si_shellErrorReceived(NetworkAction *_action, QByteArray _error);
 
 protected slots:
     virtual void sl_createRemoteShell(QString& _command) = 0;
