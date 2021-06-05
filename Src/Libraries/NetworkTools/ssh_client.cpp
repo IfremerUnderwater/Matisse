@@ -58,12 +58,12 @@ void SshClient::sl_closeRemoteShell()
 
 void SshClient::sl_executeCommand()
 {
-    QString commandAndNl = m_shell_command.append("\n");
+    QString command_and_nl = m_shell_command.append("\n");
 
     qDebug()
-        << QString("SSH Client: remote shell send command %1").arg(commandAndNl);
+        << QString("SSH Client: remote shell send command %1").arg(command_and_nl);
 
-    m_shell->write(commandAndNl.toLatin1());
+    m_shell->write(command_and_nl.toLatin1());
 }
 
 void SshClient::sl_onShellStarted() {
@@ -91,8 +91,8 @@ void SshClient::sl_onReadyReadStandardOutput() {
     return;
   }
 
-  QByteArray outputStream = m_shell->readAllStandardOutput();
-  emit si_shellOutputReceived(m_current_action, outputStream);
+  QByteArray output_stream = m_shell->readAllStandardOutput();
+  emit si_shellOutputReceived(m_current_action, output_stream);
 
   /* Increment from 60% progress on shell established */
   int new_progress = 0;
@@ -125,8 +125,8 @@ void SshClient::sl_onReadyReadStandardError() {
     return;
   }
 
-  QByteArray errorStream = m_shell->readAllStandardError();
-  emit si_shellErrorReceived(m_current_action, errorStream);
+  QByteArray error_stream = m_shell->readAllStandardError();
+  emit si_shellErrorReceived(m_current_action, error_stream);
 }
 
 void SshClient::sl_onShellClosed(int _exit_status) {
@@ -268,43 +268,43 @@ void SshClient::clearConnectionAndActionQueue() {
 void SshClient::mapConnectionError(QSsh::SshError _err) {
   switch (_err) {
     case QSsh::SshError::SshNoError:
-      m_current_cx_error = ConnectionError::NoError;
+      m_current_cx_error = eConnectionError::NO_ERROR;
       break;
 
     case QSsh::SshError::SshSocketError:
-      m_current_cx_error = ConnectionError::SocketError;
+      m_current_cx_error = eConnectionError::SOCKET_ERROR;
       break;
 
     case QSsh::SshError::SshTimeoutError:
-      m_current_cx_error = ConnectionError::TimeoutError;
+      m_current_cx_error = eConnectionError::TIMEOUT_ERROR;
       break;
 
     case QSsh::SshError::SshProtocolError:
-      m_current_cx_error = ConnectionError::ProtocolError;
+      m_current_cx_error = eConnectionError::PROTOCOL_ERROR;
       break;
 
     case QSsh::SshError::SshHostKeyError:
-      m_current_cx_error = ConnectionError::HostKeyError;
+      m_current_cx_error = eConnectionError::HOST_KEY_ERROR;
       break;
 
     case QSsh::SshError::SshKeyFileError:
-      m_current_cx_error = ConnectionError::KeyFileError;
+      m_current_cx_error = eConnectionError::KEY_FILE_ERROR;
       break;
 
     case QSsh::SshError::SshAuthenticationError:
-      m_current_cx_error = ConnectionError::AuthenticationError;
+      m_current_cx_error = eConnectionError::AUTHENTICATION_ERROR;
       break;
 
     case QSsh::SshError::SshClosedByServerError:
-      m_current_cx_error = ConnectionError::ClosedByServerError;
+      m_current_cx_error = eConnectionError::CLOSED_BY_SERVER_ERROR;
       break;
 
     case QSsh::SshError::SshAgentError:
-      m_current_cx_error = ConnectionError::AgentError;
+      m_current_cx_error = eConnectionError::AGENT_ERROR;
       break;
 
     case QSsh::SshError::SshInternalError:
-      m_current_cx_error = ConnectionError::InternalError;
+      m_current_cx_error = eConnectionError::INTERNAL_ERROR;
       break;
   }
 
@@ -359,16 +359,16 @@ void SshClient::sl_onDisconnected() {
   clearConnectionAndActionQueue();
 }
 
-void SshClient::sl_onConnectionError(QSsh::SshError err) {
-  qCritical() << "SSH Client: Connection error" << err;
+void SshClient::sl_onConnectionError(QSsh::SshError _err) {
+  qCritical() << "SSH Client: Connection error" << _err;
 
-  mapConnectionError(err);
+  mapConnectionError(_err);
 
   m_waiting_for_connection = false;
 
   /* In case of authentication error, prompt for new login
   and give a chance to resume actions. Otherwise clear all */
-  if (m_current_cx_error != ConnectionError::AuthenticationError) {
+  if (m_current_cx_error != eConnectionError::AUTHENTICATION_ERROR) {
     clearConnectionAndActionQueue();
   }
 

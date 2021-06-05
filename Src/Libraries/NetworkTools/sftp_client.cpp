@@ -308,16 +308,16 @@ void SftpClient::sl_onDisconnected() {
   clearConnectionAndActionQueue();
 }
 
-void SftpClient::sl_onConnectionError(QSsh::SshError err) {
-  qCritical() << "SFTP Client: Connection error" << err;
+void SftpClient::sl_onConnectionError(QSsh::SshError _err) {
+  qCritical() << "SFTP Client: Connection error" << _err;
 
-  mapConnectionError(err);
+  mapConnectionError(_err);
 
   m_waiting_for_connection = false;
 
   /* In case of authentication error, prompt for new login
   and give a chance to resume actions. Otherwise clear all */
-  if (m_current_cx_error != ConnectionError::AuthenticationError) {
+  if (m_current_cx_error != eConnectionError::AUTHENTICATION_ERROR) {
     clearConnectionAndActionQueue();
   }
 
@@ -387,13 +387,13 @@ void SftpClient::sl_onChannelClosed() {
 }
 
 void SftpClient::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_type,
-                              const QString& _err_msg) {
+                              const QString& _error) {
   
   if (_error_type != QSsh::SftpError::NoError) {
     qCritical()
-        << QString("SFTP Client: Job #%1 failed : %2").arg(_job).arg(_err_msg);
+        << QString("SFTP Client: Job #%1 failed : %2").arg(_job).arg(_error);
 
-    mapTransferError(_error_type);  
+    mapTransferError(_error_type);
     emit si_transferFailed(m_current_action, m_current_tx_error);
     return;
   }
@@ -615,43 +615,43 @@ void SftpClient::sl_onFileInfoAvailable(
 void SftpClient::mapConnectionError(QSsh::SshError _err) {
   switch (_err) {
     case QSsh::SshError::SshNoError:
-      m_current_cx_error = ConnectionError::NoError;
+      m_current_cx_error = eConnectionError::NO_ERROR;
       break;
 
     case QSsh::SshError::SshSocketError:
-      m_current_cx_error = ConnectionError::SocketError;
+      m_current_cx_error = eConnectionError::SOCKET_ERROR;
       break;
 
     case QSsh::SshError::SshTimeoutError:
-      m_current_cx_error = ConnectionError::TimeoutError;
+      m_current_cx_error = eConnectionError::TIMEOUT_ERROR;
       break;
 
     case QSsh::SshError::SshProtocolError:
-      m_current_cx_error = ConnectionError::ProtocolError;
+      m_current_cx_error = eConnectionError::PROTOCOL_ERROR;
       break;
 
     case QSsh::SshError::SshHostKeyError:
-      m_current_cx_error = ConnectionError::HostKeyError;
+      m_current_cx_error = eConnectionError::HOST_KEY_ERROR;
       break;
 
     case QSsh::SshError::SshKeyFileError:
-      m_current_cx_error = ConnectionError::KeyFileError;
+      m_current_cx_error = eConnectionError::KEY_FILE_ERROR;
       break;
 
     case QSsh::SshError::SshAuthenticationError:
-      m_current_cx_error = ConnectionError::AuthenticationError;
+      m_current_cx_error = eConnectionError::AUTHENTICATION_ERROR;
       break;
 
     case QSsh::SshError::SshClosedByServerError:
-      m_current_cx_error = ConnectionError::ClosedByServerError;
+      m_current_cx_error = eConnectionError::CLOSED_BY_SERVER_ERROR;
       break;
 
     case QSsh::SshError::SshAgentError:
-      m_current_cx_error = ConnectionError::AgentError;
+      m_current_cx_error = eConnectionError::AGENT_ERROR;
       break;
 
     case QSsh::SshError::SshInternalError:
-      m_current_cx_error = ConnectionError::InternalError;
+      m_current_cx_error = eConnectionError::INTERNAL_ERROR;
       break;
   }
 
@@ -662,39 +662,39 @@ void SftpClient::mapTransferError(QSsh::SftpError _err)
 {
   switch (_err) {
     case QSsh::SftpError::NoError:
-      m_current_tx_error = TransferError::NoError;
+      m_current_tx_error = eTransferError::NO_ERROR;
       break;
 
     case QSsh::SftpError::EndOfFile:
-      m_current_tx_error = TransferError::EndOfFile;
+      m_current_tx_error = eTransferError::END_OF_FILE;
       break;
 
     case QSsh::SftpError::FileNotFound:
-      m_current_tx_error = TransferError::FileNotFound;
+      m_current_tx_error = eTransferError::FILE_NOT_FOUND;
       break;
 
     case QSsh::SftpError::PermissionDenied:
-      m_current_tx_error = TransferError::PermissionDenied;
+      m_current_tx_error = eTransferError::PERMISSION_DENIED;
       break;
 
     case QSsh::SftpError::GenericFailure:
-      m_current_tx_error = TransferError::GenericFailure;
+      m_current_tx_error = eTransferError::GENERIC_FAILURE;
       break;
 
     case QSsh::SftpError::BadMessage:
-      m_current_tx_error = TransferError::BadMessage;
+      m_current_tx_error = eTransferError::BAD_MESSAGE;
       break;
 
     case QSsh::SftpError::NoConnection:
-      m_current_tx_error = TransferError::NoConnection;
+      m_current_tx_error = eTransferError::NO_CONNECTION;
       break;
 
     case QSsh::SftpError::ConnectionLost:
-      m_current_tx_error = TransferError::ConnectionLost;
+      m_current_tx_error = eTransferError::CONNECTION_LOST;
       break;
 
     case QSsh::SftpError::UnsupportedOperation:
-      m_current_tx_error = TransferError::UnsupportedOperation;
+      m_current_tx_error = eTransferError::UNSUPPORTED_OPERATION;
       break;
   }
 

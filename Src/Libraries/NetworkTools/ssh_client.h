@@ -30,7 +30,7 @@ protected slots:
     /* TODO mutualize code in a connection wrapper class */
     void sl_onConnected();
     void sl_onDisconnected();
-    void sl_onConnectionError(QSsh::SshError);
+    void sl_onConnectionError(QSsh::SshError _err);
 
     void sl_onShellStarted();
     void sl_onReadyReadStandardOutput();

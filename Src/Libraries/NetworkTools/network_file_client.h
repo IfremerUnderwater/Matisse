@@ -14,7 +14,7 @@ public:
 
 signals:
     void si_transferFinished(NetworkAction *_action);
-    void si_transferFailed(NetworkAction *_action, TransferError _err);
+    void si_transferFailed(NetworkAction *_action, eTransferError _err);
     void si_dirContents(QList<NetworkFileInfo *> _contents);
 
 protected slots:
@@ -27,7 +27,7 @@ protected:
     void connectAction(NetworkAction *_action);
     void disconnectAction(NetworkAction *_action);
 
-    TransferError m_current_tx_error = TransferError::NoError;
+    eTransferError m_current_tx_error = eTransferError::NO_ERROR;
 };
 
 } // namespace network_tools

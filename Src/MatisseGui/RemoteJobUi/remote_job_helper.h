@@ -76,7 +76,7 @@ signals:
 
 private slots:
   void sl_onTransferFinished(NetworkAction *_action);
-  void sl_onTransferFailed(NetworkAction* _action, TransferError _err);
+  void sl_onTransferFailed(NetworkAction* _action, eTransferError _err);
   void sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents);
   void sl_onShellOutputReceived(NetworkAction* _action, QByteArray _output);
   void sl_onShellErrorReceived(NetworkAction* _action, QByteArray _error);
@@ -84,7 +84,7 @@ private slots:
 public slots:
   void sl_onUserLogin(QString password);
   void sl_onUserLoginCanceled();
-  void sl_onConnectionFailed(ConnectionError _err);
+  void sl_onConnectionFailed(eConnectionError _err);
 
 private:
     QWidget* m_job_launcher = NULL;

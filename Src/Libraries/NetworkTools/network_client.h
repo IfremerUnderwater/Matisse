@@ -47,44 +47,44 @@ Q_NAMESPACE
 /*!
   * \brief SSH specific errors
   */
-enum class ConnectionError {
+enum class eConnectionError {
   /// No error has occured
-  NoError,
+  NO_ERROR,
   /// There was a network socket error
-  SocketError,
+  SOCKET_ERROR,
   /// The connection timed out
-  TimeoutError,
+  TIMEOUT_ERROR,
   /// There was an error communicating with the server
-  ProtocolError,
+  PROTOCOL_ERROR,
   /// There was a problem with the remote host key
-  HostKeyError,
+  HOST_KEY_ERROR,
   /// We failed to read or parse the key file used for authentication
-  KeyFileError,
+  KEY_FILE_ERROR,
   /// We failed to authenticate
-  AuthenticationError,
+  AUTHENTICATION_ERROR,
   /// The server closed our connection
-  ClosedByServerError,
+  CLOSED_BY_SERVER_ERROR,
   /// The ssh-agent used for authenticating failed somehow
-  AgentError,
+  AGENT_ERROR,
   /// Something bad happened on the server
-  InternalError
+  INTERNAL_ERROR
 };
 
-Q_ENUM_NS(ConnectionError)
+Q_ENUM_NS(eConnectionError)
 
-enum class TransferError {
-  NoError,
-  EndOfFile,
-  FileNotFound,
-  PermissionDenied,
-  GenericFailure,
-  BadMessage,
-  NoConnection,
-  ConnectionLost,
-  UnsupportedOperation
+enum class eTransferError {
+  NO_ERROR,
+  END_OF_FILE,
+  FILE_NOT_FOUND,
+  PERMISSION_DENIED,
+  GENERIC_FAILURE,
+  BAD_MESSAGE,
+  NO_CONNECTION,
+  CONNECTION_LOST,
+  UNSUPPORTED_OPERATION
 };
 
-Q_ENUM_NS(TransferError)
+Q_ENUM_NS(eTransferError)
 
 class NetworkClient : public QObject
 {
@@ -100,16 +100,16 @@ public:
   virtual void resetConnection() = 0;
   virtual void clearActions() = 0;
 
-  void addAction(NetworkAction *action);
+  void addAction(NetworkAction *_action);
     
   bool isConnected();
-  void setHost(QString host);
+  void setHost(QString _host);
   QString host();
-  void setCredentials(NetworkClientCredentials* creds);
+  void setCredentials(NetworkClientCredentials* _creds);
   QString username();
 
 signals:
-  void si_connectionFailed(ConnectionError err);
+  void si_connectionFailed(eConnectionError _err);
   void si_connectionClosed();
   void si_progressUpdate(int _progress);
 
@@ -124,7 +124,7 @@ protected:
   NetworkAction *m_current_action;
   bool m_connected = false;
   bool m_waiting_for_connection = false;
-  ConnectionError m_current_cx_error = ConnectionError::NoError;
+  eConnectionError m_current_cx_error = eConnectionError::NO_ERROR;
   int m_last_signalled_progress = 0;
 };
 
