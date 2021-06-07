@@ -14,81 +14,82 @@ class ProjectiveCamera
 {
 public:
     ProjectiveCamera();
-    ProjectiveCamera(NavImage *image_p, cv::Mat cameraMatrixK_p, cv::Mat V_T_C, cv::Mat V_R_C, double scaleFactor_p);
+    ProjectiveCamera(NavImage *_image_p, cv::Mat _camera_matrix_K_p, cv::Mat _V_T_C, cv::Mat _V_R_C, double _scale_factor_p);
 
     // **** Attributes setters & getters ****
 
     cv::Mat K() const;
-    void setK(const cv::Mat &K);
+    void setK(const cv::Mat &_K);
 
     cv::Mat m_H_i() const;
-    void set_m_H_i(const cv::Mat &m_H_i);
+    void set_m_H_i(const cv::Mat &_m_H_i);
 
     cv::Mat m_H_i_metric() const;
-    void setM_H_i_metric(const cv::Mat &m_H_i_metric);
+    void setM_H_i_metric(const cv::Mat &_m_H_i_metric);
 
     cv::Mat V_T_C() const;
-    void setV_T_C(const cv::Mat &V_T_C);
+    void setV_T_C(const cv::Mat &_V_T_C);
 
     cv::Mat V_R_C() const;
-    void setV_R_C(const cv::Mat &V_R_C);
+    void setV_R_C(const cv::Mat &_V_R_C);
 
     NavImage *image() const;
-    void setImage(NavImage *image);
+    void setImage(NavImage *_image);
 
     double scalingFactor() const;
-    void setScalingFactor(const double &scalingFactor);
+    void setScalingFactor(const double &_scaling_factor);
 
     // **************************************
 
     ///
     /// \brief projectPtOnMosaickingPlane project a camera plane point to mosaic plane point
-    /// \param camPlanePt_p camera plane point
-    /// \param mosaicPlanePt_p mosaic plane point
-    /// \param metric use metric frame if set to true
+    /// \param _cam_plane_pt_p camera plane point
+    /// \param _mosaic_plane_pt_p mosaic plane point
+    /// \param _metric use metric frame if set to true
     ///
-    void projectPtOnMosaickingPlane(const cv::Mat camPlanePt_p, cv::Mat & mosaicPlanePt_p, bool metric_p=false);
+    void projectPtOnMosaickingPlane(const cv::Mat _cam_plane_pt_p, cv::Mat & _mosaic_plane_pt_p, bool _metric_p=false);
 
     ///
     /// \brief projectImageOnMosaickingPlane project camera plane image to mosaic plane point
-    /// \param camPlanePt_p camera plane point
-    /// \param mosaicPlanePt_p mosaic plane point
+    /// \param _cam_plane_pt_p camera plane point
+    /// \param _mosaic_plane_pt_p mosaic plane point
+    /// \param _corner_p
     ///
-    void projectImageOnMosaickingPlane(cv::UMat & mosaicPlaneImage_p, cv::UMat & mosaicPlaneMask_p, cv::Point & corner_p);
+    void projectImageOnMosaickingPlane(cv::UMat & _mosaic_plane_image_p, cv::UMat & mosaic_plane_mask_p, cv::Point & _corner_p);
 
     ///
     /// \brief computeImageExtent compute image origin and size
-    /// \param corner_p origin of the image in the mosaicking frame
-    /// \param dstSize size of the image projected on the mosaicking plane
+    /// \param _corner_p origin of the image in the mosaicking frame
+    /// \param _dst_size size of the image projected on the mosaicking plane
     ///
-    void computeImageExtent(cv::Point &corner_p, cv::Size &dstSize_p);
+    void computeImageExtent(cv::Point &_corner_p, cv::Size &_dst_size_p);
 
     ///
     /// \brief computeImageFootPrint compute image footprint coords on the mosaicking plane
-    /// \param xArray x coords
-    /// \param yArray y coords
+    /// \param _x_array x coords
+    /// \param _y_array y coords
     ///
-    void computeImageFootPrint(std::vector<double> &xArray, std::vector<double> &yArray);
+    void computeImageFootPrint(std::vector<double> &_x_array, std::vector<double> &_y_array);
 
 
 private:
 
-    cv::Mat _K; // Camera calibration matrix (intrinsics) : each image can be taken with a different cam
-    cv::Mat _m_H_i; // Homography : 2D Image Plane to 2D Mosaic Frame (only for 2D mosaicking model)
-    cv::Mat _m_H_i_metric; // same as m_H_i in metric frame
+    cv::Mat m_K; // Camera calibration matrix (intrinsics) : each image can be taken with a different cam
+    cv::Mat m_m_H_i; // Homography : 2D Image Plane to 2D Mosaic Frame (only for 2D mosaicking model)
+    cv::Mat m_m_H_i_metric; // same as m_H_i in metric frame
 
     // Those lever arm parameters belongs to the camera as it can be changed using pan & tilt
     // during the acquisition
-    cv::Mat _V_T_C;// Vehicule to Camera Translation
-    cv::Mat _V_R_C;// Vehicule to Camera Rotation
+    cv::Mat m_V_T_C;// Vehicule to Camera Translation
+    cv::Mat m_V_R_C;// Vehicule to Camera Rotation
 
-    double _scalingFactor; // Images can be reduced to improve performances ( 0 < scalingFactor <= 1 )
+    double m_scaling_factor; // Images can be reduced to improve performances ( 0 < scalingFactor <= 1 )
 
-    bool _scalingFactorIsSet;
-    bool _KIsSet;
+    bool m_scaling_factor_is_set;
+    bool m_K_is_set;
 
     // Image taken in the camera plane with the vehicule navigation
-    NavImage *_image;
+    NavImage *m_image;
 
 
 };

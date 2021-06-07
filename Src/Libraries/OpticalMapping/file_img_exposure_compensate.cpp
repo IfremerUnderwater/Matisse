@@ -53,11 +53,11 @@ using namespace std;
 
 namespace optical_mapping {
 
-Ptr<FileImgExposureCompensator> FileImgExposureCompensator::createDefault(int type)
+Ptr<FileImgExposureCompensator> FileImgExposureCompensator::createDefault(int _type)
 {
-    if (type == NO)
+    if (_type == NO)
         return new FileImgNoExposureCompensator();
-    if (type == GAIN)
+    if (_type == GAIN)
         return new FileImgGainCompensator();
     CV_Error(cv::Error::StsBadArg, "unsupported exposure compensation method");
 
@@ -67,7 +67,7 @@ Ptr<FileImgExposureCompensator> FileImgExposureCompensator::createDefault(int ty
 /*(const vector<Point> &corners, const std::vector<Mat> &images,
                            const std::vector<std::pair<Mat, uchar> > &masks)*/
 
-void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & infoFilename_p)
+void FileImgGainCompensator::feed(const QString & _images_path_p, const QString & _info_filename_p)
 {
 #if ENABLE_LOG
     LOGLN("Exposure compensation...");
@@ -77,28 +77,28 @@ void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & 
     // Read info file to get images infos
     vector<Point> corners;
     vector<Size> imgsizes;
-    vector<QString> imagesName;
-    vector<QString> imagesMaskName;
+    vector<QString> images_name;
+    vector<QString> images_mask_name;
 
-    QFile infoFile(imagesPath_p + QDir::separator() + infoFilename_p);
-    if(!infoFile.open(QIODevice::ReadOnly)) {
+    QFile info_file(_images_path_p + QDir::separator() + _info_filename_p);
+    if(!info_file.open(QIODevice::ReadOnly)) {
         qFatal("Invalid info file path provided ...");
     }
 
-    QTextStream infoFileStream(&infoFile);
+    QTextStream info_file_stream(&info_file);
 
-    while(!infoFileStream.atEnd()) {
-        QString line = infoFileStream.readLine();
-        QStringList infoFields = line.split(";");
+    while(!info_file_stream.atEnd()) {
+        QString line = info_file_stream.readLine();
+        QStringList info_fields = line.split(";");
 
-        imagesName.push_back(infoFields[0]);
-        imagesMaskName.push_back(infoFields[1]);
-        corners.push_back(Point(infoFields[2].toInt(), infoFields[3].toInt()));
-        imgsizes.push_back(Size(infoFields[4].toInt(),infoFields[5].toInt()));
+        images_name.push_back(info_fields[0]);
+        images_mask_name.push_back(info_fields[1]);
+        corners.push_back(Point(info_fields[2].toInt(), info_fields[3].toInt()));
+        imgsizes.push_back(Size(info_fields[4].toInt(),info_fields[5].toInt()));
 
     }
 
-    infoFile.close();
+    info_file.close();
 
     // Then compute
     CV_Assert(corners.size() == imgsizes.size());
@@ -121,9 +121,9 @@ void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & 
         for (int j = i; j < num_images; ++j)
         {
 
-            QString image_i_path = imagesPath_p + QDir::separator() + imagesName[i];
-            QString imagemask_i_path = imagesPath_p + QDir::separator();
-            imagemask_i_path += imagesMaskName[i];
+            QString image_i_path = _images_path_p + QDir::separator() + images_name[i];
+            QString imagemask_i_path = _images_path_p + QDir::separator();
+            imagemask_i_path += images_mask_name[i];
 
             image_i = imread(image_i_path.toStdString().c_str(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
             imagemask_i = imread(imagemask_i_path.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
@@ -133,9 +133,9 @@ void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & 
             {
 
 
-                QString image_j_path = imagesPath_p + QDir::separator() + imagesName[j];
-                QString imagemask_j_path = imagesPath_p + QDir::separator();
-                imagemask_j_path += imagesMaskName[j];
+                QString image_j_path = _images_path_p + QDir::separator() + images_name[j];
+                QString imagemask_j_path = _images_path_p + QDir::separator();
+                imagemask_j_path += images_mask_name[j];
 
                 image_j = imread(image_j_path.toStdString().c_str(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
                 imagemask_j = imread(imagemask_j_path.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
@@ -192,7 +192,7 @@ void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & 
         }
     }
 
-    solve(A, b, gains_);
+    solve(A, b, m_gains);
 
 #if ENABLE_LOG
     LOGLN("Exposure compensation, time: " << ((getTickCount() - t) / getTickFrequency()) << " sec");
@@ -200,17 +200,17 @@ void FileImgGainCompensator::feed(const QString & imagesPath_p, const QString & 
 }
 
 
-void FileImgGainCompensator::apply(int index, Point /*corner*/, Mat &image, const Mat &/*mask*/)
+void FileImgGainCompensator::apply(int _index, Point /*corner*/, Mat &_image, const Mat &/*mask*/)
 {
-    image *= gains_(index, 0);
+    _image *= m_gains(_index, 0);
 }
 
 
 vector<double> FileImgGainCompensator::gains() const
 {
-    vector<double> gains_vec(gains_.rows);
-    for (int i = 0; i < gains_.rows; ++i)
-        gains_vec[i] = gains_(i, 0);
+    vector<double> gains_vec(m_gains.rows);
+    for (int i = 0; i < m_gains.rows; ++i)
+        gains_vec[i] = m_gains(i, 0);
     return gains_vec;
 }
 

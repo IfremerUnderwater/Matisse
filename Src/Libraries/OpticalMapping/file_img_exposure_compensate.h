@@ -64,10 +64,10 @@ public:
     virtual ~FileImgExposureCompensator() {}
 
     enum { NO, GAIN };
-    static Ptr<FileImgExposureCompensator> createDefault(int type);
+    static Ptr<FileImgExposureCompensator> createDefault(int _type);
 
-    virtual void feed(const QString & imagesPath_p, const QString & infoFilename_p) = 0;
-    virtual void apply(int index, Point corner, Mat &image, const Mat &mask) = 0;
+    virtual void feed(const QString & _images_path_p, const QString & _info_filename_p) = 0;
+    virtual void apply(int _index, Point _corner, Mat &_image, const Mat &_mask) = 0;
 };
 
 
@@ -82,12 +82,12 @@ public:
 class FileImgGainCompensator : public FileImgExposureCompensator
 {
 public:
-    void feed(const QString & imagesPath_p, const QString & infoFilename_p);
-    void apply(int index, Point corner, Mat &image, const Mat &mask);
+    void feed(const QString & _images_path_p, const QString & _info_filename_p);
+    void apply(int _index, Point _corner, Mat &_image, const Mat &_mask);
     std::vector<double> gains() const;
 
 private:
-    Mat_<double> gains_;
+    Mat_<double> m_gains;
 };
 
 } // namespace optical_mapping

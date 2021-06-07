@@ -14,12 +14,12 @@ namespace optical_mapping {
 
 // Positionning and scaling parameters
 struct MosaicSizesAndExtent {
-    cv::Point3d _mosaicOrigin;
-    cv::Point2d _pixelSize;
-    cv::Point2d _mosaicSize;
-    cv::Mat _mosaic_ullr;
-    QString _utmHemisphere;
-    int _utmZone;
+    cv::Point3d mosaic_origin;
+    cv::Point2d pixel_size;
+    cv::Point2d mosaic_size;
+    cv::Mat mosaic_ullr;
+    QString utm_hemisphere;
+    int utm_zone;
 };
 
 
@@ -33,22 +33,22 @@ public:
     // ******** Attributes setters & getters ********
 
     cv::Point3d mosaicOrigin() const;
-    void setMosaicOrigin(const cv::Point3d &mosaicOrigin);
+    void setMosaicOrigin(const cv::Point3d &_mosaic_origin);
 
     cv::Point2d pixelSize() const;
-    void setPixelSize(const cv::Point2d &pixelSize);
+    void setPixelSize(const cv::Point2d &_pixel_size);
 
     cv::Point2d mosaicSize() const;
-    void setMosaicSize(const cv::Point2d &mosaicSize);
+    void setMosaicSize(const cv::Point2d &_mosaic_size);
 
     QString utmHemisphere() const;
-    void setUtmHemisphere(const QString &utmHemisphere);
+    void setUtmHemisphere(const QString &_utm_hemisphere);
 
     int utmZone() const;
-    void setUtmZone(int utmZone);
+    void setUtmZone(int _utm_zone);
 
     cv::Mat mosaic_ullr() const;
-    void setMosaic_ullr(const cv::Mat &mosaic_ullr);
+    void setMosaic_ullr(const cv::Mat &_mosaic_ullr);
 
     QVector<ProjectiveCamera *> cameraNodes() const;
 
@@ -59,17 +59,17 @@ public:
     ///
     /// \brief initCamerasAndFrames initialize MosaicDescriptor from the whole Camera's dataset
     ///  Only use in case of post-treatment with the complete dataset.
-    /// \param cameraNodes_p whole dataset Cameras
-    /// \param camerasOwner true if ProjectiveCamera* belongs to this class (hence are deleted by this class)
+    /// \param _camera_nodes_p whole dataset Cameras
+    /// \param _cameras_owner true if ProjectiveCamera* belongs to this class (hence are deleted by this class)
     ///
-    void initCamerasAndFrames(QVector<ProjectiveCamera*> cameraNodes_p, bool camerasOwner_p = true);
+    void initCamerasAndFrames(QVector<ProjectiveCamera*> _camera_nodes_p, bool _cameras_owner_p = true);
 
     ///
     /// \brief computeCameraHomography compute camera homography from nav and MosaicDescriptor init
     /// \warning The mosaicDescriptor class has to be initialized before calling this function
-    /// \param camera_p
+    /// \param _camera_p
     ///
-    void computeCameraHomography(ProjectiveCamera* camera_p);
+    void computeCameraHomography(ProjectiveCamera* _camera_p);
 
     ///
     /// \brief computeMosaicExtentAndShiftFrames This function compute the mosaic extent,
@@ -79,18 +79,18 @@ public:
 
     ///
     /// \brief writeToGeoTiff writes a geotiff file from its description
-    /// \param raster_p raster image obtained from mosaicDrawer
-    /// \param rasterMask_p raster mask image obtained from mosaicDrawer
-    /// \param filePath_p output file path
+    /// \param _raster_p raster image obtained from mosaicDrawer
+    /// \param _raster_mask_p raster mask image obtained from mosaicDrawer
+    /// \param _file_path_p output file path
     ///
-    void writeToGeoTiff(cv::Mat &raster_p, cv::Mat &rasterMask_p, QString filePath_p);
+    void writeToGeoTiff(cv::Mat &_raster_p, cv::Mat &_raster_mask_p, QString _file_path_p);
 
     ///
     /// \brief decimateImagesFromOverlap This function removes images that have to much overlap with each others
-    /// \param minOverlap_p minimum required overlap
-    /// \param maxOverlap_p maximum overlap before decimation
+    /// \param _min_overlap_p minimum required overlap
+    /// \param _max_overlap_p maximum overlap before decimation
     ///
-    void decimateImagesFromOverlap(double minOverlap_p=0.5, double maxOverlap_p=0.7);
+    void decimateImagesFromOverlap(double _min_overlap_p=0.5, double _max_overlap_p=0.7);
 
     ///
     /// \brief decimateImagesUntilNoOverlap This function removes images that have overlap with past images (This help to not count twice structures in case of bad navigation)
@@ -101,33 +101,33 @@ public:
 protected:
 
     // Positionning and scaling parameters
-    cv::Point3d _mosaicOrigin;
-    cv::Point2d _pixelSize;
-    cv::Point2d _mosaicSize;
-    cv::Mat _mosaic_ullr;
-    cv::Mat _Hs; // ScalingMatrix
-    QString _utmHemisphere;
-    int _utmZone;
+    cv::Point3d m_mosaic_origin;
+    cv::Point2d m_pixelm_size;
+    cv::Point2d m_mosaic_size;
+    cv::Mat m_mosaic_ullr;
+    cv::Mat m_hs; // ScalingMatrix
+    QString m_utm_hemisphere;
+    int m_utm_zone;
 
-    nav_tools::GeoTransform _T;
+    nav_tools::GeoTransform m_T;
 
-    bool _camerasOwner;
-    bool _isInitialized;
+    bool m_cameras_owner;
+    bool m_is_initialized;
 
     // Frames parameters
-    cv::Mat _W_R_M,_W_T_M;
-    cv::Mat _M_R_W,_M_T_W;
-    cv::Mat _W_R_V,_W_T_V;
-    cv::Mat _W_R_C,_W_T_C;
-    cv::Mat _M_R_C,_M_T_C;
-    cv::Mat _C_R_M,_C_T_M;
-    cv::Mat _C_M_M;
-    cv::Mat _i_P_M;
-    cv::Mat _i_H_m, _m_H_i;
+    cv::Mat m_W_R_M, m_W_T_M;
+    cv::Mat m_M_R_W, m_M_T_W;
+    cv::Mat m_W_R_V, m_W_T_V;
+    cv::Mat m_W_R_C, m_W_T_C;
+    cv::Mat m_M_R_C, m_M_T_C;
+    cv::Mat m_C_R_M, m_C_T_M;
+    cv::Mat m_C_M_M;
+    cv::Mat m_i_P_M;
+    cv::Mat m_i_H_m, m_m_H_i;
 
     // The set of cameras that took each iamge of the mosaic
     // Note : it can be the same camera moving of multiple cameras
-    QVector<ProjectiveCamera*> _cameraNodes;
+    QVector<ProjectiveCamera*> m_camera_nodes;
 
 };
 

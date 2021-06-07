@@ -30,28 +30,28 @@ using namespace system_tools;
 
 namespace optical_mapping {
 
-MosaicDrawer::MosaicDrawer(QString drawingOptions)
+MosaicDrawer::MosaicDrawer(QString _drawing_Options)
 {
 
     // Default command line args
-    dOptions.tryGpu = false;
-    dOptions.seamMegapix = 0.1;
-    dOptions.exposCompType = ExposureCompensator::GAIN_BLOCKS;
-    dOptions.gainBlock = true;
-    dOptions.seamFindType = "gc_color";
-    dOptions.blendType = Blender::MULTI_BAND;
-    dOptions.blendStrength = 1;
+    m_d_options.try_gpu = false;
+    m_d_options.seam_megapix = 0.1;
+    m_d_options.expos_comp_type = ExposureCompensator::GAIN_BLOCKS;
+    m_d_options.gain_block = true;
+    m_d_options.seam_find_type = "gc_color";
+    m_d_options.blend_type = Blender::MULTI_BAND;
+    m_d_options.blend_strength = 1;
 
-    this->parseAndAffectOptions( drawingOptions );
+    this->parseAndAffectOptions( _drawing_Options );
 }
 
 
 
 
-int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
+int MosaicDrawer::parseAndAffectOptions(QString _drawing_options)
 {
 
-    QStringList argv = drawingOptions.split(" ");
+    QStringList argv = _drawing_options.split(" ");
     int argc = argv.size();
 
     for (int i = 0; i < argc; ++i)
@@ -59,9 +59,9 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
         if (argv[i] == "--try_gpu")
         {
             if (argv[i + 1] == "no")
-                dOptions.tryGpu = false;
+                m_d_options.try_gpu = false;
             else if (argv[i + 1] == "yes")
-                dOptions.tryGpu = true;
+                m_d_options.try_gpu = true;
             else
             {
                 qDebug()<< "Bad --try_gpu flag value\n";
@@ -71,21 +71,21 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
         }
         else if (argv[i] == "--seam_megapix")
         {
-            dOptions.seamMegapix = atof(argv[i + 1].toLocal8Bit().data());
+            m_d_options.seam_megapix = atof(argv[i + 1].toLocal8Bit().data());
             i++;
         }
         else if (argv[i] == "--expos_comp")
         {
             if (argv[i + 1] == "no"){
-                dOptions.exposCompType = ExposureCompensator::NO;
-                dOptions.gainBlock = false;
+                m_d_options.expos_comp_type = ExposureCompensator::NO;
+                m_d_options.gain_block = false;
             }
             else if (argv[i + 1] == "gain"){
-                dOptions.exposCompType = ExposureCompensator::GAIN;
-                dOptions.gainBlock = false;
+                m_d_options.expos_comp_type = ExposureCompensator::GAIN;
+                m_d_options.gain_block = false;
             }
             else if (argv[i + 1] == "gain_blocks"){
-                dOptions.gainBlock = true;
+                m_d_options.gain_block = true;
             }
             else
             {
@@ -102,7 +102,7 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
                     argv[i + 1] == "gc_colorgrad" ||
                     argv[i + 1] == "dp_color" ||
                     argv[i + 1] == "dp_colorgrad")
-                dOptions.seamFindType = argv[i + 1];
+                m_d_options.seam_find_type = argv[i + 1];
             else
             {
                 qDebug()<< "Bad seam finding method\n";
@@ -113,11 +113,11 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
         else if (argv[i] == "--blend")
         {
             if (argv[i + 1] == "no")
-                dOptions.blendType = Blender::NO;
+                m_d_options.blend_type = Blender::NO;
             else if (argv[i + 1] == "feather")
-                dOptions.blendType = Blender::FEATHER;
+                m_d_options.blend_type = Blender::FEATHER;
             else if (argv[i + 1] == "multiband")
-                dOptions.blendType = Blender::MULTI_BAND;
+                m_d_options.blend_type = Blender::MULTI_BAND;
             else
             {
                 qDebug()<< "Bad blending method\n";
@@ -127,7 +127,7 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
         }
         else if (argv[i] == "--blend_strength")
         {
-            dOptions.blendStrength = static_cast<float>(atof(argv[i + 1].toLocal8Bit().data()));
+            m_d_options.blend_strength = static_cast<float>(atof(argv[i + 1].toLocal8Bit().data()));
             i++;
         }
     }
@@ -135,42 +135,42 @@ int MosaicDrawer::parseAndAffectOptions(QString drawingOptions)
     return 0;
 }
 
-void MosaicDrawer::drawAndBlend(const MosaicDescriptor &mosaicD_p, UMat &mosaicImage_p, UMat &mosaicImageMask_p)
+void MosaicDrawer::drawAndBlend(const MosaicDescriptor &_mosaic_d_p, UMat &_mosaic_image_p, UMat &_mosaic_image_mask_p)
 {
 
-    std::vector<UMat> imagesWarped;
-    std::vector<UMat> masksWarped;
+    std::vector<UMat> images_warped;
+    std::vector<UMat> masks_warped;
     std::vector<Point> corners;
 
-    int camNum = mosaicD_p.cameraNodes().size();
+    int cam_num = _mosaic_d_p.cameraNodes().size();
 
-    imagesWarped.resize(camNum);
-    masksWarped.resize(camNum);
-    corners.resize(camNum);
+    images_warped.resize(cam_num);
+    masks_warped.resize(cam_num);
+    corners.resize(cam_num);
 
     int i=0;
 
     // Project each image on the mosaicking plane
-    foreach (ProjectiveCamera* Cam, mosaicD_p.cameraNodes()) {
+    foreach (ProjectiveCamera* cam, _mosaic_d_p.cameraNodes()) {
 
-        Cam->projectImageOnMosaickingPlane(imagesWarped[i], masksWarped[i], corners[i]);
-        Cam->image()->releaseImageData();
+        cam->projectImageOnMosaickingPlane(images_warped[i], masks_warped[i], corners[i]);
+        cam->image()->releaseImageData();
         i++;
     }
 
-    drawAndBlend(imagesWarped, masksWarped, corners, mosaicImage_p, mosaicImageMask_p);
+    drawAndBlend(images_warped, masks_warped, corners, _mosaic_image_p, _mosaic_image_mask_p);
 
 }
 
-void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<UMat> &masksWarped_p, std::vector<Point> &corners_p, UMat &mosaicImage_p, UMat &mosaicImageMask_p)
+void MosaicDrawer::drawAndBlend(std::vector<UMat> &_images_warped_p, std::vector<UMat> &_masks_warped_p, std::vector<Point> &_corners_p, UMat &_mosaic_image_p, UMat &_mosaic_image_mask_p)
 {
 
     bool colored_images = true;
 
-    int num_images = static_cast<int>(imagesWarped_p.size());
+    int num_images = static_cast<int>(_images_warped_p.size());
     vector<Size> sizes(num_images);
 
-    if (imagesWarped_p[0].channels() == 3){
+    if (_images_warped_p[0].channels() == 3){
         colored_images = true;
     }else{
         colored_images = false;
@@ -189,20 +189,20 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
         vector<UMat> red_images(num_images);
         vector<UMat> green_images(num_images);
         vector<UMat> blue_images(num_images);
-        vector<UMat> TempRGB(3);
+        vector<UMat> temp_rgb(3);
 
         for (int i=0; i<num_images; i++){
 
-            sizes[i] = imagesWarped_p[i].size();
+            sizes[i] = _images_warped_p[i].size();
 
             // Split channels
-            split(imagesWarped_p[i], TempRGB);
-            red_images[i] = TempRGB[0].clone();
-            green_images[i] = TempRGB[1].clone();
-            blue_images[i] = TempRGB[2].clone();
+            split(_images_warped_p[i], temp_rgb);
+            red_images[i] = temp_rgb[0].clone();
+            green_images[i] = temp_rgb[1].clone();
+            blue_images[i] = temp_rgb[2].clone();
 
-            mean_col_nb += imagesWarped_p[i].cols;
-            mean_row_nb += imagesWarped_p[i].rows;
+            mean_col_nb += _images_warped_p[i].cols;
+            mean_row_nb += _images_warped_p[i].rows;
 
         }
 
@@ -220,9 +220,9 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
         Ptr<ExposureCompensator> green_compensator;
         Ptr<ExposureCompensator> blue_compensator;
 
-        if (dOptions.gainBlock){
+        if (m_d_options.gain_block){
 
-            Bl_per_image = sqrt(10e9/(100*imagesWarped_p.size()*imagesWarped_p.size())); // 10e9 is for 1Giga and 100 is due to the number of allocations
+            Bl_per_image = sqrt(10e9/(100*_images_warped_p.size()*_images_warped_p.size())); // 10e9 is for 1Giga and 100 is due to the number of allocations
             Bl_num_col = ceil(sqrt(Bl_per_image*(double)mean_row_nb/(double)mean_col_nb));
             Bl_num_row = ceil(Bl_num_col*(double)mean_col_nb/(double)mean_row_nb);
 
@@ -240,9 +240,9 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
 
         }else{
             qDebug()<< "Create default Compensator ...\n";
-            red_compensator = ExposureCompensator::createDefault(dOptions.exposCompType);
-            green_compensator = ExposureCompensator::createDefault(dOptions.exposCompType);
-            blue_compensator = ExposureCompensator::createDefault(dOptions.exposCompType);
+            red_compensator = ExposureCompensator::createDefault(m_d_options.expos_comp_type);
+            green_compensator = ExposureCompensator::createDefault(m_d_options.expos_comp_type);
+            blue_compensator = ExposureCompensator::createDefault(m_d_options.expos_comp_type);
         }
 
         //(Do not remove the following three loops, they are needed to minimize memory use)
@@ -253,7 +253,7 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
             cvtColor(red_images[i], red_images[i], COLOR_GRAY2BGR);
 
         }
-        red_compensator->feed(corners_p, red_images, masksWarped_p);
+        red_compensator->feed(_corners_p, red_images, _masks_warped_p);
         red_images.clear();
 
         // Process exposure compensation for the green channel
@@ -262,7 +262,7 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
             cvtColor(green_images[i], green_images[i], COLOR_GRAY2BGR);
 
         }
-        green_compensator->feed(corners_p, green_images, masksWarped_p);
+        green_compensator->feed(_corners_p, green_images, _masks_warped_p);
         green_images.clear();
 
         // Process exposure compensation for the blue channel
@@ -271,36 +271,36 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
             cvtColor(blue_images[i], blue_images[i], COLOR_GRAY2BGR);
 
         }
-        blue_compensator->feed(corners_p, blue_images, masksWarped_p);
+        blue_compensator->feed(_corners_p, blue_images, _masks_warped_p);
         blue_images.clear();
 
         // Compensate exposure
         for (int img_idx = 0; img_idx < num_images; ++img_idx){
-            split(imagesWarped_p[img_idx], TempRGB);
-            cvtColor(TempRGB[0], TempRGB[0], COLOR_GRAY2BGR);
-            cvtColor(TempRGB[1], TempRGB[1], COLOR_GRAY2BGR);
-            cvtColor(TempRGB[2], TempRGB[2], COLOR_GRAY2BGR);
+            split(_images_warped_p[img_idx], temp_rgb);
+            cvtColor(temp_rgb[0], temp_rgb[0], COLOR_GRAY2BGR);
+            cvtColor(temp_rgb[1], temp_rgb[1], COLOR_GRAY2BGR);
+            cvtColor(temp_rgb[2], temp_rgb[2], COLOR_GRAY2BGR);
 
-            red_compensator->apply(img_idx, corners_p[img_idx], TempRGB[0], masksWarped_p[img_idx]);
-            green_compensator->apply(img_idx, corners_p[img_idx], TempRGB[1], masksWarped_p[img_idx]);
-            blue_compensator->apply(img_idx, corners_p[img_idx], TempRGB[2], masksWarped_p[img_idx]);
+            red_compensator->apply(img_idx, _corners_p[img_idx], temp_rgb[0], _masks_warped_p[img_idx]);
+            green_compensator->apply(img_idx, _corners_p[img_idx], temp_rgb[1], _masks_warped_p[img_idx]);
+            blue_compensator->apply(img_idx, _corners_p[img_idx], temp_rgb[2], _masks_warped_p[img_idx]);
 
-            cvtColor(TempRGB[0], TempRGB[0], COLOR_BGR2GRAY);
-            cvtColor(TempRGB[1], TempRGB[1], COLOR_BGR2GRAY);
-            cvtColor(TempRGB[2], TempRGB[2], COLOR_BGR2GRAY);
+            cvtColor(temp_rgb[0], temp_rgb[0], COLOR_BGR2GRAY);
+            cvtColor(temp_rgb[1], temp_rgb[1], COLOR_BGR2GRAY);
+            cvtColor(temp_rgb[2], temp_rgb[2], COLOR_BGR2GRAY);
 
-            merge(TempRGB,imagesWarped_p[img_idx]);
+            merge(temp_rgb,_images_warped_p[img_idx]);
         }
 
     }else{ // Process B&W Images (compensation)
 
         for (int i=0; i<num_images; i++){
 
-            sizes[i] = imagesWarped_p[i].size();
-            cvtColor(imagesWarped_p[i], imagesWarped_p[i], COLOR_GRAY2BGR);
+            sizes[i] = _images_warped_p[i].size();
+            cvtColor(_images_warped_p[i], _images_warped_p[i], COLOR_GRAY2BGR);
 
-            mean_col_nb += imagesWarped_p[i].cols;
-            mean_row_nb += imagesWarped_p[i].rows;
+            mean_col_nb += _images_warped_p[i].cols;
+            mean_row_nb += _images_warped_p[i].rows;
 
         }
 
@@ -308,11 +308,11 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
         mean_row_nb /= num_images;
 
         // Convert images for seam and exposure processing
-        vector<Mat> imagesWarped_p_f(num_images);
+        vector<Mat> images_warped_p_f(num_images);
 
         for (int i = 0; i < num_images; ++i){
 
-            imagesWarped_p[i].convertTo(imagesWarped_p_f[i], CV_32F);
+            _images_warped_p[i].convertTo(images_warped_p_f[i], CV_32F);
 
         }
 
@@ -321,9 +321,9 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
         int Bl_num_col,Bl_num_row,Bl_w,Bl_h;
         Ptr<ExposureCompensator> compensator;
 
-        if (dOptions.gainBlock){
+        if (m_d_options.gain_block){
 
-            Bl_per_image = sqrt(10e9/(100*imagesWarped_p.size()*imagesWarped_p.size())); // 10e9 is for 1Giga and 100 is due to the number of allocations
+            Bl_per_image = sqrt(10e9/(100*_images_warped_p.size()*_images_warped_p.size())); // 10e9 is for 1Giga and 100 is due to the number of allocations
             Bl_num_col = ceil(sqrt(Bl_per_image*(double)mean_row_nb/(double)mean_col_nb));
             Bl_num_row = ceil(Bl_num_col*(double)mean_col_nb/(double)mean_row_nb);
 
@@ -337,19 +337,19 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
 
             compensator = new BlocksGainCompensator(Bl_w,Bl_h);
         }else{
-            compensator = ExposureCompensator::createDefault(dOptions.exposCompType);
+            compensator = ExposureCompensator::createDefault(m_d_options.expos_comp_type);
         }
 
-        compensator->feed(corners_p, imagesWarped_p, masksWarped_p);
+        compensator->feed(_corners_p, _images_warped_p, _masks_warped_p);
     }
 
     // Convert images for seam processing *********************************************************************
-    vector<UMat> imagesWarped_p_f(num_images);
-    vector<UMat> masksWarped_p_seam(num_images);
+    vector<UMat> images_warped_p_f(num_images);
+    vector<UMat> masks_warped_p_seam(num_images);
     vector<Point> corners_p_seam(num_images);
     double seam_scale;
 
-    seam_scale = min(1.0, sqrt(dOptions.seamMegapix * 1e6 / (double)(mean_row_nb*mean_col_nb)));
+    seam_scale = min(1.0, sqrt(m_d_options.seam_megapix * 1e6 / (double)(mean_row_nb*mean_col_nb)));
     qDebug()<< "Theoric seam_scale = " << seam_scale <<"\n";
 
     for (int i = 0; i < num_images; ++i){
@@ -357,31 +357,31 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
         if (seam_scale < 1){
 
             // resize image to reduce seam finding computing time
-            resize(imagesWarped_p[i], imagesWarped_p_f[i], Size(), seam_scale, seam_scale);
-            imagesWarped_p_f[i].convertTo(imagesWarped_p_f[i], CV_32F);
+            resize(_images_warped_p[i], images_warped_p_f[i], Size(), seam_scale, seam_scale);
+            images_warped_p_f[i].convertTo(images_warped_p_f[i], CV_32F);
 
             // same for the mask
-            resize(masksWarped_p[i],masksWarped_p_seam[i], Size(), seam_scale, seam_scale);
+            resize(_masks_warped_p[i],masks_warped_p_seam[i], Size(), seam_scale, seam_scale);
 
             // same for the corners_p
-            corners_p_seam[i] = seam_scale*corners_p[i];
+            corners_p_seam[i] = seam_scale*_corners_p[i];
 
         }else{
 
-            imagesWarped_p[i].convertTo(imagesWarped_p_f[i], CV_32F);
+            _images_warped_p[i].convertTo(images_warped_p_f[i], CV_32F);
         }
 
     }
 
     // Run the seam finder ...
-    qDebug()<< "Seam finder run..." <<dOptions.seamFindType;
+    qDebug()<< "Seam finder run..." <<m_d_options.seam_find_type;
 
     Ptr<SeamFinder> seam_finder;
-    if (dOptions.seamFindType == "no")
+    if (m_d_options.seam_find_type == "no")
         seam_finder = new detail::NoSeamFinder();
-    else if (dOptions.seamFindType == "voronoi")
+    else if (m_d_options.seam_find_type == "voronoi")
         seam_finder = new detail::VoronoiSeamFinder();
-    else if (dOptions.seamFindType == "gc_color")
+    else if (m_d_options.seam_find_type == "gc_color")
     {
 #ifdef HAVE_OPENCV_GPU
         if (dOptions.tryGpu ){
@@ -392,7 +392,7 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
 #endif
             seam_finder = new detail::GraphCutSeamFinder(GraphCutSeamFinderBase::COST_COLOR);
     }
-    else if (dOptions.seamFindType == "gc_colorgrad")
+    else if (m_d_options.seam_find_type == "gc_colorgrad")
     {
 #ifdef HAVE_OPENCV_GPU
         if (dOptions.tryGpu )
@@ -401,9 +401,9 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
 #endif
             seam_finder = new detail::GraphCutSeamFinder(GraphCutSeamFinderBase::COST_COLOR_GRAD);
     }
-    else if (dOptions.seamFindType == "dp_color")
+    else if (m_d_options.seam_find_type == "dp_color")
         seam_finder = new detail::DpSeamFinder(DpSeamFinder::COLOR);
-    else if (dOptions.seamFindType == "dp_colorgrad")
+    else if (m_d_options.seam_find_type == "dp_colorgrad")
         seam_finder = new detail::DpSeamFinder(DpSeamFinder::COLOR_GRAD);
     if (seam_finder.empty())
     {
@@ -412,15 +412,15 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
 
     // Run the seam finder
     if (seam_scale < 1){
-        seam_finder->find(imagesWarped_p_f, corners_p_seam, masksWarped_p_seam);
+        seam_finder->find(images_warped_p_f, corners_p_seam, masks_warped_p_seam);
     }else{
-        seam_finder->find(imagesWarped_p_f, corners_p, masksWarped_p);
+        seam_finder->find(images_warped_p_f, _corners_p, _masks_warped_p);
     }
 
 
     // Release unused images
     corners_p_seam.clear();
-    imagesWarped_p_f.clear();
+    images_warped_p_f.clear();
 
     qDebug()<< "Compositing...\n";
 
@@ -433,42 +433,42 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
     Ptr<Blender> blender;
 
     // Initialize the blender
-    blender = Blender::createDefault(dOptions.blendType, dOptions.tryGpu);
-    Size dst_sz = resultRoi(corners_p, sizes).size();
-    float blend_width = sqrt(static_cast<float>(dst_sz.area())) * dOptions.blendStrength / 100.f;
+    blender = Blender::createDefault(m_d_options.blend_type, m_d_options.try_gpu);
+    Size dst_sz = resultRoi(_corners_p, sizes).size();
+    float blend_width = sqrt(static_cast<float>(dst_sz.area())) * m_d_options.blend_strength / 100.f;
     if (blend_width < 1.f)
-        blender = Blender::createDefault(Blender::NO, dOptions.tryGpu);
-    else if (dOptions.blendType == Blender::MULTI_BAND)
+        blender = Blender::createDefault(Blender::NO, m_d_options.try_gpu);
+    else if (m_d_options.blend_type == Blender::MULTI_BAND)
     {
         MultiBandBlender* mb = dynamic_cast<MultiBandBlender*>(static_cast<Blender*>(blender));
         mb->setNumBands(min(static_cast<int>(ceil(log(blend_width)/log(2.)) - 1.),(int)4));
         qDebug()<<  "Multi-band blender, number of bands: " << mb->numBands();
     }
-    else if (dOptions.blendType == Blender::FEATHER)
+    else if (m_d_options.blend_type == Blender::FEATHER)
     {
         FeatherBlender* fb = dynamic_cast<FeatherBlender*>(static_cast<Blender*>(blender));
         fb->setSharpness(1.f/blend_width);
         qDebug()<< "Feather blender, sharpness: "<< fb->sharpness();
     }
-    blender->prepare(corners_p, sizes);
+    blender->prepare(_corners_p, sizes);
 
     for (int img_idx = 0; img_idx < num_images; ++img_idx)
     {
 
-        imagesWarped_p[img_idx].convertTo(img_warped_s, CV_16S);
+        _images_warped_p[img_idx].convertTo(img_warped_s, CV_16S);
 
         if (seam_scale < 1){
             // Upscale the seaming mask
-            dilate(masksWarped_p_seam[img_idx], dilated_mask, Mat());
+            dilate(masks_warped_p_seam[img_idx], dilated_mask, Mat());
             //dilate(masksWarped_p[img_idx], dilated_mask, Mat());
-            resize(dilated_mask, seam_mask, masksWarped_p[img_idx].size());
-            Mat mmaskWarped = seam_mask.getMat(ACCESS_READ) & masksWarped_p[img_idx].getMat(ACCESS_READ);
-            mask_warped = mmaskWarped.getUMat(ACCESS_READ);
+            resize(dilated_mask, seam_mask, _masks_warped_p[img_idx].size());
+            Mat mmask_warped = seam_mask.getMat(ACCESS_READ) & _masks_warped_p[img_idx].getMat(ACCESS_READ);
+            mask_warped = mmask_warped.getUMat(ACCESS_READ);
 
             // Blend the current image
-            blender->feed(img_warped_s, mask_warped, corners_p[img_idx]);
+            blender->feed(img_warped_s, mask_warped, _corners_p[img_idx]);
         }else{
-            blender->feed(img_warped_s, masksWarped_p[img_idx], corners_p[img_idx]);
+            blender->feed(img_warped_s, _masks_warped_p[img_idx], _corners_p[img_idx]);
         }
 
 
@@ -476,7 +476,7 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
 
     qDebug()<< "Blend...";
 
-    blender->blend(mosaicImage_p, mosaicImageMask_p);
+    blender->blend(_mosaic_image_p, _mosaic_image_mask_p);
 
 #if ENABLE_LOG
     LOGLN("Compositing, time: " << ((getTickCount() - t) / getTickFrequency()) << " sec");
@@ -484,122 +484,122 @@ void MosaicDrawer::drawAndBlend(std::vector<UMat> &imagesWarped_p, std::vector<U
     LOGLN("Finished, total time: " << ((getTickCount() - app_start_time) / getTickFrequency()) << " sec");
 #endif
     // Convert result to 8U
-    mosaicImage_p.convertTo(mosaicImage_p,CV_8U);
+    _mosaic_image_p.convertTo(_mosaic_image_p,CV_8U);
 
 }
 
-QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD_p, Point2d blockSize_p, QString writingPath_p, QString prefix_p)
+QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &_mosaic_d_p, Point2d block_size_p, QString writing_path_p, QString _prefix_p)
 {
 
-    int xBlockNumber, yBlockNumber, xOverlapSize, yOverlapSize;
-    int xLastColumnSize, yLastRowSize;
+    int x_block_number, y_block_number, x_overlap_size, y_overlap_size;
+    int x_last_column_size, y_last_row_size;
 
-    QStringList outputFiles;
+    QStringList output_files;
     //bool gainCompRequired = ( dOptions.exposCompType != ExposureCompensator::NO );
 
     // Create tmp folder to contain temporary files
-    QDir tempDir(writingPath_p + QDir::separator() + QString("tmp"));
-    if (!tempDir.exists()) {
-        tempDir.mkpath(".");
+    QDir temp_dir(writing_path_p + QDir::separator() + QString("tmp"));
+    if (!temp_dir.exists()) {
+        temp_dir.mkpath(".");
     }
 
     // We first backup drawing options as we will change them on blocks blending iterations
-    drawingOptions dOptionsBackup = dOptions;
+    drawingOptions d_options_backup = m_d_options;
 
     // % overlap hard coded for the moment
-    xOverlapSize = (int)(0.20*blockSize_p.x);
-    yOverlapSize = (int)(0.20*blockSize_p.y);
+    x_overlap_size = (int)(0.20*block_size_p.x);
+    y_overlap_size = (int)(0.20*block_size_p.y);
 
     // Get complete mosaic size
-    Point2d mosaicSize = mosaicD_p.mosaicSize();
+    Point2d mosaic_size = _mosaic_d_p.mosaicSize();
 
     // Compute last block size
-    xLastColumnSize = (int)(mosaicSize.x) % ((int)blockSize_p.x-xOverlapSize);
-    yLastRowSize = (int)(mosaicSize.y) % ((int)blockSize_p.y-yOverlapSize);
+    x_last_column_size = (int)(mosaic_size.x) % ((int)block_size_p.x-x_overlap_size);
+    y_last_row_size = (int)(mosaic_size.y) % ((int)block_size_p.y-y_overlap_size);
 
     // Deduce number of blocks
-    if (xLastColumnSize == 0){
-        xBlockNumber = mosaicSize.x / ((int)blockSize_p.x-xOverlapSize);
+    if (x_last_column_size == 0){
+        x_block_number = mosaic_size.x / ((int)block_size_p.x-x_overlap_size);
     }else{
-        xBlockNumber = (mosaicSize.x - xLastColumnSize) / ((int)blockSize_p.x-xOverlapSize);
-        xBlockNumber++;
+        x_block_number = (mosaic_size.x - x_last_column_size) / ((int)block_size_p.x-x_overlap_size);
+        x_block_number++;
     }
 
-    if (yLastRowSize == 0){
-        yBlockNumber = mosaicSize.y / ((int)blockSize_p.y-yOverlapSize);
+    if (y_last_row_size == 0){
+        y_block_number = mosaic_size.y / ((int)block_size_p.y-y_overlap_size);
     }else{
-        yBlockNumber = (mosaicSize.y - yLastRowSize) / ((int)blockSize_p.y-yOverlapSize);
-        yBlockNumber++;
+        y_block_number = (mosaic_size.y - y_last_row_size) / ((int)block_size_p.y-y_overlap_size);
+        y_block_number++;
     }
 
     // Allocate and build polygons associated with images
-    vector<Polygon*> vpImagesPoly;
+    vector<Polygon*> vp_images_poly;
 
 
-    for (int k=0; k < mosaicD_p.cameraNodes().size(); k++){
+    for (int k=0; k < _mosaic_d_p.cameraNodes().size(); k++){
         std::vector<double> x,y;
-        int xBegin, yBegin, xEnd, yEnd;
-        cv::Point imgCorner;
-        cv::Size imgSize;
+        int x_begin, y_begin, x_end, y_end;
+        cv::Point img_corner;
+        cv::Size img_size;
 
-        mosaicD_p.cameraNodes().at(k)->computeImageExtent(imgCorner, imgSize);
+        _mosaic_d_p.cameraNodes().at(k)->computeImageExtent(img_corner, img_size);
 
         // Compute extents
-        xBegin = imgCorner.x;
-        yBegin = imgCorner.y;
+        x_begin = img_corner.x;
+        y_begin = img_corner.y;
 
-        xEnd = imgCorner.x + imgSize.width-1;
-        yEnd = imgCorner.y + imgSize.height-1;
+        x_end = img_corner.x + img_size.width-1;
+        y_end = img_corner.y + img_size.height-1;
 
         // Construct currentPolygon
-        Polygon *currentPolygon = new Polygon();
-        x.push_back(xBegin); x.push_back(xEnd); x.push_back(xEnd); x.push_back(xBegin);
-        y.push_back(yBegin); y.push_back(yBegin); y.push_back(yEnd); y.push_back(yEnd);
-        currentPolygon->addContour(x,y);
+        Polygon *current_polygon = new Polygon();
+        x.push_back(x_begin); x.push_back(x_end); x.push_back(x_end); x.push_back(x_begin);
+        y.push_back(y_begin); y.push_back(y_begin); y.push_back(y_end); y.push_back(y_end);
+        current_polygon->addContour(x,y);
         x.clear(); y.clear();
-        vpImagesPoly.push_back(currentPolygon);
+        vp_images_poly.push_back(current_polygon);
 
     }
 
     // Construct polygons corresponding to blocks areas
-    vector<Polygon*> vpBlocksPoly;
-    vector<Polygon*> vpEffBlocksPoly;
-    vector<vector<int>*> vvBlocksImgIndexes;
+    vector<Polygon*> vp_blocks_poly;
+    vector<Polygon*> vp_eff_blocks_poly;
+    vector<vector<int>*> vv_blocks_img_indexes;
 
-    for (int j=0; j<xBlockNumber; j++){
-        for (int i=0; i<yBlockNumber; i++){
+    for (int j=0; j<x_block_number; j++){
+        for (int i=0; i<y_block_number; i++){
 
-            Polygon *currentBlockPolygon = new Polygon();
-            Polygon *currentEffBlockPolygon = new Polygon();
-            vector<int> *currentImgIndexes = new vector<int>;
+            Polygon *current_block_polygon = new Polygon();
+            Polygon *current_eff_block_polygon = new Polygon();
+            vector<int> *current_img_indexes = new vector<int>;
             std::vector<double> x,y;
-            int xBegin, yBegin, xEnd, yEnd;
-            int xCurrentBlockSize, yCurrentBlockSize;
+            int x_begin, y_begin, x_end, y_end;
+            int x_current_block_size, y_current_block_size;
 
             // Handle last block size
-            if (j == xBlockNumber-1){
-                xCurrentBlockSize = xLastColumnSize;
+            if (j == x_block_number-1){
+                x_current_block_size = x_last_column_size;
             }else{
-                xCurrentBlockSize = blockSize_p.x;
+                x_current_block_size = block_size_p.x;
             }
 
-            if (i == yBlockNumber-1){
-                yCurrentBlockSize = yLastRowSize;
+            if (i == y_block_number-1){
+                y_current_block_size = y_last_row_size;
             }else{
-                yCurrentBlockSize = blockSize_p.y;
+                y_current_block_size = block_size_p.y;
             }
 
             // Compute extents
-            xBegin = (blockSize_p.x-xOverlapSize)*j;
-            yBegin = (blockSize_p.y-yOverlapSize)*i;
+            x_begin = (block_size_p.x-x_overlap_size)*j;
+            y_begin = (block_size_p.y-y_overlap_size)*i;
 
-            xEnd = xBegin + xCurrentBlockSize-1;
-            yEnd = yBegin + yCurrentBlockSize-1;
+            x_end = x_begin + x_current_block_size-1;
+            y_end = y_begin + y_current_block_size-1;
 
             // Construct currentPolygon
-            x.push_back(xBegin); x.push_back(xEnd); x.push_back(xEnd); x.push_back(xBegin);
-            y.push_back(yBegin); y.push_back(yBegin); y.push_back(yEnd); y.push_back(yEnd);
-            currentBlockPolygon->addContour(x,y);
+            x.push_back(x_begin); x.push_back(x_end); x.push_back(x_end); x.push_back(x_begin);
+            y.push_back(y_begin); y.push_back(y_begin); y.push_back(y_end); y.push_back(y_end);
+            current_block_polygon->addContour(x,y);
             x.clear(); y.clear();
 
             // Find which images intersect with this block
@@ -613,15 +613,15 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
             block_brx=-DBL_MAX;
             block_bry=-DBL_MAX;
 
-            for (int k=0; k < mosaicD_p.cameraNodes().size(); k++){
+            for (int k=0; k < _mosaic_d_p.cameraNodes().size(); k++){
 
-                Polygon *imgBlockIntersection = new Polygon;
-                vpImagesPoly[k]->clip(*currentBlockPolygon,*imgBlockIntersection,basic_processing::INT);
+                Polygon *img_block_intersection = new Polygon;
+                vp_images_poly[k]->clip(*current_block_polygon,*img_block_intersection,basic_processing::INT);
 
-                if (!imgBlockIntersection->isEmpty()){
+                if (!img_block_intersection->isEmpty()){
 
-                    currentImgIndexes->push_back(k);
-                    imgBlockIntersection->getBoundingBox(img_tlx, img_tly, img_brx, img_bry);
+                    current_img_indexes->push_back(k);
+                    img_block_intersection->getBoundingBox(img_tlx, img_tly, img_brx, img_bry);
 
                     if (img_tlx < block_tlx)
                         block_tlx = img_tlx;
@@ -637,24 +637,24 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
                 }
 
-                delete imgBlockIntersection;
+                delete img_block_intersection;
             }
 
-            if (currentImgIndexes->size() > 0){
-                vpBlocksPoly.push_back(currentBlockPolygon);
-                vvBlocksImgIndexes.push_back(currentImgIndexes);
+            if (current_img_indexes->size() > 0){
+                vp_blocks_poly.push_back(current_block_polygon);
+                vv_blocks_img_indexes.push_back(current_img_indexes);
 
                 // Construct currentEffPolygon
                 x.push_back(block_tlx); x.push_back(block_brx); x.push_back(block_brx); x.push_back(block_tlx);
                 y.push_back(block_tly); y.push_back(block_tly); y.push_back(block_bry); y.push_back(block_bry);
-                currentEffBlockPolygon->addContour(x,y);
+                current_eff_block_polygon->addContour(x,y);
                 x.clear(); y.clear();
-                vpEffBlocksPoly.push_back(currentEffBlockPolygon);
+                vp_eff_blocks_poly.push_back(current_eff_block_polygon);
             }
             else{
-                delete currentImgIndexes;
-                delete currentBlockPolygon;
-                delete currentEffBlockPolygon;
+                delete current_img_indexes;
+                delete current_block_polygon;
+                delete current_eff_block_polygon;
             }
 
         }
@@ -711,120 +711,120 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
 
     // Blend blocks independantly
-    for (unsigned int k=0; k < vpEffBlocksPoly.size(); k++){
-        std::vector<UMat> imagesWarped;
-        std::vector<UMat> masksWarped;
+    for (unsigned int k=0; k < vp_eff_blocks_poly.size(); k++){
+        std::vector<UMat> images_warped;
+        std::vector<UMat> masks_warped;
         std::vector<Point> corners;
-        UMat mosaicImage, mosaicImageMask;
+        UMat mosaic_image, mosaic_image_mask;
 
-        int camNum = vvBlocksImgIndexes[k]->size();
+        int cam_num = vv_blocks_img_indexes[k]->size();
 
-        imagesWarped.resize(camNum);
-        masksWarped.resize(camNum);
-        corners.resize(camNum);
+        images_warped.resize(cam_num);
+        masks_warped.resize(cam_num);
+        corners.resize(cam_num);
 
         // Project each image on the mosaicking plane (TODO : make it generic for orthophoto 3D/2D mosaicking)
-        for (int l=0; l < camNum; l++) {
+        for (int l=0; l < cam_num; l++) {
 
-            Polygon *imgBlockInter = new Polygon();
-            vpImagesPoly[vvBlocksImgIndexes[k]->at(l)]->clip(*(vpEffBlocksPoly[k]),*imgBlockInter,basic_processing::INT);
+            Polygon *img_block_inter = new Polygon();
+            vp_images_poly[vv_blocks_img_indexes[k]->at(l)]->clip(*(vp_eff_blocks_poly[k]),*img_block_inter,basic_processing::INT);
 
-            ProjectiveCamera* Cam = mosaicD_p.cameraNodes().at(vvBlocksImgIndexes[k]->at(l));
+            ProjectiveCamera* cam = _mosaic_d_p.cameraNodes().at(vv_blocks_img_indexes[k]->at(l));
 
-            if (*(vpImagesPoly[vvBlocksImgIndexes[k]->at(l)]) == *imgBlockInter){
-                Cam->projectImageOnMosaickingPlane(imagesWarped[l], masksWarped[l], corners[l]);
+            if (*(vp_images_poly[vv_blocks_img_indexes[k]->at(l)]) == *img_block_inter){
+                cam->projectImageOnMosaickingPlane(images_warped[l], masks_warped[l], corners[l]);
 
             }else{
-                UMat tempImgWarped,tempMaskWarped;
-                Cam->projectImageOnMosaickingPlane(tempImgWarped, tempMaskWarped, corners[l]);
+                UMat temp_img_warped, temp_mask_warped;
+                cam->projectImageOnMosaickingPlane(temp_img_warped, temp_mask_warped, corners[l]);
 
                 // Get useful image part
                 double tl_x,tl_y,br_x,br_y;
-                imgBlockInter->getBoundingBox(tl_x,tl_y,br_x,br_y);
+                img_block_inter->getBoundingBox(tl_x,tl_y,br_x,br_y);
 
                 // Crop images and masks with the bounding box
-                tempImgWarped(cv::Rect(tl_x-corners[l].x,tl_y-corners[l].y,br_x-tl_x+1,br_y-tl_y+1)).copyTo(imagesWarped[l]);
-                tempMaskWarped(cv::Rect(tl_x-corners[l].x,tl_y-corners[l].y,br_x-tl_x+1,br_y-tl_y+1)).copyTo(masksWarped[l]);
+                temp_img_warped(cv::Rect(tl_x-corners[l].x,tl_y-corners[l].y,br_x-tl_x+1,br_y-tl_y+1)).copyTo(images_warped[l]);
+                temp_mask_warped(cv::Rect(tl_x-corners[l].x,tl_y-corners[l].y,br_x-tl_x+1,br_y-tl_y+1)).copyTo(masks_warped[l]);
                 corners[l].x = tl_x;
                 corners[l].y = tl_y;
             }
 
-            Cam->image()->releaseImageData();
-            delete imgBlockInter;
+            cam->image()->releaseImageData();
+            delete img_block_inter;
 
         }
 
         // Draw block
-        drawAndBlend(imagesWarped, masksWarped, corners, mosaicImage, mosaicImageMask);
-        QString mosaicFilePath = writingPath_p + QDir::separator() + QString("tmp")
-                + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-        imwrite(mosaicFilePath.toStdString().c_str(), mosaicImage);
+        drawAndBlend(images_warped, masks_warped, corners, mosaic_image, mosaic_image_mask);
+        QString mosaic_file_path = writing_path_p + QDir::separator() + QString("tmp")
+                + QDir::separator() + _prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+        imwrite(mosaic_file_path.toStdString().c_str(), mosaic_image);
 
-        QString mosaicMaskFilePath = writingPath_p + QDir::separator() + QString("tmp")
-                + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-        imwrite(mosaicMaskFilePath.toStdString().c_str(), mosaicImageMask);
+        QString mosaic_mask_file_path = writing_path_p + QDir::separator() + QString("tmp")
+                + QDir::separator() + _prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+        imwrite(mosaic_mask_file_path.toStdString().c_str(), mosaic_image_mask);
 
     }
 
 
     // Blend junction between pairs of blocks
-    vector<Polygon*> vpBlocksPairIntersectPoly;
+    vector<Polygon*> vp_blocks_pair_intersect_poly;
 
     // Adapt settings to junction blending
-    dOptions.seamMegapix = 0.1;
-    dOptions.exposCompType = ExposureCompensator::NO;
-    dOptions.gainBlock = false;
-    dOptions.seamFindType = "gc_color";
-    dOptions.blendType = Blender::FEATHER;
-    dOptions.blendStrength = 1;
+    m_d_options.seam_megapix = 0.1;
+    m_d_options.expos_comp_type = ExposureCompensator::NO;
+    m_d_options.gain_block = false;
+    m_d_options.seam_find_type = "gc_color";
+    m_d_options.blend_type = Blender::FEATHER;
+    m_d_options.blend_strength = 1;
 
-    for (unsigned int k=0; k < vpEffBlocksPoly.size()-1; k++){
+    for (unsigned int k=0; k < vp_eff_blocks_poly.size()-1; k++){
 
-        std::vector<UMat> blocksToBeBlended;
-        std::vector<UMat> blocksToBeBlendedMasks;
+        std::vector<UMat> blocks_to_be_blended;
+        std::vector<UMat> blocks_to_be_blended_masks;
         std::vector<Point> corners;
-        UMat blendedBlocksImg, blendedBlocksImgMask;
+        UMat blended_blocks_img, blended_blocks_img_mask;
 
-        blocksToBeBlended.resize(2);
-        blocksToBeBlendedMasks.resize(2);
+        blocks_to_be_blended.resize(2);
+        blocks_to_be_blended_masks.resize(2);
         corners.resize(2);
 
-        QString imgFilePath1,imgFilePath2;
-        QString mosaicMaskFilePath1,mosaicMaskFilePath2;
+        QString img_file_path1, img_file_path2;
+        QString mosaic_mask_file_path1, mosaic_mask_file_path2;
 
-        for (unsigned int l=k+1; l<vpEffBlocksPoly.size(); l++){
+        for (unsigned int l=k+1; l<vp_eff_blocks_poly.size(); l++){
 
-            Polygon *blocksPairInter = new Polygon();
-            vpEffBlocksPoly[k]->clip(*(vpEffBlocksPoly[l]),*blocksPairInter,basic_processing::INT);
+            Polygon *blocks_pair_inter = new Polygon();
+            vp_eff_blocks_poly[k]->clip(*(vp_eff_blocks_poly[l]),*blocks_pair_inter,basic_processing::INT);
             double tl_x1,tl_y1,br_x1,br_y1;
             double tl_x2,tl_y2,br_x2,br_y2;
 
-            if( !(blocksPairInter->isEmpty()) ){
+            if( !(blocks_pair_inter->isEmpty()) ){
 
                 // Open first block and mask & get corner
-                imgFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-                blocksToBeBlended[0] = imread(imgFilePath1.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                img_file_path1 = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + _prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+                blocks_to_be_blended[0] = imread(img_file_path1.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
-                mosaicMaskFilePath1 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-                blocksToBeBlendedMasks[0] = imread(mosaicMaskFilePath1.toStdString().c_str(),IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                mosaic_mask_file_path1 = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + _prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+                blocks_to_be_blended_masks[0] = imread(mosaic_mask_file_path1.toStdString().c_str(),IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
-                vpEffBlocksPoly[k]->getBoundingBox(tl_x1,tl_y1,br_x1,br_y1);
+                vp_eff_blocks_poly[k]->getBoundingBox(tl_x1,tl_y1,br_x1,br_y1);
                 corners[0].x = (int) tl_x1;
                 corners[0].y = (int) tl_y1;
 
                 // Open second block and mask
-                imgFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
-                blocksToBeBlended[1] = imread(imgFilePath2.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                img_file_path2 = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + _prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
+                blocks_to_be_blended[1] = imread(img_file_path2.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
-                mosaicMaskFilePath2 = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
-                blocksToBeBlendedMasks[1] = imread(mosaicMaskFilePath2.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                mosaic_mask_file_path2 = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + _prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
+                blocks_to_be_blended_masks[1] = imread(mosaic_mask_file_path2.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
-                vpEffBlocksPoly[l]->getBoundingBox(tl_x2,tl_y2,br_x2,br_y2);
+                vp_eff_blocks_poly[l]->getBoundingBox(tl_x2,tl_y2,br_x2,br_y2);
                 corners[1].x = (int) tl_x2;
                 corners[1].y = (int) tl_y2;
 
                 // Blend blocks
-                drawAndBlend(blocksToBeBlended, blocksToBeBlendedMasks, corners, blendedBlocksImg, blendedBlocksImgMask);
+                drawAndBlend(blocks_to_be_blended, blocks_to_be_blended_masks, corners, blended_blocks_img, blended_blocks_img_mask);
 
                 // Extract and write block 1
                 int roi_x1,roi_x2,roi_y1,roi_y2;
@@ -834,8 +834,8 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
                 roi_y1 = tl_y1 - std::min(tl_y1, tl_y2);
                 roi_y2 = br_y1 - std::min(tl_y1, tl_y2);
 
-                imwrite(imgFilePath1.toStdString().c_str(),blendedBlocksImg(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
-                imwrite(mosaicMaskFilePath1.toStdString().c_str(),blendedBlocksImgMask(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
+                imwrite(img_file_path1.toStdString().c_str(),blended_blocks_img(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
+                imwrite(mosaic_mask_file_path1.toStdString().c_str(),blended_blocks_img_mask(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
 
                 // Extract and write block 2
 
@@ -844,14 +844,14 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
                 roi_y1 = tl_y2 - std::min(tl_y1, tl_y2);
                 roi_y2 = br_y2 - std::min(tl_y1, tl_y2);
 
-                imwrite(imgFilePath2.toStdString().c_str(),blendedBlocksImg(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
-                imwrite(mosaicMaskFilePath2.toStdString().c_str(),blendedBlocksImgMask(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
+                imwrite(img_file_path2.toStdString().c_str(),blended_blocks_img(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
+                imwrite(mosaic_mask_file_path2.toStdString().c_str(),blended_blocks_img_mask(cv::Rect(roi_x1,roi_y1,roi_x2-roi_x1+1,roi_y2-roi_y1+1)));
 
-                vpBlocksPairIntersectPoly.push_back(blocksPairInter);
+                vp_blocks_pair_intersect_poly.push_back(blocks_pair_inter);
 
 
             }else{
-                delete blocksPairInter;
+                delete blocks_pair_inter;
             }
 
 
@@ -863,22 +863,22 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
 
     // Find intersections between junctions
-    Polygon tempPoly1, tempPoly2, junctionInterPoly;
+    Polygon temp_poly1, temp_poly2, junction_inter_poly;
 
-    if (vpBlocksPairIntersectPoly.size()!=0){
+    if (vp_blocks_pair_intersect_poly.size()!=0){
 
-        for (unsigned int i=0; i<vpBlocksPairIntersectPoly.size()-1; i++){
+        for (unsigned int i=0; i<vp_blocks_pair_intersect_poly.size()-1; i++){
 
-            for (unsigned int j=i+1; j<vpBlocksPairIntersectPoly.size(); j++){
+            for (unsigned int j=i+1; j<vp_blocks_pair_intersect_poly.size(); j++){
 
                 // Intersect junctions
-                vpBlocksPairIntersectPoly[i]->clip(*(vpBlocksPairIntersectPoly[j]),tempPoly1,basic_processing::INT);
+                vp_blocks_pair_intersect_poly[i]->clip(*(vp_blocks_pair_intersect_poly[j]),temp_poly1,basic_processing::INT);
 
                 // Add intersection
-                junctionInterPoly.clip(tempPoly1,tempPoly2,basic_processing::UNION);
+                junction_inter_poly.clip(temp_poly1,temp_poly2,basic_processing::UNION);
 
                 // Affect
-                junctionInterPoly = tempPoly2;
+                junction_inter_poly = temp_poly2;
 
             }
 
@@ -887,22 +887,22 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
     }
 
     // Blend intersections between junctions
-    if (!junctionInterPoly.isEmpty()){
+    if (!junction_inter_poly.isEmpty()){
 
-        QString imgBlockFilePath;
-        QString imgBlockMaskFilePath;
+        QString img_block_file_path;
+        QString img_block_mask_file_path;
 
-        for(unsigned int c=0; c<junctionInterPoly.contours().size(); c++){
+        for(unsigned int c=0; c<junction_inter_poly.contours().size(); c++){
 
-            Polygon *currentJunction = new Polygon;
+            Polygon *current_junction = new Polygon;
             double cc_x,cc_y, ncc_x, ncc_y;
             vector<double> x, y;
 
-            junctionInterPoly.getContourCenter(cc_x, cc_y, c);
+            junction_inter_poly.getContourCenter(cc_x, cc_y, c);
 
             // Get contour coords
-            x = junctionInterPoly.contours()[c].x;
-            y = junctionInterPoly.contours()[c].y;
+            x = junction_inter_poly.contours()[c].x;
+            y = junction_inter_poly.contours()[c].y;
 
             // Multiply coords to magnify poly
             doubleVectorScalarMult(x, 1.05);
@@ -919,51 +919,51 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
             }
 
             // Fill polygon with this contour
-            currentJunction->addContour(x, y);
-            currentJunction->updateGpcPolygon();
+            current_junction->addContour(x, y);
+            current_junction->updateGpcPolygon();
 
 
             // Fill blocks to be blended *****************************************
-            std::vector<UMat> blocksToBeBlended;
-            std::vector<UMat> blocksToBeBlendedMasks;
-            std::vector<Point> tlCorners, brCorners, tlBlocksCorners;
-            std::vector<int> blocksToBeBlendedIndexes;
-            UMat blendedBlocksImg, blendedBlocksImgMask;
+            std::vector<UMat> blocks_to_be_blended;
+            std::vector<UMat> blocks_to_be_blended_masks;
+            std::vector<Point> tl_corners, br_corners, tl_blocks_corners;
+            std::vector<int> blocks_to_be_blended_indexes;
+            UMat blended_blocks_img, blended_blocks_img_mask;
 
             double tl_x_min,tl_y_min;
 
-            for (unsigned int l=0; l<vpEffBlocksPoly.size(); l++){
+            for (unsigned int l=0; l<vp_eff_blocks_poly.size(); l++){
 
-                Polygon *blockJunctionInter = new Polygon();
-                currentJunction->clip(*(vpEffBlocksPoly[l]),*blockJunctionInter,basic_processing::INT);
+                Polygon *block_junction_inter = new Polygon();
+                current_junction->clip(*(vp_eff_blocks_poly[l]),*block_junction_inter,basic_processing::INT);
                 double tl_x,tl_y,br_x,br_y;
-                double tlBlock_x,tlBlock_y,brBlock_x,brBlock_y;
+                double tl_block_x, tl_block_y, br_block_x, br_block_y;
 
-                if( !(blockJunctionInter->isEmpty()) ){
+                if( !(block_junction_inter->isEmpty()) ){
 
 
                     // Open block and mask & get corner
-                    UMat imgTemp;
+                    UMat img_temp;
 
-                    vpEffBlocksPoly[l]->getBoundingBox(tlBlock_x, tlBlock_y, brBlock_x, brBlock_y);
-                    blockJunctionInter->getBoundingBox( tl_x,tl_y,br_x,br_y );
+                    vp_eff_blocks_poly[l]->getBoundingBox(tl_block_x, tl_block_y, br_block_x, br_block_y);
+                    block_junction_inter->getBoundingBox( tl_x,tl_y,br_x,br_y );
 
-                    imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
-                    imgTemp = imread(imgBlockFilePath.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
-                    blocksToBeBlended.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1)) );
+                    img_block_file_path = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + _prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
+                    img_temp = imread(img_block_file_path.toStdString().c_str(),cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                    blocks_to_be_blended.push_back( img_temp(Rect(tl_x - tl_block_x, tl_y - tl_block_y, br_x-tl_x+1, br_y-tl_y+1)) );
 
-                    imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
-                    imgTemp = imread(imgBlockMaskFilePath.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
-                    blocksToBeBlendedMasks.push_back( imgTemp(Rect(tl_x - tlBlock_x, tl_y - tlBlock_y, br_x-tl_x+1, br_y-tl_y+1))  );
+                    img_block_mask_file_path = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + _prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
+                    img_temp = imread(img_block_mask_file_path.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                    blocks_to_be_blended_masks.push_back( img_temp(Rect(tl_x - tl_block_x, tl_y - tl_block_y, br_x-tl_x+1, br_y-tl_y+1))  );
 
                     // Store corners values
-                    tlBlocksCorners.push_back( Point( (int) tlBlock_x, (int) tlBlock_y ) );
-                    tlCorners.push_back( Point( (int) tl_x, (int) tl_y ) );
-                    brCorners.push_back( Point( (int) br_x, (int) br_y ) );
+                    tl_blocks_corners.push_back( Point( (int) tl_block_x, (int) tl_block_y ) );
+                    tl_corners.push_back( Point( (int) tl_x, (int) tl_y ) );
+                    br_corners.push_back( Point( (int) br_x, (int) br_y ) );
 
-                    blocksToBeBlendedIndexes.push_back(l);
+                    blocks_to_be_blended_indexes.push_back(l);
 
-                    if (blocksToBeBlendedIndexes.size()==1){
+                    if (blocks_to_be_blended_indexes.size()==1){
                         tl_x_min = tl_x;
                         tl_y_min = tl_y;
                     }else{
@@ -973,114 +973,114 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
 
 
                 }else{
-                    delete blockJunctionInter;
+                    delete block_junction_inter;
                 }
 
             }
 
 
             // Blend blocks
-            drawAndBlend(blocksToBeBlended, blocksToBeBlendedMasks, tlCorners, blendedBlocksImg, blendedBlocksImgMask);
+            drawAndBlend(blocks_to_be_blended, blocks_to_be_blended_masks, tl_corners, blended_blocks_img, blended_blocks_img_mask);
 
-            for ( unsigned int i=0; i<blocksToBeBlendedIndexes.size(); i++ ){
+            for ( unsigned int i=0; i<blocks_to_be_blended_indexes.size(); i++ ){
 
-                int l = blocksToBeBlendedIndexes[i];
-                imgBlockFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
-                imgBlockMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
+                int l = blocks_to_be_blended_indexes[i];
+                img_block_file_path = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + _prefix_p + QString("_temp%1.tiff").arg(l, 4, 'g', -1, '0');
+                img_block_mask_file_path = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + _prefix_p + QString("_masktemp%1.tiff").arg(l, 4, 'g', -1, '0');
 
-                UMat blockImg = imread(imgBlockFilePath.toStdString().c_str(),cv::IMREAD_COLOR|cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
-                UMat blockImgMask = imread(imgBlockMaskFilePath.toStdString().c_str(),cv::IMREAD_GRAYSCALE|cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                UMat block_img = imread(img_block_file_path.toStdString().c_str(),cv::IMREAD_COLOR|cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
+                UMat block_img_mask = imread(img_block_mask_file_path.toStdString().c_str(),cv::IMREAD_GRAYSCALE|cv::IMREAD_IGNORE_ORIENTATION).getUMat(ACCESS_READ);
 
 
                 // Part of the matrix we are interested in
-                UMat blockImgRoi(blockImg, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
-                                               brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
+                UMat block_img_roi(block_img, Rect(tl_corners[i].x-tl_blocks_corners[i].x,tl_corners[i].y-tl_blocks_corners[i].y,
+                                               br_corners[i].x-tl_corners[i].x+1,br_corners[i].y-tl_corners[i].y+1));
                 // This submatrix will be a REFERENCE to PART of full matrix, NOT a copy
-                UMat blockImgMaskRoi(blockImgMask, Rect(tlCorners[i].x-tlBlocksCorners[i].x,tlCorners[i].y-tlBlocksCorners[i].y,
-                                                       brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1));
+                UMat block_img_mask_roi(block_img_mask, Rect(tl_corners[i].x-tl_blocks_corners[i].x,tl_corners[i].y-tl_blocks_corners[i].y,
+                                                       br_corners[i].x-tl_corners[i].x+1,br_corners[i].y-tl_corners[i].y+1));
 
-                blockImgRoi = blendedBlocksImg( Rect(tlCorners[i].x-tl_x_min, tlCorners[i].y-tl_y_min, brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1 ) );
-                blockImgMaskRoi = blendedBlocksImgMask( Rect(tlCorners[i].x-tl_x_min, tlCorners[i].y-tl_y_min, brCorners[i].x-tlCorners[i].x+1,brCorners[i].y-tlCorners[i].y+1 ) );
+                block_img_roi = blended_blocks_img( Rect(tl_corners[i].x-tl_x_min, tl_corners[i].y-tl_y_min, br_corners[i].x-tl_corners[i].x+1,br_corners[i].y-tl_corners[i].y+1 ) );
+                block_img_mask_roi = blended_blocks_img_mask( Rect(tl_corners[i].x-tl_x_min, tl_corners[i].y-tl_y_min, br_corners[i].x-tl_corners[i].x+1,br_corners[i].y-tl_corners[i].y+1 ) );
 
                 // Save image
-                imwrite(imgBlockFilePath.toStdString().c_str(),blockImg);
-                imwrite(imgBlockMaskFilePath.toStdString().c_str(),blockImgMask);
+                imwrite(img_block_file_path.toStdString().c_str(),block_img);
+                imwrite(img_block_mask_file_path.toStdString().c_str(),block_img_mask);
 
             }
 
 
-            blocksToBeBlended.clear();
-            blocksToBeBlendedMasks.clear();
-            tlCorners.clear();
-            brCorners.clear();
-            tlBlocksCorners.clear();
-            blocksToBeBlendedIndexes.clear();
+            blocks_to_be_blended.clear();
+            blocks_to_be_blended_masks.clear();
+            tl_corners.clear();
+            br_corners.clear();
+            tl_blocks_corners.clear();
+            blocks_to_be_blended_indexes.clear();
 
             x.clear();
             y.clear();
-            delete currentJunction;
+            delete current_junction;
 
         }
 
     }
 
     // Write all geotiff files from temp files
-    for (unsigned int k=0; k<vpEffBlocksPoly.size(); k++){
+    for (unsigned int k=0; k<vp_eff_blocks_poly.size(); k++){
 
-        QString utmProjParam, utmHemisphereOption,utmZoneString;
+        QString utm_proj_param, utm_hemisphere_option, utm_zone_string;
 
         // Construct utm proj param options
-        utmZoneString = QString("%1 ").arg(mosaicD_p.utmZone())+ mosaicD_p.utmHemisphere();
-        QStringList utmParams = utmZoneString.split(" ");
+        utm_zone_string = QString("%1 ").arg(_mosaic_d_p.utmZone())+ _mosaic_d_p.utmHemisphere();
+        QStringList utm_params = utm_zone_string.split(" ");
 
-        if ( utmParams.at(1) == "S" ){
-            utmHemisphereOption = QString(" +south");
+        if ( utm_params.at(1) == "S" ){
+            utm_hemisphere_option = QString(" +south");
         }else{
-            utmHemisphereOption = QString("");
+            utm_hemisphere_option = QString("");
         }
-        utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
+        utm_proj_param = QString("+proj=utm +zone=") + utm_params.at(0);
 
         // Get block corners in pixels
-        double blockTL_x,blockTL_y,blockBR_x,blockBR_y;
-        vpEffBlocksPoly[k]->getBoundingBox(blockTL_x,blockTL_y,blockBR_x,blockBR_y);
+        double block_tl_x, block_tl_y, block_br_x, block_br_y;
+        vp_eff_blocks_poly[k]->getBoundingBox(block_tl_x,block_tl_y,block_br_x,block_br_y);
 
 
-        double blockUtmTL_x = mosaicD_p.mosaicOrigin().x + blockTL_x*mosaicD_p.pixelSize().x;
-        double blockUtmTL_y = mosaicD_p.mosaicOrigin().y - blockTL_y*mosaicD_p.pixelSize().y;
+        double block_utm_tl_x = _mosaic_d_p.mosaicOrigin().x + block_tl_x*_mosaic_d_p.pixelSize().x;
+        double block_utm_tl_y = _mosaic_d_p.mosaicOrigin().y - block_tl_y*_mosaic_d_p.pixelSize().y;
 
-        double blockUtmBR_x = mosaicD_p.mosaicOrigin().x + blockBR_x*mosaicD_p.pixelSize().x;
-        double blockUtmBR_y = mosaicD_p.mosaicOrigin().y - blockBR_y*mosaicD_p.pixelSize().y;
+        double block_utm_br_x = _mosaic_d_p.mosaicOrigin().x + block_br_x*_mosaic_d_p.pixelSize().x;
+        double block_utm_br_y = _mosaic_d_p.mosaicOrigin().y - block_br_y*_mosaic_d_p.pixelSize().y;
 
-        QString gdalOptions =  QString("-a_srs \"")+ utmProjParam + QString("\" -of GTiff -co \"COMPRESS=JPEG\" -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
-                .arg(blockUtmTL_x,0,'f',2)
-                .arg(blockUtmTL_y,0,'f',2)
-                .arg(blockUtmBR_x,0,'f',2)
-                .arg(blockUtmBR_y,0,'f',2);
+        QString gdal_options =  QString("-a_srs \"")+ utm_proj_param + QString("\" -of GTiff -co \"COMPRESS=JPEG\" -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+                .arg(block_utm_tl_x,0,'f',2)
+                .arg(block_utm_tl_y,0,'f',2)
+                .arg(block_utm_br_x,0,'f',2)
+                .arg(block_utm_br_y,0,'f',2);
 
-        outputFiles << prefix_p + QString("_%1.tiff").arg(k, 4, 'g', -1, '0');
-        QString geoRefBlockImgFilePath = writingPath_p + QDir::separator() + outputFiles.at(outputFiles.size()-1);
+        output_files << _prefix_p + QString("_%1.tiff").arg(k, 4, 'g', -1, '0');
+        QString geo_ref_block_img_file_path = writing_path_p + QDir::separator() + output_files.at(output_files.size()-1);
 
         // Read files
-        QString blockImgFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
-        Mat blockImg = imread(blockImgFilePath.toStdString().c_str(),cv::IMREAD_COLOR|cv::IMREAD_IGNORE_ORIENTATION);
+        QString block_img_file_path = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + _prefix_p + QString("_temp%1.tiff").arg(k, 4, 'g', -1, '0');
+        Mat block_img = imread(block_img_file_path.toStdString().c_str(),cv::IMREAD_COLOR|cv::IMREAD_IGNORE_ORIENTATION);
 
-        QString blockImgMaskFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
-        Mat blockImgMask = imread(blockImgMaskFilePath.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
+        QString block_img_mask_file_path = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + _prefix_p + QString("_masktemp%1.tiff").arg(k, 4, 'g', -1, '0');
+        Mat block_img_mask = imread(block_img_mask_file_path.toStdString().c_str(),cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
 
-        std::vector<cv::Mat> blockImgChannels;
-        cv::split(blockImg, blockImgChannels);
+        std::vector<cv::Mat> block_img_channels;
+        cv::split(block_img, block_img_channels);
 
         // create alpha channel
-        blockImgChannels.push_back(blockImgMask);
+        block_img_channels.push_back(block_img_mask);
 
         // create tempBlock
-        QString tempBlockImgFilePath = writingPath_p + QDir::separator() + QString("tmp") + QDir::separator() + QString("Temp.png");
+        QString temp_block_img_file_path = writing_path_p + QDir::separator() + QString("tmp") + QDir::separator() + QString("Temp.png");
         cv::Mat_<cv::Vec4b> dst;
-        cv::merge(blockImgChannels, dst);
-        cv::imwrite(tempBlockImgFilePath.toStdString(),dst);
+        cv::merge(block_img_channels, dst);
+        cv::imwrite(temp_block_img_file_path.toStdString(),dst);
 
-        GdalTranslateWrapper gdalTranslate;
-        gdalTranslate.geoReferenceFile(tempBlockImgFilePath,geoRefBlockImgFilePath,gdalOptions);
+        GdalTranslateWrapper gdal_translate;
+        gdal_translate.geoReferenceFile(temp_block_img_file_path,geo_ref_block_img_file_path,gdal_options);
 
         //RasterGeoreferencer rasterGeoref;
         //rasterGeoref.WriteGeoFile(blockImg, blockImgMask, geoRefBlockImgFilePath,gdalOptions);
@@ -1088,91 +1088,91 @@ QStringList MosaicDrawer::blockDrawBlendAndWrite(const MosaicDescriptor &mosaicD
     }
 
     // Restore drawing options
-    dOptions = dOptionsBackup;
+    m_d_options = d_options_backup;
 
     // Free memory
-    for (unsigned int i=0; i<vpBlocksPoly.size(); i++){
-        delete vpBlocksPoly.at(i);
+    for (unsigned int i=0; i<vp_blocks_poly.size(); i++){
+        delete vp_blocks_poly.at(i);
     }
 
-    for (unsigned int i=0; i<vpEffBlocksPoly.size(); i++){
-        delete vpEffBlocksPoly.at(i);
+    for (unsigned int i=0; i<vp_eff_blocks_poly.size(); i++){
+        delete vp_eff_blocks_poly.at(i);
     }
 
-    for (unsigned int i=0; i<vpImagesPoly.size(); i++){
-        delete vpImagesPoly.at(i);
+    for (unsigned int i=0; i<vp_images_poly.size(); i++){
+        delete vp_images_poly.at(i);
     }
 
-    for (unsigned int i=0; i<vpBlocksPairIntersectPoly.size(); i++){
-        delete vpBlocksPairIntersectPoly.at(i);
+    for (unsigned int i=0; i<vp_blocks_pair_intersect_poly.size(); i++){
+        delete vp_blocks_pair_intersect_poly.at(i);
     }
 
-    FileUtils::removeDir(tempDir.absolutePath());
+    FileUtils::removeDir(temp_dir.absolutePath());
 
-    return outputFiles;
+    return output_files;
 
 }
 
-QStringList MosaicDrawer::writeImagesAsGeoTiff(const MosaicDescriptor& mosaicD_p, QString writingPath_p, QString prefix_p)
+QStringList MosaicDrawer::writeImagesAsGeoTiff(const MosaicDescriptor& _mosaic_d_p, QString _writing_path_p, QString _prefix_p)
 {
     // This method is mainly used in case were navigation is not perfect, so we just want a rough representation of the footprint
     // hence in order to speed up computation we neglect perspective transform (only scaling and rotation will be applied by geotiff info)
 
-    QStringList outputFiles;
+    QStringList output_files;
 
-    QString utmProjParam, utmHemisphereOption, utmZoneString;
+    QString utm_proj_param, utm_hemisphere_option, utm_zone_string;
 
     // Construct utm proj param options
-    utmZoneString = QString("%1 ").arg(mosaicD_p.utmZone()) + mosaicD_p.utmHemisphere();
-    QStringList utmParams = utmZoneString.split(" ");
+    utm_zone_string = QString("%1 ").arg(_mosaic_d_p.utmZone()) + _mosaic_d_p.utmHemisphere();
+    QStringList utm_params = utm_zone_string.split(" ");
 
-    if (utmParams.at(1) == "S") {
-        utmHemisphereOption = QString(" +south");
+    if (utm_params.at(1) == "S") {
+        utm_hemisphere_option = QString(" +south");
     }
     else {
-        utmHemisphereOption = QString("");
+        utm_hemisphere_option = QString("");
     }
-    utmProjParam = QString("+proj=utm +zone=") + utmParams.at(0);
+    utm_proj_param = QString("+proj=utm +zone=") + utm_params.at(0);
 
     // Loop on all images
-    for (int k = 0; k < mosaicD_p.cameraNodes().size(); k++) {
+    for (int k = 0; k < _mosaic_d_p.cameraNodes().size(); k++) {
         std::vector<double> x, y;
 
         // Compute image footprint
-        mosaicD_p.cameraNodes().at(k)->computeImageFootPrint(x, y);
+        _mosaic_d_p.cameraNodes().at(k)->computeImageFootPrint(x, y);
 
-        Polygon* currentPolygon = new Polygon();
-        currentPolygon->addContour(x, y);
+        Polygon* current_polygon = new Polygon();
+        current_polygon->addContour(x, y);
 
         // Get block corners in pixels
         double TL_x, TL_y, BR_x, BR_y;
-        currentPolygon->getBoundingBox(TL_x, TL_y, BR_x, BR_y);
+        current_polygon->getBoundingBox(TL_x, TL_y, BR_x, BR_y);
 
-        delete currentPolygon;
+        delete current_polygon;
         x.clear(); y.clear();
 
         UMat img_warped;
         UMat img_warped_mask;
         cv::Point corner;
 
-        mosaicD_p.cameraNodes().at(k)->projectImageOnMosaickingPlane(img_warped, img_warped_mask, corner);
+        _mosaic_d_p.cameraNodes().at(k)->projectImageOnMosaickingPlane(img_warped, img_warped_mask, corner);
 
-        double UtmTL_x = mosaicD_p.mosaicOrigin().x + TL_x * mosaicD_p.pixelSize().x;
-        double UtmTL_y = mosaicD_p.mosaicOrigin().y - TL_y * mosaicD_p.pixelSize().y;
+        double utm_tl_x = _mosaic_d_p.mosaicOrigin().x + TL_x * _mosaic_d_p.pixelSize().x;
+        double utm_tl_y = _mosaic_d_p.mosaicOrigin().y - TL_y * _mosaic_d_p.pixelSize().y;
 
-        double UtmBR_x = mosaicD_p.mosaicOrigin().x + BR_x * mosaicD_p.pixelSize().x;
-        double UtmBR_y = mosaicD_p.mosaicOrigin().y - BR_y * mosaicD_p.pixelSize().y;
+        double utm_br_x = _mosaic_d_p.mosaicOrigin().x + BR_x * _mosaic_d_p.pixelSize().x;
+        double utm_br_y = _mosaic_d_p.mosaicOrigin().y - BR_y * _mosaic_d_p.pixelSize().y;
 
-        QString gdalOptions = QString("-a_srs \"") + utmProjParam + QString("\" -of GTiff -co \"COMPRESS=JPEG\" -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
-            .arg(UtmTL_x, 0, 'f', 2)
-            .arg(UtmTL_y, 0, 'f', 2)
-            .arg(UtmBR_x, 0, 'f', 2)
-            .arg(UtmBR_y, 0, 'f', 2);
+        QString gdal_options = QString("-a_srs \"") + utm_proj_param + QString("\" -of GTiff -co \"COMPRESS=JPEG\" -co \"INTERLEAVE=PIXEL\" -a_ullr %1 %2 %3 %4")
+            .arg(utm_tl_x, 0, 'f', 2)
+            .arg(utm_tl_y, 0, 'f', 2)
+            .arg(utm_br_x, 0, 'f', 2)
+            .arg(utm_br_y, 0, 'f', 2);
 
-        outputFiles << prefix_p + QString("_%1.tiff").arg(k, 4, 'g', -1, '0');
-        QString geoRefImgFilePath = writingPath_p + QDir::separator() + outputFiles.at(outputFiles.size() - 1);
+        output_files << _prefix_p + QString("_%1.tiff").arg(k, 4, 'g', -1, '0');
+        QString geo_ref_img_file_path = _writing_path_p + QDir::separator() + output_files.at(output_files.size() - 1);
 
-        QString temp_input = writingPath_p + QDir::separator() + prefix_p + QString("_%1.png").arg(k, 4, 'g', -1, '0');
+        QString temp_input = _writing_path_p + QDir::separator() + _prefix_p + QString("_%1.png").arg(k, 4, 'g', -1, '0');
 
         //FileImage* input_image =dynamic_cast<MatisseCommon::FileImage*>(mosaicD_p.cameraNodes().at(k)->image());
 
@@ -1183,8 +1183,8 @@ QStringList MosaicDrawer::writeImagesAsGeoTiff(const MosaicDescriptor& mosaicD_p
         cv::merge(img_warped_channels, img_warped_with_alpha);
         cv::imwrite(temp_input.toStdString(), img_warped_with_alpha);
 
-        GdalTranslateWrapper gdalTranslate;
-        gdalTranslate.geoReferenceFile(temp_input, geoRefImgFilePath, gdalOptions);
+        GdalTranslateWrapper gdal_translate;
+        gdal_translate.geoReferenceFile(temp_input, geo_ref_img_file_path, gdal_options);
 
         // remove temp file
         QFile file(temp_input);
@@ -1192,27 +1192,28 @@ QStringList MosaicDrawer::writeImagesAsGeoTiff(const MosaicDescriptor& mosaicD_p
 
     }
 
-    return outputFiles;
+    return output_files;
 }
 
-QStringList MosaicDrawer::outputMosaicImagesAsIs(const MosaicDescriptor& mosaicD_p, QString writingPath_p, QString prefix_p)
+QStringList MosaicDrawer::outputMosaicImagesAsIs(const MosaicDescriptor& _mosaic_d_p, QString _writing_path_p, QString _prefix_p)
 {
-    QStringList outputFiles;
+    Q_UNUSED(_prefix_p)
+    QStringList output_files;
 
     // Loop on all images
-    for (int k = 0; k < mosaicD_p.cameraNodes().size(); k++) {
+    for (int k = 0; k < _mosaic_d_p.cameraNodes().size(); k++) {
 
-        FileImage* input_image = dynamic_cast<matisse_image::FileImage*>(mosaicD_p.cameraNodes().at(k)->image());
+        FileImage* input_image = dynamic_cast<matisse_image::FileImage*>(_mosaic_d_p.cameraNodes().at(k)->image());
 
         if (input_image != nullptr)
         {
-            QString out_string = writingPath_p + QDir::separator() + input_image->getFileName();
+            QString out_string = _writing_path_p + QDir::separator() + input_image->getFileName();
             cv::imwrite(out_string.toStdString(), *(input_image->imageData()));
         }
 
     }
 
-    return outputFiles;
+    return output_files;
 }
 
 } // namespace optical_mapping
