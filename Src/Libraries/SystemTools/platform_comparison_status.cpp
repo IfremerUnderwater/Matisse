@@ -3,71 +3,71 @@
 namespace system_tools {
 
 PlatformComparisonStatus::PlatformComparisonStatus() :
-    _doesMatch(false),
-    _componentsCompared(NULL)
+    m_does_match(false),
+    m_components_compared(NULL)
 {
 }
 
 PlatformComparisonStatus::~PlatformComparisonStatus()
 {
-    if (_componentsCompared) {
-        _componentsCompared->clear();
-        delete _componentsCompared;
+    if (m_components_compared) {
+        m_components_compared->clear();
+        delete m_components_compared;
     }
 }
 
 bool PlatformComparisonStatus::doesMatch() const
 {
-    return _doesMatch;
+    return m_does_match;
 }
 
-void PlatformComparisonStatus::setDoesMatch(bool doesMatch)
+void PlatformComparisonStatus::setDoesMatch(bool _does_match)
 {
-    _doesMatch = doesMatch;
+    m_does_match = _does_match;
 }
 
 PlatformElementCompare PlatformComparisonStatus::matisseCompared() const
 {
-    return _matisseCompared;
+    return m_matisse_compared;
 }
 
-void PlatformComparisonStatus::setMatisseCompared(const PlatformElementCompare &matisseCompared)
+void PlatformComparisonStatus::setMatisseCompared(const PlatformElementCompare &_matisse_compared)
 {
-    _matisseCompared = matisseCompared;
+    m_matisse_compared = _matisse_compared;
 }
 
 PlatformElementCompare PlatformComparisonStatus::osCompared() const
 {
-    return _osCompared;
+    return m_os_compared;
 }
 
-void PlatformComparisonStatus::setOsCompared(const PlatformElementCompare &osCompared)
+void PlatformComparisonStatus::setOsCompared(const PlatformElementCompare &_os_compared)
 {
-    _osCompared = osCompared;
+    m_os_compared = _os_compared;
 }
 
 QMap<QString, PlatformElementCompare> *PlatformComparisonStatus::componentsCompared() const
 {
-    return _componentsCompared;
+    return m_components_compared;
 }
 
-void PlatformComparisonStatus::addComponentCompared(QString componentName, PlatformElementCompare compared)
+void PlatformComparisonStatus::addComponentCompared(QString _component_name, PlatformElementCompare _compared)
 {
-    if (!_componentsCompared) {
-        _componentsCompared = new QMap<QString, PlatformElementCompare>();
+    if (!m_components_compared) {
+        m_components_compared = new QMap<QString, PlatformElementCompare>();
     }
 
-    _componentsCompared->insert(componentName, compared);
+    m_components_compared->insert(_component_name, _compared);
 }
 
 QStringList PlatformComparisonStatus::getPlatformGapMessages() const
 {
-    return _platformGapMessages;
+    return m_platform_gap_messages;
 }
 
-void PlatformComparisonStatus::addPlaformGapMessage(QString message)
+void PlatformComparisonStatus::addPlaformGapMessage(QString _message)
 {
-    _platformGapMessages.append(message);
+    m_platform_gap_messages.append(_message);
 }
 
 } // namespace system_tools

@@ -2,14 +2,14 @@
 
 namespace system_tools {
 
-PlatformComponent::PlatformComponent(QString name) :
-    _name(name)
+PlatformComponent::PlatformComponent(QString _name) :
+    m_name(_name)
 {    
 }
 
 QString PlatformComponent::getName() const
 {
-    return _name;
+    return m_name;
 }
 
 } // namespace system_tools

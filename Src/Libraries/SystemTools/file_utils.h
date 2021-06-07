@@ -37,14 +37,14 @@ namespace system_tools {
 class FileUtils
 {
 public:
-    static bool removeDir(const QString &dirName);
-    static bool zipFiles(QString zipArchivePath, QString baseDirPath, QStringList fileNames, bool append = false);
-    static bool unzipFiles(QString zipArchivePath, QString destDirPath);
-    static QStringList getZipEntries(QString zipArchivePath);
-    static bool areFilesIdentical(QString filePath1, QString filePath2);
-    static QMap<QString,QString> readPropertiesFile(QString propFilePath);
-    static bool createTempDirectory(QString &tempDirPath, QString prefix = DEFAULT_TEMP_DIR_PREFIX);
-    static void removeAllTempDirectories(QString prefix = DEFAULT_TEMP_DIR_PREFIX);
+    static bool removeDir(const QString &_dir_name);
+    static bool zipFiles(QString _zip_archive_path, QString _base_dir_path, QStringList _file_names, bool _append = false);
+    static bool unzipFiles(QString _zip_archive_path, QString _dest_dir_path);
+    static QStringList getZipEntries(QString _zip_archive_path);
+    static bool areFilesIdentical(QString _file_path1, QString _file_path2);
+    static QMap<QString,QString> readPropertiesFile(QString _prop_file_path);
+    static bool createTempDirectory(QString &_temp_dir_path, QString _prefix = DEFAULT_TEMP_DIR_PREFIX);
+    static void removeAllTempDirectories(QString _prefix = DEFAULT_TEMP_DIR_PREFIX);
     static quint64 dirSize(QString _dir_path, bool _include_subdirs = false);
     static quint32 fileCount(QString _dir_path, bool _include_subdirs = false);
     static QString resolveUnixPath(QString _file_spec);

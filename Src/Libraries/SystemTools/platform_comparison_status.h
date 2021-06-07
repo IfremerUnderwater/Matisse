@@ -7,7 +7,7 @@
 
 namespace system_tools {
 
-enum VersionCompare {
+enum eVersionCompare {
     SAME,
     OLDER,
     NEWER,
@@ -17,14 +17,14 @@ enum VersionCompare {
 class PlatformElementCompare {
 public:
     PlatformElementCompare() :
-        _foundInRemotePlatform(true), _foundInLocalPlatform(true), _isSameType(true), _doesMatch(false)
+        m_found_in_remote_platform(true), m_found_in_local_platform(true), m_is_same_type(true), m_does_match(false)
     {}
 
-    bool _foundInRemotePlatform;
-    bool _foundInLocalPlatform;
-    bool _isSameType;
-    bool _doesMatch;
-    VersionCompare _versionCompare;
+    bool m_found_in_remote_platform;
+    bool m_found_in_local_platform;
+    bool m_is_same_type;
+    bool m_does_match;
+    eVersionCompare m_version_compare;
 };
 
 class PlatformComparisonStatus
@@ -34,28 +34,28 @@ public:
     ~PlatformComparisonStatus();
 
     bool doesMatch() const;
-    void setDoesMatch(bool doesMatch);
+    void setDoesMatch(bool _does_match);
 
     PlatformElementCompare matisseCompared() const;
-    void setMatisseCompared(const PlatformElementCompare &matisseCompared);
+    void setMatisseCompared(const PlatformElementCompare &_matisse_compared);
 
     PlatformElementCompare osCompared() const;
-    void setOsCompared(const PlatformElementCompare &osCompared);
+    void setOsCompared(const PlatformElementCompare &_os_compared);
 
     QMap<QString, PlatformElementCompare> *componentsCompared() const;
-    void addComponentCompared(QString componentName, PlatformElementCompare compared);
+    void addComponentCompared(QString _component_name, PlatformElementCompare _compared);
 
     QStringList getPlatformGapMessages() const;
-    void addPlaformGapMessage(QString message);
+    void addPlaformGapMessage(QString _message);
 
 private:
-    bool _doesMatch;
+    bool m_does_match;
 
-    PlatformElementCompare _matisseCompared;
-    PlatformElementCompare _osCompared;
-    QMap<QString, PlatformElementCompare> *_componentsCompared;
+    PlatformElementCompare m_matisse_compared;
+    PlatformElementCompare m_os_compared;
+    QMap<QString, PlatformElementCompare> *m_components_compared;
 
-    QStringList _platformGapMessages;
+    QStringList m_platform_gap_messages;
 };
 
 } // namespace system_tools

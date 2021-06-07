@@ -8,14 +8,14 @@ namespace system_tools {
 class PlatformComponent
 {
 public:
-    PlatformComponent(QString name);
+    PlatformComponent(QString _name);
     virtual ~PlatformComponent(){}
     virtual QString getVersionInfo() = 0;
 
     QString getName() const;
 
 private:
-    QString _name;
+    QString m_name;
 };
 
 } // namespace system_tools

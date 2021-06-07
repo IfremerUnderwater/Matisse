@@ -4,18 +4,18 @@ namespace system_tools {
 
 /// \brief Removes a directory and all its contents recursively
 ///
-/// \param dirName Relative or absolute path to the directory to be removed
+/// \param _dir_name Relative or absolute path to the directory to be removed
 ///
 /// \return true if operation was successful, false otherwise
 ///
-bool FileUtils::removeDir(const QString& dirName) {
+bool FileUtils::removeDir(const QString& _dir_name) {
   bool result = true;
-  QDir dir(dirName);
+  QDir dir(_dir_name);
 
   if (!dir.exists()) {
     qCritical() << QString(
                        "Directory '%1' does not exist, impossible to remove")
-                       .arg(dirName);
+                       .arg(_dir_name);
     return false;
   }
 
@@ -34,16 +34,16 @@ bool FileUtils::removeDir(const QString& dirName) {
                          "Failed to remove file or directory '%1' while trying "
                          "to remove '%2' directory tree")
                          .arg(info.absoluteFilePath())
-                         .arg(dirName);
+                         .arg(_dir_name);
       return result;
     }
   }
 
-  result = dir.rmdir(dirName);
+  result = dir.rmdir(_dir_name);
 
   if (!result) {
     qCritical()
-        << QString("Impossible to delete empty directory '%1'").arg(dirName);
+        << QString("Impossible to delete empty directory '%1'").arg(_dir_name);
   }
 
   return result;
@@ -53,54 +53,54 @@ bool FileUtils::removeDir(const QString& dirName) {
 /// \brief Creates or updates a zip archive with files specified.
 /// Files are stored with a path relative to the base folder path specified.
 ///
-/// \param zipArchivePath Full path to the zip file to be created or updated
-/// \param baseDirPath Relative or absolute path to the base folder
-/// \param fileNames A list of files expressed as relative or absolute path.
+/// \param _zip_archive_path Full path to the zip file to be created or updated
+/// \param _base_dir_path Relative or absolute path to the base folder
+/// \param _file_names A list of files expressed as relative or absolute path.
 /// Files must be part of the base folder tree.
-/// \param append Specifies if the archive is to be created (false) or updated
+/// \param _append Specifies if the archive is to be created (false) or updated
 /// (true). Default value is false. In the creation mode, if the zip already
 /// exists it will be overwritten.
 ///
 /// \return true if operation was successful (that is a zip file was created),
 /// false otherwise
 ///
-bool FileUtils::zipFiles(QString zipArchivePath, QString baseDirPath,
-                         QStringList fileNames, bool append) {
-  QuaZip zip(zipArchivePath);
+bool FileUtils::zipFiles(QString _zip_archive_path, QString _base_dir_path,
+                         QStringList _file_names, bool _append) {
+  QuaZip zip(_zip_archive_path);
 
-  if (append) {
+  if (_append) {
     if (!zip.open(QuaZip::mdAppend)) {
       qCritical() << QString("Impossible to open zip file '%1' in append mode")
-                         .arg(zipArchivePath);
+                         .arg(_zip_archive_path);
       return false;
     }
   } else {
     if (!zip.open(QuaZip::mdCreate)) {
       qCritical()
-          << QString("Impossible to create zip file '%1'").arg(zipArchivePath);
+          << QString("Impossible to create zip file '%1'").arg(_zip_archive_path);
       return false;
     }
   }
 
-  QuaZipFile outZipFile(&zip);
+  QuaZipFile out_zip_file(&zip);
 
-  QDir baseDir(baseDirPath);
-  if (!baseDir.exists()) {
+  QDir base_dir(_base_dir_path);
+  if (!base_dir.exists()) {
     qCritical() << QString(
                        "Base directory '%1' provided for source files is not "
                        "valid. Could not archive files to zip")
-                       .arg(baseDir.path());
+                       .arg(base_dir.path());
     zip.close();
     return false;
   }
 
-  QString baseAbsolutePath = baseDir.absolutePath();
-  if (!baseAbsolutePath.endsWith("/")) {
-    baseAbsolutePath.append("/");
+  QString base_absolute_path = base_dir.absolutePath();
+  if (!base_absolute_path.endsWith("/")) {
+    base_absolute_path.append("/");
   }
 
-  foreach (QString fileName, fileNames) {
-    QFileInfo fileInfo(fileName);
+  foreach (QString file_name, _file_names) {
+    QFileInfo fileInfo(file_name);
     if (!fileInfo.exists()) {
       qWarning() << QString(
                         "Entry '%1' does not exist. Could not add entry to zip "
@@ -109,67 +109,67 @@ bool FileUtils::zipFiles(QString zipArchivePath, QString baseDirPath,
       continue;
     }
 
-    QString fileAbsolutePath = fileInfo.absoluteFilePath();
+    QString file_absolute_path = fileInfo.absoluteFilePath();
 
-    if (!fileAbsolutePath.startsWith(baseAbsolutePath)) {
+    if (!file_absolute_path.startsWith(base_absolute_path)) {
       qWarning() << QString(
                         "Entry '%1' is not in the scope of base path '%2'. "
                         "Could not add entry to zip archive")
-                        .arg(fileAbsolutePath)
-                        .arg(baseAbsolutePath);
+                        .arg(file_absolute_path)
+                        .arg(base_absolute_path);
       continue;
     }
 
-    QString fileRelativePath =
-        fileAbsolutePath.remove(0, baseAbsolutePath.length());
+    QString file_relative_path =
+        file_absolute_path.remove(0, base_absolute_path.length());
 
     if (fileInfo.isDir()) {  // ENTRY IS A FOLDER
-      if (!fileRelativePath.endsWith("/")) {
-        fileRelativePath.append("/");
+      if (!file_relative_path.endsWith("/")) {
+        file_relative_path.append("/");
       }
 
-      if (!outZipFile.open(QIODevice::WriteOnly,
-                           QuaZipNewInfo(fileRelativePath, fileAbsolutePath))) {
+      if (!out_zip_file.open(QIODevice::WriteOnly,
+                           QuaZipNewInfo(file_relative_path, file_absolute_path))) {
         qWarning() << QString("Entry '%1' could not be added to zip archive")
-                          .arg(fileAbsolutePath);
+                          .arg(file_absolute_path);
         continue;
       }
 
-      outZipFile.close();
+      out_zip_file.close();
     } else {  // ENTRY IS A FILE
-      QFile inFile(fileAbsolutePath);
-      if (!inFile.open(QIODevice::ReadOnly)) {
+      QFile in_file(file_absolute_path);
+      if (!in_file.open(QIODevice::ReadOnly)) {
         qWarning() << QString(
                           "Could not open file '%1'. File was not added to zip "
                           "archive")
-                          .arg(fileAbsolutePath);
+                          .arg(file_absolute_path);
         continue;
       }
 
-      if (!outZipFile.open(QIODevice::WriteOnly,
-                           QuaZipNewInfo(fileRelativePath, fileAbsolutePath))) {
+      if (!out_zip_file.open(QIODevice::WriteOnly,
+                           QuaZipNewInfo(file_relative_path, file_absolute_path))) {
         qWarning() << QString("Entry '%1' could not be added to zip archive")
-                          .arg(fileAbsolutePath);
-        inFile.close();
+                          .arg(file_absolute_path);
+        in_file.close();
         continue;
       }
 
       qDebug() << QString(
                       "Adding entry '%1' with source path '%2' to archive...")
-                      .arg(fileRelativePath)
-                      .arg(fileAbsolutePath);
+                      .arg(file_relative_path)
+                      .arg(file_absolute_path);
 
       /* writing file to zip archive */
       QByteArray buffer;
       int chunksize = 256;
-      buffer = inFile.read(chunksize);
+      buffer = in_file.read(chunksize);
       while (!buffer.isEmpty()) {
-        outZipFile.write(buffer);
-        buffer = inFile.read(chunksize);
+        out_zip_file.write(buffer);
+        buffer = in_file.read(chunksize);
       }
 
-      outZipFile.close();
-      inFile.close();
+      out_zip_file.close();
+      in_file.close();
     }
   }
 
@@ -181,54 +181,54 @@ bool FileUtils::zipFiles(QString zipArchivePath, QString baseDirPath,
 /// \brief Extracts all file entries from the zip archive file to a specfied
 /// destination directory.
 ///
-/// \param zipArchivePath Relative or absolute path to the zip archive file
-/// \param destDirPath Relative or absolute path to the destination directory
+/// \param _zip_archive_path Relative or absolute path to the zip archive file
+/// \param _dest_dir_path Relative or absolute path to the destination directory
 ///
 /// \return true if the extraction was successful, false otherwise
 ///
-bool FileUtils::unzipFiles(QString zipArchivePath, QString destDirPath) {
-  QFileInfo archiveFileInfo(zipArchivePath);
-  if (!archiveFileInfo.exists()) {
+bool FileUtils::unzipFiles(QString _zip_archive_path, QString _dest_dir_path) {
+  QFileInfo archive_file_info(_zip_archive_path);
+  if (!archive_file_info.exists()) {
     qCritical() << QString("The archive '%1' does not exist. Could not unzip.")
-                       .arg(zipArchivePath);
+                       .arg(_zip_archive_path);
     return false;
   }
 
   /* check zip archive content */
-  QStringList archiveFilesList = getZipEntries(zipArchivePath);
-  if (archiveFilesList.isEmpty()) {
+  QStringList archive_files_list = getZipEntries(_zip_archive_path);
+  if (archive_files_list.isEmpty()) {
     qWarning() << QString("Archive '%1' is empty, nothing to extract")
-                      .arg(zipArchivePath);
+                      .arg(_zip_archive_path);
     return true;
   }
 
-  QDir destDir(destDirPath);
-  if (!destDir.exists()) {
+  QDir dest_dir(_dest_dir_path);
+  if (!dest_dir.exists()) {
     qCritical() << QString("Destination directory '%1' does not exist")
-                       .arg(destDirPath);
+                       .arg(_dest_dir_path);
     return false;
   }
 
-  QString destDirAbsolutePath = destDir.absolutePath();
-  QStringList extractedFilesList =
-      JlCompress::extractDir(zipArchivePath, destDirAbsolutePath);
+  QString dest_dir_absolute_path = dest_dir.absolutePath();
+  QStringList extracted_files_list =
+      JlCompress::extractDir(_zip_archive_path, dest_dir_absolute_path);
 
-  if (extractedFilesList.isEmpty()) {
+  if (extracted_files_list.isEmpty()) {
     qCritical() << QString("Extraction failed for the archive '%1'.")
-                       .arg(zipArchivePath);
+                       .arg(_zip_archive_path);
     return false;
   }
 
-  int archiveEntriesNb = archiveFilesList.size();
-  int extractedEntriesNb = extractedFilesList.size();
+  int archive_entries_nb = archive_files_list.size();
+  int extracted_entries_nb = extracted_files_list.size();
 
-  if (extractedEntriesNb != archiveEntriesNb) {
+  if (extracted_entries_nb != archive_entries_nb) {
     qCritical() << QString(
                        "The archive '%1' contains %2 entries, but %3 were "
                        "actually extracted")
-                       .arg(zipArchivePath)
-                       .arg(archiveEntriesNb)
-                       .arg(extractedEntriesNb);
+                       .arg(_zip_archive_path)
+                       .arg(archive_entries_nb)
+                       .arg(extracted_entries_nb);
     return false;
   }
 
@@ -237,66 +237,66 @@ bool FileUtils::unzipFiles(QString zipArchivePath, QString destDirPath) {
 
 /// \brief Retrieves the list of entries for a zip archive.
 ///
-/// \param zipArchivePath Relative or absolute path to the zip archive file
+/// \param _zip_archive_path Relative or absolute path to the zip archive file
 ///
 /// \return the list of entries
 ///
-QStringList FileUtils::getZipEntries(QString zipArchivePath) {
-  QStringList fileList;
+QStringList FileUtils::getZipEntries(QString _zip_archive_path) {
+  QStringList file_list;
 
-  QFileInfo archiveFileInfo(zipArchivePath);
-  if (!archiveFileInfo.exists()) {
+  QFileInfo archive_file_info(_zip_archive_path);
+  if (!archive_file_info.exists()) {
     qCritical() << QString("The archive '%1' does not exist. Could not unzip.")
-                       .arg(zipArchivePath);
-    return fileList;  // empty list
+                       .arg(_zip_archive_path);
+    return file_list;  // empty list
   }
 
-  fileList = JlCompress::getFileList(zipArchivePath);
-  return fileList;
+  file_list = JlCompress::getFileList(_zip_archive_path);
+  return file_list;
 }
 
 ///
 /// \brief Checks wether 2 files are identical by comparing their respective MD5
 /// signature.
 ///
-/// \param filePath1 Relative or absolute path to the first file
-/// \param filePath2 Relative or absolute path to the first file
+/// \param _file_path1 Relative or absolute path to the first file
+/// \param _file_path2 Relative or absolute path to the first file
 ///
-/// \return true if files are identical, false otherwise. If filePath1 and
-/// filePath2 point to the same file, the method issues a warning and returns
+/// \return true if files are identical, false otherwise. If _file_path1 and
+/// _file_path2 point to the same file, the method issues a warning and returns
 /// true.
 ///
-bool FileUtils::areFilesIdentical(QString filePath1, QString filePath2) {
-  QFileInfo fileInfo1(filePath1);
-  QFileInfo fileInfo2(filePath2);
+bool FileUtils::areFilesIdentical(QString _file_path1, QString _file_path2) {
+  QFileInfo file_info1(_file_path1);
+  QFileInfo file_info2(_file_path2);
 
-  if (!fileInfo1.exists()) {
+  if (!file_info1.exists()) {
     qCritical()
         << QString("The file '%1' does not exist, impossible to compare files.")
-               .arg(filePath1);
+               .arg(_file_path1);
     return false;
   }
 
-  if (!fileInfo2.exists()) {
+  if (!file_info2.exists()) {
     qCritical()
         << QString("The file '%1' does not exist, impossible to compare files.")
-               .arg(filePath2);
+               .arg(_file_path2);
     return false;
   }
 
-  if (fileInfo2 == fileInfo1) {
-    qWarning() << QString("Trying compare file '%1' to itself").arg(filePath1);
+  if (file_info2 == file_info1) {
+    qWarning() << QString("Trying compare file '%1' to itself").arg(_file_path1);
     return true;
   }
 
-  QFile file1(filePath1);
-  QFile file2(filePath2);
+  QFile file1(_file_path1);
+  QFile file2(_file_path2);
 
   if (!file1.open(QIODevice::ReadOnly)) {
     qCritical() << QString(
                        "The file '%1' could not be opened, impossible to "
                        "compare files.")
-                       .arg(filePath1);
+                       .arg(_file_path1);
     return false;
   }
 
@@ -304,53 +304,53 @@ bool FileUtils::areFilesIdentical(QString filePath1, QString filePath2) {
     qCritical() << QString(
                        "The file '%1' could not be opened, impossible to "
                        "compare files.")
-                       .arg(filePath2);
+                       .arg(_file_path2);
     return false;
   }
 
-  QByteArray file1Data = file1.readAll();
-  QByteArray file1Hash =
-      QCryptographicHash::hash(file1Data, QCryptographicHash::Md5);
+  QByteArray file1_data = file1.readAll();
+  QByteArray file1_hash =
+      QCryptographicHash::hash(file1_data, QCryptographicHash::Md5);
   file1.close();
 
-  QByteArray file2Data = file2.readAll();
-  QByteArray file2Hash =
-      QCryptographicHash::hash(file2Data, QCryptographicHash::Md5);
+  QByteArray file2_data = file2.readAll();
+  QByteArray file2_hash =
+      QCryptographicHash::hash(file2_data, QCryptographicHash::Md5);
   file2.close();
 
-  bool filesAreIdentical = (file2Hash == file1Hash);
-  return filesAreIdentical;
+  bool files_are_identical = (file2_hash == file1_hash);
+  return files_are_identical;
 }
 
 ///
 /// \brief FileUtils::readPropertiesFile Parses a properties file to extract
-/// key/value pairs. \param propFilePath Relative or absolute path to the
+/// key/value pairs. \param _prop_file_path Relative or absolute path to the
 /// properties file \return the collection of key/value pairs
 ///
-QMap<QString, QString> FileUtils::readPropertiesFile(QString propFilePath) {
-  QFile propFile(propFilePath);
+QMap<QString, QString> FileUtils::readPropertiesFile(QString _prop_file_path) {
+  QFile prop_file(_prop_file_path);
   QMap<QString, QString> properties;
 
-  if (!propFile.exists()) {
+  if (!prop_file.exists()) {
     qCritical()
         << QString("The file '%1' does not exist, could not load properties")
-               .arg(propFilePath);
+               .arg(_prop_file_path);
     return properties;
   }
 
-  if (!propFile.open(QIODevice::ReadOnly)) {
+  if (!prop_file.open(QIODevice::ReadOnly)) {
     qCritical()
         << QString(
                "I/O error while opening file '%1', could not load properties")
-               .arg(propFilePath);
+               .arg(_prop_file_path);
     return properties;
   }
 
-  QString resolvedPropDefPattern =
+  QString resolved_prop_def_pattern =
       QString(PROPERTY_DEFINITION_PATTERN).arg(PROPERTY_NAME_PATTERN);
-  QRegExp propDefRex(resolvedPropDefPattern);
+  QRegExp prop_def_rex(resolved_prop_def_pattern);
 
-  QTextStream in(&propFile);
+  QTextStream in(&prop_file);
   while (!in.atEnd()) {
     QString line = in.readLine().trimmed();
 
@@ -363,7 +363,7 @@ QMap<QString, QString> FileUtils::readPropertiesFile(QString propFilePath) {
       continue;
     }
 
-    if (!propDefRex.exactMatch(line)) {
+    if (!prop_def_rex.exactMatch(line)) {
       qWarning() << QString(
                         "Line does not match property definition pattern and "
                         "will be ignored :\n%1")
@@ -392,22 +392,22 @@ QMap<QString, QString> FileUtils::readPropertiesFile(QString propFilePath) {
     properties.insert(key, value);
   }
 
-  propFile.close();
+  prop_file.close();
 
   return properties;
 }
 
-bool FileUtils::createTempDirectory(QString& tempDirPath, QString prefix) {
+bool FileUtils::createTempDirectory(QString& _temp_dir_path, QString _prefix) {
   qDebug() << "Creating new temp directories...";
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-  QString tempRootLocation =
+  QString temp_root_location =
       QStandardPaths::writableLocation(QStandardPaths::TempLocation);
 #else
   QString tempRootLocation =
       QDesktopServices::storageLocation(QDesktopServices::TempLocation);
 #endif
-  QString timestampFormat = QString(TEMP_DIR_TEMPLATE_FORMAT).arg(prefix);
+  QString timestamp_format = QString(TEMP_DIR_TEMPLATE_FORMAT).arg(_prefix);
 
   bool done = false;
   int trials = 0;
@@ -418,29 +418,29 @@ bool FileUtils::createTempDirectory(QString& tempDirPath, QString prefix) {
     }
 
     QDateTime now = QDateTime::currentDateTime();
-    QString timestamp = now.toString(timestampFormat);
-    QString tempDirAttemptPath =
-        tempRootLocation + QDir::separator() + timestamp;
+    QString timestamp = now.toString(timestamp_format);
+    QString temp_dir_attempt_path =
+        temp_root_location + QDir::separator() + timestamp;
 
-    QDir tempDir(tempDirAttemptPath);
-    if (tempDir.exists()) {
+    QDir temp_dir(temp_dir_attempt_path);
+    if (temp_dir.exists()) {
       qWarning() << QString("The temp directory '%1' already exists")
-                        .arg(tempDirAttemptPath);
+                        .arg(temp_dir_attempt_path);
       QThread::currentThread()->wait(
           2);  // wait 2ms to ensure that next timestamp is different
       trials++;
       continue;
     }
 
-    bool created = tempDir.mkpath(".");
+    bool created = temp_dir.mkpath(".");
     if (!created) {
       qWarning() << QString("Could not create temp directory '%1'")
-                        .arg(tempDirAttemptPath);
+                        .arg(temp_dir_attempt_path);
       trials++;
       continue;
     }
 
-    tempDirPath = tempDirAttemptPath;
+    _temp_dir_path = temp_dir_attempt_path;
     done = true;
   }
 
@@ -452,30 +452,30 @@ bool FileUtils::createTempDirectory(QString& tempDirPath, QString prefix) {
   }
 }
 
-void FileUtils::removeAllTempDirectories(QString prefix) {
+void FileUtils::removeAllTempDirectories(QString _prefix) {
   qDebug() << "Removing all temp directories...";
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-  QString tempRootLocation =
+  QString temp_root_location =
       QStandardPaths::writableLocation(QStandardPaths::TempLocation);
 #else
   QString tempRootLocation =
       QDesktopServices::storageLocation(QDesktopServices::TempLocation);
 #endif
-  QDir tempRootDir(tempRootLocation);
+  QDir temp_root_dir(temp_root_location);
 
-  QString nameFilter = prefix + "*";
+  QString name_filter = _prefix + "*";
   QStringList filters;
-  filters << nameFilter;
+  filters << name_filter;
 
-  QStringList entries = tempRootDir.entryList(filters, QDir::Dirs, QDir::Name);
+  QStringList entries = temp_root_dir.entryList(filters, QDir::Dirs, QDir::Name);
 
   foreach (QString entry, entries) {
-    QString tempDirPath = tempRootLocation + "/" + entry;
-    bool removed = removeDir(tempDirPath);
+    QString temp_dir_path = temp_root_location + "/" + entry;
+    bool removed = removeDir(temp_dir_path);
     if (!removed) {
       qWarning()
-          << QString("Could not remove temp directory '%1'").arg(tempDirPath);
+          << QString("Could not remove temp directory '%1'").arg(temp_dir_path);
     }
   }
 }

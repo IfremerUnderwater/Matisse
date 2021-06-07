@@ -1808,13 +1808,13 @@ void MainGui::executeImportWorkflow(bool isJobImportAction) {
 
         /* Comparing remote and local Matisse versions */
 
-        if (comparisonStatus->matisseCompared()._versionCompare == DIFFERENT) {
+        if (comparisonStatus->matisseCompared().m_version_compare == DIFFERENT) {
             QMessageBox::critical(this, importFailedTitle, tr("Distant and local Matisse version couldn't be compared.\n").append(operationFailedMessage));
             return;
-        } else if (comparisonStatus->matisseCompared()._versionCompare == NEWER) {
+        } else if (comparisonStatus->matisseCompared().m_version_compare == NEWER) {
             QMessageBox::critical(this, importFailedTitle, tr("Archive comes from newer Matisse version than this one.\n").append(operationFailedMessage));
             return;
-        } else if (comparisonStatus->matisseCompared()._versionCompare == OLDER) {
+        } else if (comparisonStatus->matisseCompared().m_version_compare == OLDER) {
             if (QMessageBox::No == QMessageBox::question(
                         this,
                         importTitle,

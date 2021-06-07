@@ -23,8 +23,8 @@ public:
     void inspectOsAndEnvVariables();
 
 private:
-    QList<PlatformComponent*> _components;
-    PlatformDump *_dump;
+    QList<PlatformComponent*> m_components;
+    PlatformDump *m_dump;
 };
 
 } // namespace system_tools

@@ -13,27 +13,27 @@ public:
     ~PlatformDump();
 
     QString getOsName() const;
-    void setOsName(const QString &value);
+    void setOsName(const QString &_value);
 
     QString getOsVersion() const;
-    void setOsVersion(const QString &value);
+    void setOsVersion(const QString &_value);
 
     QString getEnvVariables() const;
-    void setEnvVariables(const QString &value);
+    void setEnvVariables(const QString &_value);
 
-    void addComponentInfo(QString componentName, QString componentVersion);
+    void addComponentInfo(QString _component_name, QString _component_version);
 
     QMap<QString, QString> *getComponentsInfo() const;
 
     QString getMatisseVersion() const;
-    void setMatisseVersion(const QString &matisseVersion);
+    void setMatisseVersion(const QString &_matisse_version);
 
 private:
-    QMap<QString, QString> *_componentsInfo;
-    QString _matisseVersion;
-    QString _osName;
-    QString _osVersion;
-    QString _envVariables;
+    QMap<QString, QString> *m_components_info;
+    QString m_matisse_version;
+    QString m_os_name;
+    QString m_os_version;
+    QString m_env_variables;
 };
 
 } // namespace system_tools

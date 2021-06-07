@@ -16,11 +16,12 @@ public:
     PlatformComparator();
     ~PlatformComparator();
 
-    PlatformComparisonStatus *compare(PlatformDump *localPlatform, PlatformDump *remotePlatform);
+    PlatformComparisonStatus *compare(PlatformDump *_local_platform, PlatformDump *_remote_platform);
 
 private:
-    PlatformComparisonStatus *_status;
-    void compareElementVersions(QString localVersion, QString remoteVersion, PlatformElementCompare &versionCompare);
+    void compareElementVersions(QString _local_version, QString _remote_version, PlatformElementCompare &_version_compare);
+
+    PlatformComparisonStatus *m_status;
 };
 
 } // namespace system_tools

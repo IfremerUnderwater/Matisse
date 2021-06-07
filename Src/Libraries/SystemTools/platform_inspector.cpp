@@ -6,17 +6,17 @@
 namespace system_tools {
 
 PlatformInspector::PlatformInspector() :
-    _dump(NULL)
-{    
+    m_dump(NULL)
+{
 }
 
 PlatformInspector::~PlatformInspector()
 {
-    if (_dump) {
-        delete _dump;
+    if (m_dump) {
+        delete m_dump;
 
-        foreach (PlatformComponent *comp, _components) {
-            _components.removeOne(comp);
+        foreach (PlatformComponent *comp, m_components) {
+            m_components.removeOne(comp);
             delete comp;
         }
     }
@@ -24,12 +24,12 @@ PlatformInspector::~PlatformInspector()
 
 void PlatformInspector::init()
 {
-    if (!_dump) {
-        _dump = new PlatformDump();
+    if (!m_dump) {
+        m_dump = new PlatformDump();
 
         //_components.append(new PlatformQGisComponent());
-        _components.append(new PlatformOpencvComponent());
-        _components.append(new PlatformOsgComponent());
+        m_components.append(new PlatformOpencvComponent());
+        m_components.append(new PlatformOsgComponent());
     }
 }
 
@@ -38,21 +38,21 @@ void PlatformInspector::inspect()
     inspectOsAndEnvVariables();
 
     /* Retrieving information version for each component */
-    foreach (PlatformComponent *comp, _components) {
-        QString compName = comp->getName();
-        QString compVersion = comp->getVersionInfo();
-        _dump->addComponentInfo(compName, compVersion);
+    foreach (PlatformComponent *comp, m_components) {
+        QString comp_name = comp->getName();
+        QString comp_version = comp->getVersionInfo();
+        m_dump->addComponentInfo(comp_name, comp_version);
     }
 }
 
 void PlatformInspector::inspectOsAndEnvVariables()
 {
-    QString osName = "Unknown";
-    QString osVersion = "N/A";
-    QString envVariables = "";
+    QString os_name = "Unknown";
+    QString os_version = "N/A";
+    QString env_variables = "";
 
-    QString versionCommand = "";
-    QString envVarCommand = "";
+    QString version_command = "";
+    QString env_var_command = "";
 
     /* Resolving shell commands according to OS */
 #ifdef Q_OS_WIN
@@ -60,9 +60,9 @@ void PlatformInspector::inspectOsAndEnvVariables()
     versionCommand = "cmd /C ver"; // opening Windows console displays OS version
     envVarCommand = "cmd /C set";
 #elif defined(Q_OS_LINUX)
-    osName = "Linux";
-    versionCommand = "/bin/sh -c \"uname -sor\"";
-    envVarCommand = "/bin/sh -c \"env\"";
+    os_name = "Linux";
+    version_command = "/bin/sh -c \"uname -sor\"";
+    env_var_command = "/bin/sh -c \"env\"";
 #elif defined(Q_OS_DARWIN) // Mac
     osName = "Mac OS";
     versionCommand = "/bin/sh -c \"sw_vers -productVersion\"";
@@ -71,48 +71,48 @@ void PlatformInspector::inspectOsAndEnvVariables()
     QWarning() << "Unhandled OS : cannot retrive version information";
 #endif
 
-    if (!versionCommand.isEmpty()) {
+    if (!version_command.isEmpty()) {
         qDebug() << "Inspecting OS version...";
         QProcess cmd;
-        cmd.start(versionCommand);
+        cmd.start(version_command);
         cmd.waitForBytesWritten(100);
         /* sequence avoids QProcess warning display */
         if (!cmd.waitForFinished(100)) {
             cmd.kill();
             cmd.waitForFinished(1);
         }
-        QString cmdOut = cmd.readAllStandardOutput();
-        QStringList cmdOutLines = cmdOut.split("\n");
+        QString cmd_out = cmd.readAllStandardOutput();
+        QStringList cmd_out_lines = cmd_out.split("\n");
         // Take the first non empty line
-        foreach (QString cmdOutLine, cmdOutLines) {
+        foreach (QString cmdOutLine, cmd_out_lines) {
             if (!cmdOutLine.trimmed().isEmpty()) {
-                osVersion = cmdOutLine.simplified();
+                os_version = cmdOutLine.simplified();
             }
         }
     }
 
-    if (!envVarCommand.isEmpty()) {
+    if (!env_var_command.isEmpty()) {
         qDebug() << "Inspecting environment variables...";
         QProcess cmd;
-        cmd.start(envVarCommand);
+        cmd.start(env_var_command);
         /* sequence avoids QProcess warning display */
         cmd.waitForBytesWritten(100);
         if (!cmd.waitForFinished(100)) {
             cmd.kill();
             cmd.waitForFinished(1);
         }
-        QString cmdOut = cmd.readAllStandardOutput();
-        envVariables = cmdOut;
+        QString cmd_out = cmd.readAllStandardOutput();
+        env_variables = cmd_out;
     }
 
-    _dump->setOsName(osName);
-    _dump->setOsVersion(osVersion);
-    _dump->setEnvVariables(envVariables);
+    m_dump->setOsName(os_name);
+    m_dump->setOsVersion(os_version);
+    m_dump->setEnvVariables(env_variables);
 }
 
 PlatformDump *PlatformInspector::getDump() const
 {
-    return _dump;
+    return m_dump;
 }
 
 } // namespace system_tools

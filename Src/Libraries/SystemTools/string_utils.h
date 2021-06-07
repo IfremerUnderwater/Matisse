@@ -19,8 +19,8 @@ namespace system_tools {
 class StringUtils
 {
 public:
-    static QString substitutePlaceHolders(QString source, QMap<QString,QString> properties,
-                                          QString placeHolderPattern = QString(PLACEHOLDER_PATTERN_DEFAULT));
+    static QString substitutePlaceHolders(QString _source, QMap<QString,QString> _properties,
+                                          QString _place_holder_pattern = QString(PLACEHOLDER_PATTERN_DEFAULT));
 };
 
 } // namespace system_tools
