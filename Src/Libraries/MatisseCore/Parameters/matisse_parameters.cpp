@@ -2,55 +2,55 @@
 
 namespace matisse {
 
-QRegExp MatisseParameters::_boolRegExpTrue("^(true|1)$");
-QRegExp MatisseParameters::_boolRegExpFalse("^(false|0)$");
+QRegExp MatisseParameters::m_bool_reg_exp_true("^(true|1)$");
+QRegExp MatisseParameters::m_bool_reg_exp_false("^(false|0)$");
 
-MatisseParameters::MatisseParameters(QString xmlFilename)
-    : pFileInfo(NULL)
+MatisseParameters::MatisseParameters(QString _xml_filename)
+    : m_p_file_info(NULL)
 {
-    _lastErrorStr = "";
-    if (xmlFilename.trimmed() != "") {
-        loadFile(xmlFilename);
+    m_last_error_str = "";
+    if (_xml_filename.trimmed() != "") {
+        loadFile(_xml_filename);
     }
 }
 
 MatisseParameters::~MatisseParameters()
 {
-    if (pFileInfo!=NULL)
-        delete pFileInfo;
+    if (m_p_file_info!=NULL)
+        delete m_p_file_info;
 }
 
-bool MatisseParameters::loadFile(QString xmlFilename)
+bool MatisseParameters::loadFile(QString _xml_filename)
 {
-    _hashValues.clear();
+    m_hash_values.clear();
 
-    xmlFilename = xmlFilename.simplified().trimmed();
-    if (xmlFilename == "") {
-        _lastErrorStr = "Xml file not defined";
+    _xml_filename = _xml_filename.simplified().trimmed();
+    if (_xml_filename == "") {
+        m_last_error_str = "Xml file not defined";
         qCritical() << "Empty file name";
         return false;
     }
 
-    QFile inputFile(xmlFilename);
-    pFileInfo = new QFileInfo(inputFile);
-    if (!inputFile.exists()) {
-        _lastErrorStr = "File " + xmlFilename + " not found.";
-        qCritical() << QString("Parameters file '%1' not found").arg(xmlFilename);
+    QFile input_file(_xml_filename);
+    m_p_file_info = new QFileInfo(input_file);
+    if (!input_file.exists()) {
+        m_last_error_str = "File " + _xml_filename + " not found.";
+        qCritical() << QString("Parameters file '%1' not found").arg(_xml_filename);
         return false;
     }
 
-    if (!inputFile.open(QIODevice::ReadOnly)) {
-        _lastErrorStr = "Cannot open file " + xmlFilename + ".";
-        qCritical() << QString("Parameters file '%1' could not be opened").arg(xmlFilename);
+    if (!input_file.open(QIODevice::ReadOnly)) {
+        m_last_error_str = "Cannot open file " + _xml_filename + ".";
+        qCritical() << QString("Parameters file '%1' could not be opened").arg(_xml_filename);
         return false;
     }
 
-    QXmlStreamReader reader(&inputFile);
+    QXmlStreamReader reader(&input_file);
 
     int level = -99; //-99: pas de fichier mosaic 0: avant debut fichier, 1: avant debut struct, 2: avant debut var, 3: avant debut val
     //    bool start = true;
-    QString structName;
-    QString paramName;
+    QString struct_name;
+    QString param_name;
     bool ok = true;
     while (!reader.atEnd()) {
         QXmlStreamReader::TokenType type = reader.readNext();
@@ -66,22 +66,22 @@ bool MatisseParameters::loadFile(QString xmlFilename)
                 case 1: {
                     // on ajoute une structure...
                     QXmlStreamAttributes attributes = reader.attributes();
-                    structName = attributes.value("name").toString();
-                    _hashValues.insert(structName,QHash<QString, QString>());
+                    struct_name = attributes.value("name").toString();
+                    m_hash_values.insert(struct_name,QHash<QString, QString>());
                     level = 2;
                 }
                     break;
                 case 2: {
                     // on defini un parametre
                     QXmlStreamAttributes attributes = reader.attributes();
-                    paramName = attributes.value("name").toString();
-                    _hashValues[structName].insert(paramName, ""); // allow empty param to be added
+                    param_name = attributes.value("name").toString();
+                    m_hash_values[struct_name].insert(param_name, ""); // allow empty param to be added
                     level = 3;
                 }
                     break;
                 default: {
                     // on ne doit pas se trouver là...
-                    _lastErrorStr = "XML file not compliant: start element found where value element expected";
+                    m_last_error_str = "XML file not compliant: start element found where value element expected";
                     ok = false;
                 }
                     break;
@@ -98,11 +98,11 @@ bool MatisseParameters::loadFile(QString xmlFilename)
                 // on ajoute une virgule entre les valeurs
                 // si autre cas, on traitera le moment venu...
                 QString value = reader.text().toString();
-                QString oldValue = "";
-                if (!_hashValues[structName].value(paramName, "").isEmpty()) {
-                    oldValue = _hashValues[structName].value(paramName, "") + ", ";
+                QString old_value = "";
+                if (!m_hash_values[struct_name].value(param_name, "").isEmpty()) {
+                    old_value = m_hash_values[struct_name].value(param_name, "") + ", ";
                 }
-                _hashValues[structName].insert(paramName, oldValue + value);
+                m_hash_values[struct_name].insert(param_name, old_value + value);
             }
                 break;
             default: {
@@ -131,7 +131,7 @@ bool MatisseParameters::loadFile(QString xmlFilename)
 
             default: {
                 qWarning() << QString("Unknown tag type '%1' found while parsing parameters value").arg(type);
-                _lastErrorStr = "XML file not compliant: format error";
+                m_last_error_str = "XML file not compliant: format error";
                 ok = false;
             }
                 break;
@@ -139,30 +139,30 @@ bool MatisseParameters::loadFile(QString xmlFilename)
 
     }
 
-    inputFile.close();
+    input_file.close();
 
     return ok;
 }
 
 QFileInfo *MatisseParameters::getXmlFileInfo()
 {
-    return pFileInfo;
+    return m_p_file_info;
 }
 
 QString MatisseParameters::lastErrorStr()
 {
-    return _lastErrorStr;
+    return m_last_error_str;
 }
 
 QString MatisseParameters::dumpStructures()
 {
     QString dump;
 
-    foreach(QString structName, _hashValues.keys()) {
+    foreach(QString structName, m_hash_values.keys()) {
         dump.append("Structure :" + structName + "\n");
-        QHash<QString, QString> params = _hashValues.value(structName);
-        foreach(QString paramName, params.keys()) {
-            dump.append("\t\tParam:" + paramName + ": " + params.value(paramName) + "\n");
+        QHash<QString, QString> params = m_hash_values.value(structName);
+        foreach(QString param_name, params.keys()) {
+            dump.append("\t\tParam:" + param_name + ": " + params.value(param_name) + "\n");
         }
         dump.append("\n");
     }
@@ -170,11 +170,11 @@ QString MatisseParameters::dumpStructures()
     return dump;
 }
 
-bool MatisseParameters::containsParam(QString paramStructName, QString paramName)
+bool MatisseParameters::containsParam(QString _param_struct_name, QString _param_name)
 {
-    if (_hashValues.find(paramStructName) != _hashValues.end()) {
-        QHash<QString, QString> params = _hashValues.value(paramStructName);
-        if (params.find(paramName) != params.end()) {
+    if (m_hash_values.find(_param_struct_name) != m_hash_values.end()) {
+        QHash<QString, QString> params = m_hash_values.value(_param_struct_name);
+        if (params.find(_param_name) != params.end()) {
             return true;
         }
     }
@@ -182,109 +182,109 @@ bool MatisseParameters::containsParam(QString paramStructName, QString paramName
 
 }
 
-qint64 MatisseParameters::getIntParamValue(QString paramStructName, QString paramName, bool &ok)
+qint64 MatisseParameters::getIntParamValue(QString _param_struct_name, QString _param_name, bool &_ok)
 {
-    ok=true;
-    QString valueStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"").trimmed();
+    _ok=true;
+    QString value_str = m_hash_values.value(_param_struct_name,QHash<QString,QString>()).value(_param_name,"").trimmed();
 
     qint64 value;
-    ok = true;
-    if (valueStr == "-inf") {
+    _ok = true;
+    if (value_str == "-inf") {
         value=-1 * InfInt;
-    } else if (valueStr == "inf") {
+    } else if (value_str == "inf") {
         value=InfInt;
     } else {
-        value=valueStr.toLongLong(&ok);
+        value=value_str.toLongLong(&_ok);
     }
     return value;
 
 }
 
-bool MatisseParameters::getBoolParamValue(QString paramStructName, QString paramName, bool &ok)
+bool MatisseParameters::getBoolParamValue(QString _param_struct_name, QString _param_name, bool &_ok)
 {
-    QString valueStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"").trimmed().toLower();
+    QString value_str = m_hash_values.value(_param_struct_name,QHash<QString,QString>()).value(_param_name,"").trimmed().toLower();
 
-    bool retValue = false;
+    bool ret_value = false;
 
-    if (_boolRegExpTrue.exactMatch(valueStr)) {
-        retValue = true;
-        ok = true;
-    } else if (_boolRegExpFalse.exactMatch(valueStr)) {
-        ok = true;
+    if (m_bool_reg_exp_true.exactMatch(value_str)) {
+        ret_value = true;
+        _ok = true;
+    } else if (m_bool_reg_exp_false.exactMatch(value_str)) {
+        _ok = true;
     } else {
-        ok = false;
+        _ok = false;
     }
 
-    return retValue;
+    return ret_value;
 }
 
-double MatisseParameters::getDoubleParamValue(QString paramStructName, QString paramName, bool &ok)
+double MatisseParameters::getDoubleParamValue(QString _param_struct_name, QString _param_name, bool &_ok)
 {
-    ok=true;
-    QString valueStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"").trimmed();
+    _ok = true;
+    QString value_str = m_hash_values.value(_param_struct_name,QHash<QString,QString>()).value(_param_name,"").trimmed();
     double value;
-    ok = true;
-    if (valueStr == "-inf") {
+    _ok = true;
+    if (value_str == "-inf") {
         value=-1 * InfDouble;
-    } else if (valueStr == "inf") {
+    } else if (value_str == "inf") {
         value=InfDouble;
     } else {
-        value=valueStr.toDouble(&ok);
+        value=value_str.toDouble(&_ok);
     }
     return value;
 }
 
-QString MatisseParameters::getStringParamValue(QString paramStructName, QString paramName)
+QString MatisseParameters::getStringParamValue(QString _param_struct_name, QString _param_name)
 {
-    QString value = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"");
+    QString value = m_hash_values.value(_param_struct_name,QHash<QString,QString>()).value(_param_name,"");
 
     return value;
 }
 
-CameraInfo MatisseParameters::getCamInfoParamValue(QString paramStructName, QString paramName, bool &ok)
+CameraInfo MatisseParameters::getCamInfoParamValue(QString _param_struct_name, QString _param_name, bool &_ok)
 {
     CameraInfo cam_info;
 
-    QString valuesStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"");
+    QString values_str = m_hash_values.value(_param_struct_name,QHash<QString,QString>()).value(_param_name,"");
 
-    if( cam_info.fromQString(valuesStr) )
-        ok=true;
+    if( cam_info.fromQString(values_str) )
+        _ok=true;
     else
-        ok=false;
+        _ok=false;
 
     return cam_info;
 }
 
-QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString paramStructName, QString paramName, bool &ok)
+QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString _param_struct_name, QString _param_name, bool &_ok)
 {
     QMatrix3x3 values;
 
-    QString valuesStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"");
+    QString values_str = m_hash_values.value(_param_struct_name,QHash<QString,QString>()).value(_param_name,"");
 
-    QStringList args = valuesStr.split(";");
+    QStringList args = values_str.split(";");
     if (args.size() != 9) {
-        ok = false;
+        _ok = false;
     } else {
         int index = 0;
-        bool locOk;
-        ok = true;
-        for (int noRow = 0; noRow < 3; noRow++) {
-            for (int noCol = 0; noCol < 3; noCol++) {
-                QString valueStr = args.at(index).trimmed();
+        bool loc_ok;
+        _ok = true;
+        for (int no_row = 0; no_row < 3; no_row++) {
+            for (int no_col = 0; no_col < 3; no_col++) {
+                QString value_str = args.at(index).trimmed();
 
                 double value;
-                locOk = true;
-                if (valueStr == "-inf") {
+                loc_ok = true;
+                if (value_str == "-inf") {
                     value=-1 * InfDouble;
-                } else if (valueStr == "inf") {
+                } else if (value_str == "inf") {
                     value=InfDouble;
                 } else {
-                    value=valueStr.toDouble(&locOk);
+                    value=value_str.toDouble(&loc_ok);
                 }
 
 
-                values(noRow, noCol) = value;
-                ok = ok && locOk;
+                values(no_row, no_col) = value;
+                _ok = _ok && loc_ok;
                 index++;
             }
         }
@@ -293,32 +293,32 @@ QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString paramStructName, QS
     return values;
 }
 
-Matrix6x1 MatisseParameters::getMatrix6x1ParamValue(QString paramStructName, QString paramName, bool &ok)
+Matrix6x1 MatisseParameters::getMatrix6x1ParamValue(QString _param_struct_name, QString _param_name, bool &_ok)
 {
     Matrix6x1 values;
-    QString valuesStr = _hashValues.value(paramStructName,QHash<QString,QString>()).value(paramName,"");
+    QString values_str = m_hash_values.value(_param_struct_name,QHash<QString,QString>()).value(_param_name,"");
 
-    QStringList args = valuesStr.split(";");
+    QStringList args = values_str.split(";");
     if (args.size() != 6) {
-        ok = false;
+        _ok = false;
     } else {
         int index = 0;
-        bool locOk;
-        ok = true;
-        for (int noCol = 0; noCol < 6; noCol++) {
-            QString valueStr = args.at(index).trimmed();
+        bool loc_ok;
+        _ok = true;
+        for (int no_col = 0; no_col < 6; no_col++) {
+            QString value_str = args.at(index).trimmed();
             double value;
-            locOk = true;
-            if (valueStr == "-inf") {
+            loc_ok = true;
+            if (value_str == "-inf") {
                 value=-1 * InfDouble;
-            } else if (valueStr == "inf") {
+            } else if (value_str == "inf") {
                 value=InfDouble;
             } else {
-                value=valueStr.toDouble(&locOk);
+                value=value_str.toDouble(&loc_ok);
             }
 
-            values(0, noCol) =value;
-            ok = ok && locOk;
+            values(0, no_col) =value;
+            _ok = _ok && loc_ok;
             index++;
         }
      }

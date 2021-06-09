@@ -25,7 +25,7 @@ class InputDataProvider : public QObject, public LifecycleComponent
     Q_INTERFACES(matisse::LifecycleComponent)
 public:
 
-    explicit InputDataProvider(QObject *parent, QString name, QString comment, quint16 outNumber);
+    explicit InputDataProvider(QObject *_parent, QString m_name, QString _comment, quint16 _out_number);
     virtual ~InputDataProvider();
 
 
@@ -40,7 +40,7 @@ public:
     /// \brief Retourne le nombre de port de ce fournisseur.
     /// \return
     ///
-    quint16 outNumber() {return _outNumber;}
+    quint16 outNumber() {return m_out_number;}
 
 
 
@@ -49,32 +49,27 @@ public:
     //
     ///
     /// \brief Retourne l'ImageSet associé à un port de sortie
-    /// \param port
+    /// \param _out_port
     /// \return
     ///
-    virtual ImageSet * imageSet(quint16 outPort) = 0;
+    virtual ImageSet * imageSet(quint16 _out_port) = 0;
     //
     // Methodes à surcharger - FIN
     //
 
 
-    bool isRealTime() const;
-protected:
-    void setIsRealTime(bool isRealTime);
-
 signals:
-    void signal_userInformation(QString userText);
-    void signal_processCompletion(quint8 percentComplete);
-    void signal_showInformationMessage(QString title, QString text);
-    void signal_showErrorMessage(QString title, QString text);
-    void signal_show3DFileOnMainView(QString filepath_p);
-    void signal_addRasterFileToMap(QString filepath_p);
-    void signal_addToLog(QString _loggin_text);
+    void si_userInformation(QString _user_text);
+    void si_processCompletion(quint8 _percent_complete);
+    void si_showInformationMessage(QString _title, QString _text);
+    void si_showErrorMessage(QString _title, QString _text);
+    void si_show3DFileOnMainView(QString _filepath_p);
+    void si_addRasterFileToMap(QString _filepath_p);
+    void si_addToLog(QString _loggin_text);
 
 private:
-    QString _comment;
-    quint16 _outNumber;
-    bool _isRealTime;
+    QString m_comment;
+    quint16 m_out_number;
 
 };
 

@@ -2,15 +2,15 @@
 
 namespace matisse {
 
-IconizedLabelWrapper::IconizedLabelWrapper(QLabel *label) :
-    IconizedWidgetWrapper(label, false),
-    _label(label)
+IconizedLabelWrapper::IconizedLabelWrapper(QLabel *_label) :
+    IconizedWidgetWrapper(_label, false),
+    m_label(_label)
 {
 }
 
-void IconizedLabelWrapper::setPixmap(const QPixmap &pixmap)
+void IconizedLabelWrapper::setPixmap(const QPixmap &_pixmap)
 {
-    _label->setPixmap(pixmap);
+    m_label->setPixmap(_pixmap);
 }
 
 } // namespace matisse

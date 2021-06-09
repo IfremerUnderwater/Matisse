@@ -10,19 +10,19 @@ class FoldUnfoldButton : public QPushButton
     Q_OBJECT
 
 public:
-    FoldUnfoldButton(QWidget *parent=0);
+    FoldUnfoldButton(QWidget *_parent=0);
 
     bool getIsUnfolded() const;
-    void setIsUnfolded(bool isUnfolded);
+    void setIsUnfolded(bool _is_unfolded);
 
 protected:
     virtual void showNewState() = 0;
 
 public slots:
-    void flip();
+    void sl_flip();
 
 private:
-    bool _isUnfolded;
+    bool m_is_unfolded;
 };
 
 }

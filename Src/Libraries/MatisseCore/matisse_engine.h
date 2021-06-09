@@ -22,7 +22,7 @@
 
 namespace matisse {
 
-enum ApplicationMode {
+enum eApplicationMode {
     PROGRAMMING,
     REAL_TIME,
     POST_PROCESSING,
@@ -34,45 +34,45 @@ class JobTask : public QObject{
     Q_OBJECT
 
 public:
-    explicit JobTask(InputDataProvider *imageProvider, QList<Processor *> processors, OutputDataWriter *rasterProvider , JobDefinition &jobDefinition, MatisseParameters *parameters);
+    explicit JobTask(InputDataProvider *_input_data_provider, QList<Processor *> _processors, OutputDataWriter *_output_data_writer , JobDefinition &_job_definition, MatisseParameters *_parameters);
     virtual ~JobTask();
-    void stop(bool cancel=false);
+    void stop(bool _cancel=false);
     JobDefinition &jobDefinition() const;
 
     QStringList resultFileNames() const;
 
     bool isCancelled() const;
 
-    void setJobLauncher(QObject *jobLauncher);
+    void setJobLauncher(QObject *_job_launcher);
     void setIsServerMode(bool _is_server_mode);
 
 signals:
-    void signal_jobShowImageOnMainView(QString jobName, Image *image);
-    void signal_userInformation(QString userText);
-    void signal_processCompletion(quint8 percentComplete);
-    void signal_jobStopped();
+    void si_jobShowImageOnMainView(QString _job_name, Image *_image);
+    void si_userInformation(QString _user_text);
+    void si_processCompletion(quint8 _percent_complete);
+    void si_jobStopped();
 
 public slots:
-    void slot_start();
-    void slot_stop();
-    void slot_showImageOnMainView(Image *image);
-    void slot_userInformation(QString userText);
-    void slot_processCompletion(quint8 percentComplete);
-    void slot_fatalError();
-    void slot_logToFile(QString _logInfo);
+    void sl_start();
+    void sl_stop();
+    void sl_showImageOnMainView(Image *_image);
+    void sl_userInformation(QString _user_text);
+    void sl_processCompletion(quint8 _percent_complete);
+    void sl_fatalError();
+    void sl_logToFile(QString _log_info);
 
 private:
     QFile* m_user_log_file;
-    QObject* _jobLauncher;
-    Context* _context;
-    InputDataProvider* _imageProvider;
-    QList<Processor*> _processors;
-    OutputDataWriter* _rasterProvider;
-    JobDefinition &_jobDefinition;
-    MatisseParameters *_matParameters;
-    MatisseParameters *_assemblyParameters;
-    QStringList _resultFileNames;
-    volatile bool _isCancelled;
+    QObject* m_job_launcher;
+    Context* m_context;
+    InputDataProvider* m_input_data_provider;
+    QList<Processor*> m_processors;
+    OutputDataWriter* m_output_data_writer;
+    JobDefinition &m_job_definition;
+    MatisseParameters *m_mat_parameters;
+    MatisseParameters *m_assembly_parameters;
+    QStringList m_result_file_names;
+    volatile bool m_is_cancelled;
     bool m_is_server_mode = false;
     bool m_log_file_opened = false;
 };
@@ -82,57 +82,56 @@ class MatisseEngine : public QObject
     Q_OBJECT
 
 public:
-    explicit MatisseEngine(QObject *parent = 0, bool _is_server_mode=false);
+    explicit MatisseEngine(QObject *_parent = 0, bool _is_server_mode=false);
     virtual ~MatisseEngine();
 
-    //bool setSettingsFile(QString settings = "");
     void init();
-    void setJobLauncher(QObject* jobLauncher);
+    void setJobLauncher(QObject* _job_launcher);
 
     QList<Processor*> const getAvailableProcessors();
-    QList<InputDataProvider*> const getAvailableImageProviders();
-    QList<OutputDataWriter*> const getAvailableRasterProviders();
+    QList<InputDataProvider*> const getAvailableInputDataProviders();
+    QList<OutputDataWriter*> const getAvailableOutputDataWriters();
 
-    void addParametersForImageProvider(QString name);
-    void addParametersForProcessor(QString name);
-    void addParametersForRasterProvider(QString name);
+    void addParametersForInputDataProvider(QString _name);
+    void addParametersForProcessor(QString _name);
+    void addParametersForOutputDataWriter(QString _name);
 
-    bool removeModuleAndExpectedParameters(QString name);
+    bool removeModuleAndExpectedParameters(QString _name);
 
-    bool processJob(JobDefinition&  jobDefinition);
+    bool processJob(JobDefinition&  _job_definition);
     bool isProcessingJob();
-    bool stopJob(bool cancel=false);
+    bool stopJob(bool _cancel=false);
     bool errorFlag();
     QString messageStr();
-    MatisseParametersManager * parametersManager() { return _dicoParamMgr; }
+    MatisseParametersManager * parametersManager() { return m_dico_param_mgr; }
 
 signals:
-    void signal_jobShowImageOnMainView(QString jobName, Image *image);
-    void signal_userInformation(QString userText);
-    void signal_processCompletion(quint8 percentComplete);
-    void signal_jobProcessed(QString jobName, bool isCancelled);
+    void si_jobShowImageOnMainView(QString _job_name, Image *_image);
+    void si_userInformation(QString _user_text);
+    void si_processCompletion(quint8 _percent_complete);
+    void si_jobProcessed(QString _job_name, bool _is_cancelled);
 
 private slots:
-    void slot_currentJobProcessed();
+    void sl_currentJobProcessed();
 
 private:
-    MatisseParameters* buildMatisseParameters(JobDefinition &job);
-    bool buildJobTask( AssemblyDefinition &assembly, JobDefinition &jobDefinition, MatisseParameters *matisseParameters);
-    void setMessageStr(QString messageStr = "", bool error = true);
+    MatisseParameters* buildMatisseParameters(JobDefinition &_job);
+    bool buildJobTask( AssemblyDefinition &_assembly, JobDefinition &_job_definition, MatisseParameters *_matisse_parameters);
+    void setMessageStr(QString _message_Str = "", bool _error = true);
     bool loadParametersDictionnary();
 
     bool m_is_server_mode;
-    QObject* _jobLauncher;
-    JobServer *_jobServer;
-    JobTask* _currentJob;
-    QThread* _thread;
-    MatisseParametersManager* _dicoParamMgr;
-    QHash<QString, Processor*> _processors;
-    QHash<QString, InputDataProvider*> _imageProviders;
-    QHash<QString, OutputDataWriter*> _rasterProviders;
-    QHash<QString, QList<MatisseParameter> > _expectedParametersByModule;
-    QString _messageStr;
-    bool _errorFlag;
+    QObject* m_job_launcher;
+    JobServer *m_job_server;
+    JobTask* m_current_job;
+    QThread* m_thread;
+    MatisseParametersManager* m_dico_param_mgr;
+    QHash<QString, Processor*> m_processors;
+    QHash<QString, InputDataProvider*> m_input_data_providers;
+    QHash<QString, OutputDataWriter*> m_output_data_writers;
+    QHash<QString, QList<MatisseParameter> > m_expected_parameters_by_module;
+    QString m_message_str;
+    bool m_error_flag;
 };
 
 } // namespace matisse

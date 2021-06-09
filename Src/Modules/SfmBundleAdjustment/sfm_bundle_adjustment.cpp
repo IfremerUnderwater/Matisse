@@ -105,7 +105,7 @@ void SfmBundleAdjustment::checkForNewFiles()
         QDateTime ply_last_mod = ply_file_info.lastModified();
         if (ply_last_mod > m_start_time && ply_last_mod > m_last_ply_time)
         {
-            emit signal_show3DFileOnMainView(ply_file_info.absoluteFilePath());
+            emit si_show3DFileOnMainView(ply_file_info.absoluteFilePath());
             m_last_ply_time = ply_last_mod;
         }
     }
@@ -381,7 +381,7 @@ bool SfmBundleAdjustment::start()
 
     // Get flags
     bool Ok;
-    m_use_prior = _matisseParameters->getBoolParamValue("dataset_param", "usePrior", Ok);
+    m_use_prior = m_matisse_parameters->getBoolParamValue("dataset_param", "usePrior", Ok);
     if (!Ok)
         m_use_prior = true;
 
@@ -404,7 +404,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
 
     // Log
     QString proc_info = logPrefix() + "Bundle adjustement started\n";
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
 
     QElapsedTimer timer;
     timer.start();
@@ -418,7 +418,7 @@ void SfmBundleAdjustment::onFlush(quint32 port)
         return;
 
     // Get context
-    QVariant *object = _context->getObject("reconstruction_context");
+    QVariant *object = m_context->getObject("reconstruction_context");
     reconstructionContext * rc=nullptr;
     if (object)
         rc = object->value<reconstructionContext*>();
@@ -445,8 +445,8 @@ void SfmBundleAdjustment::onFlush(quint32 port)
             return;
         }
 
-        emit signal_processCompletion(-1); // cannot monitor percentage
-        emit signal_userInformation(QString("Sfm bundle adj %1/%2").arg(i+1).arg(m_matches_files_list.size()));
+        emit si_processCompletion(-1); // cannot monitor percentage
+        emit si_userInformation(QString("Sfm bundle adj %1/%2").arg(i+1).arg(m_matches_files_list.size()));
 
         // Fill out path
         m_out_complete_path_str = absoluteOutputTempDir() + SEP + "ModelPart"+QString("_%1").arg(rc->components_ids[i]);
@@ -456,14 +456,14 @@ void SfmBundleAdjustment::onFlush(quint32 port)
 
         this->checkForNewFiles();
  
-        emit signal_processCompletion(100);
+        emit si_processCompletion(100);
     }
 
     // set format
     rc->current_format = ReconFormat::openMVG;
 
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
 
     // Flush next module port
     flush(0);

@@ -15,22 +15,21 @@ class EnrichedSpinBox : public EnrichedFormWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue);
-//    bool currentValueChanged();
+    explicit EnrichedSpinBox(QWidget *_parent, QString _label, QString _min_value, QString _max_value, QString _default_value);
     virtual QString currentValue();
     virtual void restoreDefaultValue();
 
 protected:
-    virtual void applyValue(QString newValue);
+    virtual void applyValue(QString _new_value);
 
 signals:
 
 public slots:
 
 private:
-    QSpinBox * _spin;
-    qint32 _minValueInt;
-    qint32 _maxValueInt;
+    QSpinBox * m_spin;
+    qint32 m_min_value_int;
+    qint32 m_max_value_int;
 };
 
 } // namespace matisse

@@ -123,21 +123,21 @@ bool Matching3D::computeFeatures()
 {
     static const QString SEP = QDir::separator();
 
-    emit signal_processCompletion(0);
-    emit signal_userInformation("Matching : Compute Features");
+    emit si_processCompletion(0);
+    emit si_userInformation("Matching : Compute Features");
 
     bool ok = true;
-    bool force_recompute = _matisseParameters->getBoolParamValue("algo_param", "force_recompute", ok);
+    bool force_recompute = m_matisse_parameters->getBoolParamValue("algo_param", "force_recompute", ok);
     bool bUpRight = false;
 
     // get nb of threads
     int nbthreads = QThread::idealThreadCount();
 
     // describer method parameter
-    QString methodParamval = _matisseParameters->getStringParamValue("algo_param", "describer_method");
+    QString methodParamval = m_matisse_parameters->getStringParamValue("algo_param", "describer_method");
 
     // describer preset parameter
-    QString presetParamval = _matisseParameters->getStringParamValue("algo_param", "describer_preset");
+    QString presetParamval = m_matisse_parameters->getStringParamValue("algo_param", "describer_preset");
 
     QString sSfM_Data_Filename = absoluteOutputTempDir() + SEP + "matches" + SEP + "sfm_data.bin";
     QString sOutDir = absoluteOutputTempDir() + SEP + "matches";
@@ -351,7 +351,7 @@ bool Matching3D::computeFeatures()
                 }
             }
             ++my_progress_bar;
-            emit signal_processCompletion( (int) (100.0*double(my_progress_bar)/total_count) );
+            emit si_processCompletion( (int) (100.0*double(my_progress_bar)/total_count) );
         }
         std::cout << "Task done in (s): " << timer.elapsed() << std::endl;
     }
@@ -366,7 +366,7 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
     // Dir checks
 
     bool ok = true;
-    bool force_recompute = _matisseParameters->getBoolParamValue("algo_param", "force_recompute", ok);
+    bool force_recompute = m_matisse_parameters->getBoolParamValue("algo_param", "force_recompute", ok);
 
     // get nb of threads
     int nbthreads = QThread::idealThreadCount();
@@ -374,17 +374,17 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
     QString qSfM_Data_Filename = absoluteOutputTempDir() + SEP + "matches" + SEP + "sfm_data.bin";
     QString sOutDir = absoluteOutputTempDir() + SEP + "matches";
 
-    emit signal_userInformation("Match 3D : Compute Matches");
-    emit signal_processCompletion(0);
+    emit si_userInformation("Match 3D : Compute Matches");
+    emit si_processCompletion(0);
 
     // Compute Matches *****************************************************************************************************
  
     // nearest matching method
-    QString nmmParamValue = _matisseParameters->getStringParamValue("algo_param", "nearest_matching_method");
+    QString nmmParamValue = m_matisse_parameters->getStringParamValue("algo_param", "nearest_matching_method");
     
     ok = true;
-    int vmmParamVal = _matisseParameters->getIntParamValue("algo_param", "video_mode_matching", ok);
-    bool video_mode_matching_enable = _matisseParameters->getBoolParamValue("algo_param", "video_mode_matching_enable", ok);
+    int vmmParamVal = m_matisse_parameters->getIntParamValue("algo_param", "video_mode_matching", ok);
+    bool video_mode_matching_enable = m_matisse_parameters->getBoolParamValue("algo_param", "video_mode_matching_enable", ok);
 
     std::string sSfM_Data_Filename = qSfM_Data_Filename.toStdString();
     std::string sMatchesDirectory = sOutDir.toStdString();
@@ -768,8 +768,8 @@ bool Matching3D::computeMatches(EGeometricModel eGeometricModelToCompute)
         }
     }
 
-    emit signal_processCompletion(100);
-    emit signal_userInformation("Match 3D - ended");
+    emit si_processCompletion(100);
+    emit si_userInformation("Match 3D - ended");
 
     return true;
 }
@@ -792,7 +792,7 @@ void Matching3D::onFlush(quint32 port)
 
     // Log
     QString proc_info = logPrefix() + "Features matching started\n";
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
 
     QElapsedTimer timer;
     timer.start();
@@ -804,7 +804,7 @@ void Matching3D::onFlush(quint32 port)
 
     // Log elapsed time
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
 
 
     // Flush next module port

@@ -29,7 +29,7 @@ class CameraCalib:public QObject
 {
     Q_OBJECT
 public:
-    CameraCalib(vector<string>& imagelist, cv::Size board_size, float square_size, QTextEdit *_text_logger);
+    CameraCalib(vector<string>& _imagelist, cv::Size _board_size, float _square_size, QTextEdit *_text_logger);
     void calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _display_corners = false);
 
 private:

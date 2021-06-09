@@ -10,12 +10,12 @@ namespace matisse {
 class IconizedButtonWrapper : public IconizedWidgetWrapper
 {
 public:
-    IconizedButtonWrapper(QAbstractButton *button);
+    IconizedButtonWrapper(QAbstractButton *_button);
 
-    virtual void setIcon(const QIcon &icon);
+    virtual void setIcon(const QIcon &_icon);
 
 private:
-    QAbstractButton *_button;
+    QAbstractButton *m_button;
 };
 
 } // namespace matisse

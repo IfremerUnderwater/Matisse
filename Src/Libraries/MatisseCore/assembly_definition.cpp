@@ -2,203 +2,203 @@
 
 namespace matisse {
 
-AssemblyDefinition::AssemblyDefinition(QObject *parent) :
-    QObject(parent),
-    _sourceDefinition(NULL),
-    _destinationDefinition(NULL)
+AssemblyDefinition::AssemblyDefinition(QObject *_parent) :
+    QObject(_parent),
+    m_source_definition(NULL),
+    m_destination_definition(NULL)
 {
 }
 
 QString AssemblyDefinition::version() const
 {
-    return _version;
+    return m_version;
 }
 
-void AssemblyDefinition::setVersion(const QString &version)
+void AssemblyDefinition::setVersion(const QString &_version)
 {
-    _version = version;
+    m_version = _version;
 }
 
-void AssemblyDefinition::addProcessorDef(ProcessorDefinition *processorDef)
+void AssemblyDefinition::addProcessorDef(ProcessorDefinition *_processor_def)
 {
-    _processorDefs.append(processorDef);
+    m_processor_defs.append(_processor_def);
 }
 
 
-void AssemblyDefinition::addConnectionDef(ConnectionDefinition *connectionDef)
+void AssemblyDefinition::addConnectionDef(ConnectionDefinition *_connection_def)
 {
-    _connectionDefs.append(connectionDef);
+    m_connection_defs.append(_connection_def);
 }
 
 SourceDefinition* AssemblyDefinition::sourceDefinition() const
 {
-    return _sourceDefinition;
+    return m_source_definition;
 }
 
-void AssemblyDefinition::setSourceDefinition(SourceDefinition *sourceDefinition)
+void AssemblyDefinition::setSourceDefinition(SourceDefinition *_source_definition)
 {
-    _sourceDefinition = sourceDefinition;
+    m_source_definition = _source_definition;
 }
 
 DestinationDefinition * AssemblyDefinition::destinationDefinition() const
 {
-    return _destinationDefinition;
+    return m_destination_definition;
 }
 
-void AssemblyDefinition::setDestinationDefinition(DestinationDefinition *destinationDefinition)
+void AssemblyDefinition::setDestinationDefinition(DestinationDefinition *_destination_definition)
 {
-    _destinationDefinition = destinationDefinition;
+    m_destination_definition = _destination_definition;
 }
 
 QString AssemblyDefinition::filename() const
 {
-    return _filename;
+    return m_filename;
 }
 
-void AssemblyDefinition::setFilename(const QString &filename)
+void AssemblyDefinition::setFilename(const QString &_filename)
 {
-    _filename = filename;
+    m_filename = _filename;
 }
 QString AssemblyDefinition::name() const
 {
-    return _name;
+    return m_name;
 }
 
-void AssemblyDefinition::setName(const QString &name)
+void AssemblyDefinition::setName(const QString &_name)
 {
-    _name = name;
+    m_name = _name;
 }
 bool AssemblyDefinition::usable() const
 {
-    return _usable;
+    return m_usable;
 }
 
-void AssemblyDefinition::setUsable(bool usable)
+void AssemblyDefinition::setUsable(bool _usable)
 {
-    _usable = usable;
+    m_usable = _usable;
 }
 
 
 QDate AssemblyDefinition::creationDate() const
 {
-    return _creationDate;
+    return m_creation_date;
 }
 
-void AssemblyDefinition::setCreationDate(const QDate &creationDate)
+void AssemblyDefinition::setCreationDate(const QDate &_creation_date)
 {
-    _creationDate = creationDate;
+    m_creation_date = _creation_date;
 }
 
 QString AssemblyDefinition::date() const
 {
-    return _date;
+    return m_date;
 }
 
-void AssemblyDefinition::setDate(const QString &date)
+void AssemblyDefinition::setDate(const QString &_date)
 {
-    _date = date;
+    m_date = _date;
 }
 QString AssemblyDefinition::author() const
 {
-    return _author;
+    return m_author;
 }
 
-void AssemblyDefinition::setAuthor(const QString &author)
+void AssemblyDefinition::setAuthor(const QString &_author)
 {
-    _author = author;
+    m_author = _author;
 }
 
 QString AssemblyDefinition::comment() const
 {
-    return _comment;
+    return m_comment;
 }
 
-void AssemblyDefinition::setComment(const QString &comment)
+void AssemblyDefinition::setComment(const QString &_comment)
 {
-    _comment = comment;
+    m_comment = _comment;
 }
 
 QList<ProcessorDefinition*> AssemblyDefinition::processorDefs() const
 {
-    return _processorDefs;
+    return m_processor_defs;
 }
 
 QList<ConnectionDefinition*> AssemblyDefinition::connectionDefs() const
 {
-    return _connectionDefs;
+    return m_connection_defs;
 }
 
-QList<AssemblyDefinitionValidity> AssemblyDefinition::checkDefinition()
+QList<eAssemblyDefinitionValidity> AssemblyDefinition::checkDefinition()
 {
-    QList<AssemblyDefinitionValidity> retList;
+    QList<eAssemblyDefinitionValidity> ret_list;
 
-    int sourceOrder = -1;
-    QList <quint32> processorOrders;
-    quint32 minProcessorOrder = 4294967295;
-    quint32 maxProcessorOrder = 0;
-    quint32 destinationOrder = 0;
-    bool duplicatedProcessorOrder = false;
+    int source_order = -1;
+    QList <quint32> processor_orders;
+    quint32 min_processor_order = 4294967295;
+    quint32 max_processor_order = 0;
+    quint32 destination_order = 0;
+    bool duplicated_processor_order = false;
 
-    if (!_sourceDefinition) {
-        retList << MISSING_SOURCE;
+    if (!m_source_definition) {
+        ret_list << MISSING_SOURCE;
     } else {
-        sourceOrder = _sourceDefinition->order();
+        source_order = m_source_definition->order();
     }
-    if (_processorDefs.size() == 0) {
-        retList << MISSING_PROCESSOR;
+    if (m_processor_defs.size() == 0) {
+        ret_list << MISSING_PROCESSOR;
     } else {
-        foreach(ProcessorDefinition * processor, _processorDefs) {
-            quint32 processOrder = processor->order();
-            minProcessorOrder = qMin(processOrder, minProcessorOrder);
-            maxProcessorOrder = qMax(processOrder, maxProcessorOrder);
-            if (!processorOrders.contains(processOrder)) {
-                processorOrders << processor->order();
+        foreach(ProcessorDefinition * processor, m_processor_defs) {
+            quint32 process_order = processor->order();
+            min_processor_order = qMin(process_order, min_processor_order);
+            max_processor_order = qMax(process_order, max_processor_order);
+            if (!processor_orders.contains(process_order)) {
+                processor_orders << processor->order();
             } else {
-                duplicatedProcessorOrder = true;
+                duplicated_processor_order = true;
             }
         }
     }
-    if (!_destinationDefinition) {
-        retList << MISSING_DESTINATION;
+    if (!m_destination_definition) {
+        ret_list << MISSING_DESTINATION;
     } else {
-        destinationOrder = _destinationDefinition->order();
+        destination_order = m_destination_definition->order();
     }
 
     // test des orders
-    if ((sourceOrder != 0)
-            || duplicatedProcessorOrder
-            || (minProcessorOrder == 0)
-            || !(maxProcessorOrder > minProcessorOrder)
-            || (maxProcessorOrder >= destinationOrder)) {
-        retList << INVALID_ORDERS;
+    if ((source_order != 0)
+            || duplicated_processor_order
+            || (min_processor_order == 0)
+            || !(max_processor_order > min_processor_order)
+            || (max_processor_order >= destination_order)) {
+        ret_list << INVALID_ORDERS;
     }
 
-    if (_connectionDefs.size() == 0) {
-        retList << MISSING_CONNECTION;
+    if (m_connection_defs.size() == 0) {
+        ret_list << MISSING_CONNECTION;
     } else {
         // pour l'instant on a uniquement des infos sur l'ordre, pas sur le nombre de connections...
         // on verifie donc que:
         // 1) la source est au moins reliée à quelque chose (processeur ou destination...)
         // 2) la destination est reliée à quelque chose d'unique (processeur ou source...)
         // 3) les connections sont faites entre des choses qui existent et qu'aucune entrée n'est reliée à plusieurs sorties...
-        QMultiHash<quint32, quint32> connectionsMap;
+        QMultiHash<quint32, quint32> connections_map;
         bool ok = true;
-        foreach(ConnectionDefinition * connection, _connectionDefs) {
-            connectionsMap.insert(connection->startOrder(), connection->endOrder());
+        foreach(ConnectionDefinition * connection, m_connection_defs) {
+            connections_map.insert(connection->startOrder(), connection->endOrder());
         }
 
         // test source
-        if (sourceOrder == 0) {
-            if (!connectionsMap.contains(0)) {
+        if (source_order == 0) {
+            if (!connections_map.contains(0)) {
                 ok = false;
             } else {
-                QList<quint32> srcConnections = connectionsMap.values();
-                QList<quint32> srcPossibleConnections = processorOrders;
-                if (destinationOrder > 0) {
-                    srcPossibleConnections << destinationOrder;
+                QList<quint32> src_connections = connections_map.values();
+                QList<quint32> src_possible_connections = processor_orders;
+                if (destination_order > 0) {
+                    src_possible_connections << destination_order;
                 }
-                foreach (quint32 srcConnection, srcConnections) {
-                   if (!srcPossibleConnections.contains(srcConnection)) {
+                foreach (quint32 src_connection, src_connections) {
+                   if (!src_possible_connections.contains(src_connection)) {
                        ok = false;
                        break;
                    }
@@ -207,116 +207,116 @@ QList<AssemblyDefinitionValidity> AssemblyDefinition::checkDefinition()
         }
 
         // test destination
-        if (destinationOrder > 0) {
-            QList<quint32> destCons = connectionsMap.keys(destinationOrder);
-            if (destCons.size() != 1) {
+        if (destination_order > 0) {
+            QList<quint32> dest_cons = connections_map.keys(destination_order);
+            if (dest_cons.size() != 1) {
                 ok = false;
             } else {
-                QList<quint32> destPossibleConnections = processorOrders;
-                destPossibleConnections << 0;
-                if (!destPossibleConnections.contains(destCons[0])) {
+                QList<quint32> dest_possible_connections = processor_orders;
+                dest_possible_connections << 0;
+                if (!dest_possible_connections.contains(dest_cons[0])) {
                     ok =false;
                 }
             }
         }
 
         // test connections, certainement redondant avec des test précédents...
-        QList<quint32> destPossibleConnections = processorOrders;
-        destPossibleConnections << destinationOrder;
+        QList<quint32> dest_possible_connections = processor_orders;
+        dest_possible_connections << destination_order;
 
-        QStringList combList;
-        foreach(ConnectionDefinition * connection, _connectionDefs) {
-            quint32 startOrder = connection->startOrder();
-            quint32 endOrder = connection->endOrder();
-            QString newComb = QString("%1_%2").arg(endOrder).arg(connection->endLine());
-            if ((startOrder == 0) && (sourceOrder != 0)) {
+        QStringList comb_list;
+        foreach(ConnectionDefinition * connection, m_connection_defs) {
+            quint32 start_order = connection->startOrder();
+            quint32 end_order = connection->endOrder();
+            QString new_comb = QString("%1_%2").arg(end_order).arg(connection->endLine());
+            if ((start_order == 0) && (source_order != 0)) {
                 ok =false;
                 break;
             }
-            if (combList.contains(newComb)) {
+            if (comb_list.contains(new_comb)) {
                 ok = false;
                 break;
             }
-            combList << newComb;
-            if ((startOrder != 0) && (!processorOrders.contains(startOrder))) {
+            comb_list << new_comb;
+            if ((start_order != 0) && (!processor_orders.contains(start_order))) {
                 ok = false;
                 break;
             }
-            if (!destPossibleConnections.contains(endOrder)) {
+            if (!dest_possible_connections.contains(end_order)) {
                 ok = false;
                 break;
             }
         }
 
         if (!ok) {
-            retList << CONNECTION_ERROR;
+            ret_list << CONNECTION_ERROR;
         }
     }
 
-    return retList;
+    return ret_list;
 
 }
 
-AssemblyDefinition *AssemblyDefinition::duplicate(QString newName, QString newFileName)
+AssemblyDefinition *AssemblyDefinition::duplicate(QString _new_name, QString _new_file_name)
 {
-    AssemblyDefinition *newAssembly = new AssemblyDefinition();
-    newAssembly->setName(newName);
-    newAssembly->setFilename(newFileName);
-    newAssembly->setVersion(_version);
-    newAssembly->setAuthor(_author);
-    newAssembly->setComment(_comment);
-    newAssembly->setUsable(_usable);
+    AssemblyDefinition *new_assembly = new AssemblyDefinition();
+    new_assembly->setName(_new_name);
+    new_assembly->setFilename(_new_file_name);
+    new_assembly->setVersion(m_version);
+    new_assembly->setAuthor(m_author);
+    new_assembly->setComment(m_comment);
+    new_assembly->setUsable(m_usable);
 
-    QDateTime creationDate = QDateTime::currentDateTime();
-    QString ts = creationDate.toString("dd/MM/yyyy");
-    newAssembly->setCreationDate(creationDate.date());
-    newAssembly->setDate(ts);
+    QDateTime creation_date = QDateTime::currentDateTime();
+    QString ts = creation_date.toString("dd/MM/yyyy");
+    new_assembly->setCreationDate(creation_date.date());
+    new_assembly->setDate(ts);
 
-    SourceDefinition *source = new SourceDefinition(_sourceDefinition->name());
-    newAssembly->setSourceDefinition(source);
+    SourceDefinition *source = new SourceDefinition(m_source_definition->name());
+    new_assembly->setSourceDefinition(source);
 
-    foreach (ProcessorDefinition *procDef, _processorDefs) {
-        ProcessorDefinition *processor = new ProcessorDefinition(procDef->name(), procDef->order());
-        newAssembly->addProcessorDef(processor);
+    foreach (ProcessorDefinition *proc_def, m_processor_defs) {
+        ProcessorDefinition *processor = new ProcessorDefinition(proc_def->name(), proc_def->order());
+        new_assembly->addProcessorDef(processor);
     }
 
 
-    foreach (ConnectionDefinition *connDef, _connectionDefs) {
+    foreach (ConnectionDefinition *conn_def, m_connection_defs) {
         ConnectionDefinition *connection = new ConnectionDefinition(
-                    connDef->startOrder(),
-                    connDef->startLine(),
-                    connDef->endOrder(),
-                    connDef->endLine(),
-                    connDef->color()
+                    conn_def->startOrder(),
+                    conn_def->startLine(),
+                    conn_def->endOrder(),
+                    conn_def->endLine(),
+                    conn_def->color()
                     );
-        newAssembly->addConnectionDef(connection);
+        new_assembly->addConnectionDef(connection);
     }
 
-    DestinationDefinition *destination = new DestinationDefinition(_destinationDefinition->name(), _destinationDefinition->order());
-    newAssembly->setDestinationDefinition(destination);
+    DestinationDefinition *destination = new DestinationDefinition(m_destination_definition->name(), m_destination_definition->order());
+    new_assembly->setDestinationDefinition(destination);
 
-    return newAssembly;
+    return new_assembly;
 }
 
 void AssemblyDefinition::clearAllElements()
 {
-    if (_sourceDefinition) {
-        delete _sourceDefinition;
-        _sourceDefinition = NULL;
+    if (m_source_definition) {
+        delete m_source_definition;
+        m_source_definition = NULL;
     }
 
-    if (_destinationDefinition) {
-        delete _destinationDefinition;
-        _destinationDefinition = NULL;
+    if (m_destination_definition) {
+        delete m_destination_definition;
+        m_destination_definition = NULL;
     }
 
-    foreach (ProcessorDefinition *procDef, _processorDefs) {
-        _processorDefs.removeOne(procDef);
+    foreach (ProcessorDefinition *procDef, m_processor_defs) {
+        m_processor_defs.removeOne(procDef);
         delete procDef;
     }
 
-    foreach (ConnectionDefinition *connDef, _connectionDefs) {
-        _connectionDefs.removeOne(connDef);
+    foreach (ConnectionDefinition *connDef, m_connection_defs) {
+        m_connection_defs.removeOne(connDef);
         delete connDef;
     }
 }

@@ -2,9 +2,9 @@
 
 namespace matisse {
 
-ParametersHeaderButton::ParametersHeaderButton(QWidget *parent, ParameterLevel level) :
-    FoldUnfoldButton(parent),
-    _level(level)
+ParametersHeaderButton::ParametersHeaderButton(QWidget *_parent, eParameterLevel _level) :
+    FoldUnfoldButton(_parent),
+    m_level(_level)
 {
     setIcon(QIcon(":/qss_icons/rc/branch_open-on.png"));
 }
@@ -18,9 +18,9 @@ void ParametersHeaderButton::showNewState()
     }
 }
 
-ParameterLevel ParametersHeaderButton::getLevel() const
+eParameterLevel ParametersHeaderButton::getLevel() const
 {
-    return _level;
+    return m_level;
 }
 
 } // namespace matisse

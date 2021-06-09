@@ -34,10 +34,10 @@ public:
 
     void init(QString _bin_root_dir = ".");
 
-    int port() const { return _port; }
-    QString getUserDataPath() const { return _userDataPath; }
-    QString getDllPath() const { return _dllPath; }
-    QString getVersion() const { return _version; }
+    int port() const { return m_port; }
+    QString getUserDataPath() const { return m_user_data_path; }
+    QString getDllPath() const { return m_dll_path; }
+    QString getVersion() const { return m_version; }
     QString getPlatformSummaryFilePath() const;
     QString getPlatformEnvDumpFilePath() const;
     QString getDataRootDir() const;
@@ -46,11 +46,11 @@ public:
 
     MatisseRemoteServerSettings *remoteServerSettings() { return m_remote_server_settings; }
 
-    bool readMatisseSettings(QString filename);
-    bool readMatissePreferences(QString filename, MatissePreferences &prefs);
-    bool writeMatissePreferences(QString filename, MatissePreferences &prefs);
+    bool readMatisseSettings(QString _filename);
+    bool readMatissePreferences(QString _filename, MatissePreferences &_prefs);
+    bool writeMatissePreferences(QString _filename, MatissePreferences &_prefs);
     bool writePlatformSummary();
-    bool readRemotePlatformSummary(QString filename);
+    bool readRemotePlatformSummary(QString _filename);
     bool writePlatformEnvDump();
 
     PlatformComparisonStatus *compareRemoteAndLocalPlatform();
@@ -61,23 +61,23 @@ private:
 
     void getPlatformDump();
 
-    QString _userDataPath;
-    QString _dataRootDir;
+    QString m_user_data_path;
+    QString m_data_root_dir;
     QString m_bin_root_dir;
-    QString _dllPath;
-    QString _platformDumpPath;
+    QString m_dll_path;
+    QString m_platform_dump_path;
 
     MatisseRemoteServerSettings *m_remote_server_settings;
     
-    int _port;
-    QString _version;
-    QString _platformSummaryFilePath;
-    QString _platformEnvDumpFilePath;
-    QMap<QString,QString> _externalTools;
-    PlatformInspector _platformInspector;
-    PlatformDump *_platformDump;
-    PlatformDump *_remotePlatformDump;
-    PlatformComparator _platformComparator;
+    int m_port;
+    QString m_version;
+    QString m_platform_summary_file_path;
+    QString m_platform_env_dump_file_path;
+    QMap<QString,QString> m_external_tools;
+    PlatformInspector m_platform_inspector;
+    PlatformDump *m_platform_dump;
+    PlatformDump *m_remote_platform_dump;
+    PlatformComparator m_platform_comparator;
 };
 
 } // namespace matisse

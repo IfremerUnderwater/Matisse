@@ -64,26 +64,26 @@ void Init2DMosaic::onFlush(quint32 port)
 {
     qDebug() << logPrefix() << "flush port " << port;
 
-    emit signal_processCompletion(0);
-    emit signal_userInformation("Initializing 2D Mosaic...");
+    emit si_processCompletion(0);
+    emit si_userInformation("Initializing 2D Mosaic...");
 
     MosaicDescriptor *pMosaicD = new MosaicDescriptor;
     QVector<ProjectiveCamera*> *pCams = new QVector<ProjectiveCamera*>;
     ImageSet * imageSet;
 
     // Find imageSet corresponding to this port
-    foreach (ImageSetPort *ImSet,*_inputPortList){
+    foreach (ImageSetPort *ImSet,*m_input_port_list){
         if (ImSet->port_number == port){
             imageSet = ImSet->image_set;
             break;
         }
     }
 
-    emit signal_processCompletion(10);
+    emit si_processCompletion(10);
 
     // Get camera matrix
     bool Ok;
-    QMatrix3x3 qK = _matisseParameters->getMatrix3x3ParamValue("cam_param",  "K",  Ok);
+    QMatrix3x3 qK = m_matisse_parameters->getMatrix3x3ParamValue("cam_param",  "K",  Ok);
     cv::Mat K(3,3,CV_64F);
     if (Ok){
         qDebug() << "K Ok =" << Ok;
@@ -101,9 +101,9 @@ void Init2DMosaic::onFlush(quint32 port)
 
     std::cerr <<"K = " << K;
 
-    emit signal_processCompletion(30);
+    emit si_processCompletion(30);
 
-    double scaleFactor = _matisseParameters->getDoubleParamValue("algo_param", "scale_factor", Ok);
+    double scaleFactor = m_matisse_parameters->getDoubleParamValue("algo_param", "scale_factor", Ok);
 
     if (!Ok){
         qDebug() << "scale factor not provided Ok \n";
@@ -113,7 +113,7 @@ void Init2DMosaic::onFlush(quint32 port)
     // Get camera lever arm
     cv::Mat V_T_C(3,1,CV_64F), V_R_C(3,3,CV_64F);
 
-    Matrix6x1 V_Pose_C = _matisseParameters->getMatrix6x1ParamValue("cam_param",  "V_Pose_C",  Ok);
+    Matrix6x1 V_Pose_C = m_matisse_parameters->getMatrix6x1ParamValue("cam_param",  "V_Pose_C",  Ok);
     if (Ok){
 
         for (int i=0; i<3; i++){
@@ -126,7 +126,7 @@ void Init2DMosaic::onFlush(quint32 port)
 
     }
 
-    emit signal_processCompletion(60);
+    emit si_processCompletion(60);
 
     if (imageSet){
 
@@ -151,13 +151,13 @@ void Init2DMosaic::onFlush(quint32 port)
         qDebug() << "Init done";
 
         // Filter cameras on overlap
-        if (_matisseParameters->getBoolParamValue("algo_param", "disjoint_drawing", Ok)) {
+        if (m_matisse_parameters->getBoolParamValue("algo_param", "disjoint_drawing", Ok)) {
             pMosaicD->computeMosaicExtentAndShiftFrames();
             pMosaicD->decimateImagesUntilNoOverlap();
         }
-        else if ( _matisseParameters->getBoolParamValue("algo_param","filter_overlap", Ok) ){
-            double min_overlap = _matisseParameters->getDoubleParamValue("algo_param","min_overlap", Ok);
-            double max_overlap = _matisseParameters->getDoubleParamValue("algo_param","max_overlap", Ok);
+        else if ( m_matisse_parameters->getBoolParamValue("algo_param","filter_overlap", Ok) ){
+            double min_overlap = m_matisse_parameters->getDoubleParamValue("algo_param","min_overlap", Ok);
+            double max_overlap = m_matisse_parameters->getDoubleParamValue("algo_param","max_overlap", Ok);
 
             pMosaicD->computeMosaicExtentAndShiftFrames();
             pMosaicD->decimateImagesFromOverlap(min_overlap, max_overlap);
@@ -169,19 +169,19 @@ void Init2DMosaic::onFlush(quint32 port)
 
     }
 
-    emit signal_processCompletion(90);
+    emit si_processCompletion(90);
 
     // Add pCams to mosaic _context
     QVariant * pCamsStocker = new QVariant();
     pCamsStocker->setValue(pCams);
-    _context->addObject("Cameras", pCamsStocker);
+    m_context->addObject("Cameras", pCamsStocker);
 
     // Add pMosaicD to mosaic _context
     QVariant * pMosaicDStocker = new QVariant();
     pMosaicDStocker->setValue(pMosaicD);
-    _context->addObject("MosaicDescriptor", pMosaicDStocker);
+    m_context->addObject("MosaicDescriptor", pMosaicDStocker);
 
-    emit signal_processCompletion(100);
+    emit si_processCompletion(100);
 
 
     // Flush next module port

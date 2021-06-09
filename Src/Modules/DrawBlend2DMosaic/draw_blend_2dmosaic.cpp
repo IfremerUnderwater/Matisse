@@ -48,12 +48,12 @@ bool DrawBlend2DMosaic::configure()
 {
     qDebug() << logPrefix() << "configure";
 
-    QString datasetDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
-    _outputDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "output_dir");
+    QString datasetDirnameStr = m_matisse_parameters->getStringParamValue("dataset_param", "dataset_dir");
+    _outputDirnameStr = m_matisse_parameters->getStringParamValue("dataset_param", "output_dir");
     /* Resolve UNIX paths ('~/...') for remote job execution */
     _outputDirnameStr = FileUtils::resolveUnixPath(_outputDirnameStr);
 
-    QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+    QString outputFilename = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
     if (datasetDirnameStr.isEmpty()
      || _outputDirnameStr.isEmpty()
@@ -98,8 +98,8 @@ bool DrawBlend2DMosaic::stop()
 void DrawBlend2DMosaic::onFlush(quint32 port)
 {
 
-    emit signal_processCompletion(0);
-    emit signal_userInformation("Drawing and blending 2D mosaic...");
+    emit si_processCompletion(0);
+    emit si_userInformation("Drawing and blending 2D mosaic...");
 
     MosaicDescriptor *pMosaicD = NULL;
     //QVector<ProjectiveCamera*> *pCams = NULL;
@@ -114,7 +114,7 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     }*/
 
     // Get pMosaicD from mosaic _context
-    QVariant * pMosaicDStocker = _context->getObject("MosaicDescriptor");
+    QVariant * pMosaicDStocker = m_context->getObject("MosaicDescriptor");
     if (pMosaicDStocker) {
         pMosaicD = pMosaicDStocker->value<MosaicDescriptor *>();
         qDebug()<< logPrefix() << "Receiving MosaicDescriptor on port : " << port;
@@ -124,25 +124,25 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
 
     // Get drawing parameters
     bool Ok;
-    bool blockDraw = _matisseParameters->getBoolParamValue("algo_param", "block_drawing", Ok);
+    bool blockDraw = m_matisse_parameters->getBoolParamValue("algo_param", "block_drawing", Ok);
     qDebug() << logPrefix() << "block_drawing = " << blockDraw;
 
-    int blockWidth = _matisseParameters->getIntParamValue("algo_param", "block_width", Ok);
+    int blockWidth = m_matisse_parameters->getIntParamValue("algo_param", "block_width", Ok);
     qDebug() << logPrefix() << "block_width = " << blockWidth;
 
-    int blockHeight = _matisseParameters->getIntParamValue("algo_param", "block_height", Ok);
+    int blockHeight = m_matisse_parameters->getIntParamValue("algo_param", "block_height", Ok);
     qDebug() << logPrefix() << "block_height = " << blockHeight;
 
     // Get drawing prefix
-    QString outputFilename = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+    QString outputFilename = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
-    emit signal_processCompletion(10);
+    emit si_processCompletion(10);
 
     //Draw mosaic
     MosaicDrawer mosaicDrawer;
     QFileInfo outputFileInfo;
 
-    QString output_type_choice = _matisseParameters->getStringParamValue("algo_param", "single_image_output");
+    QString output_type_choice = m_matisse_parameters->getStringParamValue("algo_param", "single_image_output");
 
     bool draw_geotiff = true;
     bool draw_jpeg = false;
@@ -163,7 +163,7 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     }
 
 
-    if (_matisseParameters->getBoolParamValue("algo_param", "disjoint_drawing", Ok)) {
+    if (m_matisse_parameters->getBoolParamValue("algo_param", "disjoint_drawing", Ok)) {
         QStringList outputFiles;
         
         if (draw_geotiff)
@@ -189,7 +189,7 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
         cv::UMat mosaicImage,mosaicMask;
         mosaicDrawer.drawAndBlend(*pMosaicD, mosaicImage, mosaicMask);
 
-        emit signal_processCompletion(50);
+        emit si_processCompletion(50);
 
         // copy mask to force data pointer allocation in the right order
         Mat maskCopy;
@@ -216,7 +216,7 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
 
     }
 
-    emit signal_processCompletion(100);
+    emit si_processCompletion(100);
 }
 
 } // namespace matisse

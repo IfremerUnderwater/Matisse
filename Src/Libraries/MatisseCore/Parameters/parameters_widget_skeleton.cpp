@@ -5,53 +5,53 @@
 
 namespace matisse {
 
-ParametersWidgetSkeleton::ParametersWidgetSkeleton(QWidget *parent) :
-    QWidget(parent),
-    _ui(new Ui::ParametersWidgetSkeleton)
+ParametersWidgetSkeleton::ParametersWidgetSkeleton(QWidget *_parent) :
+    QWidget(_parent),
+    m_ui(new Ui::ParametersWidgetSkeleton)
 {
-    _ui->setupUi(this);
+    m_ui->setupUi(this);
 }
 
 ParametersWidgetSkeleton::~ParametersWidgetSkeleton()
 {
-    delete _ui;
+    delete m_ui;
 }
 
-void ParametersWidgetSkeleton::addWidget(QWidget *widget)
+void ParametersWidgetSkeleton::addWidget(QWidget *_widget)
 {
-    _ui->_VLAY_parameters->addWidget(widget);
-    _widgets << widget;
+    m_ui->_VLAY_parameters->addWidget(_widget);
+    m_widgets << _widget;
 }
 
 void ParametersWidgetSkeleton::clearModifications()
 {
-    _modifiedValues.clear();
+    m_modified_values.clear();
 }
 
 bool ParametersWidgetSkeleton::hasModifiedValues()
 {
-    return (_modifiedValues.size() > 0);
+    return (m_modified_values.size() > 0);
 }
 
-void ParametersWidgetSkeleton::slot_valueModified(bool isModified)
+void ParametersWidgetSkeleton::sl_valueModified(bool _has_changed)
 {
-    QObject * widSender = sender();
-    if (!isModified) {
-        _modifiedValues.removeOne(widSender);
-    } else if (!_modifiedValues.contains(widSender)) {
-        _modifiedValues.append(widSender);
+    QObject * wid_sender = sender();
+    if (!_has_changed) {
+        m_modified_values.removeOne(wid_sender);
+    } else if (!m_modified_values.contains(wid_sender)) {
+        m_modified_values.append(wid_sender);
     }
-    emit signal_valuesModified(hasModifiedValues());
+    emit si_valuesModified(hasModifiedValues());
 }
 
 // Dynamic translation
-void ParametersWidgetSkeleton::changeEvent(QEvent *event)
+void ParametersWidgetSkeleton::changeEvent(QEvent *_event)
 {
-    if (event->type() == QEvent::LanguageChange)
+    if (_event->type() == QEvent::LanguageChange)
     {
         // retranslate designer form
         qDebug() << "Parameters widget UI retranslation...";
-        emit signal_translateParameters();
+        emit si_translateParameters();
     }
 }
 

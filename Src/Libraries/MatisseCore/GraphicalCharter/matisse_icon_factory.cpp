@@ -4,14 +4,14 @@ using namespace system_tools;
 
 namespace matisse {
 
-MatisseIconFactory::MatisseIconFactory(QMap<QString, QString> defaultColorPalette, QString defaultStatusColorAlias, QString defaultModeColorAlias1, QString defaultModeColorAlias2) :
-    _currentColorPalette(defaultColorPalette),
-    _currentStatusColorAlias(defaultStatusColorAlias),
-    _currentModeColorAlias1(defaultModeColorAlias1),
-    _currentModeColorAlias2(defaultModeColorAlias2),
-    _isAppModeContext(true)
+MatisseIconFactory::MatisseIconFactory(QMap<QString, QString> _default_color_palette, QString _default_status_color_alias, QString _default_mode_color_alias1, QString _default_mode_color_alias2) :
+    m_current_color_palette(_default_color_palette),
+    m_current_status_color_alias(_default_status_color_alias),
+    m_current_mode_color_alias1(_default_mode_color_alias1),
+    m_current_mode_color_alias2(_default_mode_color_alias2),
+    m_is_app_mode_context(true)
 {
-    bool created = FileUtils::createTempDirectory(_currentTempDirPath);
+    bool created = FileUtils::createTempDirectory(m_current_temp_dir_path);
 
     if (!created) {
         qFatal("Impossible to create temp directory, cannot generate UI icons...");
@@ -20,93 +20,93 @@ MatisseIconFactory::MatisseIconFactory(QMap<QString, QString> defaultColorPalett
 
 MatisseIconFactory::~MatisseIconFactory()
 {
-    _statusListeningWidgets.clear();
-    _appModeListeningWidgets.clear();
+    m_status_listening_widgets.clear();
+    m_app_mode_listening_widgets.clear();
 
     /* release memory allocated for widget wrappers */
-    foreach (IconizedWidgetWrapper *widgetWrapper, _allWidgets.keys()) {
-        _allWidgets.remove(widgetWrapper);
-        delete widgetWrapper;
+    foreach (IconizedWidgetWrapper *widget_wrapper, m_all_widgets.keys()) {
+        m_all_widgets.remove(widget_wrapper);
+        delete widget_wrapper;
     }
 }
 
-void MatisseIconFactory::setWidgetIcon(IconizedWidgetWrapper *widgetWrapper, QString sourceIconPath)
+void MatisseIconFactory::setWidgetIcon(IconizedWidgetWrapper *_widget_wrapper, QString _source_icon_path)
 {
-    if (widgetWrapper->hasIcon()) {
-        QIcon newIcon(sourceIconPath);
-        widgetWrapper->setIcon(newIcon);
+    if (_widget_wrapper->hasIcon()) {
+        QIcon new_icon(_source_icon_path);
+        _widget_wrapper->setIcon(new_icon);
     } else {
-        QPixmap newPixmap(sourceIconPath);
-        widgetWrapper->setPixmap(newPixmap);
+        QPixmap new_pixmap(_source_icon_path);
+        _widget_wrapper->setPixmap(new_pixmap);
     }
 }
 
-void MatisseIconFactory::detachIcon(IconizedWidgetWrapper *widgetWrapper, bool deleteWrapper)
+void MatisseIconFactory::detachIcon(IconizedWidgetWrapper *_widget_wrapper, bool _delete_wrapper)
 {
-    if (!_allWidgets.contains(widgetWrapper)) {
+    if (!m_all_widgets.contains(_widget_wrapper)) {
         qCritical() << QString("No icon attached to the widget, cannot release icon");
         return;
     }
 
-    releaseWidgetWrapper(widgetWrapper, deleteWrapper);
+    releaseWidgetWrapper(_widget_wrapper, _delete_wrapper);
 }
 
 void MatisseIconFactory::clearObsoleteIcons()
 {
-    foreach (IconizedWidgetWrapper *widgetWrapper, _allWidgets.keys()) {
-        if (!widgetWrapper->isValid()) {
+    foreach (IconizedWidgetWrapper *widget_wrapper, m_all_widgets.keys()) {
+        if (!widget_wrapper->isValid()) {
             qDebug() << "Iconized widget was destroyed, dereferencing...";
-            releaseWidgetWrapper(widgetWrapper, true);
+            releaseWidgetWrapper(widget_wrapper, true);
         }
     }
 }
 
-bool MatisseIconFactory::attachIcon(IconizedWidgetWrapper *widgetWrapper, QString sourceIconPath, bool isStatusListener, bool isAppModeListener, QString contextColorAlias)
+bool MatisseIconFactory::attachIcon(IconizedWidgetWrapper *_widget_wrapper, QString _source_icon_path, bool _is_status_listener, bool _is_app_mode_listener, QString _context_color_alias)
 {
-    if (_allWidgets.contains(widgetWrapper)) {
+    if (m_all_widgets.contains(_widget_wrapper)) {
         qDebug() << QString("Releasing previous icon for widget");
-        detachIcon(widgetWrapper, false);
+        detachIcon(_widget_wrapper, false);
     }
 
-    QFile sourceIconFile(sourceIconPath);
-    if (!sourceIconFile.exists()) {
-        qCritical() << QString("Source icon file '%1' could not be found, impossible to create icon").arg(sourceIconPath);
+    QFile source_icon_file(_source_icon_path);
+    if (!source_icon_file.exists()) {
+        qCritical() << QString("Source icon file '%1' could not be found, impossible to create icon").arg(_source_icon_path);
         return false;
     }
 
-    if (!sourceIconPath.toLower().endsWith(".svg")) {
-        qWarning() << QString("Icon not a SVG file '%1', colors will not be updated dynamically").arg(sourceIconPath);
-        setWidgetIcon(widgetWrapper, sourceIconPath);
+    if (!_source_icon_path.toLower().endsWith(".svg")) {
+        qWarning() << QString("Icon not a SVG file '%1', colors will not be updated dynamically").arg(_source_icon_path);
+        setWidgetIcon(_widget_wrapper, _source_icon_path);
         return false;
     }
 
-    bool applyStatusColor = isStatusListener;
-    bool applyAppModeColor = isAppModeListener;
+    bool apply_status_color = _is_status_listener;
+    bool apply_app_mode_color = _is_app_mode_listener;
 
     /* if widget is both an app mode and execution status listener, it is initialized with current app mode icon */
-    if (applyStatusColor && applyAppModeColor) {
-        applyStatusColor = false;
+    if (apply_status_color && apply_app_mode_color) {
+        apply_status_color = false;
     }
 
-    bool generated = generateIcon(widgetWrapper, sourceIconPath, applyStatusColor, applyAppModeColor, contextColorAlias);
+    bool generated = generateIcon(_widget_wrapper, _source_icon_path, apply_status_color, apply_app_mode_color, _context_color_alias);
     if (!generated) {
         return false;
     }
 
     MatisseIconSpec spec;
-    spec._sourceIconPath = sourceIconPath;
-    spec._isAppModeDependent = isAppModeListener;
-    spec._isStatusDependent = isStatusListener;
-    spec._contextColorAlias = contextColorAlias;
+    spec.m_source_icon_path = _source_icon_path;
+    spec.m_is_app_mode_dependent = _is_app_mode_listener;
+    spec.m_is_status_dependent = _is_status_listener;
+    spec.m_context_color_alias = _context_color_alias;
 
-    _allWidgets.insert(widgetWrapper, spec);
+    m_all_widgets.insert(_widget_wrapper, spec);
 
-    if (isAppModeListener) {
-        _appModeListeningWidgets.append(widgetWrapper);
+    if (_is_app_mode_listener) {
+        m_app_mode_listening_widgets.append(_widget_wrapper);
     }
 
-    if (isStatusListener) {
-        _statusListeningWidgets.append(widgetWrapper);
+    if (_is_status_listener) {
+        m_status_listening_widgets.append(_widget_wrapper);
     }
 
     return true;
@@ -114,16 +114,16 @@ bool MatisseIconFactory::attachIcon(IconizedWidgetWrapper *widgetWrapper, QStrin
 
 bool MatisseIconFactory::createNewTempDir()
 {
-    QString previousTempDirPath = _currentTempDirPath;
+    QString previous_temp_dir_path = m_current_temp_dir_path;
 
-    QDir currentTempDir(previousTempDirPath);
+    QDir current_temp_dir(previous_temp_dir_path);
     QString filter1 = "*.svg";
     QString filter2 = "*.SVG";
     QStringList filters;
     filters << filter1;
     filters << filter2;
 
-    QStringList contents = currentTempDir.entryList(filters, QDir::Files);
+    QStringList contents = current_temp_dir.entryList(filters, QDir::Files);
     if (contents.isEmpty()) {
         // temp dir is empty, no need to create new one
         qDebug() << "Icons generation temp dir is empty, keeping current temp dir";
@@ -131,38 +131,38 @@ bool MatisseIconFactory::createNewTempDir()
     }
 
     qDebug() << "Creating new temp dir for icons generation...";
-    bool created = FileUtils::createTempDirectory(_currentTempDirPath);
+    bool created = FileUtils::createTempDirectory(m_current_temp_dir_path);
 
     if (!created) {
         qCritical("Failed to create temp directory, using previous icons version...");
-        _currentTempDirPath = previousTempDirPath;
+        m_current_temp_dir_path = previous_temp_dir_path;
         return false;
     }
 
     return true;
 }
 
-void MatisseIconFactory::releaseWidgetWrapper(IconizedWidgetWrapper *widgetWrapper, bool deleteWrapper)
+void MatisseIconFactory::releaseWidgetWrapper(IconizedWidgetWrapper *_widget_wrapper, bool _delete_wrapper)
 {
 //    qDebug() << "Releasing iconized widget wrapper...";
 
-    MatisseIconSpec spec = _allWidgets.value(widgetWrapper);
-    if (spec._isStatusDependent) {
-        _statusListeningWidgets.removeOne(widgetWrapper);
+    MatisseIconSpec spec = m_all_widgets.value(_widget_wrapper);
+    if (spec.m_is_status_dependent) {
+        m_status_listening_widgets.removeOne(_widget_wrapper);
     }
 
-    if (spec._isAppModeDependent) {
-        _appModeListeningWidgets.removeOne(widgetWrapper);
+    if (spec.m_is_app_mode_dependent) {
+        m_app_mode_listening_widgets.removeOne(_widget_wrapper);
     }
 
-    _allWidgets.remove(widgetWrapper);
+    m_all_widgets.remove(_widget_wrapper);
 
-    if (deleteWrapper) {
-        delete widgetWrapper;
+    if (_delete_wrapper) {
+        delete _widget_wrapper;
     }
 }
 
-void MatisseIconFactory::slot_updateColorPalette(QMap<QString, QString> newColorPalette)
+void MatisseIconFactory::sl_updateColorPalette(QMap<QString, QString> _new_color_palette)
 {
     qDebug() << "Updating icons color palette...";
 
@@ -170,169 +170,169 @@ void MatisseIconFactory::slot_updateColorPalette(QMap<QString, QString> newColor
         return;
     }
 
-    _currentColorPalette = newColorPalette;
+    m_current_color_palette = _new_color_palette;
 
     /* reinit cache for local context icons */
-    _tempDirsByContext.clear();
+    m_temp_dirs_by_context.clear();
 
-    foreach (IconizedWidgetWrapper *widgetWrapper, _allWidgets.keys()) {
-        if (!widgetWrapper->isValid()) {
+    foreach (IconizedWidgetWrapper *widget_wrapper, m_all_widgets.keys()) {
+        if (!widget_wrapper->isValid()) {
             qDebug() << "Iconized widget was destroyed, dereferencing...";
-            releaseWidgetWrapper(widgetWrapper, true);
+            releaseWidgetWrapper(widget_wrapper, true);
             continue;
         }
 
-        MatisseIconSpec spec = _allWidgets.value(widgetWrapper);
+        MatisseIconSpec spec = m_all_widgets.value(widget_wrapper);
 
-        bool applyStatusColor = spec._isStatusDependent;
-        bool applyAppModeColor = spec._isAppModeDependent;
+        bool apply_status_color = spec.m_is_status_dependent;
+        bool apply_app_mode_color = spec.m_is_app_mode_dependent;
 
         /* if icon is both status and app mode dependent, it is initialized according to context */
-        if (applyStatusColor && applyAppModeColor) {
-            applyStatusColor = !_isAppModeContext;
-            applyAppModeColor = _isAppModeContext;
+        if (apply_status_color && apply_app_mode_color) {
+            apply_status_color = !m_is_app_mode_context;
+            apply_app_mode_color = m_is_app_mode_context;
         }
 
-        generateIcon(widgetWrapper, spec._sourceIconPath, applyStatusColor, applyAppModeColor, spec._contextColorAlias);
+        generateIcon(widget_wrapper, spec.m_source_icon_path, apply_status_color, apply_app_mode_color, spec.m_context_color_alias);
     }
 }
 
-void MatisseIconFactory::slot_updateExecutionStatusColor(QString newStatusColorAlias)
+void MatisseIconFactory::sl_updateExecutionStatusColor(QString _new_status_color_alias)
 {
-    qDebug() << QString("Updating execution status color '%1' for icons...").arg(newStatusColorAlias);
+    qDebug() << QString("Updating execution status color '%1' for icons...").arg(_new_status_color_alias);
 
     if (!createNewTempDir()) {
         return;
     }
 
-    _isAppModeContext = false;
-    _currentStatusColorAlias = newStatusColorAlias;
+    m_is_app_mode_context = false;
+    m_current_status_color_alias = _new_status_color_alias;
 
-    foreach (IconizedWidgetWrapper *widgetWrapper, _statusListeningWidgets) {
-        if (!widgetWrapper->isValid()) {
+    foreach (IconizedWidgetWrapper *widget_wrapper, m_status_listening_widgets) {
+        if (!widget_wrapper->isValid()) {
             qDebug() << "Iconized widget was destroyed, dereferencing...";
-            releaseWidgetWrapper(widgetWrapper, true);
+            releaseWidgetWrapper(widget_wrapper, true);
             continue;
         }
 
-        MatisseIconSpec spec = _allWidgets.value(widgetWrapper);
-        generateIcon(widgetWrapper, spec._sourceIconPath, true, false, spec._contextColorAlias);
+        MatisseIconSpec spec = m_all_widgets.value(widget_wrapper);
+        generateIcon(widget_wrapper, spec.m_source_icon_path, true, false, spec.m_context_color_alias);
     }
 }
 
-void MatisseIconFactory::slot_updateAppModeColors(QString modeColorAlias1, QString modeColorAlias2)
+void MatisseIconFactory::sl_updateAppModeColors(QString _mode_color_alias1, QString _mode_color_alias2)
 {
-    qDebug() << QString("Updating app mode colors '%1' & '%2' for icons...").arg(modeColorAlias1).arg(modeColorAlias2);
+    qDebug() << QString("Updating app mode colors '%1' & '%2' for icons...").arg(_mode_color_alias1).arg(_mode_color_alias2);
 
     if (!createNewTempDir()) {
         return;
     }
 
-    _isAppModeContext = true;
-    _currentModeColorAlias1 = modeColorAlias1;
-    _currentModeColorAlias2 = modeColorAlias2;
+    m_is_app_mode_context = true;
+    m_current_mode_color_alias1 = _mode_color_alias1;
+    m_current_mode_color_alias2 = _mode_color_alias2;
 
-    foreach (IconizedWidgetWrapper *widgetWrapper, _appModeListeningWidgets) {
-        if (!widgetWrapper->isValid()) {
+    foreach (IconizedWidgetWrapper *widget_wrapper, m_app_mode_listening_widgets) {
+        if (!widget_wrapper->isValid()) {
             qDebug() << "Iconized widget was destroyed, dereferencing...";
-            releaseWidgetWrapper(widgetWrapper, true);
+            releaseWidgetWrapper(widget_wrapper, true);
             continue;
         }
 
-        MatisseIconSpec spec = _allWidgets.value(widgetWrapper);
-        generateIcon(widgetWrapper, spec._sourceIconPath, false, true, spec._contextColorAlias);
+        MatisseIconSpec spec = m_all_widgets.value(widget_wrapper);
+        generateIcon(widget_wrapper, spec.m_source_icon_path, false, true, spec.m_context_color_alias);
     }
 
 }
 
-bool MatisseIconFactory::generateIcon(IconizedWidgetWrapper *widgetWrapper, QString sourceIconPath, bool applyStatusColor, bool applyAppModeColor, QString contextColorAlias)
+bool MatisseIconFactory::generateIcon(IconizedWidgetWrapper *_widget_wrapper, QString _source_icon_path, bool _apply_status_color, bool _apply_app_mode_color, QString _context_color_alias)
 {
-    if (!widgetWrapper) {
+    if (!_widget_wrapper) {
         qCritical() << "Widget wrapper is null, cannot attach icon";
         return false;
     }
 
-    QString currentTempDirPath;
+    QString current_temp_dir_path;
 
-    if (contextColorAlias.isEmpty()) {
-        currentTempDirPath = _currentTempDirPath;
+    if (_context_color_alias.isEmpty()) {
+        current_temp_dir_path = m_current_temp_dir_path;
     } else {
         /* Using or creating context cache dir */
-        if (_tempDirsByContext.contains(contextColorAlias)) {
-            currentTempDirPath = _tempDirsByContext.value(contextColorAlias);
+        if (m_temp_dirs_by_context.contains(_context_color_alias)) {
+            current_temp_dir_path = m_temp_dirs_by_context.value(_context_color_alias);
         } else {
             if (!createNewTempDir()) {
-                qCritical() << QString("Could not create temp dir for new context '%1', icon '%2' will not be generated").arg(contextColorAlias).arg(sourceIconPath);
+                qCritical() << QString("Could not create temp dir for new context '%1', icon '%2' will not be generated").arg(_context_color_alias).arg(_source_icon_path);
                 return false;
             }
-            currentTempDirPath = _currentTempDirPath;
-            _tempDirsByContext.insert(contextColorAlias, _currentTempDirPath);
+            current_temp_dir_path = m_current_temp_dir_path;
+            m_temp_dirs_by_context.insert(_context_color_alias, m_current_temp_dir_path);
         }
     }
 
-    QFileInfo sourceIconFileInfo(sourceIconPath);
+    QFileInfo source_icon_file_info(_source_icon_path);
 
-    QString sourceIconFileName = sourceIconFileInfo.fileName();
-    QString targetIconFilePath = currentTempDirPath + "/" + sourceIconFileName;
+    QString source_icon_file_name = source_icon_file_info.fileName();
+    QString target_icon_dile_path = current_temp_dir_path + "/" + source_icon_file_name;
 
-    QFile targetIconFile(targetIconFilePath);
-    if (targetIconFile.exists()) {
-        qDebug() << QString("Icon '%1' already generated, using cached version").arg(targetIconFilePath);
-        setWidgetIcon(widgetWrapper, targetIconFilePath);
+    QFile target_icon_file(target_icon_dile_path);
+    if (target_icon_file.exists()) {
+        qDebug() << QString("Icon '%1' already generated, using cached version").arg(target_icon_dile_path);
+        setWidgetIcon(_widget_wrapper, target_icon_dile_path);
         return true;
     }
 
-    QFile sourceIconFile(sourceIconPath);
+    QFile source_icon_file(_source_icon_path);
 
-    if (!sourceIconFile.open(QIODevice::ReadOnly)) {
-        qCritical() << QString("I/O error while opening file '%1', could not read file").arg(sourceIconPath);
+    if (!source_icon_file.open(QIODevice::ReadOnly)) {
+        qCritical() << QString("I/O error while opening file '%1', could not read file").arg(_source_icon_path);
         return false;
     }
 
-    QTextStream in(&sourceIconFile);
-    QString iconDef = in.readAll();
-    sourceIconFile.close();
+    QTextStream in(&source_icon_file);
+    QString icon_def = in.readAll();
+    source_icon_file.close();
 
     QMap<QString,QString> _contextProperties;
 
-    if (contextColorAlias.isEmpty()) {
-        if (applyAppModeColor) {
-            _contextProperties.insert("context.color1.alias", _currentModeColorAlias1);
-            _contextProperties.insert("context.color2.alias", _currentModeColorAlias2);
-        } else if (applyStatusColor) {
-            _contextProperties.insert("context.color1.alias", _currentStatusColorAlias);
-            _contextProperties.insert("context.color2.alias", _currentStatusColorAlias);
+    if (_context_color_alias.isEmpty()) {
+        if (_apply_app_mode_color) {
+            _contextProperties.insert("context.color1.alias", m_current_mode_color_alias1);
+            _contextProperties.insert("context.color2.alias", m_current_mode_color_alias2);
+        } else if (_apply_status_color) {
+            _contextProperties.insert("context.color1.alias", m_current_status_color_alias);
+            _contextProperties.insert("context.color2.alias", m_current_status_color_alias);
         }
     } else {
         /* using provided context color alias */
-        _contextProperties.insert("context.color1.alias", contextColorAlias);
-        _contextProperties.insert("context.color2.alias", contextColorAlias);
+        _contextProperties.insert("context.color1.alias", _context_color_alias);
+        _contextProperties.insert("context.color2.alias", _context_color_alias);
     }
 
     /* Determine context colors */
-    QString contextualizedIconDef;
+    QString contextualized_icon_def;
 
     if (_contextProperties.isEmpty()) {
-        contextualizedIconDef = iconDef;
+        contextualized_icon_def = icon_def;
     } else {
-        contextualizedIconDef = StringUtils::substitutePlaceHolders(iconDef, _contextProperties, PLACEHOLDER_PATTERN_XML_2);
+        contextualized_icon_def = StringUtils::substitutePlaceHolders(icon_def, _contextProperties, PLACEHOLDER_PATTERN_XML_2);
     }
 
     /* resolve day / night colors */
-    QString resolvedIconDef = StringUtils::substitutePlaceHolders(contextualizedIconDef, _currentColorPalette, PLACEHOLDER_PATTERN_XML_1);
+    QString resolved_icon_def = StringUtils::substitutePlaceHolders(contextualized_icon_def, m_current_color_palette, PLACEHOLDER_PATTERN_XML_1);
 
-    if (!targetIconFile.open(QIODevice::WriteOnly)) {
-        qCritical() << QString("I/O error while opening file '%1', could not write colorized icon").arg(targetIconFilePath);
+    if (!target_icon_file.open(QIODevice::WriteOnly)) {
+        qCritical() << QString("I/O error while opening file '%1', could not write colorized icon").arg(target_icon_dile_path);
         return false;
     }
 
-    QTextStream out(&targetIconFile);
-    out << resolvedIconDef;
+    QTextStream out(&target_icon_file);
+    out << resolved_icon_def;
     out.flush();
 
-    targetIconFile.close();
+    target_icon_file.close();
 
-    setWidgetIcon(widgetWrapper, targetIconFilePath);
+    setWidgetIcon(_widget_wrapper, target_icon_dile_path);
 
     return true;
 }

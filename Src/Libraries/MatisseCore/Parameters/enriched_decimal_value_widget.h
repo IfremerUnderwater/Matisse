@@ -9,15 +9,15 @@ namespace matisse {
 class EnrichedDecimalValueWidget : public EnrichedFormWidget
 {
 public:
-    EnrichedDecimalValueWidget(QWidget *parent = 0);
-    void setPrecision(const quint8 &precision);
+    EnrichedDecimalValueWidget(QWidget *_parent = 0);
+    void setPrecision(const quint8 &_precision);
 
 protected:
     quint8 precision() const;
-    QString withDecimalPrecision(QString matrixCellValue);
+    QString withDecimalPrecision(QString _matrix_cell_value);
     virtual void applyPrecision() = 0;
 private:
-    quint8 _precision;
+    quint8 m_precision;
 };
 
 } // namespace matisse

@@ -9,12 +9,12 @@ namespace matisse {
 class IconizedTreeItemWrapper : public IconizedWidgetWrapper
 {
 public:
-    IconizedTreeItemWrapper(MatisseTreeItem *item, int itemColumn);
-    virtual void setIcon(const QIcon &icon);
+    IconizedTreeItemWrapper(MatisseTreeItem *_item, int _item_column);
+    virtual void setIcon(const QIcon &_icon);
 
 private:
-    MatisseTreeItem *_item;
-    int _iconColumn;
+    MatisseTreeItem *m_item;
+    int m_icon_column;
 };
 
 } // namespace matisse

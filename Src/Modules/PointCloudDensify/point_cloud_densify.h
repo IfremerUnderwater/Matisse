@@ -41,7 +41,7 @@ public:
         if (!msg.empty())
         {
             QString qmsg = logPrefix() + QString::fromStdString(msg).remove('\n');
-            emit signal_userInformation(QString::fromStdString(msg));
+            emit si_userInformation(QString::fromStdString(msg));
         }
 
     } // restart
@@ -54,7 +54,7 @@ private:
     /** @brief Function that ... **/
     void inc_tic() override
     {
-        emit signal_processCompletion((int)(_count / (float)_expected_count * 100 + .5));
+        emit si_processCompletion((int)(_count / (float)_expected_count * 100 + .5));
     } // display_tic
 
     bool initDensify();

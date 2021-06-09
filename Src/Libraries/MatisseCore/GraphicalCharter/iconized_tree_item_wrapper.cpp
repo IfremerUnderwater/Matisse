@@ -2,16 +2,16 @@
 
 namespace matisse {
 
-IconizedTreeItemWrapper::IconizedTreeItemWrapper(MatisseTreeItem *item, int iconColumn) :
-    IconizedWidgetWrapper(item, true)
+IconizedTreeItemWrapper::IconizedTreeItemWrapper(MatisseTreeItem *_item, int _item_column) :
+    IconizedWidgetWrapper(_item, true)
 {
-    _item = item;
-    _iconColumn = iconColumn;
+    m_item = _item;
+    m_icon_column = _item_column;
 }
 
-void IconizedTreeItemWrapper::setIcon(const QIcon &icon)
+void IconizedTreeItemWrapper::setIcon(const QIcon &_icon)
 {
-    _item->setIcon(_iconColumn, icon);
+    m_item->setIcon(m_icon_column, _icon);
 }
 
 } // namespace matisse

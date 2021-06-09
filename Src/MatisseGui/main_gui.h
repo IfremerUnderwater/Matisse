@@ -180,13 +180,13 @@ private:
     QTreeWidgetItem *_assemblyCommentPropertyItem;
     QLabel *_assemblyCommentPropertyItemText;
 
-    ApplicationMode _activeApplicationMode;
+    eApplicationMode _activeApplicationMode;
     QHash<QString, QTreeWidgetItem*> _assembliesItems;
     QHash<QString, KeyValueList*> _assembliesProperties;
-    QMap<ApplicationMode, QString> _stylesheetByAppMode;
-    QMap<ApplicationMode, QString> _wheelColorsByMode;
-    QMap<ApplicationMode, QString> _colorsByMode1;
-    QMap<ApplicationMode, QString> _colorsByMode2;
+    QMap<eApplicationMode, QString> _stylesheetByAppMode;
+    QMap<eApplicationMode, QString> _wheelColorsByMode;
+    QMap<eApplicationMode, QString> _colorsByMode1;
+    QMap<eApplicationMode, QString> _colorsByMode2;
     QMap<MessageIndicatorLevel, QString> _colorsByLevel;
     QToolButton* _visuModeButton;
     QToolButton* _stopButton;
@@ -299,7 +299,7 @@ private:
     QTreeWidgetItem * addJobInTree(JobDefinition *job, bool isNewJob = false);
     void selectItem(QTreeWidget wid, QString itemText);
 
-    void loadStyleSheet(ApplicationMode mode);
+    void loadStyleSheet(eApplicationMode mode);
 
     void saveAssemblyAndReload(AssemblyDefinition *assembly);
     void displayAssemblyProperties(AssemblyDefinition *selectedAssembly);
@@ -393,7 +393,7 @@ protected slots:
     void slot_launchCameraCalibTool();
 
 public slots:
-    void slot_showApplicationMode(ApplicationMode mode);
+    void slot_showApplicationMode(eApplicationMode mode);
     void slot_goHome();
     void slot_show3DFileOnMainView(QString filepath_p);
     void slot_addRasterFileToMap(QString filepath_p);

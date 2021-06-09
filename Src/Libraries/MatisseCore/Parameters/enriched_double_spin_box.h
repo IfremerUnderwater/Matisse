@@ -18,13 +18,13 @@ class EnrichedDoubleSpinBox : public EnrichedDecimalValueWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedDoubleSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue);
+    explicit EnrichedDoubleSpinBox(QWidget *_parent, QString m_label, QString _min_value, QString _max_value, QString _default_value);
     //bool currentValueChanged();
     virtual QString currentValue();
     virtual void restoreDefaultValue();
 
 protected:
-    virtual void applyValue(QString newValue);
+    virtual void applyValue(QString _new_value);
     virtual void applyPrecision();
 
 signals:
@@ -32,10 +32,10 @@ signals:
 public slots:
 
 private:
-    QDoubleSpinBox * _spin;
+    QDoubleSpinBox * m_spin;
 
-    double _minValueReal;
-    double _maxValueReal;
+    double m_min_value_real;
+    double m_max_value_real;
 };
 
 } // namespace matisse

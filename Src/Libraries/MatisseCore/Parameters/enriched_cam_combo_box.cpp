@@ -3,13 +3,13 @@
 
 namespace matisse {
 
-EnrichedCamComboBox::EnrichedCamComboBox(QWidget *parent, QString label, QString defaultValue):
-    EnrichedFormWidget(parent),
+EnrichedCamComboBox::EnrichedCamComboBox(QWidget *_parent, QString _label, QString _default_value):
+    EnrichedFormWidget(_parent),
     m_combo(this)
 {
 
     QStringList values = CameraManager::instance().cameraList();
-    m_cam_info.fromQString(defaultValue);
+    m_cam_info.fromQString(_default_value);
 
     m_combo.setEditable(false);
     m_combo.addItems(values);
@@ -22,15 +22,15 @@ EnrichedCamComboBox::EnrichedCamComboBox(QWidget *parent, QString label, QString
     if( !items_in_combo_box.contains(m_cam_info.cameraName()))
         m_combo.addItem(m_cam_info.cameraName());
 
-    _defaultValue = defaultValue;
+    m_default_value = _default_value;
     m_default_index = m_combo.findText(m_cam_info.cameraName(), Qt::MatchExactly);
     m_combo.setCurrentIndex(m_default_index);
 
-    setWidget(label, &m_combo);
+    setWidget(_label, &m_combo);
 
-    connect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
+    connect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
 
-    connect(&CameraManager::instance(),SIGNAL(signal_cameraListChanged()),this,SLOT(slot_refreshCameraList()));
+    connect(&CameraManager::instance(),SIGNAL(si_cameraListChanged()),this,SLOT(sl_refreshCameraList()));
 
 }
 
@@ -58,9 +58,9 @@ qint32 EnrichedCamComboBox::currentIndex()
     return m_combo.currentIndex();
 }
 
-void EnrichedCamComboBox::applyValue(QString newValue)
+void EnrichedCamComboBox::applyValue(QString _new_value)
 {
-    m_cam_info.fromQString(newValue);
+    m_cam_info.fromQString(_new_value);
 
     QStringList items_in_combo_box;
     for (int index = 0; index < m_combo.count(); index++)
@@ -72,17 +72,17 @@ void EnrichedCamComboBox::applyValue(QString newValue)
     int index = m_combo.findText(m_cam_info.cameraName(), Qt::MatchExactly);
 
     if (index == -1) {
-        qWarning() << QString("Could not assign value '%1' : not found in combo box").arg(newValue);
+        qWarning() << QString("Could not assign value '%1' : not found in combo box").arg(_new_value);
         return;
     }
 
-    disconnect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
+    disconnect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
     m_combo.setCurrentIndex(index);
     m_initial_index = index;
-    connect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
+    connect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
 }
 
-void EnrichedCamComboBox::slot_refreshCameraList()
+void EnrichedCamComboBox::sl_refreshCameraList()
 {
     QString backup_current_value = currentValue();
 
@@ -100,10 +100,10 @@ void EnrichedCamComboBox::slot_refreshCameraList()
 
 void EnrichedCamComboBox::restoreDefaultValue()
 {
-    disconnect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
+    disconnect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
     m_combo.setCurrentIndex(m_default_index);
-    m_cam_info.fromQString(_defaultValue);
-    connect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
+    m_cam_info.fromQString(m_default_value);
+    connect(&m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
 }
 
 } // namespace matisse

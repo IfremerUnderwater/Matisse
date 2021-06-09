@@ -10,13 +10,13 @@ namespace matisse {
 class IconizedComboBoxItemWrapper : public IconizedWidgetWrapper
 {
 public:
-    IconizedComboBoxItemWrapper(QComboBox *comboBox, int initialItemIndex);
-    virtual void setIcon(const QIcon &icon);
-    void incrementItemIndex() { _itemIndex++; }
+    IconizedComboBoxItemWrapper(QComboBox *_combo_box, int _initial_item_index);
+    virtual void setIcon(const QIcon &_icon);
+    void incrementItemIndex() { m_item_index++; }
 
 private:
-    QComboBox *_comboBox;
-    int _itemIndex;
+    QComboBox *m_combo_box;
+    int m_item_index;
 };
 
 } // namespace matisse

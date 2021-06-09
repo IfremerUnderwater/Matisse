@@ -4,109 +4,109 @@
 
 namespace matisse {
 
-JobServer::JobServer(int port) :
+JobServer::JobServer(int _port) :
     QObject(NULL),
-    _socket(NULL)
+    m_socket(NULL)
 {
-    connect(&_server, SIGNAL(newConnection()), this, SLOT(slot_clientConnected()));
+    connect(&m_server, SIGNAL(newConnection()), this, SLOT(sl_clientConnected()));
 
-     _server.listen(QHostAddress(QHostAddress::LocalHost), port);
-     qDebug() << "Server Listening on port " << port;
+     m_server.listen(QHostAddress(QHostAddress::LocalHost), _port);
+     qDebug() << "Server Listening on port " << _port;
 }
 
-void JobServer::sendExecutionNotification(QString name)
+void JobServer::sendExecutionNotification(QString _name)
 {
-    QString configCmd = "$JOBEXECUTION:"+name;
-    sendCmd(configCmd);
+    QString config_cmd = "$JOBEXECUTION:"+_name;
+    sendCmd(config_cmd);
 }
 
-void JobServer::slot_clientConnected()
+void JobServer::sl_clientConnected()
 {
     qDebug() << "Client connected";
-    if (_socket) {
-        if (_socket->isOpen()) {
-            _socket->flush();
-            _socket->close();
+    if (m_socket) {
+        if (m_socket->isOpen()) {
+            m_socket->flush();
+            m_socket->close();
         }
-        _socket->disconnect();
-        _socket->deleteLater();
+        m_socket->disconnect();
+        m_socket->deleteLater();
     }
 
-    _socket = _server.nextPendingConnection();
-    if (!_socket) {
+    m_socket = m_server.nextPendingConnection();
+    if (!m_socket) {
         qWarning() << "No pending connection";
         return;
     }
-    connect(_socket, SIGNAL(disconnected()), this, SLOT(slot_clientDisconnected()));
-    connect(_socket, SIGNAL(readyRead()), this, SLOT(slot_readData()));
+    connect(m_socket, SIGNAL(disconnected()), this, SLOT(sl_clientDisconnected()));
+    connect(m_socket, SIGNAL(readyRead()), this, SLOT(sl_readData()));
 
     // Pour un usage futur (auparavant, le chemin des data etait passe par la).
-    QString configCmd = "$CONFIG:";
-    sendCmd(configCmd);
+    QString config_cmd = "$CONFIG:";
+    sendCmd(config_cmd);
 
 }
 
-void JobServer::slot_clientDisconnected()
+void JobServer::sl_clientDisconnected()
 {
     qDebug() << "Client disconnected";
 }
 
-void JobServer::slot_readData()
+void JobServer::sl_readData()
 {
-    QByteArray datas;
-    while (_socket->bytesAvailable() > 0) {
-        datas.append(_socket->readAll());
+    QByteArray data;
+    while (m_socket->bytesAvailable() > 0) {
+        data.append(m_socket->readAll());
     }
-    QString datasStr(datas);
-    qDebug() << "Receive: " << datasStr;
-    if (datasStr.startsWith("$LISTJOBS")) {
-         QString jobCmd;
+    QString datas_str(data);
+    qDebug() << "Receive: " << datas_str;
+    if (datas_str.startsWith("$LISTJOBS")) {
+         QString job_cmd;
 
          ProcessDataManager* process_data_manager = ProcessDataManager::instance();
 
-         foreach (QString jobName, process_data_manager->getJobsNames()) {
+         foreach (QString job_name, process_data_manager->getJobsNames()) {
 
-             JobDefinition *def= process_data_manager->getJob(jobName);
+             JobDefinition *def= process_data_manager->getJob(job_name);
 
-             bool isExecuted = def->executionDefinition()->executed();
-             if(isExecuted) {
+             bool is_executed = def->executionDefinition()->executed();
+             if(is_executed) {
                  QDateTime time = def->executionDefinition()->executionDate();
                  QString comment = def->comment();
                  QStringList results = def->executionDefinition()->resultFileNames();
-                 QString resultCount = QString::number(results.size());
-                 QString assemblyName = def->assemblyName();
+                 QString result_count = QString::number(results.size());
+                 QString assembly_name = def->assemblyName();
                  // Avoid special chars used as delimiters
                  comment.replace(QString(";"), QString(","));
                  comment.replace(QString("^"), QString(" "));
-                 jobCmd= "$JOB:"
+                 job_cmd= "$JOB:"
                          + def->name() +";"
-                         + assemblyName +";"
+                         + assembly_name +";"
                          + time.toString("dd/MM/yyyy HH:mm") + ";"
                          + comment + ";"
-                         + resultCount ;
+                         + result_count ;
                  foreach (QString result, results) {
-                     jobCmd.append(";");
-                     jobCmd.append(result);
+                     job_cmd.append(";");
+                     job_cmd.append(result);
                  }
-                 sendCmd(jobCmd);
+                 sendCmd(job_cmd);
             }
          }
     }
 
 }
 
-bool JobServer::sendCmd(QString data) {
+bool JobServer::sendCmd(QString _data) {
     bool ret = false;
-    if (_socket && _socket->isOpen()) {
-        data.append("^");
+    if (m_socket && m_socket->isOpen()) {
+        _data.append("^");
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-        if (_socket->write(data.toLatin1()) == data.size()){
-            qDebug() << "Send:" << data.toLatin1();
+        if (m_socket->write(_data.toLatin1()) == _data.size()){
+            qDebug() << "Send:" << _data.toLatin1();
 #else
-        if (_socket->write(data.toAscii()) == data.size()){
-            qDebug() << "Send:" << data.toAscii();
+        if (m_socket->write(_data.toAscii()) == _data.size()){
+            qDebug() << "Send:" << _data.toAscii();
 #endif
-            ret = _socket->flush();
+            ret = m_socket->flush();
         }
     }
     return ret;

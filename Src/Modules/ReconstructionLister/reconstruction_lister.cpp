@@ -46,16 +46,16 @@ void ReconstructionLister::onFlush(quint32 port)
     QString out_dir = absoluteOutputDir();
     QDir q_out_dir(out_dir);
 
-    QString fileNamePrefixStr = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+    QString fileNamePrefixStr = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
     // Get context
-    QVariant* object = _context->getObject("reconstruction_context");
+    QVariant* object = m_context->getObject("reconstruction_context");
     reconstructionContext* rc = NULL;
     if (object)
     {
         rc = object->value<reconstructionContext*>();
 
-        QString out_filename_prefix = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+        QString out_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
         for (unsigned int i = 0; i < rc->components_ids.size(); i++)
         {

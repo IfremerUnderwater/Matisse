@@ -91,11 +91,11 @@ bool PointCloudDensify::initDensify()
 
     // Get user params
     bool ok = true;
-    int reslevel = _matisseParameters->getIntParamValue("algo_param", "resolution_level", ok);
+    int reslevel = m_matisse_parameters->getIntParamValue("algo_param", "resolution_level", ok);
     if (ok)
         OPTDENSE::nResolutionLevel = reslevel;
 
-    int nbviewfuse = _matisseParameters->getIntParamValue("algo_param", "number_views_fuse", ok);
+    int nbviewfuse = m_matisse_parameters->getIntParamValue("algo_param", "number_views_fuse", ok);
     if (ok)
         OPTDENSE::nMinViewsFuse = nbviewfuse;
 
@@ -115,8 +115,8 @@ bool PointCloudDensify::initDensify()
 bool PointCloudDensify::DensifyPointCloud(QString _scene_dir, QString _scene_file)
 {
 
-emit signal_userInformation("PointCloudDensify - Densify");
-emit signal_processCompletion(-1);
+emit si_userInformation("PointCloudDensify - Densify");
+emit si_processCompletion(-1);
 
 QFileInfo scene_file_info(_scene_dir + QDir::separator() + _scene_file);
 
@@ -188,7 +188,7 @@ bool PointCloudDensify::start()
 
     m_outdir = absoluteOutputTempDir();
 
-    m_out_filename_prefix = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+    m_out_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
     return true;
 }
@@ -204,7 +204,7 @@ void PointCloudDensify::onFlush(quint32 port)
 
     // Log
     QString proc_info = logPrefix() + "Point cloud densification started\n";
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
 
     QElapsedTimer timer;
     timer.start();
@@ -212,7 +212,7 @@ void PointCloudDensify::onFlush(quint32 port)
     static const QString SEP = QDir::separator();
 
     // Get context
-    QVariant *object = _context->getObject("reconstruction_context");
+    QVariant *object = m_context->getObject("reconstruction_context");
     reconstructionContext * rc;
     if (object)
         rc = object->value<reconstructionContext*>();
@@ -260,8 +260,8 @@ void PointCloudDensify::onFlush(quint32 port)
             fatalErrorExit("Input point Cloud is not in the right format. Only openMVG supported for now");
         }
 
-        emit signal_processCompletion(-1);
-        emit signal_userInformation("PointCloudDensify");
+        emit si_processCompletion(-1);
+        emit si_userInformation("PointCloudDensify");
 
         // compute dense scene
         if (!this->DensifyPointCloud(scene_dir_i, m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".mvs") )
@@ -274,11 +274,11 @@ void PointCloudDensify::onFlush(quint32 port)
     rc->current_format = ReconFormat::openMVS;
     rc->out_file_suffix = rc->out_file_suffix + "_dense";
 
-    emit signal_userInformation("PointCloudDensify");
-    emit signal_processCompletion(100);
+    emit si_userInformation("PointCloudDensify");
+    emit si_processCompletion(100);
 
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
 
     // Flush next module port
     flush(0);

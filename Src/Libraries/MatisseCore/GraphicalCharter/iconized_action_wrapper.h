@@ -10,11 +10,11 @@ namespace matisse {
 class IconizedActionWrapper : public IconizedWidgetWrapper
 {
 public:
-    IconizedActionWrapper(QAction *action);
-    virtual void setIcon(const QIcon &icon);
+    IconizedActionWrapper(QAction *_action);
+    virtual void setIcon(const QIcon &_icon);
 
 private:
-    QAction *_action;
+    QAction *m_action;
 };
 
 } // namespace matisse

@@ -15,27 +15,27 @@ class ParametersWidgetSkeleton : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ParametersWidgetSkeleton(QWidget *parent = 0);
+    explicit ParametersWidgetSkeleton(QWidget *_parent = 0);
     ~ParametersWidgetSkeleton();
 
-    void addWidget(QWidget * widget);
+    void addWidget(QWidget * _widget);
     void clearModifications();
     bool hasModifiedValues();
 
 protected:
-    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
 
 protected slots:
-    void slot_valueModified(bool trueOrFalse);
+    void sl_valueModified(bool _has_changed);
 
 signals:
-    void signal_valuesModified(bool trueOrFalse);
-    void signal_translateParameters();
+    void si_valuesModified(bool _has_changed);
+    void si_translateParameters();
 
 private:
-    Ui::ParametersWidgetSkeleton *_ui;
-    QList<QWidget*> _widgets;
-    QList<QObject*>_modifiedValues;
+    Ui::ParametersWidgetSkeleton *m_ui;
+    QList<QWidget*> m_widgets;
+    QList<QObject*>m_modified_values;
 };
 
 } // namespace matisse

@@ -105,7 +105,7 @@ bool Meshing3D::initMeshing()
     OPT::strExportType="ply";
 
     bool ok;
-    double decimatearg = _matisseParameters->getDoubleParamValue("algo_param", "decimate_factor", ok);
+    double decimatearg = m_matisse_parameters->getDoubleParamValue("algo_param", "decimate_factor", ok);
     if (ok)
         OPT::fDecimateMesh = decimatearg;
 
@@ -185,7 +185,7 @@ bool Meshing3D::start()
 
     m_outdir = absoluteOutputTempDir();
 
-    m_out_filename_prefix = _matisseParameters->getStringParamValue("dataset_param", "output_filename");
+    m_out_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
     return true;
 }
@@ -204,14 +204,14 @@ void Meshing3D::onFlush(quint32 port)
 
     static const QString SEP = QDir::separator();
 
-    emit signal_processCompletion(0);
-    emit signal_userInformation("Meshing3D - start");
+    emit si_processCompletion(0);
+    emit si_userInformation("Meshing3D - start");
 
     QString proc_info = logPrefix() + "Meshing started\n";
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
 
     // Get context
-    QVariant *object = _context->getObject("reconstruction_context");
+    QVariant *object = m_context->getObject("reconstruction_context");
     reconstructionContext * rc;
     if (object)
         rc = object->value<reconstructionContext*>();
@@ -263,10 +263,10 @@ void Meshing3D::onFlush(quint32 port)
             continue;
 
         //// Compute Mesh
-        emit signal_userInformation("Meshing...");
-        emit signal_processCompletion(-1);
+        emit si_userInformation("Meshing...");
+        emit si_processCompletion(-1);
 
-        emit signal_processCompletion(100);
+        emit si_processCompletion(100);
 
     }
 
@@ -275,7 +275,7 @@ void Meshing3D::onFlush(quint32 port)
 
     // Log elapsed time
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
     //qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
 
     // Flush next module port

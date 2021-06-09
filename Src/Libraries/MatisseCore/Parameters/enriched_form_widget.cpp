@@ -3,91 +3,91 @@
 
 namespace matisse {
 
-QSharedPointer<QFontMetrics> EnrichedFormWidget::_metrics;
+QSharedPointer<QFontMetrics> EnrichedFormWidget::m_metrics;
 
-EnrichedFormWidget::EnrichedFormWidget(QWidget *parent) :
-    QWidget(parent)
+EnrichedFormWidget::EnrichedFormWidget(QWidget *_parent) :
+    QWidget(_parent)
 {
     GraphicalCharter &graph_chart = GraphicalCharter::instance();
 
-    if(_metrics == NULL) {
-        _metrics = QSharedPointer<QFontMetrics>(new QFontMetrics(QFont(MATISSE_FONT_TYPE, MATISSE_FONT_DEFAULT_SIZE_PT)));
+    if(m_metrics == NULL) {
+        m_metrics = QSharedPointer<QFontMetrics>(new QFontMetrics(QFont(MATISSE_FONT_TYPE, MATISSE_FONT_DEFAULT_SIZE_PT)));
     }
-    _label = new QLabel(this);
-    _gridLayout = new QGridLayout(this);
-    _gridLayout->setContentsMargins(0, 0, 0, 0);
-    _gridLayout->setHorizontalSpacing(graph_chart.dpiScaled(PARAM_WIDGET_FIELD_HSPACING));
+    m_label = new QLabel(this);
+    m_grid_layout = new QGridLayout(this);
+    m_grid_layout->setContentsMargins(0, 0, 0, 0);
+    m_grid_layout->setHorizontalSpacing(graph_chart.dpiScaled(PARAM_WIDGET_FIELD_HSPACING));
 }
 
-void EnrichedFormWidget::setValue(QString newValue)
+void EnrichedFormWidget::setValue(QString _new_value)
 {
-    applyValue(newValue);
-    _initialValue = currentValue();
+    applyValue(_new_value);
+    m_initial_value = currentValue();
 }
 
-void EnrichedFormWidget::setWidget(QString label, QWidget *widget, bool wrapWidget)
+void EnrichedFormWidget::setWidget(QString _label, QWidget *_widget, bool _wrap_widget)
 {
     GraphicalCharter &graph_chart = GraphicalCharter::instance();
 
-    if (!label.isEmpty()) {
-        label.append(":");
+    if (!_label.isEmpty()) {
+        _label.append(":");
     }
-    _label->setText(label);
-    _label->setWordWrap(true);
+    m_label->setText(_label);
+    m_label->setWordWrap(true);
 
-    _widget = widget;
-    if (wrapWidget) {
-        _label->setFixedWidth(graph_chart.dpiScaled(PARAM_LABEL_WIDTH_WRAP));
+    m_widget = _widget;
+    if (_wrap_widget) {
+        m_label->setFixedWidth(graph_chart.dpiScaled(PARAM_LABEL_WIDTH_WRAP));
         /* widget is displayed on 2nd row */
-        _gridLayout->addWidget(_label, 0, 0);
-        _gridLayout->addWidget(widget, 1, 0);
+        m_grid_layout->addWidget(m_label, 0, 0);
+        m_grid_layout->addWidget(_widget, 1, 0);
         //_gridLayout->setAlignment(widget, Qt::AlignRight);
-        _gridLayout->setAlignment(widget, Qt::AlignLeft);
+        m_grid_layout->setAlignment(_widget, Qt::AlignLeft);
     } else {
-        _label->setFixedWidth(graph_chart.dpiScaled(PARAM_LABEL_WIDTH_NOWRAP));
-        _gridLayout->addWidget(_label, 0, 0);
-        _gridLayout->addWidget(widget, 0, 1);
-        _gridLayout->setAlignment(widget, Qt::AlignLeft);
+        m_label->setFixedWidth(graph_chart.dpiScaled(PARAM_LABEL_WIDTH_NOWRAP));
+        m_grid_layout->addWidget(m_label, 0, 0);
+        m_grid_layout->addWidget(_widget, 0, 1);
+        m_grid_layout->setAlignment(_widget, Qt::AlignLeft);
     }
-    if (widget -> minimumHeight() > graph_chart.dpiScaled(PARAM_WIDGET_ALIGN_HEIGHT_THRE)) {
-        _gridLayout->setAlignment(_label, Qt::AlignTop | Qt::AlignLeft);
+    if (_widget -> minimumHeight() > graph_chart.dpiScaled(PARAM_WIDGET_ALIGN_HEIGHT_THRE)) {
+        m_grid_layout->setAlignment(m_label, Qt::AlignTop | Qt::AlignLeft);
     }
 }
 
 bool EnrichedFormWidget::currentValueChanged()
 {
-    QString currentVal = currentValue();
-    return currentVal != _initialValue;
+    QString current_val = currentValue();
+    return current_val != m_initial_value;
 }
 
-void EnrichedFormWidget::swapColor(bool yes)
+void EnrichedFormWidget::swapColor(bool _do_swap)
 {
-    QPalette labelPalette = _label->palette();
-    QPalette widPalette = _widget->palette();
+    QPalette label_palette = m_label->palette();
+    QPalette wid_palette = m_widget->palette();
 
-    if (yes) {
-        labelPalette.setColor(QPalette::WindowText, Qt::red);
-        _label->setPalette(labelPalette);
-        widPalette.setColor(QPalette::WindowText, Qt::red);
-        _widget->setPalette(widPalette);
+    if (_do_swap) {
+        label_palette.setColor(QPalette::WindowText, Qt::red);
+        m_label->setPalette(label_palette);
+        wid_palette.setColor(QPalette::WindowText, Qt::red);
+        m_widget->setPalette(wid_palette);
     } else {
-        labelPalette.setColor(QPalette::WindowText, Qt::black);
-        _label->setPalette(labelPalette);
-        widPalette.setColor(QPalette::WindowText, Qt::black);
-        _widget->setPalette(widPalette);
+        label_palette.setColor(QPalette::WindowText, Qt::black);
+        m_label->setPalette(label_palette);
+        wid_palette.setColor(QPalette::WindowText, Qt::black);
+        m_widget->setPalette(wid_palette);
     }
 }
 
-quint32 EnrichedFormWidget::getTextFieldWidth(QString text)
+quint32 EnrichedFormWidget::getTextFieldWidth(QString _text)
 {
-    return _metrics->width(text);
+    return m_metrics->width(_text);
 }
 
-void EnrichedFormWidget::slot_valueChanged()
+void EnrichedFormWidget::sl_valueChanged()
 {
-    bool hasValueChanged = currentValueChanged();
-    swapColor(hasValueChanged);
-    emit signal_valueChanged(hasValueChanged);
+    bool has_value_changed = currentValueChanged();
+    swapColor(has_value_changed);
+    emit si_valueChanged(has_value_changed);
 }
 
 } // namespace matisse

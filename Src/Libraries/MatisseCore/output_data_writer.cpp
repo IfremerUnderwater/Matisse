@@ -2,12 +2,12 @@
 
 namespace matisse {
 
-OutputDataWriter::OutputDataWriter(QObject *parent, QString name, QString comment, quint16 inNumber) :
+OutputDataWriter::OutputDataWriter(QObject *parent, QString _name, QString _comment, quint16 _in_number) :
     QObject(parent),
-    LifecycleComponent(name, "[DESTINATION " + name + "]: "),
-    _comment(comment),
-    _inNumber(inNumber),
-    _imageSet(NULL)
+    LifecycleComponent(_name, "[DESTINATION " + _name + "]: "),
+    m_comment(_comment),
+    m_in_number(_in_number),
+    m_image_set(NULL)
 {
 }
 
@@ -18,12 +18,12 @@ OutputDataWriter::~OutputDataWriter()
 
 ImageSet *OutputDataWriter::imageSet() const
 {
-    return _imageSet;
+    return m_image_set;
 }
 
-void OutputDataWriter::setImageSet(ImageSet *imageSet)
+void OutputDataWriter::setImageSet(ImageSet *_image_set)
 {
-    _imageSet = imageSet;
+    m_image_set = _image_set;
 }
 
 } // namespace matisse

@@ -2,16 +2,16 @@
 
 namespace matisse {
 
-EnrichedCheckBox::EnrichedCheckBox(QWidget *parent, QString label, bool checked) :
-    EnrichedFormWidget(parent)
+EnrichedCheckBox::EnrichedCheckBox(QWidget *_parent, QString _label, bool _checked) :
+    EnrichedFormWidget(_parent)
 {
-    _check = new QCheckBox(this);
-    _defaultValue = QString("%1").arg(checked);
-    _check->setChecked(checked);
+    m_check = new QCheckBox(this);
+    m_default_value = QString("%1").arg(_checked);
+    m_check->setChecked(_checked);
 
-    setWidget(label, _check);
+    setWidget(_label, m_check);
 
-    connect(_check, SIGNAL(stateChanged(int)), this, SLOT(slot_valueChanged()));
+    connect(m_check, SIGNAL(stateChanged(int)), this, SLOT(sl_valueChanged()));
 
 }
 
@@ -23,7 +23,7 @@ EnrichedCheckBox::EnrichedCheckBox(QWidget *parent, QString label, bool checked)
 QString EnrichedCheckBox::currentValue()
 {
     QString ret = "false";
-    if (_check->checkState() == Qt::Checked) {
+    if (m_check->checkState() == Qt::Checked) {
         ret = "true";
     }
 
@@ -33,21 +33,21 @@ QString EnrichedCheckBox::currentValue()
 void EnrichedCheckBox::restoreDefaultValue()
 {
 
-    bool checked = QVariant(_defaultValue).toBool();
+    bool checked = QVariant(m_default_value).toBool();
 
-    disconnect(_check, SIGNAL(stateChanged(int)), this, SLOT(slot_valueChanged()));
-    _check->setChecked(checked);
-    connect(_check, SIGNAL(stateChanged(int)), this, SLOT(slot_valueChanged()));
+    disconnect(m_check, SIGNAL(stateChanged(int)), this, SLOT(sl_valueChanged()));
+    m_check->setChecked(checked);
+    connect(m_check, SIGNAL(stateChanged(int)), this, SLOT(sl_valueChanged()));
 }
 
-void EnrichedCheckBox::applyValue(QString newValue)
+void EnrichedCheckBox::applyValue(QString _new_value)
 {
-    bool checked = QVariant(newValue).toBool();
-    qDebug() << QString("Converted '%1' as '%2' for checkbox assignment").arg(newValue).arg(checked);
+    bool checked = QVariant(_new_value).toBool();
+    qDebug() << QString("Converted '%1' as '%2' for checkbox assignment").arg(_new_value).arg(checked);
 
-    disconnect(_check, SIGNAL(stateChanged(int)), this, SLOT(slot_valueChanged()));
-    _check->setChecked(checked);
-    connect(_check, SIGNAL(stateChanged(int)), this, SLOT(slot_valueChanged()));
+    disconnect(m_check, SIGNAL(stateChanged(int)), this, SLOT(sl_valueChanged()));
+    m_check->setChecked(checked);
+    connect(m_check, SIGNAL(stateChanged(int)), this, SLOT(sl_valueChanged()));
 }
 
 } // namespace matisse

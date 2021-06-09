@@ -37,101 +37,101 @@ class MatisseParametersManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit MatisseParametersManager(QObject *parent = 0);
+    explicit MatisseParametersManager(QObject *_parent = 0);
 
-    bool readDictionnaryFile(QString xmlFilename);
-    bool addUserModuleForParameter(QString userModule, QString structureName, QString paramName);
-    bool removeUserModuleForParameter(QString userModule, QString structureName, QString paramName);
+    bool readDictionnaryFile(QString _xml_filename);
+    bool addUserModuleForParameter(QString _user_module, QString _structure_name, QString _param_name);
+    bool removeUserModuleForParameter(QString _user_module, QString _structure_name, QString _param_name);
     bool clearExpectedParameters();
 
-    bool addParameter(QString structName, QString groupName, QString groupText, QXmlStreamAttributes attributes);
-    bool addEnum(QString enumsName, QXmlStreamAttributes attributes);
-    ParametersWidgetSkeleton *generateParametersWidget(QWidget *owner);
-    ParametersWidgetSkeleton * parametersWidget() { return _fullParametersWidget; }
+    bool addParameter(QString _struct_name, QString _group_name, QString _group_text, QXmlStreamAttributes _attributes);
+    bool addEnum(QString _enums_name, QXmlStreamAttributes _attributes);
+    ParametersWidgetSkeleton *generateParametersWidget(QWidget *_owner);
+    ParametersWidgetSkeleton * parametersWidget() { return m_full_parameters_widget; }
 
-    bool saveParametersValues(QString entityName, bool isAssemblyTemplate);
-    bool loadParameters(QString entityName, bool isAssemblyTemplate);
+    bool saveParametersValues(QString _entity_name, bool _is_assembly_template);
+    bool loadParameters(QString _entity_name, bool _is_assembly_template);
     void restoreParametersDefaultValues();
 
-    void createJobParametersFile(QString assemblyName, QString jobName, KeyValueList kvl);
+    void createJobParametersFile(QString _assembly_name, QString _job_name, KeyValueList _kvl);
 
-    void applyApplicationContext(bool isExpert, bool isProgramming);
-    void toggleReadOnlyMode(bool isReadOnly);
-    void pullDatasetParameters(KeyValueList &kvl);
-    void pushDatasetParameters(KeyValueList kvl);
-    void pushPreferredDatasetParameters(KeyValueList kvl);
+    void applyApplicationContext(bool _is_expert, bool _is_programming);
+    void toggleReadOnlyMode(bool _is_read_only);
+    void pullDatasetParameters(KeyValueList &_kvl);
+    void pushDatasetParameters(KeyValueList _kvl);
+    void pushPreferredDatasetParameters(KeyValueList _kvl);
 
-    QString getParameterValue(QString parameterName);
+    QString getParameterValue(QString _parameter_name);
 
-    void setIconFactory(MatisseIconFactory *iconFactory);
+    void setIconFactory(MatisseIconFactory *_icon_factory);
 
 signals:
 
 protected slots:
-    void slot_translateParameters();
-    void slot_foldUnfoldLevelParameters();
+    void sl_translateParameters();
+    void sl_foldUnfoldLevelParameters();
 
 private:
     void loadStaticCollections();
-    bool getRange(Parameter param, QVariant &minValue, QVariant &maxValue);
-    QString getValue(QString structName, QString parameterName);
-    qint32 getIntValue(QVariant value);
-    bool getBoolValue(QVariant value);
-    double getDoubleValue(QVariant value);
-    QStringList getNumList(Parameter param);
-    QStringList getEnums(Parameter param);
-    bool readParametersFile(QString filename, bool isAssemblyTemplate);
-    bool writeParametersFile(QString parametersFilename, bool overwrite=false);
-    void generateLevelParametersWidget(ParameterLevel level);
+    bool getRange(Parameter _param, QVariant &_min_value, QVariant &_max_value);
+    QString getValue(QString _struct_name, QString _parameter_name);
+    qint32 getIntValue(QVariant _value);
+    bool getBoolValue(QVariant _value);
+    double getDoubleValue(QVariant _value);
+    QStringList getNumList(Parameter _param);
+    QStringList getEnums(Parameter _param);
+    bool readParametersFile(QString _filename, bool _is_assembly_template);
+    bool writeParametersFile(QString _parameters_filename, bool _overwrite=false);
+    void generateLevelParametersWidget(eParameterLevel _level);
     void translateHeaderButtons();
-    void retranslateLevelGroups(ParameterLevel level);
+    void retranslateLevelGroups(eParameterLevel _level);
     void checkDictionnaryComplete();
 
-    MatisseDictionnaryLabels _dictionnaryLabels;
+    MatisseDictionnaryLabels m_dictionnary_labels;
 
-    QMap<QString, Structure> _structures;
-    QMap<QString, ParametersGroup> _groups;
-    QMap<QString, Parameter> _parameters;
-    QStringList _structuresNames;
-    QMap<QString, Enums> _enums;
-    QMap<QString, QString> _structureByParameter;
-    QMap<QString, QSet<QString>*> _expectedParameters;
-    QMap<QString, QString> _groupByParameter;
-    QMap<ParameterLevel, QList<QString>*> _parametersByLevel;
-    QMap<QString, QSet<QString>*> _expectedGroups;
-    QSet<QString> _jobExtraParameters;
-    QMap<QString, QString> _preferredDatasetParameters;
-    QDateTime _dicoPublicationTimestamp;
-    QString _selectedAssembly;
+    QMap<QString, Structure> m_structures;
+    QMap<QString, ParametersGroup> m_groups;
+    QMap<QString, Parameter> m_parameters;
+    QStringList m_structures_names;
+    QMap<QString, Enums> m_enums;
+    QMap<QString, QString> m_structure_by_parameter;
+    QMap<QString, QSet<QString>*> m_expected_parameters;
+    QMap<QString, QString> m_group_by_parameter;
+    QMap<eParameterLevel, QList<QString>*> m_parameters_by_level;
+    QMap<QString, QSet<QString>*> m_expected_groups;
+    QSet<QString> m_job_extra_parameters;
+    QMap<QString, QString> m_preferred_dataset_parameters;
+    QDateTime m_dico_publication_timestamp;
+    QString m_selected_assembly;
 
-    ParametersWidgetSkeleton * _fullParametersWidget;
-    QMap<QString, QMap<QString, QWidget*> > _groupsWidgets;
-    QMap<QString, QMap<QString, EnrichedFormWidget*> > _valuesWidgets;
-    QMap<QString, ParametersWidgetSkeleton*> _dialogs;
+    ParametersWidgetSkeleton * m_full_parameters_widget;
+    QMap<QString, QMap<QString, QWidget*> > m_groups_widgets;
+    QMap<QString, QMap<QString, EnrichedFormWidget*> > m_values_widgets;
+    QMap<QString, ParametersWidgetSkeleton*> m_dialogs;
 
-    QMap<QString, EnrichedFormWidget*> _valueWidgetsByParamName;
-    QMap<ParameterLevel, QMap<QString, QGroupBox*>* > _groupWidgetsByLevel;
+    QMap<QString, EnrichedFormWidget*> m_value_widgets_by_param_name;
+    QMap<eParameterLevel, QMap<QString, QGroupBox*>* > m_group_widgets_by_level;
 
-    QMap<ParameterLevel, ParametersHeaderButton*> _headerButtonsByLevel;
-    QMap<ParameterLevel, QWidget*> _paramContainersByLevel;
+    QMap<eParameterLevel, ParametersHeaderButton*> m_header_buttons_by_level;
+    QMap<eParameterLevel, QWidget*> m_param_containers_by_level;
 
-    bool _isReadOnlyMode;
+    bool m_is_read_only_mode;
 
-    MatisseIconFactory *_iconFactory;
+    MatisseIconFactory *m_icon_factory;
 
-    static QMap<QString, ParameterType> _enumTypes;
-    static QMap<QString, ParameterLevel> _enumLevels;
-    static QMap<QString, ParameterShow> _enumShows;
+    static QMap<QString, eParameterType> m_enum_types;
+    static QMap<QString, eParameterLevel> m_enum_levels;
+    static QMap<QString, eParameterShow> m_enum_shows;
 
-    static QSet<QString> _datasetParamNames;
+    static QSet<QString> m_dataset_param_names;
 
-    static QRegExp _intervalRangeExpr;
-    static QRegExp _setRangeExpr;
-    static QRegExp _matrixExpr;
-    static QRegExp _matrixValuesExpr;
+    static QRegExp m_interval_range_expr;
+    static QRegExp m_set_range_expr;
+    static QRegExp m_matrix_expr;
+    static QRegExp m_matrix_values_expr;
 
-    static QString _infStr;
-    static double _epsilon;
+    static QString m_inf_str;
+    static double m_epsilon;
 };
 
 } // namespace matisse

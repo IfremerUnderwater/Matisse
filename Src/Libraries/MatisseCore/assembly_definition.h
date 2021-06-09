@@ -15,7 +15,7 @@
 
 namespace matisse {
 
-enum AssemblyDefinitionValidity {
+enum eAssemblyDefinitionValidity {
     VALID = 0,
     MISSING_SOURCE,
     MISSING_PROCESSOR,
@@ -29,128 +29,128 @@ class SourceDefinition
 {
     friend class AssemblyDefinition;
 public:
-    SourceDefinition(QString name) :
-        _id(0),
-        _name(name),
-        _order(0){}
+    SourceDefinition(QString _name) :
+        m_id(0),
+        m_name(_name),
+        m_order(0){}
 
-    quint32 id() const { return _id;}
-    QString name() const { return _name;}
-    quint32 order() const { return _order;}
+    quint32 id() const { return m_id;}
+    QString name() const { return m_name;}
+    quint32 order() const { return m_order;}
 
 private:
-    quint32 _id;
-    QString _name;
-    quint32 _order;
+    quint32 m_id;
+    QString m_name;
+    quint32 m_order;
 };
 
 class DestinationDefinition
 {
     friend class AssemblyDefinition;
 public:
-    DestinationDefinition(QString name, quint32 order) :
-        _id(0),
-        _name(name),
-        _order(order){}
+    DestinationDefinition(QString _name, quint32 _order) :
+        m_id(0),
+        m_name(_name),
+        m_order(_order){}
 
-    quint32 id() const { return _id;}
-    QString name() const { return _name;}
-    quint32 order() const { return _order;}
+    quint32 id() const { return m_id;}
+    QString name() const { return m_name;}
+    quint32 order() const { return m_order;}
 
 private:
-    quint32 _id;
-    QString _name;
-    quint32 _order;
+    quint32 m_id;
+    QString m_name;
+    quint32 m_order;
 };
 
 class ProcessorDefinition {
     friend class AssemblyDefinition;
 public:
-    ProcessorDefinition(QString name, quint32 order):
-        _id(0),
-        _name(name),
-        _order(order) {}
+    ProcessorDefinition(QString _name, quint32 _order):
+        m_id(0),
+        m_name(_name),
+        m_order(_order) {}
 
-    quint32 id() const { return _id;}
-    QString name() const { return _name;}
-    quint32 order() const { return _order;}
+    quint32 id() const { return m_id;}
+    QString name() const { return m_name;}
+    quint32 order() const { return m_order;}
 
 private:
-    quint32 _id;
-    QString _name;
-    quint32 _order;
+    quint32 m_id;
+    QString m_name;
+    quint32 m_order;
 };
 
 class ConnectionDefinition {
     friend class AssemblyDefinition;
 public:
-    ConnectionDefinition(quint32 startOrder, quint32 startLine, quint32 endOrder, quint32 endLine, QRgb color) :
-        _startOrder(startOrder),
-        _startLine(startLine),
-        _endOrder(endOrder),
-        _endLine(endLine),
-        _color(color){}
-    quint32 startOrder() const { return _startOrder;}
-    quint32 startLine() const { return _startLine;}
-    quint32 endOrder() const { return _endOrder;}
-    quint32 endLine() const { return _endLine;}
-    QRgb color() const { return _color;}
+    ConnectionDefinition(quint32 _start_order, quint32 _start_line, quint32 _end_order, quint32 _end_line, QRgb _color) :
+        m_start_order(_start_order),
+        m_start_line(_start_line),
+        m_end_order(_end_order),
+        m_end_line(_end_line),
+        m_color(_color){}
+    quint32 startOrder() const { return m_start_order;}
+    quint32 startLine() const { return m_start_line;}
+    quint32 endOrder() const { return m_end_order;}
+    quint32 endLine() const { return m_end_line;}
+    QRgb color() const { return m_color;}
 
 private:
-    quint32 _startOrder;
-    quint32 _startLine;
-    quint32 _endOrder;
-    quint32 _endLine;
-    QRgb _color;
+    quint32 m_start_order;
+    quint32 m_start_line;
+    quint32 m_end_order;
+    quint32 m_end_line;
+    QRgb m_color;
 };
 
 class AssemblyDefinition : public QObject
 {
     Q_OBJECT
 public:
-    explicit AssemblyDefinition(QObject *parent = 0);
+    explicit AssemblyDefinition(QObject *_parent = 0);
 
     // Getters/setters
     QString version() const;
-    void setVersion(const QString &version);
+    void setVersion(const QString &_version);
 
     QList<ProcessorDefinition*> processorDefs() const;
     QList<ConnectionDefinition*> connectionDefs() const;
 
     QString date() const;
-    void setDate(const QString &date);
+    void setDate(const QString &_date);
 
     QString author() const;
-    void setAuthor(const QString &author);
+    void setAuthor(const QString &_author);
 
     QString comment() const;
-    void setComment(const QString &comment);
+    void setComment(const QString &_comment);
 
     // Others
-    void addProcessorDef(ProcessorDefinition *processorDef);
-    void addConnectionDef(ConnectionDefinition *connectionDef);
+    void addProcessorDef(ProcessorDefinition *_processor_def);
+    void addConnectionDef(ConnectionDefinition *_connection_def);
 
     SourceDefinition* sourceDefinition() const;
-    void setSourceDefinition(SourceDefinition *sourceDefinition);
+    void setSourceDefinition(SourceDefinition *_source_definition);
 
     DestinationDefinition* destinationDefinition() const;
-    void setDestinationDefinition(DestinationDefinition *destinationDefinition);
+    void setDestinationDefinition(DestinationDefinition *_destination_definition);
 
     QString filename() const;
-    void setFilename(const QString &filename);
+    void setFilename(const QString &_filename);
 
     QString name() const;
-    void setName(const QString &name);
+    void setName(const QString &_name);
 
     bool usable() const;
-    void setUsable(bool usable);
+    void setUsable(bool _usable);
 
     QDate creationDate() const;
-    void setCreationDate(const QDate &creationDate);
+    void setCreationDate(const QDate &_creation_date);
 
-    QList<AssemblyDefinitionValidity> checkDefinition();
+    QList<eAssemblyDefinitionValidity> checkDefinition();
 
-    AssemblyDefinition * duplicate(QString newName, QString newFileName);
+    AssemblyDefinition * duplicate(QString _new_name, QString _new_file_name);
     void clearAllElements();
 
 signals:
@@ -158,19 +158,19 @@ signals:
 public slots:
 
 private:
-    QString _filename;
-    QString _name;
-    QString _version;
-    QString _date;
-    QString _author;
-    QString _comment;
-    QDate _creationDate;
-    bool _usable;
+    QString m_filename;
+    QString m_name;
+    QString m_version;
+    QString m_date;
+    QString m_author;
+    QString m_comment;
+    QDate m_creation_date;
+    bool m_usable;
 
-    SourceDefinition *_sourceDefinition;
-    QList<ProcessorDefinition*> _processorDefs;
-    QList<ConnectionDefinition*> _connectionDefs;
-    DestinationDefinition *_destinationDefinition;
+    SourceDefinition *m_source_definition;
+    QList<ProcessorDefinition*> m_processor_defs;
+    QList<ConnectionDefinition*> m_connection_defs;
+    DestinationDefinition *m_destination_definition;
 
 };
 

@@ -4,159 +4,155 @@
 
 namespace matisse {
 
-EnrichedSpinBox::EnrichedSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue):
-    EnrichedFormWidget(parent)
+EnrichedSpinBox::EnrichedSpinBox(QWidget *_parent, QString _label, QString _min_value, QString _max_value, QString _default_value):
+    EnrichedFormWidget(_parent)
 {
     GraphicalCharter &graph_chart = GraphicalCharter::instance();
 
-    _spin = new QSpinBox(this);
-    _spin->setFixedWidth(graph_chart.dpiScaled(PARAM_SPINBOX_WIDTH));
-    minValue = minValue.trimmed().toLower();
-    maxValue = maxValue.trimmed().toLower();
+    m_spin = new QSpinBox(this);
+    m_spin->setFixedWidth(graph_chart.dpiScaled(PARAM_SPINBOX_WIDTH));
+    _min_value = _min_value.trimmed().toLower();
+    _max_value = _max_value.trimmed().toLower();
     QString specialValue;
 
     bool ok;
 
-    _defaultValue = defaultValue;
+    m_default_value = _default_value;
 
-    if (minValue.startsWith("-inf")) {
+    if (_min_value.startsWith("-inf")) {
         specialValue = "-inf";
-        _minValueInt = MIN_SINT32;
+        m_min_value_int = MIN_SINT32;
     } else {
-        _minValueInt = minValue.toInt();
+        m_min_value_int = _min_value.toInt();
     }
 
-    if (maxValue.startsWith("inf")) {
+    if (_max_value.startsWith("inf")) {
         specialValue = "inf";
-        _maxValueInt = MAX_SINT32;
-        if (_minValueInt > (qint32)MIN_SINT32) {
-            _minValueInt--;
+        m_max_value_int = MAX_SINT32;
+        if (m_min_value_int > (qint32)MIN_SINT32) {
+            m_min_value_int--;
         }
     } else {
-        _maxValueInt = maxValue.toInt();
+        m_max_value_int = _max_value.toInt();
     }
 
     // TODO Il est possible que l'affichage ne marche pas pour un intervale ]-inf;inf[
     if (!specialValue.isEmpty()) {
-        _spin->setSpecialValueText(specialValue);
+        m_spin->setSpecialValueText(specialValue);
     }
-    _spin->setRange(_minValueInt, _maxValueInt);
-    _spin->setWrapping(true);
+    m_spin->setRange(m_min_value_int, m_max_value_int);
+    m_spin->setWrapping(true);
 
 
-    QString minValueStr = QString::number(_minValueInt);
-    QString maxValueStr = QString::number(_maxValueInt);
+    QString min_value_str = QString::number(m_min_value_int);
+    QString max_value_str = QString::number(m_max_value_int);
 
-    if (defaultValue.startsWith("-inf")) {
+    if (_default_value.startsWith("-inf")) {
 
-        if (_minValueInt > MIN_SINT32) {
-            qWarning() << QString("Default value '-inf' out of range : min value=%1").arg(_minValueInt);
+        if (m_min_value_int > MIN_SINT32) {
+            qWarning() << QString("Default value '-inf' out of range : min value=%1").arg(m_min_value_int);
         }
 
-        _defaultValue = minValueStr;
-        _spin->setValue(_minValueInt);
+        m_default_value = min_value_str;
+        m_spin->setValue(m_min_value_int);
 
-    } else if (defaultValue.startsWith("inf")) {
+    } else if (_default_value.startsWith("inf")) {
 
-        if (_maxValueInt < MAX_SINT32) {
-            qWarning() << QString("Default value 'inf' out of range : max value=%1").arg(_maxValueInt);
-            _defaultValue = maxValueStr;
-            _spin->setValue(_maxValueInt);
+        if (m_max_value_int < MAX_SINT32) {
+            qWarning() << QString("Default value 'inf' out of range : max value=%1").arg(m_max_value_int);
+            m_default_value = max_value_str;
+            m_spin->setValue(m_max_value_int);
         } else {
-            _defaultValue = minValueStr;
-            _spin->setValue(_minValueInt); // pour afficher le 'specialValueText'
+            m_default_value = min_value_str;
+            m_spin->setValue(m_min_value_int); // pour afficher le 'specialValueText'
         }
 
     } else { // valeur entiere
 
-        qint32 defaultValueInt = defaultValue.toInt(&ok);
+        qint32 default_value_int = _default_value.toInt(&ok);
 
         if (!ok) {
-            qWarning() << QString("Could not convert default value '%1' to int, using min value as default").arg(_defaultValue);
+            qWarning() << QString("Could not convert default value '%1' to int, using min value as default").arg(m_default_value);
 
-            _spin->setValue(_minValueInt);
-            _defaultValue = minValueStr;
+            m_spin->setValue(m_min_value_int);
+            m_default_value = min_value_str;
         } else {
-            _spin->setValue(defaultValueInt);
+            m_spin->setValue(default_value_int);
         }
     }
 
-    setWidget(label, _spin);
+    setWidget(_label, m_spin);
 
-    connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
+    connect(m_spin, SIGNAL(valueChanged(QString)), this, SLOT(sl_valueChanged()));
 
 }
 
-//bool EnrichedSpinBox::currentValueChanged()
-//{
-//    return _spin->text() != _defaultValue;
-//}
 
 QString EnrichedSpinBox::currentValue()
 {
-    return _spin->text();
+    return m_spin->text();
 }
 
-void EnrichedSpinBox::applyValue(QString newValue)
+void EnrichedSpinBox::applyValue(QString _new_value)
 {
-    disconnect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
+    disconnect(m_spin, SIGNAL(valueChanged(QString)), this, SLOT(sl_valueChanged()));
 
-    if (newValue.startsWith("-inf")) {
+    if (_new_value.startsWith("-inf")) {
 
-        if (_minValueInt > MIN_SINT32) {
-            qWarning() << QString("New value '-inf' out of range : min value=%1").arg(_minValueInt);
+        if (m_min_value_int > MIN_SINT32) {
+            qWarning() << QString("New value '-inf' out of range : min value=%1").arg(m_min_value_int);
         }
 
-        _spin->setValue(_minValueInt);
+        m_spin->setValue(m_min_value_int);
 
-    } else if (newValue.startsWith("inf")) {
+    } else if (_new_value.startsWith("inf")) {
 
-        if (_maxValueInt < MAX_SINT32) {
-            qWarning() << QString("New value 'inf' out of range : max value=%1").arg(_maxValueInt);
-            _spin->setValue(_maxValueInt);
+        if (m_max_value_int < MAX_SINT32) {
+            qWarning() << QString("New value 'inf' out of range : max value=%1").arg(m_max_value_int);
+            m_spin->setValue(m_max_value_int);
         } else {
-            _spin->setValue(_minValueInt);
+            m_spin->setValue(m_min_value_int);
         }
 
     } else {
 
         bool ok;
-        qint32 valueInt = newValue.toInt(&ok);
+        qint32 value_int = _new_value.toInt(&ok);
 
         if (!ok) {
-            qCritical() << QString("Error converting '%1' to int for spin box value assignment, skipping...").arg(newValue);
+            qCritical() << QString("Error converting '%1' to int for spin box value assignment, skipping...").arg(_new_value);
             return;
         }
 
-        if (valueInt > _maxValueInt) {
-            qWarning() << QString("Value '%1' greater than max value '%2', skipping...").arg(valueInt).arg(_maxValueInt);
+        if (value_int > m_max_value_int) {
+            qWarning() << QString("Value '%1' greater than max value '%2', skipping...").arg(value_int).arg(m_max_value_int);
             return;
         }
 
-        if (valueInt < _minValueInt) {
-            qWarning() << QString("Value '%1' lower than min value '%2', skipping...").arg(valueInt).arg(_minValueInt);
+        if (value_int < m_min_value_int) {
+            qWarning() << QString("Value '%1' lower than min value '%2', skipping...").arg(value_int).arg(m_min_value_int);
             return;
         }
 
-        _spin->setValue(valueInt);
+        m_spin->setValue(value_int);
     }
 
-    connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
+    connect(m_spin, SIGNAL(valueChanged(QString)), this, SLOT(sl_valueChanged()));
 }
 
 void EnrichedSpinBox::restoreDefaultValue()
 {
     bool ok;
-    qint32 defaultValueInt = _defaultValue.toInt(&ok);
+    qint32 default_value_int = m_default_value.toInt(&ok);
 
     if (!ok) {
         qCritical() << "Error restoring default value for spin box";
         return;
     }
 
-    disconnect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
-    _spin->setValue(defaultValueInt);
-    connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
+    disconnect(m_spin, SIGNAL(valueChanged(QString)), this, SLOT(sl_valueChanged()));
+    m_spin->setValue(default_value_int);
+    connect(m_spin, SIGNAL(valueChanged(QString)), this, SLOT(sl_valueChanged()));
 }
 
 } // namespace matisse

@@ -38,7 +38,7 @@ private:
     QDir m_cam_info_dir;
 
 signals:
-    void signal_cameraListChanged();
+    void si_cameraListChanged();
 };
 
 } // namespace matisse

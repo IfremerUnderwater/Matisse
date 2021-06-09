@@ -14,8 +14,7 @@ class EnrichedTableWidget : public EnrichedDecimalValueWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedTableWidget(QWidget *parent, QString label, quint8 cols, quint8 rows, QStringList defaultValues, QString formatTemplate);
-//    bool currentValueChanged();
+    explicit EnrichedTableWidget(QWidget *_parent, QString _label, quint8 _cols, quint8 _rows, QStringList _default_values, QString _format_template);
     virtual QString currentValue();
     virtual void restoreDefaultValue();
 
@@ -26,10 +25,10 @@ protected:
 signals:
 
 protected slots:
-    void slot_cellValueChanged(QTableWidgetItem *item);
+    void sl_cellValueChanged(QTableWidgetItem *item);
 
 private:
-    QTableWidget * _table;
+    QTableWidget * m_table;
 };
 
 } // namespace matisse

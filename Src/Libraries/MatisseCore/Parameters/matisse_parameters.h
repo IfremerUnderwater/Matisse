@@ -27,8 +27,8 @@ typedef QGenericMatrix<6, 1, double> Matrix6x1;
 ///
 class MatisseParameter {
 public:
-    QString structure;
-    QString param;
+    QString m_structure;
+    QString m_param;
 };
 
 ///
@@ -43,17 +43,17 @@ public:
     ///
     /// \brief Construit l'instance et charge le fichier XML si renseigne.
     ///
-    /// \param xmlFilename chemin d'access au fichier.
+    /// \param _xml_filename chemin d'access au fichier.
     ///
-    MatisseParameters(QString xmlFilename = "");
+    MatisseParameters(QString _xml_filename = "");
     virtual ~MatisseParameters();
 
     ///
     /// \brief Charge de fichier XML stocke les paramètres en mémoire
-    /// \param xmlFilename Chemin d'access au fichier
+    /// \param _xml_filename Chemin d'access au fichier
     /// \return
     ///
-    bool loadFile(QString xmlFilename);
+    bool loadFile(QString _xml_filename);
 
     ///
     /// \brief Retourne l'information relative au fichier de paramètres
@@ -74,77 +74,77 @@ public:
     QString dumpStructures();
 
     ///
-    /// \brief Retourne vrai si le couple (paramStructName,paramName) a été chargé
-    /// \param paramStructName Le groupe du paramètre
-    /// \param paramName Le Nom du paramètre
+    /// \brief Retourne vrai si le couple (_param_struct_name,_param_name) a été chargé
+    /// \param _param_struct_name Le groupe du paramètre
+    /// \param _param_name Le Nom du paramètre
     /// \return false si le paramètre n'existe pas
     ///
-    bool containsParam(QString paramStructName, QString paramName);
+    bool containsParam(QString _param_struct_name, QString _param_name);
 
     // Methodes d'acces aux parametres
 
     ///
-    /// \brief Retourne en qint64 la valeur du couple (paramStructName,paramName)
-    /// \param paramStructName
-    /// \param paramName
-    /// \param ok true si la valeur est convertible
+    /// \brief Retourne en qint64 la valeur du couple (_param_struct_name,_param_name)
+    /// \param _param_struct_name
+    /// \param _param_name
+    /// \param _ok true si la valeur est convertible
     /// \return 2^31-1 si valeur="inf"
     ///
-    qint64 getIntParamValue(QString paramStructName, QString paramName, bool &ok);
+    qint64 getIntParamValue(QString _param_struct_name, QString _param_name, bool &_ok);
 
     ///
-    /// \brief Retourne en bool la valeur du couple (paramStructName,paramName)
-    /// \param paramStructName
-    /// \param paramName
-    /// \param ok true si la valeur est convertible
+    /// \brief Retourne en bool la valeur du couple (_param_struct_name,_param_name)
+    /// \param _param_struct_name
+    /// \param _param_name
+    /// \param _ok true si la valeur est convertible
     /// \return true ou false
     ///
-    bool getBoolParamValue(QString paramStructName, QString paramName, bool &ok);
+    bool getBoolParamValue(QString _param_struct_name, QString _param_name, bool &_ok);
 
     ///
-    /// \brief Retourne en double la valeur du couple (paramStructName,paramName)
-    /// \param paramStructName
-    /// \param paramName
-    /// \param ok true si la valeur est convertible
+    /// \brief Retourne en double la valeur du couple (_param_struct_name,_param_name)
+    /// \param _param_struct_name
+    /// \param _param_name
+    /// \param _ok true si la valeur est convertible
     /// \return 2^31-1 si valeur="inf"
     ///
-    double getDoubleParamValue(QString paramStructName, QString paramName, bool &ok);
+    double getDoubleParamValue(QString _param_struct_name, QString _param_name, bool &_ok);
 
     ///
-    /// \brief Retourne en QString la valeur du couple (paramStructName,paramName)
-    /// \param paramStructName
-    /// \param paramName
+    /// \brief Retourne en QString la valeur du couple (_param_struct_name,_param_name)
+    /// \param _param_struct_name
+    /// \param _param_name
     /// \return
     ///
-    QString getStringParamValue(QString paramStructName, QString paramName);
+    QString getStringParamValue(QString _param_struct_name, QString _param_name);
 
     ///
-    /// \brief Retourne en QMatrix3x3 la valeur du couple (paramStructName,paramName)
-    /// \param paramStructName
-    /// \param paramName
+    /// \brief Retourne en QMatrix3x3 la valeur du couple (_param_struct_name,_param_name)
+    /// \param _param_struct_name
+    /// \param _param_name
     /// \param ok true si la valeur est convertible
     /// \return
     ///
-    QMatrix3x3 getMatrix3x3ParamValue(QString paramStructName, QString paramName, bool &ok);
+    QMatrix3x3 getMatrix3x3ParamValue(QString _param_struct_name, QString _param_name, bool &_ok);
 
     ///
-    /// \brief Retourne en Matrix6x1 la valeur du couple (paramStructName,paramName)
-    /// \param paramStructName
-    /// \param paramName
+    /// \brief Retourne en Matrix6x1 la valeur du couple (_param_struct_name,_param_name)
+    /// \param _param_struct_name
+    /// \param _param_name
     /// \param ok true si la valeur est convertible
     /// \return
     ///
-    Matrix6x1 getMatrix6x1ParamValue(QString paramStructName, QString paramName, bool &ok);
+    Matrix6x1 getMatrix6x1ParamValue(QString _param_struct_name, QString _param_name, bool &_ok);
 
-    CameraInfo getCamInfoParamValue(QString paramStructName, QString paramName, bool &ok);
+    CameraInfo getCamInfoParamValue(QString _param_struct_name, QString _param_name, bool &_ok);
 
 private:
-    QString _lastErrorStr;
+    QString m_last_error_str;
     // Structure de stockage des parametres
-    QHash<QString, QHash<QString, QString> > _hashValues;
-    QFileInfo * pFileInfo;
-    static QRegExp _boolRegExpTrue;
-    static QRegExp _boolRegExpFalse;
+    QHash<QString, QHash<QString, QString> > m_hash_values;
+    QFileInfo * m_p_file_info;
+    static QRegExp m_bool_reg_exp_true;
+    static QRegExp m_bool_reg_exp_false;
 };
 
 } // namespace matisse

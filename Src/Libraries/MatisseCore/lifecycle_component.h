@@ -14,7 +14,7 @@ namespace matisse {
 class LifecycleComponent
 {
 public:
-    LifecycleComponent(QString name, QString logPrefix);
+    LifecycleComponent(QString _name, QString _log_prefix);
     virtual ~LifecycleComponent() {}
 
     ///
@@ -28,10 +28,10 @@ public:
     /// \brief Appelle configure() de la classe dérivée
     ///
     /// Methode appelée par le moteur d'assemblage
-    /// \param context Le contexte permet de passer des objets entre les différents processeurs.
-    /// \param matisseParameters Les paramètres sont les informations saisies par l'utilisateur en lecture seule.
+    /// \param _context Le contexte permet de passer des objets entre les différents processeurs.
+    /// \param _matisse_parameters Les paramètres sont les informations saisies par l'utilisateur en lecture seule.
     ///
-    bool callConfigure(Context * context, MatisseParameters * matisseParameters);
+    bool callConfigure(Context * _context, MatisseParameters * _matisse_parameters);
 
     ///
     /// \brief Appelle start() de la classe dérivée
@@ -41,9 +41,9 @@ public:
 
     ///
     /// \brief Demande au processeur de s'arrêter
-    /// \param cancel demande l'annulation du travail
+    /// \param _cancel demande l'annulation du travail
     ///
-    bool askToStop(bool cancel=false);
+    bool askToStop(bool _cancel=false);
 
     ///
     /// \brief Appelle stop() de la classe dérivée
@@ -88,10 +88,10 @@ protected:
 protected:
     ///
     /// \brief Ajoute un couple (structure,parametre) aux paramètres attendus. Doit être appelé dans le constructeur de la classe dérivée.
-    /// \param structure
-    /// \param param
+    /// \param _structure
+    /// \param _param
     ///
-    void addExpectedParameter(QString structure, QString param);
+    void addExpectedParameter(QString _structure, QString _param);
 
     /// <summary>
     /// Return an absolute path to input dataset dir
@@ -134,16 +134,16 @@ protected:
 
 
 protected:
-    Context * _context;
-    MatisseParameters * _matisseParameters;
+    Context * m_context;
+    MatisseParameters * m_matisse_parameters;
 
 private:
-    QString _name;
-    QList<MatisseParameter> _expectedParameters;
-    QString _logPrefix;
+    QString m_name;
+    QList<MatisseParameter> m_expected_parameters;
+    QString m_log_prefix;
 
-    volatile bool _isStarted;
-    volatile bool _isCancelled;
+    volatile bool m_is_started;
+    volatile bool m_is_cancelled;
 };
 
 } // namespace matisse

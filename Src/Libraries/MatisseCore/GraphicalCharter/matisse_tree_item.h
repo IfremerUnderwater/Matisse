@@ -12,7 +12,7 @@ class MatisseTreeItem : public QTreeWidgetItem, public QObject
 public:
     enum { Type = QTreeWidgetItem::UserType + 1 };
 
-    MatisseTreeItem(QTreeWidgetItem *parent, const QStringList & strings);
+    MatisseTreeItem(QTreeWidgetItem *_parent, const QStringList & _strings);
 };
 
 } // namespace matisse

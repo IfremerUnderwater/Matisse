@@ -3,85 +3,85 @@
 
 namespace matisse {
 
-LifecycleComponent::LifecycleComponent(QString name, QString logPrefix)
-: _name(name),
-  _logPrefix(logPrefix)
+LifecycleComponent::LifecycleComponent(QString _name, QString _log_prefix) :
+    m_name(_name),
+    m_log_prefix(_log_prefix)
 {
 }
 
 QString LifecycleComponent::name() const
 {
-    return _name;
+    return m_name;
 }
 
 QList<MatisseParameter> LifecycleComponent::expectedParameters() const
 {
-    return _expectedParameters;
+    return m_expected_parameters;
 }
 
-void LifecycleComponent::addExpectedParameter(QString structure, QString param)
+void LifecycleComponent::addExpectedParameter(QString _structure, QString _param)
 {
     MatisseParameter parameter;
-    parameter.structure = structure;
-    parameter.param = param;
+    parameter.m_structure = _structure;
+    parameter.m_param = _param;
 
-    _expectedParameters.append(parameter);
+    m_expected_parameters.append(parameter);
 }
 
 QString LifecycleComponent::logPrefix() const
 {
-    return _logPrefix;
+    return m_log_prefix;
 }
 
 bool LifecycleComponent::isStarted() const
 {
-    return _isStarted;
+    return m_is_started;
 }
 
 bool LifecycleComponent::isCancelled() const
 {
-    return _isCancelled;
+    return m_is_cancelled;
 }
 
 
-bool LifecycleComponent::callConfigure(Context * context, MatisseParameters * matisseParameters)
+bool LifecycleComponent::callConfigure(Context * _context, MatisseParameters * _matisse_parameters)
 {
     qDebug() << logPrefix() << "configure";
-    _context = context;
-    _matisseParameters = matisseParameters;
+    m_context = _context;
+    m_matisse_parameters = _matisse_parameters;
     return configure();
 }
 
 bool LifecycleComponent::callStart()
 {
     qDebug() << logPrefix() << "start";
-    _isStarted = true;
+    m_is_started = true;
     return start();
 }
 
-bool LifecycleComponent::askToStop(bool cancel)
+bool LifecycleComponent::askToStop(bool _cancel)
 {
     qDebug() << logPrefix() << "askForStop";
-    _isStarted = false;
-    _isCancelled = cancel;
+    m_is_started = false;
+    m_is_cancelled = _cancel;
     return true;
 }
 
 bool LifecycleComponent::callStop()
 {
     qDebug() << logPrefix() << "stop";
-    _isStarted = false;
+    m_is_started = false;
     return stop();
 }
 
 QString LifecycleComponent::absoluteDatasetDir()
 {
-    return _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    return m_matisse_parameters->getStringParamValue("dataset_param", "dataset_dir");
 }
 
 QString LifecycleComponent::absoluteOutputDir()
 {
-    QDir output_dir(_matisseParameters->getStringParamValue("dataset_param", "output_dir"));
+    QDir output_dir(m_matisse_parameters->getStringParamValue("dataset_param", "output_dir"));
     
     if (output_dir.isRelative())
     {

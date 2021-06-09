@@ -22,7 +22,7 @@ CameraManagerTool::CameraManagerTool(QWidget *parent) :
     connect(ui->delete_from_db_pb,SIGNAL(clicked()),this,SLOT(slot_deleteCurrentCamera()));
 
     CameraManager *cam_manager_p = &(CameraManager::instance());
-    connect(cam_manager_p,SIGNAL(signal_cameraListChanged()),this,SLOT(slot_refreshCameraList()));
+    connect(cam_manager_p,SIGNAL(si_cameraListChanged()),this,SLOT(slot_refreshCameraList()));
 
     connect(ui->cam_selection_cb,SIGNAL(currentTextChanged(QString)),this,SLOT(slot_cameraSelected(QString)));
     connect(ui->dist_model_cb,SIGNAL(currentIndexChanged(int)),this,SLOT(slot_distModelChanged(int)));

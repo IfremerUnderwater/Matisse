@@ -14,7 +14,7 @@ class EnrichedCamComboBox : public EnrichedFormWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedCamComboBox(QWidget *parent = 0, QString label = "", QString defaultValue = "");
+    explicit EnrichedCamComboBox(QWidget *_parent = 0, QString m_label = "", QString _default_value = "");
 
     bool currentValueChanged();
     virtual QString currentValue();
@@ -22,12 +22,12 @@ public:
     virtual void restoreDefaultValue();
 
 protected:
-    virtual void applyValue(QString newValue);
+    virtual void applyValue(QString _new_value);
 
 signals:
 
 private slots:
-    void slot_refreshCameraList();
+    void sl_refreshCameraList();
 
 private:
         QComboBox m_combo;

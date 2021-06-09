@@ -5,7 +5,8 @@ using namespace cv;
 
 namespace matisse {
 
-CameraInfo::CameraInfo():m_camera_name(""),
+CameraInfo::CameraInfo():
+    m_camera_name(""),
     m_distortion_model(1),
     m_distortion_coeff(1,5,CV_64F,0.0),
     m_K(3,3,CV_64F,0.0),
@@ -21,9 +22,9 @@ QString CameraInfo::cameraName() const
     return m_camera_name;
 }
 
-void CameraInfo::setCameraName(const QString &camera_name)
+void CameraInfo::setCameraName(const QString &_camera_name)
 {
-    m_camera_name = camera_name;
+    m_camera_name = _camera_name;
 }
 
 int CameraInfo::distortionModel() const
@@ -31,9 +32,9 @@ int CameraInfo::distortionModel() const
     return m_distortion_model;
 }
 
-void CameraInfo::setDistortionModel(int distortion_model)
+void CameraInfo::setDistortionModel(int _distortion_model)
 {
-    m_distortion_model = distortion_model;
+    m_distortion_model = _distortion_model;
 }
 
 cv::Mat CameraInfo::distortionCoeff() const
@@ -41,9 +42,9 @@ cv::Mat CameraInfo::distortionCoeff() const
     return m_distortion_coeff;
 }
 
-void CameraInfo::setDistortionCoeff(const cv::Mat &distortion_coeff)
+void CameraInfo::setDistortionCoeff(const cv::Mat &_distortion_coeff)
 {
-    m_distortion_coeff = distortion_coeff;
+    m_distortion_coeff = _distortion_coeff;
 }
 
 cv::Mat CameraInfo::K() const
@@ -51,9 +52,9 @@ cv::Mat CameraInfo::K() const
     return m_K;
 }
 
-void CameraInfo::setK(const cv::Mat &K)
+void CameraInfo::setK(const cv::Mat &_K)
 {
-    m_K = K;
+    m_K = _K;
 }
 
 cv::Mat CameraInfo::vehicleToCameraTransform() const
@@ -61,9 +62,9 @@ cv::Mat CameraInfo::vehicleToCameraTransform() const
     return m_vehicle_to_camera_transform;
 }
 
-void CameraInfo::setVehicleToCameraTransform(const cv::Mat &vehicle_to_camera_transform)
+void CameraInfo::setVehicleToCameraTransform(const cv::Mat &_vehicle_to_camera_transform)
 {
-    m_vehicle_to_camera_transform = vehicle_to_camera_transform;
+    m_vehicle_to_camera_transform = _vehicle_to_camera_transform;
 }
 
 void CameraInfo::fullSensorSize(int &_width, int &_height)

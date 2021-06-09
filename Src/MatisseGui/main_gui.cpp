@@ -132,7 +132,7 @@ void MainGui::initParametersWidget()
 
     _parametersDock->setWidget(_parametersWidget);
 
-    connect(_parametersWidget, SIGNAL(signal_valuesModified(bool)), this, SLOT(slot_modifiedParameters(bool)));
+    connect(_parametersWidget, SIGNAL(si_valuesModified(bool)), this, SLOT(slot_modifiedParameters(bool)));
 }
 
 void MainGui::initProcessorWidgets()
@@ -154,8 +154,8 @@ void MainGui::initProcessorWidgets()
     }
 
 
-    qDebug() << "Available ImageProviders " << m_engine.getAvailableImageProviders().size();
-    foreach (InputDataProvider * imageProvider, m_engine.getAvailableImageProviders()) {
+    qDebug() << "Available ImageProviders " << m_engine.getAvailableInputDataProviders().size();
+    foreach (InputDataProvider * imageProvider, m_engine.getAvailableInputDataProviders()) {
         qDebug() << "Add imageProvider " << imageProvider->name();
         SourceWidget * srcWidget = new SourceWidget();
         srcWidget->setName(imageProvider->name());
@@ -169,8 +169,8 @@ void MainGui::initProcessorWidgets()
         //_expertFormWidget->addSourceWidget(srcWidget);
     }
 
-    qDebug() << "Available RasterProviders " << m_engine.getAvailableRasterProviders().size();
-    foreach (OutputDataWriter * rasterProvider, m_engine.getAvailableRasterProviders()) {
+    qDebug() << "Available RasterProviders " << m_engine.getAvailableOutputDataWriters().size();
+    foreach (OutputDataWriter * rasterProvider, m_engine.getAvailableOutputDataWriters()) {
         qDebug() << "Add rasterProvider " << rasterProvider->name();
         DestinationWidget * destWidget = new DestinationWidget();
         destWidget->setName(rasterProvider->name());
@@ -288,10 +288,10 @@ void MainGui::initServer()
 {
     m_engine.init();
 
-    connect(&m_engine, SIGNAL(signal_jobProcessed(QString, bool)), this, SLOT(slot_jobProcessed(QString, bool)));
-    connect(&m_engine, SIGNAL(signal_jobShowImageOnMainView(QString,Image *)), this, SLOT(slot_jobShowImageOnMainView(QString,Image *)));
-    connect(&m_engine, SIGNAL(signal_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
-    connect(&m_engine, SIGNAL(signal_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
+    connect(&m_engine, SIGNAL(si_jobProcessed(QString, bool)), this, SLOT(slot_jobProcessed(QString, bool)));
+    connect(&m_engine, SIGNAL(si_jobShowImageOnMainView(QString,Image *)), this, SLOT(slot_jobShowImageOnMainView(QString,Image *)));
+    connect(&m_engine, SIGNAL(si_userInformation(QString)), this, SLOT(slot_userInformation(QString)));
+    connect(&m_engine, SIGNAL(si_processCompletion(quint8)), this, SLOT(slot_processCompletion(quint8)));
 }
 
 void MainGui::initAssemblyCreationScene()
@@ -452,9 +452,9 @@ void MainGui::initIconFactory()
 {
     _currentColorSet = FileUtils::readPropertiesFile("lnf/MatisseColorsDay.properties");
     _iconFactory = new MatisseIconFactory(_currentColorSet, "grey", "orange", "orange2");
-    connect(this, SIGNAL(signal_updateColorPalette(QMap<QString,QString>)), _iconFactory, SLOT(slot_updateColorPalette(QMap<QString,QString>)));
-    connect(this, SIGNAL(signal_updateExecutionStatusColor(QString)), _iconFactory, SLOT(slot_updateExecutionStatusColor(QString)));
-    connect(this, SIGNAL(signal_updateAppModeColors(QString,QString)), _iconFactory, SLOT(slot_updateAppModeColors(QString,QString)));
+    connect(this, SIGNAL(signal_updateColorPalette(QMap<QString,QString>)), _iconFactory, SLOT(sl_updateColorPalette(QMap<QString,QString>)));
+    connect(this, SIGNAL(signal_updateExecutionStatusColor(QString)), _iconFactory, SLOT(sl_updateExecutionStatusColor(QString)));
+    connect(this, SIGNAL(signal_updateAppModeColors(QString,QString)), _iconFactory, SLOT(sl_updateAppModeColors(QString,QString)));
 }
 
 void MainGui::initStylesheetSelection()
@@ -723,7 +723,7 @@ void MainGui::loadAssembliesAndJobsLists(bool doExpand)
     }
 }
 
-void MainGui::loadStyleSheet(ApplicationMode mode)
+void MainGui::loadStyleSheet(eApplicationMode mode)
 {
     emit signal_updateAppModeColors(_colorsByMode1.value(mode), _colorsByMode2.value(mode));
 
@@ -2264,7 +2264,7 @@ bool MainGui::checkArchivePathChange()
     return true;
 }
 
-void MainGui::slot_showApplicationMode(ApplicationMode mode)
+void MainGui::slot_showApplicationMode(eApplicationMode mode)
 {
     qDebug() << "Start application in mode " << mode;
     _activeApplicationMode = mode;
@@ -2522,11 +2522,11 @@ void MainGui::loadAssemblyParameters(AssemblyDefinition *selectedAssembly)
 
     // chargement des parametres attendus par les modules de l'assemblage
     m_engine.parametersManager()->clearExpectedParameters();
-    m_engine.addParametersForImageProvider(selectedAssembly->sourceDefinition()->name());
+    m_engine.addParametersForInputDataProvider(selectedAssembly->sourceDefinition()->name());
     foreach (ProcessorDefinition* processor, selectedAssembly->processorDefs()) {
         m_engine.addParametersForProcessor(processor->name());
     }
-    m_engine.addParametersForRasterProvider(selectedAssembly->destinationDefinition()->name());
+    m_engine.addParametersForOutputDataWriter(selectedAssembly->destinationDefinition()->name());
 
     // chargement des valeurs de paramètres du template de l'assemblage
     m_engine.parametersManager()->loadParameters(selectedAssembly->name(), true);
@@ -3517,7 +3517,7 @@ SourceWidget *MainGui::getSourceWidget(QString name)
         return 0;
     }
 
-    m_engine.addParametersForImageProvider(name);
+    m_engine.addParametersForInputDataProvider(name);
 
     SourceWidget * newWidget = new SourceWidget();
     newWidget->clone(wid);
@@ -3549,7 +3549,7 @@ DestinationWidget *MainGui::getDestinationWidget(QString name)
         return 0;
     }
 
-    m_engine.addParametersForRasterProvider(name);
+    m_engine.addParametersForOutputDataWriter(name);
 
     DestinationWidget * newWidget = new DestinationWidget();
     newWidget->clone(wid);

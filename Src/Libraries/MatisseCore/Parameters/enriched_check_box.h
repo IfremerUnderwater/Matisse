@@ -13,13 +13,13 @@ class EnrichedCheckBox : public EnrichedFormWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedCheckBox(QWidget *parent, QString label, bool checked);
+    explicit EnrichedCheckBox(QWidget *_parent, QString m_label, bool _checked);
 //    bool currentValueChanged();
     virtual QString currentValue();
     virtual void restoreDefaultValue();
 
 protected:
-    virtual void applyValue(QString newValue);
+    virtual void applyValue(QString _new_value);
 
 signals:
 
@@ -27,7 +27,7 @@ public slots:
 //    void slot_valueChanged();
 
 private:
-    QCheckBox * _check;
+    QCheckBox * m_check;
 
 };
 

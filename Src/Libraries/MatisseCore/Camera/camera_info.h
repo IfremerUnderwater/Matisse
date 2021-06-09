@@ -11,19 +11,19 @@ class CameraInfo
 public:
     CameraInfo();
     QString cameraName() const;
-    void setCameraName(const QString &cameraName);
+    void setCameraName(const QString &_camera_name);
 
     int distortionModel() const;
-    void setDistortionModel(int distortionModel);
+    void setDistortionModel(int _distortion_model);
 
     cv::Mat distortionCoeff() const;
-    void setDistortionCoeff(const cv::Mat &distortionCoeff);
+    void setDistortionCoeff(const cv::Mat &_distortion_coeff);
 
     cv::Mat K() const;
-    void setK(const cv::Mat &K);
+    void setK(const cv::Mat &_K);
 
     cv::Mat vehicleToCameraTransform() const;
-    void setVehicleToCameraTransform(const cv::Mat &vehicleToCameraTransform);
+    void setVehicleToCameraTransform(const cv::Mat &_vehicle_to_camera_transform);
 
     void fullSensorSize(int &_width, int &_height);
     void setFullSensorSize(int &_width, int &_height);

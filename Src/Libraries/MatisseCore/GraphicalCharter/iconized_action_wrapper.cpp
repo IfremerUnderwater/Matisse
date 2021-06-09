@@ -2,16 +2,16 @@
 
 namespace matisse {
 
-IconizedActionWrapper::IconizedActionWrapper(QAction *action) :
-    IconizedWidgetWrapper(action, true),
-    _action(action)
+IconizedActionWrapper::IconizedActionWrapper(QAction *_action) :
+    IconizedWidgetWrapper(_action, true),
+    m_action(_action)
 {
 
 }
 
-void IconizedActionWrapper::setIcon(const QIcon &icon)
+void IconizedActionWrapper::setIcon(const QIcon &_icon)
 {
-    _action->setIcon(icon);
+    m_action->setIcon(_icon);
 }
 
 } // namespace matisse

@@ -13,7 +13,7 @@ class EnrichedComboBox : public EnrichedFormWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedComboBox(QWidget *parent = 0, QString label = "", QStringList values = QStringList(), QString defaultValue = "");
+    explicit EnrichedComboBox(QWidget *_parent = 0, QString m_label = "", QStringList _values = QStringList(), QString _default_value = "");
 
     bool currentValueChanged();
     virtual QString currentValue();
@@ -21,16 +21,16 @@ public:
     virtual void restoreDefaultValue();
 
 protected:
-    virtual void applyValue(QString newValue);
+    virtual void applyValue(QString _new_value);
 
 signals:
 
 public slots:
 
 private:
-        QComboBox *_combo;
-        qint32 _defaultIndex;
-        qint32 _initialIndex;
+        QComboBox *m_combo;
+        qint32 m_default_index;
+        qint32 m_initial_index;
 };
 
 } // namespace matisse

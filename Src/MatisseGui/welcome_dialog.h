@@ -24,7 +24,7 @@ public:
     void dpiScale();
 
 signals:
-    void signal_launchApplication(ApplicationMode mode);
+    void signal_launchApplication(eApplicationMode mode);
 
 private slots:
     void on_progModeLauncherButton_clicked();

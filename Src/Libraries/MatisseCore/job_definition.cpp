@@ -3,35 +3,35 @@
 
 namespace matisse {
 
-JobDefinition::JobDefinition(QString name, QString assemblyName, QString assemblyVersion)
-    : _name(name),
-      _comment(""),
-      _assemblyName(assemblyName),
-      _assemblyVersion(assemblyVersion),
-      _executionDefinition(NULL),
+JobDefinition::JobDefinition(QString _name, QString _assembly_name, QString _assembly_version)
+    : m_name(_name),
+      m_comment(""),
+      m_assembly_name(_assembly_name),
+      m_assembly_version(_assembly_version),
+      m_execution_definition(NULL),
       m_remote_job_definition(NULL)
 {
 }
 
 QString JobDefinition::filename() const
 {
-    return _filename;
+    return m_filename;
 
 }
 
-void JobDefinition::setFilename(const QString &filename)
+void JobDefinition::setFilename(const QString &_filename)
 {
-    _filename = filename;
+    m_filename = _filename;
 }
 
 ExecutionDefinition *JobDefinition::executionDefinition() const
 {
-    return _executionDefinition;
+    return m_execution_definition;
 }
 
-void JobDefinition::setExecutionDefinition(ExecutionDefinition* executionDefinition)
+void JobDefinition::setExecutionDefinition(ExecutionDefinition* _execution_definition)
 {
-  _executionDefinition = executionDefinition;
+  m_execution_definition = _execution_definition;
 }
 
 void JobDefinition::setRemoteJobDefinition(RemoteJobDefinition *_remote_job_definition)
@@ -45,80 +45,80 @@ RemoteJobDefinition* JobDefinition::remoteJobDefinition() const
 }
 
 
-JobDefinition *JobDefinition::duplicate(QString newName, QString newFileName)
+JobDefinition *JobDefinition::duplicate(QString _new_name, QString _new_file_name)
 {
-    JobDefinition *newJob = new JobDefinition(newName, _assemblyName, _assemblyVersion);
-    newJob->setFilename(newFileName);
-    newJob->setComment(_comment);
-    ExecutionDefinition *executionDef = new ExecutionDefinition();
-    executionDef->setExecuted(false);
-    newJob->setExecutionDefinition(executionDef);
+    JobDefinition *new_job = new JobDefinition(_new_name, m_assembly_name, m_assembly_version);
+    new_job->setFilename(_new_file_name);
+    new_job->setComment(m_comment);
+    ExecutionDefinition *execution_def = new ExecutionDefinition();
+    execution_def->setExecuted(false);
+    new_job->setExecutionDefinition(execution_def);
     RemoteJobDefinition* remote_def = new RemoteJobDefinition();
     remote_def->setScheduled(false);
-    newJob->setRemoteJobDefinition(remote_def);
+    new_job->setRemoteJobDefinition(remote_def);
 
-    return newJob;
+    return new_job;
 }
 
 
 QString JobDefinition::name() const
 {
-    return _name;
+    return m_name;
 }
 
-void JobDefinition::setName(const QString &name)
+void JobDefinition::setName(const QString &_name)
 {
-    _name = name;
+    m_name = _name;
 }
 
 QString JobDefinition::assemblyVersion() const
 {
-    return _assemblyVersion;
+    return m_assembly_version;
 }
 
 QString JobDefinition::assemblyName() const
 {
-    return _assemblyName;
+    return m_assembly_name;
 }
 
-void JobDefinition::setComment(const QString &comment)
+void JobDefinition::setComment(const QString &_comment)
 {
-    _comment = comment;
+    m_comment = _comment;
 }
 
 QString JobDefinition::comment() const
 {
-    return _comment;
+    return m_comment;
 }
 
 
 
 QStringList ExecutionDefinition::resultFileNames() const
 {
-    return _resultFileNames;
+    return m_result_file_names;
 }
 
-void ExecutionDefinition::setResultFileNames(QStringList resultFileNames)
+void ExecutionDefinition::setResultFileNames(QStringList _result_file_names)
 {
-    _resultFileNames = resultFileNames;
+    m_result_file_names = _result_file_names;
 }
 bool ExecutionDefinition::executed() const
 {
-    return _executed;
+    return m_executed;
 }
 
-void ExecutionDefinition::setExecuted(bool executed)
+void ExecutionDefinition::setExecuted(bool _executed)
 {
-    _executed = executed;
+    m_executed = _executed;
 }
 QDateTime ExecutionDefinition::executionDate() const
 {
-    return _executionDate;
+    return m_execution_date;
 }
 
-void ExecutionDefinition::setExecutionDate(QDateTime executionDate)
+void ExecutionDefinition::setExecutionDate(QDateTime _execution_date)
 {
-    _executionDate = executionDate;
+    m_execution_date = _execution_date;
 }
 
 

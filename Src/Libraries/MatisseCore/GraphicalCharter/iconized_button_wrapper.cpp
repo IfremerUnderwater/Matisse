@@ -2,16 +2,16 @@
 
 namespace matisse {
 
-IconizedButtonWrapper::IconizedButtonWrapper(QAbstractButton *button) :
-    IconizedWidgetWrapper(button, true),
-    _button(button)
+IconizedButtonWrapper::IconizedButtonWrapper(QAbstractButton *_button) :
+    IconizedWidgetWrapper(_button, true),
+    m_button(_button)
 {
 
 }
 
-void IconizedButtonWrapper::setIcon(const QIcon &icon)
+void IconizedButtonWrapper::setIcon(const QIcon &_icon)
 {
-    _button->setIcon(icon);
+    m_button->setIcon(_icon);
 }
 
 } // namespace matisse

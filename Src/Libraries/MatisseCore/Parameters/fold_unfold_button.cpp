@@ -2,26 +2,26 @@
 
 namespace matisse {
 
-FoldUnfoldButton::FoldUnfoldButton(QWidget *parent) : QPushButton(parent),
-    _isUnfolded(false)
+FoldUnfoldButton::FoldUnfoldButton(QWidget *_parent) : QPushButton(_parent),
+    m_is_unfolded(false)
 {
-    connect(this, SIGNAL(clicked(bool)), this, SLOT(flip()));
+    connect(this, SIGNAL(clicked(bool)), this, SLOT(sl_flip()));
 }
 
-void FoldUnfoldButton::setIsUnfolded(bool isUnfolded)
+void FoldUnfoldButton::setIsUnfolded(bool _is_unfolded)
 {
-    _isUnfolded = isUnfolded;
+    m_is_unfolded = _is_unfolded;
     showNewState();
 }
 
 bool FoldUnfoldButton::getIsUnfolded() const
 {
-    return _isUnfolded;
+    return m_is_unfolded;
 }
 
-void FoldUnfoldButton::flip()
+void FoldUnfoldButton::sl_flip()
 {
-    setIsUnfolded(!_isUnfolded);
+    setIsUnfolded(!m_is_unfolded);
 }
 
 } // namespace matisse

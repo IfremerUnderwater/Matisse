@@ -18,45 +18,45 @@ class EnrichedFormWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedFormWidget(QWidget *parent = 0);
+    explicit EnrichedFormWidget(QWidget *_parent = 0);
 
     virtual QString currentValue() =0;
     virtual void restoreDefaultValue() = 0;
-    void setValue(QString newValue);
+    void setValue(QString _new_value);
 
-    void setLabelText(QString text) {
-        if (_label) {
-            _label->setText(text);
+    void setLabelText(QString _text) {
+        if (m_label) {
+            m_label->setText(_text);
         }
     }
 
-    void overrideDefaultValue(QString newDefaultValue) {
-        _defaultValue = newDefaultValue;
+    void overrideDefaultValue(QString _new_default_value) {
+        m_default_value = _new_default_value;
     }
 
 protected:
-    virtual void applyValue(QString newValue) = 0;
-    void setWidget(QString label, QWidget * widget, bool wrapWidget = false);
+    virtual void applyValue(QString _new_value) = 0;
+    void setWidget(QString _label, QWidget * _widget, bool _wrap_widget = false);
     virtual bool currentValueChanged();
-    void swapColor(bool yes = true);
-    quint32 getTextFieldWidth(QString text);
+    void swapColor(bool _do_swap = true);
+    quint32 getTextFieldWidth(QString _text);
 
-    QString _defaultValue; // default value defined for the parameter in the dictionnary
-    QString _initialValue; // assembly or job parameter value before user modification
+    QString m_default_value; // default value defined for the parameter in the dictionnary
+    QString m_initial_value; // assembly or job parameter value before user modification
 
 
 private:
-    QGridLayout * _gridLayout;
-    QLabel * _label;
-    QWidget * _widget;
+    QGridLayout * m_grid_layout;
+    QLabel * m_label;
+    QWidget * m_widget;
 
-    static QSharedPointer<QFontMetrics> _metrics;
+    static QSharedPointer<QFontMetrics> m_metrics;
 
 signals:
-    void signal_valueChanged(bool trueOrFalse);
+    void si_valueChanged(bool _has_changed);
 
 public slots:
-    void slot_valueChanged();
+    void sl_valueChanged();
 
 };
 

@@ -19,7 +19,7 @@ WelcomeDialog::WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory, b
 
     ui->progModeLauncherButton->setEnabled(isProgrammingModeEnabled);
 
-    connect(this, SIGNAL(signal_launchApplication(ApplicationMode)), parentWidget(), SLOT(slot_showApplicationMode(ApplicationMode)));
+    connect(this, SIGNAL(signal_launchApplication(eApplicationMode)), parentWidget(), SLOT(slot_showApplicationMode(eApplicationMode)));
     connect(ui->_TBU_welcomeCloseButton, SIGNAL(clicked()), this, SLOT(close()));
 
     IconizedButtonWrapper *closeButtonWrapper = new IconizedButtonWrapper(ui->_TBU_welcomeCloseButton);

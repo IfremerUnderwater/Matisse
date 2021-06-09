@@ -12,21 +12,19 @@ class EnrichedLineEdit : public EnrichedFormWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedLineEdit(QWidget *parent = 0, QString label = "", QString defaultValue = "");
-    //bool currentValueChanged();
+    explicit EnrichedLineEdit(QWidget *_parent = 0, QString _label = "", QString _default_value = "");
     virtual QString currentValue();
     virtual void restoreDefaultValue();
 
 protected:
-    virtual void applyValue(QString newValue);
+    virtual void applyValue(QString _new_value);
 
 signals:
 
 public slots:
-//    void slot_valueChanged();
 
 private:
-    QLineEdit * _lineEdit;
+    QLineEdit * m_line_edit;
 
 };
 

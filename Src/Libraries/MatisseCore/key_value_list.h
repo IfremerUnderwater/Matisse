@@ -17,19 +17,19 @@ class KeyValueList
 {
 public:
     KeyValueList();
-    KeyValueList(KeyValueList const &other);
-    bool append(QString key, QString value = "");
-    void set(QString key, QString value);
-    bool insert(QString key, QString value, int before = -1);
+    KeyValueList(KeyValueList const &_other);
+    bool append(QString _key, QString _value = "");
+    void set(QString _key, QString _value);
+    bool insert(QString _key, QString _value, int _before = -1);
     int getSize();
     void clear();
     QStringList getKeys();
     QStringList getValues();
-    QString getValue(QString key);
+    QString getValue(QString _key);
 
 private:
-    QStringList _keys;
-    QStringList _values;
+    QStringList m_keys;
+    QStringList m_values;
 };
 
 } // namespace matisse

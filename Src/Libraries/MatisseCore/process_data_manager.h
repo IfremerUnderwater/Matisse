@@ -39,24 +39,24 @@ public:
 
 
     bool loadAssembliesAndJobs();
-    void loadArchivedJobs(QString archivePath);
+    void loadArchivedJobs(QString _archive_path);
 
-    bool readAssemblyFile(QString filename);
-    AssemblyDefinition *getAssembly(QString assemblyName);
+    bool readAssemblyFile(QString _filename);
+    AssemblyDefinition *getAssembly(QString _assembly_name);
 
-    bool readJobFile(QString filename, bool isArchiveFile = false, QString archivePath = "");
-    bool writeJobFile(JobDefinition *job, bool overWrite = false);
-    bool writeAssemblyFile(AssemblyDefinition *assembly, bool overWrite = false);
+    bool readJobFile(QString _filename, bool _is_archive_file = false, QString _archive_path = "");
+    bool writeJobFile(JobDefinition *_job, bool _overwrite = false);
+    bool writeAssemblyFile(AssemblyDefinition *_assembly, bool _overwrite = false);
 
 
-    JobDefinition *getJob(QString jobName);
-    JobDefinition *getArchivedJob(QString archivedJobName);
-    QStringList getAssemblyArchivedJobs(QString assemblyName) const;
+    JobDefinition *getJob(QString _job_name);
+    JobDefinition *getArchivedJob(QString _archived_job_name);
+    QStringList getAssemblyArchivedJobs(QString _assembly_name) const;
     QStringList getArchivedJobNames() const;
-    bool restoreArchivedJobs(QString archivePath, QString assemblyName, QStringList jobsToRestore);
+    bool restoreArchivedJobs(QString _archive_path, QString _assembly_name, QStringList _jobs_to_restore);
     QStringList getJobsNames();
     QString getJobsBasePath();
-    QString getJobParametersFilePath(QString jobName);
+    QString getJobParametersFilePath(QString _job_name);
 
     QStringList getAssembliesList();
     QString getAssembliesPath();
@@ -68,18 +68,18 @@ public:
     QString getJobFilePattern() const;
     QString getJobParametersFilePattern() const;
 
-    QString getAssemblyNameByFilePath(QString fileName) const;
-    QString getJobNameByFilePath(QString fileName) const;
+    QString getAssemblyNameByFilePath(QString _filename) const;
+    QString getJobNameByFilePath(QString _filename) const;
 
     QString getJobsParametersBasePath() const;
 
-    bool copyJobFilesToResult(QString jobName, QString resultPath);
-    bool archiveJobFiles(QString jobName, QString archivePath);
-    bool duplicateJob(QString jobName, QString newName);
-    bool duplicateAssembly(QString assemblyName, QString newName);
+    bool copyJobFilesToResult(QString _job_name, QString _result_path);
+    bool archiveJobFiles(QString _job_name, QString _archive_path);
+    bool duplicateJob(QString _job_name, QString _new_name);
+    bool duplicateAssembly(QString _assembly_name, QString _new_name);
 
-    QString fromNameToFileName(QString name);
-    bool assemblyHasArchivedJob(QString assemblyName);
+    QString fromNameToFileName(QString _name);
+    bool assemblyHasArchivedJob(QString _assembly_name);
 
 private:
     ProcessDataManager();
@@ -88,9 +88,9 @@ private:
     void clearJobs();
     void clearArchivedJobs();
     bool loadModels();
-    bool xmlIsValid(QXmlSchema & schema, QFileInfo fileInfo);
-    bool duplicateElementParameters(QString fileName, QString newFileName, bool isAssembly);
-    bool restoreArchivedJob(QString archivePath, QString jobToRestore);
+    bool xmlIsValid(QXmlSchema & _schema, QFileInfo _file_info);
+    bool duplicateElementParameters(QString _filename, QString _new_filename, bool _is_assembly);
+    bool restoreArchivedJob(QString _archive_path, QString _job_to_restore);
 
     static ProcessDataManager* m_temp_instance;
 
@@ -100,7 +100,7 @@ private:
 
     QString m_jobs_parameters_path;
     QString m_jobs_path;
-    QString m__assemblies_path;
+    QString m_assemblies_path;
     QString m_assemblies_parameters_path;
     QString m_schema_path; // TODO provisoire
 

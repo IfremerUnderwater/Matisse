@@ -4,72 +4,72 @@ namespace matisse {
 
 QString MatissePreferences::importExportPath() const
 {
-    return _importExportPath;
+    return m_import_export_path;
 }
 
-void MatissePreferences::setImportExportPath(const QString &importExportPath)
+void MatissePreferences::setImportExportPath(const QString &_import_export_path)
 {
-    _importExportPath = importExportPath;
+    m_import_export_path = _import_export_path;
 }
 
 QString MatissePreferences::archivePath() const
 {
-    return _archivePath;
+    return m_archive_path;
 }
 
-void MatissePreferences::setArchivePath(const QString &archivePath)
+void MatissePreferences::setArchivePath(const QString &_archive_path)
 {
-    _archivePath = archivePath;
+    m_archive_path = _archive_path;
 }
 
 QString MatissePreferences::defaultResultPath() const
 {
-    return _defaultResultPath;
+    return m_default_result_path;
 }
 
-void MatissePreferences::setDefaultResultPath(const QString &defaultResultPath)
+void MatissePreferences::setDefaultResultPath(const QString &_default_result_path)
 {
-    _defaultResultPath = defaultResultPath;
+    m_default_result_path = _default_result_path;
 }
 
 QString MatissePreferences::defaultMosaicFilenamePrefix() const
 {
-    return _defaultMosaicFilenamePrefix;
+    return m_default_mosaic_filename_prefix;
 }
 
-void MatissePreferences::setDefaultMosaicFilenamePrefix(const QString &defaultMosaicFilenamePrefix)
+void MatissePreferences::setDefaultMosaicFilenamePrefix(const QString &_default_mosaic_filename_prefix)
 {
-    _defaultMosaicFilenamePrefix = defaultMosaicFilenamePrefix;
+    m_default_mosaic_filename_prefix = _default_mosaic_filename_prefix;
 }
 
 bool MatissePreferences::programmingModeEnabled() const
 {
-    return _programmingModeEnabled;
+    return m_programming_mode_enabled;
 }
 
-void MatissePreferences::setProgrammingModeEnabled(bool programmingModeEnabled)
+void MatissePreferences::setProgrammingModeEnabled(bool _programming_mode_enabled)
 {
-    _programmingModeEnabled = programmingModeEnabled;
+    m_programming_mode_enabled = _programming_mode_enabled;
 }
 
 QString MatissePreferences::language() const
 {
-    return _language;
+    return m_language;
 }
 
-void MatissePreferences::setLanguage(const QString &language)
+void MatissePreferences::setLanguage(const QString &_language)
 {
-    _language = language;
+    m_language = _language;
 }
 
 QDateTime MatissePreferences::lastUpdate() const
 {
-    return _lastUpdate;
+    return m_last_update;
 }
 
-void MatissePreferences::setLastUpdate(const QDateTime &lastUpdate)
+void MatissePreferences::setLastUpdate(const QDateTime &_last_update)
 {
-    _lastUpdate = lastUpdate;
+    m_last_update = _last_update;
 }
 
 QString MatissePreferences::remoteCommandServer() const

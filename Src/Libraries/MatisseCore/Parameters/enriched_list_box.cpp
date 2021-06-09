@@ -2,47 +2,43 @@
 
 namespace matisse {
 
-EnrichedListBox::EnrichedListBox(QWidget *parent, QString label, QStringList values, QString defaultValue):
-    EnrichedFormWidget(parent)
+EnrichedListBox::EnrichedListBox(QWidget *_parent, QString _label, QStringList _values, QString _default_value):
+    EnrichedFormWidget(_parent)
 {
-    _defaultValue = defaultValue;
-    _list = new QListWidget(this);
-    _list->addItems(values);
-    _defaultValueIndex = values.indexOf(_defaultValue);
-    _list->setCurrentRow(_defaultValueIndex);
-    setWidget(label, _list);
-    connect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
+    m_default_value = _default_value;
+    m_list = new QListWidget(this);
+    m_list->addItems(_values);
+    m_default_value_index = _values.indexOf(m_default_value);
+    m_list->setCurrentRow(m_default_value_index);
+    setWidget(_label, m_list);
+    connect(m_list, SIGNAL(currentRowChanged(int)), this, SLOT(sl_valueChanged()));
 }
 
-//bool EnrichedListBox::currentValueChanged()
-//{
-//    return currentValue() != _defaultValue;
-//}
 
 QString EnrichedListBox::currentValue()
 {
-    return _list->currentItem()->text();
+    return m_list->currentItem()->text();
 }
 
-void EnrichedListBox::applyValue(QString newValue)
+void EnrichedListBox::applyValue(QString _new_value)
 {
-    QList<QListWidgetItem *> items = _list->findItems(newValue, Qt::MatchExactly);
+    QList<QListWidgetItem *> items = m_list->findItems(_new_value, Qt::MatchExactly);
 
     if (items.isEmpty()) {
-        qWarning() << QString("Value '%1' not found among list box items, skipping assignment...").arg(newValue);
+        qWarning() << QString("Value '%1' not found among list box items, skipping assignment...").arg(_new_value);
         return;
     }
 
-    disconnect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
-    _list->setCurrentItem(items.at(0));
-    connect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
+    disconnect(m_list, SIGNAL(currentRowChanged(int)), this, SLOT(sl_valueChanged()));
+    m_list->setCurrentItem(items.at(0));
+    connect(m_list, SIGNAL(currentRowChanged(int)), this, SLOT(sl_valueChanged()));
 }
 
 void EnrichedListBox::restoreDefaultValue()
 {
-    disconnect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
-    _list->setCurrentRow(_defaultValueIndex);
-    connect(_list, SIGNAL(currentRowChanged(int)), this, SLOT(slot_valueChanged()));
+    disconnect(m_list, SIGNAL(currentRowChanged(int)), this, SLOT(sl_valueChanged()));
+    m_list->setCurrentRow(m_default_value_index);
+    connect(m_list, SIGNAL(currentRowChanged(int)), this, SLOT(sl_valueChanged()));
 }
 
 } // namespace matisse

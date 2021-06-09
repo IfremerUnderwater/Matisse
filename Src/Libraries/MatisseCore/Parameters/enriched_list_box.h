@@ -13,21 +13,20 @@ class EnrichedListBox : public EnrichedFormWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedListBox(QWidget *parent, QString label, QStringList values, QString defaultValue);
-    //bool currentValueChanged();
+    explicit EnrichedListBox(QWidget *_parent, QString _label, QStringList _values, QString _default_value);
     virtual QString currentValue();
     virtual void restoreDefaultValue();
 
 protected:
-    virtual void applyValue(QString newValue);
+    virtual void applyValue(QString _new_value);
 
 signals:
 
 public slots:
 
 private:
-    QListWidget * _list;
-    int _defaultValueIndex;
+    QListWidget * m_list;
+    int m_default_value_index;
 };
 }
 #endif // MATISSE_ENRICHED_LIST_BOX_H_

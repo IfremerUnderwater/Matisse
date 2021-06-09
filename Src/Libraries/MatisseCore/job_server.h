@@ -17,21 +17,21 @@ class JobServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit JobServer(int port);
+    explicit JobServer(int _port);
 
-    void sendExecutionNotification(QString name);
+    void sendExecutionNotification(QString _name);
 signals:
 
 private slots:
-    void slot_clientConnected();
-    void slot_clientDisconnected();
-    void slot_readData();
+    void sl_clientConnected();
+    void sl_clientDisconnected();
+    void sl_readData();
 private:
-    bool sendCmd(QString data);
+    bool sendCmd(QString _data);
 
 private:
-    QTcpServer _server;
-    QTcpSocket *_socket;
+    QTcpServer m_server;
+    QTcpSocket *m_socket;
 };
 
 } // namespace matisse

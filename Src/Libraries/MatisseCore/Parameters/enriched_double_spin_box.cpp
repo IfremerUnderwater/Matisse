@@ -3,61 +3,61 @@
 
 namespace matisse {
 
-EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QString minValue, QString maxValue, QString defaultValue):
-    EnrichedDecimalValueWidget(parent)
+EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *_parent, QString _label, QString _min_value, QString _max_value, QString _default_value):
+    EnrichedDecimalValueWidget(_parent)
 {
     GraphicalCharter &graph_chart = GraphicalCharter::instance();
-    _spin = new QDoubleSpinBox(this);
-    _spin->setFixedWidth(graph_chart.dpiScaled(PARAM_SPINBOX_WIDTH));
-    minValue = minValue.trimmed().toLower();
-    maxValue = maxValue.trimmed().toLower();
-    QString specialValue;
+    m_spin = new QDoubleSpinBox(this);
+    m_spin->setFixedWidth(graph_chart.dpiScaled(PARAM_SPINBOX_WIDTH));
+    _min_value = _min_value.trimmed().toLower();
+    _max_value = _max_value.trimmed().toLower();
+    QString special_value;
 
-    quint8 defaultPrecision = PRECISION_DEFAULT;
-    double increment = qPow(10, -1 * defaultPrecision);
+    quint8 default_precision = PRECISION_DEFAULT;
+    double increment = qPow(10, -1 * default_precision);
 
     bool ok;
 
-    if (minValue.startsWith("-inf")) {
-        specialValue = "-inf";
-        _minValueReal = MIN_REAL;
+    if (_min_value.startsWith("-inf")) {
+        special_value = "-inf";
+        m_min_value_real = MIN_REAL;
     } else {
-        _minValueReal = minValue.toDouble();
+        m_min_value_real = _min_value.toDouble();
     }
 
-    if (maxValue.startsWith("inf")) {
-        specialValue = "inf";
-        _maxValueReal = MAX_REAL;
-        if (qAbs(_minValueReal - MIN_REAL) > increment) {
-            _minValueReal -= increment;
+    if (_max_value.startsWith("inf")) {
+        special_value = "inf";
+        m_max_value_real = MAX_REAL;
+        if (qAbs(m_min_value_real - MIN_REAL) > increment) {
+            m_min_value_real -= increment;
         }
     } else {
-        _maxValueReal = maxValue.toInt();
+        m_max_value_real = _max_value.toInt();
     }
 
 
-    _spin->setRange(_minValueReal, _maxValueReal);
-    _spin->setWrapping(true);
-    _spin->setSingleStep(increment);
-    _spin->setDecimals(defaultPrecision);
+    m_spin->setRange(m_min_value_real, m_max_value_real);
+    m_spin->setWrapping(true);
+    m_spin->setSingleStep(increment);
+    m_spin->setDecimals(default_precision);
 
-    if (!specialValue.isEmpty()) {
-        _spin->setSpecialValueText(specialValue);
+    if (!special_value.isEmpty()) {
+        m_spin->setSpecialValueText(special_value);
     }
-    _defaultValue = defaultValue;
-    double defaultValueReal = defaultValue.toDouble(&ok);
+    m_default_value = _default_value;
+    double default_value_real = _default_value.toDouble(&ok);
     if (!ok) {
-        qWarning() << QString("Could not convert default value '%1' to real, using min value as default").arg(_defaultValue);
+        qWarning() << QString("Could not convert default value '%1' to real, using min value as default").arg(m_default_value);
 
-        _spin->setValue(_minValueReal);
-        _defaultValue = QString::number(_minValueReal);
+        m_spin->setValue(m_min_value_real);
+        m_default_value = QString::number(m_min_value_real);
     } else {
-        _spin->setValue(defaultValueReal);
+        m_spin->setValue(default_value_real);
     }
 
-    setWidget(label, _spin);
+    setWidget(_label, m_spin);
 
-    connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
+    connect(m_spin, SIGNAL(valueChanged(QString)), this, SLOT(sl_valueChanged()));
 
 }
 
@@ -68,32 +68,32 @@ EnrichedDoubleSpinBox::EnrichedDoubleSpinBox(QWidget *parent, QString label, QSt
 
 QString EnrichedDoubleSpinBox::currentValue()
 {
-    return _spin->text();
+    return m_spin->text();
 }
 
-void EnrichedDoubleSpinBox::applyValue(QString newValue)
+void EnrichedDoubleSpinBox::applyValue(QString _new_value)
 {
     bool ok;
 
-    double valueReal = newValue.toDouble(&ok);
+    double value_real = _new_value.toDouble(&ok);
     if (!ok) {
-        qWarning() << QString("Error converting '%1' to double for double spin box value assignment, skipping...").arg(newValue);
+        qWarning() << QString("Error converting '%1' to double for double spin box value assignment, skipping...").arg(_new_value);
         return;
     }
 
-    if (valueReal > _maxValueReal) {
-        qWarning() << QString("Value '%1' greater than max value '%2', skipping...").arg(valueReal).arg(_maxValueReal);
+    if (value_real > m_max_value_real) {
+        qWarning() << QString("Value '%1' greater than max value '%2', skipping...").arg(value_real).arg(m_max_value_real);
         return;
     }
 
-    if (valueReal < _minValueReal) {
-        qWarning() << QString("Value '%1' lower than min value '%2', skipping...").arg(valueReal).arg(_minValueReal);
+    if (value_real < m_min_value_real) {
+        qWarning() << QString("Value '%1' lower than min value '%2', skipping...").arg(value_real).arg(m_min_value_real);
         return;
     }
 
-    disconnect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
-    _spin->setValue(valueReal);
-    connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
+    disconnect(m_spin, SIGNAL(valueChanged(QString)), this, SLOT(sl_valueChanged()));
+    m_spin->setValue(value_real);
+    connect(m_spin, SIGNAL(valueChanged(QString)), this, SLOT(sl_valueChanged()));
 
 }
 
@@ -101,23 +101,23 @@ void EnrichedDoubleSpinBox::applyPrecision()
 {
     double increment = qPow(10, -1 * precision());
 
-    _spin->setSingleStep(increment);
-    _spin->setDecimals(precision());
+    m_spin->setSingleStep(increment);
+    m_spin->setDecimals(precision());
 }
 
 void EnrichedDoubleSpinBox::restoreDefaultValue()
 {
     bool ok;
-    qint32 defaultValueReal = _defaultValue.toDouble(&ok);
+    qint32 default_value_real = m_default_value.toDouble(&ok);
 
     if (!ok) {
         qCritical() << "Error restoring default value for double spin box";
         return;
     }
 
-    disconnect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
-    _spin->setValue(defaultValueReal);
-    connect(_spin, SIGNAL(valueChanged(QString)), this, SLOT(slot_valueChanged()));
+    disconnect(m_spin, SIGNAL(valueChanged(QString)), this, SLOT(sl_valueChanged()));
+    m_spin->setValue(default_value_real);
+    connect(m_spin, SIGNAL(valueChanged(QString)), this, SLOT(sl_valueChanged()));
 }
 
 } // namespace matisse

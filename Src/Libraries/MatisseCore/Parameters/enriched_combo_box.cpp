@@ -2,56 +2,56 @@
 
 namespace matisse {
 
-EnrichedComboBox::EnrichedComboBox(QWidget *parent, QString label, QStringList values, QString defaultValue):
-    EnrichedFormWidget(parent)
+EnrichedComboBox::EnrichedComboBox(QWidget *_parent, QString _label, QStringList _values, QString _default_value):
+    EnrichedFormWidget(_parent)
 {
-    _combo = new QComboBox(this);
-    _combo->setEditable(false);
-    _combo->addItems(values);
-    _defaultValue = defaultValue;
-    _defaultIndex = values.indexOf(_defaultValue);
-    _combo->setCurrentIndex(_defaultIndex);
-    setWidget(label, _combo);
+    m_combo = new QComboBox(this);
+    m_combo->setEditable(false);
+    m_combo->addItems(_values);
+    m_default_value = _default_value;
+    m_default_index = _values.indexOf(m_default_value);
+    m_combo->setCurrentIndex(m_default_index);
+    setWidget(_label, m_combo);
 
-    connect(_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
+    connect(m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
 
 }
 
 bool EnrichedComboBox::currentValueChanged()
 {
-    return (_combo->currentIndex() != _initialIndex);
+    return (m_combo->currentIndex() != m_initial_index);
 }
 
 QString EnrichedComboBox::currentValue()
 {
-    return _combo->currentText();
+    return m_combo->currentText();
 }
 
 qint32 EnrichedComboBox::currentIndex()
 {
-    return _combo->currentIndex();
+    return m_combo->currentIndex();
 }
 
-void EnrichedComboBox::applyValue(QString newValue)
+void EnrichedComboBox::applyValue(QString _new_value)
 {
-    int index = _combo->findText(newValue, Qt::MatchExactly);
+    int index = m_combo->findText(_new_value, Qt::MatchExactly);
 
     if (index == -1) {
-        qWarning() << QString("Could not assign value '%1' : not found in combo box").arg(newValue);
+        qWarning() << QString("Could not assign value '%1' : not found in combo box").arg(_new_value);
         return;
     }
 
-    disconnect(_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
-    _combo->setCurrentIndex(index);
-    _initialIndex = index;
-    connect(_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
+    disconnect(m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
+    m_combo->setCurrentIndex(index);
+    m_initial_index = index;
+    connect(m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
 }
 
 void EnrichedComboBox::restoreDefaultValue()
 {
-    disconnect(_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
-    _combo->setCurrentIndex(_defaultIndex);
-    connect(_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_valueChanged()));
+    disconnect(m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
+    m_combo->setCurrentIndex(m_default_index);
+    connect(m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
 }
 
 } // namespace matisse

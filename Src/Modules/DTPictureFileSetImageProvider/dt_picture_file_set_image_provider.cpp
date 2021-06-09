@@ -6,7 +6,6 @@
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(DTPictureFileSetImageProvider, DTPictureFileSetImageProvider)
 #endif
-
 using namespace nav_tools;
 using namespace system_tools;
 
@@ -45,19 +44,19 @@ bool DTPictureFileSetImageProvider::configure()
 {
     qDebug() << logPrefix() << "DTPictureFileSetImageProvider configure";
 
-    QString rootDirnameStr = _matisseParameters->getStringParamValue("dataset_param", "dataset_dir");
+    QString rootDirnameStr = m_matisse_parameters->getStringParamValue("dataset_param", "dataset_dir");
 
     bool isOk = false;
-    QString navFileStr = _matisseParameters->getStringParamValue("dataset_param", "navFile");
-    quint32 firstImageIndex = _matisseParameters->getIntParamValue("algo_param", "First_processed_image", isOk);
+    QString navFileStr = m_matisse_parameters->getStringParamValue("dataset_param", "navFile");
+    quint32 firstImageIndex = m_matisse_parameters->getIntParamValue("algo_param", "First_processed_image", isOk);
     if (!isOk) {
         firstImageIndex = 1;
     }
-    quint32 lastImageIndex = _matisseParameters->getIntParamValue("algo_param", "Last_processed_image", isOk);
+    quint32 lastImageIndex = m_matisse_parameters->getIntParamValue("algo_param", "Last_processed_image", isOk);
     if (!isOk) {
         lastImageIndex = InfInt;
     }
-    quint32 stepIndex = _matisseParameters->getIntParamValue("algo_param", "step_im", isOk);
+    quint32 stepIndex = m_matisse_parameters->getIntParamValue("algo_param", "step_im", isOk);
     if (!isOk) {
         stepIndex = 1;
     }
@@ -110,15 +109,15 @@ bool DTPictureFileSetImageProvider::start()
     qDebug() << logPrefix() << " inside start";
 
     bool ok;
-    double scaleFactor = _matisseParameters->getDoubleParamValue("algo_param", "scale_factor", ok);
+    double scaleFactor = m_matisse_parameters->getDoubleParamValue("algo_param", "scale_factor", ok);
 
-    emit signal_processCompletion(0);
-    emit signal_userInformation("Building image set...");
+    emit si_processCompletion(0);
+    emit si_userInformation("Building image set...");
 
     for(int i=0; i<_dim2FileReader->getNumberOfImages(); i++) {
 
          QString filename = _dim2FileReader->getImageFilename(i);
-         qDebug() << logPrefix() << " load image " << filename;
+//         qDebug() << logPrefix() << " load image " << filename;
          QFileInfo fileInfo(_pictureFileSet ->rootDirname(), filename);
 
          if (fileInfo.exists() && fileInfo.isReadable()) {
@@ -132,9 +131,9 @@ bool DTPictureFileSetImageProvider::start()
 
          double progressRatio = i/_dim2FileReader->getNumberOfImages();
          quint8 progress = progressRatio * 100;
-         emit signal_processCompletion(progress);
+         emit si_processCompletion(progress);
     }
-    emit signal_processCompletion(100);
+    emit si_processCompletion(100);
 
     _imageSet->flush();
 

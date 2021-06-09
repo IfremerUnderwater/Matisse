@@ -19,32 +19,32 @@ class OutputDataWriter : public QObject, public ImageListener, public LifecycleC
 public:
 
     // Accesseurs
-    QString comment(){return _comment;}
-    quint16 inNumber() {return _inNumber;}
+    QString comment(){return m_comment;}
+    quint16 inNumber() {return m_in_number;}
 
 
-    explicit OutputDataWriter(QObject *parent, QString name, QString comment, quint16 inNumber =1);
+    explicit OutputDataWriter(QObject *_parent, QString _name, QString _comment, quint16 _in_number =1);
     virtual ~OutputDataWriter();
 
     ImageSet *imageSet() const;
-    void setImageSet(ImageSet *imageSet);
+    void setImageSet(ImageSet *_image_set);
 
 public:
     virtual QList<QFileInfo> rastersInfo() = 0;
 
 signals:
-    void signal_userInformation(QString userText);
-    void signal_processCompletion(quint8 percentComplete);
-    void signal_showInformationMessage(QString title, QString text);
-    void signal_showErrorMessage(QString title, QString text);
-    void signal_show3DFileOnMainView(QString filepath_p);
-    void signal_addRasterFileToMap(QString filepath_p);
-    void signal_addToLog(QString _loggin_text);
+    void si_userInformation(QString _user_text);
+    void si_processCompletion(quint8 _percent_complete);
+    void si_showInformationMessage(QString _title, QString _text);
+    void si_showErrorMessage(QString _title, QString _text);
+    void si_show3DFileOnMainView(QString _filepath_p);
+    void si_addRasterFileToMap(QString _filepath_p);
+    void si_addToLog(QString _loggin_text);
 
 private:
-    QString _comment;
-    quint16 _inNumber;
-    ImageSet *_imageSet;
+    QString m_comment;
+    quint16 m_in_number;
+    ImageSet *m_image_set;
 
 
 };

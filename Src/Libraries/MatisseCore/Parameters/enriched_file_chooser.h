@@ -23,22 +23,21 @@ class EnrichedFileChooser : public EnrichedFormWidget
 {
     Q_OBJECT
 public:
-    explicit EnrichedFileChooser(QWidget *parent, MatisseIconFactory *iconFactory, QString label, ParameterShow type, QString defaultValue);
-    //bool currentValueChanged();
+    explicit EnrichedFileChooser(QWidget *_parent, MatisseIconFactory *_icon_factory, QString m_label, eParameterShow _type, QString _default_value);
     virtual QString currentValue();
     virtual void restoreDefaultValue();
 
 protected:
-    virtual void applyValue(QString newValue);
+    virtual void applyValue(QString _new_value);
 
 private:
-    QLineEdit * _lineEdit;
-    ParameterShow _type;
+    QLineEdit * m_line_edit;
+    eParameterShow m_type;
 
 signals:
 
 public slots:
-    void slot_clicked();
+    void sl_clicked();
 
 };
 

@@ -12,21 +12,21 @@ class IconizedWidgetWrapper : public QObject
     Q_OBJECT
 
 public:
-    IconizedWidgetWrapper(QObject* widget, bool _hasIcon);
+    IconizedWidgetWrapper(QObject* _widget, bool _has_icon);
 
-    virtual void setIcon(const QIcon &icon) {Q_UNUSED(icon)}
-    virtual void setPixmap(const QPixmap &pixmap) {Q_UNUSED(pixmap)}
+    virtual void setIcon(const QIcon &_icon) {Q_UNUSED(_icon)}
+    virtual void setPixmap(const QPixmap &_pixmap) {Q_UNUSED(_pixmap)}
 
     bool hasIcon() const;
     bool isValid() const;
 
 protected slots:
-    void slot_invalidate(QObject *widget);
+    void sl_invalidate(QObject *_widget);
 
 private:
-    bool _hasIcon;
-    bool _isValid;
-    QObject *_widget;
+    bool m_has_icon;
+    bool m_is_valid;
+    QObject *m_widget;
 };
 
 } // namespace matisse

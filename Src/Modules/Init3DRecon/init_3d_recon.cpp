@@ -63,7 +63,7 @@ bool Init3DRecon::getCameraIntrinsics(double & _focal, double & _ppx, double & _
 
     bool Ok=false;
 
-    CameraInfo camera_equipment =  _matisseParameters->getCamInfoParamValue("cam_param", "camera_equipment", Ok);
+    CameraInfo camera_equipment =  m_matisse_parameters->getCamInfoParamValue("cam_param", "camera_equipment", Ok);
 
     if(Ok)
     {
@@ -161,10 +161,10 @@ std::pair<bool, Vec3> Init3DRecon::getPriorWeights
 {
     std::pair<bool, Vec3> val(true, Vec3::Zero());
     bool ok=false; // there is always a default value, no need to check ok bool
-    double reproj_std = _matisseParameters->getDoubleParamValue("vehic_param","reproj_std",ok);
-    double X_std = _matisseParameters->getDoubleParamValue("vehic_param","X_std",ok);
-    double Y_std = _matisseParameters->getDoubleParamValue("vehic_param","Y_std",ok);
-    double depth_std = _matisseParameters->getDoubleParamValue("vehic_param","depth_std",ok);
+    double reproj_std = m_matisse_parameters->getDoubleParamValue("vehic_param","reproj_std",ok);
+    double X_std = m_matisse_parameters->getDoubleParamValue("vehic_param","X_std",ok);
+    double Y_std = m_matisse_parameters->getDoubleParamValue("vehic_param","Y_std",ok);
+    double depth_std = m_matisse_parameters->getDoubleParamValue("vehic_param","depth_std",ok);
 
     val.second[0]=(reproj_std*reproj_std)/(X_std*X_std);
     val.second[1]=(reproj_std*reproj_std)/(Y_std*Y_std);
@@ -232,10 +232,10 @@ void Init3DRecon::onFlush(quint32 port)
 
     // Log
     QString proc_info =  logPrefix() + "Initialize Sfm from data\n";
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
 
-    emit signal_processCompletion(0);
-    emit signal_userInformation("Init3DRecon - start");
+    emit si_processCompletion(0);
+    emit si_userInformation("Init3DRecon - start");
 
     std::ostringstream error_report_stream;
 
@@ -244,7 +244,7 @@ void Init3DRecon::onFlush(quint32 port)
 
     bool b_Group_camera_model = true;
     bool Ok=false;
-    bool use_prior = _matisseParameters->getBoolParamValue("dataset_param", "usePrior",Ok);
+    bool use_prior = m_matisse_parameters->getBoolParamValue("dataset_param", "usePrior",Ok);
     if(!Ok)
         use_prior = false;
     //int i_GPS_XYZ_method = 0;
@@ -267,7 +267,7 @@ void Init3DRecon::onFlush(quint32 port)
     }
 
     // Navigation source
-    QString navSource =  _matisseParameters->getStringParamValue("dataset_param", "navSource");
+    QString navSource =  m_matisse_parameters->getStringParamValue("dataset_param", "navSource");
     NavMode navMode = NONE;
     if(navSource == "NO_NAV")
         navMode = NONE;
@@ -278,7 +278,7 @@ void Init3DRecon::onFlush(quint32 port)
     else
         navMode = DIM2;
 
-    QString navigationFile = _matisseParameters->getStringParamValue("dataset_param", "navFile");
+    QString navigationFile = m_matisse_parameters->getStringParamValue("dataset_param", "navFile");
 
     if (navigationFile.isEmpty())
         navigationFile = QString("noNav.dim2");
@@ -300,7 +300,7 @@ void Init3DRecon::onFlush(quint32 port)
         if( navSource == "DIM2")
         {
             QString msg = "Dim2 file not found " + navigationFile;
-            emit signal_showInformationMessage(this->logPrefix(),msg);
+            emit si_showInformationMessage(this->logPrefix(),msg);
             navMode = NONE;
         }
         else
@@ -324,7 +324,7 @@ void Init3DRecon::onFlush(quint32 port)
         if( navSource == "DIM2")
         {
             QString msg = "Dim2 file invalid " + navigationFile;
-            emit signal_showInformationMessage(this->logPrefix(),msg);
+            emit si_showInformationMessage(this->logPrefix(),msg);
             navMode = NONE;
         }
         else
@@ -369,7 +369,7 @@ void Init3DRecon::onFlush(quint32 port)
     for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin(); iter_image != vec_image.end(); ++iter_image)
     {
         counter++;
-        emit signal_processCompletion(100.0*(double)counter/(double)vec_image.size());
+        emit si_processCompletion(100.0*(double)counter/(double)vec_image.size());
 
         // Read meta data to fill camera parameter (w,h,focal,ppx,ppy) fields.
         width = height = ppx = ppy = focal = -1.0;
@@ -520,7 +520,7 @@ void Init3DRecon::onFlush(quint32 port)
     // Display saved warning & error messages if any.
     if (!error_report_stream.str().empty())
     {
-        emit signal_showInformationMessage(this->logPrefix(),error_report_stream.str().c_str());
+        emit si_showInformationMessage(this->logPrefix(),error_report_stream.str().c_str());
     }
 
     // Group camera that share common properties if desired (leads to more faster & stable BA).
@@ -569,7 +569,7 @@ void Init3DRecon::onFlush(quint32 port)
         }
     }
 
-    emit signal_userInformation("Init3DRecon - saving...");
+    emit si_userInformation("Init3DRecon - saving...");
     // Store SfM_Data views & intrinsic data
     if (!Save(  sfm_data,
                 stlplus::create_filespec( output_dir, "sfm_data.bin" ).c_str(),
@@ -589,7 +589,7 @@ void Init3DRecon::onFlush(quint32 port)
 
     QVariant * reconstruction_context_stocker = new QVariant();
     reconstruction_context_stocker->setValue(reconstruction_context);
-    _context->addObject("reconstruction_context",reconstruction_context_stocker);
+    m_context->addObject("reconstruction_context",reconstruction_context_stocker);
 
     // Backup first image position to file
     // firstImagePos : en Lat, Lon, Alt
@@ -612,7 +612,7 @@ void Init3DRecon::onFlush(quint32 port)
     proc_info = logPrefix();
     proc_info += QString("usable #File(s) listed in sfm_data: %1\nusable #Intrinsic(s) listed in sfm_data: %2")
             .arg(sfm_data.GetViews().size()).arg(sfm_data.GetIntrinsics().size());
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
 
     if(sfm_data.GetViews().size() == 0)
     {
@@ -627,11 +627,11 @@ void Init3DRecon::onFlush(quint32 port)
     sfm_data.intrinsics[0] = intrinsic;
     sfm_data.s_root_path = "";
 
-    emit signal_userInformation("Init3DRecon - end");
+    emit si_userInformation("Init3DRecon - end");
 
     // Log elapsed time
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
-    emit signal_addToLog(proc_info);
+    emit si_addToLog(proc_info);
 
     flush(0);
 }

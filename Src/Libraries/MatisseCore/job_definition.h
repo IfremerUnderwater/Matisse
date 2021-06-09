@@ -17,18 +17,18 @@ public:
     virtual ~ExecutionDefinition() {}
 
     QStringList resultFileNames() const;
-    void setResultFileNames(QStringList resultFileNames);
+    void setResultFileNames(QStringList _result_file_names);
 
     bool executed() const;
-    void setExecuted(bool executed);
+    void setExecuted(bool _executed);
 
     QDateTime executionDate() const;
-    void setExecutionDate(QDateTime executionDate);
+    void setExecutionDate(QDateTime _execution_date);
 
 private:
-    QDateTime  _executionDate;
-    bool _executed;
-    QStringList _resultFileNames;
+    QDateTime  m_execution_date;
+    bool m_executed;
+    QStringList m_result_file_names;
 };
 
 class RemoteJobDefinition {
@@ -58,37 +58,37 @@ private:
 class JobDefinition
 {
 public:
-    JobDefinition(QString name = "", QString assemblyName = "", QString assemblyVersion = "");
+    JobDefinition(QString _name = "", QString _assembly_name = "", QString _assembly_version = "");
 
     virtual ~JobDefinition() {}
 
     QString filename() const;
-    void setFilename(const QString &filename);
+    void setFilename(const QString &_filename);
 
     QString name() const;
-    void setName(const QString &name);
+    void setName(const QString &_name);
 
     QString assemblyName() const;
     QString assemblyVersion() const;
 
     QString comment() const;
-    void setComment(const QString &comment);
+    void setComment(const QString &_comment);
 
     ExecutionDefinition *executionDefinition() const;
-    void setExecutionDefinition(ExecutionDefinition *executionDefinition);
+    void setExecutionDefinition(ExecutionDefinition *_execution_definition);
 
     RemoteJobDefinition* remoteJobDefinition() const;
     void setRemoteJobDefinition(RemoteJobDefinition* _remote_job_definition);
 
-    JobDefinition *duplicate(QString newName, QString newFileName);
+    JobDefinition *duplicate(QString _new_name, QString _new_file_name);
 
 private:
-    QString _filename;
-    QString _name;
-    QString _comment;
-    QString _assemblyName;
-    QString _assemblyVersion;
-    ExecutionDefinition *_executionDefinition;
+    QString m_filename;
+    QString m_name;
+    QString m_comment;
+    QString m_assembly_name;
+    QString m_assembly_version;
+    ExecutionDefinition *m_execution_definition;
     RemoteJobDefinition* m_remote_job_definition;
 };
 

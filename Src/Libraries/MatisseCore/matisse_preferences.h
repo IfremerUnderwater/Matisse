@@ -15,13 +15,13 @@ namespace matisse {
 class MatissePreferences
 {
 private:
-   QDateTime _lastUpdate;
-   QString _importExportPath;
-   QString _archivePath;
-   QString _defaultResultPath;
-   QString _defaultMosaicFilenamePrefix;
-   bool _programmingModeEnabled;
-   QString _language;
+   QDateTime m_last_update;
+   QString m_import_export_path;
+   QString m_archive_path;
+   QString m_default_result_path;
+   QString m_default_mosaic_filename_prefix;
+   bool m_programming_mode_enabled;
+   QString m_language;
 
    /* Remote execution preferences */
    QString m_remote_command_server;
@@ -34,19 +34,19 @@ private:
 public:
     MatissePreferences();
     QString importExportPath() const;
-    void setImportExportPath(const QString &importExportPath);
+    void setImportExportPath(const QString &_import_export_path);
     QString archivePath() const;
-    void setArchivePath(const QString &archivePath);
+    void setArchivePath(const QString &_archive_path);
     QString defaultResultPath() const;
-    void setDefaultResultPath(const QString &defaultResultPath);
+    void setDefaultResultPath(const QString &_default_result_path);
     QString defaultMosaicFilenamePrefix() const;
-    void setDefaultMosaicFilenamePrefix(const QString &defaultMosaicFilenamePrefix);
+    void setDefaultMosaicFilenamePrefix(const QString &_default_mosaic_filename_prefix);
     bool programmingModeEnabled() const;
-    void setProgrammingModeEnabled(bool programmingModeEnabled);
+    void setProgrammingModeEnabled(bool _programming_mode_enabled);
     QString language() const;
-    void setLanguage(const QString &language);
+    void setLanguage(const QString &_language);
     QDateTime lastUpdate() const;
-    void setLastUpdate(const QDateTime &lastUpdate);
+    void setLastUpdate(const QDateTime &_last_update);
 
     QString remoteCommandServer() const;
     void setRemoteCommandServer(const QString& _remote_command_server);

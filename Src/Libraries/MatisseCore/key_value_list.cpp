@@ -6,81 +6,81 @@ KeyValueList::KeyValueList()
 {
 }
 
-KeyValueList::KeyValueList(const KeyValueList &other)
+KeyValueList::KeyValueList(const KeyValueList &_other)
 {
-    _keys = other._keys;
-    _values = other._values;
+    m_keys = _other.m_keys;
+    m_values = _other.m_values;
 }
 
-bool KeyValueList::append(QString key, QString value)
+bool KeyValueList::append(QString _key, QString _value)
 {
-    if (_keys.contains(key)) {
+    if (m_keys.contains(_key)) {
         return false;
     }
-    _keys.append(key);
-    _values.append(value);
+    m_keys.append(_key);
+    m_values.append(_value);
 
     return true;
 }
 
-void KeyValueList::set(QString key, QString value)
+void KeyValueList::set(QString _key, QString _value)
 {
-    int index = _keys.indexOf(key);
+    int index = m_keys.indexOf(_key);
     if (index < 0) {
-        _keys.append(key);
-        _values.append(value);
+        m_keys.append(_key);
+        m_values.append(_value);
     } else {
-        _keys.replace(index, key);
-        _values.replace(index, value);
+        m_keys.replace(index, _key);
+        m_values.replace(index, _value);
     }
 }
 
-bool KeyValueList::insert(QString key, QString value, int pos)
+bool KeyValueList::insert(QString _key, QString _value, int _before)
 {
-    int size = _keys.size();
-    if (pos < 0){
-        pos = size;
+    int size = m_keys.size();
+    if (_before < 0){
+        _before = size;
     }
-    pos = qBound(0, pos, size);
+    _before = qBound(0, _before, size);
 
-    if (_keys.contains(key)) {
+    if (m_keys.contains(_key)) {
         return false;
     }
 
-    _keys.insert(pos, key);
-    _values.insert(pos, value);
+    m_keys.insert(_before, _key);
+    m_values.insert(_before, _value);
 
     return true;
 }
 
 int KeyValueList::getSize()
 {
-    return _keys.size();
+    return m_keys.size();
 }
 
 void KeyValueList::clear()
 {
-    _keys.clear();
-    _values.clear();
+    m_keys.clear();
+    m_values.clear();
 }
 
 QStringList KeyValueList::getKeys()
 {
-    return _keys;
+    return m_keys;
 }
 
 QStringList KeyValueList::getValues()
 {
-    return _values;
+    return m_values;
 }
 
-QString KeyValueList::getValue(QString key)
+QString KeyValueList::getValue(QString _key)
 {
-    int index = _keys.indexOf(key);
+    int index = m_keys.indexOf(_key);
     if (index < 0) {
         return "";
     }
-    return _values.at(index);
+    return m_values.at(index);
 }
 
 } // namespace matisse

@@ -2,31 +2,31 @@
 
 namespace matisse {
 
-IconizedWidgetWrapper::IconizedWidgetWrapper(QObject *widget, bool hasIcon) :
-    _hasIcon(hasIcon),
-    _isValid(true),
-    _widget(widget)
+IconizedWidgetWrapper::IconizedWidgetWrapper(QObject *_widget, bool _has_icon) :
+    m_has_icon(_has_icon),
+    m_is_valid(true),
+    m_widget(_widget)
 {
-    if (_widget) {
-        connect(_widget, SIGNAL(destroyed(QObject*)), this, SLOT(slot_invalidate(QObject*)));
+    if (m_widget) {
+        connect(m_widget, SIGNAL(destroyed(QObject*)), this, SLOT(sl_invalidate(QObject*)));
     }
 }
 
 
 bool IconizedWidgetWrapper::hasIcon() const
 {
-    return _hasIcon;
+    return m_has_icon;
 }
 
-void IconizedWidgetWrapper::slot_invalidate(QObject *widget)
+void IconizedWidgetWrapper::sl_invalidate(QObject *_widget)
 {
-    Q_UNUSED(widget)
-    _isValid = false;
+    Q_UNUSED(_widget)
+    m_is_valid = false;
 }
 
 bool IconizedWidgetWrapper::isValid() const
 {
-    return _isValid;
+    return m_is_valid;
 }
 
 } // namespace matisse

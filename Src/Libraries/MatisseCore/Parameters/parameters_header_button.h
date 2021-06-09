@@ -13,15 +13,15 @@ class ParametersHeaderButton : public FoldUnfoldButton
     Q_OBJECT
 
 public:
-    ParametersHeaderButton(QWidget* parent, ParameterLevel level);
+    ParametersHeaderButton(QWidget* _parent, eParameterLevel _level);
 
-    ParameterLevel getLevel() const;
+    eParameterLevel getLevel() const;
 
 protected:
     virtual void showNewState();
 
 private:
-    ParameterLevel _level;
+    eParameterLevel m_level;
 };
 
 } // namespace matisse

@@ -10,12 +10,12 @@ namespace matisse {
 class IconizedLabelWrapper : public IconizedWidgetWrapper
 {
 public:
-    IconizedLabelWrapper(QLabel *label);
+    IconizedLabelWrapper(QLabel *_label);
 
-    virtual void setPixmap(const QPixmap &pixmap);
+    virtual void setPixmap(const QPixmap &_pixmap);
 
 private:
-    QLabel *_label;
+    QLabel *m_label;
 };
 
 } // namespace matisse

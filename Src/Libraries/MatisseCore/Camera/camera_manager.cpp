@@ -53,7 +53,7 @@ void CameraManager::addCamera(CameraInfo _camera)
     QString camera_filename = m_cam_info_dir.absoluteFilePath(_camera.cameraName()+".yaml");
 
     if(_camera.writeToFile(camera_filename))
-        emit signal_cameraListChanged();
+        emit si_cameraListChanged();
 }
 
 QStringList CameraManager::cameraList()
@@ -80,7 +80,7 @@ bool CameraManager::deleteCameraByName(QString _camera_name)
     m_caminfo_map.remove(_camera_name);
 
     // tell listeners to update
-    emit signal_cameraListChanged();
+    emit si_cameraListChanged();
 
     return true;
 }

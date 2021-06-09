@@ -18,18 +18,18 @@ namespace matisse {
 #define DATASET_PARAM_DATASET_DIR       "dataset_dir"
 #define DATASET_PARAM_NAVIGATION_FILE   "navFile"
 
-struct EnumValue {
-    QString _name;
-    QString _text;
+struct eEnumValue {
+    QString name;
+    QString text;
 };
 
-enum ParameterLevel {
+enum eParameterLevel {
     USER,
     ADVANCED,
     EXPERT
 };
 
-enum ParameterType {
+enum eParameterType {
     UNKNOWN_TYPE,
     PAR_INT,
     PAR_FLOAT,
@@ -40,7 +40,7 @@ enum ParameterType {
     PAR_CAMERA
 };
 
-enum ParameterShow {
+enum eParameterShow {
     UNKNOWN_SHOW,
     LINE_EDIT,
     COMBO_BOX,
@@ -58,48 +58,48 @@ enum ParameterShow {
 };
 
 struct Parameter {
-    QString _name;
-    QString _text;
-    ParameterLevel _level;
-    ParameterType _type;
-    QString _typeName;
-    QString _suffix;
-    QSize _parameterSize;
-    quint8 _precision;
-    QString _formatTemplate;
-    ParameterShow _show;
-    QVariant _value;
-    QString _range;
-    bool _required;
+    QString name;
+    QString text;
+    eParameterLevel level;
+    eParameterType type;
+    QString type_name;
+    QString suffix;
+    QSize parameter_size;
+    quint8 precision;
+    QString format_template;
+    eParameterShow show;
+    QVariant value;
+    QString range;
+    bool required;
 };
 
 struct Condition {
-    QString _groupName1;
-    QString _operatorName1;
-    QString _groupName2;
-    QString _operatorName2;
-    QString _relation;
+    QString group_name1;
+    QString operator_name1;
+    QString group_name2;
+    QString operator_name2;
+    QString relation;
 };
 
 struct ParametersGroup {
-    QString _name;
-    QString _text;
-    QStringList _parametersNames;
-    bool _hasUserValues;
-    QList<Parameter> _parameters;
+    QString name;
+    QString text;
+    QStringList parameters_names;
+    bool has_user_values;
+    QList<Parameter> parameters;
 };
 
 struct Structure {
-    QString _name;
-    QStringList _groupsNames;
-    QList<ParametersGroup> _parametersGroups;
-    QList<Condition> _conditions;
-    bool _hasUserValues;
+    QString name;
+    QStringList groups_names;
+    QList<ParametersGroup> parameters_groups;
+    QList<Condition> conditions;
+    bool has_user_values;
 };
 
 struct Enums {
-    QString _name;
-    QList<EnumValue> _values;
+    QString name;
+    QList<eEnumValue> values;
 };
 
 } // namespace matisse

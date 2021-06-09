@@ -2,8 +2,8 @@
 
 namespace matisse {
 
-MatisseTreeItem::MatisseTreeItem(QTreeWidgetItem *parent, const QStringList &strings) :
-    QTreeWidgetItem(parent, strings, Type)
+MatisseTreeItem::MatisseTreeItem(QTreeWidgetItem *_parent, const QStringList &_strings) :
+    QTreeWidgetItem(_parent, _strings, Type)
 {
 }
 

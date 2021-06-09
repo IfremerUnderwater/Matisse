@@ -6,12 +6,13 @@ using namespace cv;
 
 namespace matisse {
 
-CameraCalib::CameraCalib(vector<string>& imagelist, Size board_size, float square_size, QTextEdit* _text_logger = nullptr) :m_imagelist(imagelist),
-m_board_size(board_size),
-m_square_size(square_size),
-m_text_logger(_text_logger)
+CameraCalib::CameraCalib(vector<string>& _imagelist, Size _board_size, float _square_size, QTextEdit* _text_logger = nullptr) :
+    m_imagelist(_imagelist),
+    m_board_size(_board_size),
+    m_square_size(_square_size),
+    m_text_logger(_text_logger)
 {
-	QString first_file_string = QString(imagelist[0].c_str());
+    QString first_file_string = QString(_imagelist[0].c_str());
 	QFileInfo first_file(first_file_string);
 	m_calibration_path = first_file.dir();
 }
@@ -20,17 +21,17 @@ void
 CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _display_corners)
 {
 
-	const int maxScale = 2;
+    const int max_scale = 2;
 	// ARRAY AND VECTOR STORAGE:
 
-	vector<vector<Point2f> > imagePoints;
-	vector<vector<Point3f> > objectPoints;
-	Size imageSize;
+    vector<vector<Point2f> > image_points;
+    vector<vector<Point3f> > object_points;
+    Size image_size;
 
 	int i, j, k, nimages = (int)m_imagelist.size();
 
-	imagePoints.resize(nimages);
-	vector<string> goodImageList;
+    image_points.resize(nimages);
+    vector<string> good_image_list;
 
 	for (i = j = 0; i < nimages; i++)
 	{
@@ -40,13 +41,13 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 		if (img.empty())
 			break;
 
-		if (imageSize == Size())
-			imageSize = img.size();
+        if (image_size == Size())
+            image_size = img.size();
 
 		// find chessboard corners
 		bool found = false;
-		vector<Point2f>& corners = imagePoints[j];
-		for (int scale = 1; scale <= maxScale; scale++)
+        vector<Point2f>& corners = image_points[j];
+        for (int scale = 1; scale <= max_scale; scale++)
 		{
 			Mat timg;
 			if (scale == 1)
@@ -59,8 +60,8 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 			{
 				if (scale > 1)
 				{
-					Mat cornersMat(corners);
-					cornersMat *= 1. / scale;
+                    Mat corners_mat(corners);
+                    corners_mat *= 1. / scale;
 				}
 				break;
 			}
@@ -94,7 +95,7 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 		}
 
 
-		goodImageList.push_back(m_imagelist[i]);
+        good_image_list.push_back(m_imagelist[i]);
 		j++;
 	}
 	sig_logCalib(QString(tr("%1 image(s) have been successfully detected.\n")).arg(j));
@@ -105,25 +106,25 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 		return;
 	}
 
-	imagePoints.resize(nimages);
-	objectPoints.resize(nimages);
+    image_points.resize(nimages);
+    object_points.resize(nimages);
 
 	// Create 3D points in object pattern frame
 	for (i = 0; i < nimages; i++)
 	{
 		for (j = 0; j < m_board_size.height; j++)
 			for (k = 0; k < m_board_size.width; k++)
-				objectPoints[i].push_back(Point3f(k * m_square_size, j * m_square_size, 0));
+                object_points[i].push_back(Point3f(k * m_square_size, j * m_square_size, 0));
 	}
 
 	sig_logCalib(tr("Running monocular calibration ...\n"));
 
-	Mat cameraMatrix, distCoeffs;
+    Mat camera_matrix, dist_coeffs;
 
 	// Calibrate camera
 	/*cameraMatrix = initCameraMatrix2D(objectPoints,imagePoints,imageSize,0);*/
-	cameraMatrix = Mat::eye(3, 3, CV_64F);
-	distCoeffs = Mat::zeros(5, 1, CV_64F);
+    camera_matrix = Mat::eye(3, 3, CV_64F);
+    dist_coeffs = Mat::zeros(5, 1, CV_64F);
 	vector<Mat> rvecs0, tvecs0;
 
 	int flags=0;
@@ -132,11 +133,11 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 	if (_cam_info.distortionModel() == 3)
 	{
 		Mat dist_temp = Mat::zeros(4, 1, CV_64F); // opencv fisheye wants a size 4 vector even if last element is 0
-		rms_reproj = fisheye::calibrate(objectPoints, imagePoints, imageSize, cameraMatrix,
+        rms_reproj = fisheye::calibrate(object_points, image_points, image_size, camera_matrix,
 			dist_temp, rvecs0, tvecs0, fisheye::CALIB_RECOMPUTE_EXTRINSIC | fisheye::CALIB_FIX_SKEW);
 
 		for (int i = 0; i < 4; i++)
-			distCoeffs.at<double>(i, 0) = dist_temp.at<double>(i, 0);
+            dist_coeffs.at<double>(i, 0) = dist_temp.at<double>(i, 0);
 
 	}
 	else {
@@ -154,12 +155,12 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 			break;
 		}
 
-		rms_reproj = calibrateCamera(objectPoints, imagePoints, imageSize, cameraMatrix,
-			distCoeffs, rvecs0, tvecs0, flags);
+        rms_reproj = calibrateCamera(object_points, image_points, image_size, camera_matrix,
+            dist_coeffs, rvecs0, tvecs0, flags);
 
 	}
 
-	bool ok = checkRange(cameraMatrix) && checkRange(distCoeffs);
+    bool ok = checkRange(camera_matrix) && checkRange(dist_coeffs);
 	if (!ok)
 	{
 		sig_logCalib("Error camera not well calibrated");
@@ -167,9 +168,9 @@ CameraCalib::calibrateMono(CameraInfo& _cam_info, double& _reproj_error, bool _d
 		return;
 	}
 
-	_cam_info.setDistortionCoeff(distCoeffs);
-	_cam_info.setK(cameraMatrix);
-	_cam_info.setFullSensorSize(imageSize.width, imageSize.height);
+    _cam_info.setDistortionCoeff(dist_coeffs);
+    _cam_info.setK(camera_matrix);
+    _cam_info.setFullSensorSize(image_size.width, image_size.height);
 
 	sig_logCalib(QString(tr("Camera calibration reprojection error = %1\n")).arg(rms_reproj));
 
