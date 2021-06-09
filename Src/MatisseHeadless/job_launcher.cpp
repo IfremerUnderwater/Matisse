@@ -7,13 +7,14 @@ namespace matisse {
 
 JobLauncher::JobLauncher(QObject *_parent) : 
       m_engine(_parent, true), // initialize engine as server
-      m_current_job(NULL),
+      m_new_assembly(NULL),
       m_current_assembly(NULL),
-      m_new_assembly(NULL)
+      m_current_job(NULL)
 {
   // useless but does not build otherwise -> ugly ..................
   GraphicalCharter &graph_charter = GraphicalCharter::instance();
   int a = graph_charter.dpiScaled(0);
+  Q_UNUSED(a)
   QString b("");
   FileUtils::createTempDirectory(b);
   QString source;
@@ -79,13 +80,7 @@ void JobLauncher::launchJob(QString _job_name) {
     return;
   }
 
-  // Copy XML files to result path (crashing because of strong dependance to
-  // graphic classes
-  // QString resultPath =
-  // _server.parametersManager()->getParameterValue(DATASET_PARAM_OUTPUT_DIR);
-  //_processDataManager->copyJobFilesToResult(jobName, resultPath);
-
-  emit signal_processRunning();
+  emit si_processRunning();
 
   bool run_success = m_engine.processJob(*m_current_job);
 

@@ -46,9 +46,9 @@ private:
     void initServer();
 
 signals:
-    void signal_processRunning();
-    void signal_processStopped();
-    void signal_processFrozen();
+    void si_processRunning();
+    void si_processStopped();
+    void si_processFrozen();
 
 public slots:
     void sl_jobProcessed(QString _job_name, bool _is_canceled);

@@ -20,13 +20,13 @@
 
 using namespace matisse;
 
-void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
+void myMessageOutput(QtMsgType _type, const QMessageLogContext &, const QString &_msg)
 {
-    QByteArray localMsg = msg.toLocal8Bit();
+    QByteArray localMsg = _msg.toLocal8Bit();
 
     //OutputDebugStringA(localMsg.constData());
 
-    switch (type) {
+    switch (_type) {
     case QtInfoMsg:
         break;
     case QtDebugMsg:
