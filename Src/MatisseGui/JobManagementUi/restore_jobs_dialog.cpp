@@ -3,46 +3,46 @@
 
 namespace matisse {
 
-RestoreJobsDialog::RestoreJobsDialog(QWidget *parent, QString assemblyName, QStringList archivedJobs, QStringList &jobsToRestore) :
-    QDialog(parent),
-    _ui(new Ui::RestoreJobsDialog),
-    _archivedJobs(archivedJobs)
+RestoreJobsDialog::RestoreJobsDialog(QWidget *_parent, QString _assembly_name, QStringList _archived_jobs, QStringList &_jobs_to_restore) :
+    QDialog(_parent),
+    m_ui(new Ui::RestoreJobsDialog),
+    m_archived_jobs(_archived_jobs)
 {
-    _ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    QString labelText = _ui->_LA_jobsToRestore->text();
-    QString newLabelText = labelText.arg(assemblyName);
-    _ui->_LA_jobsToRestore->setText(newLabelText);
-    _ui->_LA_jobsToRestore->setWordWrap(true);
+    QString label_text = m_ui->_LA_jobsToRestore->text();
+    QString new_label_text = label_text.arg(_assembly_name);
+    m_ui->_LA_jobsToRestore->setText(new_label_text);
+    m_ui->_LA_jobsToRestore->setWordWrap(true);
 
-    connect(_ui->_PB_save, SIGNAL(clicked()), this, SLOT(slot_close()));
-    connect(_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(slot_close()));
+    connect(m_ui->_PB_save, SIGNAL(clicked()), this, SLOT(sl_close()));
+    connect(m_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(sl_close()));
 
-    _jobsToRestore = &jobsToRestore;
+    m_jobs_to_restore = &_jobs_to_restore;
 
-    foreach (QString archivedJob, archivedJobs) {
-        QListWidgetItem *item = new QListWidgetItem(archivedJob);
+    foreach (QString archived_job, _archived_jobs) {
+        QListWidgetItem *item = new QListWidgetItem(archived_job);
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);
-        _ui->_LW_archivedJobs->addItem(item);
+        m_ui->_LW_archivedJobs->addItem(item);
     }
 }
 
 RestoreJobsDialog::~RestoreJobsDialog()
 {
-    delete _ui;
+    delete m_ui;
 }
 
-void RestoreJobsDialog::slot_close()
+void RestoreJobsDialog::sl_close()
 {
-    if (sender() == _ui->_PB_cancel) {
+    if (sender() == m_ui->_PB_cancel) {
         reject();
     } else {
-        for(int row = 0; row < _ui->_LW_archivedJobs->count(); row++)
+        for(int row = 0; row < m_ui->_LW_archivedJobs->count(); row++)
         {
-            QListWidgetItem *item = _ui->_LW_archivedJobs->item(row);
+            QListWidgetItem *item = m_ui->_LW_archivedJobs->item(row);
             if (item->checkState() == Qt::Checked) {
-                _jobsToRestore->append(item->text());
+                m_jobs_to_restore->append(item->text());
             }
         }
 

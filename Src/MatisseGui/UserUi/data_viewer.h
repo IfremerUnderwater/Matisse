@@ -62,9 +62,9 @@ namespace matisse {
 
 class OSGWidget;
 
-enum CartoViewType { QGisMapLayer, QImageView, OpenSceneGraphView };
+enum eCartoViewType { QGIS_MAP_LAYER, QIMAGE_VIEW, OPEN_SCENE_GRAPH_VIEW };
 
-enum RepaintBehaviorState { ExtentAutoResize, FollowLastItem, ManualMove };
+enum eRepaintBehaviorState { EXTENT_AUTO_RESIZE, FOLLOW_LAST_ITEM, MANUAL_MOVE };
 
 
 class resultLoadingTask : public QObject{
@@ -77,13 +77,13 @@ public:
     void setOSGWidget(OSGWidget* _osgwidget) { m_osgwidget = _osgwidget; }
 
 signals:
-    void signal_addRasterToCartoView(CartoImage  * image_p);
-    void signal_addRasterToImageView(Image  * image_p);
-    void signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool remove_previous_scenes_p);
+    void si_addRasterToCartoView(CartoImage  * _image_p);
+    void si_addRasterToImageView(Image  * _image_p);
+    void si_add3DSceneToCartoView(osg::ref_ptr<osg::Node> _scene_data_p, bool _remove_previous_scenes_p);
 
 public slots:
-    void slot_loadRasterFromFile(QString filename_p = "");
-    void slot_load3DSceneFromFile(QString filename_p, bool remove_previous_scenes_p);
+    void sl_loadRasterFromFile(QString _filename_p = "");
+    void sl_load3DSceneFromFile(QString _filename_p, bool _remove_previous_scenes_p);
 
 private:
     OSGWidget* m_osgwidget;
@@ -96,24 +96,24 @@ class DataViewer : public QWidget
     Q_OBJECT
     
 public:
-    explicit DataViewer(QWidget *parent = NULL);
+    explicit DataViewer(QWidget *_parent = NULL);
     virtual ~DataViewer();
 
-    void switchCartoViewTo(CartoViewType cartoViewType_p);
+    void switchCartoViewTo(eCartoViewType _carto_view_type_p);
 
-    void setIconFactory(MatisseIconFactory *iconFactory);
+    void setIconFactory(MatisseIconFactory *_icon_factory);
     void initCanvas();
     void initMapToolBar();
     void clear();
-    void displayImage(Image *image);
-    void displayCartoImage(CartoImage *image);
+    void displayImage(Image *_image);
+    void displayCartoImage(CartoImage *_image);
     void resetJobForm();
-    void loadRasterFile(QString filename);
-    void load3DFile(QString filename_p, bool remove_previous_scenes_p=true);
-    void loadImageFile(QString filename);
-    void exportMapViewToImage(QString imageFilePath);
+    void loadRasterFile(QString _filename);
+    void load3DFile(QString _filename_p, bool _remove_previous_scenes_p=true);
+    void loadImageFile(QString _filename);
+    void exportMapViewToImage(QString _image_file_path);
 
-    CartoViewType currentViewType() const;
+    eCartoViewType currentViewType() const;
 
     QStringList supportedRasterFormat() const;
     QStringList supportedVectorFormat() const;
@@ -121,59 +121,59 @@ public:
     QStringList supportedImageFormat() const;
 
 protected slots:
-    void slot_addRasterToCartoView(CartoImage *image_p);
-    void slot_addRasterToImageView(Image *image_p);
-    void slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool _remove_previous_scenes=true);
-    void slot_showMapContextMenu(const QPoint& pos_p);
-    void slot_onAutoResizeTrigger();
-    void slot_onFollowLastItem();
-    void slot_onManualMove();
-    void slot_updateColorPalette(QMap<QString,QString>);
-    void slot_showHideToolbar();
-    void slot_activateZoomInTool();
-    void slot_activateZoomOutTool();
-    void slot_recenterMap();
-    void slot_showImagesRect(bool);
+    void sl_addRasterToCartoView(CartoImage *_image_p);
+    void sl_addRasterToImageView(Image *_image_p);
+    void sl_add3DSceneToCartoView(osg::ref_ptr<osg::Node> _scene_data_p, bool _remove_previous_scenes=true);
+    void sl_showMapContextMenu(const QPoint& _pos_p);
+    void sl_onAutoResizeTrigger();
+    void sl_onFollowLastItem();
+    void sl_onManualMove();
+    void sl_updateColorPalette(QMap<QString,QString>);
+    void sl_showHideToolbar();
+    void sl_activateZoomInTool();
+    void sl_activateZoomOutTool();
+    void sl_recenterMap();
+    void sl_showImagesRect(bool);
 
 
-    void slot_updateMapCoords(QPointF p);
-    void slot_mapZoomChanged(qreal z);
-    void slot_mapPanChanged();
+    void sl_updateMapCoords(QPointF _p);
+    void sl_mapZoomChanged(qreal _z);
+    void sl_mapPanChanged();
 
 signals:
-    void signal_loadRasterFromFile(QString filename_p = "");
-    void signal_load3DSceneFromFile(QString filename_p, bool remove_previous_scenes_p);
+    void si_loadRasterFromFile(QString _filename_p = "");
+    void si_load3DSceneFromFile(QString _filename_p, bool _remove_previous_scenes_p);
 
 private:
 
-    Ui::DataViewer *_ui;
+    Ui::DataViewer *m_ui;
 
-    CartoScene _scene;
+    CartoScene m_scene;
 
-    bool _isToolBarDisplayed;
+    bool m_is_toolbar_displayed;
 
-    MatisseIconFactory *_iconFactory;
+    MatisseIconFactory *m_icon_factory;
 
-    CartoViewType _currentViewType;
+    eCartoViewType m_current_view_type;
 
-    QThread _resultLoadingThread;
-    resultLoadingTask _resultLoadingTask;
+    QThread m_result_loading_thread;
+    resultLoadingTask m_result_loading_task;
 
-    QStringList _supportedRasterFormat;
-    QStringList _supportedVectorFormat;
-    QStringList _supported3DFileFormat;
-    QStringList _supportedImageFormat;
+    QStringList m_supported_raster_format;
+    QStringList m_supported_vector_format;
+    QStringList m_supported_3d_file_format;
+    QStringList m_supported_image_format;
 
-    QAction *_extentAutoResize;
-    QAction *_followLastItem;
-    QAction *_manualMove;
-    QMenu *_repaintBehaviorMenu;
+    QAction *m_extent_auto_resize;
+    QAction *m_follow_last_item;
+    QAction *m_manual_move;
+    QMenu *m_repaint_behavior_menu;
 
-    RepaintBehaviorState _repaintBehaviorState;
-    QToolBar *_mapToolBar;
-    QLabel *_coords;
+    eRepaintBehaviorState m_repaint_behavior_state;
+    QToolBar *m_map_toolbar;
+    QLabel *m_coords;
 
-    std::vector< osg::ref_ptr<osg::Node> > _osg_nodes;
+    std::vector< osg::ref_ptr<osg::Node> > m_osg_nodes;
 
 };
 

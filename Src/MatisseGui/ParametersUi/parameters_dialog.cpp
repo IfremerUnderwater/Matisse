@@ -3,34 +3,34 @@
 
 namespace matisse {
 
-QString ParametersDialog::_filenameExp = "(\\w+\\s+)+";
-QString ParametersDialog::_diacriticLetters = QString::fromUtf8("ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ");
-QStringList ParametersDialog::_noDiacriticLetters = QStringList() << "S"<<"OE"<<"Z"<<"s"<<"oe"<<"z"<<"Y"<<"Y"<<"u"<<"A"<<"A"<<"A"<<"A"<<"A"<<"A"<<"AE"<<"C"<<"E"<<"E"<<"E"<<"E"<<"I"<<"I"<<"I"<<"I"<<"D"<<"N"<<"O"<<"O"<<"O"<<"O"<<"O"<<"O"<<"U"<<"U"<<"U"<<"U"<<"Y"<<"s"<<"a"<<"a"<<"a"<<"a"<<"a"<<"a"<<"ae"<<"c"<<"e"<<"e"<<"e"<<"e"<<"i"<<"i"<<"i"<<"i"<<"o"<<"n"<<"o"<<"o"<<"o"<<"o"<<"o"<<"o"<<"u"<<"u"<<"u"<<"u"<<"y"<<"y";
+QString ParametersDialog::m_filename_exp = "(\\w+\\s+)+";
+QString ParametersDialog::m_diacritic_letters = QString::fromUtf8("ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ");
+QStringList ParametersDialog::m_no_diacritic_letters = QStringList() << "S"<<"OE"<<"Z"<<"s"<<"oe"<<"z"<<"Y"<<"Y"<<"u"<<"A"<<"A"<<"A"<<"A"<<"A"<<"A"<<"AE"<<"C"<<"E"<<"E"<<"E"<<"E"<<"I"<<"I"<<"I"<<"I"<<"D"<<"N"<<"O"<<"O"<<"O"<<"O"<<"O"<<"O"<<"U"<<"U"<<"U"<<"U"<<"Y"<<"s"<<"a"<<"a"<<"a"<<"a"<<"a"<<"a"<<"ae"<<"c"<<"e"<<"e"<<"e"<<"e"<<"i"<<"i"<<"i"<<"i"<<"o"<<"n"<<"o"<<"o"<<"o"<<"o"<<"o"<<"o"<<"u"<<"u"<<"u"<<"u"<<"y"<<"y";
 
-ParametersDialog::ParametersDialog(QWidget *parent, QString path, KeyValueList fields) :
-   QDialog(parent),
-   _ui(new Ui::ParametersDialog),
-   _path(path)
+ParametersDialog::ParametersDialog(QWidget *_parent, QString _path, KeyValueList _fields) :
+   QDialog(_parent),
+   m_ui(new Ui::ParametersDialog),
+   m_path(_path)
 {
-    _ui->setupUi(this);
-    init(fields);
+    m_ui->setupUi(this);
+    init(_fields);
 }
 
 ParametersDialog::~ParametersDialog()
 {
-    delete _ui;
+    delete m_ui;
 }
 
-QString ParametersDialog::removeAccents(QString str)
+QString ParametersDialog::removeAccents(QString _str)
 {
     QString output = "";
-   for (int i = 0; i < str.length(); i++) {
-       QChar c = str[i];
-       int dIndex = _diacriticLetters.indexOf(c);
-       if (dIndex < 0) {
+   for (int i = 0; i < _str.length(); i++) {
+       QChar c = _str[i];
+       int d_index = m_diacritic_letters.indexOf(c);
+       if (d_index < 0) {
            output.append(c);
        } else {
-           QString replacement = _noDiacriticLetters[dIndex];
+           QString replacement = m_no_diacritic_letters[d_index];
            output.append(replacement);
        }
    }
@@ -40,71 +40,71 @@ QString ParametersDialog::removeAccents(QString str)
 
 QString ParametersDialog::getFilename()
 {
-    return _path + "/" + _filename;
+    return m_path + "/" + m_filename;
 }
 
 KeyValueList ParametersDialog::getFields()
 {
-    KeyValueList keyValueList;
+    KeyValueList kvl;
 
-    keyValueList.set("modelVersion", _ui->_LE_modele->text());
-    keyValueList.set("name", _ui->_LE_name->text());
-    keyValueList.set("date", QDate::currentDate().toString("dd/MM/yyyy"));
-    keyValueList.set("author", _ui->_LE_author->text());
-    keyValueList.set("comments", _ui->_TXT_comments->toPlainText());
+    kvl.set("modelVersion", m_ui->_LE_modele->text());
+    kvl.set("name", m_ui->_LE_name->text());
+    kvl.set("date", QDate::currentDate().toString("dd/MM/yyyy"));
+    kvl.set("author", m_ui->_LE_author->text());
+    kvl.set("comments", m_ui->_TXT_comments->toPlainText());
 
-    return keyValueList;
+    return kvl;
 
 }
 
-void ParametersDialog::init( KeyValueList fields)
+void ParametersDialog::init(KeyValueList _fields)
 {
-    _ui->_LE_modele->setText(fields.getValue("modelVersion"));
-    _ui->_LE_author->setText(fields.getValue("author"));
-    _ui->_LE_name->setText(fields.getValue("name"));
-    slot_filename(_ui->_LE_name->text());
-    _ui->_LE_name->setValidator(new QRegExpValidator(QRegExp(_filenameExp)));
-    _ui->_TXT_comments->setPlainText(fields.getValue("comments"));
+    m_ui->_LE_modele->setText(_fields.getValue("modelVersion"));
+    m_ui->_LE_author->setText(_fields.getValue("author"));
+    m_ui->_LE_name->setText(_fields.getValue("name"));
+    sl_filename(m_ui->_LE_name->text());
+    m_ui->_LE_name->setValidator(new QRegExpValidator(QRegExp(m_filename_exp)));
+    m_ui->_TXT_comments->setPlainText(_fields.getValue("comments"));
 
-    connect(_ui->_PB_save, SIGNAL(clicked()), this, SLOT(slot_save()));
-    connect(_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(_ui->_LE_name, SIGNAL(textChanged(QString)), this, SLOT(slot_filename(QString)));
+    connect(m_ui->_PB_save, SIGNAL(clicked()), this, SLOT(sl_save()));
+    connect(m_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(m_ui->_LE_name, SIGNAL(textChanged(QString)), this, SLOT(sl_filename(QString)));
 
-    _ui->_PB_save->setEnabled(false);
+    m_ui->_PB_save->setEnabled(false);
 }
 
-void ParametersDialog::slot_filename(QString name)
+void ParametersDialog::sl_filename(QString _name)
 {
-    name = name.trimmed();
-    if (!name.isEmpty()) {
-        name = name.replace(" ", "_") + ".xml";
+    _name = _name.trimmed();
+    if (!_name.isEmpty()) {
+        _name = _name.replace(" ", "_") + ".xml";
         //foreach(name.a)
     }
-    _ui->_LA_filename->setText(removeAccents(name));
-    _ui->_PB_save->setEnabled(!name.isEmpty());
+    m_ui->_LA_filename->setText(removeAccents(_name));
+    m_ui->_PB_save->setEnabled(!_name.isEmpty());
 }
 
-void ParametersDialog::slot_save()
+void ParametersDialog::sl_save()
 {
     // verification existence fichier
-    _filename = _ui->_LE_name->text().trimmed().replace(" ", "_") + ".xml";
-    QFileInfo info(_path, _filename);
-    QString unableToSaveMsg = tr("Cannot save");
+    m_filename = m_ui->_LE_name->text().trimmed().replace(" ", "_") + ".xml";
+    QFileInfo info(m_path, m_filename);
+    QString unable_to_save_msg = tr("Cannot save");
     if (info.exists()) {
         if (info.isWritable()) {
             QString msg1 = tr("Saving confirmation");
-            QString msg2 = tr("File %1 already exists.\nDo you want to replace it ?").arg(_filename);
+            QString msg2 = tr("File %1 already exists.\nDo you want to replace it ?").arg(m_filename);
             if (QMessageBox::No == QMessageBox::question(this, msg1, msg2, QMessageBox::Yes, QMessageBox::No)) {
                 return;
             }
         } else {
 
-            QString msg2 = tr("File %1 already exists and cannot be replaced !").arg(_filename);
-            QMessageBox::warning(this, unableToSaveMsg, msg2);
+            QString msg2 = tr("File %1 already exists and cannot be replaced !").arg(m_filename);
+            QMessageBox::warning(this, unable_to_save_msg, msg2);
             return;
         }
-    } else if (!QFileInfo(_path,"").isWritable()) {
-        QMessageBox::warning(this, unableToSaveMsg, tr("Cannot write in destination folder ! (permission ?)"));
+    } else if (!QFileInfo(m_path,"").isWritable()) {
+        QMessageBox::warning(this, unable_to_save_msg, tr("Cannot write in destination folder ! (permission ?)"));
         return;
     }
     accept();

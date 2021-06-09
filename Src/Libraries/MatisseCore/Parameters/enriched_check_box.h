@@ -24,7 +24,6 @@ protected:
 signals:
 
 public slots:
-//    void slot_valueChanged();
 
 private:
     QCheckBox * m_check;

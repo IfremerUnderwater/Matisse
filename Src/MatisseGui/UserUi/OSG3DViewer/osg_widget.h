@@ -65,39 +65,39 @@ private:
         virtual ~NodeUserData() {}
 
         // values zmin and zmax from model (without offset)
-        float zmin;
-        float zmax;
+        float m_zmin;
+        float m_zmax;
 
-        float zoffset;
-        float originalZoffset;
+        float m_zoffset;
+        float m_original_z_offset;
 
         // use or not shader
-        bool useShader;
-        bool hasMesh;
+        bool m_use_shader;
+        bool m_has_mesh;
     };
 
 public:
-    OSGWidget( QWidget* parent = 0);
+    OSGWidget( QWidget* _parent = 0);
 
     virtual ~OSGWidget();
 
     ///
     /// \brief setSceneFromFile load a scene from a 3D file
-    /// \param _sceneFile path to any 3D file supported by osg
+    /// \param _scene_file path to any 3D file supported by osg
     /// \return true if loading succeded
     ///
     bool setSceneFromFile(std::string _scene_file);
 
     ///
     /// \brief createNodeFromFile load a scene from a 3D file
-    /// \param _sceneFile path to any 3D file supported by osg
+    /// \param _scene_file path to any 3D file supported by osg
     /// \return node if loading succeded
     ///
     osg::ref_ptr<osg::Node> createNodeFromFile(std::string _scene_file);
 
     ///
     /// \brief createNodeFromFile load a scene from a 3D file
-    /// \param _sceneFile path to any 3D file supported by osg
+    /// \param _scene_file path to any 3D file supported by osg
     /// \return node if loading succeded
     ///
     osg::ref_ptr<osg::Node> createNodeFromFileWithGDAL(std::string _scene_file, LoadingMode _mode);
@@ -175,9 +175,9 @@ public:
     // if(m_ref_alt == INVALID_VALUE) do nothing
     void xyzToLatLonAlt(double _x, double _y, double _z, double &_lat, double &_lon, double &_alt);
 
-    enum map_type {
-        OrthoMap = 0,
-        AltMap = 1
+    enum eMapType {
+        ORTHO_MAP = 0,
+        ALT_MAP = 1
     };
 
     void setNodeTransparency(osg::ref_ptr<osg::Node> _node, double _transparency_value=0.0);
@@ -185,16 +185,16 @@ public:
     void setNodeTranslationOffset(double _x, double _y, double _z, osg::ref_ptr<osg::Node> _node, osg::Vec3d _trans);
 
 signals:
-    void sig_showMeasurementSavingPopup(double _norm, QString _measurement_type, int _measurement_index);
-    void signal_onMousePress(Qt::MouseButton _button, int _x, int _y);
-    void signal_onMouseMove(int _x, int _y);
+    void si_showMeasurementSavingPopup(double _norm, QString _measurement_type, int _measurement_index);
+    void si_onMousePress(Qt::MouseButton _button, int _x, int _y);
+    void si_onMouseMove(int _x, int _y);
 
     // tools
-    void signal_startTool(QString &_message);
-    void signal_endTool(QString &_message);
-    void signal_cancelTool(QString &_message);
+    void si_startTool(QString &_message);
+    void si_endTool(QString &_message);
+    void si_cancelTool(QString &_message);
 
-    void signal_activedLight(bool &_activated);
+    void si_activedLight(bool &_activated);
 
 public:
     // tools : emit correspondant signal
@@ -203,7 +203,7 @@ public:
     void cancelTool(QString &_message);
 
     // screen2D
-    bool generateGeoTiff(osg::ref_ptr<osg::Node> _node, QString _filename, double _pixel_size, OSGWidget::map_type _map_type);
+    bool generateGeoTiff(osg::ref_ptr<osg::Node> _node, QString _filename, double _pixel_size, OSGWidget::eMapType _map_type);
 
     //
     void enableLight(bool _state);
@@ -214,7 +214,7 @@ public:
 
     osg::Camera* getCamera() { return  m_viewer->getView(0)->getCamera(); }
 
-    double getZScale() const { return m_zScale; }
+    double getZScale() const { return m_z_scale; }
     void setZScale(double _newValue);
 
     static const char *const MEASUREMENT_NAME;
@@ -222,23 +222,23 @@ public:
     bool isEnabledShaderOnNode(osg::ref_ptr<osg::Node> _node);
     void enableShaderOnNode(osg::ref_ptr<osg::Node> _node, bool _enable);
 
-    double getModelsZMin() const { return m_modelsZMin; }
-    double getModelsZMax() const { return m_modelsZMax; }
+    double getModelsZMin() const { return m_models_z_min; }
+    double getModelsZMax() const { return m_models_z_max; }
 
-    double getDisplayZMin() const { return m_displayZMin; }
-    void setDisplayZMin(double _zmin) { m_displayZMin = _zmin; }
+    double getDisplayZMin() const { return m_display_z_min; }
+    void setDisplayZMin(double _zmin) { m_display_z_min = _zmin; }
 
-    double getDisplayZMax() const { return m_displayZMax; }
-    void setDisplayZMax(double _zmax) { m_displayZMax = _zmax; }
+    double getDisplayZMax() const { return m_display_z_max; }
+    void setDisplayZMax(double _zmax) { m_display_z_max = _zmax; }
 
-    bool isUseDisplayZMinMax() const { return m_useDisplayZMinMax; }
+    bool isUseDisplayZMinMax() const { return m_use_display_z_min_max; }
     void setUseDisplayZMinMaxAndUpdate(bool _use);
 
-    bool isZScaleShowing() const { return m_showZScale; }
+    bool isZScaleShowing() const { return m_show_z_scale; }
     void showZScale(bool _show);
 
-    ShaderColor::Palette getColorPalette() const { return m_colorPalette; }
-    void setColorPalette(ShaderColor::Palette _palette);
+    ShaderColor::ePalette getColorPalette() const { return m_color_palette; }
+    void setColorPalette(ShaderColor::ePalette _palette);
 
     double getRefAlt() const { return m_ref_alt == INVALID_VALUE ? 0 : m_ref_alt; }
 
@@ -268,12 +268,12 @@ private:
 
     osgGA::EventQueue* getEventQueue() const;
 
-    osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> m_graphicsWindow;
+    osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> m_graphics_window;
     osg::ref_ptr<osgViewer::CompositeViewer> m_viewer;
 
-    osg::ref_ptr<osg::Group> m_globalGroup;
-    osg::ref_ptr<osg::Group> m_modelsGroup;
-    osg::ref_ptr<osg::Group> m_geodesGroup;
+    osg::ref_ptr<osg::Group> m_global_group;
+    osg::ref_ptr<osg::Group> m_models_group;
+    osg::ref_ptr<osg::Group> m_geodes_group;
 
     std::vector<osg::ref_ptr<osg::Geode>> m_geodes;
     std::vector<osg::ref_ptr<osg::Node>> m_models;
@@ -287,29 +287,29 @@ private:
     bool m_fake_middle_click_activated;
 
     // z scale
-    double m_zScale;
+    double m_z_scale;
 
     // global matrix transform (Z scale only)
-    osg::ref_ptr<osg::MatrixTransform> m_matrixTransform;
+    osg::ref_ptr<osg::MatrixTransform> m_matrix_transform;
 
     void setCameraOnNode(osg::ref_ptr<osg::Node> _node);
 
     // for shaders
-    void configureShaders( osg::StateSet* stateSet );
+    void configureShaders( osg::StateSet* _state_set );
 
     // recompute global zmin and zmax for all models
     void recomputeGlobalZMinMax();
-    float m_modelsZMin;
-    float m_modelsZMax;
+    float m_models_z_min;
+    float m_models_z_max;
 
     // for using custom values
-    bool m_useDisplayZMinMax;
+    bool m_use_display_z_min_max;
 
-    float m_displayZMin;
-    float m_displayZMax;
+    float m_display_z_min;
+    float m_display_z_max;
 
-    bool m_showZScale;
-    ShaderColor::Palette m_colorPalette;
+    bool m_show_z_scale;
+    ShaderColor::ePalette m_color_palette;
 
     OverlayWidget *m_overlay;
 };

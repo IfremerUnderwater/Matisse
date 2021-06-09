@@ -14,14 +14,14 @@ class MainMenuWidget : public QFrame
     Q_OBJECT
 
 public:
-    explicit MainMenuWidget(QWidget *parent = 0);
+    explicit MainMenuWidget(QWidget *_parent = 0);
     ~MainMenuWidget();
 
 protected:
-    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
 
 private:
-    Ui::MainMenuWidget *ui;
+    Ui::MainMenuWidget *m_ui;
 };
 
 } // namespace matisse

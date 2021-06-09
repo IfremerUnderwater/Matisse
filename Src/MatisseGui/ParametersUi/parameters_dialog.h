@@ -24,26 +24,26 @@ class ParametersDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ParametersDialog( QWidget *parent, QString path, KeyValueList fields = KeyValueList());
+    explicit ParametersDialog( QWidget *_parent, QString _path, KeyValueList _fields = KeyValueList());
     ~ParametersDialog();
 
     QString getFilename();
     KeyValueList getFields();
 
 private:
-    Ui::ParametersDialog *_ui;
-    QString _path;
-    QString _filename;
-    static QString _filenameExp;
-    static QString _diacriticLetters;
-    static QStringList _noDiacriticLetters;
+    Ui::ParametersDialog *m_ui;
+    QString m_path;
+    QString m_filename;
+    static QString m_filename_exp;
+    static QString m_diacritic_letters;
+    static QStringList m_no_diacritic_letters;
 
-    void init(KeyValueList fields);
-    QString removeAccents(QString str);
+    void init(KeyValueList _fields);
+    QString removeAccents(QString _str);
 
 protected slots:
-    void slot_filename(QString name);
-    void slot_save();
+    void sl_filename(QString _name);
+    void sl_save();
 };
 
 } // namespace matisse

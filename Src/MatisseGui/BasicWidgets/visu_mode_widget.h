@@ -14,14 +14,14 @@ class VisuModeWidget : public QFrame
     Q_OBJECT
 
 public:
-    explicit VisuModeWidget(QWidget *parent = 0);
+    explicit VisuModeWidget(QWidget *_parent = 0);
     ~VisuModeWidget();
 
 protected:
-    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
 
 private:
-    Ui::VisuModeWidget *ui;
+    Ui::VisuModeWidget *m_ui;
 };
 
 } // namespace matisse

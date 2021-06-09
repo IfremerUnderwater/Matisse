@@ -6,22 +6,22 @@
 namespace matisse
 {
 
-RemoteProgressDialog::RemoteProgressDialog(QWidget *parent)
-    : QDialog(parent), _ui(new Ui::RemoteProgressDialog) {
+RemoteProgressDialog::RemoteProgressDialog(QWidget *_parent)
+    : QDialog(_parent), m_ui(new Ui::RemoteProgressDialog) {
   
-  _ui->setupUi(this);
-  _ui->m_PB_transfer_progress->setValue(0);
-  _ui->m_LA_transfer_message->setWordWrap(true);
+  m_ui->setupUi(this);
+  m_ui->m_PB_transfer_progress->setValue(0);
+  m_ui->m_LA_transfer_message->setWordWrap(true);
 }
 
 void RemoteProgressDialog::reinit() 
 {
-  _ui->m_PB_transfer_progress->setValue(0);
-  _ui->m_LA_transfer_message->setText("");
+  m_ui->m_PB_transfer_progress->setValue(0);
+  m_ui->m_LA_transfer_message->setText("");
 }
 
 void RemoteProgressDialog::sl_onMessageUpdate(QString _new_message) {
-  _ui->m_LA_transfer_message->setText(_new_message);
+  m_ui->m_LA_transfer_message->setText(_new_message);
 }
 
 void RemoteProgressDialog::sl_onProgressUpdate(int _new_value) 
@@ -31,7 +31,7 @@ void RemoteProgressDialog::sl_onProgressUpdate(int _new_value)
     return;
   }
 
-  _ui->m_PB_transfer_progress->setValue(_new_value);
+  m_ui->m_PB_transfer_progress->setValue(_new_value);
 }
 
 }  // namespace matisse

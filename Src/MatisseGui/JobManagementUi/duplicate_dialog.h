@@ -18,21 +18,20 @@ class DuplicateDialog : public QDialog
     Q_OBJECT
 
 public:
-    //DuplicateDialog(QWidget *parent, QString originalName, QString &newName, QString basePath, QString archivePath, bool isAssembly = false);
-    DuplicateDialog(QWidget *parent, QString originalName, QString &newName, bool isAssembly, QStringList existingElements, QStringList archivedJobs = QStringList());
+    DuplicateDialog(QWidget *_parent, QString _original_name, QString &_new_name, bool _is_assembly, QStringList _existing_elements, QStringList _archived_jobs = QStringList());
     ~DuplicateDialog();
 
 protected slots:
-    void slot_close();
+    void sl_close();
 
 private:
-    Ui::DuplicateDialog *_ui;
+    Ui::DuplicateDialog *m_ui;
 
-    QString _originalName;
-    QString *_newName;
-    bool _isAssembly;
-    QStringList _existingElementNames;
-    QStringList _archivedJobs;
+    QString m_original_name;
+    QString *m_new_name;
+    bool m_is_assembly;
+    QStringList m_existing_element_names;
+    QStringList m_archived_jobs;
 };
 
 } // namespace matisse

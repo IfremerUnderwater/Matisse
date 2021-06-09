@@ -14,17 +14,17 @@ class HomeWidget : public QFrame
     Q_OBJECT
 
 public:
-    explicit HomeWidget(QWidget *parent = 0);
+    explicit HomeWidget(QWidget *_parent = 0);
     ~HomeWidget();
 
 signals:
-    void signal_goHome();
+    void si_goHome();
 
 public slots:
-    void slot_goHome();
+    void sl_goHome();
 
 private:
-    Ui::HomeWidget *ui;
+    Ui::HomeWidget *m_ui;
 };
 
 } // namespace matisse

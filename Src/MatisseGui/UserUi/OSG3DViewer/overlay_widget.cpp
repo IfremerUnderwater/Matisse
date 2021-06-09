@@ -3,7 +3,7 @@
 
 namespace matisse {
 
-OverlayWidget::OverlayWidget(QWidget *parent) : QWidget(parent)
+OverlayWidget::OverlayWidget(QWidget *_parent) : QWidget(_parent)
 {
     resize(80, 255);
 
@@ -36,7 +36,7 @@ void OverlayWidget::paintEvent(QPaintEvent * /*event*/)
     // draw palette
     for(int i=0; i<256; i++)
     {
-        QColor color = ShaderColor::color(i / 255.0, m_colorPalette);
+        QColor color = ShaderColor::m_color(i / 255.0, m_colorPalette);
         pen.setColor(color);
         painter.setPen(pen);
         int y = height() - i;

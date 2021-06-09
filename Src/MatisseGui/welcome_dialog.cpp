@@ -8,33 +8,33 @@
 
 namespace matisse {
 
-WelcomeDialog::WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory, bool isProgrammingModeEnabled) :
-    QDialog(parent),
-    ui(new Ui::WelcomeDialog)
+WelcomeDialog::WelcomeDialog(QWidget *_parent, MatisseIconFactory *_icon_factory, bool _is_programming_mode_enabled) :
+    QDialog(_parent),
+    m_ui(new Ui::WelcomeDialog)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    _matisseWelcomeLabel = new QLabel(this);
+    m_matisse_welcome_label = new QLabel(this);
     dpiScale();
 
-    ui->progModeLauncherButton->setEnabled(isProgrammingModeEnabled);
+    m_ui->progModeLauncherButton->setEnabled(_is_programming_mode_enabled);
 
-    connect(this, SIGNAL(signal_launchApplication(eApplicationMode)), parentWidget(), SLOT(slot_showApplicationMode(eApplicationMode)));
-    connect(ui->_TBU_welcomeCloseButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(this, SIGNAL(si_launchApplication(eApplicationMode)), parentWidget(), SLOT(sl_showApplicationMode(eApplicationMode)));
+    connect(m_ui->_TBU_welcomeCloseButton, SIGNAL(clicked()), this, SLOT(close()));
 
-    IconizedButtonWrapper *closeButtonWrapper = new IconizedButtonWrapper(ui->_TBU_welcomeCloseButton);
-    iconFactory->attachIcon(closeButtonWrapper, "lnf/icons/fermer.svg", false, false);
+    IconizedButtonWrapper *close_button_wrapper = new IconizedButtonWrapper(m_ui->_TBU_welcomeCloseButton);
+    _icon_factory->attachIcon(close_button_wrapper, "lnf/icons/fermer.svg", false, false);
 }
 
 WelcomeDialog::~WelcomeDialog()
 {
-    delete ui;
-    delete _matisseWelcomeLabel;
+    delete m_ui;
+    delete m_matisse_welcome_label;
 }
 
-void WelcomeDialog::enableProgrammingMode(bool isProgrammingModeEnabled)
+void WelcomeDialog::enableProgrammingMode(bool _is_programming_mode_enabled)
 {
-    ui->progModeLauncherButton->setEnabled(isProgrammingModeEnabled);
+    m_ui->progModeLauncherButton->setEnabled(_is_programming_mode_enabled);
 }
 
 void WelcomeDialog::dpiScale()
@@ -43,9 +43,9 @@ void WelcomeDialog::dpiScale()
 
     fillOverlayLabel();
     this->setFixedSize(graph_charter.dpiScaled(340),graph_charter.dpiScaled(340));
-    ui->_TBU_welcomeCloseButton->setFixedSize(graph_charter.dpiScaled(28),graph_charter.dpiScaled(28));
-    ui->_TBU_welcomeCloseButton->setIconSize(QSize(graph_charter.dpiScaled(20),graph_charter.dpiScaled(20)));
-    ui->_TBU_welcomeEmptyButton->setFixedSize(graph_charter.dpiScaled(28),graph_charter.dpiScaled(28));
+    m_ui->_TBU_welcomeCloseButton->setFixedSize(graph_charter.dpiScaled(28),graph_charter.dpiScaled(28));
+    m_ui->_TBU_welcomeCloseButton->setIconSize(QSize(graph_charter.dpiScaled(20),graph_charter.dpiScaled(20)));
+    m_ui->_TBU_welcomeEmptyButton->setFixedSize(graph_charter.dpiScaled(28),graph_charter.dpiScaled(28));
 
 }
 
@@ -53,37 +53,37 @@ void WelcomeDialog::fillOverlayLabel()
 {
     GraphicalCharter &graph_charter = GraphicalCharter::instance();
 
-    _matisseWelcomeLabel->setObjectName("_LA_matisseWelcomeLabel");
-    _matisseWelcomeLabel->setText("MATISSE");
-    _matisseWelcomeLabel->resize(graph_charter.dpiScaled(150), graph_charter.dpiScaled(60));
-    _matisseWelcomeLabel->move(graph_charter.dpiScaled(95),graph_charter.dpiScaled(140));
-    _matisseWelcomeLabel->setAlignment(Qt::AlignCenter);
-    _matisseWelcomeLabel->raise();
+    m_matisse_welcome_label->setObjectName("_LA_matisseWelcomeLabel");
+    m_matisse_welcome_label->setText("MATISSE");
+    m_matisse_welcome_label->resize(graph_charter.dpiScaled(150), graph_charter.dpiScaled(60));
+    m_matisse_welcome_label->move(graph_charter.dpiScaled(95),graph_charter.dpiScaled(140));
+    m_matisse_welcome_label->setAlignment(Qt::AlignCenter);
+    m_matisse_welcome_label->raise();
 }
 
 void WelcomeDialog::on_progModeLauncherButton_clicked()
 {
     hide();
-    emit signal_launchApplication(PROGRAMMING);
+    emit si_launchApplication(PROGRAMMING);
 }
 
 void WelcomeDialog::on_configModeLauncherButton_clicked()
 {
     hide();
-    emit signal_launchApplication(APP_CONFIG);
+    emit si_launchApplication(APP_CONFIG);
 }
 
 void WelcomeDialog::on_deferredTimeModeLauncherButton_clicked()
 {
     hide();
-    emit signal_launchApplication(POST_PROCESSING);
+    emit si_launchApplication(POST_PROCESSING);
 }
 
-void WelcomeDialog::changeEvent(QEvent *event)
+void WelcomeDialog::changeEvent(QEvent *_event)
 {
-    if (event->type() == QEvent::LanguageChange)
+    if (_event->type() == QEvent::LanguageChange)
     {
-        ui->retranslateUi(this);
+        m_ui->retranslateUi(this);
     }
 }
 

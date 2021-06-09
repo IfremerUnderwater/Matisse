@@ -15,54 +15,54 @@
 
 namespace matisse {
 
-CameraCalibDialog::CameraCalibDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::CameraCalibDialog)
+CameraCalibDialog::CameraCalibDialog(QWidget *_parent) :
+    QDialog(_parent),
+    m_ui(new Ui::CameraCalibDialog)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    ui->dist_model_cb->setCurrentIndex(1);
+    m_ui->dist_model_cb->setCurrentIndex(1);
 
-    QObject::connect(ui->select_path_pb, SIGNAL(clicked()), this, SLOT(slot_onCalibPathSelection()));
-    QObject::connect(ui->quit_pb, SIGNAL(clicked()), this, SLOT(hide()));
-    QObject::connect(ui->calibrate_pb, SIGNAL(clicked()), this, SLOT(slot_onCalibrateCameras()));
+    QObject::connect(m_ui->select_path_pb, SIGNAL(clicked()), this, SLOT(sl_onCalibPathSelection()));
+    QObject::connect(m_ui->quit_pb, SIGNAL(clicked()), this, SLOT(hide()));
+    QObject::connect(m_ui->calibrate_pb, SIGNAL(clicked()), this, SLOT(sl_onCalibrateCameras()));
 
 }
 
 CameraCalibDialog::~CameraCalibDialog()
 {
-    delete ui;
+    delete m_ui;
 }
 
-void CameraCalibDialog::slot_onCalibPathSelection()
+void CameraCalibDialog::sl_onCalibPathSelection()
 {
     QString img_folder = QFileDialog::getExistingDirectory(this,
                                                     tr("Open calibration images path"),"./");
-    ui->img_calib_path->setText(img_folder);
+    m_ui->img_calib_path->setText(img_folder);
 }
 
-void CameraCalibDialog::slot_onCalibrateCameras()
+void CameraCalibDialog::sl_onCalibrateCameras()
 {
     // Clear old calibration text
-    ui->log_text_edit->clear();
+    m_ui->log_text_edit->clear();
 
     // Get and set camera name
-    if (ui->camera_name_le->text().isEmpty())
+    if (m_ui->camera_name_le->text().isEmpty())
     {
         QMessageBox::warning(this, tr("No camera name"), tr("You must give a name to your camera in order for it to be saved to database."));
         return;
     }
 
     CameraInfo cam_info;
-    cam_info.setCameraName(ui->camera_name_le->text());
+    cam_info.setCameraName(m_ui->camera_name_le->text());
 
     // dist model
-    cam_info.setDistortionModel(ui->dist_model_cb->currentIndex());
+    cam_info.setDistortionModel(m_ui->dist_model_cb->currentIndex());
 
     // Get images
-    QStringList nameFilter = {"*.jpg", "*.jpeg" ,"*.tiff" ,"*.png" };
-    QDir data_dir(ui->img_calib_path->text());
-    QStringList images_files = data_dir.entryList(nameFilter);
+    QStringList name_filter = {"*.jpg", "*.jpeg" ,"*.tiff" ,"*.png" };
+    QDir data_dir(m_ui->img_calib_path->text());
+    QStringList images_files = data_dir.entryList(name_filter);
 
     if (images_files.size() == 0)
     {
@@ -77,8 +77,8 @@ void CameraCalibDialog::slot_onCalibrateCameras()
     }
 
     // Calibrate the camera
-    cv::Size board_size(ui->horiz_squares_nb->text().toInt(),ui->vertic_squares_nb->text().toInt());
-    float squares_size = ui->squares_size->text().toFloat();
+    cv::Size board_size(m_ui->horiz_squares_nb->text().toInt(),m_ui->vertic_squares_nb->text().toInt());
+    float squares_size = m_ui->squares_size->text().toFloat();
 
     if (board_size.width==0 || board_size.height==0 || squares_size<=0)
     {
@@ -86,7 +86,7 @@ void CameraCalibDialog::slot_onCalibrateCameras()
         return;
     }
 
-    CameraCalib calib(images_files_std,board_size,squares_size,ui->log_text_edit);
+    CameraCalib calib(images_files_std,board_size,squares_size,m_ui->log_text_edit);
 
     double reproj_error;
     calib.calibrateMono(cam_info, reproj_error, true);
@@ -109,7 +109,7 @@ void CameraCalibDialog::slot_onCalibrateCameras()
     // Push camera to database
     CameraManager::instance().addCamera(cam_info);
 
-    ui->log_text_edit->append(tr("Your camera has been calibrated and added to database. You can find it in the camera manager"));
+    m_ui->log_text_edit->append(tr("Your camera has been calibrated and added to database. You can find it in the camera manager"));
 
 }
 

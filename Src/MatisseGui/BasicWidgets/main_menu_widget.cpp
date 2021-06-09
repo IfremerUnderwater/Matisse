@@ -9,34 +9,34 @@
 
 namespace matisse {
 
-MainMenuWidget::MainMenuWidget(QWidget *parent) :
-    QFrame(parent),
-    ui(new Ui::MainMenuWidget)
+MainMenuWidget::MainMenuWidget(QWidget *_parent) :
+    QFrame(_parent),
+    m_ui(new Ui::MainMenuWidget)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    QVBoxLayout *boxLayout = new QVBoxLayout(this); // Main layout of widget
-    boxLayout->setAlignment(Qt::AlignVCenter);
-    boxLayout->setContentsMargins(0,0,0,0);
-    setLayout(boxLayout);
+    QVBoxLayout *box_layout = new QVBoxLayout(this); // Main layout of widget
+    box_layout->setAlignment(Qt::AlignVCenter);
+    box_layout->setContentsMargins(0,0,0,0);
+    setLayout(box_layout);
 
-    QMenuBar* menuBar = new QMenuBar(this);
-    menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    menuBar->setObjectName("_MBA_mainMenuBar");
-    this->layout()->addWidget(menuBar);
+    QMenuBar* menu_bar = new QMenuBar(this);
+    menu_bar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    menu_bar->setObjectName("_MBA_mainMenuBar");
+    this->layout()->addWidget(menu_bar);
 
 }
 
 MainMenuWidget::~MainMenuWidget()
 {
-    delete ui;
+    delete m_ui;
 }
 
-void MainMenuWidget::changeEvent(QEvent *event)
+void MainMenuWidget::changeEvent(QEvent *_event)
 {
-    if (event->type() == QEvent::LanguageChange)
+    if (_event->type() == QEvent::LanguageChange)
     {
-        ui->retranslateUi(this);
+        m_ui->retranslateUi(this);
     }
 }
 

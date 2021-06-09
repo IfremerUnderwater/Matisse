@@ -15,26 +15,26 @@ class MainControllBar : public QFrame
     Q_OBJECT
 
 public:
-    explicit MainControllBar(QWidget *parent = 0);
+    explicit MainControllBar(QWidget *_parent = 0);
     ~MainControllBar();
 
     // surcharge des événements
-    void mousePressEvent  (QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent   (QMouseEvent *event);
+    void mousePressEvent  (QMouseEvent *_event);
+    void mouseReleaseEvent(QMouseEvent *_event);
+    void mouseMoveEvent   (QMouseEvent *_event);
 
-    void setSwitchModeButtonEnable(bool enabled_p);
+    void setSwitchModeButtonEnable(bool _enabled_p);
 
 protected:
-    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
 
 private:
-    Ui::MainControllBar *ui;
-    QPoint _initialPosition;
+    Ui::MainControllBar *m_ui;
+    QPoint m_initial_position;
 
 
 signals:
-    void signal_moveWindow(const QPoint &newPos);
+    void si_moveWindow(const QPoint &_new_pos);
 };
 
 } // namespace matisse

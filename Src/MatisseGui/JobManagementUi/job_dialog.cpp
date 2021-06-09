@@ -3,92 +3,67 @@
 
 namespace matisse {
 
-JobDialog::JobDialog(QWidget *parent, MatisseIconFactory *iconFactory, KeyValueList *keyValues, QString jobsPath, QStringList existingJobNames, QStringList archivedJobNames) :
-    QDialog(parent),
-    _ui(new Ui::JobDialog),
-    _keyValues(keyValues),
-    _isRealTime(false),
-    _jobsPath(jobsPath),
-    _existingJobNames(existingJobNames),
-    _archivedJobNames(archivedJobNames)
+JobDialog::JobDialog(QWidget *_parent, MatisseIconFactory *_icon_factory, KeyValueList *_key_values, QString _jobs_path, QStringList _existing_job_names, QStringList _archived_job_names) :
+    QDialog(_parent),
+    m_ui(new Ui::JobDialog),
+    m_key_values(_key_values),
+    m_jobs_path(_jobs_path),
+    m_existing_job_names(_existing_job_names),
+    m_archived_job_names(_archived_job_names)
 {
-    _ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    _ui->_LE_name->setValidator(new QRegExpValidator(QRegExp("\\w+(\\s|\\w)+\\w")));
+    m_ui->_LE_name->setValidator(new QRegExpValidator(QRegExp("\\w+(\\s|\\w)+\\w")));
 
-    if (!keyValues->getKeys().contains(DATASET_PARAM_DATASET_DIR)) {
-        // RT processing chain : fields for dataset dir and nav file are disabled
-        _isRealTime = true;
-        _ui->_LA_dataPath->setEnabled(false);
-        _ui->_LE_dataPath->setEnabled(false);
-        _ui->_PB_dataPath->setEnabled(false);
-        _ui->_LA_navigationFile->setEnabled(false);
-        _ui->_LE_navigationFile->setEnabled(false);
-        _ui->_PB_navigationFile->setEnabled(false);
+    if (!_key_values->getKeys().contains(DATASET_PARAM_DATASET_DIR)) {
+        qCritical() << "Dataset dir param not found : mandatory for post-processing";
     } else { // Post-processing
-        _ui->_LE_dataPath->setText(keyValues->getValue(DATASET_PARAM_DATASET_DIR));
-        _ui->_LE_navigationFile->setText(keyValues->getValue(DATASET_PARAM_NAVIGATION_FILE));
+        m_ui->_LE_dataPath->setText(_key_values->getValue(DATASET_PARAM_DATASET_DIR));
+        m_ui->_LE_navigationFile->setText(_key_values->getValue(DATASET_PARAM_NAVIGATION_FILE));
     }
 
-    _ui->_LE_resultPath->setText(keyValues->getValue(DATASET_PARAM_OUTPUT_DIR));
-    _ui->_LE_outputFile->setText(keyValues->getValue(DATASET_PARAM_OUTPUT_FILENAME));
+    m_ui->_LE_resultPath->setText(_key_values->getValue(DATASET_PARAM_OUTPUT_DIR));
+    m_ui->_LE_outputFile->setText(_key_values->getValue(DATASET_PARAM_OUTPUT_FILENAME));
 
-    connect(_ui->_LE_name, SIGNAL(textEdited(QString)), this, SLOT(slot_formatName(QString)));
-    connect(_ui->_PB_save, SIGNAL(clicked()), this, SLOT(slot_close()));
-    connect(_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(slot_close()));
-    connect(_ui->_PB_dataPath, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
-    //connect(_ui->_PB_resultPath, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
-    connect(_ui->_PB_navigationFile, SIGNAL(clicked()), this, SLOT(slot_selectFile()));
+    connect(m_ui->_LE_name, SIGNAL(textEdited(QString)), this, SLOT(sl_formatName(QString)));
+    connect(m_ui->_PB_save, SIGNAL(clicked()), this, SLOT(sl_close()));
+    connect(m_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(sl_close()));
+    connect(m_ui->_PB_dataPath, SIGNAL(clicked()), this, SLOT(sl_selectDir()));
+    connect(m_ui->_PB_navigationFile, SIGNAL(clicked()), this, SLOT(sl_selectFile()));
 
-    IconizedButtonWrapper *dataPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_dataPath);
-    iconFactory->attachIcon(dataPathButtonWrapper, "lnf/icons/Dossier.svg");
+    IconizedButtonWrapper *data_path_button_wrapper = new IconizedButtonWrapper(m_ui->_PB_dataPath);
+    _icon_factory->attachIcon(data_path_button_wrapper, "lnf/icons/Dossier.svg");
 
-    //IconizedButtonWrapper *resultPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_resultPath);
-    //iconFactory->attachIcon(resultPathButtonWrapper, "lnf/icons/Dossier.svg");
-
-    IconizedButtonWrapper *navFileButtonWrapper = new IconizedButtonWrapper(_ui->_PB_navigationFile);
-    iconFactory->attachIcon(navFileButtonWrapper, "lnf/icons/File.svg");
+    IconizedButtonWrapper *nav_file_button_wrapper = new IconizedButtonWrapper(m_ui->_PB_navigationFile);
+    _icon_factory->attachIcon(nav_file_button_wrapper, "lnf/icons/File.svg");
 }
 
 JobDialog::~JobDialog()
 {
-    delete _ui;
+    delete m_ui;
 }
 
-void JobDialog::changeEvent(QEvent *event)
+void JobDialog::changeEvent(QEvent *_event)
 {
-    if (event->type() == QEvent::LanguageChange)
+    if (_event->type() == QEvent::LanguageChange)
     {
-        _ui->retranslateUi(this);
+        m_ui->retranslateUi(this);
     }
 }
 
 
-//QString JobDialog::newJobName(QWidget *parent, KeyValueList *keyValues, QString jobsPath)
-//{
-//    QString jobName;
-
-//    JobDialog * newJobDialog = new JobDialog(parent, keyValues, jobsPath);
-//    if (newJobDialog->exec() == Accepted) {
-//        jobName = keyValues->getValue("name");
-//    }
-
-//    return jobName;
-//}
-
-void JobDialog::slot_formatName(QString text) {
-    text.replace(" ", "_");
-    _ui->_LE_name->setText(text);
+void JobDialog::sl_formatName(QString _text) {
+    _text.replace(" ", "_");
+    m_ui->_LE_name->setText(_text);
 }
 
-void JobDialog::slot_close()
+void JobDialog::sl_close()
 {
-    if (sender() == _ui->_PB_cancel) {
+    if (sender() == m_ui->_PB_cancel) {
         reject();
     } else {
         // normalisation du nom de job
-        QString name = _ui->_LE_name->text().trimmed().toLower();
-        //name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
+        QString name = m_ui->_LE_name->text().trimmed().toLower();
         name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_+|~=`{}\\[\\]:\";'<>?,.\\\\/]")));
 
         if (name.isEmpty()) {
@@ -97,13 +72,13 @@ void JobDialog::slot_close()
         }
 
 
-        if (_existingJobNames.contains(name)) {
+        if (m_existing_job_names.contains(name)) {
             QMessageBox::warning(this, tr("Cannot save..."),
                                  tr("Name '%1' is already used.").arg(name));
             return;
         }
 
-        if (_archivedJobNames.contains(name)) {
+        if (m_archived_job_names.contains(name)) {
             QMessageBox::warning(this, tr("Cannot save..."),
                                  tr("Name '%1' is used b an archived task.").arg(name));
             return;
@@ -111,7 +86,7 @@ void JobDialog::slot_close()
 
         QString filename(name);
         filename.replace(" ", "_").append(".xml");
-        QFileInfo info(_jobsPath + QDir::separator() + filename);
+        QFileInfo info(m_jobs_path + QDir::separator() + filename);
         if (info.exists()) {
             /* Technically inconsistent state */
             qCritical() << QString("The file %1 was found, could not create job %2").arg(info.absoluteFilePath()).arg(name);
@@ -120,103 +95,101 @@ void JobDialog::slot_close()
             return;
         }
 
-        _keyValues->set("filename", info.absoluteFilePath());
-        _keyValues->set("name", name);
-        _keyValues->set("comment", _ui->_TXT_comments->toPlainText().trimmed());
+        m_key_values->set("filename", info.absoluteFilePath());
+        m_key_values->set("name", name);
+        m_key_values->set("comment", m_ui->_TXT_comments->toPlainText().trimmed());
 
-        if (!_isRealTime) {
-            _keyValues->set(DATASET_PARAM_DATASET_DIR, _ui->_LE_dataPath->text());
-            _keyValues->set(DATASET_PARAM_NAVIGATION_FILE, _ui->_LE_navigationFile->text());
-        }
-        _keyValues->set(DATASET_PARAM_OUTPUT_DIR, _ui->_LE_resultPath->text());
-        _keyValues->set(DATASET_PARAM_OUTPUT_FILENAME, _ui->_LE_outputFile->text());
+        m_key_values->set(DATASET_PARAM_DATASET_DIR, m_ui->_LE_dataPath->text());
+        m_key_values->set(DATASET_PARAM_NAVIGATION_FILE, m_ui->_LE_navigationFile->text());
+        m_key_values->set(DATASET_PARAM_OUTPUT_DIR, m_ui->_LE_resultPath->text());
+        m_key_values->set(DATASET_PARAM_OUTPUT_FILENAME, m_ui->_LE_outputFile->text());
 
         accept();
     }
 }
 
-void JobDialog::slot_selectDir()
+void JobDialog::sl_selectDir()
 {
-    QDir dataRoot("./");
-    QString fieldText;
+    QDir data_root("./");
+    QString field_text;
     QString caption;
-    QDir current = dataRoot;
+    QDir current = data_root;
 
-    bool isDataPath = (sender() == _ui->_PB_dataPath);
+    bool is_data_path = (sender() == m_ui->_PB_dataPath);
 
-    if (isDataPath) {
+    if (is_data_path) {
         caption = tr("Select data path");
-        fieldText = _ui->_LE_dataPath->text();
+        field_text = m_ui->_LE_dataPath->text();
 
     } else {
         caption = tr("Output folder");
-        fieldText = _ui->_LE_resultPath->text();
+        field_text = m_ui->_LE_resultPath->text();
     }
 
     // Dossier courant
-    if (!fieldText.isEmpty()) {
-        QFileInfo currentFile(fieldText);
-        if (currentFile.exists() && currentFile.isDir()) {
-            current = QDir(currentFile.absoluteFilePath());
+    if (!field_text.isEmpty()) {
+        QFileInfo current_file(field_text);
+        if (current_file.exists() && current_file.isDir()) {
+            current = QDir(current_file.absoluteFilePath());
         }
     }
 
-    QString selDir = QFileDialog::getExistingDirectory(qobject_cast<QWidget *>(sender()), caption, current.path());
+    QString sel_dir = QFileDialog::getExistingDirectory(qobject_cast<QWidget *>(sender()), caption, current.path());
 
-    if (selDir.isEmpty()) {
+    if (sel_dir.isEmpty()) {
         return;
     }
 
-    QFileInfo dirInfo(selDir);
-    QString dirPath = dirInfo.filePath();
+    QFileInfo dir_info(sel_dir);
+    QString dir_path = dir_info.filePath();
 
-    QString rootPath = dataRoot.absolutePath();
+    QString root_path = data_root.absolutePath();
 
-    if (dirPath.startsWith(rootPath)) {
+    if (dir_path.startsWith(root_path)) {
         // chemin relatif
-        dirPath = dataRoot.relativeFilePath(dirPath);
-        if (dirPath.isEmpty()) {
-            dirPath = "./";
+        dir_path = data_root.relativeFilePath(dir_path);
+        if (dir_path.isEmpty()) {
+            dir_path = "./";
         }
     }
 
-    if (isDataPath) {
-        _ui->_LE_dataPath->setText(dirPath);
+    if (is_data_path) {
+        m_ui->_LE_dataPath->setText(dir_path);
     } else {
-        _ui->_LE_resultPath->setText(dirPath);
+        m_ui->_LE_resultPath->setText(dir_path);
     }
 }
 
-void JobDialog::slot_selectFile()
+void JobDialog::sl_selectFile()
 {
-    QString selFile;
-    QDir dataRoot("./");
-    QString currentPath = dataRoot.path();
-    QString fieldText;
+    QString sel_file;
+    QDir data_root("./");
+    QString current_path = data_root.path();
+    QString field_text;
 
-    fieldText = _ui->_LE_navigationFile->text();
+    field_text = m_ui->_LE_navigationFile->text();
 
     // Dossier parent du fichier courant
-    if (!fieldText.isEmpty()) {
-        QFileInfo currentFile(fieldText);
-        if (currentFile.exists()) {
-            currentPath = currentFile.absoluteFilePath();
+    if (!field_text.isEmpty()) {
+        QFileInfo current_file(field_text);
+        if (current_file.exists()) {
+            current_path = current_file.absoluteFilePath();
         }
     }
 
-    selFile = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Select navigation file"), currentPath, "Nav files (*.dim2 *.txt)");
+    sel_file = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Select navigation file"), current_path, "Nav files (*.dim2 *.txt)");
 
-    if (selFile.isEmpty()) {
+    if (sel_file.isEmpty()) {
         return;
     }
 
     // Chemin relatif si fichier contenu dans l'arborescence de données par défaut
-    QString rootPath = dataRoot.absolutePath();
-    if (selFile.startsWith(rootPath)) {
-        selFile = dataRoot.relativeFilePath(selFile);
+    QString root_path = data_root.absolutePath();
+    if (sel_file.startsWith(root_path)) {
+        sel_file = data_root.relativeFilePath(sel_file);
     }
 
-    _ui->_LE_navigationFile->setText(selFile);
+    m_ui->_LE_navigationFile->setText(sel_file);
 }
 
 } // namespace matisse

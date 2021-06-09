@@ -27,9 +27,9 @@ static osg::Vec3f HSVSpectrum(float x)
 }
 
 // val in 0..1
-static QColor RainbowColor(float val)
+static QColor RainbowColor(float _val)
 {
-    float v2 = (-val * 0.75) + 0.67;
+    float v2 = (-_val * 0.75) + 0.67;
     if(v2 > 1.0)
         v2 = v2- 1.0;
     osg::Vec3f RGB = HSVSpectrum(v2);
@@ -39,14 +39,14 @@ static QColor RainbowColor(float val)
 }
 
 // val in 0..1
-static QColor BlueToYellowColor(float val)
+static QColor BlueToYellowColor(float _val)
 {
-    QColor color(val*255, val*255, 128);
+    QColor color(_val*255, _val*255, 128);
 
     return color;
 }
 
-QColor ShaderColor::color(double _val, const ShaderColor::Palette _palette)
+QColor ShaderColor::m_color(double _val, const ShaderColor::ePalette _palette)
 {
     float val = _val;
     if(val < 0)
@@ -56,10 +56,10 @@ QColor ShaderColor::color(double _val, const ShaderColor::Palette _palette)
 
     switch(_palette)
     {
-    case Rainbow:
+    case RAINBOW:
         return RainbowColor(val);
         break;
-    case BlueToYellow:
+    case BLUE_TO_YELLOW:
         return BlueToYellowColor(val);
         break;
     }
@@ -67,7 +67,7 @@ QColor ShaderColor::color(double _val, const ShaderColor::Palette _palette)
     return Qt::white;
 }
 
-static const char * rainbowShaderScource =
+static const char * RAINBOW_SHADER_SOURCE =
         "vec3 HSVSpectrum(float x)"
         "{"
         " float y = 1.0;"
@@ -104,7 +104,7 @@ static const char * rainbowShaderScource =
         "    return RGB;"
         "}";
 
-static const char *blueToYellowShaderScource =
+static const char *BLUE_TO_YELLOW_SHADER_SOURCE =
         "vec3 colorPalette(float val)"
         "{"
         "    if(val < 0.0)"
@@ -116,16 +116,16 @@ static const char *blueToYellowShaderScource =
         "}";
 
 
-const char *ShaderColor::shaderSource(const ShaderColor::Palette _palette)
+const char *ShaderColor::m_shader_source(const ShaderColor::ePalette _palette)
 {
     switch(_palette)
     {
-    case Rainbow:
-        return rainbowShaderScource;
+    case RAINBOW:
+        return RAINBOW_SHADER_SOURCE;
         break;
 
-    case BlueToYellow:
-        return blueToYellowShaderScource;
+    case BLUE_TO_YELLOW:
+        return BLUE_TO_YELLOW_SHADER_SOURCE;
         break;
 
     default:
@@ -144,14 +144,14 @@ const char *ShaderColor::shaderSource(const ShaderColor::Palette _palette)
     return "";
 }
 
-const char *ShaderColor::paletteName(const ShaderColor::Palette _palette)
+const char *ShaderColor::m_palette_name(const ShaderColor::ePalette _palette)
 {
     switch(_palette)
     {
-    case Rainbow:
+    case RAINBOW:
         return "Rainbow";
         break;
-    case BlueToYellow:
+    case BLUE_TO_YELLOW:
         return "BlueToYellow";
         break;
 

@@ -2,15 +2,15 @@
 
 namespace matisse {
 
-int PipeWidget::_currentColorIndex = 0;
-QList<QRgb> PipeWidget::_colorsList = QList<QRgb>();
+int PipeWidget::m_current_color_index = 0;
+QList<QRgb> PipeWidget::m_colors_list = QList<QRgb>();
 
-PipeWidget::PipeWidget(QGraphicsItem *parent):ElementWidget(parent),
-    _startElt(0),
-    _tempStartElt(0),
-    _endElt(0),
-    _startLine(-1),
-    _endLine(-1)
+PipeWidget::PipeWidget(QGraphicsItem *_parent):ElementWidget(_parent),
+    m_start_elt(0),
+    m_temp_start_elt(0),
+    m_end_elt(0),
+    m_start_line(-1),
+    m_end_line(-1)
 {
     fillColorsList();
     qDebug() << "CONSTRUCTION PIPEWIDGET";
@@ -19,269 +19,240 @@ PipeWidget::PipeWidget(QGraphicsItem *parent):ElementWidget(parent),
 }
 
 bool PipeWidget::hasStart() {
-    return (_tempStartElt != 0);
+    return (m_temp_start_elt != 0);
 }
 
 void PipeWidget::clear()
 {
-    _startElt = 0;
-    _tempStartElt = 0;
-    _endElt = 0;
-    _startLine = -1;
-    _endLine = -1;
+    m_start_elt = 0;
+    m_temp_start_elt = 0;
+    m_end_elt = 0;
+    m_start_line = -1;
+    m_end_line = -1;
     setGeometry(0, 0);
     setVisible(false);
 }
 
 void PipeWidget::fillColorsList() {
-    if (!_colorsList.isEmpty()) {
+    if (!m_colors_list.isEmpty()) {
         return;
     }
     for (int index =4; index < 19; index++) {
-        _colorsList.append(QColor(static_cast<Qt::GlobalColor>(index)).rgba());
+        m_colors_list.append(QColor(static_cast<Qt::GlobalColor>(index)).rgba());
     }
-    _currentColorIndex = 0;
+    m_current_color_index = 0;
 }
 
 QRgb PipeWidget::getNextColor()
 {
-    _currentColorIndex++;
-    if (_currentColorIndex == _colorsList.size()) {
-        _currentColorIndex = 0;
+    m_current_color_index++;
+    if (m_current_color_index == m_colors_list.size()) {
+        m_current_color_index = 0;
     }
-    return _colorsList[_currentColorIndex];
+    return m_colors_list[m_current_color_index];
 }
 
-void PipeWidget::setCurrentColor(QRgb color)
+void PipeWidget::setCurrentColor(QRgb _color)
 {
-    int index = _colorsList.indexOf(color);
-    _currentColorIndex = qMax(0, index);
+    int index = m_colors_list.indexOf(_color);
+    m_current_color_index = qMax(0, index);
 }
 
-void PipeWidget::drawSymbol(QPainter *painter, bool forIcon)
+void PipeWidget::drawSymbol(QPainter *_painter, bool _for_icon)
 {
-    Q_UNUSED(forIcon)
-    /*
-    if ((!_sourceIsValid) && (!_destinationIsValid)) {
-        qDebug() << "NOK!!!";
-        return;
-    }
-*/
+    Q_UNUSED(_for_icon)
+
     // connecteur sup
     //qDebug() << "DRAW PIPE" << this;
-    painter->setPen(_color);
-    painter->setBrush(QBrush(_color));
-    QRect src(_x - 6, _y - 6, 12, 12);
-    QRect dst(_x + _deltaXt + _deltaXb -6, _y + _deltaYt + _deltaY + _deltaYb -6, 12, 12);
+    _painter->setPen(m_color);
+    _painter->setBrush(QBrush(m_color));
+    QRect src(m_x - 6, m_y - 6, 12, 12);
+    QRect dst(m_x + m_delta_x_t + m_delta_x_b -6, m_y + m_delta_y_t + m_delta_y + m_delta_y_b -6, 12, 12);
 
-    painter->drawArc(src,-180*16, 180*16);
-    // pipe sup
-    // horizontal pipe sup
-    // vertical pipe
-    // horizontal pipe inf
-    // pipe inf
-
-    /*QPolygon openedPolygon;
-    openedPolygon << QPoint(_x, _y +6 ) << QPoint( _x, _y + _deltaYt)
-                  << QPoint(_x + _deltaXt, _y + _deltaYt)
-                  << QPoint(_x + _deltaXt, _y + _deltaYt + _deltaY)
-                  << QPoint(_x + _deltaXt + _deltaXb, _y + _deltaYt + _deltaY)
-                  << QPoint(_x + _deltaXt + _deltaXb, _y + _deltaYt + _deltaY + _deltaYb);
-
-    painter->drawPolyline(openedPolygon);*/
+    _painter->drawArc(src,-180*16, 180*16);
 
     // Connect modules with bezier curve
-    QPainterPath myPath;
-    int verticalDist = _deltaYt + _deltaY + _deltaYb -6;
-    myPath.moveTo(_x, _y +6);
-    myPath.cubicTo(_x, _y + verticalDist/2.0 ,
-                   _x + _deltaXt + _deltaXb, _y + _deltaYt + _deltaY + _deltaYb -verticalDist/2.0,
-                   _x + _deltaXt + _deltaXb , _y + _deltaYt + _deltaY + _deltaYb -6);
-    //painter->brush().setColor(Qt::transparent);
-    painter->setBrush(QColor(Qt::transparent));
-    painter->drawPath(myPath);
+    QPainterPath my_path;
+    int vertical_dist = m_delta_y_t + m_delta_y + m_delta_y_b -6;
+    my_path.moveTo(m_x, m_y +6);
+    my_path.cubicTo(m_x, m_y + vertical_dist/2.0 ,
+                   m_x + m_delta_x_t + m_delta_x_b, m_y + m_delta_y_t + m_delta_y + m_delta_y_b -vertical_dist/2.0,
+                   m_x + m_delta_x_t + m_delta_x_b , m_y + m_delta_y_t + m_delta_y + m_delta_y_b -6);
+
+    _painter->setBrush(QColor(Qt::transparent));
+    _painter->drawPath(my_path);
 
     // connecteur inf
-    painter->drawEllipse(dst);
+    _painter->drawEllipse(dst);
 
 }
 
-void PipeWidget::setGeometry(int x, int y, int deltaYt, int deltaXt, int deltaY, int deltaXb, int deltaYb, QColor color)
+void PipeWidget::setGeometry(int _x, int _y, int _delta_y_t, int _delta_x_t, int _delta_y, int _delta_x_b, int _delta_y_b, QColor _color)
 {
-    _x = x;
-    _y = y;
-    _deltaYt = deltaYt;
-    _deltaXt = deltaXt;
-    _deltaY = deltaY;
-    _deltaXb = deltaXb;
-    _deltaYb = deltaYb;
+    m_x = _x;
+    m_y = _y;
+    m_delta_y_t = _delta_y_t;
+    m_delta_x_t = _delta_x_t;
+    m_delta_y = _delta_y;
+    m_delta_x_b = _delta_x_b;
+    m_delta_y_b = _delta_y_b;
 
-    setColor(color);
+    setColor(_color);
 
 }
 
-void PipeWidget::setColor(QColor color)
+void PipeWidget::setColor(QColor _color)
 {
-    if (!color.isValid()) {
+    if (!_color.isValid()) {
         //_color = QColor(Qt::black);
-        _color = QColor::fromRgb(245, 247, 250); // gris clair de la charte graphique (Matisse.css)
+        m_color = QColor::fromRgb(245, 247, 250); // gris clair de la charte graphique (Matisse.css)
     } else {
-        _color = color;
+        m_color = _color;
     }
     //update();
 }
 
-void  PipeWidget::setStart(bool temp, ElementWidget * src, int srcLine) {
+void  PipeWidget::setStart(bool _temp, ElementWidget * _src, int _src_line) {
     //qDebug() << "Set start..." << temp << int(src) << srcLine;
-    if (temp) {
-        _tempStartElt = src;
+    if (_temp) {
+        m_temp_start_elt = _src;
     } else {
-        _startElt = src;
+        m_start_elt = _src;
     }
-    _startLine = srcLine;
+    m_start_line = _src_line;
 
-    if (src && (srcLine > -1)) {
+    if (_src && (_src_line > -1)) {
         qDebug() << "src dump";
-        src->dumpObjectInfo();
-        qDebug() << "Line" << srcLine;
-        //setVisible(true);
-        QPointF srcPos = mapFromScene(src->getOutputLinePos(srcLine));
-        setGeometry(srcPos.x(), srcPos.y());
-        if (!temp) {
-            src->setOutputWidget(srcLine, this);
+        _src->dumpObjectInfo();
+        qDebug() << "Line" << _src_line;
+
+        QPointF src_pos = mapFromScene(_src->getOutputLinePos(_src_line));
+        setGeometry(src_pos.x(), src_pos.y());
+        if (!_temp) {
+            _src->setOutputWidget(_src_line, this);
         }
-        //_x = srcPos.x();
-        //_y = srcPos.y();
+
        // prepareGeometryChange();
-        _boundingRect = QRectF(_x-6, _y-6, 12, 12);
-        //update();
+        m_bounding_rect = QRectF(m_x-6, m_y-6, 12, 12);
     } else {
         qDebug() << "Sortie setStart 0";
-        //setVisible(false);
     }
 }
 
-void PipeWidget::setEnd(ElementWidget * dest, int destLine)
+void PipeWidget::setEnd(ElementWidget * _dest, int _dest_line)
 {
-    _endElt = dest;
-    _endLine = destLine;
-    if (dest && (destLine > -1)) {
-        setStart(false, _tempStartElt, _startLine);
-        toDestinationPos(dest->getInputLinePos(destLine));
-        dest->setInputWidget(destLine, this);
-        //setVisible(true);
-        //update();
+    m_end_elt = _dest;
+    m_end_line = _dest_line;
+    if (_dest && (_dest_line > -1)) {
+        setStart(false, m_temp_start_elt, m_start_line);
+        toDestinationPos(_dest->getInputLinePos(_dest_line));
+        _dest->setInputWidget(_dest_line, this);
     }
 }
 
 ElementWidget *PipeWidget::getStartElement()
 {
-    return _startElt;
+    return m_start_elt;
 }
 
 ElementWidget *PipeWidget::getTempStartElement()
 {
-    return _tempStartElt;
+    return m_temp_start_elt;
 }
 
 ElementWidget *PipeWidget::getEndElement()
 {
-    return _endElt;
+    return m_end_elt;
 }
 
 int PipeWidget::getStartElementLine()
 {
-    return _startLine;
+    return m_start_line;
 }
 
 int PipeWidget::getEndElementLine()
 {
-    return _endLine;
+    return m_end_line;
 }
 
 void PipeWidget::refreshConnections()
 {
-    setStart(true, _startElt, _startLine);
-    setEnd(_endElt, _endLine);
+    setStart(true, m_start_elt, m_start_line);
+    setEnd(m_end_elt, m_end_line);
 }
 
-void PipeWidget::fromSourcePos(QPointF srcPos)
+void PipeWidget::fromSourcePos(QPointF _src_pos)
 {
-    srcPos = mapFromScene(srcPos);
-    _x = srcPos.x();
-    _y = srcPos.y();
+    _src_pos = mapFromScene(_src_pos);
+    m_x = _src_pos.x();
+    m_y = _src_pos.y();
     qDebug() << "from.............................................................";
-    //update();
 }
 
-void PipeWidget::toDestinationPos(QPointF dstPos)
+void PipeWidget::toDestinationPos(QPointF _dst_pos)
 {
-    dstPos = mapFromScene(dstPos);
-    int dstX = dstPos.x();
-    int dstY = dstPos.y();
+    _dst_pos = mapFromScene(_dst_pos);
+    int dst_x = _dst_pos.x();
+    int dst_y = _dst_pos.y();
 
-    bool bigStep = false;
-    if (_startElt && _endElt) {
-        int startOrder = _startElt->getOrder();
-        int endOrder = _endElt->getOrder();
-        int startXPos = _startElt->getOutputLinePos(_startLine).x();
-        int startYPos = _startElt->getOutputLinePos(_startLine).y();
-        int endXPos = _endElt->getInputLinePos(_endLine).x();
-        int endYPos = _endElt->getInputLinePos(_endLine).y();
-        //int deltaPos = _endElt->scenePos().y() - _start
+    bool big_step = false;
+    if (m_start_elt && m_end_elt) {
+        int start_order = m_start_elt->getOrder();
+        int end_order = m_end_elt->getOrder();
+        int start_x_pos = m_start_elt->getOutputLinePos(m_start_line).x();
+        int start_y_pos = m_start_elt->getOutputLinePos(m_start_line).y();
+        int end_x_pos = m_end_elt->getInputLinePos(m_end_line).x();
+        int end_y_pos = m_end_elt->getInputLinePos(m_end_line).y();
 
-        if ((endOrder - startOrder) != 1) {
-            bigStep = true;
-            _deltaYt = _startLine * 4 + 10;
-            _deltaYb = _endLine * 4 + 10;
-            _deltaXt = startXPos - 200 + startOrder * 20 + _startLine * 5;
-            _deltaXb = endXPos - startXPos - _deltaXt;
-            _deltaY = endYPos - startYPos - _deltaYt - _deltaYb;
+        if ((end_order - start_order) != 1) {
+            big_step = true;
+            m_delta_y_t = m_start_line * 4 + 10;
+            m_delta_y_b = m_end_line * 4 + 10;
+            m_delta_x_t = start_x_pos - 200 + start_order * 20 + m_start_line * 5;
+            m_delta_x_b = end_x_pos - start_x_pos - m_delta_x_t;
+            m_delta_y = end_y_pos - start_y_pos - m_delta_y_t - m_delta_y_b;
 
             // calcul bounding rect...
         }
     }
-    if (!bigStep) {
-        _deltaYt = qBound(-10, dstY -_y, 10);
-        _deltaYb = qBound(-10, dstY -_y - _deltaYb, 10);
-        _deltaY = dstPos.y() - (_y + _deltaYt + _deltaYb);
-        _deltaXt = (dstX - _x)/2;
-        _deltaXb = dstX - _deltaXt -_x;
+    if (!big_step) {
+        m_delta_y_t = qBound(-10, dst_y -m_y, 10);
+        m_delta_y_b = qBound(-10, dst_y -m_y - m_delta_y_b, 10);
+        m_delta_y = _dst_pos.y() - (m_y + m_delta_y_t + m_delta_y_b);
+        m_delta_x_t = (dst_x - m_x)/2;
+        m_delta_x_b = dst_x - m_delta_x_t -m_x;
     }
 
     //setVisible(true);
-    if (_startElt) {
-        double leftX = qMin(_x + _deltaXt, _x + _deltaXt + _deltaXb);
-        double rightX = qMax(_x + _deltaXt, _x + _deltaXt + _deltaXb);
-        QPointF locSrcPos = mapFromScene(_startElt->getOutputLinePos(_startLine));
-        QPointF locDstPos = mapFromScene(dstPos);
+    if (m_start_elt) {
+        double left_x = qMin(m_x + m_delta_x_t, m_x + m_delta_x_t + m_delta_x_b);
+        double right_x = qMax(m_x + m_delta_x_t, m_x + m_delta_x_t + m_delta_x_b);
+        QPointF loc_src_pos = mapFromScene(m_start_elt->getOutputLinePos(m_start_line));
+        QPointF loc_dst_pos = mapFromScene(_dst_pos);
         prepareGeometryChange();
-        _boundingRect = QRectF(locSrcPos.x()-6, locSrcPos.y()-6, 12, 12);
-        _boundingRect = _boundingRect.united(QRectF(locDstPos.x(), locDstPos.y(), 6, 6));
-        _boundingRect = _boundingRect.united(QRectF(leftX, locSrcPos.y(), rightX - leftX, 1));
+        m_bounding_rect = QRectF(loc_src_pos.x()-6, loc_src_pos.y()-6, 12, 12);
+        m_bounding_rect = m_bounding_rect.united(QRectF(loc_dst_pos.x(), loc_dst_pos.y(), 6, 6));
+        m_bounding_rect = m_bounding_rect.united(QRectF(left_x, loc_src_pos.y(), right_x - left_x, 1));
     }
-    // _boundingRect = _boundingRect.united(dst);
-
-    //    update();
 }
 
-void PipeWidget::clone(PipeWidget *other)
+void PipeWidget::clone(PipeWidget *_other)
 {
-    ElementWidget::clone(other);
+    ElementWidget::clone(_other);
 
-    _color = other->_color;
-    _x = other->_x;
-    _y = other->_y;
-    _deltaYt = other->_deltaYt;
-    _deltaXt = other->_deltaXt;
-    _deltaY = other->_deltaY;
-    _deltaXb = other->_deltaXb;
-    _deltaYb = other->_deltaYb;
-    _startElt = other->_startElt;
-    _tempStartElt = other->_tempStartElt;
-    _endElt = other->_endElt;
-    _startLine = other->_startLine;
-    _endLine = other->_endLine;
+    m_color = _other->m_color;
+    m_x = _other->m_x;
+    m_y = _other->m_y;
+    m_delta_y_t = _other->m_delta_y_t;
+    m_delta_x_t = _other->m_delta_x_t;
+    m_delta_y = _other->m_delta_y;
+    m_delta_x_b = _other->m_delta_x_b;
+    m_delta_y_b = _other->m_delta_y_b;
+    m_start_elt = _other->m_start_elt;
+    m_temp_start_elt = _other->m_temp_start_elt;
+    m_end_elt = _other->m_end_elt;
+    m_start_line = _other->m_start_line;
+    m_end_line = _other->m_end_line;
 }
 
 } // namespace matisse

@@ -10,19 +10,17 @@ class SourceWidget : public ElementWidget
 //    Q_OBJECT
 
 public:
-    SourceWidget(QGraphicsItem *parent = 0);
-    virtual void drawSymbol(QPainter *painter, bool forIcon = false);
+    SourceWidget(QGraphicsItem *_parent = 0);
+    virtual void drawSymbol(QPainter *_painter, bool _for_icon = false);
 
-    virtual int type() const { return SourceType;}
+    virtual int type() const { return SOURCE_TYPE;}
 
 protected:
-//    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-//    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-//    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+
 
 private:
-    QPointF _rayInit;
-    QPointF _rayEnd;
+    QPointF m_ray_init;
+    QPointF m_ray_end;
 
 signals:
 

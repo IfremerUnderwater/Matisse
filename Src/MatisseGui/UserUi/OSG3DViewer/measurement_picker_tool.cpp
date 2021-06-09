@@ -4,24 +4,24 @@
 
 namespace matisse {
 
-MeasurementPickerTool::MeasurementPickerTool(QObject *parent) : QObject(parent)
+MeasurementPickerTool::MeasurementPickerTool(QObject *_parent) : QObject(_parent)
 {
-    start();
+    sl_start();
 }
 
-void MeasurementPickerTool::start()
+void MeasurementPickerTool::sl_start()
 {
     OSGWidgetTool *tool = OSGWidgetTool::instance();
-    tool->slot_cancelTool();
+    tool->sl_cancelTool();
 
     // start tool
-    connect(tool, SIGNAL(signal_clickedLMouse( int, int)), this, SLOT(slot_toolClicked( int, int)));
-    connect(tool, SIGNAL(signal_endTool()), this, SLOT(slot_toolEnded()));
+    connect(tool, SIGNAL(si_clickedLMouse( int, int)), this, SLOT(sl_toolClicked( int, int)));
+    connect(tool, SIGNAL(si_endTool()), this, SLOT(sl_toolEnded()));
 
-    tool->startTool(OSGWidgetTool::MeasurePicker);
+    tool->startTool(OSGWidgetTool::MEASURE_PICKER);
 }
 
-void MeasurementPickerTool::slot_toolEnded()
+void MeasurementPickerTool::sl_toolEnded()
 {
     disconnect(OSGWidgetTool::instance(), 0, this, 0);
     disconnect(OSGWidgetTool::instance()->getOSGWidget(), 0, this, 0);
@@ -31,7 +31,7 @@ void MeasurementPickerTool::slot_toolEnded()
     delete this;
 }
 
-void MeasurementPickerTool::slot_toolClicked(int _x, int _y)
+void MeasurementPickerTool::sl_toolClicked(int _x, int _y)
 {
     OSGWidget* w = OSGWidgetTool::instance()->getOSGWidget();
 
@@ -40,11 +40,11 @@ void MeasurementPickerTool::slot_toolClicked(int _x, int _y)
     w->getIntersectionPointNode(_x,_y, node, exist);
     if(exist)
     {
-        emit signal_nodeClicked(node.get());
+        emit si_nodeClicked(node.get());
     }
     else
     {
-        emit signal_noNodeClicked();
+        emit si_noNodeClicked();
     }
 }
 

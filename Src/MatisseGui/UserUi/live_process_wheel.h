@@ -10,7 +10,7 @@
 
 namespace matisse {
 
-enum WheelState {
+enum eWheelState {
     INACTIVE,
     RUNNING,
     FROZEN
@@ -22,7 +22,7 @@ class LiveProcessWheel : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LiveProcessWheel(QWidget *parent = 0);
+    explicit LiveProcessWheel(QWidget *_parent = 0);
     ~LiveProcessWheel();
 
 signals:
@@ -30,38 +30,36 @@ signals:
 public slots:
 
 protected:
-    void paintEvent(QPaintEvent *evt);
+    void paintEvent(QPaintEvent *_evt);
 
 private slots:
-    void slot_newHour();
+    void sl_newHour();
 
 public slots:
-    void slot_processRunning();
-    void slot_processStopped();
-    void slot_processFrozen();
-    void slot_updateWheelColors(QString colors);
+    void sl_processRunning();
+    void sl_processStopped();
+    void sl_processFrozen();
+    void sl_updateWheelColors(QString _colors);
 
 private:
-//    void initWheel();
-    void selectColor(QPainter & painter, int hour);
+    void selectColor(QPainter & _painter, int _hour);
     void inactivateWheel();
 
-    QPointF* _center;
-    QColor* inactiveColor;
-    QColor* activeColor;
-    QColor* leadingActiveColor;
+    QPointF* m_center;
+    QColor* m_inactive_color;
+    QColor* m_active_color;
+    QColor* m_leading_active_color;
 
-    double _wheelRadius;
-    double _innerRadius;
-    double _rayWidth;
-    quint32 _msForOneHourClockTurn;
-    quint8 _currentHour;
-    bool _firstRound;
+    double m_wheel_radius;
+    double m_inner_radius;
+    double m_ray_width;
+    quint32 m_ms_for_one_hour_clock_turn;
+    quint8 m_current_hour;
+    bool m_first_round;
 
-    QTimer* _clockTimer;
-    WheelState _state;
-    QColor** _currentTickColors;
-    //    bool _wheelInitialized;
+    QTimer* m_clock_timer;
+    eWheelState m_state;
+    QColor** m_current_tick_colors;
 };
 
 } // namespace matisse

@@ -33,35 +33,29 @@ class AssemblyEditor : public QWidget
     Q_OBJECT
     
 public:
-    explicit AssemblyEditor(QWidget *parent = 0);
+    explicit AssemblyEditor(QWidget *_parent = 0);
     ~AssemblyEditor();
 
-    bool loadAssembly(QString assemblyName);
+    bool loadAssembly(QString _assembly_name);
     void resetAssemblyForm();
-    AssemblyGraphicsScene * getScene() { return _scene;}
+    AssemblyGraphicsScene * getScene() { return m_scene;}
     QGraphicsView * getGraphicsView();
 
 private:
-    Ui::AssemblyEditor * _ui;
-    AssemblyGraphicsScene * _scene;
-    QHash<QString, KeyValueList> _assembliesValues;
-//    Server * _server;
+    Ui::AssemblyEditor * m_ui;
+    AssemblyGraphicsScene * m_scene;
+    QHash<QString, KeyValueList> m_assemblies_values;
 
     void init();
 
 protected:
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *_event);
 
 protected slots:
-//    void slot_showParameters(QTreeWidgetItem *item = NULL, int noCol = 0);
-    //void slot_parametersValuesModified(bool modified);
-    //void slot_changeTabPanel(int panel);
+
 
 signals:
-    //void signal_parametersValuesModified(bool modified);
-    //void signal_saveParameters();
-    //void signal_selectParameters(bool);
-    //void signal_usedParameters(bool);
+
 };
 
 } // namespace matisse

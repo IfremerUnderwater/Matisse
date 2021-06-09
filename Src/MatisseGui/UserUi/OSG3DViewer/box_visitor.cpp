@@ -23,19 +23,19 @@ BoxVisitor::~BoxVisitor()
 {
 }
 
-void BoxVisitor::apply ( osg::Node &node )
+void BoxVisitor::apply (osg::Node &_node )
 {
-    traverse(node);
+    traverse(_node);
 }
 
-void BoxVisitor::apply( osg::Geode &geode )
+void BoxVisitor::apply(osg::Geode &_geode )
 {
-    unsigned int num_drawables = geode.getNumDrawables();
+    unsigned int num_drawables = _geode.getNumDrawables();
     for( unsigned int i = 0; i < num_drawables; i++ )
     {
         // Use 'asGeometry' as its supposed to be faster than a dynamic_cast
         // every little saving counts
-        osg::Geometry *current_geometry = geode.getDrawable(i)->asGeometry();
+        osg::Geometry *current_geometry = _geode.getDrawable(i)->asGeometry();
 
         // Only process if the drawable is geometry
         if ( current_geometry )

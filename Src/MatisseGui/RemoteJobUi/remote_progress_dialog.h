@@ -13,7 +13,7 @@ class RemoteProgressDialog : public QDialog {
   Q_OBJECT
 
  public:
-  RemoteProgressDialog(QWidget *parent);
+  RemoteProgressDialog(QWidget *_parent);
   void reinit();
 
 public slots:
@@ -21,7 +21,7 @@ public slots:
   void sl_onMessageUpdate(QString _new_message);
 
  private:
-  Ui::RemoteProgressDialog *_ui;
+  Ui::RemoteProgressDialog *m_ui;
 };
 
 }  // namespace matisse

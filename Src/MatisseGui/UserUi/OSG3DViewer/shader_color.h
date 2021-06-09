@@ -9,16 +9,16 @@ class ShaderColor
 {
 public:
 
-    enum Palette
+    enum ePalette
     {
-        Rainbow,
-        BlueToYellow
+        RAINBOW,
+        BLUE_TO_YELLOW
     };
 
     // warniong : _val = z in range 0..1
-    static QColor color(double _val, const Palette _palette = Rainbow);
-    static const char * shaderSource(const Palette _palette = Rainbow);
-    static const char * paletteName(const Palette _palette = Rainbow);
+    static QColor m_color(double _val, const ePalette _palette = RAINBOW);
+    static const char * m_shader_source(const ePalette _palette = RAINBOW);
+    static const char * m_palette_name(const ePalette _palette = RAINBOW);
 
 };
 

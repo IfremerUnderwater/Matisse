@@ -3,68 +3,67 @@
 
 namespace matisse {
 
-ElementWidget::ElementWidget(QGraphicsItem *parent) :
+ElementWidget::ElementWidget(QGraphicsItem *_parent) :
     QObject(0),
-    QGraphicsItem(parent)
+    QGraphicsItem(_parent)
 {
-    _bodyRect = QRect(-70, -30, 140, 60);
-    _brush.setColor(Qt::white);
-    //_pen.setColor(Qt::black);
-    _pen.setColor(QColor::fromRgb(245, 247, 250)); // gris clair de la charte graphique (Matisse.css)
+    m_body_rect = QRect(-70, -30, 140, 60);
+    m_brush.setColor(Qt::white);
+    m_pen.setColor(QColor::fromRgb(245, 247, 250)); // gris clair de la charte graphique (Matisse.css)
     setInputsNumber();
     setOutputsNumber();
     setAcceptHoverEvents(true);
     setFlags(ItemIsFocusable | ItemIsSelectable /*| ItemIsMovable*/);
-    _buttonPressed = false;
-    _showFrame = false;
-    _startMove = QPointF(0,0);
-    _color = QColor();
+    m_button_pressed = false;
+    m_show_frame = false;
+    m_start_move = QPointF(0,0);
+    m_color = QColor();
     setOrder();
 }
 
-void ElementWidget::setName(QString name) {
-    _name = name;
+void ElementWidget::setName(QString _name) {
+    m_name = _name;
 }
 
-void ElementWidget::clone(ElementWidget * other)
+void ElementWidget::clone(ElementWidget * _other)
 {
-    if (!other) {
+    if (!_other) {
         return;
     }
 
-    _inputsNumber = other -> _inputsNumber;
-    _outputsNumber = other -> _outputsNumber;
-    _bodyRect = other -> _bodyRect;
-    _boundingRect = other -> _boundingRect;
-    _brush = other -> _brush;
-    _pen = other -> _pen;
-    _name = other -> _name;
-    _buttonPressed = other -> _buttonPressed;
-    _inputsZones = other -> _inputsZones;
-    _outputsZones = other -> _outputsZones;
-    _inputsWidgets = other->_inputsWidgets;
-    _outputsWidgets = other->_outputsWidgets;
-    _eltOrder = other->_eltOrder;
-    _color = other->_color;
+    m_inputs_number = _other -> m_inputs_number;
+    m_outputs_number = _other -> m_outputs_number;
+    m_body_rect = _other -> m_body_rect;
+    m_bounding_rect = _other -> m_bounding_rect;
+    m_brush = _other -> m_brush;
+    m_pen = _other -> m_pen;
+    m_name = _other -> m_name;
+    m_button_pressed = _other -> m_button_pressed;
+    m_inputs_zones = _other -> m_inputs_zones;
+    m_outputs_zones = _other -> m_outputs_zones;
+    m_inputs_widgets = _other->m_inputs_widgets;
+    m_outputs_widgets = _other->m_outputs_widgets;
+    m_elt_order = _other->m_elt_order;
+    m_color = _other->m_color;
 }
 
 QString ElementWidget::getName() {
-    return _name;
+    return m_name;
 }
 
-int ElementWidget::getInputLine(QPointF pos)
+int ElementWidget::getInputLine(QPointF _pos)
 {
-    if (pos.isNull()) {
+    if (_pos.isNull()) {
         return -1;
     }
 
     int ret = -1;
 
-    for (int index = 0; index < _inputsZones.length(); index++) {
-        QPointF posTemp = mapFromScene(pos);
-        if (!_inputsZones[index].isNull()) {
-            posTemp -= _inputsZones[index];
-            if (posTemp.manhattanLength() < 9.0) {
+    for (int index = 0; index < m_inputs_zones.length(); index++) {
+        QPointF pos_temp = mapFromScene(_pos);
+        if (!m_inputs_zones[index].isNull()) {
+            pos_temp -= m_inputs_zones[index];
+            if (pos_temp.manhattanLength() < 9.0) {
                 ret = index;
                 break;
             }
@@ -74,19 +73,19 @@ int ElementWidget::getInputLine(QPointF pos)
     return ret;
 }
 
-int ElementWidget::getOutputLine(QPointF pos)
+int ElementWidget::getOutputLine(QPointF _pos)
 {
-    if (pos.isNull()) {
+    if (_pos.isNull()) {
         return -1;
     }
 
     int ret = -1;
 
-    for (int index = 0; index < _outputsZones.length(); index++) {
-        QPointF posTemp = mapFromScene(pos);
-        if (!_outputsZones[index].isNull()) {
-            posTemp -= _outputsZones[index];
-            if (posTemp.manhattanLength() < 9.0) {
+    for (int index = 0; index < m_outputs_zones.length(); index++) {
+        QPointF pos_temp = mapFromScene(_pos);
+        if (!m_outputs_zones[index].isNull()) {
+            pos_temp -= m_outputs_zones[index];
+            if (pos_temp.manhattanLength() < 9.0) {
                 ret = index;
                 break;
             }
@@ -96,201 +95,185 @@ int ElementWidget::getOutputLine(QPointF pos)
     return ret;
 }
 
-void ElementWidget::setColor(QColor color)
+void ElementWidget::setColor(QColor _color)
 {
-    _color = color;
+    m_color = _color;
 }
 
 QColor ElementWidget::getColor()
 {
-    return _color;
+    return m_color;
 }
 
-QPointF ElementWidget::getInputLinePos(quint8 inputLine)
+QPointF ElementWidget::getInputLinePos(quint8 _input_line)
 {
-    if (inputLine >= _inputsNumber) {
+    if (_input_line >= m_inputs_number) {
         return QPointF();
     }
-    return mapToScene(_inputsZones[inputLine]);
+    return mapToScene(m_inputs_zones[_input_line]);
 }
 
-QPointF ElementWidget::getOutputLinePos(quint8 outputLine)
+QPointF ElementWidget::getOutputLinePos(quint8 _output_line)
 {
-    if (outputLine >= _outputsNumber) {
+    if (_output_line >= m_outputs_number) {
         return QPointF();
     }
-    return mapToScene(_outputsZones[outputLine]);
+    return mapToScene(m_outputs_zones[_output_line]);
 }
 
-bool ElementWidget::setInputWidget(quint8 noLine, ElementWidget *element)
+bool ElementWidget::setInputWidget(quint8 _no_line, ElementWidget *_element)
 {
-    if (noLine >= _inputsNumber) {
+    if (_no_line >= m_inputs_number) {
         return false;
     }
-    ElementWidget * elt = _inputsWidgets.at(noLine).data();
+    ElementWidget * elt = m_inputs_widgets.at(_no_line).data();
     if (elt) {
         delete elt;
     }
-    _inputsWidgets[noLine] = element;
+    m_inputs_widgets[_no_line] = _element;
 
     return true;
 }
 
-bool ElementWidget::setOutputWidget(quint8 noLine, ElementWidget * element)
+bool ElementWidget::setOutputWidget(quint8 _no_line, ElementWidget * _element)
 {
-    if (noLine >= _outputsNumber) {
+    if (_no_line >= m_outputs_number) {
         return false;
     }
-    ElementWidget * elt = _outputsWidgets.at(noLine).data();
+    ElementWidget * elt = m_outputs_widgets.at(_no_line).data();
     if (elt) {
         delete elt;
     }
-    _outputsWidgets[noLine] = element;
+    m_outputs_widgets[_no_line] = _element;
 
     return true;
 }
 
-ElementWidget * ElementWidget::getInputWidget(quint8 noLine)
+ElementWidget * ElementWidget::getInputWidget(quint8 _no_line)
 {
-    if (noLine >= _inputsNumber) {
+    if (_no_line >= m_inputs_number) {
         return 0;
     }
 
-    return  _inputsWidgets.at(noLine);
+    return  m_inputs_widgets.at(_no_line);
 }
 
-ElementWidget * ElementWidget::getOutputWidget(quint8 noLine)
+ElementWidget * ElementWidget::getOutputWidget(quint8 _no_line)
 {
-    if (noLine >= _outputsNumber) {
+    if (_no_line >= m_outputs_number) {
         return 0;
     }
 
-    return  _outputsWidgets.at(noLine);
+    return  m_outputs_widgets.at(_no_line);
 }
 
 void ElementWidget::computeBoundingRect()
 {
-    _boundingRect = _bodyRect;
-    if (_inputsNumber > 0) {
-        _boundingRect.setTop(_bodyRect.top()-38);
+    m_bounding_rect = m_body_rect;
+    if (m_inputs_number > 0) {
+        m_bounding_rect.setTop(m_body_rect.top()-38);
     }
-    if (_outputsNumber > 0) {
-        _boundingRect.setBottom(_bodyRect.bottom() + 44);
+    if (m_outputs_number > 0) {
+        m_bounding_rect.setBottom(m_body_rect.bottom() + 44);
     }
 }
 
 QIcon ElementWidget::getIcon()
 {
-    QRectF eltRect(_boundingRect);
-    eltRect.adjust(0, 0, 1, 0);
-    QPixmap image(eltRect.width(), eltRect.height());
+    QRectF elt_rect(m_bounding_rect);
+    elt_rect.adjust(0, 0, 1, 0);
+    QPixmap image(elt_rect.width(), elt_rect.height());
     image.fill(Qt::transparent);
     QPainter painter(&image);
-    painter.setPen(_pen);
+    painter.setPen(m_pen);
     drawSymbol(&painter, true);
 
     return QIcon(image);
 }
 
-void ElementWidget::setInputsNumber(int number)
+void ElementWidget::setInputsNumber(int _number)
 {
-    _inputsNumber = number;
+    m_inputs_number = _number;
 
-    _inputsWidgets.resize(number);
+    m_inputs_widgets.resize(_number);
 //    _inputsWidgets.clear();
 
-    int procWidth = _bodyRect.width();
-    //int xOrig = _processorRect.x();
-    int xOrig = _bodyRect.left();
-    int yOrig = _bodyRect.top();
-    int deltaIn = procWidth / (_inputsNumber + 1);
+    int proc_width = m_body_rect.width();
+    int x_orig = m_body_rect.left();
+    int y_orig = m_body_rect.top();
+    int delta_in = proc_width / (m_inputs_number + 1);
 
-    for (int index = 1; index <= _inputsNumber; index++) {
-        _inputsZones << QPointF(xOrig + deltaIn * index, yOrig - 36);
+    for (int index = 1; index <= m_inputs_number; index++) {
+        m_inputs_zones << QPointF(x_orig + delta_in * index, y_orig - 36);
     }
 
     computeBoundingRect();
 }
 
-void ElementWidget::setOutputsNumber(int number)
+void ElementWidget::setOutputsNumber(int _number)
 {
-    _outputsNumber = number;
+    m_outputs_number = _number;
 
-    _outputsWidgets.resize(number);
-    //_outputsWidgets.clear();
+    m_outputs_widgets.resize(_number);
 
-    int srcWidth = _bodyRect.width();
-    //int xOrig = _processorRect.x() /*+ 5*/;
-    int xOrig = _bodyRect.left();
-    int yOrig = _bodyRect.top();
-    int deltaOut = srcWidth / (_outputsNumber + 1);
+    int src_width = m_body_rect.width();
+    int x_orig = m_body_rect.left();
+    int y_orig = m_body_rect.top();
+    int delta_out = src_width / (m_outputs_number + 1);
 
-    for (int index = 1; index <= _outputsNumber; index++) {
-        _outputsZones << QPointF(xOrig + deltaOut * index, yOrig + _bodyRect.height() + 36);
+    for (int index = 1; index <= m_outputs_number; index++) {
+        m_outputs_zones << QPointF(x_orig + delta_out * index, y_orig + m_body_rect.height() + 36);
     }
 
     computeBoundingRect();
 }
 
-void ElementWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void ElementWidget::paint(QPainter *_painter, const QStyleOptionGraphicsItem *_option, QWidget *_widget)
 {
-    Q_UNUSED(option)
-    Q_UNUSED(widget)
+    Q_UNUSED(_option)
+    Q_UNUSED(_widget)
 
-    painter->save();
-    painter->setPen(_pen);
-    painter->setBrush(_brush);
+    _painter->save();
+    _painter->setPen(m_pen);
+    _painter->setBrush(m_brush);
 
-    QFont font = painter->font();
+    QFont font = _painter->font();
     font.setPointSize(font.pointSize()-1);
-    painter->setFont(font);
+    _painter->setFont(font);
 
-    drawSymbol(painter);
+    drawSymbol(_painter);
 
-    // pour debug _showFrame = true
-    //_showFrame = true;
-    if (_showFrame) {
-        painter->setBrush(Qt::NoBrush);
-        painter->setPen(Qt::red);
-        painter->drawRect(_boundingRect);
+    // pour debug m_show_frame = true
+    //m_show_frame = true;
+    if (m_show_frame) {
+        _painter->setBrush(Qt::NoBrush);
+        _painter->setPen(Qt::red);
+        _painter->drawRect(m_bounding_rect);
     }
 
-    painter->restore();
+    _painter->restore();
 
 }
 
 QRectF ElementWidget::boundingRect() const
 {
-    return _boundingRect;
-
-    // return _rect;
+    return m_bounding_rect;
 }
 
-void ElementWidget::setOrder(qint8 order)
+void ElementWidget::setOrder(qint8 _order)
 {
-    _eltOrder = order;
+    m_elt_order = _order;
 }
 
 qint8 ElementWidget::getOrder()
 {
-    return _eltOrder;
+    return m_elt_order;
 }
 
-void ElementWidget::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+void ElementWidget::dragEnterEvent(QGraphicsSceneDragDropEvent *_event)
 {
-    Q_UNUSED(event)
-    //event->setAccepted(event->mimeData()
+    Q_UNUSED(_event)
 }
 
-//void ElementWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
-//{
-//    qDebug() << "Hover move...";
-//    if (getOutputLine(event->scenePos()) > -1) {
-//        qDebug() << "openHand";
-//        scene()->views().at(0)->setCursor(Qt::OpenHandCursor);
-//    } else {
-
-//    }
-//}
 
 } // namespace matisse

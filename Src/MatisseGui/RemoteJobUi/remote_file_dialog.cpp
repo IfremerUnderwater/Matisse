@@ -10,17 +10,17 @@ using namespace network_tools;
 namespace matisse {
 
 RemoteFileDialog::RemoteFileDialog(TreeModel *_model, QWidget *_parent)
-    : QDialog(_parent), _ui(new Ui::RemoteFileDialog), m_selected_file() {
-  _ui->setupUi(this);
-  _ui->m_tv_file_tree->setModel(_model);
-  _ui->m_tv_file_tree->expandAll();
-  QPushButton *ok_button = _ui->m_bb_buttons->button(QDialogButtonBox::Ok);
+    : QDialog(_parent), m_ui(new Ui::RemoteFileDialog), m_selected_file() {
+  m_ui->setupUi(this);
+  m_ui->m_tv_file_tree->setModel(_model);
+  m_ui->m_tv_file_tree->expandAll();
+  QPushButton *ok_button = m_ui->m_bb_buttons->button(QDialogButtonBox::Ok);
   ok_button->setEnabled(false); // OK button is disabled by default
 
-  connect(_ui->m_bb_buttons, SIGNAL(accepted()), SLOT(sl_onAccepted()));
-  connect(_ui->m_bb_buttons, SIGNAL(rejected()), SLOT(sl_onRejected()));
+  connect(m_ui->m_bb_buttons, SIGNAL(accepted()), SLOT(sl_onAccepted()));
+  connect(m_ui->m_bb_buttons, SIGNAL(rejected()), SLOT(sl_onRejected()));
 
-  QItemSelectionModel *sel = _ui->m_tv_file_tree->selectionModel();
+  QItemSelectionModel *sel = m_ui->m_tv_file_tree->selectionModel();
   connect(sel,
           SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
           SLOT(sl_onSelectionChanged(const QModelIndex &, const QModelIndex &)));
@@ -29,7 +29,7 @@ RemoteFileDialog::RemoteFileDialog(TreeModel *_model, QWidget *_parent)
 void RemoteFileDialog::sl_onAccepted() 
 {
   qDebug() << "QRemoteFileDialog: accepted";
-  QItemSelectionModel *sel = _ui->m_tv_file_tree->selectionModel();
+  QItemSelectionModel *sel = m_ui->m_tv_file_tree->selectionModel();
   QModelIndex index = sel->currentIndex();
 
   if (!index.isValid()) {
@@ -42,7 +42,7 @@ void RemoteFileDialog::sl_onAccepted()
     index = index.siblingAtColumn(0);
   }
 
-  QVariant item = _ui->m_tv_file_tree->model()->data(index);
+  QVariant item = m_ui->m_tv_file_tree->model()->data(index);
   m_selected_file = item.toString();
 
   accept();
@@ -57,7 +57,7 @@ void RemoteFileDialog::sl_onRejected()
 void RemoteFileDialog::sl_onSelectionChanged(const QModelIndex &_current,
                                             const QModelIndex &_previous) 
 {
-  QPushButton *ok_button = _ui->m_bb_buttons->button(QDialogButtonBox::Ok);
+  QPushButton *ok_button = m_ui->m_bb_buttons->button(QDialogButtonBox::Ok);
 
   QModelIndex parent = _current.parent();
   if (!parent.isValid()) {

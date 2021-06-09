@@ -17,13 +17,13 @@ class AboutDialog : public QDialog
     Q_OBJECT
 
 public:
-    AboutDialog(QWidget *parent, KeyValueList meta);
+    AboutDialog(QWidget *_parent, KeyValueList _meta);
 
 protected slots:
-    void slot_close();
+    void sl_close();
 
 private:
-    Ui::AboutDialog *_ui;
+    Ui::AboutDialog *m_ui;
 };
 
 } // namespace matisse

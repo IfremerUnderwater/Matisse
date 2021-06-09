@@ -18,22 +18,22 @@ class AssemblyDialog : public QDialog
     Q_OBJECT
     
 public:
-    explicit AssemblyDialog(QWidget *parent, QString & name, KeyValueList & keyValue, bool isNewAssembly, bool isFirstTimeSave = false);
+    explicit AssemblyDialog(QWidget *_parent, QString & _name, KeyValueList & _key_value, bool _is_new_assembly, bool _is_first_time_save = false);
     ~AssemblyDialog();
 
 protected:
-    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
 
 private:
-    Ui::AssemblyDialog *_ui;
-    QString * _name;
-    KeyValueList * _keyValue;
+    Ui::AssemblyDialog *m_ui;
+    QString * m_name;
+    KeyValueList * m_key_value;
 
 public slots:
-    void slot_close();
+    void sl_close();
 
 signals:
-    void signal_showWelcome();
+    void si_showWelcome();
 };
 
 } // namespace matisse

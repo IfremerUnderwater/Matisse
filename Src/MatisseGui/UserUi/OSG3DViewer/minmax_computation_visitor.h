@@ -12,8 +12,8 @@ public:
     MinMaxComputationVisitor();
     virtual ~MinMaxComputationVisitor();
 
-    virtual void apply ( osg::Node &node );
-    virtual void apply( osg::Geode &geode );
+    virtual void apply ( osg::Node &_node );
+    virtual void apply( osg::Geode &_geode );
 
     float getMin() const { return m_min; }
     float getMax() const { return m_max; }

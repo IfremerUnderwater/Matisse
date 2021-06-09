@@ -6,52 +6,52 @@
 
 namespace matisse {
 
-MainControllBar::MainControllBar(QWidget *parent) :
-    QFrame(parent),
-    ui(new Ui::MainControllBar)
+MainControllBar::MainControllBar(QWidget *_parent) :
+    QFrame(_parent),
+    m_ui(new Ui::MainControllBar)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 }
 
 MainControllBar::~MainControllBar()
 {
-    delete ui;
+    delete m_ui;
 }
 
-void MainControllBar::mousePressEvent(QMouseEvent *event)
+void MainControllBar::mousePressEvent(QMouseEvent *_event)
 {
-    _initialPosition = event->pos();
+    m_initial_position = _event->pos();
     setCursor(QCursor(Qt::SizeAllCursor));
 }
 
-void MainControllBar::mouseReleaseEvent(QMouseEvent *event)
+void MainControllBar::mouseReleaseEvent(QMouseEvent *_event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(_event);
 
     setCursor(QCursor(Qt::ArrowCursor));
 }
 
-void MainControllBar::mouseMoveEvent(QMouseEvent *event)
+void MainControllBar::mouseMoveEvent(QMouseEvent *_event)
 {
-    QPoint currentPos = event->globalPos();
-    QPoint delta = currentPos - _initialPosition;
+    QPoint current_pos = _event->globalPos();
+    QPoint delta = current_pos - m_initial_position;
     //qDebug() << "Delta : " << currentPos - _initialPosition;
-    emit signal_moveWindow(delta);
+    emit si_moveWindow(delta);
 }
 
 
-void MainControllBar::setSwitchModeButtonEnable(bool enabled_p)
+void MainControllBar::setSwitchModeButtonEnable(bool _enabled_p)
 {
-    QToolButton* switchModeButton = findChild<QToolButton*>(QString("_TBU_visuModeSwap"));
-    switchModeButton->setEnabled(enabled_p);
+    QToolButton* switch_mode_button = findChild<QToolButton*>(QString("_TBU_visuModeSwap"));
+    switch_mode_button->setEnabled(_enabled_p);
 }
 
 
-void MainControllBar::changeEvent(QEvent *event)
+void MainControllBar::changeEvent(QEvent *_event)
 {
-    if (event->type() == QEvent::LanguageChange)
+    if (_event->type() == QEvent::LanguageChange)
     {
-        ui->retranslateUi(this);
+        m_ui->retranslateUi(this);
     }
 }
 

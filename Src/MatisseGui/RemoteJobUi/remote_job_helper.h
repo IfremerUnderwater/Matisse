@@ -82,7 +82,7 @@ private slots:
   void sl_onShellErrorReceived(NetworkAction* _action, QByteArray _error);
 
 public slots:
-  void sl_onUserLogin(QString password);
+  void sl_onUserLogin(QString _password);
   void sl_onUserLoginCanceled();
   void sl_onConnectionFailed(eConnectionError _err);
 

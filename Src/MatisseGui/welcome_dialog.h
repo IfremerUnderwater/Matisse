@@ -18,13 +18,13 @@ class WelcomeDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit WelcomeDialog(QWidget *parent, MatisseIconFactory *iconFactory, bool isProgrammingModeEnabled);
+    explicit WelcomeDialog(QWidget *_parent, MatisseIconFactory *_icon_factory, bool _is_programming_mode_enabled);
     ~WelcomeDialog();
-    void enableProgrammingMode(bool isProgrammingModeEnabled);
+    void enableProgrammingMode(bool _is_programming_mode_enabled);
     void dpiScale();
 
 signals:
-    void signal_launchApplication(eApplicationMode mode);
+    void si_launchApplication(eApplicationMode _mode);
 
 private slots:
     void on_progModeLauncherButton_clicked();
@@ -32,12 +32,12 @@ private slots:
     void on_deferredTimeModeLauncherButton_clicked();
 
 protected:
-    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
 
 private:
     void fillOverlayLabel();
-    Ui::WelcomeDialog *ui;
-    QLabel* _matisseWelcomeLabel;
+    Ui::WelcomeDialog *m_ui;
+    QLabel* m_matisse_welcome_label;
 };
 
 } // namespace matisse

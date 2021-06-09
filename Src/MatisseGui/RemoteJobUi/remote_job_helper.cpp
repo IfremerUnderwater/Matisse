@@ -46,11 +46,11 @@ void PasswordDialog::setupUi() {
   m_bb_buttons->addButton(QDialogButtonBox::Ok);
   m_bb_buttons->addButton(QDialogButtonBox::Cancel);
 
-  QPushButton* okButton = m_bb_buttons->button(QDialogButtonBox::Ok);
-  QPushButton* cancelButton = m_bb_buttons->button(QDialogButtonBox::Cancel);
+  QPushButton* ok_button = m_bb_buttons->button(QDialogButtonBox::Ok);
+  QPushButton* cancel_button = m_bb_buttons->button(QDialogButtonBox::Cancel);
 
-  connect((QObject*)cancelButton, SIGNAL(clicked()), SLOT(sl_onLoginCanceled()));
-  connect((QObject*)okButton, SIGNAL(clicked()), SLOT(sl_onLoginAccepted()));
+  connect((QObject*)cancel_button, SIGNAL(clicked()), SLOT(sl_onLoginCanceled()));
+  connect((QObject*)ok_button, SIGNAL(clicked()), SLOT(sl_onLoginAccepted()));
 
   setLayout(layout);
   layout->addWidget(m_la_password, 0, 0);

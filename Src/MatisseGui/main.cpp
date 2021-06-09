@@ -26,30 +26,30 @@
 
 using namespace matisse;
 
-void myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
+void myMessageOutput(QtMsgType _type, const QMessageLogContext &, const QString &_msg)
 {
-    QByteArray localMsg = msg.toLocal8Bit();
+    QByteArray local_msg = _msg.toLocal8Bit();
 
-    switch (type) {
+    switch (_type) {
     case QtInfoMsg:
         break;
     case QtDebugMsg:
-        fprintf(stdout, "INFO: %s\n", localMsg.constData());
+        fprintf(stdout, "INFO: %s\n", local_msg.constData());
         fflush(stdout);
         break;
     case QtWarningMsg:
-        fprintf(stdout, "WARN: %s\n", localMsg.constData());
+        fprintf(stdout, "WARN: %s\n", local_msg.constData());
         fflush(stdout);
         break;
     case QtCriticalMsg:
-        fprintf(stderr, "ERROR: %s\n", localMsg.constData());
+        fprintf(stderr, "ERROR: %s\n", local_msg.constData());
         fflush(stderr);
         break;
     case QtFatalMsg:
-        fprintf(stderr, "FATAL: %s\n", localMsg.constData());
+        fprintf(stderr, "FATAL: %s\n", local_msg.constData());
         fflush(stderr);
         QMessageBox mbx;
-        mbx.setText(msg);
+        mbx.setText(_msg);
         mbx.setInformativeText("FATAL....abort()");
         mbx.exec();
         //abort();
@@ -104,7 +104,6 @@ int main(int argc, char *argv[])
         deployment_needed = true;
     }
 
-    //matisse_settings.setValue("Matisse/Version", current_version );
     matisse_settings.setValue("Matisse/Version",QString("%1.%2.%3").arg(MATISSE_VERSION_MAJOR).arg(MATISSE_VERSION_MINOR).arg(MATISSE_VERSION_PATCH) );
 
     //if (deployment_needed) // Deploy all the time for the moment
@@ -152,9 +151,7 @@ int main(int argc, char *argv[])
     w.setRemoteJobHelper(&remote_job_helper);
     w.init();
     //w.loadDefaultStyleSheet();
-    w.slot_showApplicationMode(POST_PROCESSING); // open directly to the most used mode ie : post processing
-    
-
+    w.sl_showApplicationMode(POST_PROCESSING); // open directly to the most used mode ie : post processing
 
     int ret = a.exec();
     return ret;

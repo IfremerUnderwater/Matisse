@@ -14,20 +14,20 @@ class ParametersFoldButton : public FoldUnfoldButton
     Q_OBJECT
 
 public:
-    ParametersFoldButton(QWidget *parent=0);
+    ParametersFoldButton(QWidget *_parent=0);
 
 protected:
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *_event);
     void showNewState();
 
 protected slots:
-    void slot_updateColorPalette(QMap<QString,QString> newColorPalette);
+    void sl_updateColorPalette(QMap<QString,QString> _new_color_palette);
 
 private:
-    void drawFoldArrow(QPainter &painter, QColor paintColor);
-    void drawUnfoldArrow(QPainter &painter, QColor paintColor);
+    void drawFoldArrow(QPainter &_painter, QColor _paint_color);
+    void drawUnfoldArrow(QPainter &_painter, QColor _paint_color);
 
-    QString _currentPaintColorRef;
+    QString m_current_paint_color_ref;
 
     static const quint8 ARROW_LINE_WIDTH;
     static const quint8 ARROW_LINE_HEIGHT;

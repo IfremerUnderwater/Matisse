@@ -21,22 +21,21 @@ class PreferencesDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFactory, MatissePreferences *prefs, bool allowProgrammingModeActivation = true);
+    explicit PreferencesDialog(QWidget *_parent, MatisseIconFactory *_icon_factory, MatissePreferences *_prefs, bool _allow_programming_mode_activation = true);
     ~PreferencesDialog();
 
 protected:
-    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
 
 private:
-    Ui::PreferencesDialog *_ui;
-    MatissePreferences* _prefs;
-    QString _prefixBuffer;
+    Ui::PreferencesDialog *m_ui;
+    MatissePreferences* m_prefs;
+    QString m_prefix_buffer;
 
 protected slots:
-    void slot_close();
-    void slot_selectDir();
-    void slot_validatePrefixInput();
-    //void slot_restorePrefixInput(QString newText);
+    void sl_close();
+    void sl_selectDir();
+    void sl_validatePrefixInput();
 };
 
 } // namespace matisse

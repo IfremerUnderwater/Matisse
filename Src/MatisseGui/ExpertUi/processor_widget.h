@@ -10,8 +10,8 @@ class ProcessorWidget : public ElementWidget
 //    Q_OBJECT
 
 public:
-    virtual void drawSymbol(QPainter *painter, bool forIcon = false);
-    virtual int type() const { return ProcessorType;}
+    virtual void drawSymbol(QPainter *_painter, bool _for_icon = false);
+    virtual int type() const { return PROCESSOR_TYPE;}
 
 
 signals:

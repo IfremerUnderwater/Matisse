@@ -3,23 +3,23 @@
 
 namespace matisse {
 
-VisuModeWidget::VisuModeWidget(QWidget *parent) :
-    QFrame(parent),
-    ui(new Ui::VisuModeWidget)
+VisuModeWidget::VisuModeWidget(QWidget *_parent) :
+    QFrame(_parent),
+    m_ui(new Ui::VisuModeWidget)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 }
 
 VisuModeWidget::~VisuModeWidget()
 {
-    delete ui;
+    delete m_ui;
 }
 
-void VisuModeWidget::changeEvent(QEvent *event)
+void VisuModeWidget::changeEvent(QEvent *_event)
 {
-    if (event->type() == QEvent::LanguageChange)
+    if (_event->type() == QEvent::LanguageChange)
     {
-        ui->retranslateUi(this);
+        m_ui->retranslateUi(this);
     }
 }
 

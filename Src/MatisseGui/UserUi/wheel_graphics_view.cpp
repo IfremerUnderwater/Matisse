@@ -7,82 +7,80 @@
 
 namespace matisse {
 
-void WheelGraphicsView::setZoomFactor(qreal zoom, const QPoint * optMousePos)
+void WheelGraphicsView::setZoomFactor(qreal _zoom, const QPoint * _opt_mouse_pos)
  {
     // limits for zooming
-    if ((zoom != _zoom)&&(zoom >= 0.01f)&&(zoom <= 100.0f))
+    if ((_zoom != m_zoom)&&(_zoom >= 0.01f)&&(_zoom <= 100.0f))
     {
-       QPointF oldPos;
-       if (optMousePos) oldPos = mapToScene(*optMousePos);
+       QPointF old_pos;
+       if (_opt_mouse_pos) old_pos = mapToScene(*_opt_mouse_pos);
 
        // Remember what point we were centered on before...
-       _zoom = zoom;
+       m_zoom = _zoom;
        QMatrix m;
-       m.scale(_zoom, _zoom);
+       m.scale(m_zoom, m_zoom);
        setMatrix(m);
 
-       if (optMousePos)
+       if (_opt_mouse_pos)
        {
-          const QPointF newPos = mapFromScene(oldPos);
-          const QPointF move   = newPos-*optMousePos;
+          const QPointF new_pos = mapFromScene(old_pos);
+          const QPointF move   = new_pos-*_opt_mouse_pos;
           horizontalScrollBar()->setValue(move.x() + horizontalScrollBar()->value());
           verticalScrollBar()->setValue(move.y() + verticalScrollBar()->value());
        }
-       emit signal_zoomChanged(_zoom);
+       emit si_zoomChanged(m_zoom);
     }
  }
 
- void WheelGraphicsView::wheelEvent(QWheelEvent* event)
+ void WheelGraphicsView::wheelEvent(QWheelEvent* _event)
  {
-    QPoint pos = event->pos();
-    setZoomFactor(_zoom*pow(1.2, event->delta() / 240.0), &pos);
-    event->accept();
-    // not needed : already done in setZoomFactor
-    //emit signal_zoomChanged(_zoom);
+    QPoint pos = _event->pos();
+    setZoomFactor(m_zoom*pow(1.2, _event->delta() / 240.0), &pos);
+    _event->accept();
  }
 
- void WheelGraphicsView::mousePressEvent(QMouseEvent *event)
+ void WheelGraphicsView::mousePressEvent(QMouseEvent *_event)
  {
-     if (event->button() == Qt::MiddleButton)
+     if (_event->button() == Qt::MiddleButton)
      {
         QApplication::setOverrideCursor(Qt::ClosedHandCursor);
-        _reference = mapToScene(event->pos());
-        _centerView = mapToScene(this->viewport()->rect()).boundingRect().center();
-        event->accept();
+        m_reference = mapToScene(_event->pos());
+        m_center_view = mapToScene(this->viewport()->rect()).boundingRect().center();
+        _event->accept();
         return;
      }
-     QGraphicsView::mousePressEvent(event);
+     QGraphicsView::mousePressEvent(_event);
  }
 
- void WheelGraphicsView::mouseMoveEvent(QMouseEvent *event)
+ void WheelGraphicsView::mouseMoveEvent(QMouseEvent *_event)
  {
      // coords
-     QPointF pt = mapToScene(event->pos());
-     emit signal_updateCoords(pt);
+     QPointF pt = mapToScene(_event->pos());
+     emit si_updateCoords(pt);
 
      // pan the chart with a middle mouse drag
-     if (event->buttons() & Qt::MiddleButton)
+     if (_event->buttons() & Qt::MiddleButton)
      {
-         QPointF move = _reference - pt;
-         centerOn(_centerView + move);
-         _centerView = mapToScene(this->viewport()->rect()).boundingRect().center();
-         event->accept();
+         QPointF move = m_reference - pt;
+         centerOn(m_center_view + move);
+         m_center_view = mapToScene(this->viewport()->rect()).boundingRect().center();
+         _event->accept();
 
-         emit signal_panChanged();
+         emit si_panChanged();
 
          return;
      }
 
-     QGraphicsView::mouseMoveEvent(event);
+     QGraphicsView::mouseMoveEvent(_event);
  }
 
- void WheelGraphicsView::mouseReleaseEvent(QMouseEvent *event) {
-     if (event->button() == Qt::MidButton) {
+ void WheelGraphicsView::mouseReleaseEvent(QMouseEvent *_event) {
+     if (_event->button() == Qt::MidButton) {
          QApplication::restoreOverrideCursor();
          return;
      }
 
-     QGraphicsView::mouseReleaseEvent(event);
+     QGraphicsView::mouseReleaseEvent(_event);
  }
 
 } // namespace matisse

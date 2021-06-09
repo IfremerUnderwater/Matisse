@@ -5,7 +5,7 @@ namespace matisse {
 
 OSGWidgetTool *OSGWidgetTool::s_instance = 0;
 
-OSGWidgetTool::OSGWidgetTool() : m_current_type(OSGWidgetTool::None)
+OSGWidgetTool::OSGWidgetTool() : m_current_type(OSGWidgetTool::NONE)
 {
 }
 
@@ -18,16 +18,16 @@ void OSGWidgetTool::initialize(OSGWidget *_osg_widget)
 {
     s_instance = new OSGWidgetTool();
     s_instance->m_osg_widget = _osg_widget;
-    s_instance->m_current_type = None;
+    s_instance->m_current_type = NONE;
 
-    connect(s_instance->m_osg_widget,SIGNAL(signal_onMousePress(Qt::MouseButton,int,int)),
-            s_instance,SLOT(slot_mouseButtonDown(Qt::MouseButton,int,int)));
+    connect(s_instance->m_osg_widget,SIGNAL(si_onMousePress(Qt::MouseButton,int,int)),
+            s_instance,SLOT(sl_mouseButtonDown(Qt::MouseButton,int,int)));
 }
 
 
-void OSGWidgetTool::slot_mouseButtonDown(Qt::MouseButton _button, int _x, int _y)
+void OSGWidgetTool::sl_mouseButtonDown(Qt::MouseButton _button, int _x, int _y)
 {
-    if(m_current_type == None)
+    if(m_current_type == NONE)
         return;
 
     if(_button == Qt::MouseButton::RightButton)
@@ -36,16 +36,11 @@ void OSGWidgetTool::slot_mouseButtonDown(Qt::MouseButton _button, int _x, int _y
         endTool();
     }
 
-//    if(_button == Qt::MouseButton::MiddleButton)
-//    {
-//          slot_removeLastPointTool();
-//    }
-
     if(_button == Qt::MouseButton::LeftButton)
     {
-        if(m_current_type == MeasurePicker)
+        if(m_current_type == MEASURE_PICKER)
         {
-            emit signal_clickedLMouse(_x, _y);
+            emit si_clickedLMouse(_x, _y);
 
             return;
         }
@@ -60,13 +55,13 @@ void OSGWidgetTool::slot_mouseButtonDown(Qt::MouseButton _button, int _x, int _y
             point.x = vect[0];
             point.y = vect[1];
             point.z = vect[2];
-            emit signal_clicked(point);
-            emit signal_clickedXY(point, _x, _y);
+            emit si_clicked(point);
+            emit si_clickedXY(point, _x, _y);
         }
     }
 }
 
-void OSGWidgetTool::startTool(const type _type)
+void OSGWidgetTool::startTool(const eType _type)
 {
     endTool();
 
@@ -75,19 +70,19 @@ void OSGWidgetTool::startTool(const type _type)
     QString msg = tr("Start tool ");
     switch(_type)
     {
-    case Point:
+    case POINT:
         msg += "Point";
         break;
-    case Line:
+    case LINE:
         msg += "Line";
         break;
-    case Area:
+    case AREA:
         msg += "Area";
         break;
-    case Slope:
+    case SLOPE:
         msg += "Slope";
         break;
-    case MeasurePicker:
+    case MEASURE_PICKER:
         msg += "Measure Picker";
         break;
     default:
@@ -100,7 +95,7 @@ void OSGWidgetTool::startTool(const type _type)
 
 void OSGWidgetTool::endTool()
 {
-    if(m_current_type != None)
+    if(m_current_type != NONE)
     {
         if(!m_osg_widget->isValid())
             return;
@@ -111,19 +106,19 @@ void OSGWidgetTool::endTool()
         QString msg = tr("End tool ");
         switch(m_current_type)
         {
-        case Point:
+        case POINT:
             msg += "Point";
             break;
-        case Line:
+        case LINE:
             msg += "Line";
             break;
-        case Area:
+        case AREA:
             msg += "Area";
             break;
-        case Slope:
+        case SLOPE:
             msg += "Slope";
             break;
-        case MeasurePicker:
+        case MEASURE_PICKER:
             msg += "Measure Picker";
             break;
         default:
@@ -131,27 +126,27 @@ void OSGWidgetTool::endTool()
         }
         m_osg_widget->endTool(msg);
 
-        emit signal_endTool();
-        m_current_type = None;
+        emit si_endTool();
+        m_current_type = NONE;
     }
 }
 
 
-void OSGWidgetTool::slot_cancelTool()
+void OSGWidgetTool::sl_cancelTool()
 {
-    if(m_current_type != None)
+    if(m_current_type != NONE)
     {
-        emit signal_cancelTool();
+        emit si_cancelTool();
 
         endTool();
     }
 }
 
-void OSGWidgetTool::slot_removeLastPointTool()
+void OSGWidgetTool::sl_removeLastPointTool()
 {
-    if(m_current_type != None)
+    if(m_current_type != NONE)
     {
-        emit signal_removeLastPointTool();
+        emit si_removeLastPointTool();
     }
 }
 

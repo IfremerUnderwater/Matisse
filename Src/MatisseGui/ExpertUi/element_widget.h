@@ -22,11 +22,11 @@
 
 namespace matisse {
 
-enum UserItemType { ElementType = QGraphicsItem::UserType +1,
-        SourceType,
-        ProcessorType,
-        DestinationType,
-        PipeType};
+enum eUserItemType { ELEMENT_TYPE = QGraphicsItem::UserType +1,
+        SOURCE_TYPE,
+        PROCESSOR_TYPE,
+        DESTINATION_TYPE,
+        PIPE_TYPE};
 
 
 class ElementWidget : public QObject, public QGraphicsItem
@@ -35,66 +35,58 @@ class ElementWidget : public QObject, public QGraphicsItem
     Q_INTERFACES(QGraphicsItem)
 
 public:
-    enum { Type = ElementType};
+    enum { Type = ELEMENT_TYPE};
 
-    explicit ElementWidget(QGraphicsItem *parent = 0);
+    explicit ElementWidget(QGraphicsItem *_parent = 0);
     QIcon getIcon();
-    virtual void setInputsNumber(int number = 0);
-    virtual void setOutputsNumber(int number = 0);
-    void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget=0);
+    virtual void setInputsNumber(int _number = 0);
+    virtual void setOutputsNumber(int _number = 0);
+    void paint(QPainter * _painter, const QStyleOptionGraphicsItem * _option, QWidget * _widget=0);
     QRectF boundingRect() const;
-    void setOrder(qint8 order = -128);
+    void setOrder(qint8 _order = -128);
     qint8 getOrder();
 
-/*
-    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-*/
-    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
-//    virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *_event);
 
-    void setName(QString name);
-    virtual void clone(ElementWidget * other);
-    //virtual QRectF getRect() = 0;
+    void setName(QString _name);
+    virtual void clone(ElementWidget * _other);
 
-    virtual void drawSymbol(QPainter *painter, bool forIcon = false) = 0;
-   // virtual ElementWidget * clone() const =0;
+    virtual void drawSymbol(QPainter *_painter, bool _for_icon = false) = 0;
 
     QString getName();
-    virtual int type() const { return ElementType;}
+    virtual int type() const { return ELEMENT_TYPE;}
 
-    int getInputLine(QPointF pos);
-    int getOutputLine(QPointF pos);
-    void setColor(QColor color);
+    int getInputLine(QPointF _pos);
+    int getOutputLine(QPointF _pos);
+    void setColor(QColor _color);
     QColor getColor();
 
-    QPointF getInputLinePos(quint8 inputLine);
-    QPointF getOutputLinePos(quint8 outputLine);
+    QPointF getInputLinePos(quint8 _input_line);
+    QPointF getOutputLinePos(quint8 _output_line);
 
-    bool setInputWidget(quint8 noLine, ElementWidget * element = 0);
-    bool setOutputWidget(quint8 noLine, ElementWidget * element = 0);
-    ElementWidget * getInputWidget(quint8 noLine);
-    ElementWidget * getOutputWidget(quint8 noLine);
+    bool setInputWidget(quint8 _no_line, ElementWidget * _element = 0);
+    bool setOutputWidget(quint8 _no_line, ElementWidget * _element = 0);
+    ElementWidget * getInputWidget(quint8 _no_line);
+    ElementWidget * getOutputWidget(quint8 _no_line);
 
 protected:
-    quint16 _inputsNumber;
-    quint16 _outputsNumber;
-    QRect _bodyRect;
-    QRectF _boundingRect;
-    QBrush _brush;
-    QPen _pen;
-    QString _name;
-    bool _buttonPressed;
-    bool _showFrame;
-    QPointF _startMove;
-    QPointF _endMove;
-    QList<QPointF> _inputsZones;
-    QList<QPointF> _outputsZones;
-    QVector<QPointer<ElementWidget> > _inputsWidgets;
-    QVector<QPointer<ElementWidget> > _outputsWidgets;
-    qint8 _eltOrder;
-    QColor _color;
+    quint16 m_inputs_number;
+    quint16 m_outputs_number;
+    QRect m_body_rect;
+    QRectF m_bounding_rect;
+    QBrush m_brush;
+    QPen m_pen;
+    QString m_name;
+    bool m_button_pressed;
+    bool m_show_frame;
+    QPointF m_start_move;
+    QPointF m_end_move;
+    QList<QPointF> m_inputs_zones;
+    QList<QPointF> m_outputs_zones;
+    QVector<QPointer<ElementWidget> > m_inputs_widgets;
+    QVector<QPointer<ElementWidget> > m_outputs_widgets;
+    qint8 m_elt_order;
+    QColor m_color;
 
     void computeBoundingRect();
 

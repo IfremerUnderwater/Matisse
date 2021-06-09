@@ -13,8 +13,8 @@ public :
     BoxVisitor();
     virtual ~BoxVisitor();
 
-    virtual void apply ( osg::Node &node );
-    virtual void apply( osg::Geode &geode );
+    virtual void apply ( osg::Node &_node );
+    virtual void apply( osg::Geode &_geode );
 
     osg::BoundingBox getBoundingBox() { return m_box; }
 

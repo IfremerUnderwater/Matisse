@@ -777,7 +777,6 @@ void MatisseParametersManager::sl_translateParameters()
 void MatisseParametersManager::sl_foldUnfoldLevelParameters()
 {
     ParametersHeaderButton* header_button = qobject_cast<ParametersHeaderButton*>(sender());
-    //headerButton->slot_flip();
     eParameterLevel level = header_button->getLevel();
 
     QWidget* param_container = m_param_containers_by_level.value(level);

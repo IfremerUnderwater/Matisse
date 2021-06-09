@@ -14,17 +14,17 @@ class CameraCalibDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CameraCalibDialog(QWidget *parent = nullptr);
+    explicit CameraCalibDialog(QWidget *_parent = nullptr);
     ~CameraCalibDialog();
 
 private:
-    Ui::CameraCalibDialog *ui;
+    Ui::CameraCalibDialog *m_ui;
 
     QString m_calib_data_path;
 
 private slots:
-    void slot_onCalibPathSelection();
-    void slot_onCalibrateCameras();
+    void sl_onCalibPathSelection();
+    void sl_onCalibrateCameras();
 };
 
 }

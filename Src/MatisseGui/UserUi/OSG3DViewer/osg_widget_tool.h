@@ -13,13 +13,13 @@ class OSGWidgetTool : public QObject
 {
     Q_OBJECT
 public:
-    enum type {
-        None,
-        Point,  // Point : one point clicked = end of tool
-        Line,   // polyline : multiple points
-        Area,   // polygon : id + closure of polyline -> polygon
-        Slope,  // Slope tool
-        MeasurePicker // measure picker tool
+    enum eType {
+        NONE,
+        POINT,  // Point : one point clicked = end of tool
+        LINE,   // polyline : multiple points
+        AREA,   // polygon : id + closure of polyline -> polygon
+        SLOPE,  // Slope tool
+        MEASURE_PICKER // measure picker tool
     };
 
     // singleton
@@ -31,22 +31,22 @@ public:
 
     ~OSGWidgetTool();
 
-    void startTool(const type _type);
+    void startTool(const eType _type);
     void endTool();
 
 signals:
-    void signal_clicked(Point3D &_point);
-    void signal_clickedXY(Point3D &_point, int x, int y);
-    void signal_clickedLMouse(int x, int y);
-    void signal_endTool(); // to be used to remove connections
-    void signal_cancelTool();
-    void signal_removeLastPointTool();
+    void si_clicked(Point3D &_point);
+    void si_clickedXY(Point3D &_point, int x, int y);
+    void si_clickedLMouse(int _x, int _y);
+    void si_endTool(); // to be used to remove connections
+    void si_cancelTool();
+    void si_removeLastPointTool();
 
 
 public slots:
-    void slot_mouseButtonDown(Qt::MouseButton _button, int _x, int _y);
-    void slot_cancelTool();
-    void slot_removeLastPointTool();
+    void sl_mouseButtonDown(Qt::MouseButton _button, int _x, int _y);
+    void sl_cancelTool();
+    void sl_removeLastPointTool();
 
 private:
     // singleton
@@ -55,7 +55,7 @@ private:
     static OSGWidgetTool *s_instance;
 
     OSGWidget *m_osg_widget;
-    type m_current_type;
+    eType m_current_type;
 };
 
 } // namespace matisse

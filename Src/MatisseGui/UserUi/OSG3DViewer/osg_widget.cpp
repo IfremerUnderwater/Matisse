@@ -74,8 +74,8 @@ struct SnapImage : public osg::Camera::DrawCallback {
         }
     }
 
-    virtual void operator () (osg::RenderInfo& renderInfo) const {
-        osg::Camera* camera = renderInfo.getCurrentCamera();
+    virtual void operator () (osg::RenderInfo& _render_info) const {
+        osg::Camera* camera = _render_info.getCurrentCamera();
 
         osg::GraphicsContext* gc = camera->getGraphicsContext();
         if (gc->getTraits() && m_image.valid()) {
@@ -155,54 +155,54 @@ class KeyboardEventHandler : public osgGA::GUIEventHandler
 {
 public:
 
-    KeyboardEventHandler(osg::StateSet* stateset):
-        _stateset(stateset)
+    KeyboardEventHandler(osg::StateSet* _stateset):
+        m_stateset(_stateset)
     {
-        _point = new osg::Point;
-        _point->setDistanceAttenuation(osg::Vec3(0.0,0.0000,0.05f));
-        _point->setSize(30);
-        _stateset->setAttribute(_point.get());
+        m_point = new osg::Point;
+        m_point->setDistanceAttenuation(osg::Vec3(0.0,0.0000,0.05f));
+        m_point->setSize(30);
+        m_stateset->setAttribute(m_point.get());
 
-        _line_width = new osg::LineWidth();
-        _line_width->setWidth(4.0);
-        _stateset->setAttribute(_line_width.get());
+        m_line_width = new osg::LineWidth();
+        m_line_width->setWidth(4.0);
+        m_stateset->setAttribute(m_line_width.get());
 
     }
 
-    virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&)
+    virtual bool handle(const osgGA::GUIEventAdapter& _ea,osgGA::GUIActionAdapter&)
     {
-        switch(ea.getEventType())
+        switch(_ea.getEventType())
         {
         case(osgGA::GUIEventAdapter::KEYDOWN):
         {
-            if (ea.getKey()=='+' || ea.getKey()==osgGA::GUIEventAdapter::KEY_KP_Add)
+            if (_ea.getKey()=='+' || _ea.getKey()==osgGA::GUIEventAdapter::KEY_KP_Add)
             {
                 changePointSize(1.0f);
                 changeLineWidth(1.0f);
                 return true;
             }
-            else if (ea.getKey()=='-' || ea.getKey()==osgGA::GUIEventAdapter::KEY_KP_Subtract)
+            else if (_ea.getKey()=='-' || _ea.getKey()==osgGA::GUIEventAdapter::KEY_KP_Subtract)
             {
                 changePointSize(-1.0f);
                 changeLineWidth(-1.0f);
                 return true;
             }
-            else if (ea.getKey()=='<')
+            else if (_ea.getKey()=='<')
             {
                 changePointAttenuation(1.1f);
                 return true;
             }
-            else if (ea.getKey()=='>')
+            else if (_ea.getKey()=='>')
             {
                 changePointAttenuation(1.0f/1.1f);
                 return true;
             }
-            else if (ea.getKey()==osgGA::GUIEventAdapter::KEY_L)
+            else if (_ea.getKey()==osgGA::GUIEventAdapter::KEY_L)
             {
-                if (_stateset->getMode(GL_LIGHTING) == osg::StateAttribute::OFF)
-                    _stateset->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+                if (m_stateset->getMode(GL_LIGHTING) == osg::StateAttribute::OFF)
+                    m_stateset->setMode(GL_LIGHTING, osg::StateAttribute::ON);
                 else
-                    _stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+                    m_stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
                 return true;
             }
             break;
@@ -216,19 +216,19 @@ public:
 
     float getPointSize() const
     {
-        return _point->getSize();
+        return m_point->getSize();
     }
 
     float getLineWidth() const
     {
-        return _line_width->getWidth();
+        return m_line_width->getWidth();
     }
 
     void setPointSize(float psize)
     {
         if (psize>0.0)
         {
-            _point->setSize(psize);
+            m_point->setSize(psize);
         }
         std::cout<<"Point size "<<psize<<std::endl;
     }
@@ -237,7 +237,7 @@ public:
     {
         if (pwidth>0.0)
         {
-            _line_width->setWidth(pwidth);
+            m_line_width->setWidth(pwidth);
         }
         std::cout<<"Line width "<<pwidth<<std::endl;
     }
@@ -254,35 +254,35 @@ public:
 
     void changePointAttenuation(float scale)
     {
-        _point->setDistanceAttenuation(_point->getDistanceAttenuation()*scale);
+        m_point->setDistanceAttenuation(m_point->getDistanceAttenuation()*scale);
     }
 
-    osg::ref_ptr<osg::StateSet> _stateset;
-    osg::ref_ptr<osg::Point>    _point;
-    osg::ref_ptr<osg::LineWidth> _line_width;
+    osg::ref_ptr<osg::StateSet> m_stateset;
+    osg::ref_ptr<osg::Point>    m_point;
+    osg::ref_ptr<osg::LineWidth> m_line_width;
 
 };
 
 
 const char *const OSGWidget::MEASUREMENT_NAME = "3DMeasurement";
 
-OSGWidget::OSGWidget(QWidget* parent)
-    : QOpenGLWidget( parent)
-    , m_graphicsWindow( new osgViewer::GraphicsWindowEmbedded( this->x(),
+OSGWidget::OSGWidget(QWidget* _parent)
+    : QOpenGLWidget( _parent)
+    , m_graphics_window( new osgViewer::GraphicsWindowEmbedded( this->x(),
                                                                this->y(),
                                                                this->width(),
                                                                this->height() ) )
     , m_viewer( new osgViewer::CompositeViewer )
     , m_ctrl_pressed(false)
     , m_fake_middle_click_activated(false)
-    , m_zScale(1.0)
+    , m_z_scale(1.0)
 {
 
     m_ref_lat_lon.setX(INVALID_VALUE);
     m_ref_lat_lon.setY(INVALID_VALUE);
     m_ref_alt = INVALID_VALUE;
 
-    float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
+    float aspect_ratio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
 
     osg::Camera* camera = new osg::Camera;
     camera->setViewport( 0, 0, this->width() , this->height() );
@@ -293,11 +293,11 @@ OSGWidget::OSGWidget(QWidget* parent)
     camera->setCullingMode(cullingMode);
 
     // Set clear color
-    QColor clearColor = QColor(0,0,0);
-    camera->setClearColor( osg::Vec4( clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF() ) );
+    QColor clear_color = QColor(0,0,0);
+    camera->setClearColor( osg::Vec4( clear_color.redF(), clear_color.greenF(), clear_color.blueF(), clear_color.alphaF() ) );
 
-    camera->setGraphicsContext( m_graphicsWindow );
-    camera->setProjectionMatrixAsPerspective( 30.0f, aspectRatio, 1.f, 1000.f );
+    camera->setGraphicsContext( m_graphics_window );
+    camera->setProjectionMatrixAsPerspective( 30.0f, aspect_ratio, 1.f, 1000.f );
 
     osgViewer::View* view = new osgViewer::View;
     view->setCamera( camera );
@@ -331,35 +331,35 @@ OSGWidget::OSGWidget(QWidget* parent)
     m_timer.start( 40 ); //10 );
 
     // Create group that will contain measurement geode and 3D model
-    m_globalGroup = new osg::Group;
+    m_global_group = new osg::Group;
 
-    m_modelsGroup = new osg::Group;
-    m_geodesGroup = new osg::Group;
+    m_models_group = new osg::Group;
+    m_geodes_group = new osg::Group;
 
-    m_globalGroup->addChild(m_modelsGroup);
-    m_globalGroup->addChild(m_geodesGroup);
+    m_global_group->addChild(m_models_group);
+    m_global_group->addChild(m_geodes_group);
 
     // for Z scale management
-    m_matrixTransform = new osg::MatrixTransform;
-    m_matrixTransform->setMatrix(osg::Matrix::scale(1.0, 1.0, m_zScale));
-    m_matrixTransform->addChild(m_globalGroup);
+    m_matrix_transform = new osg::MatrixTransform;
+    m_matrix_transform->setMatrix(osg::Matrix::scale(1.0, 1.0, m_z_scale));
+    m_matrix_transform->addChild(m_global_group);
 
     // use models' min max as default
-    m_useDisplayZMinMax = false;
+    m_use_display_z_min_max = false;
 
     // don't show zscale by default
-    m_showZScale = false;
+    m_show_z_scale = false;
 
-    m_modelsZMin = 0;
-    m_modelsZMax= 0;
+    m_models_z_min = 0;
+    m_models_z_max= 0;
 
-    m_displayZMin = 0;
-    m_displayZMax = 0;
+    m_display_z_min = 0;
+    m_display_z_max = 0;
 
-    m_colorPalette = ShaderColor::Rainbow;
+    m_color_palette = ShaderColor::RAINBOW;
     m_overlay = new OverlayWidget(this);
-    m_overlay->setColorPalette(m_colorPalette);
-    m_overlay->setMinMax(m_displayZMin, m_displayZMax);
+    m_overlay->setColorPalette(m_color_palette);
+    m_overlay->setMinMax(m_display_z_min, m_display_z_max);
     m_overlay->show();
 
     enableLight(false);
@@ -457,13 +457,13 @@ osg::ref_ptr<osg::Node> OSGWidget::createNodeFromFileWithGDAL(std::string _scene
     GDALDataset *dataset = (GDALDataset *) GDALOpen( _scene_file.c_str(), GA_ReadOnly );
     if(dataset != NULL)
     {
-        double        adfGeoTransform[6];
-        //                adfGeoTransform[0] /* top left x */
-        //                adfGeoTransform[1] /* w-e pixel resolution */
-        //                adfGeoTransform[2] /* 0 */
-        //                adfGeoTransform[3] /* top left y */
-        //                adfGeoTransform[4] /* 0 */
-        //                adfGeoTransform[5] /* n-s pixel resolution (negative value) */
+        double        adf_geo_transform[6];
+        //                adf_geo_transform[0] /* top left x */
+        //                adf_geo_transform[1] /* w-e pixel resolution */
+        //                adf_geo_transform[2] /* 0 */
+        //                adf_geo_transform[3] /* top left y */
+        //                adf_geo_transform[4] /* 0 */
+        //                adf_geo_transform[5] /* n-s pixel resolution (negative value) */
         printf( "Driver: %s/%s\n",
                 dataset->GetDriver()->GetDescription(),
                 dataset->GetDriver()->GetMetadataItem( GDAL_DMD_LONGNAME ) );
@@ -472,83 +472,83 @@ osg::ref_ptr<osg::Node> OSGWidget::createNodeFromFileWithGDAL(std::string _scene
                 dataset->GetRasterCount() );
         if( dataset->GetProjectionRef()  != NULL )
             printf( "Projection is `%s'\n", dataset->GetProjectionRef() );
-        if( dataset->GetGeoTransform( adfGeoTransform ) == CE_None )
+        if( dataset->GetGeoTransform( adf_geo_transform ) == CE_None )
         {
             printf( "Origin = (%.6f,%.6f)\n",
-                    adfGeoTransform[0], adfGeoTransform[3] );
+                    adf_geo_transform[0], adf_geo_transform[3] );
             printf( "Pixel Size = (%.6f,%.6f)\n",
-                    adfGeoTransform[1], adfGeoTransform[5] );
+                    adf_geo_transform[1], adf_geo_transform[5] );
         }
 
-        GDALRasterBand  *poBand;
-        int             nBlockXSize, nBlockYSize;
-        int             bGotMin, bGotMax;
-        double          adfMinMax[2];
-        poBand = dataset->GetRasterBand( 1 );
-        poBand->GetBlockSize( &nBlockXSize, &nBlockYSize );
+        GDALRasterBand  *po_band;
+        int             n_block_x_size, n_block_y_size;
+        int             b_got_min, b_got_max;
+        double          adf_min_max[2];
+        po_band = dataset->GetRasterBand( 1 );
+        po_band->GetBlockSize( &n_block_x_size, &n_block_y_size );
         printf( "Block=%dx%d Type=%s, ColorInterp=%s\n",
-                nBlockXSize, nBlockYSize,
-                GDALGetDataTypeName(poBand->GetRasterDataType()),
+                n_block_x_size, n_block_y_size,
+                GDALGetDataTypeName(po_band->GetRasterDataType()),
                 GDALGetColorInterpretationName(
-                    poBand->GetColorInterpretation()) );
-        adfMinMax[0] = poBand->GetMinimum( &bGotMin );
-        adfMinMax[1] = poBand->GetMaximum( &bGotMax );
-        if( ! (bGotMin && bGotMax) )
-            GDALComputeRasterMinMax((GDALRasterBandH)poBand, TRUE, adfMinMax);
-        printf( "Min=%.3fd, Max=%.3f\n", adfMinMax[0], adfMinMax[1] );
-        if( poBand->GetOverviewCount() > 0 )
-            printf( "Band has %d overviews.\n", poBand->GetOverviewCount() );
-        if( poBand->GetColorTable() != NULL )
+                    po_band->GetColorInterpretation()) );
+        adf_min_max[0] = po_band->GetMinimum( &b_got_min );
+        adf_min_max[1] = po_band->GetMaximum( &b_got_max );
+        if( ! (b_got_min && b_got_max) )
+            GDALComputeRasterMinMax((GDALRasterBandH)po_band, TRUE, adf_min_max);
+        printf( "Min=%.3fd, Max=%.3f\n", adf_min_max[0], adf_min_max[1] );
+        if( po_band->GetOverviewCount() > 0 )
+            printf( "Band has %d overviews.\n", po_band->GetOverviewCount() );
+        if( po_band->GetColorTable() != NULL )
             printf( "Band has a color table with %d entries.\n",
-                    poBand->GetColorTable()->GetColorEntryCount() );
+                    po_band->GetColorTable()->GetColorEntryCount() );
 
         // read data
-        float *pafScanline;
-        float *pafScanline2;
-        int   nXSize = poBand->GetXSize();
-        int   nYSize = poBand->GetYSize();
-        float noData = poBand->GetNoDataValue();
+        float *paf_scanline;
+        float *paf_scanline2;
+        int   n_x_size = po_band->GetXSize();
+        int   n_y_size = po_band->GetYSize();
+        float no_data = po_band->GetNoDataValue();
 
         // projection
-        GeographicLib::LocalCartesian proj(adfGeoTransform[3],  adfGeoTransform[0]);
-        local_lat_lon.setX(adfGeoTransform[3]);
-        local_lat_lon.setY(adfGeoTransform[0]);
+        GeographicLib::LocalCartesian proj(adf_geo_transform[3],  adf_geo_transform[0]);
+        local_lat_lon.setX(adf_geo_transform[3]);
+        local_lat_lon.setY(adf_geo_transform[0]);
         local_alt = 0;
 
-        double deltaz = adfMinMax[1] - adfMinMax[0];
+        double deltaz = adf_min_max[1] - adf_min_max[0];
 
         osg::ref_ptr<osg::Group> group = new osg::Group;
 
         if(_mode == LoadingModePoint)
         {
 
-            pafScanline = (float *) CPLMalloc(sizeof(float)*nXSize);
+            paf_scanline = (float *) CPLMalloc(sizeof(float)*n_x_size);
 
             osg::ref_ptr<osg::Geode> geode = new osg::Geode;
             osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
             osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
 
-            for(int y = 0; y < nYSize; y++)
+            for(int y = 0; y < n_y_size; y++)
             {
 
                 // read line
-                poBand->RasterIO( GF_Read, 0, y, nXSize, 1,
-                                  pafScanline, nXSize, 1, GDT_Float32,
+                po_band->RasterIO( GF_Read, 0, y, n_x_size, 1,
+                                  paf_scanline, n_x_size, 1, GDT_Float32,
                                   0, 0 );
 
                 // build points
 
                 // create point in geode
                 // point
-                for(int x=0; x<nXSize; x++)
+                for(int x=0; x<n_x_size; x++)
                 {
-                    if( pafScanline[x] == noData) // check NAN
+                    if( paf_scanline[x] == no_data) // check NAN
                         continue;
 
                     osg::Vec3f point;
-                    double lon = adfGeoTransform[0] + adfGeoTransform[1]*x;
-                    double lat = adfGeoTransform[3] + adfGeoTransform[5]*y;
-                    double h = pafScanline[x];
+                    double lon = adf_geo_transform[0] + adf_geo_transform[1]*x;
+                    double lat = adf_geo_transform[3] + adf_geo_transform[5]*y;
+                    double h = paf_scanline[x];
                     double px, py, pz;
                     proj.Forward(lat, lon, h, px, py, pz);
 
@@ -559,7 +559,7 @@ osg::ref_ptr<osg::Node> OSGWidget::createNodeFromFileWithGDAL(std::string _scene
                     vertices->push_back(point);
 
                     // z color
-                    double dh = (h - adfMinMax[0]) / deltaz;
+                    double dh = (h - adf_min_max[0]) / deltaz;
                     float r = dh > 0.5 ? (dh - 0.5)*2: 0;
                     float g = dh > 0.5 ? (1.0 - dh) + 0.5 : (dh*2);
                     float b = 1.0 -dh;
@@ -602,28 +602,28 @@ osg::ref_ptr<osg::Node> OSGWidget::createNodeFromFileWithGDAL(std::string _scene
             //                geode->addDrawable(geometry);
             //                group->addChild(geode);
 
-            CPLFree(pafScanline);
+            CPLFree(paf_scanline);
         }
         else if(_mode == LoadingModeTriangle || _mode == LoadingModeTriangleNormals)
         {
             // triangles
 
-            pafScanline = (float *) CPLMalloc(sizeof(float)*nXSize);
-            pafScanline2 = (float *) CPLMalloc(sizeof(float)*nXSize);
+            paf_scanline = (float *) CPLMalloc(sizeof(float)*n_x_size);
+            paf_scanline2 = (float *) CPLMalloc(sizeof(float)*n_x_size);
 
             osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 
             // read first line
-            poBand->RasterIO( GF_Read, 0, 0, nXSize, 1,
-                              pafScanline, nXSize, 1, GDT_Float32,
+            po_band->RasterIO( GF_Read, 0, 0, n_x_size, 1,
+                              paf_scanline, n_x_size, 1, GDT_Float32,
                               0, 0 );
 
-            for(int y = 1; y < nYSize; y++)
+            for(int y = 1; y < n_y_size; y++)
             {
 
                 // read second line
-                poBand->RasterIO( GF_Read, 0, y, nXSize, 1,
-                                  pafScanline2, nXSize, 1, GDT_Float32,
+                po_band->RasterIO( GF_Read, 0, y, n_x_size, 1,
+                                  paf_scanline2, n_x_size, 1, GDT_Float32,
                                   0, 0 );
 
                 // create triangles in geode
@@ -645,86 +645,86 @@ osg::ref_ptr<osg::Node> OSGWidget::createNodeFromFileWithGDAL(std::string _scene
                 osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
 
                 // point
-                for(int x=0; x<nXSize-1; x++)
+                for(int x=0; x<n_x_size-1; x++)
                 {
                     // check if 1 triangle is incomplète
-                    if( pafScanline2[x] == noData) // check NAN
+                    if( paf_scanline2[x] == no_data) // check NAN
                         continue;
-                    if( pafScanline2[x+1] == noData) // check NAN
+                    if( paf_scanline2[x+1] == no_data) // check NAN
                         continue;
-                    if( pafScanline[x] == noData) // check NAN
+                    if( paf_scanline[x] == no_data) // check NAN
                         continue;
-                    if( pafScanline[x+1] == noData) // check NAN
+                    if( paf_scanline[x+1] == no_data) // check NAN
                         continue;
 
                     // build triangle
-                    osg::Vec3f pointA;
-                    osg::Vec3f pointB;
-                    osg::Vec3f pointC;
-                    osg::Vec3f pointD;
+                    osg::Vec3f point_A;
+                    osg::Vec3f point_B;
+                    osg::Vec3f point_C;
+                    osg::Vec3f point_D;
 
                     // B
-                    double lon = adfGeoTransform[0] + adfGeoTransform[1]*x;
-                    double lat = adfGeoTransform[3] + adfGeoTransform[5]*(y+1);
-                    double h = pafScanline2[x];
+                    double lon = adf_geo_transform[0] + adf_geo_transform[1]*x;
+                    double lat = adf_geo_transform[3] + adf_geo_transform[5]*(y+1);
+                    double h = paf_scanline2[x];
                     double px, py, pz;
                     proj.Forward(lat, lon, h, px, py, pz);
-                    pointB[0] = px;
-                    pointB[1] = py;
-                    pointB[2] = pz;
+                    point_B[0] = px;
+                    point_B[1] = py;
+                    point_B[2] = pz;
 
                     // C
-                    lon = adfGeoTransform[0] + adfGeoTransform[1]*(x+1);
-                    lat = adfGeoTransform[3] + adfGeoTransform[5]*(y+1);
-                    h = pafScanline2[x+1];
+                    lon = adf_geo_transform[0] + adf_geo_transform[1]*(x+1);
+                    lat = adf_geo_transform[3] + adf_geo_transform[5]*(y+1);
+                    h = paf_scanline2[x+1];
                     proj.Forward(lat, lon, h, px, py, pz);
-                    pointC[0] = px;
-                    pointC[1] = py;
-                    pointC[2] = pz;
+                    point_C[0] = px;
+                    point_C[1] = py;
+                    point_C[2] = pz;
 
                     // A
-                    lon = adfGeoTransform[0] + adfGeoTransform[1]*x;
-                    lat = adfGeoTransform[3] + adfGeoTransform[5]*y;
-                    h = pafScanline[x];
+                    lon = adf_geo_transform[0] + adf_geo_transform[1]*x;
+                    lat = adf_geo_transform[3] + adf_geo_transform[5]*y;
+                    h = paf_scanline[x];
                     proj.Forward(lat, lon, h, px, py, pz);
 
-                    pointA[0] = px;
-                    pointA[1] = py;
-                    pointA[2] = pz;
+                    point_A[0] = px;
+                    point_A[1] = py;
+                    point_A[2] = pz;
 
 
                     // D
-                    lon = adfGeoTransform[0] + adfGeoTransform[1]*(x+1);
-                    lat = adfGeoTransform[3] + adfGeoTransform[5]*y;
-                    h = pafScanline[x+1];
+                    lon = adf_geo_transform[0] + adf_geo_transform[1]*(x+1);
+                    lat = adf_geo_transform[3] + adf_geo_transform[5]*y;
+                    h = paf_scanline[x+1];
                     proj.Forward(lat, lon, h, px, py, pz);
 
-                    pointD[0] = px;
-                    pointD[1] = py;
-                    pointD[2] = pz;
+                    point_D[0] = px;
+                    point_D[1] = py;
+                    point_D[2] = pz;
 
 
                     // triangles
-                    vertices->push_back(pointA);
-                    vertices->push_back(pointB);
-                    vertices->push_back(pointC);
+                    vertices->push_back(point_A);
+                    vertices->push_back(point_B);
+                    vertices->push_back(point_C);
 
                     if(_mode == LoadingModeTriangleNormals)
                     {
-                        osg::Vec3f N1 = (pointB - pointA) ^ (pointC - pointB);
+                        osg::Vec3f N1 = (point_B - point_A) ^ (point_C - point_B);
                         normals->push_back(N1);
                         normals->push_back(N1);
                         normals->push_back(N1);
                     }
 
-                    vertices->push_back(pointA);
-                    vertices->push_back(pointC);
-                    vertices->push_back(pointD);
+                    vertices->push_back(point_A);
+                    vertices->push_back(point_C);
+                    vertices->push_back(point_D);
 
 
                     if(_mode == LoadingModeTriangleNormals)
                     {
-                        osg::Vec3f N2 = (pointC - pointA) ^ (pointD - pointC);
+                        osg::Vec3f N2 = (point_C - point_A) ^ (point_D - point_C);
                         normals->push_back(N2);
                         normals->push_back(N2);
                         normals->push_back(N2);
@@ -760,38 +760,38 @@ osg::ref_ptr<osg::Node> OSGWidget::createNodeFromFileWithGDAL(std::string _scene
                 geode->addDrawable(geometry);
 
                 // swap line ponters
-                float * tmp = pafScanline;
-                pafScanline = pafScanline2;
-                pafScanline2 = tmp;
+                float * tmp = paf_scanline;
+                paf_scanline = paf_scanline2;
+                paf_scanline2 = tmp;
             }
 
             group->addChild(geode);
 
-            CPLFree(pafScanline);
-            CPLFree(pafScanline2);
+            CPLFree(paf_scanline);
+            CPLFree(paf_scanline2);
 
         }
         else if(_mode == LoadingModeTrianglePoint)
         {
             // triangles + points
 
-            pafScanline = (float *) CPLMalloc(sizeof(float)*nXSize);
-            pafScanline2 = (float *) CPLMalloc(sizeof(float)*nXSize);
+            paf_scanline = (float *) CPLMalloc(sizeof(float)*n_x_size);
+            paf_scanline2 = (float *) CPLMalloc(sizeof(float)*n_x_size);
 
 
             osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 
             // read first line
-            poBand->RasterIO( GF_Read, 0, 0, nXSize, 1,
-                              pafScanline, nXSize, 1, GDT_Float32,
+            po_band->RasterIO( GF_Read, 0, 0, n_x_size, 1,
+                              paf_scanline, n_x_size, 1, GDT_Float32,
                               0, 0 );
 
-            for(int y = 1; y < nYSize; y++)
+            for(int y = 1; y < n_y_size; y++)
             {
 
                 // read second line
-                poBand->RasterIO( GF_Read, 0, y, nXSize, 1,
-                                  pafScanline2, nXSize, 1, GDT_Float32,
+                po_band->RasterIO( GF_Read, 0, y, n_x_size, 1,
+                                  paf_scanline2, n_x_size, 1, GDT_Float32,
                                   0, 0 );
 
                 // create triangles in geode
@@ -802,90 +802,90 @@ osg::ref_ptr<osg::Node> OSGWidget::createNodeFromFileWithGDAL(std::string _scene
 
 
                 osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
-                osg::ref_ptr<osg::Vec3Array> verticesPoint = new osg::Vec3Array;
+                osg::ref_ptr<osg::Vec3Array> vertices_point = new osg::Vec3Array;
                 osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
                 osg::ref_ptr<osg::Vec4Array> colorst = new osg::Vec4Array;
 
                 // point
-                for(int x=0; x<nXSize-1; x++)
+                for(int x=0; x<n_x_size-1; x++)
                 {
                     // check if 1 triangle is incomplète
-                    if( pafScanline2[x] == noData) // check NAN
+                    if( paf_scanline2[x] == no_data) // check NAN
                         continue;
-                    if( pafScanline2[x+1] == noData) // check NAN
+                    if( paf_scanline2[x+1] == no_data) // check NAN
                         continue;
-                    if( pafScanline[x] == noData) // check NAN
+                    if( paf_scanline[x] == no_data) // check NAN
                         continue;
-                    if( pafScanline[x+1] == noData) // check NAN
+                    if( paf_scanline[x+1] == no_data) // check NAN
                         continue;
 
                     // build triangle
-                    osg::Vec3f pointA;
-                    osg::Vec3f pointB;
-                    osg::Vec3f pointC;
-                    osg::Vec3f pointD;
-                    osg::Vec4 colorA;
+                    osg::Vec3f point_A;
+                    osg::Vec3f point_B;
+                    osg::Vec3f point_C;
+                    osg::Vec3f point_D;
+                    osg::Vec4 color_A;
 
                     // B
-                    double lon = adfGeoTransform[0] + adfGeoTransform[1]*x;
-                    double lat = adfGeoTransform[3] + adfGeoTransform[5]*(y+1);
-                    double h = pafScanline2[x];
+                    double lon = adf_geo_transform[0] + adf_geo_transform[1]*x;
+                    double lat = adf_geo_transform[3] + adf_geo_transform[5]*(y+1);
+                    double h = paf_scanline2[x];
                     double px, py, pz;
                     proj.Forward(lat, lon, h, px, py, pz);
-                    pointB[0] = px;
-                    pointB[1] = py;
-                    pointB[2] = pz;
+                    point_B[0] = px;
+                    point_B[1] = py;
+                    point_B[2] = pz;
 
                     // C
-                    lon = adfGeoTransform[0] + adfGeoTransform[1]*(x+1);
-                    lat = adfGeoTransform[3] + adfGeoTransform[5]*(y+1);
-                    h = pafScanline2[x+1];
+                    lon = adf_geo_transform[0] + adf_geo_transform[1]*(x+1);
+                    lat = adf_geo_transform[3] + adf_geo_transform[5]*(y+1);
+                    h = paf_scanline2[x+1];
                     proj.Forward(lat, lon, h, px, py, pz);
-                    pointC[0] = px;
-                    pointC[1] = py;
-                    pointC[2] = pz;
+                    point_C[0] = px;
+                    point_C[1] = py;
+                    point_C[2] = pz;
 
                     // A
-                    lon = adfGeoTransform[0] + adfGeoTransform[1]*x;
-                    lat = adfGeoTransform[3] + adfGeoTransform[5]*y;
-                    h = pafScanline[x];
+                    lon = adf_geo_transform[0] + adf_geo_transform[1]*x;
+                    lat = adf_geo_transform[3] + adf_geo_transform[5]*y;
+                    h = paf_scanline[x];
                     proj.Forward(lat, lon, h, px, py, pz);
 
-                    pointA[0] = px;
-                    pointA[1] = py;
-                    pointA[2] = pz;
+                    point_A[0] = px;
+                    point_A[1] = py;
+                    point_A[2] = pz;
 
                     // z color
-                    float dh = (h - adfMinMax[0]) / deltaz;
+                    float dh = (h - adf_min_max[0]) / deltaz;
                     float r = dh > 0.5 ? (dh - 0.5)*2: 0;
                     float g = dh > 0.5 ? (1.0 - dh) + 0.5 : (dh*2);
                     float b = 1.0 -dh;
 
-                    colorA = {r, g, b, 1.0f};
+                    color_A = {r, g, b, 1.0f};
 
                     // D
-                    lon = adfGeoTransform[0] + adfGeoTransform[1]*(x+1);
-                    lat = adfGeoTransform[3] + adfGeoTransform[5]*y;
-                    h = pafScanline[x+1];
+                    lon = adf_geo_transform[0] + adf_geo_transform[1]*(x+1);
+                    lat = adf_geo_transform[3] + adf_geo_transform[5]*y;
+                    h = paf_scanline[x+1];
                     proj.Forward(lat, lon, h, px, py, pz);
 
-                    pointD[0] = px;
-                    pointD[1] = py;
-                    pointD[2] = pz;
+                    point_D[0] = px;
+                    point_D[1] = py;
+                    point_D[2] = pz;
 
                     // triangles
-                    vertices->push_back(pointA);
-                    vertices->push_back(pointB);
-                    vertices->push_back(pointC);
+                    vertices->push_back(point_A);
+                    vertices->push_back(point_B);
+                    vertices->push_back(point_C);
 
-                    vertices->push_back(pointA);
-                    vertices->push_back(pointC);
-                    vertices->push_back(pointD);
+                    vertices->push_back(point_A);
+                    vertices->push_back(point_C);
+                    vertices->push_back(point_D);
 
                     // Warning : Last row & last column ommitted
                     // points
-                    verticesPoint->push_back(pointA);
-                    colors->push_back(colorA);
+                    vertices_point->push_back(point_A);
+                    colors->push_back(color_A);
                 }
 
                 // triangles
@@ -912,26 +912,26 @@ osg::ref_ptr<osg::Node> OSGWidget::createNodeFromFileWithGDAL(std::string _scene
                 geode->addDrawable(geometry);
 
                 // points
-                osg::ref_ptr<osg::Geometry> geometryP = new osg::Geometry();
+                osg::ref_ptr<osg::Geometry> geometry_P = new osg::Geometry();
 
                 // pass the created vertex array to the points geometry object.
-                geometryP->setVertexArray(verticesPoint);
-                geometryP->setColorArray(colors, osg::Array::BIND_PER_VERTEX);
-                geometryP->getOrCreateStateSet()->setAttribute(new osg::Point(1.f), osg::StateAttribute::ON);
-                geometryP->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS,0,verticesPoint->size()));
-                geode->addDrawable(geometryP);
+                geometry_P->setVertexArray(vertices_point);
+                geometry_P->setColorArray(colors, osg::Array::BIND_PER_VERTEX);
+                geometry_P->getOrCreateStateSet()->setAttribute(new osg::Point(1.f), osg::StateAttribute::ON);
+                geometry_P->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS,0,vertices_point->size()));
+                geode->addDrawable(geometry_P);
 
 
                 // swap line poniters
-                float * tmp = pafScanline;
-                pafScanline = pafScanline2;
-                pafScanline2 = tmp;
+                float * tmp = paf_scanline;
+                paf_scanline = paf_scanline2;
+                paf_scanline2 = tmp;
             }
 
             group->addChild(geode);
 
-            CPLFree(pafScanline);
-            CPLFree(pafScanline2);
+            CPLFree(paf_scanline);
+            CPLFree(paf_scanline2);
 
         }
 
@@ -981,7 +981,7 @@ bool OSGWidget::addNodeToScene(osg::ref_ptr<osg::Node> _node, double _transparen
         osg::StateSet* state_set = _node->getOrCreateStateSet();
         state_set->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
 
-        m_modelsGroup->insertChild(0, _node.get()); // put at the beginning to be drawn first
+        m_models_group->insertChild(0, _node.get()); // put at the beginning to be drawn first
 
         // optimize the scene graph, remove redundant nodes and state etc.
         osgUtil::Optimizer optimizer;
@@ -1000,18 +1000,18 @@ bool OSGWidget::addNodeToScene(osg::ref_ptr<osg::Node> _node, double _transparen
         osg::ref_ptr<osg::MatrixTransform> model_transform = dynamic_cast<osg::MatrixTransform*>(_node.get());
 
         osg::ref_ptr<NodeUserData> data = new NodeUserData();
-        data->useShader = false;
-        data->zmin = zmin;
-        data->zmax = zmax;
-        data->zoffset = 0; // will be changed on z offset changed
-        data->originalZoffset = model_transform->getMatrix().getTrans().z();
-        data->hasMesh = geomcount.getNbTriangles() > 0;
+        data->m_use_shader = false;
+        data->m_zmin = zmin;
+        data->m_zmax = zmax;
+        data->m_zoffset = 0; // will be changed on z offset changed
+        data->m_original_z_offset = model_transform->getMatrix().getTrans().z();
+        data->m_has_mesh = geomcount.getNbTriangles() > 0;
         _node->setUserData(data);
 
         //configureShaders( _node->getOrCreateStateSet() );
         _node->getOrCreateStateSet()->addUniform(new osg::Uniform("zmin", zmin));
         _node->getOrCreateStateSet()->addUniform(new osg::Uniform("deltaz", zmax - zmin));
-        _node->getOrCreateStateSet()->addUniform(new osg::Uniform("hasmesh", data->hasMesh));
+        _node->getOrCreateStateSet()->addUniform(new osg::Uniform("hasmesh", data->m_has_mesh));
 
         setCameraOnNode(_node);
 
@@ -1032,14 +1032,14 @@ void OSGWidget::setCameraOnNode(osg::ref_ptr<osg::Node> _node)
 {
     osgViewer::View *view = m_viewer->getView(0);
 
-    view->setSceneData( m_matrixTransform); //m_group );
+    view->setSceneData( m_matrix_transform); //m_group );
     // get the translation in the  node
     osg::MatrixTransform *matrix_transform = dynamic_cast <osg::MatrixTransform*> (_node.get());
     osg::Vec3d translation = matrix_transform->getMatrix().getTrans();
-    BoxVisitor boxVisitor;
-    _node->accept(boxVisitor);
+    BoxVisitor box_visitor;
+    _node->accept(box_visitor);
 
-    osg::BoundingBox box = boxVisitor.getBoundingBox();
+    osg::BoundingBox box = box_visitor.getBoundingBox();
     double x_max = box.xMax();
     double x_min = box.xMin();
     double y_max = box.yMax();
@@ -1058,10 +1058,10 @@ void OSGWidget::setCameraOnNode(osg::ref_ptr<osg::Node> _node)
 
     osg::Vec3d eye(cam_center_x,
                    cam_center_y,
-                   (box.zMin() + cam_center_z)*m_zScale);
+                   (box.zMin() + cam_center_z)*m_z_scale);
     osg::Vec3d target( cam_center_x,
                        cam_center_y,
-                       box.zMin()*m_zScale);
+                       box.zMin()*m_z_scale);
     osg::Vec3d normal(0,0,-1);
 
     view->getCameraManipulator()->setHomePosition(eye,target,normal);
@@ -1080,15 +1080,15 @@ bool OSGWidget::removeNodeFromScene(osg::ref_ptr<osg::Node> _node)
     if (position != m_models.end()) // == myVector.end() means the element was not found
         m_models.erase(position);
 
-    m_modelsGroup->removeChild(_node.get());
+    m_models_group->removeChild(_node.get());
 
     // optimize the scene graph, remove redundant nodes and state etc.
     osgUtil::Optimizer optimizer;
-    optimizer.optimize(this->m_globalGroup.get());
+    optimizer.optimize(this->m_global_group.get());
 
     osgViewer::View *view = m_viewer->getView(0);
 
-    view->setSceneData( m_matrixTransform);
+    view->setSceneData( m_matrix_transform);
 
     return true;
 }
@@ -1134,7 +1134,7 @@ void OSGWidget::clearSceneData()
 
     // remove all nodes from group
     for (unsigned int i=0; i<m_models.size(); i++){
-        m_modelsGroup->removeChild(m_models[i]);
+        m_models_group->removeChild(m_models[i]);
         //m_models[i] = NULL; useless
     }
 
@@ -1145,7 +1145,7 @@ void OSGWidget::clearSceneData()
     for (unsigned int i=0; i<m_geodes.size(); i++)
     {
         m_geodes[i]->removeDrawables(0,m_geodes[i]->getNumDrawables());
-        m_geodesGroup->removeChild(m_geodes[i]);
+        m_geodes_group->removeChild(m_geodes[i]);
         //m_models[i] = NULL; useless
     }
     m_geodes.clear();
@@ -1161,7 +1161,7 @@ void OSGWidget::clearSceneData()
 void OSGWidget::initializeGL(){
 
     // Init properties
-    osg::StateSet* state_set = m_modelsGroup->getOrCreateStateSet();
+    osg::StateSet* state_set = m_models_group->getOrCreateStateSet();
     osg::Material* material = new osg::Material;
     material->setColorMode( osg::Material::AMBIENT_AND_DIFFUSE );
     state_set->setAttributeAndModes( material, osg::StateAttribute::ON );
@@ -1170,7 +1170,7 @@ void OSGWidget::initializeGL(){
     state_set->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
 
     // to show measures too
-    state_set = m_geodesGroup->getOrCreateStateSet();
+    state_set = m_geodes_group->getOrCreateStateSet();
     // material needed to show colors in measure without light
     material = new osg::Material;
     material->setColorMode( osg::Material::AMBIENT_AND_DIFFUSE );
@@ -1190,7 +1190,7 @@ void OSGWidget::paintGL()
 
 void OSGWidget::paintOverlayGL()
 {
-    if(!m_showZScale)
+    if(!m_show_z_scale)
     {
         m_overlay->hide();
         return;
@@ -1211,17 +1211,17 @@ void OSGWidget::paintOverlayGL()
     if(m_ref_alt == INVALID_VALUE)
         z_offset = 0;
 
-    float minval = m_modelsZMin + z_offset;
-    float maxval = m_modelsZMax + z_offset;
+    float minval = m_models_z_min + z_offset;
+    float maxval = m_models_z_max + z_offset;
 
-    if(m_useDisplayZMinMax)
+    if(m_use_display_z_min_max)
     {
-        minval = m_displayZMin + z_offset;
-        maxval = m_displayZMax + z_offset;
+        minval = m_display_z_min + z_offset;
+        maxval = m_display_z_max + z_offset;
     }
 
     m_overlay->setMinMax(minval, maxval);
-    m_overlay->setColorPalette(m_colorPalette);
+    m_overlay->setColorPalette(m_color_palette);
     m_overlay->show();
     m_overlay->update();
 }
@@ -1230,7 +1230,7 @@ void OSGWidget::paintOverlayGL()
 void OSGWidget::resizeGL( int _width, int _height )
 {
     this->getEventQueue()->windowResize( this->x(), this->y(), _width, _height );
-    m_graphicsWindow->resized( this->x(), this->y(), _width, _height );
+    m_graphics_window->resized( this->x(), this->y(), _width, _height );
 
     this->onResize( _width, _height );
 }
@@ -1263,7 +1263,7 @@ void OSGWidget::keyReleaseEvent( QKeyEvent* _event )
 
 void OSGWidget::mouseMoveEvent( QMouseEvent* _event )
 {
-    emit signal_onMouseMove(_event->x(), _event->y());
+    emit si_onMouseMove(_event->x(), _event->y());
 
     this->getEventQueue()->mouseMotion( static_cast<float>( _event->x() ),
                                         static_cast<float>( _event->y() ) );
@@ -1275,10 +1275,10 @@ void OSGWidget::mousePressEvent( QMouseEvent* _event )
     // for tools
     if( m_ctrl_pressed == true && _event->button()==Qt::LeftButton)
     {
-        emit signal_onMousePress(Qt::MiddleButton, _event->x(), _event->y());
+        emit si_onMousePress(Qt::MiddleButton, _event->x(), _event->y());
     }
     else
-        emit signal_onMousePress(_event->button(), _event->x(), _event->y());
+        emit si_onMousePress(_event->button(), _event->x(), _event->y());
 
     // 1 = left mouse button
     // 2 = middle mouse button
@@ -1350,7 +1350,7 @@ void OSGWidget::getIntersectionPoint(int _x, int _y, osg::Vec3d &_inter_point, b
         // we get the intersections in a osg::Vec3d
         _inter_point = hitr->getWorldIntersectPoint();
 
-        _inter_point[2] /= m_zScale;
+        _inter_point[2] /= m_z_scale;
 
     }else{
         _inter_exists = false;
@@ -1378,7 +1378,7 @@ void OSGWidget::getIntersectionPoint(int _x, int _y, osg::Vec3d &_inter_point, b
             // we get the intersections in a osg::Vec3d
             _inter_point = hitr->localIntersectionPoint;
 
-            _inter_point[2] /= m_zScale;
+            _inter_point[2] /= m_z_scale;
         }
         else
         {
@@ -1418,7 +1418,7 @@ void OSGWidget::getIntersectionPoint(osg::Vec3d _world_point, osg::Vec3d &_inter
         // we get the intersections in a osg::Vec3d
         _inter_point = hitr->getWorldIntersectPoint();
 
-        _inter_point[2] /= m_zScale;
+        _inter_point[2] /= m_z_scale;
 
     }else{
         _inter_exists = false;
@@ -1441,7 +1441,7 @@ void OSGWidget::getIntersectionPoint(osg::Vec3d _world_point, osg::Vec3d &_inter
             // we get the intersections in a osg::Vec3d
             _inter_point = hitr->localIntersectionPoint;
 
-            _inter_point[2] /= m_zScale;
+            _inter_point[2] /= m_z_scale;
         }
     }
 }
@@ -1465,7 +1465,7 @@ void OSGWidget::getIntersectionPointNode(int _x, int _y, osg::ref_ptr<osg::Node>
     cam->accept(iv);
     intersections = polyintersector->getIntersections();
 
-    m_geodesGroup->accept(iv);
+    m_geodes_group->accept(iv);
 
     _inter_exists = false;
 
@@ -1593,7 +1593,7 @@ void OSGWidget::onResize( int _width, int _height )
 
 osgGA::EventQueue* OSGWidget::getEventQueue() const
 {
-    osgGA::EventQueue* event_queue = m_graphicsWindow->getEventQueue();
+    osgGA::EventQueue* event_queue = m_graphics_window->getEventQueue();
 
     if( event_queue )
         return event_queue;
@@ -1663,12 +1663,12 @@ void OSGWidget::setGeoOrigin(QPointF _latlon, double _alt)
 
     // Add model without userdata
     m_models.push_back(node);
-    m_modelsGroup->insertChild(0, node.get()); // put at the beginning to be drawn first
+    m_models_group->insertChild(0, node.get()); // put at the beginning to be drawn first
 }
 
 void OSGWidget::addGeode(osg::ref_ptr<osg::Geode> _geode)
 {
-    m_geodesGroup->addChild(_geode.get());
+    m_geodes_group->addChild(_geode.get());
     m_geodes.push_back(_geode);
 }
 
@@ -1679,13 +1679,13 @@ void OSGWidget::removeGeode(osg::ref_ptr<osg::Geode> _geode)
     if (position != m_geodes.end()) // == myVector.end() means the element was not found
         m_geodes.erase(position);
 
-    m_geodesGroup->removeChild(_geode);
+    m_geodes_group->removeChild(_geode);
 }
 
 void OSGWidget::addGroup(osg::ref_ptr<osg::Group> _group)
 {
     //m_groups.push_back(_group);
-    m_geodesGroup->addChild(_group.get());
+    m_geodes_group->addChild(_group.get());
 }
 
 void OSGWidget::removeGroup(osg::ref_ptr<osg::Group> _group)
@@ -1695,7 +1695,7 @@ void OSGWidget::removeGroup(osg::ref_ptr<osg::Group> _group)
     //    if (position != m_groups.end()) // == myVector.end() means the element was not found
     //        m_groups.erase(position);
 
-    m_geodesGroup->removeChild(_group);
+    m_geodes_group->removeChild(_group);
 }
 
 // reset view to home
@@ -1712,17 +1712,17 @@ void OSGWidget::home()
 // tools : emit correspondant signal
 void OSGWidget::startTool(QString &_message)
 {
-    emit signal_startTool(_message);
+    emit si_startTool(_message);
 }
 
 void OSGWidget::endTool(QString &_message)
 {
-    emit signal_endTool(_message);
+    emit si_endTool(_message);
 }
 
 void OSGWidget::cancelTool(QString &_message)
 {
-    emit signal_cancelTool(_message);
+    emit si_cancelTool(_message);
 }
 
 // convert x, y, z => lat, lon & alt
@@ -1736,17 +1736,17 @@ void OSGWidget::xyzToLatLonAlt(double _x, double _y, double _z, double &_lat, do
 }
 
 
-bool OSGWidget::generateGeoTiff(osg::ref_ptr<osg::Node> _node, QString _filename, double _pixel_size, OSGWidget::map_type _map_type)
+bool OSGWidget::generateGeoTiff(osg::ref_ptr<osg::Node> _node, QString _filename, double _pixel_size, OSGWidget::eMapType _map_type)
 {
 
     // get the translation in the  node
     osg::MatrixTransform *matrix_transform = dynamic_cast <osg::MatrixTransform*> (_node.get());
     osg::Vec3d translation = matrix_transform->getMatrix().getTrans();
 
-    BoxVisitor boxVisitor;
-    _node->accept(boxVisitor);
+    BoxVisitor box_visitor;
+    _node->accept(box_visitor);
 
-    osg::BoundingBox box = boxVisitor.getBoundingBox();
+    osg::BoundingBox box = box_visitor.getBoundingBox();
 
     // Create the edge of our picture
     // Set graphics contexts
@@ -1814,7 +1814,7 @@ bool OSGWidget::generateGeoTiff(osg::ref_ptr<osg::Node> _node, QString _filename
     post_render_camera->setViewMatrix( osg::Matrixd::identity() );
     post_render_camera->setProjectionMatrix( osg::Matrixd::identity() );
 
-    if ( _map_type == map_type::OrthoMap ) post_render_camera->addChild( geode );
+    if ( _map_type == eMapType::ORTHO_MAP ) post_render_camera->addChild( geode );
 
     root->addChild(post_render_camera);
 
@@ -1849,7 +1849,7 @@ bool OSGWidget::generateGeoTiff(osg::ref_ptr<osg::Node> _node, QString _filename
 
     std::string screen_capture_filename = _filename.toStdString();
 
-    if ( _map_type == map_type::OrthoMap )
+    if ( _map_type == eMapType::ORTHO_MAP )
     {
         SnapImage* final_draw_callback = new SnapImage(viewer.getCamera()->getGraphicsContext(),screen_capture_filename,m_ref_lat_lon, image_bounds,_pixel_size);
         mrt_camera->setFinalDrawCallback(final_draw_callback);
@@ -1858,7 +1858,7 @@ bool OSGWidget::generateGeoTiff(osg::ref_ptr<osg::Node> _node, QString _filename
 
     viewer.home();
     viewer.frame();
-    if ( _map_type == map_type::AltMap )
+    if ( _map_type == eMapType::ALT_MAP )
     {
         GDALAllRegister();
         CPLPushErrorHandler(CPLQuietErrorHandler);
@@ -1880,7 +1880,7 @@ bool OSGWidget::generateGeoTiff(osg::ref_ptr<osg::Node> _node, QString _filename
         for(int i=0; i<height_pixel; i++) {
             for(int j=0; j<width_pixel; j++) {
                 QApplication::processEvents();
-                osg::Vec3d _inter_point;
+                osg::Vec3d inter_point;
                 osgUtil::LineSegmentIntersector::Intersections intersections;
                 progress_dialog.setValue(i);
                 if (progress_dialog.wasCanceled())
@@ -1891,8 +1891,8 @@ bool OSGWidget::generateGeoTiff(osg::ref_ptr<osg::Node> _node, QString _filename
                     osgUtil::LineSegmentIntersector::Intersections::iterator hitr = intersections.begin();
 
                     // we get the intersections in a osg::Vec3d
-                    _inter_point = hitr->getWorldIntersectPoint();
-                    float alt_point = _inter_point.z();
+                    inter_point = hitr->getWorldIntersectPoint();
+                    float alt_point = inter_point.z();
                     buffer[j] = alt_point;
 
                 }else{
@@ -2020,7 +2020,7 @@ void OSGWidget::setNodeTranslationOffset(double _offset_x, double _offset_y, dou
     osg::ref_ptr<NodeUserData> data = (NodeUserData*)(_node->getUserData());
     if(data != nullptr)
     {
-        data->zoffset = (float)_offset_z;
+        data->m_zoffset = (float)_offset_z;
     }
 
     recomputeGlobalZMinMax();
@@ -2038,9 +2038,9 @@ void OSGWidget::setZScale(double _newValue)
 
     // change
     //double oldScale = m_zScale;
-    m_zScale = _newValue;
+    m_z_scale = _newValue;
 
-    m_matrixTransform->setMatrix(osg::Matrix::scale(1.0, 1.0, m_zScale));
+    m_matrix_transform->setMatrix(osg::Matrix::scale(1.0, 1.0, m_z_scale));
     if(m_models.size() > 0)
     {
         setCameraOnNode(m_models[0]);
@@ -2053,9 +2053,9 @@ void OSGWidget::setZScale(double _newValue)
     //    view->getCameraManipulator()->setByMatrix(matrix);
 }
 
-void OSGWidget::configureShaders( osg::StateSet* stateSet )
+void OSGWidget::configureShaders(osg::StateSet* _state_set )
 {  
-    const std::string vertexSourceBegin =
+    const std::string vertex_source_begin =
             "#version 130 \n"
             "uniform float zmin;"
             "uniform float deltaz;"
@@ -2069,7 +2069,7 @@ void OSGWidget::configureShaders( osg::StateSet* stateSet )
 
 
 
-    const std::string vertexSourceEnd =
+    const std::string vertex_source_end =
             "void main(void)"
             "{"
             // Calculate the normal value for this vertex, in world coordinates (multiply by gl_NormalMatrix)
@@ -2089,11 +2089,11 @@ void OSGWidget::configureShaders( osg::StateSet* stateSet )
             "    gl_PointSize = 4.0 * pointsize / gl_Position.w;"
             "}";
 
-    std::string vertexSource = vertexSourceBegin;
-    vertexSource += ShaderColor::shaderSource(m_colorPalette);
-    vertexSource += vertexSourceEnd;
+    std::string vertex_source = vertex_source_begin;
+    vertex_source += ShaderColor::m_shader_source(m_color_palette);
+    vertex_source += vertex_source_end;
 
-    osg::Shader* vShader = new osg::Shader( osg::Shader::VERTEX, vertexSource );
+    osg::Shader* v_shader = new osg::Shader( osg::Shader::VERTEX, vertex_source );
 
     // without shading
     //    const std::string fragmentSourceOld =
@@ -2105,7 +2105,7 @@ void OSGWidget::configureShaders( osg::StateSet* stateSet )
     //            "}";
 
 
-    const std::string fragmentSource =
+    const std::string fragment_source =
             "#version 130 \n"
             "uniform bool hasmesh;"
             "uniform bool lighton;"
@@ -2146,29 +2146,29 @@ void OSGWidget::configureShaders( osg::StateSet* stateSet )
             "   gl_FragColor = color;"
             "}";
 
-    osg::Shader* fShader = new osg::Shader( osg::Shader::FRAGMENT, fragmentSource );
+    osg::Shader* f_shader = new osg::Shader( osg::Shader::FRAGMENT, fragment_source );
 
     osg::Program* program = new osg::Program;
     program->setName("3dMetricsShader");
-    program->addShader( fShader );
-    program->addShader( vShader );
-    stateSet->setAttribute( program, osg::StateAttribute::ON );
+    program->addShader( f_shader );
+    program->addShader( v_shader );
+    _state_set->setAttribute( program, osg::StateAttribute::ON );
 
-    stateSet->addUniform( new osg::Uniform( "alpha", 1.0f));
-    stateSet->addUniform( new osg::Uniform( "pointsize", 32.0f));
+    _state_set->addUniform( new osg::Uniform( "alpha", 1.0f));
+    _state_set->addUniform( new osg::Uniform( "pointsize", 32.0f));
 
     bool lighton = (m_viewer->getView(0)->getCamera()->getOrCreateStateSet()->getMode(GL_LIGHTING) == osg::StateAttribute::OFF);
 
-    stateSet->addUniform( new osg::Uniform( "lighton", lighton));
-    stateSet->setMode(GL_VERTEX_PROGRAM_POINT_SIZE, osg::StateAttribute::ON);
+    _state_set->addUniform( new osg::Uniform( "lighton", lighton));
+    _state_set->setMode(GL_VERTEX_PROGRAM_POINT_SIZE, osg::StateAttribute::ON);
 }
 
 
 // recompute global zmin and zmax for all models
 void OSGWidget::recomputeGlobalZMinMax()
 {
-    m_modelsZMin = 0;
-    m_modelsZMax = 0;
+    m_models_z_min = 0;
+    m_models_z_max = 0;
 
     if(m_models.size() == 0)
     {
@@ -2184,20 +2184,20 @@ void OSGWidget::recomputeGlobalZMinMax()
         {
             if(first)
             {
-                m_modelsZMin = data->zmin + data->zoffset + data->originalZoffset;
-                m_modelsZMax = data->zmax + data->zoffset + data->originalZoffset;
+                m_models_z_min = data->m_zmin + data->m_zoffset + data->m_original_z_offset;
+                m_models_z_max = data->m_zmax + data->m_zoffset + data->m_original_z_offset;
                 first = false;
                 continue;
             }
 
-            float zmin = data->zmin + data->zoffset + data->originalZoffset;
-            float zmax = data->zmax + data->zoffset + data->originalZoffset;
+            float zmin = data->m_zmin + data->m_zoffset + data->m_original_z_offset;
+            float zmax = data->m_zmax + data->m_zoffset + data->m_original_z_offset;
 
-            if(zmin < m_modelsZMin)
-                m_modelsZMin = zmin;
+            if(zmin < m_models_z_min)
+                m_models_z_min = zmin;
 
-            if(zmax > m_modelsZMax)
-                m_modelsZMax = zmax;
+            if(zmax > m_models_z_max)
+                m_models_z_max = zmax;
         }
     }
 
@@ -2206,12 +2206,12 @@ void OSGWidget::recomputeGlobalZMinMax()
         // no 3D models loaded
         return;
     }
-    float delta = m_modelsZMax - m_modelsZMin;
-    float min = m_modelsZMin;
-    if(m_useDisplayZMinMax)
+    float delta = m_models_z_max - m_models_z_min;
+    float min = m_models_z_min;
+    if(m_use_display_z_min_max)
     {
-        delta = m_displayZMax - m_displayZMin;
-        min = m_displayZMin;
+        delta = m_display_z_max - m_display_z_min;
+        min = m_display_z_min;
     }
 
     for(unsigned int i=0; i<m_models.size(); i++)
@@ -2222,7 +2222,7 @@ void OSGWidget::recomputeGlobalZMinMax()
             continue;
 
         osg::StateSet* state_set = m_models[i]->getOrCreateStateSet();
-        state_set->addUniform( new osg::Uniform( "zmin", min - data->zoffset - data->originalZoffset));
+        state_set->addUniform( new osg::Uniform( "zmin", min - data->m_zoffset - data->m_original_z_offset));
         state_set->addUniform( new osg::Uniform( "deltaz", delta));
     }
 }
@@ -2232,7 +2232,7 @@ bool OSGWidget::isEnabledShaderOnNode(osg::ref_ptr<osg::Node> _node)
     osg::ref_ptr<NodeUserData> data = (NodeUserData*)(_node->getUserData());
     if(data != nullptr)
     {
-        return data->useShader;
+        return data->m_use_shader;
     }
     return false;
 }
@@ -2242,15 +2242,15 @@ void OSGWidget::enableShaderOnNode(osg::ref_ptr<osg::Node> _node, bool _enable)
     osg::ref_ptr<NodeUserData> data = (NodeUserData*)(_node->getUserData());
     if(data != nullptr)
     {
-        osg::StateSet *stateSet= _node->getOrCreateStateSet();
-        data->useShader = _enable;
+        osg::StateSet *state_Set= _node->getOrCreateStateSet();
+        data->m_use_shader = _enable;
         if(_enable)
         {
-            configureShaders(stateSet);
+            configureShaders(state_Set);
         }
         else
         {
-            stateSet->removeAttribute(osg::StateAttribute::PROGRAM);
+            state_Set->removeAttribute(osg::StateAttribute::PROGRAM);
         }
     }
 }
@@ -2258,14 +2258,14 @@ void OSGWidget::enableShaderOnNode(osg::ref_ptr<osg::Node> _node, bool _enable)
 
 void OSGWidget::setUseDisplayZMinMaxAndUpdate(bool _use)
 {
-    m_useDisplayZMinMax = _use;
+    m_use_display_z_min_max = _use;
 
-    float delta = m_modelsZMax - m_modelsZMin;
-    float min = m_modelsZMin;
-    if(m_useDisplayZMinMax)
+    float delta = m_models_z_max - m_models_z_min;
+    float min = m_models_z_min;
+    if(m_use_display_z_min_max)
     {
-        delta = m_displayZMax - m_displayZMin;
-        min = m_displayZMin;
+        delta = m_display_z_max - m_display_z_min;
+        min = m_display_z_min;
     }
 
     for(unsigned int i=0; i<m_models.size(); i++)
@@ -2276,20 +2276,20 @@ void OSGWidget::setUseDisplayZMinMaxAndUpdate(bool _use)
             continue;
 
         osg::StateSet* state_set = m_models[i]->getOrCreateStateSet();
-        state_set->addUniform( new osg::Uniform( "zmin", min - data->zoffset - data->originalZoffset));
+        state_set->addUniform( new osg::Uniform( "zmin", min - data->m_zoffset - data->m_original_z_offset));
         state_set->addUniform( new osg::Uniform( "deltaz", delta));
     }
 }
 
 void OSGWidget::showZScale(bool _show)
 {
-    m_showZScale = _show;
+    m_show_z_scale = _show;
     update();
 }
 
-void OSGWidget::setColorPalette(ShaderColor::Palette _palette)
+void OSGWidget::setColorPalette(ShaderColor::ePalette _palette)
 {
-    m_colorPalette = _palette;
+    m_color_palette = _palette;
 
     // process all models
     for(unsigned int i=0; i<m_models.size(); i++)
@@ -2297,7 +2297,7 @@ void OSGWidget::setColorPalette(ShaderColor::Palette _palette)
         osg::ref_ptr<NodeUserData> data = (NodeUserData*)m_models[i]->getUserData();
         if(data != nullptr)
         {
-            if(data->useShader)
+            if(data->m_use_shader)
             {
                 osg::StateSet *stateSet= m_models[i]->getOrCreateStateSet();
                 configureShaders(stateSet);

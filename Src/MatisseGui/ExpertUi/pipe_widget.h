@@ -9,17 +9,17 @@ class PipeWidget : public ElementWidget
 {
 
 public:
-    PipeWidget(QGraphicsItem *parent = 0);
+    PipeWidget(QGraphicsItem *_parent = 0);
 
-    virtual void drawSymbol(QPainter *painter, bool forIcon = false);
-    void setGeometry(int x, int y, int deltaYt = 0, int deltaXt = 0, int deltaY = 0, int deltaXb = 0, int deltaYb = 0, QColor color = QColor());
-    void setColor(QColor color);
-    void fromSourcePos(QPointF srcPos);
-    void toDestinationPos(QPointF dstPos);
-    virtual int type() const { return PipeType;}
+    virtual void drawSymbol(QPainter *_painter, bool _for_icon = false);
+    void setGeometry(int _x, int _y, int _delta_y_t = 0, int _delta_x_t = 0, int _delta_y = 0, int _delta_x_b = 0, int _delta_y_b = 0, QColor _color = QColor());
+    void setColor(QColor _color);
+    void fromSourcePos(QPointF _src_pos);
+    void toDestinationPos(QPointF _dst_pos);
+    virtual int type() const { return PIPE_TYPE;}
 
-    void setStart(bool temp, ElementWidget * src, int srcLine);
-    void setEnd(ElementWidget *dest, int destLine);
+    void setStart(bool _temp, ElementWidget * _src, int _src_line);
+    void setEnd(ElementWidget *_dest, int _dest_line);
     ElementWidget * getStartElement();
     ElementWidget *getTempStartElement();
     ElementWidget * getEndElement();
@@ -27,31 +27,31 @@ public:
     int getEndElementLine();
     void refreshConnections();
 
-    virtual void clone(PipeWidget * other);
+    virtual void clone(PipeWidget * _other);
 
-    static void setCurrentColor(QRgb color);
+    static void setCurrentColor(QRgb _color);
     static QRgb getNextColor();
     bool hasStart();
     void clear();
 
 private:
-    static int _currentColorIndex;
-    static QList<QRgb> _colorsList;
+    static int m_current_color_index;
+    static QList<QRgb> m_colors_list;
     static void fillColorsList();
 
-    int _x;
-    int _y;
-    int _deltaYt;
-    int _deltaXt;
-    int _deltaY;
-    int _deltaXb;
-    int _deltaYb;
+    int m_x;
+    int m_y;
+    int m_delta_y_t;
+    int m_delta_x_t;
+    int m_delta_y;
+    int m_delta_x_b;
+    int m_delta_y_b;
 
-    ElementWidget * _startElt;
-    ElementWidget * _tempStartElt;
-    ElementWidget * _endElt;
-    int _startLine;
-    int _endLine;
+    ElementWidget * m_start_elt;
+    ElementWidget * m_temp_start_elt;
+    ElementWidget * m_end_elt;
+    int m_start_line;
+    int m_end_line;
 
 signals:
     

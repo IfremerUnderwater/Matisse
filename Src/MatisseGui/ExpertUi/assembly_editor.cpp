@@ -4,64 +4,56 @@
 
 namespace matisse {
 
-AssemblyEditor::AssemblyEditor(QWidget *parent) :
-    QWidget(parent),
-    _ui(new Ui::AssemblyEditor)//,
-    //_server(NULL)
+AssemblyEditor::AssemblyEditor(QWidget *_parent) :
+    QWidget(_parent),
+    m_ui(new Ui::AssemblyEditor)
 {
-    _ui->setupUi(this);
+    m_ui->setupUi(this);
     init();
 }
 
 AssemblyEditor::~AssemblyEditor()
 {
-    delete _ui;
+    delete m_ui;
 }
 
 void AssemblyEditor::init()
 {
-    _ui->_GRW_assembly->setEnabled(false);
-    _ui->_GRW_assembly->setAcceptDrops(true);
+    m_ui->_GRW_assembly->setEnabled(false);
+    m_ui->_GRW_assembly->setAcceptDrops(true);
 
-    QRect containerRect = _ui->_GRW_assembly->rect();
+    QRect container_rect = m_ui->_GRW_assembly->rect();
 
-    _scene = new AssemblyGraphicsScene(containerRect);
-    _ui->_GRW_assembly->setScene(_scene);
-    _ui->_GRW_assembly->centerOn(0, 0);
-    _scene->initViewport();
+    m_scene = new AssemblyGraphicsScene(container_rect);
+    m_ui->_GRW_assembly->setScene(m_scene);
+    m_ui->_GRW_assembly->centerOn(0, 0);
+    m_scene->initViewport();
 }
 
-void AssemblyEditor::resizeEvent(QResizeEvent *event)
+void AssemblyEditor::resizeEvent(QResizeEvent *_event)
 {
-    QWidget::resizeEvent(event);
+    QWidget::resizeEvent(_event);
 
-    qDebug() << "ExpertFormWidget Resize event : " << event->oldSize() << event->size();
+    qDebug() << "ExpertFormWidget Resize event : " << _event->oldSize() << _event->size();
 }
-
-//void ExpertFormWidget::setServer(Server *server) {
-//    _server = server;
-//    _scene->setServer(server);
-//}
-
 
 QGraphicsView *AssemblyEditor::getGraphicsView()
 {
-    return _ui->_GRW_assembly;
+    return m_ui->_GRW_assembly;
 }
 
-
-bool AssemblyEditor::loadAssembly(QString assemblyName)
+bool AssemblyEditor::loadAssembly(QString _assembly_name)
 {
-    qDebug() << "Load assembly:" << assemblyName;
-    return _scene->loadAssembly(assemblyName);
+    qDebug() << "Load assembly:" << _assembly_name;
+    return m_scene->loadAssembly(_assembly_name);
 
 }
 
 void AssemblyEditor::resetAssemblyForm()
 {
-    _scene->reset();
-    _ui->_GRW_assembly->invalidateScene();
-    _ui->_GRW_assembly->update();
+    m_scene->reset();
+    m_ui->_GRW_assembly->invalidateScene();
+    m_ui->_GRW_assembly->update();
 }
 
 } // namespace matisse

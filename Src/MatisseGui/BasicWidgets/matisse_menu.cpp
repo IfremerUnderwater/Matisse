@@ -2,17 +2,17 @@
 
 namespace matisse {
 
-MatisseMenu::MatisseMenu(QWidget* parent) : QMenu(parent)
+MatisseMenu::MatisseMenu(QWidget* _parent) : QMenu(_parent)
 {
 }
 
-MatisseMenu::MatisseMenu(const QString &title, QWidget *parent) : QMenu(title, parent)
+MatisseMenu::MatisseMenu(const QString &_title, QWidget *_parent) : QMenu(_title, _parent)
 {
 }
 
-void MatisseMenu::showEvent(QShowEvent *event)
+void MatisseMenu::showEvent(QShowEvent *_event)
 {
-    Q_UNUSED(event)
+    Q_UNUSED(_event)
 
     QWidget* parent = parentWidget();
     QPoint p = this->pos();

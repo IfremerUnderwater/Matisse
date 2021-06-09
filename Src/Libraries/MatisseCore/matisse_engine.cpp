@@ -611,11 +611,11 @@ void JobTask::sl_start()
     connect(m_input_data_provider, SIGNAL(si_userInformation(QString)), this, SLOT(sl_userInformation(QString)));
     connect(m_input_data_provider, SIGNAL(si_processCompletion(quint8)), this, SLOT(sl_processCompletion(quint8)));
     if (!m_is_server_mode) {
-      connect(m_input_data_provider, SIGNAL(si_showInformationMessage(QString, QString)), m_job_launcher, SLOT(slot_showInformationMessage(QString, QString)));
-      connect(m_input_data_provider, SIGNAL(si_showErrorMessage(QString, QString)), m_job_launcher, SLOT(slot_showErrorMessage(QString, QString)));
-      connect(m_input_data_provider, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(slot_show3DFileOnMainView(QString)));
-      connect(m_input_data_provider, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(slot_addRasterFileToMap(QString)));
-      connect(m_input_data_provider, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(slot_addToLog(QString)));
+      connect(m_input_data_provider, SIGNAL(si_showInformationMessage(QString, QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString, QString)));
+      connect(m_input_data_provider, SIGNAL(si_showErrorMessage(QString, QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString, QString)));
+      connect(m_input_data_provider, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(sl_show3DFileOnMainView(QString)));
+      connect(m_input_data_provider, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(sl_addRasterFileToMap(QString)));
+      connect(m_input_data_provider, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(sl_addToLog(QString)));
       connect(m_input_data_provider, SIGNAL(si_addToLog(QString)), this, SLOT(sl_logToFile(QString)));
     }
 
@@ -639,11 +639,11 @@ void JobTask::sl_start()
         connect(processor, SIGNAL(si_fatalError()), this, SLOT(sl_fatalError()));
         connect(processor, SIGNAL(si_addToLog(QString)), this, SLOT(sl_logToFile(QString)));
         if (!m_is_server_mode) {
-          connect(processor, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(slot_showInformationMessage(QString,QString)));
-          connect(processor, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(slot_showErrorMessage(QString,QString)));
-          connect(processor, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(slot_show3DFileOnMainView(QString)));
-          connect(processor, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(slot_addRasterFileToMap(QString)));
-          connect(processor, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(slot_addToLog(QString)));
+          connect(processor, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString,QString)));
+          connect(processor, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString,QString)));
+          connect(processor, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(sl_show3DFileOnMainView(QString)));
+          connect(processor, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(sl_addRasterFileToMap(QString)));
+          connect(processor, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(sl_addToLog(QString)));
         }
         processor->callConfigure(m_context, m_mat_parameters);
     }
@@ -653,11 +653,11 @@ void JobTask::sl_start()
     connect(m_output_data_writer, SIGNAL(si_processCompletion(quint8)), this, SLOT(sl_processCompletion(quint8)));
     connect(m_output_data_writer, SIGNAL(si_addToLog(QString)), this, SLOT(sl_logToFile(QString)));
     if (!m_is_server_mode) {
-      connect(m_output_data_writer, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(slot_showInformationMessage(QString,QString)));
-      connect(m_output_data_writer, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(slot_showErrorMessage(QString,QString)));
-      connect(m_output_data_writer, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(slot_show3DFileOnMainView(QString)));
-      connect(m_output_data_writer, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(slot_addRasterFileToMap(QString)));
-      connect(m_output_data_writer, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(slot_addToLog(QString)));
+      connect(m_output_data_writer, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString,QString)));
+      connect(m_output_data_writer, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString,QString)));
+      connect(m_output_data_writer, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(sl_show3DFileOnMainView(QString)));
+      connect(m_output_data_writer, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(sl_addRasterFileToMap(QString)));
+      connect(m_output_data_writer, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(sl_addToLog(QString)));
     }
     ok = m_output_data_writer->callConfigure(m_context, m_mat_parameters);
     if (!ok) {
@@ -727,11 +727,11 @@ void JobTask::sl_stop()
     disconnect(m_input_data_provider, SIGNAL(si_processCompletion(quint8)), this, SLOT(sl_processCompletion(quint8)));
     disconnect(m_input_data_provider, SIGNAL(si_addToLog(QString)), this, SLOT(sl_logToFile(QString)));
     if (!m_is_server_mode) {
-      disconnect(m_input_data_provider, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(slot_showInformationMessage(QString,QString)));
-      disconnect(m_input_data_provider, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(slot_showErrorMessage(QString,QString)));
-      disconnect(m_input_data_provider, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(slot_show3DFileOnMainView(QString)));
-      disconnect(m_input_data_provider, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(slot_addRasterFileToMap(QString)));
-      disconnect(m_input_data_provider, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(slot_addToLog(QString)));
+      disconnect(m_input_data_provider, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString,QString)));
+      disconnect(m_input_data_provider, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString,QString)));
+      disconnect(m_input_data_provider, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(sl_show3DFileOnMainView(QString)));
+      disconnect(m_input_data_provider, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(sl_addRasterFileToMap(QString)));
+      disconnect(m_input_data_provider, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(sl_addToLog(QString)));
     }
 
     foreach (Processor* processor, m_processors) {
@@ -743,11 +743,11 @@ void JobTask::sl_stop()
         disconnect(processor, SIGNAL(si_fatalError()), this, SLOT(sl_fatalError()));
         disconnect(processor, SIGNAL(si_addToLog(QString)), this, SLOT(sl_logToFile(QString)));
         if (!m_is_server_mode) {
-          disconnect(processor, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(slot_showInformationMessage(QString,QString)));
-          disconnect(processor, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(slot_showErrorMessage(QString,QString)));
-          disconnect(processor, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(slot_show3DFileOnMainView(QString)));
-          disconnect(processor, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(slot_addRasterFileToMap(QString)));
-          disconnect(processor, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(slot_addToLog(QString)));
+          disconnect(processor, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString,QString)));
+          disconnect(processor, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString,QString)));
+          disconnect(processor, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(sl_show3DFileOnMainView(QString)));
+          disconnect(processor, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(sl_addRasterFileToMap(QString)));
+          disconnect(processor, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(sl_addToLog(QString)));
         }
     }
 
@@ -755,11 +755,11 @@ void JobTask::sl_stop()
     disconnect(m_output_data_writer, SIGNAL(si_processCompletion(quint8)), this, SLOT(sl_processCompletion(quint8)));
     disconnect(m_output_data_writer, SIGNAL(si_addToLog(QString)), this, SLOT(sl_logToFile(QString)));
     if (!m_is_server_mode) {
-      disconnect(m_output_data_writer, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(slot_showInformationMessage(QString,QString)));
-      disconnect(m_output_data_writer, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(slot_showErrorMessage(QString,QString)));
-      disconnect(m_output_data_writer, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(slot_show3DFileOnMainView(QString)));
-      disconnect(m_output_data_writer, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(slot_addRasterFileToMap(QString)));
-      disconnect(m_output_data_writer, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(slot_addToLog(QString)));
+      disconnect(m_output_data_writer, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString,QString)));
+      disconnect(m_output_data_writer, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString,QString)));
+      disconnect(m_output_data_writer, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(sl_show3DFileOnMainView(QString)));
+      disconnect(m_output_data_writer, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(sl_addRasterFileToMap(QString)));
+      disconnect(m_output_data_writer, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(sl_addToLog(QString)));
     }
 
     if(m_context != NULL)

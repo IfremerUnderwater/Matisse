@@ -2,37 +2,37 @@
 
 namespace matisse {
 
-void DestinationWidget::drawSymbol(QPainter *painter, bool forIcon)
+void DestinationWidget::drawSymbol(QPainter *_painter, bool _for_icon)
 {
-    QRect tempRect = _bodyRect;
-    if (forIcon) {
-        _bodyRect.translate(_boundingRect.width()/2, _boundingRect.height()-_bodyRect.height()/2);
+    QRect tempRect = m_body_rect;
+    if (_for_icon) {
+        m_body_rect.translate(m_bounding_rect.width()/2, m_bounding_rect.height()-m_body_rect.height()/2);
     }
 
     QPoint points[4];
-    points[0] = QPoint(_bodyRect.bottomLeft());
-    points[1] = QPoint(_bodyRect.right()-15, _bodyRect.bottom());
-    points[2] = QPoint(_bodyRect.topRight());
-    points[3] = QPoint(_bodyRect.left()+15, _bodyRect.top());
+    points[0] = QPoint(m_body_rect.bottomLeft());
+    points[1] = QPoint(m_body_rect.right()-15, m_body_rect.bottom());
+    points[2] = QPoint(m_body_rect.topRight());
+    points[3] = QPoint(m_body_rect.left()+15, m_body_rect.top());
 
-    painter->drawPolygon(points, 4);
+    _painter->drawPolygon(points, 4);
 
-    QVector <QLine> linesIn;
-    int xOrig = _bodyRect.left();
-    int yOrig = _bodyRect.top();
+    QVector <QLine> lines_in;
+    int xOrig = m_body_rect.left();
+    int yOrig = m_body_rect.top();
 
-    int deltaIn = _bodyRect.width() / (_inputsNumber + 1);
+    int delta_in = m_body_rect.width() / (m_inputs_number + 1);
 
-    for (int index = 1; index <= _inputsNumber; index++) {
-        linesIn << QLine(xOrig + deltaIn * index, yOrig, xOrig + deltaIn * index, yOrig -30);
-        painter->drawArc(QRect(xOrig + deltaIn * index - 6, yOrig -42, 12, 12),-180*16, 180*16);
+    for (int index = 1; index <= m_inputs_number; index++) {
+        lines_in << QLine(xOrig + delta_in * index, yOrig, xOrig + delta_in * index, yOrig -30);
+        _painter->drawArc(QRect(xOrig + delta_in * index - 6, yOrig -42, 12, 12),-180*16, 180*16);
     }
 
-    painter->drawLines(linesIn);
+    _painter->drawLines(lines_in);
 
-    painter->drawText(_bodyRect, Qt::AlignCenter, _name);
+    _painter->drawText(m_body_rect, Qt::AlignCenter, m_name);
 
-    _bodyRect = tempRect;
+    m_body_rect = tempRect;
 }
 
 } // namespace matisse

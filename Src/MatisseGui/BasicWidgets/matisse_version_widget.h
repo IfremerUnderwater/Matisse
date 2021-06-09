@@ -14,11 +14,11 @@ class MatisseVersionWidget : public QFrame
     Q_OBJECT
 
 public:
-    explicit MatisseVersionWidget(QWidget *parent = 0);
+    explicit MatisseVersionWidget(QWidget *_parent = 0);
     ~MatisseVersionWidget();
 
 private:
-    Ui::MatisseVersionWidget *ui;
+    Ui::MatisseVersionWidget *m_ui;
 };
 
 } // namespace matisse

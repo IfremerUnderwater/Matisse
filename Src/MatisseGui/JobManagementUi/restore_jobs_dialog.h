@@ -15,16 +15,16 @@ class RestoreJobsDialog : public QDialog
     Q_OBJECT
 
 public:
-    RestoreJobsDialog(QWidget *parent, QString assemblyName, QStringList archivedJobs, QStringList &jobsToRestore);
+    RestoreJobsDialog(QWidget *_parent, QString _assembly_name, QStringList _archived_jobs, QStringList &_jobs_to_restore);
     ~RestoreJobsDialog();
 
 protected slots:
-    void slot_close();
+    void sl_close();
 
 private:
-    Ui::RestoreJobsDialog *_ui;
-    QStringList _archivedJobs;
-    QStringList *_jobsToRestore;
+    Ui::RestoreJobsDialog *m_ui;
+    QStringList m_archived_jobs;
+    QStringList *m_jobs_to_restore;
 };
 
 } // namespace matisse

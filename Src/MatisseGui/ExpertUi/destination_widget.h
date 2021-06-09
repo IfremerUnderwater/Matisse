@@ -10,8 +10,8 @@ class DestinationWidget : public ElementWidget
 //    Q_OBJECT
 public:
 
-    virtual void drawSymbol(QPainter *painter, bool forIcon = false);
-    virtual int type() const { return DestinationType; }
+    virtual void drawSymbol(QPainter *_painter, bool _for_icon = false);
+    virtual int type() const { return DESTINATION_TYPE; }
 
 signals:
     

@@ -4,11 +4,11 @@
 
 namespace matisse {
 
-OngoingProcessWidget::OngoingProcessWidget(QWidget *parent) :
-    QFrame(parent),
-    ui(new Ui::OngoingProcessWidget)
+OngoingProcessWidget::OngoingProcessWidget(QWidget *_parent) :
+    QFrame(_parent),
+    m_ui(new Ui::OngoingProcessWidget)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 }
 
 void OngoingProcessWidget::dpiScale()
@@ -17,33 +17,33 @@ void OngoingProcessWidget::dpiScale()
     int dpi_cb_height = graph_charter.dpiScaled(CONTROLLBAR_HEIGHT);
 
     int dpi_stop_wh = graph_charter.dpiScaled(CB_STOP_BUTTON_ICON);
-    ui->_TBU_stopButton->setFixedSize(dpi_cb_height,dpi_cb_height);
-    ui->_TBU_stopButton->setIconSize(QSize(dpi_stop_wh,dpi_stop_wh));
+    m_ui->_TBU_stopButton->setFixedSize(dpi_cb_height,dpi_cb_height);
+    m_ui->_TBU_stopButton->setIconSize(QSize(dpi_stop_wh,dpi_stop_wh));
 
-    ui->_WID_liveProcessWheel->setFixedSize(dpi_cb_height,dpi_cb_height);
+    m_ui->_WID_liveProcessWheel->setFixedSize(dpi_cb_height,dpi_cb_height);
 
     int butt_wh = dpi_cb_height/3;
     int butt_icon_wh = (int)(0.8*(double)butt_wh);
-    ui->_TBU_closeButton->setFixedSize(butt_wh,butt_wh);
-    ui->_TBU_closeButton->setIconSize(QSize(butt_icon_wh,butt_icon_wh));
-    ui->_TBU_maximizeRestoreButton->setFixedSize(butt_wh,butt_wh);
-    ui->_TBU_maximizeRestoreButton->setIconSize(QSize(butt_icon_wh,butt_icon_wh));
-    ui->_TBU_minimizeButton->setFixedSize(butt_wh,butt_wh);
-    ui->_TBU_minimizeButton->setIconSize(QSize(butt_icon_wh,butt_icon_wh));
+    m_ui->_TBU_closeButton->setFixedSize(butt_wh,butt_wh);
+    m_ui->_TBU_closeButton->setIconSize(QSize(butt_icon_wh,butt_icon_wh));
+    m_ui->_TBU_maximizeRestoreButton->setFixedSize(butt_wh,butt_wh);
+    m_ui->_TBU_maximizeRestoreButton->setIconSize(QSize(butt_icon_wh,butt_icon_wh));
+    m_ui->_TBU_minimizeButton->setFixedSize(butt_wh,butt_wh);
+    m_ui->_TBU_minimizeButton->setIconSize(QSize(butt_icon_wh,butt_icon_wh));
 
 
 }
 
 OngoingProcessWidget::~OngoingProcessWidget()
 {
-    delete ui;
+    delete m_ui;
 }
 
-void OngoingProcessWidget::changeEvent(QEvent *event)
+void OngoingProcessWidget::changeEvent(QEvent *_event)
 {
-    if (event->type() == QEvent::LanguageChange)
+    if (_event->type() == QEvent::LanguageChange)
     {
-        ui->retranslateUi(this);
+        m_ui->retranslateUi(this);
     }
 }
 

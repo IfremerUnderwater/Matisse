@@ -12,8 +12,8 @@ public :
     AreaComputationVisitor();
     virtual ~AreaComputationVisitor();
 
-    virtual void apply( osg::Node &node );
-    virtual void apply( osg::Geode &geode );
+    virtual void apply( osg::Node &_node );
+    virtual void apply( osg::Geode &_geode );
 
     double getArea() const { return m_area; }
 

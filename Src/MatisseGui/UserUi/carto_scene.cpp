@@ -16,34 +16,34 @@ namespace matisse {
 
 CartoScene::CartoScene() : QGraphicsScene(/*QObject *parent = Q_NULLPTR)*/)
 {
-    _envelope.setRect(0,0,0,0);
-    _parentSize = QSize(0,0);
-    _scale = 1.0;
-    _rectEnv = NULL;
-    _scaleFactor = 1.0;
-    _showImagesRect = false;
-    _showBoundingRect = false;
+    m_envelope.setRect(0,0,0,0);
+    m_parent_size = QSize(0,0);
+    m_scale = 1.0;
+    m_rect_env = NULL;
+    m_scale_factor = 1.0;
+    m_show_images_rect = false;
+    m_show_bounding_rect = false;
 }
 
-void CartoScene::addCartoImage(CartoImage *image)
+void CartoScene::addCartoImage(CartoImage *_image)
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     Mat dest;
 
-    int nbchannels = image->imageData()->channels();
+    int nbchannels = _image->imageData()->channels();
     QImage::Format format = QImage::Format_RGB888;
 
     // only RGB and RGBA images can be used
     if(nbchannels == 3)
     {
-        cvtColor(*(image->imageData()), dest, COLOR_BGR2RGB);
+        cvtColor(*(_image->imageData()), dest, COLOR_BGR2RGB);
         format = QImage::Format_RGB888;
     }
     else if (nbchannels == 4)
     {
         // with alpha CV_BGRA2RGBA
-        cvtColor(*(image->imageData()), dest, COLOR_BGRA2RGBA);
+        cvtColor(*(_image->imageData()), dest, COLOR_BGRA2RGBA);
         format = QImage::Format_RGBA8888;
     }
     else
@@ -56,77 +56,77 @@ void CartoScene::addCartoImage(CartoImage *image)
     QImage result((uchar*) dest.data, dest.cols, dest.rows, dest.step, format);
     if(result.isNull() && nbchannels == 4)
     {
-        qDebug() << "Error loading 4 channels data - trying 3 channels : " << image->fileName();
+        qDebug() << "Error loading 4 channels data - trying 3 channels : " << _image->fileName();
         dest.release();
-        cvtColor(*(image->imageData()), dest, COLOR_BGR2RGB);
+        cvtColor(*(_image->imageData()), dest, COLOR_BGR2RGB);
         format = QImage::Format_RGB888;
         result = QImage((uchar*) dest.data, dest.cols, dest.rows, dest.step, format);
     }
     const QPixmap pix = QPixmap::fromImage(result);
 
-    QRectF imageEnv = image->getEnvelope();
+    QRectF image_env = _image->getEnvelope();
 
     // compute scale
-    if(_scale == 1.0 && _parentSize.height() > 0 && _parentSize.width() > 0 && _envelope.width() == 0 && _envelope.height() == 0
-            && imageEnv.width() > 0 && imageEnv.height() > 0)
+    if(m_scale == 1.0 && m_parent_size.height() > 0 && m_parent_size.width() > 0 && m_envelope.width() == 0 && m_envelope.height() == 0
+            && image_env.width() > 0 && image_env.height() > 0)
     {
         // square pixels - ensure image fits in parent
-        qreal w = imageEnv.width();
-        qreal h = imageEnv.height();
-        _scale = min(_parentSize.width() / w, _parentSize.height() / h);
+        qreal w = image_env.width();
+        qreal h = image_env.height();
+        m_scale = min(m_parent_size.width() / w, m_parent_size.height() / h);
     }
 
     // scale rectangle
-    imageEnv = QRectF(imageEnv.left() * _scale,
-                      imageEnv.top() * _scale,
-                      imageEnv.width() * _scale,
-                      imageEnv.height() * _scale);
+    image_env = QRectF(image_env.left() * m_scale,
+                      image_env.top() * m_scale,
+                      image_env.width() * m_scale,
+                      image_env.height() * m_scale);
 
     // compute envelope
-    unionEnvelope(imageEnv);
+    unionEnvelope(image_env);
 
     //resize scene
-    setSceneRect(_envelope);
+    setSceneRect(m_envelope);
 
     // debug
-    QRectF sr(_envelope);
-    if(_rectEnv == NULL)
+    QRectF sr(m_envelope);
+    if(m_rect_env == NULL)
     {
         QPen spen(QColor(255,255,0));
-        _rectEnv = addRect(sr,spen);
+        m_rect_env = addRect(sr,spen);
     }
     else
     {
-        _rectEnv->setRect(sr);
+        m_rect_env->setRect(sr);
     }
 
-    _rectEnv->hide();
+    m_rect_env->hide();
 
     //pixmap boundaries
     // size in pixels : take values NOT rotated
-    QSize size(image->widthGeo() * _scale, image->heightGeo() * _scale);
+    QSize size(_image->widthGeo() * m_scale, _image->heightGeo() * m_scale);
     // apply scale factor
-    QSize sizePix(image->widthGeo() * _scale * _scaleFactor, image->heightGeo() * _scale *_scaleFactor);
+    QSize size_pix(_image->widthGeo() * m_scale * m_scale_factor, _image->heightGeo() * m_scale *m_scale_factor);
     // limit to pixels numbers in X
-    qreal sfactor = _scaleFactor;
-    if(sizePix.width() > image->width())
+    qreal sfactor = m_scale_factor;
+    if(size_pix.width() > _image->width())
     {
-        sizePix = QSize(image->width(), image->height());
-        sfactor = ((qreal)image->width()) / (image->widthGeo() * _scale);
+        size_pix = QSize(_image->width(), _image->height());
+        sfactor = ((qreal)_image->width()) / (_image->widthGeo() * m_scale);
     }
-    QGraphicsPixmapItem *pm = addPixmap(pix.scaled(sizePix, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    pm->setToolTip(image->fileName());
+    QGraphicsPixmapItem *pm = addPixmap(pix.scaled(size_pix, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    pm->setToolTip(_image->fileName());
     pm->setScale(1.0 / sfactor );
 
     QRectF r(QPointF(0,0),size);
     QPen pen(QColor(255,0,0));
     QGraphicsRectItem *rect = addRect(r,pen);
     // compute position (scale applied)
-    qreal xPos = image->xGeo(0,0) * _scale;
-    qreal yPos = image->yGeo(0,0) * _scale;;
+    qreal x_pos = _image->xGeo(0,0) * m_scale;
+    qreal y_pos = _image->yGeo(0,0) * m_scale;;
 
     // rotation
-    qreal angle = image->getRotationAngle();
+    qreal angle = _image->getRotationAngle();
     // transform in QT world
     //Sets the clockwise rotation angle, in degrees, around the Z axis. The default value is 0 (i.e., the item is not rotated).
     // Assigning a negative value will rotate the item counter-clockwise.
@@ -137,17 +137,17 @@ void CartoScene::addCartoImage(CartoImage *image)
     rect->setRotation( - angle * 180.0 / M_PI);
 
     // set position
-    pm->setPos(xPos, yPos);
-    rect->setPos(xPos, yPos);
+    pm->setPos(x_pos, y_pos);
+    rect->setPos(x_pos, y_pos);
 
     rect->hide();
 
     // free memory here
-    image->releaseImageData();
+    _image->releaseImageData();
 
-    _imageList.append(new ZoomableImage(image->fileName(), pm, rect, sfactor, sfactor != _scaleFactor));
+    m_image_list.append(new ZoomableImage(_image->fileName(), pm, rect, sfactor, sfactor != m_scale_factor));
 
-    delete image;
+    delete _image;
 
     QApplication::restoreOverrideCursor();
 }
@@ -155,48 +155,48 @@ void CartoScene::addCartoImage(CartoImage *image)
 void CartoScene::clearScene()
 {
     clear();
-    _envelope.setRect(0,0,0,0);
-    _scale = 1.0;
-    _rectEnv = NULL;
+    m_envelope.setRect(0,0,0,0);
+    m_scale = 1.0;
+    m_rect_env = NULL;
 
     // delete objects
-    QList<ZoomableImage*>::iterator it = _imageList.begin();
-    for ( ; it != _imageList.end(); ++it )
+    QList<ZoomableImage*>::iterator it = m_image_list.begin();
+    for ( ; it != m_image_list.end(); ++it )
     {
         ZoomableImage *zi = *it;
         delete zi;
     }
-    _imageList.clear();
+    m_image_list.clear();
 
-    _scaleFactor = 1.0;
+    m_scale_factor = 1.0;
 }
 
-void CartoScene::setParentSize(QSize size)
+void CartoScene::setParentSize(QSize _size)
 {
-    _parentSize = size;
+    m_parent_size = _size;
 }
 
-void CartoScene::setScaleFactor(qreal val)
+void CartoScene::setScaleFactor(qreal _val)
 {
-    _scaleFactor = val;
+    m_scale_factor = _val;
 }
 
-void CartoScene::unionEnvelope(QRectF addRect)
+void CartoScene::unionEnvelope(QRectF _add_rect)
 {
-    if(_envelope.width() == 0 && _envelope.height() == 0)
+    if(m_envelope.width() == 0 && m_envelope.height() == 0)
     {
-        _envelope = addRect;
+        m_envelope = _add_rect;
     }
     else
     {
         // compute
-        _envelope = _envelope.united(addRect);
+        m_envelope = m_envelope.united(_add_rect);
     }
 }
 
-void CartoScene::reloadVisibleImageWithNewScaleFactor(QGraphicsView * view)
+void CartoScene::reloadVisibleImageWithNewScaleFactor(QGraphicsView * _view)
 {
-    QList<QGraphicsItem *> items = view->items(view->viewport()->rect());
+    QList<QGraphicsItem *> items = _view->items(_view->viewport()->rect());
     QList<QGraphicsItem *>::iterator vit = items.begin();
     for ( ; vit != items.end(); ++vit )
     {
@@ -206,8 +206,8 @@ void CartoScene::reloadVisibleImageWithNewScaleFactor(QGraphicsView * view)
         if(i->type() != QGraphicsPixmapItem::Type)
             continue;
 
-        QList<ZoomableImage*>::iterator it = _imageList.begin();
-        for ( ; it != _imageList.end(); ++it )
+        QList<ZoomableImage*>::iterator it = m_image_list.begin();
+        for ( ; it != m_image_list.end(); ++it )
         {
             ZoomableImage *zi = *it;
             if( i == zi->pixmap() && zi->scaleFactor() < scaleFactor() && !zi->maxScale())
@@ -216,7 +216,7 @@ void CartoScene::reloadVisibleImageWithNewScaleFactor(QGraphicsView * view)
                 // process
                 removeItem(zi->pixmap());
                 removeItem(zi->rect());
-                _imageList.removeOne(zi);
+                m_image_list.removeOne(zi);
 
                 CartoImage *ci = new CartoImage();
                 ci->loadFile(zi->fileName());
@@ -233,15 +233,15 @@ void CartoScene::reloadVisibleImageWithNewScaleFactor(QGraphicsView * view)
 
 
 // display image rectangles (default : false)
-void CartoScene::showImageRect(const bool show)
+void CartoScene::showImageRect(const bool _show)
 {
-    _showImagesRect = show;
+    m_show_images_rect = _show;
 
-    QList<ZoomableImage*>::iterator it = _imageList.begin();
-    for ( ; it != _imageList.end(); ++it )
+    QList<ZoomableImage*>::iterator it = m_image_list.begin();
+    for ( ; it != m_image_list.end(); ++it )
     {
         ZoomableImage *zi = *it;
-        if(show)
+        if(_show)
             zi->rect()->show();
         else
             zi->rect()->hide();
@@ -249,15 +249,15 @@ void CartoScene::showImageRect(const bool show)
 }
 
 // display scene bounding rectangle (default : false)
-void CartoScene::showSceneBoundingRectangle(const bool show)
+void CartoScene::showSceneBoundingRectangle(const bool _show)
 {
-    _showBoundingRect = show;
-    if(_rectEnv != NULL)
+    m_show_bounding_rect = _show;
+    if(m_rect_env != NULL)
     {
-        if(show)
-            _rectEnv->show();
+        if(_show)
+            m_rect_env->show();
         else
-            _rectEnv->hide();
+            m_rect_env->hide();
     }
 }
 

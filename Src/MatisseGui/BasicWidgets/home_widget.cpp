@@ -5,22 +5,22 @@
 
 namespace matisse {
 
-HomeWidget::HomeWidget(QWidget *parent) :
-    QFrame(parent),
-    ui(new Ui::HomeWidget)
+HomeWidget::HomeWidget(QWidget *_parent) :
+    QFrame(_parent),
+    m_ui(new Ui::HomeWidget)
 {
-    ui->setupUi(this);
-    connect(ui->_TB_homeButton, SIGNAL(clicked()), this, SLOT(slot_goHome()));
+    m_ui->setupUi(this);
+    connect(m_ui->_TB_homeButton, SIGNAL(clicked()), this, SLOT(sl_goHome()));
 }
 
 HomeWidget::~HomeWidget()
 {
-    delete ui;
+    delete m_ui;
 }
 
-void HomeWidget::slot_goHome()
+void HomeWidget::sl_goHome()
 {
-    emit signal_goHome();
+    emit si_goHome();
 }
 
 } // namespace matisse

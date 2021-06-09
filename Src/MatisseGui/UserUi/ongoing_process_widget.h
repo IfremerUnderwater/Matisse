@@ -14,15 +14,15 @@ class OngoingProcessWidget : public QFrame
     Q_OBJECT
 
 public:
-    explicit OngoingProcessWidget(QWidget *parent = 0);
+    explicit OngoingProcessWidget(QWidget *_parent = 0);
     void dpiScale();
     ~OngoingProcessWidget();
 
 protected:
-    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
 
 private:
-    Ui::OngoingProcessWidget *ui;
+    Ui::OngoingProcessWidget *m_ui;
 };
 
 } // namespace matisse

@@ -3,166 +3,149 @@
 
 namespace matisse {
 
-PreferencesDialog::PreferencesDialog(QWidget *parent, MatisseIconFactory *iconFactory, MatissePreferences *prefs, bool allowProgrammingModeActivation) :
-    QDialog(parent),
-    _ui(new Ui::PreferencesDialog)
+PreferencesDialog::PreferencesDialog(QWidget *_parent, MatisseIconFactory *_icon_factory, MatissePreferences *_prefs, bool _allow_programming_mode_activation) :
+    QDialog(_parent),
+    m_ui(new Ui::PreferencesDialog)
 { 
-    _ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    _ui->_CB_languageSelect->addItem("FR");
-    _ui->_CB_languageSelect->addItem("EN");
+    m_ui->_CB_languageSelect->addItem("FR");
+    m_ui->_CB_languageSelect->addItem("EN");
 
-    _prefs = prefs;
+    m_prefs = _prefs;
 
-    _ui->_LE_importExportPath->setText(_prefs->importExportPath());
-    _ui->_LE_archivePath->setText(_prefs->archivePath());
-    _ui->_LE_defaultResultPath->setText(_prefs->defaultResultPath());
-    _ui->_LE_defaultMosaicPrefix->setText(_prefs->defaultMosaicFilenamePrefix());
-    _ui->_CK_enableProgrammingMode->setChecked(_prefs->programmingModeEnabled());
+    m_ui->_LE_importExportPath->setText(m_prefs->importExportPath());
+    m_ui->_LE_archivePath->setText(m_prefs->archivePath());
+    m_ui->_LE_defaultResultPath->setText(m_prefs->defaultResultPath());
+    m_ui->_LE_defaultMosaicPrefix->setText(m_prefs->defaultMosaicFilenamePrefix());
+    m_ui->_CK_enableProgrammingMode->setChecked(m_prefs->programmingModeEnabled());
 
-    _ui->_LE_remoteCommandServerAddress->setText(_prefs->remoteCommandServer());
-    _ui->_LE_remoteFileServerAddress->setText(_prefs->remoteFileServer());
-    _ui->_LE_remoteUsername->setText(_prefs->remoteUsername());
-    _ui->_LE_remoteUserEmail->setText(_prefs->remoteUserEmail());
-    _ui->_LE_remoteQueueName->setText(_prefs->remoteQueueName());
-    _ui->_LE_remoteNbOfCpus->setText(QVariant(_prefs->remoteNbOfCpus()).toString());
+    m_ui->_LE_remoteCommandServerAddress->setText(m_prefs->remoteCommandServer());
+    m_ui->_LE_remoteFileServerAddress->setText(m_prefs->remoteFileServer());
+    m_ui->_LE_remoteUsername->setText(m_prefs->remoteUsername());
+    m_ui->_LE_remoteUserEmail->setText(m_prefs->remoteUserEmail());
+    m_ui->_LE_remoteQueueName->setText(m_prefs->remoteQueueName());
+    m_ui->_LE_remoteNbOfCpus->setText(QVariant(m_prefs->remoteNbOfCpus()).toString());
 
-    if (!allowProgrammingModeActivation) {
-        _ui->_LA_enableProgrammingMode->setEnabled(false);
-        _ui->_CK_enableProgrammingMode->setEnabled(false);
+    if (!_allow_programming_mode_activation) {
+        m_ui->_LA_enableProgrammingMode->setEnabled(false);
+        m_ui->_CK_enableProgrammingMode->setEnabled(false);
     }
 
-    if (_prefs->language() == "FR") {
-        _ui->_CB_languageSelect->setCurrentIndex(0);
+    if (m_prefs->language() == "FR") {
+        m_ui->_CB_languageSelect->setCurrentIndex(0);
     } else { // EN
-        _ui->_CB_languageSelect->setCurrentIndex(1);
+        m_ui->_CB_languageSelect->setCurrentIndex(1);
     }
 
     // saving mosaic file prefix buffer
-    _prefixBuffer = _prefs->defaultMosaicFilenamePrefix();
+    m_prefix_buffer = m_prefs->defaultMosaicFilenamePrefix();
 
     // on limite la saisie aux caractères alphanumériques + '-' et '_'
-    QRegExpValidator *prefixVal = new QRegExpValidator(QRegExp("[a-zA-Z\\d_\\-]{2,}"), this);
-    _ui->_LE_defaultMosaicPrefix->setValidator(prefixVal);
+    QRegExpValidator *prefix_val = new QRegExpValidator(QRegExp("[a-zA-Z\\d_\\-]{2,}"), this);
+    m_ui->_LE_defaultMosaicPrefix->setValidator(prefix_val);
 
     /* Set validator for Nb of remote CPUs field */
     QIntValidator *cpus_val = new QIntValidator(this);
     cpus_val->setBottom(1);
-    _ui->_LE_remoteNbOfCpus->setValidator(cpus_val);
+    m_ui->_LE_remoteNbOfCpus->setValidator(cpus_val);
 
-    connect(_ui->_PB_save, SIGNAL(clicked()), this, SLOT(slot_close()));
-    connect(_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(slot_close()));
-    connect(_ui->_PB_importExportPathSelect, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
-    connect(_ui->_PB_archivePathSelect, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
-    connect(_ui->_PB_defaultResultPathSelect, SIGNAL(clicked()), this, SLOT(slot_selectDir()));
-    connect(_ui->_LE_defaultMosaicPrefix, SIGNAL(editingFinished()), this, SLOT(slot_validatePrefixInput()));
-    //connect(_ui->_LE_defaultMosaicPrefix, SIGNAL(textEdited(QString)), this, SLOT(slot_restorePrefixInput(QString)));
+    connect(m_ui->_PB_save, SIGNAL(clicked()), this, SLOT(sl_close()));
+    connect(m_ui->_PB_cancel, SIGNAL(clicked()), this, SLOT(sl_close()));
+    connect(m_ui->_PB_importExportPathSelect, SIGNAL(clicked()), this, SLOT(sl_selectDir()));
+    connect(m_ui->_PB_archivePathSelect, SIGNAL(clicked()), this, SLOT(sl_selectDir()));
+    connect(m_ui->_PB_defaultResultPathSelect, SIGNAL(clicked()), this, SLOT(sl_selectDir()));
+    connect(m_ui->_LE_defaultMosaicPrefix, SIGNAL(editingFinished()), this, SLOT(sl_validatePrefixInput()));
 
-    IconizedButtonWrapper *importExportPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_importExportPathSelect);
-    iconFactory->attachIcon(importExportPathButtonWrapper, "lnf/icons/Dossier.svg");
+    IconizedButtonWrapper *import_export_path_button_wrapper = new IconizedButtonWrapper(m_ui->_PB_importExportPathSelect);
+    _icon_factory->attachIcon(import_export_path_button_wrapper, "lnf/icons/Dossier.svg");
 
-    IconizedButtonWrapper *archivePathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_archivePathSelect);
-    iconFactory->attachIcon(archivePathButtonWrapper, "lnf/icons/Dossier.svg");
+    IconizedButtonWrapper *archive_path_button_wrapper = new IconizedButtonWrapper(m_ui->_PB_archivePathSelect);
+    _icon_factory->attachIcon(archive_path_button_wrapper, "lnf/icons/Dossier.svg");
 
-    IconizedButtonWrapper *defaultResultPathButtonWrapper = new IconizedButtonWrapper(_ui->_PB_defaultResultPathSelect);
-    iconFactory->attachIcon(defaultResultPathButtonWrapper, "lnf/icons/Dossier.svg");
+    IconizedButtonWrapper *default_result_path_button_wrapper = new IconizedButtonWrapper(m_ui->_PB_defaultResultPathSelect);
+    _icon_factory->attachIcon(default_result_path_button_wrapper, "lnf/icons/Dossier.svg");
 }
 
 PreferencesDialog::~PreferencesDialog()
 {
-    delete _ui;
+    delete m_ui;
 }
 
-void PreferencesDialog::changeEvent(QEvent *event)
+void PreferencesDialog::changeEvent(QEvent *_event)
 {
-    if (event->type() == QEvent::LanguageChange)
+    if (_event->type() == QEvent::LanguageChange)
     {
-        _ui->retranslateUi(this);
+        m_ui->retranslateUi(this);
     }
 }
 
-void PreferencesDialog::slot_close()
+void PreferencesDialog::sl_close()
 {
-    if (sender() == _ui->_PB_cancel) {
+    if (sender() == m_ui->_PB_cancel) {
         reject();
     } else {
-        QString newMosaicPrefix = _ui->_LE_defaultMosaicPrefix->text();
-        if (newMosaicPrefix != _prefixBuffer) {
-            qDebug() << QString("Default mosaic prefix input '%1' is in intermediate validation state, restoring previous : '%2'").arg(newMosaicPrefix, _prefixBuffer);
-            newMosaicPrefix = _prefixBuffer;
+        QString new_mosaic_prefix = m_ui->_LE_defaultMosaicPrefix->text();
+        if (new_mosaic_prefix != m_prefix_buffer) {
+            qDebug() << QString("Default mosaic prefix input '%1' is in intermediate validation state, restoring previous : '%2'").arg(new_mosaic_prefix, m_prefix_buffer);
+            new_mosaic_prefix = m_prefix_buffer;
         }
 
-        _prefs->setImportExportPath(_ui->_LE_importExportPath->text());
-        _prefs->setArchivePath(_ui->_LE_archivePath->text());
-        _prefs->setDefaultResultPath(_ui->_LE_defaultResultPath->text());
-        _prefs->setDefaultMosaicFilenamePrefix(newMosaicPrefix);
-        _prefs->setProgrammingModeEnabled(_ui->_CK_enableProgrammingMode->isChecked());
-        _prefs->setLanguage(_ui->_CB_languageSelect->currentText());
+        m_prefs->setImportExportPath(m_ui->_LE_importExportPath->text());
+        m_prefs->setArchivePath(m_ui->_LE_archivePath->text());
+        m_prefs->setDefaultResultPath(m_ui->_LE_defaultResultPath->text());
+        m_prefs->setDefaultMosaicFilenamePrefix(new_mosaic_prefix);
+        m_prefs->setProgrammingModeEnabled(m_ui->_CK_enableProgrammingMode->isChecked());
+        m_prefs->setLanguage(m_ui->_CB_languageSelect->currentText());
 
-        _prefs->setRemoteCommandServer(_ui->_LE_remoteCommandServerAddress->text());
-        _prefs->setRemoteFileServer(_ui->_LE_remoteFileServerAddress->text());
-        _prefs->setRemoteUsername(_ui->_LE_remoteUsername->text());
-        _prefs->setRemoteUserEmail(_ui->_LE_remoteUserEmail->text());
-        _prefs->setRemoteQueueName(_ui->_LE_remoteQueueName->text());
-        QVariant cpu_val = _ui->_LE_remoteNbOfCpus->text();
+        m_prefs->setRemoteCommandServer(m_ui->_LE_remoteCommandServerAddress->text());
+        m_prefs->setRemoteFileServer(m_ui->_LE_remoteFileServerAddress->text());
+        m_prefs->setRemoteUsername(m_ui->_LE_remoteUsername->text());
+        m_prefs->setRemoteUserEmail(m_ui->_LE_remoteUserEmail->text());
+        m_prefs->setRemoteQueueName(m_ui->_LE_remoteQueueName->text());
+        QVariant cpu_val = m_ui->_LE_remoteNbOfCpus->text();
         int nb_of_cpus = cpu_val.toInt();
         if (nb_of_cpus) {
-          _prefs->setRemoteNbOfCpus(nb_of_cpus);
+          m_prefs->setRemoteNbOfCpus(nb_of_cpus);
         }
 
         accept();
     }
 }
 
-void PreferencesDialog::slot_selectDir()
+void PreferencesDialog::sl_selectDir()
 {
-    QString selDir = QFileDialog::getExistingDirectory(qobject_cast<QWidget *>(sender()));
+    QString sel_dir = QFileDialog::getExistingDirectory(qobject_cast<QWidget *>(sender()));
 
-    if (selDir.isEmpty()) {
+    if (sel_dir.isEmpty()) {
         return;
     }
 
-    QFileInfo dirInfo(selDir);
-    QString dirPath = dirInfo.filePath();
+    QFileInfo dir_info(sel_dir);
+    QString dir_path = dir_info.filePath();
 
     QDir current = QDir::current();
-    if (dirPath.startsWith(current.path())) {
+    if (dir_path.startsWith(current.path())) {
         // chemin relatif
-        dirPath = current.relativeFilePath(dirPath);
-        if (dirPath.isEmpty()) {
-            dirPath = ".";
+        dir_path = current.relativeFilePath(dir_path);
+        if (dir_path.isEmpty()) {
+            dir_path = ".";
         }
 
     }
 
-    if (sender() == _ui->_PB_importExportPathSelect) {
-        _ui->_LE_importExportPath->setText(dirPath);
-    } else if (sender() == _ui->_PB_archivePathSelect) {
-        _ui->_LE_archivePath->setText(dirPath);
-    } else if (sender() == _ui->_PB_defaultResultPathSelect) {
-        _ui->_LE_defaultResultPath->setText(dirPath);
+    if (sender() == m_ui->_PB_importExportPathSelect) {
+        m_ui->_LE_importExportPath->setText(dir_path);
+    } else if (sender() == m_ui->_PB_archivePathSelect) {
+        m_ui->_LE_archivePath->setText(dir_path);
+    } else if (sender() == m_ui->_PB_defaultResultPathSelect) {
+        m_ui->_LE_defaultResultPath->setText(dir_path);
     }
 }
 
-void PreferencesDialog::slot_validatePrefixInput()
+void PreferencesDialog::sl_validatePrefixInput()
 {
-    _prefixBuffer = _ui->_LE_defaultMosaicPrefix->text();
+    m_prefix_buffer = m_ui->_LE_defaultMosaicPrefix->text();
 }
-
-
-// Ne marche pas car appelé à chaque saisie de caractère
-// Il faudrait traquer la sortie de focus en surchargeant QLineEdit
-
-//void PreferencesDialog::slot_restorePrefixInput(QString newText)
-//{
-//    int cursor = newText.size();
-
-//    QValidator::State valState = _ui->_LE_defaultMosaicPrefix->validator()->validate(newText, cursor);
-
-//    if (valState != QValidator::Acceptable) {
-//        qDebug() << QString("Default mosaic prefix input '%1' is in intermediate state, restoring previous : '%2'").arg(newText, _prefixBuffer);
-//        _ui->_LE_defaultMosaicPrefix->setText(_prefixBuffer);
-//    }
-//}
 
 } // namespace matisse

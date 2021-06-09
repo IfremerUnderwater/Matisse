@@ -3,65 +3,65 @@
 
 namespace matisse {
 
-StatusMessageWidget::StatusMessageWidget(QWidget *parent, MatisseIconFactory *iconFactory) :
-    QWidget(parent),
-    _ui(new Ui::StatusMessageWidget),
-    _iconFactory(iconFactory)
+StatusMessageWidget::StatusMessageWidget(QWidget *_parent, MatisseIconFactory *_icon_factory) :
+    QWidget(_parent),
+    m_ui(new Ui::StatusMessageWidget),
+    m_icon_factory(_icon_factory)
 {
-    _ui->setupUi(this);
-    connect(_ui->_PB_resetMessages, SIGNAL(clicked()), this, SLOT(slot_clearMessages()));
+    m_ui->setupUi(this);
+    connect(m_ui->_PB_resetMessages, SIGNAL(clicked()), this, SLOT(sl_clearMessages()));
 }
 
 StatusMessageWidget::~StatusMessageWidget()
 {
-    delete _ui;
+    delete m_ui;
 }
 
-void StatusMessageWidget::addMessage(QString message, QString sourceIconPath, QString colorAlias)
+void StatusMessageWidget::addMessage(QString _message, QString _source_icon_path, QString _color_alias)
 {
-    if (message.isEmpty()) {
+    if (_message.isEmpty()) {
         qWarning() << "Trying to add empty status message";
         return;
     }
 
     /* increment index for all existing item wrappers */
-    foreach (IconizedComboBoxItemWrapper *itemWrapper, _itemWrappers) {
-        itemWrapper->incrementItemIndex();
+    foreach (IconizedComboBoxItemWrapper *item_wrapper, m_item_wrappers) {
+        item_wrapper->incrementItemIndex();
     }
 
-    _ui->_CB_messages->insertItem(0, message);
-    IconizedComboBoxItemWrapper *itemWrapper = new IconizedComboBoxItemWrapper(_ui->_CB_messages, 0);
-    if (_iconFactory->attachIcon(itemWrapper, sourceIconPath, false, false, colorAlias)) {
-        _itemWrappers.insert(0,itemWrapper);
+    m_ui->_CB_messages->insertItem(0, _message);
+    IconizedComboBoxItemWrapper *item_wrapper = new IconizedComboBoxItemWrapper(m_ui->_CB_messages, 0);
+    if (m_icon_factory->attachIcon(item_wrapper, _source_icon_path, false, false, _color_alias)) {
+        m_item_wrappers.insert(0,item_wrapper);
     }
 
     // we keep only last 20 messages
-    if (_ui->_CB_messages->count() > 20) {
+    if (m_ui->_CB_messages->count() > 20) {
         // remove lastItem;
-        IconizedComboBoxItemWrapper *lastItem = _itemWrappers.at(20);
-        _iconFactory->detachIcon(lastItem, true);
-        _ui->_CB_messages->removeItem(20);
+        IconizedComboBoxItemWrapper *last_item = m_item_wrappers.at(20);
+        m_icon_factory->detachIcon(last_item, true);
+        m_ui->_CB_messages->removeItem(20);
     }
-    _ui->_CB_messages->setCurrentIndex(0);
+    m_ui->_CB_messages->setCurrentIndex(0);
 }
 
-void StatusMessageWidget::changeEvent(QEvent *event)
+void StatusMessageWidget::changeEvent(QEvent *_event)
 {
-    if (event->type() == QEvent::LanguageChange)
+    if (_event->type() == QEvent::LanguageChange)
     {
-        _ui->retranslateUi(this);
+        m_ui->retranslateUi(this);
     }
 }
 
-void StatusMessageWidget::slot_clearMessages()
+void StatusMessageWidget::sl_clearMessages()
 {
-    foreach (IconizedComboBoxItemWrapper *itemWrapper, _itemWrappers) {
-        _iconFactory->detachIcon(itemWrapper, true);
+    foreach (IconizedComboBoxItemWrapper *item_wrapper, m_item_wrappers) {
+        m_icon_factory->detachIcon(item_wrapper, true);
 //        delete itemWrapper;
     }
 
-    _itemWrappers.clear();
-    _ui->_CB_messages->clear();
+    m_item_wrappers.clear();
+    m_ui->_CB_messages->clear();
 }
 
 } // namespace matisse

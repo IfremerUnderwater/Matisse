@@ -3,16 +3,16 @@
 
 namespace matisse {
 
-MatisseVersionWidget::MatisseVersionWidget(QWidget *parent) :
-    QFrame(parent),
-    ui(new Ui::MatisseVersionWidget)
+MatisseVersionWidget::MatisseVersionWidget(QWidget *_parent) :
+    QFrame(_parent),
+    m_ui(new Ui::MatisseVersionWidget)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 }
 
 MatisseVersionWidget::~MatisseVersionWidget()
 {
-    delete ui;
+    delete m_ui;
 }
 
 } // namespace matisse

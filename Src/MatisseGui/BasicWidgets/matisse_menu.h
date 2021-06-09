@@ -11,9 +11,9 @@ namespace matisse {
 class MatisseMenu : public QMenu
 {
 public:
-    MatisseMenu(QWidget* parent = 0);
-    MatisseMenu(const QString & title, QWidget * parent = 0);
-    void showEvent(QShowEvent * event);
+    MatisseMenu(QWidget* _parent = 0);
+    MatisseMenu(const QString & _title, QWidget * _parent = 0);
+    void showEvent(QShowEvent * _event);
 };
 
 } // namespace matisse

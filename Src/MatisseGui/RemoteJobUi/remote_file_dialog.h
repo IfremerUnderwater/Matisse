@@ -39,7 +39,7 @@ class RemoteFileDialog : public QDialog {
   void sl_onSelectionChanged(const QModelIndex &_current, const QModelIndex &_previous);
 
  private:
-  Ui::RemoteFileDialog *_ui;
+  Ui::RemoteFileDialog *m_ui;
   QString m_selected_file;
 };
 

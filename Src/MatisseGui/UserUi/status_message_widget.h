@@ -20,20 +20,20 @@ class StatusMessageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit StatusMessageWidget(QWidget *parent, MatisseIconFactory *iconFactory);
+    explicit StatusMessageWidget(QWidget *_parent, MatisseIconFactory *_icon_factory);
     ~StatusMessageWidget();
-    void addMessage(QString message, QString sourceIconPath, QString colorAlias);
+    void addMessage(QString _message, QString _source_icon_path, QString _color_alias);
 
 protected:
-    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
 
 protected slots:
-    void slot_clearMessages();
+    void sl_clearMessages();
 
 private:
-    Ui::StatusMessageWidget *_ui;
-    MatisseIconFactory *_iconFactory;
-    QList<IconizedComboBoxItemWrapper *> _itemWrappers;
+    Ui::StatusMessageWidget *m_ui;
+    MatisseIconFactory *m_icon_factory;
+    QList<IconizedComboBoxItemWrapper *> m_item_wrappers;
 };
 
 } // namespace matisse

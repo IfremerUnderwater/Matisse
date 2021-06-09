@@ -19,21 +19,21 @@ MinMaxComputationVisitor::~MinMaxComputationVisitor()
 {
 }
 
-void MinMaxComputationVisitor::apply ( osg::Node &node )
+void MinMaxComputationVisitor::apply (osg::Node &_node )
 {
-    traverse(node);
+    traverse(_node);
 }
 
-void MinMaxComputationVisitor::apply( osg::Geode &geode )
+void MinMaxComputationVisitor::apply(osg::Geode &_geode )
 {
     // Compute min & max for a node (our model 3D)
 
-    unsigned int num_drawables = geode.getNumDrawables();
+    unsigned int num_drawables = _geode.getNumDrawables();
     for( unsigned int i = 0; i < num_drawables; i++ )
     {
         // Use 'asGeometry' as its supposed to be faster than a dynamic_cast
         // every little saving counts
-        osg::Geometry *current_geometry = geode.getDrawable(i)->asGeometry();
+        osg::Geometry *current_geometry = _geode.getDrawable(i)->asGeometry();
 
         // Only process if the drawable is geometry
         if ( current_geometry )

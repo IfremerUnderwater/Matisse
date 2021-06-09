@@ -35,58 +35,55 @@ class AssemblyGraphicsScene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-//    explicit AssemblyGraphicsScene(QObject *parent = 0);
-    explicit AssemblyGraphicsScene(const QRectF & sceneRect, QObject * parent = 0 );
+    explicit AssemblyGraphicsScene(const QRectF & _scene_rect, QObject * _parent = 0 );
 
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *_event);
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *_event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *_event);
 
-    //virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
-    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event){event->accept();}
-    virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
-    virtual bool event(QEvent *event);
-    void setServer(MatisseEngine* server) { _server = server; }
-    void setElementWidgetProvider(ElementWidgetProvider * elementProvider);
+    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *_event){_event->accept();}
+    virtual void dropEvent(QGraphicsSceneDragDropEvent *_event);
+    virtual bool event(QEvent *_event);
+    void setEngine(MatisseEngine* _engine) { m_engine = _engine; }
+    void setElementWidgetProvider(ElementWidgetProvider * _element_provider);
     void reset();
 
-    //bool saveAssembly(QString filename, AssemblyDefinition *assembly);
-    void updateAssembly(AssemblyDefinition* assembly);
-    bool loadAssembly(QString assemblyName);
-    void setMessageTarget(QWidget *targetWidget);
+    void updateAssembly(AssemblyDefinition* _assembly);
+    bool loadAssembly(QString _assembly_name);
+    void setMessageTarget(QWidget *_target_widget);
     void initViewport();
 
 private:
-    QPointer<PipeWidget> _pipeItem;
-    QList<PipeWidget *> _connectors;
-    QWidget * _viewport;
-    QWidget * _messageTargetWidget;
+    QPointer<PipeWidget> m_pipe_item;
+    QList<PipeWidget *> m_connectors;
+    QWidget * m_viewport;
+    QWidget * m_message_target_widget;
 
-    ElementWidgetProvider * _elementProvider;
-    MatisseEngine * _server;
-    QPointer<SourceWidget> _sourceWidget;
-    QMap<quint8, ProcessorWidget *> _processorsWidgets;
-    QPointer<DestinationWidget> _destinationWidget;
+    ElementWidgetProvider * m_element_provider;
+    MatisseEngine * m_engine;
+    QPointer<SourceWidget> m_source_widget;
+    QMap<quint8, ProcessorWidget *> m_processors_widgets;
+    QPointer<DestinationWidget> m_destination_widget;
     static const quint16 ACTIVE_SCENE_WIDTH = 200;
     static const quint16 ACTIVE_SCENE_HEIGHT = 2400;
     static const quint16 INACTIVE_SCENE_WIDTH = 200;
     static const quint16 INACTIVE_SCENE_HEIGHT = 500;
-    bool _isSceneActive;
-    bool _isAssemblyModified;
-    bool _isAssemblyComplete;
+    bool m_is_scene_active;
+    bool m_is_assembly_modified;
+    bool m_is_assembly_complete;
 
     void init();
     void checkAssemblyComplete();
-    void applyAssemblyCompleteness(bool isComplete);
+    void applyAssemblyCompleteness(bool _is_complete);
 
 signals:
-    void signal_itemsCount(int count);
-    void signal_selectParameters(QString parameters);
-    void signal_assemblyModified();
-    void signal_assemblyComplete(bool isComplete, AssemblyDefinition *assembly = NULL);
+    void si_itemsCount(int _count);
+    void si_selectParameters(QString _parameters);
+    void si_assemblyModified();
+    void si_assemblyComplete(bool _is_complete, AssemblyDefinition *_assembly = NULL);
 
 public slots:
-    void slot_sceneChanged(const QList<QRectF> & region);
+    void sl_sceneChanged(const QList<QRectF> & _region);
 };
 
 } // namespace matisse

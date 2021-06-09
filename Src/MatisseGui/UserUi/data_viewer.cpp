@@ -12,170 +12,167 @@ using namespace nav_tools;
 
 namespace matisse {
 
-DataViewer::DataViewer(QWidget *parent) :
-    QWidget(parent),
-    _ui(new Ui::DataViewer),
-    _isToolBarDisplayed(false),
-    _iconFactory(NULL)
+DataViewer::DataViewer(QWidget *_parent) :
+    QWidget(_parent),
+    m_ui(new Ui::DataViewer),
+    m_is_toolbar_displayed(false),
+    m_icon_factory(NULL)
 {
-    _ui->setupUi(this);
+    m_ui->setupUi(this);
 
     // must be set to open osg files
-    _resultLoadingTask.setOSGWidget(_ui->_OSG_viewer);
+    m_result_loading_task.setOSGWidget(m_ui->_OSG_viewer);
 
     // Default view is OpenSceneGraphView
-    switchCartoViewTo(OpenSceneGraphView);
+    switchCartoViewTo(OPEN_SCENE_GRAPH_VIEW);
 
-    _supportedRasterFormat << "tif" << "tiff";
-    _supportedVectorFormat << "shp";
-    _supported3DFileFormat << "obj" << "osg" << "ply" << "osgt" << "kml";
-    _supportedImageFormat << "jpg" << "jpeg" << "png";
+    m_supported_raster_format << "tif" << "tiff";
+    m_supported_vector_format << "shp";
+    m_supported_3d_file_format << "obj" << "osg" << "ply" << "osgt" << "kml";
+    m_supported_image_format << "jpg" << "jpeg" << "png";
 
     // Init QAction & Menu
-    _extentAutoResize = new QAction(tr("Auto adjust to footprint"),this);
-    _extentAutoResize->setCheckable(true);
-    _extentAutoResize->setChecked(true);
+    m_extent_auto_resize = new QAction(tr("Auto adjust to footprint"),this);
+    m_extent_auto_resize->setCheckable(true);
+    m_extent_auto_resize->setChecked(true);
 
-    _followLastItem = new QAction(tr("Follow last item"),this);
-    _followLastItem->setCheckable(false);
-    _followLastItem->setChecked(false);
+    m_follow_last_item = new QAction(tr("Follow last item"),this);
+    m_follow_last_item->setCheckable(false);
+    m_follow_last_item->setChecked(false);
 
-    _manualMove = new QAction(tr("Manual move"),this);
-    _manualMove->setCheckable(false);
-    _manualMove->setChecked(false);
+    m_manual_move = new QAction(tr("Manual move"),this);
+    m_manual_move->setCheckable(false);
+    m_manual_move->setChecked(false);
 
-    _repaintBehaviorMenu = new QMenu(this);
-    _repaintBehaviorMenu->addAction(_extentAutoResize);
-    _repaintBehaviorMenu->addAction(_followLastItem);
-    _repaintBehaviorMenu->addAction(_manualMove);
+    m_repaint_behavior_menu = new QMenu(this);
+    m_repaint_behavior_menu->addAction(m_extent_auto_resize);
+    m_repaint_behavior_menu->addAction(m_follow_last_item);
+    m_repaint_behavior_menu->addAction(m_manual_move);
 
-    _repaintBehaviorState = ExtentAutoResize;
+    m_repaint_behavior_state = EXTENT_AUTO_RESIZE;
 
-    connect(_extentAutoResize, SIGNAL(triggered()), this, SLOT(slot_onAutoResizeTrigger()));
-    connect(_followLastItem, SIGNAL(triggered()), this, SLOT(slot_onFollowLastItem()));
-    connect(_manualMove, SIGNAL(triggered()), this, SLOT(slot_onManualMove()));
+    connect(m_extent_auto_resize, SIGNAL(triggered()), this, SLOT(sl_onAutoResizeTrigger()));
+    connect(m_follow_last_item, SIGNAL(triggered()), this, SLOT(sl_onFollowLastItem()));
+    connect(m_manual_move, SIGNAL(triggered()), this, SLOT(sl_onManualMove()));
 
     // Init loading thread
     qRegisterMetaType< osg::ref_ptr<osg::Node> >();
 
-    connect(this,SIGNAL(signal_loadRasterFromFile(QString)),&_resultLoadingTask,SLOT(slot_loadRasterFromFile(QString)),Qt::QueuedConnection);
-    connect(&_resultLoadingTask,SIGNAL(signal_addRasterToCartoView(CartoImage *)), this,SLOT(slot_addRasterToCartoView(CartoImage*)),Qt::QueuedConnection);
-    connect(&_resultLoadingTask,SIGNAL(signal_addRasterToImageView(Image *)),this,SLOT(slot_addRasterToImageView(Image *)),Qt::QueuedConnection);
-    connect(this,SIGNAL(signal_load3DSceneFromFile(QString,bool)),&_resultLoadingTask,SLOT(slot_load3DSceneFromFile(QString,bool)),Qt::QueuedConnection);
-    connect(&_resultLoadingTask,SIGNAL(signal_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool)),this,SLOT(slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool)),Qt::QueuedConnection);
+    connect(this,SIGNAL(si_loadRasterFromFile(QString)),&m_result_loading_task,SLOT(sl_loadRasterFromFile(QString)),Qt::QueuedConnection);
+    connect(&m_result_loading_task,SIGNAL(si_addRasterToCartoView(CartoImage *)), this,SLOT(sl_addRasterToCartoView(CartoImage*)),Qt::QueuedConnection);
+    connect(&m_result_loading_task,SIGNAL(si_addRasterToImageView(Image *)),this,SLOT(sl_addRasterToImageView(Image *)),Qt::QueuedConnection);
+    connect(this,SIGNAL(si_load3DSceneFromFile(QString,bool)),&m_result_loading_task,SLOT(sl_load3DSceneFromFile(QString,bool)),Qt::QueuedConnection);
+    connect(&m_result_loading_task,SIGNAL(si_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool)),this,SLOT(sl_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool)),Qt::QueuedConnection);
 
-    _resultLoadingTask.moveToThread(&_resultLoadingThread);
-    _resultLoadingThread.start();
+    m_result_loading_task.moveToThread(&m_result_loading_thread);
+    m_result_loading_thread.start();
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
-            this, SLOT(slot_showMapContextMenu(const QPoint&)));
+            this, SLOT(sl_showMapContextMenu(const QPoint&)));
 
-    _scene.setScaleFactor(4.0);
-    _ui->_GV_view->setScene(&_scene);
+    m_scene.setScaleFactor(4.0);
+    m_ui->_GV_view->setScene(&m_scene);
 
-    connect(_ui->_GV_view,SIGNAL(signal_updateCoords(QPointF)),this,SLOT(slot_updateMapCoords(QPointF)),Qt::QueuedConnection);
-    connect(_ui->_GV_view,SIGNAL(signal_zoomChanged(qreal)),this,SLOT(slot_mapZoomChanged(qreal)),Qt::QueuedConnection);
-    connect(_ui->_GV_view,SIGNAL(signal_panChanged()),this,SLOT(slot_mapPanChanged()),Qt::QueuedConnection);
+    connect(m_ui->_GV_view,SIGNAL(si_updateCoords(QPointF)),this,SLOT(sl_updateMapCoords(QPointF)),Qt::QueuedConnection);
+    connect(m_ui->_GV_view,SIGNAL(si_zoomChanged(qreal)),this,SLOT(sl_mapZoomChanged(qreal)),Qt::QueuedConnection);
+    connect(m_ui->_GV_view,SIGNAL(si_panChanged()),this,SLOT(sl_mapPanChanged()),Qt::QueuedConnection);
 }
 
 DataViewer::~DataViewer()
 {
     // QT 5.10 : to avoid message on exit : "QThread: Destroyed while thread is still running"
-    _resultLoadingThread.exit();
+    m_result_loading_thread.exit();
     QThread::sleep(1);
 
-//    delete _panTool;
-//    delete _zoomInTool;
-//    delete _zoomOutTool;
-    delete _ui;
+    delete m_ui;
 }
 
 void DataViewer::initMapToolBar()
 {
-    if (!_iconFactory) {
+    if (!m_icon_factory) {
         qCritical() << "Icon factory is not defined in UserFormWidget, cannot initialize map toolbar";
         return;
     }
 
-    _mapToolBar = new QToolBar("Map tools", this);
+    m_map_toolbar = new QToolBar("Map tools", this);
 
-       QAction *zoomInAction = new QAction(this);
-       IconizedActionWrapper *zoomInActionWrapper = new IconizedActionWrapper(zoomInAction);
-      _iconFactory->attachIcon(zoomInActionWrapper, "lnf/icons/carte-zoom-in.svg", false, false);
-       zoomInAction->setIconText(tr("Zoom in"));
-      _mapToolBar->addAction(zoomInAction);
-       connect(zoomInAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomInTool()));
+       QAction *zoom_in_action = new QAction(this);
+       IconizedActionWrapper *zoom_in_action_wrapper = new IconizedActionWrapper(zoom_in_action);
+      m_icon_factory->attachIcon(zoom_in_action_wrapper, "lnf/icons/carte-zoom-in.svg", false, false);
+       zoom_in_action->setIconText(tr("Zoom in"));
+      m_map_toolbar->addAction(zoom_in_action);
+       connect(zoom_in_action, SIGNAL(triggered(bool)), this, SLOT(sl_activateZoomInTool()));
 
-      QAction *zoomOutAction = new QAction(this);
-      IconizedActionWrapper *zoomOutActionWrapper = new IconizedActionWrapper(zoomOutAction);
-      _iconFactory->attachIcon(zoomOutActionWrapper, "lnf/icons/carte-zoom-out.svg", false, false);
-      zoomOutAction->setIconText(tr("Zoom out"));
-      _mapToolBar->addAction(zoomOutAction);
-      connect(zoomOutAction, SIGNAL(triggered(bool)), this, SLOT(slot_activateZoomOutTool()));
+      QAction *zoom_out_action = new QAction(this);
+      IconizedActionWrapper *zoom_out_action_wrapper = new IconizedActionWrapper(zoom_out_action);
+      m_icon_factory->attachIcon(zoom_out_action_wrapper, "lnf/icons/carte-zoom-out.svg", false, false);
+      zoom_out_action->setIconText(tr("Zoom out"));
+      m_map_toolbar->addAction(zoom_out_action);
+      connect(zoom_out_action, SIGNAL(triggered(bool)), this, SLOT(sl_activateZoomOutTool()));
 
-    QAction *recenterAction = new QAction(this);
-    IconizedActionWrapper *recenterActionWrapper = new IconizedActionWrapper(recenterAction);
-    _iconFactory->attachIcon(recenterActionWrapper, "lnf/icons/carte-afficher-tout.svg", false, false);
-    recenterAction->setIconText(tr("Recenter"));
-    _mapToolBar->addAction(recenterAction);
-    connect(recenterAction, SIGNAL(triggered(bool)), this, SLOT(slot_recenterMap()));
+    QAction *recenter_action = new QAction(this);
+    IconizedActionWrapper *recenter_action_wrapper = new IconizedActionWrapper(recenter_action);
+    m_icon_factory->attachIcon(recenter_action_wrapper, "lnf/icons/carte-afficher-tout.svg", false, false);
+    recenter_action->setIconText(tr("Recenter"));
+    m_map_toolbar->addAction(recenter_action);
+    connect(recenter_action, SIGNAL(triggered(bool)), this, SLOT(sl_recenterMap()));
 
-    _mapToolBar->addSeparator();
+    m_map_toolbar->addSeparator();
 
-    _coords = new QLabel("__________ __________");
-    QAction *coords = _mapToolBar->addWidget(_coords);
+    m_coords = new QLabel("__________ __________");
+    QAction *coords = m_map_toolbar->addWidget(m_coords);
 
-    _mapToolBar->addSeparator();
+    m_map_toolbar->addSeparator();
 
-    QAction *showImageAction = new QAction(this);
-    showImageAction->setText("[]");
-    showImageAction->setCheckable(true);
-    showImageAction->setChecked(false);
-    showImageAction->setToolTip("Bounding Image Rectangles");
+    QAction *show_image_action = new QAction(this);
+    show_image_action->setText("[]");
+    show_image_action->setCheckable(true);
+    show_image_action->setChecked(false);
+    show_image_action->setToolTip("Bounding Image Rectangles");
 
-    _mapToolBar->addAction(showImageAction);
-    connect(showImageAction, SIGNAL(triggered(bool)), this, SLOT(slot_showImagesRect(bool)));
+    m_map_toolbar->addAction(show_image_action);
+    connect(show_image_action, SIGNAL(triggered(bool)), this, SLOT(sl_showImagesRect(bool)));
 
-    _ui->_WID_pageQGis->layout()->setMenuBar(_mapToolBar);
-    _mapToolBar->setVisible(false);
+    m_ui->_WID_pageQGis->layout()->setMenuBar(m_map_toolbar);
+    m_map_toolbar->setVisible(false);
 }
 
-void DataViewer::slot_updateMapCoords(QPointF p)
+void DataViewer::sl_updateMapCoords(QPointF _p)
 {
     // scale needed to convert in meters (in case of GeoTiff in UTM)
-    qreal scale = _scene.scale();
+    qreal scale = m_scene.scale();
     QString s;
-    s.sprintf("%8.1f %8.1f", p.x()/scale ,p.y()/scale);
-    _coords->setText(s);
+    s.sprintf("%8.1f %8.1f", _p.x()/scale ,_p.y()/scale);
+    m_coords->setText(s);
 }
 
-void  DataViewer::slot_showImagesRect(bool show)
+void  DataViewer::sl_showImagesRect(bool show)
 {
-    _scene.showImageRect(show);
+    m_scene.showImageRect(show);
 }
 
 
-void DataViewer::switchCartoViewTo(CartoViewType cartoViewType_p)
+void DataViewer::switchCartoViewTo(eCartoViewType _carto_view_type_p)
 {
 
     this->clear();
 
-    switch(cartoViewType_p)
+    switch(_carto_view_type_p)
     {
 
-    case QGisMapLayer:
-        _ui->_stackedWidget->setCurrentIndex(0);
-        _ui->_GV_view->setZoomFactor(1.0 / _scene.scaleFactor());
-        _currentViewType = QGisMapLayer;
+    case QGIS_MAP_LAYER:
+        m_ui->_stackedWidget->setCurrentIndex(0);
+        m_ui->_GV_view->setZoomFactor(1.0 / m_scene.scaleFactor());
+        m_current_view_type = QGIS_MAP_LAYER;
         break;
-    case QImageView:
-        _ui->_stackedWidget->setCurrentIndex(1);
-        _currentViewType = QImageView;
+    case QIMAGE_VIEW:
+        m_ui->_stackedWidget->setCurrentIndex(1);
+        m_current_view_type = QIMAGE_VIEW;
         break;
-    case OpenSceneGraphView:
-        _ui->_stackedWidget->setCurrentIndex(2);
-        _currentViewType = OpenSceneGraphView;
+    case OPEN_SCENE_GRAPH_VIEW:
+        m_ui->_stackedWidget->setCurrentIndex(2);
+        m_current_view_type = OPEN_SCENE_GRAPH_VIEW;
         break;
 
     }
@@ -186,63 +183,46 @@ void DataViewer::initCanvas() {
 
     qDebug() << "Init QGIS Canvas";
 
-//    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
-
-//    mapCanvas->enableAntiAliasing(true);
-//    //mapCanvas->useImageToRender(false);
-//    /* bg color is set by signal updateColorPalette */
-//    mapCanvas->freeze(false);
-//    mapCanvas->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-//    mapCanvas->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-//    mapCanvas->refresh();
-//    mapCanvas->show();
-
+    /* QGis option deprecated */
 }
 
-void DataViewer::slot_updateColorPalette(QMap<QString,QString> newColorPalette)
+void DataViewer::sl_updateColorPalette(QMap<QString,QString> newColorPalette)
 {
-    QString backgroundColor = newColorPalette.value("color.black");
-    qDebug() << "Update QGIS Canvas with bg color : " << backgroundColor;
-//    QgsMapCanvas* mapCanvas = _ui->_GRV_map;
-//    mapCanvas->setCanvasColor(QColor(backgroundColor));
-//    mapCanvas->refresh();
+    QString background_color = newColorPalette.value("color.black");
+    qDebug() << "Update QGIS Canvas with bg color : " << background_color;
+    /* QGis option deprecated */
 }
 
-void DataViewer::slot_showHideToolbar()
+void DataViewer::sl_showHideToolbar()
 {
-    _isToolBarDisplayed = !_isToolBarDisplayed;
-    _mapToolBar->setVisible(_isToolBarDisplayed);
+    m_is_toolbar_displayed = !m_is_toolbar_displayed;
+    m_map_toolbar->setVisible(m_is_toolbar_displayed);
 }
 
-//void UserFormWidget::slot_activatePanTool()
-//{
-////    _ui->_GRV_map->setMapTool(_panTool);
-//}
 
-void DataViewer::slot_activateZoomInTool()
+void DataViewer::sl_activateZoomInTool()
 {
 //    _ui->_GRV_map->setMapTool(_zoomInTool);
-    qreal zoom = _ui->_GV_view->zoomfactor();
-    _ui->_GV_view->setZoomFactor(zoom*1.25);
-    _ui->_GV_view->repaint();
+    qreal zoom = m_ui->_GV_view->zoomfactor();
+    m_ui->_GV_view->setZoomFactor(zoom*1.25);
+    m_ui->_GV_view->repaint();
 }
 
-void DataViewer::slot_activateZoomOutTool()
+void DataViewer::sl_activateZoomOutTool()
 {
-//    _ui->_GRV_map->setMapTool(_zoomOutTool);
-    qreal zoom = _ui->_GV_view->zoomfactor();
-    _ui->_GV_view->setZoomFactor(zoom*0.80);
-    _ui->_GV_view->repaint();
+    qreal zoom = m_ui->_GV_view->zoomfactor();
+    m_ui->_GV_view->setZoomFactor(zoom*0.80);
+    m_ui->_GV_view->repaint();
 }
 
-void DataViewer::slot_recenterMap()
+void DataViewer::sl_recenterMap()
 {
     // reset zoom...
-    _ui->_GV_view->resetMatrix();
-    _ui->_GV_view->fitInView( _scene.sceneRect(), Qt::KeepAspectRatio );
-    QMatrix m = _ui->_GV_view->matrix();
-    _ui->_GV_view->setZoomFactor(m.m11());
-    _ui->_GV_view->repaint();
+    m_ui->_GV_view->resetMatrix();
+    m_ui->_GV_view->fitInView( m_scene.sceneRect(), Qt::KeepAspectRatio );
+    QMatrix m = m_ui->_GV_view->matrix();
+    m_ui->_GV_view->setZoomFactor(m.m11());
+    m_ui->_GV_view->repaint();
 }
 
 
@@ -250,12 +230,12 @@ void DataViewer::clear()
 {
 
     // Clear OSG Widget
-    _ui->_OSG_viewer->clearSceneData();
+    m_ui->_OSG_viewer->clearSceneData();
 
     // clear carto view
-    _scene.clearScene();
-    _scene.setParentSize(_ui->_GV_view->size());
-    _ui->_GV_view->resetMatrix();
+    m_scene.clearScene();
+    m_scene.setParentSize(m_ui->_GV_view->size());
+    m_ui->_GV_view->resetMatrix();
 }
 
 void DataViewer::resetJobForm()
@@ -265,75 +245,74 @@ void DataViewer::resetJobForm()
 }
 
 
-void DataViewer::loadRasterFile(QString filename) {
+void DataViewer::loadRasterFile(QString _filename) {
 
-    emit signal_loadRasterFromFile(filename);
-
+    emit si_loadRasterFromFile(_filename);
 }
 
-void DataViewer::slot_addRasterToCartoView(CartoImage * image_p) {
+void DataViewer::sl_addRasterToCartoView(CartoImage * _image_p) {
 
-    if (_currentViewType!=QGisMapLayer)
-        switchCartoViewTo(QGisMapLayer);
+    if (m_current_view_type!=QGIS_MAP_LAYER)
+        switchCartoViewTo(QGIS_MAP_LAYER);
 
-    displayCartoImage(image_p);
+    displayCartoImage(_image_p);
 }
 
-void DataViewer::slot_addRasterToImageView(Image * image_p)
+void DataViewer::sl_addRasterToImageView(Image * _image_p)
 {
-    if (_currentViewType!=QImageView)
-        switchCartoViewTo(QImageView);
+    if (m_current_view_type!=QIMAGE_VIEW)
+        switchCartoViewTo(QIMAGE_VIEW);
 
-    displayImage(image_p);
+    displayImage(_image_p);
 }
 
-void DataViewer::load3DFile(QString filename_p, bool remove_previous_scenes_p)
+void DataViewer::load3DFile(QString _filename_p, bool _remove_previous_scenes_p)
 {
-    if (_currentViewType!=OpenSceneGraphView)
-        switchCartoViewTo(OpenSceneGraphView);
-    emit signal_load3DSceneFromFile(filename_p, remove_previous_scenes_p);
+    if (m_current_view_type!=OPEN_SCENE_GRAPH_VIEW)
+        switchCartoViewTo(OPEN_SCENE_GRAPH_VIEW);
+    emit si_load3DSceneFromFile(_filename_p, _remove_previous_scenes_p);
 }
 
-void DataViewer::slot_add3DSceneToCartoView(osg::ref_ptr<osg::Node> sceneData_p, bool _remove_previous_scenes)
+void DataViewer::sl_add3DSceneToCartoView(osg::ref_ptr<osg::Node> _scene_data_p, bool _remove_previous_scenes)
 {
-    _ui->_OSG_viewer->addNodeToScene(sceneData_p);
+    m_ui->_OSG_viewer->addNodeToScene(_scene_data_p);
     if(_remove_previous_scenes)
     {
-        for(int i=0; i<_osg_nodes.size(); i++)
-            _ui->_OSG_viewer->removeNodeFromScene(_osg_nodes[i]);
-        _osg_nodes.clear();
+        for(int i=0; i<m_osg_nodes.size(); i++)
+            m_ui->_OSG_viewer->removeNodeFromScene(m_osg_nodes[i]);
+        m_osg_nodes.clear();
     }
-    _osg_nodes.push_back(sceneData_p);
+    m_osg_nodes.push_back(_scene_data_p);
 }
 
-void DataViewer::slot_showMapContextMenu(const QPoint &pos_p)
+void DataViewer::sl_showMapContextMenu(const QPoint &_pos_p)
 {
-    if (_currentViewType == QGisMapLayer){
-        _repaintBehaviorMenu->popup(this->mapToGlobal(pos_p));
+    if (m_current_view_type == QGIS_MAP_LAYER){
+        m_repaint_behavior_menu->popup(this->mapToGlobal(_pos_p));
     }
 }
 
-void DataViewer::slot_onAutoResizeTrigger()
+void DataViewer::sl_onAutoResizeTrigger()
 {
-    if (_repaintBehaviorState == ExtentAutoResize){
-        _extentAutoResize->setChecked(true);
+    if (m_repaint_behavior_state == EXTENT_AUTO_RESIZE){
+        m_extent_auto_resize->setChecked(true);
     }
 
-    if (_currentViewType == QGisMapLayer){
+    if (m_current_view_type == QGIS_MAP_LAYER){
 
-        switch (_repaintBehaviorState) {
+        switch (m_repaint_behavior_state) {
 
-        case FollowLastItem:
-            _repaintBehaviorState = ExtentAutoResize;
-            _extentAutoResize->setCheckable(true);
-            _extentAutoResize->setChecked(true);
-            _followLastItem->setCheckable(false);
+        case FOLLOW_LAST_ITEM:
+            m_repaint_behavior_state = EXTENT_AUTO_RESIZE;
+            m_extent_auto_resize->setCheckable(true);
+            m_extent_auto_resize->setChecked(true);
+            m_follow_last_item->setCheckable(false);
             break;
-        case ManualMove:
-            _repaintBehaviorState = ExtentAutoResize;
-            _extentAutoResize->setCheckable(true);
-            _extentAutoResize->setChecked(true);
-            _manualMove->setCheckable(false);
+        case MANUAL_MOVE:
+            m_repaint_behavior_state = EXTENT_AUTO_RESIZE;
+            m_extent_auto_resize->setCheckable(true);
+            m_extent_auto_resize->setChecked(true);
+            m_manual_move->setCheckable(false);
             break;
         default:
             break;
@@ -342,28 +321,28 @@ void DataViewer::slot_onAutoResizeTrigger()
 
 }
 
-void DataViewer::slot_onFollowLastItem()
+void DataViewer::sl_onFollowLastItem()
 {
-    if (_repaintBehaviorState == FollowLastItem){
-        _followLastItem->setChecked(true);
+    if (m_repaint_behavior_state == FOLLOW_LAST_ITEM){
+        m_follow_last_item->setChecked(true);
         return;
     }
 
-    if (_currentViewType == QGisMapLayer){
+    if (m_current_view_type == QGIS_MAP_LAYER){
 
-        switch (_repaintBehaviorState) {
+        switch (m_repaint_behavior_state) {
 
-        case ExtentAutoResize:
-            _repaintBehaviorState = FollowLastItem;
-            _followLastItem->setCheckable(true);
-            _followLastItem->setChecked(true);
-            _extentAutoResize->setCheckable(false);
+        case EXTENT_AUTO_RESIZE:
+            m_repaint_behavior_state = FOLLOW_LAST_ITEM;
+            m_follow_last_item->setCheckable(true);
+            m_follow_last_item->setChecked(true);
+            m_extent_auto_resize->setCheckable(false);
             break;
-        case ManualMove:
-            _repaintBehaviorState = FollowLastItem;
-            _followLastItem->setCheckable(true);
-            _followLastItem->setChecked(true);
-            _manualMove->setCheckable(false);
+        case MANUAL_MOVE:
+            m_repaint_behavior_state = FOLLOW_LAST_ITEM;
+            m_follow_last_item->setCheckable(true);
+            m_follow_last_item->setChecked(true);
+            m_manual_move->setCheckable(false);
             break;
         default:
             break;
@@ -372,28 +351,28 @@ void DataViewer::slot_onFollowLastItem()
     }
 }
 
-void DataViewer::slot_onManualMove()
+void DataViewer::sl_onManualMove()
 {
-    if (_repaintBehaviorState == ManualMove){
-        _manualMove->setChecked(true);
+    if (m_repaint_behavior_state == MANUAL_MOVE){
+        m_manual_move->setChecked(true);
         return;
     }
 
-    if (_currentViewType == QGisMapLayer){
+    if (m_current_view_type == QGIS_MAP_LAYER){
 
-        switch (_repaintBehaviorState) {
+        switch (m_repaint_behavior_state) {
 
-        case ExtentAutoResize:
-            _repaintBehaviorState = ManualMove;
-            _manualMove->setCheckable(true);
-            _manualMove->setChecked(true);
-            _extentAutoResize->setCheckable(false);
+        case EXTENT_AUTO_RESIZE:
+            m_repaint_behavior_state = MANUAL_MOVE;
+            m_manual_move->setCheckable(true);
+            m_manual_move->setChecked(true);
+            m_extent_auto_resize->setCheckable(false);
             break;
-        case FollowLastItem:
-            _repaintBehaviorState = ManualMove;
-            _manualMove->setCheckable(true);
-            _manualMove->setChecked(true);
-            _followLastItem->setCheckable(false);
+        case FOLLOW_LAST_ITEM:
+            m_repaint_behavior_state = MANUAL_MOVE;
+            m_manual_move->setCheckable(true);
+            m_manual_move->setChecked(true);
+            m_follow_last_item->setCheckable(false);
             break;
         default:
             break;
@@ -403,7 +382,7 @@ void DataViewer::slot_onManualMove()
 }
 
 
-void DataViewer::exportMapViewToImage(QString imageFilePath)
+void DataViewer::exportMapViewToImage(QString _image_file_path)
 {
     QImage image(QSize(800, 600), QImage::Format_ARGB32_Premultiplied);
 
@@ -413,97 +392,97 @@ void DataViewer::exportMapViewToImage(QString imageFilePath)
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    image.save(imageFilePath, "png");
+    image.save(_image_file_path, "png");
 }
 
 
-void DataViewer::loadImageFile(QString filename){
+void DataViewer::loadImageFile(QString _filename){
 
-    if (_currentViewType!=QImageView)
-        switchCartoViewTo(QImageView);
+    if (m_current_view_type!=QIMAGE_VIEW)
+        switchCartoViewTo(QIMAGE_VIEW);
 
-    QImage result(filename);
+    QImage result(_filename);
     const QPixmap pix = QPixmap::fromImage(result);
-    const QSize size = _ui->_LA_resultImage->size();
-    this->_ui->_LA_resultImage->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
+    const QSize size = m_ui->_LA_resultImage->size();
+    this->m_ui->_LA_resultImage->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
 
 }
 
 
-void DataViewer::setIconFactory(MatisseIconFactory *iconFactory)
+void DataViewer::setIconFactory(MatisseIconFactory *_icon_factory)
 {
-    _iconFactory = iconFactory;
+    m_icon_factory = _icon_factory;
 }
 
 
-CartoViewType DataViewer::currentViewType() const
+eCartoViewType DataViewer::currentViewType() const
 {
-    return _currentViewType;
+    return m_current_view_type;
 }
 
 QStringList DataViewer::supportedRasterFormat() const
 {
-    return _supportedRasterFormat;
+    return m_supported_raster_format;
 }
 
 QStringList DataViewer::supportedVectorFormat() const
 {
-    return _supportedVectorFormat;
+    return m_supported_vector_format;
 }
 
 QStringList DataViewer::supported3DFileFormat() const
 {
-    return _supported3DFileFormat;
+    return m_supported_3d_file_format;
 }
 
 QStringList DataViewer::supportedImageFormat() const
 {
-    return _supportedImageFormat;
+    return m_supported_image_format;
 }
 
-void DataViewer::displayImage(Image *image ){
+void DataViewer::displayImage(Image *_image ){
 
-    if (_currentViewType!=QImageView)
-        switchCartoViewTo(QImageView);
+    if (m_current_view_type!=QIMAGE_VIEW)
+        switchCartoViewTo(QIMAGE_VIEW);
 
     Mat dest;
 
-    qDebug()<< "Channels " << image->imageData()->channels();
+    qDebug()<< "Channels " << _image->imageData()->channels();
 
-    cvtColor(*(image->imageData()), dest,COLOR_BGR2RGB);
+    cvtColor(*(_image->imageData()), dest,COLOR_BGR2RGB);
 
     QImage result((uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
     const QPixmap pix = QPixmap::fromImage(result);
-    const QSize size = _ui->_LA_resultImage->size();
-    this->_ui->_LA_resultImage->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
+    const QSize size = m_ui->_LA_resultImage->size();
+    this->m_ui->_LA_resultImage->setPixmap(pix.scaled(size,Qt::KeepAspectRatio));
 
 }
 
-void DataViewer::displayCartoImage(CartoImage *image ){
+void DataViewer::displayCartoImage(CartoImage *_image ){
 
-    if (_currentViewType!=QGisMapLayer)
-        switchCartoViewTo(QGisMapLayer);
+    if (m_current_view_type!=QGIS_MAP_LAYER)
+        switchCartoViewTo(QGIS_MAP_LAYER);
 
-    int nbobj = _scene.items().size();
-    _scene.addCartoImage(image);
+    int nbobj = m_scene.items().size();
+    m_scene.addCartoImage(_image);
     if(nbobj == 0)
-        slot_recenterMap();
+        sl_recenterMap();
 
 }
 
 
-void DataViewer::slot_mapZoomChanged(qreal z)
+void DataViewer::sl_mapZoomChanged(qreal _z)
 {
-    if(z > _scene.scaleFactor())
+    if(_z > m_scene.scaleFactor())
     {
-        _scene.setScaleFactor(_scene.scaleFactor() * 4);
+        m_scene.setScaleFactor(m_scene.scaleFactor() * 4);
     }
-    _scene.reloadVisibleImageWithNewScaleFactor(_ui->_GV_view);
+    m_scene.reloadVisibleImageWithNewScaleFactor(m_ui->_GV_view);
 }
 
-void DataViewer::slot_mapPanChanged()
+void DataViewer::sl_mapPanChanged()
 {
-    _scene.reloadVisibleImageWithNewScaleFactor(_ui->_GV_view);
+    m_scene.reloadVisibleImageWithNewScaleFactor(m_ui->_GV_view);
 }
 
 
@@ -517,28 +496,28 @@ resultLoadingTask::~resultLoadingTask()
 
 }
 
-void resultLoadingTask::slot_loadRasterFromFile(QString filename_p)
+void resultLoadingTask::sl_loadRasterFromFile(QString _filename_p)
 {
 
-    if (filename_p.isEmpty()) {
+    if (_filename_p.isEmpty()) {
         return;
     }
 
     CartoImage *image = new CartoImage();
-    image->loadFile(filename_p);
+    image->loadFile(_filename_p);
 
-    emit signal_addRasterToCartoView(image);
+    emit si_addRasterToCartoView(image);
 
 }
 
-void resultLoadingTask::slot_load3DSceneFromFile(QString filename_p, bool remove_previous_scenes_p)
+void resultLoadingTask::sl_load3DSceneFromFile(QString _filename_p, bool _remove_previous_scenes_p)
 {
     // load the data
     setlocale(LC_ALL, "C");
 
-    osg::ref_ptr<osg::Node> node = m_osgwidget->createNodeFromFile(filename_p.toStdString());
+    osg::ref_ptr<osg::Node> node = m_osgwidget->createNodeFromFile(_filename_p.toStdString());
 
-    emit signal_add3DSceneToCartoView(node, remove_previous_scenes_p);
+    emit si_add3DSceneToCartoView(node, _remove_previous_scenes_p);
 }
 
 } // namespace matisse

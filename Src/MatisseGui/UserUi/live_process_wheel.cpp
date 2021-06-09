@@ -3,66 +3,70 @@
 
 namespace matisse {
 
-LiveProcessWheel::LiveProcessWheel(QWidget *parent) : QWidget(parent),
-    _state(INACTIVE), _currentHour(0), _firstRound(true), _msForOneHourClockTurn(80)
+LiveProcessWheel::LiveProcessWheel(QWidget *_parent) :
+    QWidget(_parent),
+    m_ms_for_one_hour_clock_turn(80),
+    m_current_hour(0),
+    m_first_round(true),
+    m_state(INACTIVE)
 {
     GraphicalCharter &graph_charter = GraphicalCharter::instance();
 
-    _wheelRadius = (double)graph_charter.dpiScaled(25);
-    _innerRadius = (double)graph_charter.dpiScaled(13);
-    _rayWidth = (double)graph_charter.dpiScaled(2);
+    m_wheel_radius = (double)graph_charter.dpiScaled(25);
+    m_inner_radius = (double)graph_charter.dpiScaled(13);
+    m_ray_width = (double)graph_charter.dpiScaled(2);
 
     double center = (double)graph_charter.dpiScaled(30);
-    _center = new QPointF(center, center);
+    m_center = new QPointF(center, center);
 
     /* widget is not aware of graphical chart, using default colors */
-    inactiveColor = new QColor(Qt::gray);
-    activeColor = new QColor(Qt::blue);
-    leadingActiveColor = new QColor(Qt::green);
+    m_inactive_color = new QColor(Qt::gray);
+    m_active_color = new QColor(Qt::blue);
+    m_leading_active_color = new QColor(Qt::green);
 
     /* init ticks color tabs */
-    _currentTickColors = new QColor*[12];
+    m_current_tick_colors = new QColor*[12];
 
     inactivateWheel();
 
-    _clockTimer = new QTimer(this);
-    connect(_clockTimer, SIGNAL(timeout()), this, SLOT(slot_newHour()));
+    m_clock_timer = new QTimer(this);
+    connect(m_clock_timer, SIGNAL(timeout()), this, SLOT(sl_newHour()));
 }
 
 LiveProcessWheel::~LiveProcessWheel()
 {
-    delete _center;
+    delete m_center;
 
-    _clockTimer->stop();
-    delete _clockTimer;
+    m_clock_timer->stop();
+    delete m_clock_timer;
 
     for (int i = 0 ; i < 12 ; i++) {
-        _currentTickColors[i] = NULL;
+        m_current_tick_colors[i] = NULL;
     }
-    delete[] _currentTickColors;
+    delete[] m_current_tick_colors;
 
-    delete inactiveColor;
-    delete activeColor;
-    delete leadingActiveColor;
+    delete m_inactive_color;
+    delete m_active_color;
+    delete m_leading_active_color;
 }
 
-void LiveProcessWheel::selectColor(QPainter &painter, int hourTick)
+void LiveProcessWheel::selectColor(QPainter &_painter, int _hour)
 {
-    QColor tickColor = QColor(*_currentTickColors[hourTick]);
+    QColor tick_color = QColor(*m_current_tick_colors[_hour]);
 
-    painter.setBrush(tickColor);
-    painter.setPen(tickColor);
+    _painter.setBrush(tick_color);
+    _painter.setPen(tick_color);
 }
 
-void LiveProcessWheel::paintEvent(QPaintEvent *evt)
+void LiveProcessWheel::paintEvent(QPaintEvent *_evt)
 {
-    Q_UNUSED(evt)
+    Q_UNUSED(_evt)
 
-    double rayHalfWidth = _rayWidth / 2;
-    double rayLength = _wheelRadius - _innerRadius;
+    double ray_half_width = m_ray_width / 2;
+    double ray_length = m_wheel_radius - m_inner_radius;
 
     // define clock ticks
-    QRectF tick0 = QRectF(0 - rayHalfWidth, 0 - _wheelRadius, _rayWidth, rayLength);
+    QRectF tick0 = QRectF(0 - ray_half_width, 0 - m_wheel_radius, m_ray_width, ray_length);
 
     QTransform transform1;
     transform1.rotate(30);
@@ -112,7 +116,7 @@ void LiveProcessWheel::paintEvent(QPaintEvent *evt)
     painter.setRenderHint(QPainter::Antialiasing, true);
 
     // translate wheel to the center of the widget
-    painter.translate(_center->x(), _center->y());
+    painter.translate(m_center->x(), m_center->y());
 
     // trace clock ticks
     selectColor(painter, 0);
@@ -152,113 +156,113 @@ void LiveProcessWheel::paintEvent(QPaintEvent *evt)
     painter.drawPolygon(tick11);
 }
 
-void LiveProcessWheel::slot_newHour()
+void LiveProcessWheel::sl_newHour()
 {
-    if (_firstRound && _currentHour == 12) {
-        _firstRound = false;
+    if (m_first_round && m_current_hour == 12) {
+        m_first_round = false;
     }
 
-    _currentHour = _currentHour % 12;
+    m_current_hour = m_current_hour % 12;
 
-    qint8 trailingTick = _currentHour - 7;
+    qint8 trailing_tick = m_current_hour - 7;
     /* At first round, trailing tick is not before noon */
-    if (_firstRound) {
-        if (trailingTick < 0) {
-            trailingTick = 0;
+    if (m_first_round) {
+        if (trailing_tick < 0) {
+            trailing_tick = 0;
         }
     }
 
     for (quint8 i = 0; i < 12 ; i++ ) {
 
-        if (i == _currentHour) {
-            _currentTickColors[i] = leadingActiveColor;
+        if (i == m_current_hour) {
+            m_current_tick_colors[i] = m_leading_active_color;
         } else {
             qint8 ofs_i = i;
 
-            /* offset index, so that _currentHour is the highest active value */
-            if (i > _currentHour) {
+            /* offset index, so that m_current_hour is the highest active value */
+            if (i > m_current_hour) {
                 ofs_i = i - 12;
             }
 
-            if (ofs_i >= trailingTick) {
-                _currentTickColors[i] = activeColor;
+            if (ofs_i >= trailing_tick) {
+                m_current_tick_colors[i] = m_active_color;
             } else {
-                _currentTickColors[i] = inactiveColor;
+                m_current_tick_colors[i] = m_inactive_color;
             }
         }
     }
 
-    _currentHour++;
+    m_current_hour++;
     repaint();
 }
 
 void LiveProcessWheel::inactivateWheel()
 {
     for (quint8 i = 0 ; i < 12 ; i++) {
-        _currentTickColors[i] = inactiveColor;
+        m_current_tick_colors[i] = m_inactive_color;
     }
 }
 
-void LiveProcessWheel::slot_processRunning()
+void LiveProcessWheel::sl_processRunning()
 {
-    qDebug() << QString("Live process wheel state change %1 -> %2").arg(_state).arg(QString::number(RUNNING));
+    qDebug() << QString("Live process wheel state change %1 -> %2").arg(m_state).arg(QString::number(RUNNING));
 
     // Reset clock hour only if previous state was inactive
     // (if previous state was frozen, then start again from same hour)
-    if (_state == INACTIVE) {
-        _currentHour = 0;
-        _firstRound = true;
+    if (m_state == INACTIVE) {
+        m_current_hour = 0;
+        m_first_round = true;
     }
-    _clockTimer->start(_msForOneHourClockTurn);
-    _state = RUNNING;
+    m_clock_timer->start(m_ms_for_one_hour_clock_turn);
+    m_state = RUNNING;
     setToolTip(tr("Process running..."));
 }
 
-void LiveProcessWheel::slot_processStopped()
+void LiveProcessWheel::sl_processStopped()
 {
-    qDebug() << QString("Live process wheel state change %1 -> %2").arg(_state).arg(QString::number(INACTIVE));
-    if (_clockTimer->isActive()) {
-        _clockTimer->stop();
+    qDebug() << QString("Live process wheel state change %1 -> %2").arg(m_state).arg(QString::number(INACTIVE));
+    if (m_clock_timer->isActive()) {
+        m_clock_timer->stop();
     }
-    _state = INACTIVE;
+    m_state = INACTIVE;
     inactivateWheel();
     setToolTip(tr("No process running"));
     repaint();
 }
 
-void LiveProcessWheel::slot_processFrozen()
+void LiveProcessWheel::sl_processFrozen()
 {
-    qDebug() << QString("Live process wheel state change %1 -> %2").arg(_state).arg(QString::number(FROZEN));
-    _clockTimer->stop();
-    _state = FROZEN;
+    qDebug() << QString("Live process wheel state change %1 -> %2").arg(m_state).arg(QString::number(FROZEN));
+    m_clock_timer->stop();
+    m_state = FROZEN;
     setToolTip(tr("Frozen processing"));
 }
 
-void LiveProcessWheel::slot_updateWheelColors(QString colors)
+void LiveProcessWheel::sl_updateWheelColors(QString _colors)
 {
-    if (colors.isEmpty()) {
+    if (_colors.isEmpty()) {
         qCritical() << "Wheel colors not provided";
         return;
     }
 
-    QStringList colorsList = colors.split("-");
-    if (colorsList.size() < 3) {
-        qCritical() << QString("%1 colors were provided, but 3 are expected").arg(colorsList.size());
+    QStringList colors_list = _colors.split("-");
+    if (colors_list.size() < 3) {
+        qCritical() << QString("%1 colors were provided, but 3 are expected").arg(colors_list.size());
         return;
     }
 
-    if (_clockTimer->isActive()) {
+    if (m_clock_timer->isActive()) {
         qWarning() << "Wheel colors update event received while wheel is active, stopping...";
-        _clockTimer->stop();
+        m_clock_timer->stop();
     }
 
-    delete inactiveColor;
-    delete activeColor;
-    delete leadingActiveColor;
+    delete m_inactive_color;
+    delete m_active_color;
+    delete m_leading_active_color;
 
-    inactiveColor = new QColor(colorsList.at(0));
-    activeColor = new QColor(colorsList.at(1));
-    leadingActiveColor = new QColor(colorsList.at(2));
+    m_inactive_color = new QColor(colors_list.at(0));
+    m_active_color = new QColor(colors_list.at(1));
+    m_leading_active_color = new QColor(colors_list.at(2));
 
     inactivateWheel();
     repaint();

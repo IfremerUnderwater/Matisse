@@ -11,9 +11,9 @@ namespace matisse {
 class ElementWidgetProvider
 {
 public:
-    virtual SourceWidget * getSourceWidget(QString name) = 0;
-    virtual ProcessorWidget * getProcessorWidget(QString name) = 0;
-    virtual DestinationWidget * getDestinationWidget(QString name) = 0;
+    virtual SourceWidget * getSourceWidget(QString _name) = 0;
+    virtual ProcessorWidget * getProcessorWidget(QString _name) = 0;
+    virtual DestinationWidget * getDestinationWidget(QString _name) = 0;
 };
 
 } // namespace matisse

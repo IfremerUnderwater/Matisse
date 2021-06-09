@@ -28,27 +28,24 @@ class JobDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit JobDialog(QWidget *parent,  MatisseIconFactory *iconFactory, KeyValueList * keyValues, QString jobsPath, QStringList existingJobNames, QStringList archivedJobNames);
+    explicit JobDialog(QWidget *_parent,  MatisseIconFactory *_icon_factory, KeyValueList * _key_values, QString _jobs_path, QStringList _existing_job_names, QStringList _archived_job_names);
     ~JobDialog();
 
-//    static QString newJobName(QWidget * parent = NULL, KeyValueList * keyValues = NULL, QString jobsPath = QString());
-
 protected:
-    void changeEvent(QEvent *event); // overriding event handler for dynamic translation
+    void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
 
 private:
-    Ui::JobDialog *_ui;
-    KeyValueList * _keyValues;
-    bool _isRealTime;
-    QString _jobsPath;
-    QStringList _existingJobNames;
-    QStringList _archivedJobNames;
+    Ui::JobDialog *m_ui;
+    KeyValueList * m_key_values;
+    QString m_jobs_path;
+    QStringList m_existing_job_names;
+    QStringList m_archived_job_names;
 
 public slots:
-    void slot_formatName(QString text);
-    void slot_close();
-    void slot_selectDir();
-    void slot_selectFile();
+    void sl_formatName(QString _text);
+    void sl_close();
+    void sl_selectDir();
+    void sl_selectFile();
 };
 
 } // namespace matisse

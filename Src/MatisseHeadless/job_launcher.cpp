@@ -30,11 +30,11 @@ JobLauncher::~JobLauncher() {}
 void JobLauncher::initServer() {
   m_engine.init();
 
-  connect(&m_engine, SIGNAL(signal_jobProcessed(QString, bool)), this,
+  connect(&m_engine, SIGNAL(si_jobProcessed(QString, bool)), this,
           SLOT(sl_jobProcessed(QString, bool)));
-  connect(&m_engine, SIGNAL(signal_userInformation(QString)), this,
+  connect(&m_engine, SIGNAL(si_userInformation(QString)), this,
           SLOT(sl_userInformation(QString)));
-  connect(&m_engine, SIGNAL(signal_processCompletion(quint8)), this,
+  connect(&m_engine, SIGNAL(si_processCompletion(quint8)), this,
           SLOT(sl_processCompletion(quint8)));
 }
 

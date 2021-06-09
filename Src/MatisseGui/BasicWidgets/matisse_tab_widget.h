@@ -9,13 +9,12 @@ namespace matisse {
 class MatisseTabWidget : public QTabWidget
 {
 public:
-    MatisseTabWidget(QWidget* parent);
+    MatisseTabWidget(QWidget* _parent);
     ~MatisseTabWidget();
 
-    void setObjectName(const QString &name);
+    void setObjectName(const QString &_name);
 private:
-//    QStackedLayout* _stackedLayout;
-//    QTabBar* _tabBar;
+
 };
 
 } // namespace matisse

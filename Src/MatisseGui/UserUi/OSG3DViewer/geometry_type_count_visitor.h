@@ -10,20 +10,20 @@ public:
     GeometryTypeCountVisitor();
     virtual ~GeometryTypeCountVisitor();
 
-    virtual void apply( osg::Node &node );
-    virtual void apply( osg::Geode &geode );
+    virtual void apply( osg::Node &_node );
+    virtual void apply( osg::Geode &_geode );
 
-    long getNbPoints() const { return m_nbPoints; }
-    long getNbLigne() const { return m_nbLignes; }
-    long getNbTriangles() const { return m_nbTriangles; }
-    long getNbOthers() const { return m_nbOthers; }
+    long getNbPoints() const { return m_nb_points; }
+    long getNbLigne() const { return m_nb_lignes; }
+    long getNbTriangles() const { return m_nb_triangles; }
+    long getNbOthers() const { return m_nb_others; }
 
 
 private :
-    double m_nbPoints;
-    double m_nbLignes;
-    double m_nbTriangles;
-    double m_nbOthers;
+    double m_nb_points;
+    double m_nb_lignes;
+    double m_nb_triangles;
+    double m_nb_others;
 };
 
 #endif // GEOMETRYTYPECOUNTVISITOR_H

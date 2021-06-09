@@ -2,73 +2,42 @@
 
 namespace matisse {
 
-SourceWidget::SourceWidget(QGraphicsItem *parent):ElementWidget(parent)
+SourceWidget::SourceWidget(QGraphicsItem *_parent):ElementWidget(_parent)
 {
     setOrder(0);
 }
 
-void SourceWidget::drawSymbol(QPainter * painter, bool forIcon) {
+void SourceWidget::drawSymbol(QPainter * _painter, bool _for_icon) {
 
-    QRect tempRect = _bodyRect;
-    if (forIcon) {
-        _bodyRect.translate(_bodyRect.width()/2, _bodyRect.height()/2);
+    QRect temp_rect = m_body_rect;
+    if (_for_icon) {
+        m_body_rect.translate(m_body_rect.width()/2, m_body_rect.height()/2);
     }
 
-        painter->drawEllipse(_bodyRect);
-        QVector <QLine> linesOut;
-        int srcWidth = _bodyRect.width();
-        //int xOrig = _processorRect.x() /*+ 5*/;
-        int xOrig = _bodyRect.left();
-        int yOrig = _bodyRect.top();
-        int deltaOut = srcWidth / (_outputsNumber + 1);
+        _painter->drawEllipse(m_body_rect);
+        QVector <QLine> lines_out;
+        int src_width = m_body_rect.width();
+        int x_orig = m_body_rect.left();
+        int y_orig = m_body_rect.top();
+        int delta_out = src_width / (m_outputs_number + 1);
 
-        for (int index = 1; index <= _outputsNumber; index++) {
-            ElementWidget * outputWidget = _outputsWidgets.at(index-1);
-            if (outputWidget) {
-                painter->setBrush(QBrush(outputWidget->getColor()));
+        for (int index = 1; index <= m_outputs_number; index++) {
+            ElementWidget * output_widget = m_outputs_widgets.at(index-1);
+            if (output_widget) {
+                _painter->setBrush(QBrush(output_widget->getColor()));
             } else {
-                painter->setBrush(QBrush());
+                _painter->setBrush(QBrush());
             }
-            linesOut << QLine(xOrig + deltaOut * index, yOrig + _bodyRect.height(), xOrig + deltaOut * index, yOrig + _bodyRect.height() +30);
-            painter->drawEllipse(QRect(xOrig + deltaOut * index - 6, yOrig + _bodyRect.height() +30, 12, 12));
+            lines_out << QLine(x_orig + delta_out * index, y_orig + m_body_rect.height(), x_orig + delta_out * index, y_orig + m_body_rect.height() +30);
+            _painter->drawEllipse(QRect(x_orig + delta_out * index - 6, y_orig + m_body_rect.height() +30, 12, 12));
         }
 
-        painter->drawLines(linesOut);
-        painter->drawText(_bodyRect, Qt::AlignCenter, _name);
+        _painter->drawLines(lines_out);
+        _painter->drawText(m_body_rect, Qt::AlignCenter, m_name);
 
-//    if (_rayEnd != _rayInit) {
-//        painter->drawLine(_rayInit, _rayEnd);
-//        qDebug() << "DrawLine..." << _rayInit << _rayEnd;
-//    }
 
-    _bodyRect = tempRect;
+    m_body_rect = temp_rect;
 }
 
-/*
-void SourceWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    qDebug() << "MousePressEvent" << event->pos() << event->scenePos() << event->screenPos();
-    qDebug() << "Modifier" << event->modifiers();
-    _rayInit = event->pos();
-
-    event->accept();
-}
-
-void SourceWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-//  qDebug() << "MouseMoveElement";
-    _rayEnd = event->pos();
-    update();
-    event->accept();
-}
-
-void SourceWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-    qDebug() << "MouseReleaseEvent";
-    _rayEnd = _rayInit;
-
-    event->accept();
-}
-*/
 
 } // namespace matisse

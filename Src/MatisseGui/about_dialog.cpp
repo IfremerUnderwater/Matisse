@@ -4,27 +4,27 @@
 
 namespace matisse {
 
-AboutDialog::AboutDialog(QWidget *parent, KeyValueList meta) :
-    QDialog(parent),
-    _ui(new Ui::AboutDialog)
+AboutDialog::AboutDialog(QWidget *_parent, KeyValueList _meta) :
+    QDialog(_parent),
+    m_ui(new Ui::AboutDialog)
 {
-    _ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    connect(_ui->_PB_closeAbout, SIGNAL(clicked()), this, SLOT(slot_close()));
+    connect(m_ui->_PB_closeAbout, SIGNAL(clicked()), this, SLOT(sl_close()));
 
-    QString version = meta.getValue("version");
+    QString version = _meta.getValue("version");
 
-    QString templateText("<table>\
+    QString template_text("<table>\
                          <tr><td colspan=\"2\"><h1>MATISSE 3D %1</h1></td></tr>\
                          <tr><td colspan=\"2\"><em>Technical support:</em></td></tr>\
                          <tr><td>Tel.:</td><td>+33(0)4 94 30 44 35</td></tr>\
                          <tr><td>Mail:</td><td><a href=\"mailto:aurelien.arnaubec@ifremer.fr\">aurelien.arnaubec@ifremer.fr</a></td></tr>\
                         </table>");
-    QString mainText = templateText.arg(version);
-    _ui->_LA_aboutMainText->setText(mainText);
+    QString main_text = template_text.arg(version);
+    m_ui->_LA_aboutMainText->setText(main_text);
 }
 
-void AboutDialog::slot_close()
+void AboutDialog::sl_close()
 {
     accept();
 }
