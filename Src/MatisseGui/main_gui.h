@@ -62,10 +62,10 @@ class MainGui;
 namespace matisse {
 
 enum eMessageIndicatorLevel {
-        IDLE,
-        OK,
-        WARNING,
-        ERROR
+    IDLE,
+    OK,
+    WARNING,
+    ERROR
 };
 
 
