@@ -469,7 +469,7 @@ void MainGui::initStylesheetSelection()
     m_colors_by_level.insert(IDLE, QString("grey"));
     m_colors_by_level.insert(OK, QString("level.green"));
     m_colors_by_level.insert(WARNING, QString("level.orange"));
-    m_colors_by_level.insert(ERROR, QString("level.red"));
+    m_colors_by_level.insert(ERR, QString("level.red"));
 
     IconizedWidgetWrapper *close_button_wrapper = new IconizedButtonWrapper(m_close_button);
     m_icon_factory->attachIcon(close_button_wrapper, "lnf/icons/fermer.svg", false, false);
@@ -3677,7 +3677,7 @@ void MainGui::sl_launchJob()
     AssemblyDefinition * assembly_def = process_data_manager->getAssembly(assembly_name);
     if (!assembly_def) {
         qCritical() << "Assembly error" << assembly_name;
-        showStatusMessage(tr("Assembly error"), ERROR);
+        showStatusMessage(tr("Assembly error"), ERR);
         return;
     }
 
@@ -3692,7 +3692,7 @@ void MainGui::sl_launchJob()
     if (!process_data_manager->readJobFile(job_filename)) {
         qCritical() << QString("Error reading job file for job '%1' before launch").arg(job_name);
         QMessageBox::information(this, msg1, msg2);
-        showStatusMessage(msg1+ " " + msg2, ERROR);
+        showStatusMessage(msg1+ " " + msg2, ERR);
         return;
     }
 
@@ -3701,7 +3701,7 @@ void MainGui::sl_launchJob()
     if (!m_current_job) {
         qCritical() << QString("Job '%1' could not be loaded properly before launch").arg(job_name);
         QMessageBox::information(this, msg1, msg2);
-        showStatusMessage(msg1+ " " + msg2, ERROR);
+        showStatusMessage(msg1+ " " + msg2, ERR);
         return;
     }
 
@@ -3740,7 +3740,7 @@ void MainGui::sl_launchJob()
 
     if (!run_success) {
         QString msg = tr("Error %1: %2").arg(job_name).arg(m_engine.messageStr());
-        showStatusMessage(msg, ERROR);
+        showStatusMessage(msg, ERR);
         m_stop_button->setEnabled(false);
     }else{
         freezeJobUserAction(true);
