@@ -65,7 +65,7 @@ enum eMessageIndicatorLevel {
     IDLE,
     OK,
     WARNING,
-    ERROR
+    ERR
 };
 
 
