@@ -38,26 +38,25 @@ using namespace openMVG::sfm;
 Q_EXPORT_PLUGIN2(Meshing3D, Meshing3D)
 #endif
 
-namespace matisse {
-
 namespace OPT {
-    float fDistInsert;
-    bool bUseConstantWeight;
-    bool bUseFreeSpaceSupport;
-    float fThicknessFactor;
-    float fQualityFactor;
-    float fDecimateMesh;
-    float fRemoveSpurious;
-    bool bRemoveSpikes;
-    unsigned nCloseHoles;
-    unsigned nSmoothMesh;
-    unsigned nArchiveType;
-    int nProcessPriority;
-    unsigned nMaxThreads;
-    String strExportType;
-    String strConfigFileName;
+    float f_dist_insert;
+    bool b_use_constant_weight;
+    bool b_use_free_space_support;
+    float f_thickness_factor;
+    float f_quality_factor;
+    float f_decimate_mesh;
+    float f_remove_spurious;
+    bool b_remove_spikes;
+    unsigned n_close_holes;
+    unsigned n_smooth_mesh;
+    unsigned n_archive_type;
+    int n_process_priority;
+    unsigned n_max_threads;
+    String str_export_type;
+    String str_config_file_name;
 } // namespace OPT
 
+namespace matisse {
 
 Meshing3D::Meshing3D() :
     Processor(NULL, "Meshing3D", "Create a mesh from 3D points", 1, 1)
@@ -79,39 +78,39 @@ bool Meshing3D::configure()
     return true;
 }
 
-void Meshing3D::onNewImage(quint32 port, matisse_image::Image &image)
+void Meshing3D::onNewImage(quint32 _port, matisse_image::Image &_image)
 {
-    Q_UNUSED(port)
+    Q_UNUSED(_port)
 
     // Forward image
-    postImage(0, image);
+    postImage(0, _image);
 
 }
 
 bool Meshing3D::initMeshing()
 {
-    OPT::fDistInsert=2.5f;
-    OPT::bUseConstantWeight=true;
-    OPT::bUseFreeSpaceSupport=false;
-    OPT::fThicknessFactor=1.f;
-    OPT::fQualityFactor=1.f;
-    OPT::fDecimateMesh=1.f;
-    OPT::fRemoveSpurious=20.f;
-    OPT::bRemoveSpikes=true;
-    OPT::nCloseHoles=30;
-    OPT::nSmoothMesh=2;
-    OPT::nArchiveType=2;
-    OPT::nMaxThreads=0;
-    OPT::strExportType="ply";
+    OPT::f_dist_insert=2.5f;
+    OPT::b_use_constant_weight=true;
+    OPT::b_use_free_space_support=false;
+    OPT::f_thickness_factor=1.f;
+    OPT::f_quality_factor=1.f;
+    OPT::f_decimate_mesh=1.f;
+    OPT::f_remove_spurious=20.f;
+    OPT::b_remove_spikes=true;
+    OPT::n_close_holes=30;
+    OPT::n_smooth_mesh=2;
+    OPT::n_archive_type=2;
+    OPT::n_max_threads=0;
+    OPT::str_export_type="ply";
 
     bool ok;
     double decimatearg = m_matisse_parameters->getDoubleParamValue("algo_param", "decimate_factor", ok);
     if (ok)
-        OPT::fDecimateMesh = decimatearg;
+        OPT::f_decimate_mesh = decimatearg;
 
     // Set max threads
-    OPT::nMaxThreads = omp_get_max_threads();
-    omp_set_num_threads(OPT::nMaxThreads);
+    OPT::n_max_threads = omp_get_max_threads();
+    omp_set_num_threads(OPT::n_max_threads);
 
     return true;
 }
@@ -120,55 +119,55 @@ bool Meshing3D::meshing(QString _mvs_data_file)
 {
 	QFileInfo mvs_file_info(_mvs_data_file);
 
-	MVS::Scene scene(OPT::nMaxThreads);
+    MVS::Scene scene(OPT::n_max_threads);
 	// load project
 	if (!scene.Load(_mvs_data_file.toStdString()))
 		return false;
 
 	// reset image resolution to the original size and
 	// make sure the image neighbors are initialized before deleting the point-cloud
-	bool bAbort(false);
+    bool b_abort(false);
 #pragma omp parallel for
 	for (int_t idx = 0; idx < (int_t)scene.images.GetSize(); ++idx) {
-#pragma omp flush (bAbort)
-		if (bAbort)
+#pragma omp flush (b_abort)
+        if (b_abort)
 			continue;
-		const uint32_t idxImage((uint32_t)idx);
+        const uint32_t idx_image((uint32_t)idx);
 
-		MVS::Image& imageData = scene.images[idxImage];
-		if (!imageData.IsValid())
+        MVS::Image& image_data = scene.images[idx_image];
+        if (!image_data.IsValid())
 			continue;
 		// reset image resolution
-		if (!imageData.ReloadImage(0, false)) {
-			bAbort = true;
-#pragma omp flush (bAbort)
+        if (!image_data.ReloadImage(0, false)) {
+            b_abort = true;
+#pragma omp flush (b_abort)
 			continue;
 		}
-		imageData.UpdateCamera(scene.platforms);
+        image_data.UpdateCamera(scene.platforms);
 		// select neighbor views
-		if (imageData.neighbors.IsEmpty()) {
+        if (image_data.neighbors.IsEmpty()) {
 			IndexArr points;
-			scene.SelectNeighborViews(idxImage, points);
+            scene.SelectNeighborViews(idx_image, points);
 		}
 	}
 
-	if (bAbort)
+    if (b_abort)
 		return false;
 	// reconstruct a coarse mesh from the given point-cloud
-	if (OPT::bUseConstantWeight)
+    if (OPT::b_use_constant_weight)
 		scene.pointcloud.pointWeights.Release();
-	if (!scene.ReconstructMesh(OPT::fDistInsert, OPT::bUseFreeSpaceSupport, 4, OPT::fThicknessFactor, OPT::fQualityFactor))
+    if (!scene.ReconstructMesh(OPT::f_dist_insert, OPT::b_use_free_space_support, 4, OPT::f_thickness_factor, OPT::f_quality_factor))
 		return false;
 
 	// clean the mesh
-	scene.mesh.Clean(OPT::fDecimateMesh, OPT::fRemoveSpurious, OPT::bRemoveSpikes, OPT::nCloseHoles, OPT::nSmoothMesh, false);
-	scene.mesh.Clean(1.f, 0.f, OPT::bRemoveSpikes, OPT::nCloseHoles, 0, false); // extra cleaning trying to close more holes
+    scene.mesh.Clean(OPT::f_decimate_mesh, OPT::f_remove_spurious, OPT::b_remove_spikes, OPT::n_close_holes, OPT::n_smooth_mesh, false);
+    scene.mesh.Clean(1.f, 0.f, OPT::b_remove_spikes, OPT::n_close_holes, 0, false); // extra cleaning trying to close more holes
 	scene.mesh.Clean(1.f, 0.f, false, 0, 0, true); // extra cleaning to remove non-manifold problems created by closing holes
 
 	// save the final mesh
     QString output_filename = mvs_file_info.dir().absoluteFilePath(mvs_file_info.baseName() + "_mesh");
-	scene.Save(output_filename.toStdString()+".mvs", (ARCHIVE_TYPE)OPT::nArchiveType);
-	scene.mesh.Save(output_filename.toStdString() +"." + OPT::strExportType);
+    scene.Save(output_filename.toStdString()+".mvs", (ARCHIVE_TYPE)OPT::n_archive_type);
+    scene.mesh.Save(output_filename.toStdString() +"." + OPT::str_export_type);
 
 
 	return true;
@@ -195,9 +194,9 @@ bool Meshing3D::stop()
     return true;
 }
 
-void Meshing3D::onFlush(quint32 port)
+void Meshing3D::onFlush(quint32 _port)
 {
-    Q_UNUSED(port)
+    Q_UNUSED(_port)
 
     QElapsedTimer timer;
     timer.start();

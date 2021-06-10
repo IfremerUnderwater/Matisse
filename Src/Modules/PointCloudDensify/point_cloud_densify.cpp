@@ -27,10 +27,10 @@
 using namespace MVS;
 
 namespace OPT {
-    int thFilterPointCloud;
-    int nFusionMode;
-    int nArchiveType;
-    unsigned nMaxThreads;
+    int th_filter_point_cloud;
+    int n_fusion_mode;
+    int n_archive_type;
+    unsigned n_max_threads;
 } // namespace OPT
 
 using namespace openMVG;
@@ -66,12 +66,12 @@ bool PointCloudDensify::configure()
     return true;
 }
 
-void PointCloudDensify::onNewImage(quint32 port, matisse_image::Image &image)
+void PointCloudDensify::onNewImage(quint32 _port, matisse_image::Image &_image)
 {
-    Q_UNUSED(port)
+    Q_UNUSED(_port)
 
     // Forward image
-    postImage(0, image);
+    postImage(0, _image);
 
 }
 
@@ -100,14 +100,14 @@ bool PointCloudDensify::initDensify()
         OPTDENSE::nMinViewsFuse = nbviewfuse;
 
     // Set max threads
-    OPT::nMaxThreads = omp_get_max_threads();
-    omp_set_num_threads(OPT::nMaxThreads);
+    OPT::n_max_threads = omp_get_max_threads();
+    omp_set_num_threads(OPT::n_max_threads);
 
     // Set arch type (2-compressed binary)
-    OPT::nArchiveType = 2;
+    OPT::n_archive_type = 2;
 
-    OPT::nFusionMode = 0;
-    OPT::thFilterPointCloud = 0; // TODO : consider adding this as user param
+    OPT::n_fusion_mode = 0;
+    OPT::th_filter_point_cloud = 0; // TODO : consider adding this as user param
 
     return true;
 }
@@ -127,7 +127,7 @@ namespace fs = boost::filesystem;
 fs::path cur_working_dir(fs::current_path());
 fs::current_path(fs::path(_scene_dir.toStdString() ));
 
-Scene scene(OPT::nMaxThreads);
+Scene scene(OPT::n_max_threads);
 
 // load and estimate a dense point-cloud
 if (!scene.Load(scene_file_info.absoluteFilePath().toStdString()))
@@ -140,21 +140,21 @@ if (scene.pointcloud.IsEmpty()) {
     fs::current_path(cur_working_dir); // restore path
     return false;
 }
-if (OPT::thFilterPointCloud < 0) {
+if (OPT::th_filter_point_cloud < 0) {
     // filter point-cloud based on camera-point visibility intersections
-    scene.PointCloudFilter(OPT::thFilterPointCloud);
+    scene.PointCloudFilter(OPT::th_filter_point_cloud);
     //const String baseFileName(MAKE_PATH_SAFE(Util::getFileFullName(OPT::strOutputFileName)) + _T("_filtered"));
  
-    scene.Save((fullpath_basename + QString("_dense.mvs")).toStdString(), (ARCHIVE_TYPE)OPT::nArchiveType);
+    scene.Save((fullpath_basename + QString("_dense.mvs")).toStdString(), (ARCHIVE_TYPE)OPT::n_archive_type);
     scene.pointcloud.Save((fullpath_basename + QString("_dense.ply")).toStdString());
 
     fs::current_path(cur_working_dir); // restore path
     return true;
 }
-if ((ARCHIVE_TYPE) OPT::nArchiveType != ARCHIVE_MVS) {
+if ((ARCHIVE_TYPE) OPT::n_archive_type != ARCHIVE_MVS) {
 
-    if (!scene.DenseReconstruction(OPT::nFusionMode)) {
-        if (ABS(OPT::nFusionMode) != 1)
+    if (!scene.DenseReconstruction(OPT::n_fusion_mode)) {
+        if (ABS(OPT::n_fusion_mode) != 1)
         {
             fs::current_path(cur_working_dir); // restore path
             return false;
@@ -166,7 +166,7 @@ if ((ARCHIVE_TYPE) OPT::nArchiveType != ARCHIVE_MVS) {
 }
 
 // save the final mesh
-scene.Save((fullpath_basename + QString("_dense.mvs")).toStdString(), (ARCHIVE_TYPE)OPT::nArchiveType);
+scene.Save((fullpath_basename + QString("_dense.mvs")).toStdString(), (ARCHIVE_TYPE)OPT::n_archive_type);
 scene.pointcloud.Save((fullpath_basename + QString("_dense.ply")).toStdString());
 
 #if 0
@@ -198,9 +198,9 @@ bool PointCloudDensify::stop()
     return true;
 }
 
-void PointCloudDensify::onFlush(quint32 port)
+void PointCloudDensify::onFlush(quint32 _port)
 {
-    Q_UNUSED(port)
+    Q_UNUSED(_port)
 
     // Log
     QString proc_info = logPrefix() + "Point cloud densification started\n";

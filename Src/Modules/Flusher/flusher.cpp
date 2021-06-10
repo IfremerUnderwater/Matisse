@@ -7,13 +7,13 @@ Q_EXPORT_PLUGIN2(Flusher, Flusher)
 
 namespace matisse {
 
-Flusher::Flusher(QObject *parent):
+Flusher::Flusher(QObject *_parent):
     InputDataProvider(NULL, "Flusher", "Flusher", 1),
-    _pictureFileSet(NULL),
-    _dim2FileReader(NULL)
+    m_picture_file_set(NULL),
+    m_dim2_file_reader(NULL)
 {
-    Q_UNUSED(parent);
-    _imageSet = new ImageSet();
+    Q_UNUSED(_parent);
+    m_image_set = new ImageSet();
 
 }
 
@@ -23,10 +23,10 @@ Flusher::~Flusher()
 }
 
 
-ImageSet * Flusher::imageSet(quint16 port)
+ImageSet * Flusher::imageSet(quint16 _port)
 {
-    Q_UNUSED(port);
-    return _imageSet;
+    Q_UNUSED(_port);
+    return m_image_set;
 }
 
 bool Flusher::configure()
@@ -39,14 +39,14 @@ bool Flusher::configure()
 
 bool Flusher::start()
 {
-    _imageSet->flush();
+    m_image_set->flush();
     qDebug() << logPrefix() << " out start";
     return true;
 }
 
 bool Flusher::stop()
 {
-    _imageSet->clear();
+    m_image_set->clear();
     return true;
 }
 

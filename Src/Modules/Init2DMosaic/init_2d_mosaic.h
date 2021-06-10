@@ -25,8 +25,8 @@ public:
     virtual bool configure();
     virtual bool start();
     virtual bool stop();
-    virtual void onFlush(quint32 port);
-    virtual void onNewImage(quint32 port, Image &image);
+    virtual void onFlush(quint32 _port);
+    virtual void onNewImage(quint32 _port, Image &_image);
 };
 
 } // namespace matisse

@@ -27,13 +27,13 @@ public:
     virtual bool configure();
     virtual bool start();
     virtual bool stop();
-    virtual void onFlush(quint32 port);
-    virtual void onNewImage(quint32 port, Image &image);
+    virtual void onFlush(quint32 _port);
+    virtual void onNewImage(quint32 _port, Image &_image);
     virtual QList<QFileInfo> rastersInfo();
 
 private:
-    QList<QFileInfo> _rastersInfo;
-    QString _outputDirnameStr;
+    QList<QFileInfo> m_rasters_info;
+    QString m_output_dirname_str;
 };
 
 } // namespace matisse

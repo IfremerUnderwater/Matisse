@@ -48,41 +48,41 @@ bool DrawBlend2DMosaic::configure()
 {
     qDebug() << logPrefix() << "configure";
 
-    QString datasetDirnameStr = m_matisse_parameters->getStringParamValue("dataset_param", "dataset_dir");
-    _outputDirnameStr = m_matisse_parameters->getStringParamValue("dataset_param", "output_dir");
+    QString dataset_dirname_str = m_matisse_parameters->getStringParamValue("dataset_param", "dataset_dir");
+    m_output_dirname_str = m_matisse_parameters->getStringParamValue("dataset_param", "output_dir");
     /* Resolve UNIX paths ('~/...') for remote job execution */
-    _outputDirnameStr = FileUtils::resolveUnixPath(_outputDirnameStr);
+    m_output_dirname_str = FileUtils::resolveUnixPath(m_output_dirname_str);
 
-    QString outputFilename = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
+    QString output_filename = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
-    if (datasetDirnameStr.isEmpty()
-     || _outputDirnameStr.isEmpty()
-     || outputFilename.isEmpty())
+    if (dataset_dirname_str.isEmpty()
+     || m_output_dirname_str.isEmpty()
+     || output_filename.isEmpty())
         return false;
 
 
-    QFileInfo outputDirInfo(_outputDirnameStr);
-    QFileInfo datasetDirInfo(datasetDirnameStr);
+    QFileInfo output_dir_info(m_output_dirname_str);
+    QFileInfo dataset_dir_info(dataset_dirname_str);
 
-    bool isRelativeDir = outputDirInfo.isRelative();
+    bool is_relative_dir = output_dir_info.isRelative();
 
-    if (isRelativeDir) {
-        _outputDirnameStr = QDir::cleanPath( datasetDirInfo.absoluteFilePath() + QDir::separator() + _outputDirnameStr);
+    if (is_relative_dir) {
+        m_output_dirname_str = QDir::cleanPath( dataset_dir_info.absoluteFilePath() + QDir::separator() + m_output_dirname_str);
     }
-    _rastersInfo.clear();
+    m_rasters_info.clear();
 
     return true;
 }
 
-void DrawBlend2DMosaic::onNewImage(quint32 port, Image &image)
+void DrawBlend2DMosaic::onNewImage(quint32 _port, Image &_image)
 {
-    Q_UNUSED(port);
-    Q_UNUSED(image);
+    Q_UNUSED(_port);
+    Q_UNUSED(_image);
 }
 
 QList<QFileInfo> DrawBlend2DMosaic::rastersInfo()
 {
-    return _rastersInfo;
+    return m_rasters_info;
 }
 
 bool DrawBlend2DMosaic::start()
@@ -95,13 +95,13 @@ bool DrawBlend2DMosaic::stop()
     return true;
 }
 
-void DrawBlend2DMosaic::onFlush(quint32 port)
+void DrawBlend2DMosaic::onFlush(quint32 _port)
 {
 
     emit si_processCompletion(0);
     emit si_userInformation("Drawing and blending 2D mosaic...");
 
-    MosaicDescriptor *pMosaicD = NULL;
+    MosaicDescriptor *p_mosaic_d = NULL;
     //QVector<ProjectiveCamera*> *pCams = NULL;
 
     // Get pCams from mosaic _context
@@ -114,33 +114,33 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     }*/
 
     // Get pMosaicD from mosaic _context
-    QVariant * pMosaicDStocker = m_context->getObject("MosaicDescriptor");
-    if (pMosaicDStocker) {
-        pMosaicD = pMosaicDStocker->value<MosaicDescriptor *>();
-        qDebug()<< logPrefix() << "Receiving MosaicDescriptor on port : " << port;
+    QVariant * p_mosaic_d_stocker = m_context->getObject("MosaicDescriptor");
+    if (p_mosaic_d_stocker) {
+        p_mosaic_d = p_mosaic_d_stocker->value<MosaicDescriptor *>();
+        qDebug()<< logPrefix() << "Receiving MosaicDescriptor on port : " << _port;
     }else{
-        qDebug()<< logPrefix() << "No data to retreive on port : " << port;
+        qDebug()<< logPrefix() << "No data to retreive on port : " << _port;
     }
 
     // Get drawing parameters
-    bool Ok;
-    bool blockDraw = m_matisse_parameters->getBoolParamValue("algo_param", "block_drawing", Ok);
-    qDebug() << logPrefix() << "block_drawing = " << blockDraw;
+    bool ok;
+    bool block_draw = m_matisse_parameters->getBoolParamValue("algo_param", "block_drawing", ok);
+    qDebug() << logPrefix() << "block_drawing = " << block_draw;
 
-    int blockWidth = m_matisse_parameters->getIntParamValue("algo_param", "block_width", Ok);
-    qDebug() << logPrefix() << "block_width = " << blockWidth;
+    int block_width = m_matisse_parameters->getIntParamValue("algo_param", "block_width", ok);
+    qDebug() << logPrefix() << "block_width = " << block_width;
 
-    int blockHeight = m_matisse_parameters->getIntParamValue("algo_param", "block_height", Ok);
-    qDebug() << logPrefix() << "block_height = " << blockHeight;
+    int block_height = m_matisse_parameters->getIntParamValue("algo_param", "block_height", ok);
+    qDebug() << logPrefix() << "block_height = " << block_height;
 
     // Get drawing prefix
-    QString outputFilename = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
+    QString output_filename = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
     emit si_processCompletion(10);
 
     //Draw mosaic
-    MosaicDrawer mosaicDrawer;
-    QFileInfo outputFileInfo;
+    MosaicDrawer mosaic_drawer;
+    QFileInfo output_file_info;
 
     QString output_type_choice = m_matisse_parameters->getStringParamValue("algo_param", "single_image_output");
 
@@ -163,55 +163,55 @@ void DrawBlend2DMosaic::onFlush(quint32 port)
     }
 
 
-    if (m_matisse_parameters->getBoolParamValue("algo_param", "disjoint_drawing", Ok)) {
-        QStringList outputFiles;
+    if (m_matisse_parameters->getBoolParamValue("algo_param", "disjoint_drawing", ok)) {
+        QStringList output_files;
         
         if (draw_geotiff)
         {
-            outputFiles = mosaicDrawer.writeImagesAsGeoTiff(*pMosaicD,
-                _outputDirnameStr, outputFilename);
+            output_files = mosaic_drawer.writeImagesAsGeoTiff(*p_mosaic_d,
+                m_output_dirname_str, output_filename);
         }
 
         if (draw_jpeg)
         {
-            mosaicDrawer.outputMosaicImagesAsIs(*pMosaicD,
-                _outputDirnameStr, outputFilename);
+            mosaic_drawer.outputMosaicImagesAsIs(*p_mosaic_d,
+                m_output_dirname_str, output_filename);
         }
 
-        foreach(QString filename, outputFiles) {
-            outputFileInfo.setFile(QDir(_outputDirnameStr), filename);
-            _rastersInfo << outputFileInfo;
+        foreach(QString filename, output_files) {
+            output_file_info.setFile(QDir(m_output_dirname_str), filename);
+            m_rasters_info << output_file_info;
         }
 
     }
-    else if (!blockDraw){
+    else if (!block_draw){
         // opencv331
-        cv::UMat mosaicImage,mosaicMask;
-        mosaicDrawer.drawAndBlend(*pMosaicD, mosaicImage, mosaicMask);
+        cv::UMat mosaic_image, mosaic_mask;
+        mosaic_drawer.drawAndBlend(*p_mosaic_d, mosaic_image, mosaic_mask);
 
         emit si_processCompletion(50);
 
         // copy mask to force data pointer allocation in the right order
-        Mat maskCopy;
-        mosaicMask.copyTo(maskCopy);
-        mosaicMask.release();
-        Mat matMosaicImage = mosaicImage.getMat(ACCESS_READ);
+        Mat mask_copy;
+        mosaic_mask.copyTo(mask_copy);
+        mosaic_mask.release();
+        Mat mat_mosaic_image = mosaic_image.getMat(ACCESS_READ);
         // Write geofile
-        pMosaicD->writeToGeoTiff(matMosaicImage,maskCopy,_outputDirnameStr + QDir::separator() + outputFilename + ".tiff");
+        p_mosaic_d->writeToGeoTiff(mat_mosaic_image,mask_copy,m_output_dirname_str + QDir::separator() + output_filename + ".tiff");
 
-        outputFileInfo.setFile(QDir(_outputDirnameStr), outputFilename+ ".tiff");
-        _rastersInfo << outputFileInfo;
+        output_file_info.setFile(QDir(m_output_dirname_str), output_filename+ ".tiff");
+        m_rasters_info << output_file_info;
 
     }else{
         qDebug()<< logPrefix() << "entered block drawing part...";
        
         
-        QStringList outputFiles = mosaicDrawer.blockDrawBlendAndWrite(*pMosaicD,
-                                                                      Point2d(blockWidth, blockHeight),
-                                                                      _outputDirnameStr, outputFilename);
-        foreach (QString filename, outputFiles) {
-            outputFileInfo.setFile(QDir(_outputDirnameStr), filename);
-            _rastersInfo << outputFileInfo;
+        QStringList output_files = mosaic_drawer.blockDrawBlendAndWrite(*p_mosaic_d,
+                                                                      Point2d(block_width, block_height),
+                                                                      m_output_dirname_str, output_filename);
+        foreach (QString filename, output_files) {
+            output_file_info.setFile(QDir(m_output_dirname_str), filename);
+            m_rasters_info << output_file_info;
         }
 
     }

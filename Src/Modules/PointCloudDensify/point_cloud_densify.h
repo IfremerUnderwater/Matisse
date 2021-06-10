@@ -26,22 +26,22 @@ public:
     virtual bool configure();
     virtual bool start();
     virtual bool stop();
-    virtual void onFlush(quint32 port);
-    virtual void onNewImage(quint32 port, matisse_image::Image &image);
+    virtual void onFlush(quint32 _port);
+    virtual void onNewImage(quint32 _port, matisse_image::Image &_image);
 
     /** @brief Initializer of the C_Progress class
-* @param expected_count The number of step of the process
-* @param msg updates the status string. Can be empty to keep the last one.
+* @param _ul_expected_count The number of step of the process
+* @param _msg updates the status string. Can be empty to keep the last one.
 **/
-    void restart(unsigned long ulExpected_count, const std::string& msg = std::string()) override
+    void restart(unsigned long _ul_expected_count, const std::string& _msg = std::string()) override
         //  Effects: display appropriate scale
         //  Postconditions: count()==0, expected_count()==expected_count
     {
-        C_Progress::restart(ulExpected_count, msg); //-- Initialize the base class
-        if (!msg.empty())
+        C_Progress::restart(_ul_expected_count, _msg); //-- Initialize the base class
+        if (!_msg.empty())
         {
-            QString qmsg = logPrefix() + QString::fromStdString(msg).remove('\n');
-            emit si_userInformation(QString::fromStdString(msg));
+            QString qmsg = logPrefix() + QString::fromStdString(_msg).remove('\n');
+            emit si_userInformation(QString::fromStdString(_msg));
         }
 
     } // restart

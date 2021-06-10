@@ -11,13 +11,13 @@ using namespace system_tools;
 
 namespace matisse {
 
-DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *parent):
+DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *_parent):
     InputDataProvider(NULL, "DTPictureFileSetImageProvider", "", 1),
-    _pictureFileSet(NULL),
-    _dim2FileReader(NULL)
+    m_picture_file_set(NULL),
+    m_dim2_file_reader(NULL)
 {
-    Q_UNUSED(parent)
-    _imageSet = new ImageSet();
+    Q_UNUSED(_parent)
+    m_image_set = new ImageSet();
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("dataset_param", "navFile");
     addExpectedParameter("algo_param", "First_processed_image");
@@ -34,71 +34,71 @@ DTPictureFileSetImageProvider::~DTPictureFileSetImageProvider()
 
 
 
-ImageSet * DTPictureFileSetImageProvider::imageSet(quint16 port)
+ImageSet * DTPictureFileSetImageProvider::imageSet(quint16 _port)
 {
-    Q_UNUSED(port)
-    return _imageSet;
+    Q_UNUSED(_port)
+    return m_image_set;
 }
 
 bool DTPictureFileSetImageProvider::configure()
 {
     qDebug() << logPrefix() << "DTPictureFileSetImageProvider configure";
 
-    QString rootDirnameStr = m_matisse_parameters->getStringParamValue("dataset_param", "dataset_dir");
+    QString root_dirname_str = m_matisse_parameters->getStringParamValue("dataset_param", "dataset_dir");
 
-    bool isOk = false;
-    QString navFileStr = m_matisse_parameters->getStringParamValue("dataset_param", "navFile");
-    quint32 firstImageIndex = m_matisse_parameters->getIntParamValue("algo_param", "First_processed_image", isOk);
-    if (!isOk) {
-        firstImageIndex = 1;
+    bool is_ok = false;
+    QString nav_file_str = m_matisse_parameters->getStringParamValue("dataset_param", "navFile");
+    quint32 first_image_index = m_matisse_parameters->getIntParamValue("algo_param", "First_processed_image", is_ok);
+    if (!is_ok) {
+        first_image_index = 1;
     }
-    quint32 lastImageIndex = m_matisse_parameters->getIntParamValue("algo_param", "Last_processed_image", isOk);
-    if (!isOk) {
-        lastImageIndex = InfInt;
+    quint32 last_image_index = m_matisse_parameters->getIntParamValue("algo_param", "Last_processed_image", is_ok);
+    if (!is_ok) {
+        last_image_index = InfInt;
     }
-    quint32 stepIndex = m_matisse_parameters->getIntParamValue("algo_param", "step_im", isOk);
-    if (!isOk) {
-        stepIndex = 1;
+    quint32 step_index = m_matisse_parameters->getIntParamValue("algo_param", "step_im", is_ok);
+    if (!is_ok) {
+        step_index = 1;
     }
 
     /* Resolve UNIX paths ('~/...') for remote job execution */
-    rootDirnameStr = FileUtils::resolveUnixPath(rootDirnameStr);
-    navFileStr = FileUtils::resolveUnixPath(navFileStr);
+    root_dirname_str = FileUtils::resolveUnixPath(root_dirname_str);
+    nav_file_str = FileUtils::resolveUnixPath(nav_file_str);
 
     // TODO Améliorer le check
-    if (rootDirnameStr.isEmpty() || navFileStr.isEmpty())
+    if (root_dirname_str.isEmpty() || nav_file_str.isEmpty())
         return false;
 
 
-    qDebug()<< "lastImageIndex: "  << lastImageIndex;
-    qDebug()<< "rootDirnameStr: "  << rootDirnameStr;
-    qDebug()<< "navFileStr: "  << navFileStr;
+    qDebug()<< "lastImageIndex: "  << last_image_index;
+    qDebug()<< "rootDirnameStr: "  << root_dirname_str;
+    qDebug()<< "navFileStr: "  << nav_file_str;
 
-    QFileInfo fileInfo(rootDirnameStr);
-    if (!fileInfo.exists()) {
+    QFileInfo file_info(root_dirname_str);
+    if (!file_info.exists()) {
         qDebug() << "Erreur rootDirName";
         return false;
     }
 
-    fileInfo.setFile(navFileStr);
+    file_info.setFile(nav_file_str);
     // si le fichier est en absolu, on ignore l'aspect relatif...
-    if (!fileInfo.isAbsolute()) {
-        navFileStr.prepend(rootDirnameStr + QDir::separator());
+    if (!file_info.isAbsolute()) {
+        nav_file_str.prepend(root_dirname_str + QDir::separator());
     }
-    fileInfo.setFile(navFileStr);
+    file_info.setFile(nav_file_str);
 
-    if (!fileInfo.exists()) {
-        qDebug() << "Erreur navFileStr" << fileInfo.absoluteFilePath();
+    if (!file_info.exists()) {
+        qDebug() << "Erreur navFileStr" << file_info.absoluteFilePath();
         return false;
     }
 
-    _pictureFileSet = new PictureFileSet(rootDirnameStr);
+    m_picture_file_set = new PictureFileSet(root_dirname_str);
     // Le dive number est mis à 0 car lu dans le fichier...
     // on pourrait (normalement...) le lire dans le nom du répertoire...
-    _dim2FileReader = new Dim2FileReader(navFileStr, firstImageIndex, lastImageIndex, stepIndex);
+    m_dim2_file_reader = new Dim2FileReader(nav_file_str, first_image_index, last_image_index, step_index);
 
 
-    qDebug() << "navFileStr, firstImageIndex, lastImageIndex, stepIndex:" << navFileStr << firstImageIndex << lastImageIndex << stepIndex;
+    qDebug() << "navFileStr, firstImageIndex, lastImageIndex, stepIndex:" << nav_file_str << first_image_index << last_image_index << step_index;
 
     return true;
 
@@ -109,33 +109,33 @@ bool DTPictureFileSetImageProvider::start()
     qDebug() << logPrefix() << " inside start";
 
     bool ok;
-    double scaleFactor = m_matisse_parameters->getDoubleParamValue("algo_param", "scale_factor", ok);
+    double scale_factor = m_matisse_parameters->getDoubleParamValue("algo_param", "scale_factor", ok);
 
     emit si_processCompletion(0);
     emit si_userInformation("Building image set...");
 
-    for(int i=0; i<_dim2FileReader->getNumberOfImages(); i++) {
+    for(int i=0; i<m_dim2_file_reader->getNumberOfImages(); i++) {
 
-         QString filename = _dim2FileReader->getImageFilename(i);
+         QString filename = m_dim2_file_reader->getImageFilename(i);
 //         qDebug() << logPrefix() << " load image " << filename;
-         QFileInfo fileInfo(_pictureFileSet ->rootDirname(), filename);
+         QFileInfo file_info(m_picture_file_set ->rootDirname(), filename);
 
-         if (fileInfo.exists() && fileInfo.isReadable()) {
-             QString fileFormat = _dim2FileReader->getImageFormat(i);
-             QString fileSource = _dim2FileReader->getImageSource(i);
-             NavInfo navInfo = _dim2FileReader->getNavInfo(i);
-             FileImage * newImage = new FileImage(_pictureFileSet, filename, fileSource, fileFormat, i, navInfo);
-             newImage->setScaleFactor(scaleFactor);
-             _imageSet->addImage(newImage);
+         if (file_info.exists() && file_info.isReadable()) {
+             QString file_format = m_dim2_file_reader->getImageFormat(i);
+             QString file_source = m_dim2_file_reader->getImageSource(i);
+             NavInfo nav_info = m_dim2_file_reader->getNavInfo(i);
+             FileImage * new_image = new FileImage(m_picture_file_set, filename, file_source, file_format, i, nav_info);
+             new_image->setScaleFactor(scale_factor);
+             m_image_set->addImage(new_image);
          }
 
-         double progressRatio = i/_dim2FileReader->getNumberOfImages();
-         quint8 progress = progressRatio * 100;
+         double progress_ratio = i/m_dim2_file_reader->getNumberOfImages();
+         quint8 progress = progress_ratio * 100;
          emit si_processCompletion(progress);
     }
     emit si_processCompletion(100);
 
-    _imageSet->flush();
+    m_image_set->flush();
 
     qDebug() << logPrefix() << " out start";
     return true;
@@ -143,7 +143,7 @@ bool DTPictureFileSetImageProvider::start()
 
 bool DTPictureFileSetImageProvider::stop()
 {
-    _imageSet->clear();
+    m_image_set->clear();
     return true;
 }
 

@@ -20,19 +20,19 @@ class DTPictureFileSetImageProvider : public InputDataProvider
 #endif
 
 public:
-    explicit DTPictureFileSetImageProvider(QObject *parent = 0);
+    explicit DTPictureFileSetImageProvider(QObject *_parent = 0);
     virtual ~DTPictureFileSetImageProvider();
 
-    virtual ImageSet * imageSet(quint16 port);
+    virtual ImageSet * imageSet(quint16 _port);
     virtual bool configure();
     virtual bool start();
     virtual bool stop();
 
 
 private:
-    PictureFileSet * _pictureFileSet;
-    nav_tools::Dim2FileReader *_dim2FileReader;
-    ImageSet * _imageSet;
+    PictureFileSet * m_picture_file_set;
+    nav_tools::Dim2FileReader *m_dim2_file_reader;
+    ImageSet * m_image_set;
 
 signals:
     

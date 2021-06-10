@@ -24,12 +24,12 @@ bool BridgeModule::configure()
     return true;
 }
 
-void BridgeModule::onNewImage(quint32 port, Image &image)
+void BridgeModule::onNewImage(quint32 _port, Image &_image)
 {
-    qDebug() << logPrefix() << "Receive image on port " << port;
+    qDebug() << logPrefix() << "Receive image on port " << _port;
 
     // Forward image
-    postImage(0, image);
+    postImage(0, _image);
 
 }
 
@@ -44,9 +44,9 @@ bool BridgeModule::stop()
     return true;
 }
 
-void BridgeModule::onFlush(quint32 port)
+void BridgeModule::onFlush(quint32 _port)
 {
-    Q_UNUSED(port)
+    Q_UNUSED(_port)
     // Flush next module port
     flush(0);
 }

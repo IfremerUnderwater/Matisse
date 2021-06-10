@@ -45,13 +45,13 @@ namespace matisse {
 // 0%   10   20   30   40   50   60   70   80   90   100%
 // |----|----|----|----|----|----|----|----|----|----|
 // ***************************************************
-static int progressStarCountPct(QString message, int &starcount)
+static int progressStarCountPct(QString _message, int &_starcount)
 {
-    int n = message.count("*");
-    starcount += n;
-    double pct = starcount / 51.0 * 100.0;
-    if(starcount > 51)
-        starcount %= 52;
+    int n = _message.count("*");
+    _starcount += n;
+    double pct = _starcount / 51.0 * 100.0;
+    if(_starcount > 51)
+        _starcount %= 52;
     return int(pct);
 }
 
@@ -75,12 +75,12 @@ bool Texturing3D::configure()
     return true;
 }
 
-void Texturing3D::onNewImage(quint32 port, Image &image)
+void Texturing3D::onNewImage(quint32 _port, Image &_image)
 {
-    Q_UNUSED(port)
+    Q_UNUSED(_port)
 
     // Forward image
-    postImage(0, image);
+    postImage(0, _image);
 }
 
 bool Texturing3D::generateCamFile(QString _sfm_data_file, QString _undist_img_path)
@@ -107,8 +107,8 @@ bool Texturing3D::generateCamFile(QString _sfm_data_file, QString _undist_img_pa
 
         // Valid view, we can ask a pose & intrinsic data
         const Pose3 pose = sfm_data.GetPoseOrDie(view);
-        Intrinsics::const_iterator iterIntrinsic = sfm_data.GetIntrinsics().find(view->id_intrinsic);
-        const IntrinsicBase* cam = iterIntrinsic->second.get();
+        Intrinsics::const_iterator iter_intrinsic = sfm_data.GetIntrinsics().find(view->id_intrinsic);
+        const IntrinsicBase* cam = iter_intrinsic->second.get();
 
         if (!cameras::isPinhole(cam->getType()))
             continue;
@@ -130,12 +130,12 @@ bool Texturing3D::generateCamFile(QString _sfm_data_file, QString _undist_img_pa
             _undist_img_path.toStdString(), stlplus::basename_part(view->s_Img_path), "cam").c_str());
         // See https://github.com/nmoehrle/mvs-texturing/blob/master/apps/texrecon/arguments.cpp
         // for full specs
-        const int largerDim = w > h ? w : h;
+        const int larger_dim = w > h ? w : h;
         outfile << t(0) << " " << t(1) << " " << t(2) << " "
             << R(0, 0) << " " << R(0, 1) << " " << R(0, 2) << " "
             << R(1, 0) << " " << R(1, 1) << " " << R(1, 2) << " "
             << R(2, 0) << " " << R(2, 1) << " " << R(2, 2) << "\n"
-            << f / largerDim << " 0 0 1 " << pp(0) / w << " " << pp(1) / h;
+            << f / larger_dim << " 0 0 1 " << pp(0) / w << " " << pp(1) / h;
         outfile.close();
 
     }
@@ -143,48 +143,48 @@ bool Texturing3D::generateCamFile(QString _sfm_data_file, QString _undist_img_pa
     return true;
 }
 
-void Texturing3D::writeKml(QString model_path, QString model_prefix)
+void Texturing3D::writeKml(QString _model_path, QString _model_prefix)
 {
     // Write kml for model
     QVariant *object = m_context->getObject("reconstruction_context");
     if (object) {
         reconstructionContext * rc = object->value<reconstructionContext*>();
-        QFile kml_file(model_path+QDir::separator()+model_prefix+QString(".kml"));
+        QFile kml_file(_model_path+QDir::separator()+_model_prefix+QString(".kml"));
         if( !kml_file.open(QIODevice::WriteOnly) )
         {
-            fatalErrorExit("Error saving " + model_prefix);
+            fatalErrorExit("Error saving " + _model_prefix);
         }
 
         // Save kml info
-        QTextStream outputGeoStream(&kml_file);
+        QTextStream output_geo_stream(&kml_file);
 
-        outputGeoStream << QString("<kml>\n");
-        outputGeoStream << QString("  <!--Generated with MATISSE 3D -->\n");
-        outputGeoStream << QString("  <Placemark>\n");
-        outputGeoStream << QString("    <name>%1</name>\n").arg(model_prefix);
-        outputGeoStream << QString("    <Model>\n");
-        outputGeoStream << QString("      <altitudeMode>absolute</altitudeMode>\n");
-        outputGeoStream << QString("      <Location>\n");
-        outputGeoStream << QString("        <longitude>%1</longitude>\n").arg(QString::number(rc->lon_origin, 'f', 8));
-        outputGeoStream << QString("        <latitude>%1</latitude>\n").arg(QString::number(rc->lat_origin, 'f', 8));
-        outputGeoStream << QString("        <altitude>%1</altitude>\n").arg(QString::number(rc->alt_origin, 'f', 3));
-        outputGeoStream << QString("      </Location>\n");
-        outputGeoStream << QString("      <Orientation>\n");
-        outputGeoStream << QString("        <heading>0</heading>\n");
-        outputGeoStream << QString("        <tilt>0</tilt>\n");
-        outputGeoStream << QString("        <roll>0</roll>\n");
-        outputGeoStream << QString("      </Orientation>\n");
-        outputGeoStream << QString("      <Scale>\n");
-        outputGeoStream << QString("        <x>1</x>\n");
-        outputGeoStream << QString("        <y>1</y>\n");
-        outputGeoStream << QString("        <z>1</z>\n");
-        outputGeoStream << QString("      </Scale>\n");
-        outputGeoStream << QString("      <Link>\n");
-        outputGeoStream << QString("        <href>%1.obj</href>\n").arg(model_prefix);
-        outputGeoStream << QString("      </Link>\n");
-        outputGeoStream << QString("    </Model>\n");
-        outputGeoStream << QString("  </Placemark>\n");
-        outputGeoStream << QString("</kml>\n");
+        output_geo_stream << QString("<kml>\n");
+        output_geo_stream << QString("  <!--Generated with MATISSE 3D -->\n");
+        output_geo_stream << QString("  <Placemark>\n");
+        output_geo_stream << QString("    <name>%1</name>\n").arg(_model_prefix);
+        output_geo_stream << QString("    <Model>\n");
+        output_geo_stream << QString("      <altitudeMode>absolute</altitudeMode>\n");
+        output_geo_stream << QString("      <Location>\n");
+        output_geo_stream << QString("        <longitude>%1</longitude>\n").arg(QString::number(rc->lon_origin, 'f', 8));
+        output_geo_stream << QString("        <latitude>%1</latitude>\n").arg(QString::number(rc->lat_origin, 'f', 8));
+        output_geo_stream << QString("        <altitude>%1</altitude>\n").arg(QString::number(rc->alt_origin, 'f', 3));
+        output_geo_stream << QString("      </Location>\n");
+        output_geo_stream << QString("      <Orientation>\n");
+        output_geo_stream << QString("        <heading>0</heading>\n");
+        output_geo_stream << QString("        <tilt>0</tilt>\n");
+        output_geo_stream << QString("        <roll>0</roll>\n");
+        output_geo_stream << QString("      </Orientation>\n");
+        output_geo_stream << QString("      <Scale>\n");
+        output_geo_stream << QString("        <x>1</x>\n");
+        output_geo_stream << QString("        <y>1</y>\n");
+        output_geo_stream << QString("        <z>1</z>\n");
+        output_geo_stream << QString("      </Scale>\n");
+        output_geo_stream << QString("      <Link>\n");
+        output_geo_stream << QString("        <href>%1.obj</href>\n").arg(_model_prefix);
+        output_geo_stream << QString("      </Link>\n");
+        output_geo_stream << QString("    </Model>\n");
+        output_geo_stream << QString("  </Placemark>\n");
+        output_geo_stream << QString("</kml>\n");
 
         kml_file.close();
     }
@@ -211,9 +211,9 @@ bool Texturing3D::stop()
     return true;
 }
 
-void Texturing3D::onFlush(quint32 port)
+void Texturing3D::onFlush(quint32 _port)
 {
-    Q_UNUSED(port)
+    Q_UNUSED(_port)
 
     // Log
     QString proc_info = logPrefix() + "Texturing started\n";
@@ -252,28 +252,28 @@ void Texturing3D::onFlush(quint32 port)
         // Texture model
         emit si_userInformation("Texturing3D texturing");
 
-        QString cmdLine = TexreconExe;
+        QString cmd_line = TexreconExe;
         bool ok = false;
         bool keep_unseen_faces = m_matisse_parameters->getBoolParamValue("algo_param", "keep_unseen_faces", ok);
         if(ok && keep_unseen_faces)
-            cmdLine += " --keep_unseen_faces";
-        cmdLine += " " + undist_dir_i;
-        cmdLine += " "+ mesh_data_file;
-        cmdLine += " "+ m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + "_texrecon";
-        QProcess textureProc;
-        textureProc.setWorkingDirectory(scene_dir_i);
-        textureProc.start(cmdLine);
+            cmd_line += " --keep_unseen_faces";
+        cmd_line += " " + undist_dir_i;
+        cmd_line += " "+ mesh_data_file;
+        cmd_line += " "+ m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + "_texrecon";
+        QProcess texture_proc;
+        texture_proc.setWorkingDirectory(scene_dir_i);
+        texture_proc.start(cmd_line);
 
         bool initer = false;
-        while(textureProc.waitForReadyRead(-1)){
+        while(texture_proc.waitForReadyRead(-1)){
             if(!isStarted())
             {
-                textureProc.kill();
+                texture_proc.kill();
                 fatalErrorExit("texrecon Cancelled");
                 return;
             }
 
-            QString output = textureProc.readAllStandardOutput();
+            QString output = texture_proc.readAllStandardOutput();
 
             if(output.contains("Load and prepare mesh:"))
             {

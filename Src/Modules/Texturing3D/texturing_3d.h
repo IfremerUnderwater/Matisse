@@ -24,8 +24,8 @@ public:
     virtual bool configure();
     virtual bool start();
     virtual bool stop();
-    virtual void onFlush(quint32 port);
-    virtual void onNewImage(quint32 port, Image &image);
+    virtual void onFlush(quint32 _port);
+    virtual void onNewImage(quint32 _port, Image &_image);
 
 private:
     QString m_source_dir;
@@ -33,7 +33,7 @@ private:
     QString m_out_filename_prefix;
 
     bool generateCamFile(QString _sfm_data_file, QString _undist_img_path);
-    void writeKml(QString model_path, QString model_prefix);
+    void writeKml(QString _model_path, QString _model_prefix);
 };
 
 } // namespace matisse

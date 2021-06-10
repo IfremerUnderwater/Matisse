@@ -38,7 +38,7 @@ Q_EXPORT_PLUGIN2(SfmBundleAdjustment, SfmBundleAdjustment)
 
 namespace matisse {
 
-enum class ESfMSceneInitializer
+enum class eSfMSceneInitializer
 {
     INITIALIZE_EXISTING_POSES,
     INITIALIZE_MAX_PAIR,
@@ -48,21 +48,21 @@ enum class ESfMSceneInitializer
 
 bool StringToEnum_ESfMSceneInitializer
 (
-    const std::string& str,
-    ESfMSceneInitializer& scene_initializer
+    const std::string& _str,
+    eSfMSceneInitializer& _scene_initializer
 )
 {
-    const std::map<std::string, ESfMSceneInitializer> string_to_enum_mapping =
+    const std::map<std::string, eSfMSceneInitializer> string_to_enum_mapping =
     {
-      {"EXISTING_POSE", ESfMSceneInitializer::INITIALIZE_EXISTING_POSES},
-      {"MAX_PAIR", ESfMSceneInitializer::INITIALIZE_MAX_PAIR},
-      {"AUTO_PAIR", ESfMSceneInitializer::INITIALIZE_AUTO_PAIR},
-      {"STELLAR", ESfMSceneInitializer::INITIALIZE_STELLAR},
+      {"EXISTING_POSE", eSfMSceneInitializer::INITIALIZE_EXISTING_POSES},
+      {"MAX_PAIR", eSfMSceneInitializer::INITIALIZE_MAX_PAIR},
+      {"AUTO_PAIR", eSfMSceneInitializer::INITIALIZE_AUTO_PAIR},
+      {"STELLAR", eSfMSceneInitializer::INITIALIZE_STELLAR},
     };
-    auto it = string_to_enum_mapping.find(str);
+    auto it = string_to_enum_mapping.find(_str);
     if (it == string_to_enum_mapping.end())
         return false;
-    scene_initializer = it->second;
+    _scene_initializer = it->second;
     return true;
 }
 
@@ -84,12 +84,12 @@ bool SfmBundleAdjustment::configure()
     return true;
 }
 
-void SfmBundleAdjustment::onNewImage(quint32 port, Image &image)
+void SfmBundleAdjustment::onNewImage(quint32 _port, Image &_image)
 {
-    Q_UNUSED(port)
+    Q_UNUSED(_port)
 
     // Forward image
-    postImage(0, image);
+    postImage(0, _image);
 }
 
 
@@ -212,8 +212,8 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
 {
  
     // params that should be exposed to Matisse in future version
-    std::string sIntrinsic_refinement_options = "ADJUST_ALL";
-    std::string sSfMInitializer_method = "STELLAR";
+    std::string s_intrinsic_refinement_options = "ADJUST_ALL";
+    std::string s_sfm_initializer_method = "STELLAR";
     int i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
     bool b_use_motion_priors = true;
     int triangulation_method = static_cast<int>(ETriangulationMethod::DEFAULT);
@@ -231,15 +231,15 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
     }
 
     const cameras::Intrinsic_Parameter_Type intrinsic_refinement_options =
-        cameras::StringTo_Intrinsic_Parameter_Type(sIntrinsic_refinement_options);
+        cameras::StringTo_Intrinsic_Parameter_Type(s_intrinsic_refinement_options);
     if (intrinsic_refinement_options == static_cast<cameras::Intrinsic_Parameter_Type>(0))
     {
         std::cerr << "Invalid input for the Bundle Adjusment Intrinsic parameter refinement option" << std::endl;
         return false;
     }
 
-    ESfMSceneInitializer scene_initializer_enum;
-    if (!StringToEnum_ESfMSceneInitializer(sSfMInitializer_method, scene_initializer_enum))
+    eSfMSceneInitializer scene_initializer_enum;
+    if (!StringToEnum_ESfMSceneInitializer(s_sfm_initializer_method, scene_initializer_enum))
     {
         std::cerr << "Invalid input for the SfM initializer option" << std::endl;
         return false;
@@ -254,8 +254,8 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
 
     // Init the regions_type from the image describer file (used for image regions extraction)
     using namespace openMVG::features;
-    const std::string sImage_describer = stlplus::create_filespec(m_matches_path.toStdString(), "image_describer", "json");
-    std::unique_ptr<Regions> regions_type = Init_region_type_from_file(sImage_describer);
+    const std::string s_image_describer = stlplus::create_filespec(m_matches_path.toStdString(), "image_describer", "json");
+    std::unique_ptr<Regions> regions_type = Init_region_type_from_file(s_image_describer);
     if (!regions_type)
     {
         fatalErrorExit("Bundle adjustment : Invalid region type file");
@@ -302,21 +302,21 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
     std::unique_ptr<SfMSceneInitializer> scene_initializer;
     switch (scene_initializer_enum)
     {
-    case ESfMSceneInitializer::INITIALIZE_AUTO_PAIR:
+    case eSfMSceneInitializer::INITIALIZE_AUTO_PAIR:
         std::cerr << "Not yet implemented." << std::endl;
         return false;
         break;
-    case ESfMSceneInitializer::INITIALIZE_MAX_PAIR:
+    case eSfMSceneInitializer::INITIALIZE_MAX_PAIR:
         scene_initializer.reset(new SfMSceneInitializerMaxPair(sfm_data,
             feats_provider.get(),
             matches_provider.get()));
         break;
-    case ESfMSceneInitializer::INITIALIZE_EXISTING_POSES:
+    case eSfMSceneInitializer::INITIALIZE_EXISTING_POSES:
         scene_initializer.reset(new SfMSceneInitializer(sfm_data,
             feats_provider.get(),
             matches_provider.get()));
         break;
-    case ESfMSceneInitializer::INITIALIZE_STELLAR:
+    case eSfMSceneInitializer::INITIALIZE_STELLAR:
         scene_initializer.reset(new SfMSceneInitializerStellar(sfm_data,
             feats_provider.get(),
             matches_provider.get()));
@@ -330,38 +330,38 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
         return false;
     }
 
-    SequentialSfMReconstructionEngine2 sfmEngine(
+    SequentialSfMReconstructionEngine2 sfm_engine(
         scene_initializer.get(),
         sfm_data,
         _out_dir.toStdString(),
         stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html"));
 
     // Configure the features_provider & the matches_provider
-    sfmEngine.SetFeaturesProvider(feats_provider.get());
-    sfmEngine.SetMatchesProvider(matches_provider.get());
+    sfm_engine.SetFeaturesProvider(feats_provider.get());
+    sfm_engine.SetMatchesProvider(matches_provider.get());
 
     // Configure reconstruction parameters
-    sfmEngine.Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
-    sfmEngine.SetUnknownCameraType(EINTRINSIC(i_User_camera_model));
-    sfmEngine.Set_Use_Motion_Prior(m_use_prior);
-    sfmEngine.SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
-    sfmEngine.SetResectionMethod(static_cast<resection::SolverType>(resection_method));
+    sfm_engine.Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
+    sfm_engine.SetUnknownCameraType(EINTRINSIC(i_User_camera_model));
+    sfm_engine.Set_Use_Motion_Prior(m_use_prior);
+    sfm_engine.SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
+    sfm_engine.SetResectionMethod(static_cast<resection::SolverType>(resection_method));
 
-    if (sfmEngine.Process())
+    if (sfm_engine.Process())
     {
         std::cout << std::endl << " Total Ac-Sfm took (s): " << timer.elapsed() << std::endl;
 
         std::cout << "...Generating SfM_Report.html" << std::endl;
-        Generate_SfM_Report(sfmEngine.Get_SfM_Data(),
+        Generate_SfM_Report(sfm_engine.Get_SfM_Data(),
             stlplus::create_filespec(_out_dir.toStdString(), "SfMReconstruction_Report.html"));
 
         //-- Export to disk computed scene (data & visualizable results)
         std::cout << "...Export SfM_Data to disk." << std::endl;
-        Save(sfmEngine.Get_SfM_Data(),
+        Save(sfm_engine.Get_SfM_Data(),
             stlplus::create_filespec(_out_dir.toStdString(), "sfm_data", ".bin"),
             ESfM_Data(ALL));
 
-        Save(sfmEngine.Get_SfM_Data(),
+        Save(sfm_engine.Get_SfM_Data(),
             stlplus::create_filespec(_out_dir.toStdString(), "cloud_and_poses", ".ply"),
             ESfM_Data(ALL));
 
@@ -380,9 +380,9 @@ bool SfmBundleAdjustment::start()
     static const QString SEP = QDir::separator();
 
     // Get flags
-    bool Ok;
-    m_use_prior = m_matisse_parameters->getBoolParamValue("dataset_param", "usePrior", Ok);
-    if (!Ok)
+    bool ok;
+    m_use_prior = m_matisse_parameters->getBoolParamValue("dataset_param", "usePrior", ok);
+    if (!ok)
         m_use_prior = true;
 
     // Get Paths
@@ -398,9 +398,9 @@ bool SfmBundleAdjustment::stop()
     return true;
 }
 
-void SfmBundleAdjustment::onFlush(quint32 port)
+void SfmBundleAdjustment::onFlush(quint32 _port)
 {
-    Q_UNUSED(port)
+    Q_UNUSED(_port)
 
     // Log
     QString proc_info = logPrefix() + "Bundle adjustement started\n";

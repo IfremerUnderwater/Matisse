@@ -19,18 +19,18 @@ class ReconstructionLister : public OutputDataWriter
 #endif
 
 public:
-    explicit ReconstructionLister(QObject *parent = 0);
+    explicit ReconstructionLister(QObject *_parent = 0);
     virtual ~ReconstructionLister();
 
-    virtual void onNewImage(quint32 port, Image &image);
-    virtual void onFlush(quint32 port);
+    virtual void onNewImage(quint32 _port, Image &_image);
+    virtual void onFlush(quint32 _port);
     virtual bool configure();
     virtual bool start();
     virtual bool stop();
     virtual QList<QFileInfo> rastersInfo();
 
 private:
-    QList<QFileInfo> _rastersInfo;
+    QList<QFileInfo> m_rasters_info;
 
 signals:
     

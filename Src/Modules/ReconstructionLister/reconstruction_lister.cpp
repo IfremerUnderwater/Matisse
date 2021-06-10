@@ -9,10 +9,10 @@ Q_EXPORT_PLUGIN2(ReconstructionLister, ReconstructionLister)
 
 namespace matisse {
 
-ReconstructionLister::ReconstructionLister(QObject *parent):
+ReconstructionLister::ReconstructionLister(QObject *_parent):
     OutputDataWriter(NULL, "ReconstructionLister", "", 1)
 {
-    Q_UNUSED(parent)
+    Q_UNUSED(_parent)
     addExpectedParameter("dataset_param", "output_dir");
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("dataset_param", "output_filename");
@@ -28,16 +28,16 @@ bool ReconstructionLister::configure()
     return true;
 }
 
-void ReconstructionLister::onNewImage(quint32 port, Image &image)
+void ReconstructionLister::onNewImage(quint32 _port, Image &_image)
 {
-    Q_UNUSED(image)
-    qDebug() << logPrefix() << "Receive image on port " << port;
+    Q_UNUSED(_image)
+    qDebug() << logPrefix() << "Receive image on port " << _port;
 }
 
-void ReconstructionLister::onFlush(quint32 port)
+void ReconstructionLister::onFlush(quint32 _port)
 {
 
-    _rastersInfo.clear();
+    m_rasters_info.clear();
 
     static const QString SEP = QDir::separator();
 
@@ -69,7 +69,7 @@ void ReconstructionLister::onFlush(quint32 port)
                 current_file.rename(out_dir + QDir::separator() + recons_files[j]);
             }
 
-            _rastersInfo << q_out_dir.absoluteFilePath(QString("%1_%2%3.obj").arg(fileNamePrefixStr).arg(rc->components_ids[i]).arg(rc->out_file_suffix));
+            m_rasters_info << q_out_dir.absoluteFilePath(QString("%1_%2%3.obj").arg(fileNamePrefixStr).arg(rc->components_ids[i]).arg(rc->out_file_suffix));
 
         }
 
@@ -93,7 +93,7 @@ bool ReconstructionLister::stop()
 
 QList<QFileInfo> ReconstructionLister::rastersInfo()
 {
-    return _rastersInfo;
+    return m_rasters_info;
 }
 
 } // namespace matisse

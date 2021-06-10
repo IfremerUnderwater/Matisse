@@ -38,13 +38,13 @@ bool Init2DMosaic::configure()
     return true;
 }
 
-void Init2DMosaic::onNewImage(quint32 port, Image &image)
+void Init2DMosaic::onNewImage(quint32 _port, Image &_image)
 {
-    qDebug() << logPrefix() << "Receive image on port " << port;
+    qDebug() << logPrefix() << "Receive image on port " << _port;
     qDebug() << logPrefix() << "Process InitMatchModule";
 
     // Forward image
-    postImage(0, image);
+    postImage(0, _image);
 
 }
 
@@ -60,21 +60,21 @@ bool Init2DMosaic::stop()
     return true;
 }
 
-void Init2DMosaic::onFlush(quint32 port)
+void Init2DMosaic::onFlush(quint32 _port)
 {
-    qDebug() << logPrefix() << "flush port " << port;
+    qDebug() << logPrefix() << "flush port " << _port;
 
     emit si_processCompletion(0);
     emit si_userInformation("Initializing 2D Mosaic...");
 
-    MosaicDescriptor *pMosaicD = new MosaicDescriptor;
-    QVector<ProjectiveCamera*> *pCams = new QVector<ProjectiveCamera*>;
-    ImageSet * imageSet;
+    MosaicDescriptor *p_mosaic_d = new MosaicDescriptor;
+    QVector<ProjectiveCamera*> *p_cams = new QVector<ProjectiveCamera*>;
+    ImageSet * image_set;
 
     // Find imageSet corresponding to this port
-    foreach (ImageSetPort *ImSet,*m_input_port_list){
-        if (ImSet->port_number == port){
-            imageSet = ImSet->image_set;
+    foreach (ImageSetPort *im_set,*m_input_port_list){
+        if (im_set->port_number == _port){
+            image_set = im_set->image_set;
             break;
         }
     }
@@ -82,20 +82,20 @@ void Init2DMosaic::onFlush(quint32 port)
     emit si_processCompletion(10);
 
     // Get camera matrix
-    bool Ok;
-    QMatrix3x3 qK = m_matisse_parameters->getMatrix3x3ParamValue("cam_param",  "K",  Ok);
+    bool ok;
+    QMatrix3x3 q_K = m_matisse_parameters->getMatrix3x3ParamValue("cam_param",  "K",  ok);
     cv::Mat K(3,3,CV_64F);
-    if (Ok){
-        qDebug() << "K Ok =" << Ok;
+    if (ok){
+        qDebug() << "K Ok =" << ok;
 
         for (int i=0; i<3; i++){
             for(int j=0; j<3; j++){
-                K.at<double>(i,j) = qK(i,j);
+                K.at<double>(i,j) = q_K(i,j);
             }
         }
 
     }else{
-        qDebug() << "K Ok =" << Ok;
+        qDebug() << "K Ok =" << ok;
         exit(1);
     }
 
@@ -103,9 +103,9 @@ void Init2DMosaic::onFlush(quint32 port)
 
     emit si_processCompletion(30);
 
-    double scaleFactor = m_matisse_parameters->getDoubleParamValue("algo_param", "scale_factor", Ok);
+    double scale_factor = m_matisse_parameters->getDoubleParamValue("algo_param", "scale_factor", ok);
 
-    if (!Ok){
+    if (!ok){
         qDebug() << "scale factor not provided Ok \n";
         exit(1);
     }
@@ -113,8 +113,8 @@ void Init2DMosaic::onFlush(quint32 port)
     // Get camera lever arm
     cv::Mat V_T_C(3,1,CV_64F), V_R_C(3,3,CV_64F);
 
-    Matrix6x1 V_Pose_C = m_matisse_parameters->getMatrix6x1ParamValue("cam_param",  "V_Pose_C",  Ok);
-    if (Ok){
+    Matrix6x1 V_Pose_C = m_matisse_parameters->getMatrix6x1ParamValue("cam_param",  "V_Pose_C",  ok);
+    if (ok){
 
         for (int i=0; i<3; i++){
             V_T_C.at<double>(i,0) = V_Pose_C(0,i);
@@ -128,17 +128,17 @@ void Init2DMosaic::onFlush(quint32 port)
 
     emit si_processCompletion(60);
 
-    if (imageSet){
+    if (image_set){
 
         // Create cameras
-        QList<Image *> imageList = imageSet->getAllImages();
-        foreach (Image* image, imageList) {
+        QList<Image *> image_list = image_set->getAllImages();
+        foreach (Image* image, image_list) {
 
-            NavImage *navImage = dynamic_cast<NavImage*>(image);
-            if (navImage) {
-                if (navImage->navInfo().altitude()>0.0)
+            NavImage *nav_image = dynamic_cast<NavImage*>(image);
+            if (nav_image) {
+                if (nav_image->navInfo().altitude()>0.0)
                 {
-                    pCams->push_back(new ProjectiveCamera(navImage, K, V_T_C, V_R_C, (double)scaleFactor));
+                    p_cams->push_back(new ProjectiveCamera(nav_image, K, V_T_C, V_R_C, (double)scale_factor));
                 }
             }else{
                 qDebug() << "cannot cast as navImage \n";
@@ -147,24 +147,24 @@ void Init2DMosaic::onFlush(quint32 port)
         }
 
         // Init cameras
-        pMosaicD->initCamerasAndFrames(*pCams,true);
+        p_mosaic_d->initCamerasAndFrames(*p_cams,true);
         qDebug() << "Init done";
 
         // Filter cameras on overlap
-        if (m_matisse_parameters->getBoolParamValue("algo_param", "disjoint_drawing", Ok)) {
-            pMosaicD->computeMosaicExtentAndShiftFrames();
-            pMosaicD->decimateImagesUntilNoOverlap();
+        if (m_matisse_parameters->getBoolParamValue("algo_param", "disjoint_drawing", ok)) {
+            p_mosaic_d->computeMosaicExtentAndShiftFrames();
+            p_mosaic_d->decimateImagesUntilNoOverlap();
         }
-        else if ( m_matisse_parameters->getBoolParamValue("algo_param","filter_overlap", Ok) ){
-            double min_overlap = m_matisse_parameters->getDoubleParamValue("algo_param","min_overlap", Ok);
-            double max_overlap = m_matisse_parameters->getDoubleParamValue("algo_param","max_overlap", Ok);
+        else if ( m_matisse_parameters->getBoolParamValue("algo_param","filter_overlap", ok) ){
+            double min_overlap = m_matisse_parameters->getDoubleParamValue("algo_param","min_overlap", ok);
+            double max_overlap = m_matisse_parameters->getDoubleParamValue("algo_param","max_overlap", ok);
 
-            pMosaicD->computeMosaicExtentAndShiftFrames();
-            pMosaicD->decimateImagesFromOverlap(min_overlap, max_overlap);
+            p_mosaic_d->computeMosaicExtentAndShiftFrames();
+            p_mosaic_d->decimateImagesFromOverlap(min_overlap, max_overlap);
         }
 
         // Compute extents
-        pMosaicD->computeMosaicExtentAndShiftFrames();
+        p_mosaic_d->computeMosaicExtentAndShiftFrames();
         qDebug() << "Extent computation done";
 
     }
@@ -172,14 +172,14 @@ void Init2DMosaic::onFlush(quint32 port)
     emit si_processCompletion(90);
 
     // Add pCams to mosaic _context
-    QVariant * pCamsStocker = new QVariant();
-    pCamsStocker->setValue(pCams);
-    m_context->addObject("Cameras", pCamsStocker);
+    QVariant * p_cams_stocker = new QVariant();
+    p_cams_stocker->setValue(p_cams);
+    m_context->addObject("Cameras", p_cams_stocker);
 
     // Add pMosaicD to mosaic _context
-    QVariant * pMosaicDStocker = new QVariant();
-    pMosaicDStocker->setValue(pMosaicD);
-    m_context->addObject("MosaicDescriptor", pMosaicDStocker);
+    QVariant * p_mosaic_d_stocker = new QVariant();
+    p_mosaic_d_stocker->setValue(p_mosaic_d);
+    m_context->addObject("MosaicDescriptor", p_mosaic_d_stocker);
 
     emit si_processCompletion(100);
 

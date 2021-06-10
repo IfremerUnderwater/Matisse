@@ -54,18 +54,18 @@ typedef enum
     DIM2,
     EXIF,
     NONE
-}NavMode;
+} eNavMode;
 
 /// Get camera matrix "f;0;ppx;0;f;ppy;0;0;1"
 /// With f,ppx,ppy as valid numerical value
 bool Init3DRecon::getCameraIntrinsics(double & _focal, double & _ppx, double & _ppy, const double &_width, const double &_height, int &_distortion_model, cv::Mat &_dist_coeff)
 {
 
-    bool Ok=false;
+    bool ok=false;
 
-    CameraInfo camera_equipment =  m_matisse_parameters->getCamInfoParamValue("cam_param", "camera_equipment", Ok);
+    CameraInfo camera_equipment =  m_matisse_parameters->getCamInfoParamValue("cam_param", "camera_equipment", ok);
 
-    if(Ok)
+    if(ok)
     {
         // Unkown case
         if (camera_equipment.cameraName()=="Unknown")
@@ -109,17 +109,17 @@ bool Init3DRecon::getCameraIntrinsics(double & _focal, double & _ppx, double & _
 static std::pair<bool, Vec3> checkGPS(const std::string & filename)
 {
     std::pair<bool, Vec3> val(false, Vec3::Zero());
-    std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
-    if (exifReader)
+    std::unique_ptr<Exif_IO> exif_reader(new Exif_IO_EasyExif);
+    if (exif_reader)
     {
         // Try to parse EXIF metada & check existence of EXIF data
-        if ( exifReader->open( filename ) && exifReader->doesHaveExifInfo() )
+        if ( exif_reader->open( filename ) && exif_reader->doesHaveExifInfo() )
         {
             // Check existence of GPS coordinates
             double latitude, longitude, altitude;
-            if ( exifReader->GPSLatitude( &latitude ) &&
-                 exifReader->GPSLongitude( &longitude ) &&
-                 exifReader->GPSAltitude( &altitude ) )
+            if ( exif_reader->GPSLatitude( &latitude ) &&
+                 exif_reader->GPSLongitude( &longitude ) &&
+                 exif_reader->GPSAltitude( &altitude ) )
             {
 
                 // Add position to the GPS position array
@@ -134,19 +134,19 @@ static std::pair<bool, Vec3> checkGPS(const std::string & filename)
 static std::pair<bool, Vec3> checkDIM2
 (
         const std::string & filename,
-        Dim2FileReader *dim2Reader,
+        Dim2FileReader *dim2_reader,
         std::map<QString, int> &dim2FileMap
         )
 {
     QString fname = stlplus::filename_part(filename).c_str();
 
     std::pair<bool, Vec3> val(false, Vec3::Zero());
-    if (dim2Reader && dim2Reader->isFileValid())
+    if (dim2_reader && dim2_reader->isFileValid())
     {
         std::map<QString, int>::iterator it = dim2FileMap.find(fname);
         if(it != dim2FileMap.end())
         {
-            NavInfo nav = dim2Reader->getNavInfo(it->second);
+            NavInfo nav = dim2_reader->getNavInfo(it->second);
             val.first = true;
             val.second = Vec3( nav.latitude(), nav.longitude(), -nav.depth()  );
             return val;
@@ -201,12 +201,12 @@ bool Init3DRecon::configure()
     return true;
 }
 
-void Init3DRecon::onNewImage(quint32 port, Image &image)
+void Init3DRecon::onNewImage(quint32 _port, Image &_image)
 {
-    Q_UNUSED(port)
+    Q_UNUSED(_port)
 
     // Forward image
-    postImage(0, image);
+    postImage(0, _image);
 }
 
 bool Init3DRecon::start()
@@ -223,7 +223,7 @@ bool Init3DRecon::stop()
     return true;
 }
 
-void Init3DRecon::onFlush(quint32 port)
+void Init3DRecon::onFlush(quint32 _port)
 {
     QElapsedTimer timer;
     timer.start();
@@ -249,16 +249,16 @@ void Init3DRecon::onFlush(quint32 port)
         use_prior = false;
     //int i_GPS_XYZ_method = 0;
 
-    Vec3 firstImagePos = Vec3::Zero();
-    Vec3 firstImagePosLC = Vec3::Zero();
-    bool firstImage = true;
+    Vec3 first_image_pos = Vec3::Zero();
+    Vec3 first_image_pos_lc = Vec3::Zero();
+    bool first_image = true;
 
     // Dir checks
-    QString rootDirnameStr = absoluteDatasetDir();
-    std::string dataset_dir = rootDirnameStr.toStdString();
-    QString QSep = QDir::separator();
-    std::string SEP = QSep.toStdString();
-    std::string output_dir = absoluteOutputTempDir().toStdString() + SEP + "matches";
+    QString root_dirname_str = absoluteDatasetDir();
+    std::string dataset_dir = root_dirname_str.toStdString();
+    QString qsep = QDir::separator();
+    std::string sep = qsep.toStdString();
+    std::string output_dir = absoluteOutputTempDir().toStdString() + sep + "matches";
 
     if ( !stlplus::folder_exists( dataset_dir ) )
     {
@@ -267,68 +267,68 @@ void Init3DRecon::onFlush(quint32 port)
     }
 
     // Navigation source
-    QString navSource =  m_matisse_parameters->getStringParamValue("dataset_param", "navSource");
-    NavMode navMode = NONE;
-    if(navSource == "NO_NAV")
-        navMode = NONE;
-    else if(navSource == "EXIF")
-        navMode = EXIF;
-    else if(navSource == "DIM2")
-        navMode = DIM2;
+    QString nav_source =  m_matisse_parameters->getStringParamValue("dataset_param", "navSource");
+    eNavMode nav_mode = NONE;
+    if(nav_source == "NO_NAV")
+        nav_mode = NONE;
+    else if(nav_source == "EXIF")
+        nav_mode = EXIF;
+    else if(nav_source == "DIM2")
+        nav_mode = DIM2;
     else
-        navMode = DIM2;
+        nav_mode = DIM2;
 
-    QString navigationFile = m_matisse_parameters->getStringParamValue("dataset_param", "navFile");
+    QString navigation_file = m_matisse_parameters->getStringParamValue("dataset_param", "navFile");
 
-    if (navigationFile.isEmpty())
-        navigationFile = QString("noNav.dim2");
+    if (navigation_file.isEmpty())
+        navigation_file = QString("noNav.dim2");
 
-    std::string dim2FileName;
+    std::string dim2_file_name;
 
-    if(navigationFile.contains(":/") || navigationFile.startsWith(QSep) )
+    if(navigation_file.contains(":/") || navigation_file.startsWith(qsep) )
     {
         // absolute path
-        dim2FileName = navigationFile.toStdString();
+        dim2_file_name = navigation_file.toStdString();
     }
     else
     {
-        dim2FileName = rootDirnameStr.toStdString() + SEP + navigationFile.toStdString();
+        dim2_file_name = root_dirname_str.toStdString() + sep + navigation_file.toStdString();
     }
 
-    if( navMode == DIM2 && !stlplus::file_exists(dim2FileName))
+    if( nav_mode == DIM2 && !stlplus::file_exists(dim2_file_name))
     {
-        if( navSource == "DIM2")
+        if( nav_source == "DIM2")
         {
-            QString msg = "Dim2 file not found " + navigationFile;
+            QString msg = "Dim2 file not found " + navigation_file;
             emit si_showInformationMessage(this->logPrefix(),msg);
-            navMode = NONE;
+            nav_mode = NONE;
         }
         else
-            navMode = EXIF;
+            nav_mode = EXIF;
 
-        dim2FileName = "";
+        dim2_file_name = "";
     }
 
-    std::map<QString, int> dim2FileMap;
-    std::unique_ptr<Dim2FileReader> dim2FileReader(new Dim2FileReader(dim2FileName.c_str()));
-    if(navMode == DIM2 && dim2FileReader != NULL && dim2FileReader->isFileValid() )
+    std::map<QString, int> dim2_file_map;
+    std::unique_ptr<Dim2FileReader> dim2_file_reader(new Dim2FileReader(dim2_file_name.c_str()));
+    if(nav_mode == DIM2 && dim2_file_reader != NULL && dim2_file_reader->isFileValid() )
     {
-        for(int i=1; i<= dim2FileReader->getNumberOfImages(); i++ )
+        for(int i=1; i<= dim2_file_reader->getNumberOfImages(); i++ )
         {
-            dim2FileMap.insert(std::make_pair(dim2FileReader->getImageFilename(i),i));
+            dim2_file_map.insert(std::make_pair(dim2_file_reader->getImageFilename(i),i));
         }
 
     }
-    else if(navMode == DIM2 && dim2FileReader != NULL && !dim2FileReader->isFileValid() )
+    else if(nav_mode == DIM2 && dim2_file_reader != NULL && !dim2_file_reader->isFileValid() )
     {
-        if( navSource == "DIM2")
+        if( nav_source == "DIM2")
         {
-            QString msg = "Dim2 file invalid " + navigationFile;
+            QString msg = "Dim2 file invalid " + navigation_file;
             emit si_showInformationMessage(this->logPrefix(),msg);
-            navMode = NONE;
+            nav_mode = NONE;
         }
         else
-            navMode = EXIF;
+            nav_mode = EXIF;
     }
 
     if (output_dir.empty())
@@ -374,32 +374,32 @@ void Init3DRecon::onFlush(quint32 port)
         // Read meta data to fill camera parameter (w,h,focal,ppx,ppy) fields.
         width = height = ppx = ppy = focal = -1.0;
 
-        const std::string sImageFilename = stlplus::create_filespec( dataset_dir, *iter_image );
-        const std::string sImFilenamePart = stlplus::filename_part(sImageFilename);
+        const std::string s_image_filename = stlplus::create_filespec( dataset_dir, *iter_image );
+        const std::string s_im_filename_part = stlplus::filename_part(s_image_filename);
 
         // Test if the image format is supported:
-        if (openMVG::image::GetFormat(sImageFilename.c_str()) == openMVG::image::Unknown)
+        if (openMVG::image::GetFormat(s_image_filename.c_str()) == openMVG::image::Unknown)
         {
             continue; // image cannot be opened
         }
 
-        if(sImFilenamePart.find("mask.png") != std::string::npos
-                || sImFilenamePart.find("_mask.png") != std::string::npos)
+        if(s_im_filename_part.find("mask.png") != std::string::npos
+                || s_im_filename_part.find("_mask.png") != std::string::npos)
         {
             error_report_stream
-                    << sImFilenamePart << " is a mask image" << "\n";
+                    << s_im_filename_part << " is a mask image" << "\n";
             continue;
         }
 
-        openMVG::image::ImageHeader imgHeader;
-        if (!openMVG::image::ReadImageHeader(sImageFilename.c_str(), &imgHeader))
+        openMVG::image::ImageHeader img_header;
+        if (!openMVG::image::ReadImageHeader(s_image_filename.c_str(), &img_header))
             continue; // image cannot be read
 
-        width = imgHeader.width;
-        height = imgHeader.height;
+        width = img_header.width;
+        height = img_header.height;
 
-        std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
-        exifReader->open( sImageFilename );
+        std::unique_ptr<Exif_IO> exif_reader(new Exif_IO_EasyExif);
+        exif_reader->open( s_image_filename );
 
         // Get camera intrinsics
         getCameraIntrinsics(focal, ppx, ppy, width, height, dist_model, dist_coeff);
@@ -439,26 +439,26 @@ void Init3DRecon::onFlush(quint32 port)
         // Navigation
         //
         std::pair<bool, Vec3> gps_info(false, Vec3::Zero());
-        if(navMode == EXIF)
-            gps_info = checkGPS(sImageFilename);
-        else if(navMode == DIM2)
+        if(nav_mode == EXIF)
+            gps_info = checkGPS(s_image_filename);
+        else if(nav_mode == DIM2)
         {
-            gps_info = checkDIM2(sImageFilename, dim2FileReader.get(), dim2FileMap);
+            gps_info = checkDIM2(s_image_filename, dim2_file_reader.get(), dim2_file_map);
         }
 
         // get first image info for relative shift (in LC)
-        if(gps_info.first && firstImage)
+        if(gps_info.first && first_image)
         {
-            firstImage = false;
+            first_image = false;
             // lat, lon, alt
-            firstImagePos = gps_info.second;
+            first_image_pos = gps_info.second;
             // localcartesian x, y, alt reset
             m_ltp_proj.Reset(gps_info.second[0], gps_info.second[1], gps_info.second[2]);
 
             // proj first image pos
             double N,E,U;
             m_ltp_proj.Forward(gps_info.second[0], gps_info.second[1], gps_info.second[2], E, N, U);
-            firstImagePosLC = Vec3(E, N, U);
+            first_image_pos_lc = Vec3(E, N, U);
         }
 
         if (gps_info.first && use_prior)
@@ -484,7 +484,7 @@ void Init3DRecon::onFlush(quint32 port)
             double N,E,U;
             m_ltp_proj.Forward(gps_info.second[0], gps_info.second[1], gps_info.second[2], E, N, U);
             gps_info.second = Vec3(E, N, U);
-            v.pose_center_ = gps_info.second - firstImagePosLC;
+            v.pose_center_ = gps_info.second - first_image_pos_lc;
 
             // prior weights
             if (prior_w_info.first == true)
@@ -581,9 +581,9 @@ void Init3DRecon::onFlush(quint32 port)
     }
 
     // Add origin to reconstruction context
-    reconstruction_context->lat_origin = firstImagePos[0];
-    reconstruction_context->lon_origin = firstImagePos[1];
-    reconstruction_context->alt_origin = firstImagePos[2];
+    reconstruction_context->lat_origin = first_image_pos[0];
+    reconstruction_context->lon_origin = first_image_pos[1];
+    reconstruction_context->alt_origin = first_image_pos[2];
     reconstruction_context->current_format = ReconFormat::openMVG;
     reconstruction_context->out_file_suffix = QString("");
 
@@ -593,20 +593,20 @@ void Init3DRecon::onFlush(quint32 port)
 
     // Backup first image position to file
     // firstImagePos : en Lat, Lon, Alt
-    QString coords = QString::number(firstImagePos[0],'f',6) +";"
-            + QString::number(firstImagePos[1],'f',6) + ";"
-            + QString::number(firstImagePos[2],'f',3);
-    QString geoFileName = stlplus::create_filespec(absoluteOutputDir().toStdString(),"model_origin.txt").c_str();
-    QFile geoFile(geoFileName);
-    if( !geoFile.open(QIODevice::WriteOnly) )
+    QString coords = QString::number(first_image_pos[0],'f',6) +";"
+            + QString::number(first_image_pos[1],'f',6) + ";"
+            + QString::number(first_image_pos[2],'f',3);
+    QString geo_file_name = stlplus::create_filespec(absoluteOutputDir().toStdString(),"model_origin.txt").c_str();
+    QFile geo_file(geo_file_name);
+    if( !geo_file.open(QIODevice::WriteOnly) )
     {
-        fatalErrorExit("Error saving " + geoFileName);
+        fatalErrorExit("Error saving " + geo_file_name);
     }
 
     // Save the pos
-    QTextStream outputGeoStream(&geoFile);
-    outputGeoStream << coords;
-    geoFile.close();
+    QTextStream output_geo_stream(&geo_file);
+    output_geo_stream << coords;
+    geo_file.close();
 
     // Log dataset informations
     proc_info = logPrefix();
