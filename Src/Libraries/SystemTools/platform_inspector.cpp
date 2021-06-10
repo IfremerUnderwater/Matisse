@@ -56,17 +56,17 @@ void PlatformInspector::inspectOsAndEnvVariables()
 
     /* Resolving shell commands according to OS */
 #ifdef Q_OS_WIN
-    osName = "Windows";
-    versionCommand = "cmd /C ver"; // opening Windows console displays OS version
-    envVarCommand = "cmd /C set";
+    os_name = "Windows";
+    version_command = "cmd /C ver"; // opening Windows console displays OS version
+    env_var_command = "cmd /C set";
 #elif defined(Q_OS_LINUX)
     os_name = "Linux";
     version_command = "/bin/sh -c \"uname -sor\"";
     env_var_command = "/bin/sh -c \"env\"";
 #elif defined(Q_OS_DARWIN) // Mac
-    osName = "Mac OS";
-    versionCommand = "/bin/sh -c \"sw_vers -productVersion\"";
-    envVarCommand = "/bin/sh -c \"env\"";
+    os_name = "Mac OS";
+    version_command = "/bin/sh -c \"sw_vers -productVersion\"";
+    env_var_Command = "/bin/sh -c \"env\"";
 #else
     QWarning() << "Unhandled OS : cannot retrive version information";
 #endif

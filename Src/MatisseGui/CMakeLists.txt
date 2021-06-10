@@ -24,7 +24,7 @@ add_executable(MatisseGui
     ExpertUi/source_widget.cpp
     JobManagementUi/duplicate_dialog.cpp
     JobManagementUi/job_dialog.cpp
-    JobManagementUi/job_file_helper.cpp
+    #JobManagementUi/job_file_helper.cpp
     JobManagementUi/restore_jobs_dialog.cpp
     ParametersUi/parameters_dialog.cpp
     ParametersUi/parameters_fold_button.cpp
