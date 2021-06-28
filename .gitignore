@@ -30,3 +30,9 @@ Makefile.Release*
 /Build*
 /Run/
 /Src/.vs*
+out
+.vs
+.vs
+/.vs
+/Src/MatisseGui/MatisseServer.aps
+/.vs/VSWorkspaceState.json

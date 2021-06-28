@@ -1,7 +1,9 @@
-add_library(SfmBundleAdjustment SHARED src/SfmBundleAdjustment.cpp)
+add_library(SfmBundleAdjustment SHARED
+    sfm_bundle_adjustment.cpp
+    )
 
-target_link_libraries( SfmBundleAdjustment
-	MatisseCommon
+target_link_libraries(SfmBundleAdjustment
+	MatisseCore
 	BasicProcessing
 	${OpenCV_LIBS}
 	Qt5::Core
@@ -16,7 +18,8 @@ target_link_libraries( SfmBundleAdjustment
     OpenMVG::openMVG_sfm
 	OpenMVG::openMVG_stlplus
     OpenMVG::openMVG_multiview
-	OpenMVG::openMVG_matching_image_collection)
+	OpenMVG::openMVG_matching_image_collection
+	)
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(SfmBundleAdjustment PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
@@ -31,5 +34,5 @@ add_custom_command(
 
 # state that anybody linking to us needs to include the current source dir
 target_include_directories(SfmBundleAdjustment
-          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src
+          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
           )

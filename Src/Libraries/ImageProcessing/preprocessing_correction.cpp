@@ -14,6 +14,9 @@
 
 using namespace std;
 using namespace cv;
+using namespace basic_processing;
+
+namespace image_processing {
 
 PreprocessingCorrection::PreprocessingCorrection(int _ws, QWidget* _parent):m_ws(_ws),
 m_lowres_comp_scaling(1.0),
@@ -135,16 +138,16 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 			if (!computeTemporalMedian())
 				return false;
 
-			vector<Mat> current_BRG(3);
-			vector<Mat> current_BRG_corr(3);
-			split(current_img, current_BRG);
+            vector<Mat> current_brg(3);
+            vector<Mat> current_brg_corr(3);
+            split(current_img, current_brg);
 
 			// compute illum correction
-			compensateIllumination(current_BRG[0], m_bgr_lowres_img[0], m_blue_median_img, current_BRG_corr[0]);
-			compensateIllumination(current_BRG[1], m_bgr_lowres_img[1], m_green_median_img, current_BRG_corr[1]);
-			compensateIllumination(current_BRG[2], m_bgr_lowres_img[2], m_red_median_img, current_BRG_corr[2]);
+            compensateIllumination(current_brg[0], m_bgr_lowres_img[0], m_blue_median_img, current_brg_corr[0]);
+            compensateIllumination(current_brg[1], m_bgr_lowres_img[1], m_green_median_img, current_brg_corr[1]);
+            compensateIllumination(current_brg[2], m_bgr_lowres_img[2], m_red_median_img, current_brg_corr[2]);
 
-			merge(current_BRG_corr, current_img);
+            merge(current_brg_corr, current_img);
 
 		} // end need illumination compensation
 
@@ -230,9 +233,9 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 	// It is not to be understood just adjusted on multiples datasets
 
 	// spatially filter temporal median image
-	Mat _temporal_spatial_median_image;
-	std::vector<double> _temporal_spatial_median_vect;
-	medianBlur(_temporal_median_image, _temporal_spatial_median_image, 5);
+    Mat temporal_spatial_median_image;
+    std::vector<double> temporal_spatial_median_vect;
+    medianBlur(_temporal_median_image, temporal_spatial_median_image, 5);
 
 	//imshow("median img", _temporal_spatial_median_image);
 	//waitKey();
@@ -244,14 +247,14 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 	quantiles.push_back(out_perc);
 	quantiles.push_back(1 - out_perc);
 
-	for (int w = 0; w < _temporal_spatial_median_image.cols; w++)
+    for (int w = 0; w < temporal_spatial_median_image.cols; w++)
 	{
-		for (int h = 0; h < _temporal_spatial_median_image.rows; h++)
+        for (int h = 0; h < temporal_spatial_median_image.rows; h++)
 		{
-			_temporal_spatial_median_vect.push_back(_temporal_spatial_median_image.at<float>(h, w));
+            temporal_spatial_median_vect.push_back(temporal_spatial_median_image.at<float>(h, w));
 		}
 	}
-	channel_limits = doubleQuantiles(_temporal_spatial_median_vect, quantiles);
+    channel_limits = doubleQuantiles(temporal_spatial_median_vect, quantiles);
 
 	// Construct x,y,z fitting dataset (x = width, y = height, z=intensity) for paraboloid model
 	vector<double> x, y, z;
@@ -261,8 +264,8 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 	int fitting_points_nb = 0;
 	std::random_device rd;  //Will be used to obtain a seed for the random number engine
 	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-	std::uniform_int_distribution<> width_dist(0, _temporal_spatial_median_image.cols-1);
-	std::uniform_int_distribution<> height_dist(0, _temporal_spatial_median_image.rows-1);
+    std::uniform_int_distribution<> width_dist(0, temporal_spatial_median_image.cols-1);
+    std::uniform_int_distribution<> height_dist(0, temporal_spatial_median_image.rows-1);
 
 	while (fitting_points_nb < needed_fitting_points_nb)
 	{
@@ -270,7 +273,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 		int h = height_dist(gen);
 		temp_x = static_cast<double>( w );
 		temp_y = static_cast<double>( h );
-		temp_z = _temporal_spatial_median_image.at<float>(h, w);
+        temp_z = temporal_spatial_median_image.at<float>(h, w);
 
 		if (temp_z > channel_limits[0] && temp_z < channel_limits[1])
 		{
@@ -409,3 +412,5 @@ void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _co
 		m_sat_thres = 0.001;
 
 }
+
+} // namespace image_processing

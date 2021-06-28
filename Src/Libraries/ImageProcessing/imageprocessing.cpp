@@ -3,6 +3,10 @@
 #include <math.h>
 
 using namespace cv;
+using namespace std;
+using namespace basic_processing;
+
+namespace image_processing {
 
 void histogramStretch(Mat &_in_img, Mat &_in_mask, Point _low_high_in, Point _low_high_out,  Mat &_stretched_img, bool _gamma_undo)
 {
@@ -101,9 +105,9 @@ void histogramQuantileStretch(Mat &_in_img, Mat &_in_mask, double _saturation_ra
 void stretchColorImg(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<int>& _ch1_lim, std::vector<int>& _ch2_lim, std::vector<int>& _ch3_lim, cv::Mat& _stretched_img, bool _gamma_undo)
 {
     // Split img channels
-    vector<Mat> tempRGB(3);
-    vector<Mat> tempRGBout(3);
-    cv::split(_in_img, tempRGB);
+    vector<Mat> temp_rgb(3);
+    vector<Mat> temp_rgb_out(3);
+    cv::split(_in_img, temp_rgb);
 
     // Stretches all channels
     Point ch1_low_high_in(_ch1_lim[0], _ch1_lim[1]);
@@ -111,12 +115,12 @@ void stretchColorImg(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<int>& _ch1
     Point ch3_low_high_in(_ch3_lim[0], _ch3_lim[1]);
     Point low_high_out(0, 255);
 
-    histogramStretch(tempRGB[0], _in_mask, ch1_low_high_in, low_high_out, tempRGBout[0], _gamma_undo);
-    histogramStretch(tempRGB[1], _in_mask, ch2_low_high_in, low_high_out, tempRGBout[1], _gamma_undo);
-    histogramStretch(tempRGB[2], _in_mask, ch3_low_high_in, low_high_out, tempRGBout[2], _gamma_undo);
+    histogramStretch(temp_rgb[0], _in_mask, ch1_low_high_in, low_high_out, temp_rgb_out[0], _gamma_undo);
+    histogramStretch(temp_rgb[1], _in_mask, ch2_low_high_in, low_high_out, temp_rgb_out[1], _gamma_undo);
+    histogramStretch(temp_rgb[2], _in_mask, ch3_low_high_in, low_high_out, temp_rgb_out[2], _gamma_undo);
 
     // Merge channels
-    merge(tempRGBout, _stretched_img);
+    merge(temp_rgb_out, _stretched_img);
 }
 
 void findImgColorQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, vector<double>& _quantiles, vector<int>& _ch1_lim, vector<int>& _ch2_lim, vector<int>& _ch3_lim)
@@ -241,3 +245,5 @@ double gamma_undo(double _input, double _gamma_value)
 {
     return pow(_input, 1.0/_gamma_value);
 }
+
+} // namespace image_processing

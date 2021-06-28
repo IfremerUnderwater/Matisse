@@ -1,7 +1,10 @@
-add_library(PointCloudDensify SHARED src/PointCloudDensify.cpp)
+add_library(PointCloudDensify SHARED
+    point_cloud_densify.cpp
+    )
 
-target_link_libraries( PointCloudDensify
-	MatisseCommon
+target_link_libraries(PointCloudDensify
+	MatisseCore
+	MatisseImage
 	BasicProcessing
 	${OpenCV_LIBS}
 	Qt5::Core
@@ -19,7 +22,8 @@ target_link_libraries( PointCloudDensify
 	OpenMVG::openMVG_stlplus
     OpenMVG::openMVG_multiview
 	OpenMVG::openMVG_matching_image_collection
-	IO MVS Math Common CGAL::CGAL Boost::filesystem)
+	IO MVS Math Common CGAL::CGAL Boost::filesystem
+	)
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(PointCloudDensify PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
@@ -34,5 +38,5 @@ add_custom_command(
 
 # state that anybody linking to us needs to include the current source dir
 target_include_directories(Meshing3D
-          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src
+          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
           )

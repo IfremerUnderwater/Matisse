@@ -1,7 +1,10 @@
-add_library(Meshing3D SHARED src/Meshing3D.cpp)
+add_library(Meshing3D SHARED
+    meshing_3d.cpp
+    )
 
-target_link_libraries( Meshing3D
-	MatisseCommon
+target_link_libraries(Meshing3D
+	MatisseCore
+	MatisseImage
 	BasicProcessing
 	${OpenCV_LIBS}
 	Qt5::Core
@@ -19,7 +22,8 @@ target_link_libraries( Meshing3D
 	OpenMVG::openMVG_stlplus
     OpenMVG::openMVG_multiview
 	OpenMVG::openMVG_matching_image_collection
-	IO MVS Math Common CGAL::CGAL Boost::filesystem)
+	IO MVS Math Common CGAL::CGAL Boost::filesystem
+	)
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(Meshing3D PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)
@@ -34,5 +38,5 @@ add_custom_command(
 
 # state that anybody linking to us needs to include the current source dir
 target_include_directories(Meshing3D
-          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src
+          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
           )
