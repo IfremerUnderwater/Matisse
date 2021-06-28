@@ -25,7 +25,7 @@
     </Structure>
     <Structure name="dataset_param">
         <!--output_and_geo_params-->
-        <Parameter name="navSource">DIM2</Parameter>
+        <Parameter name="navSource">AUTO</Parameter>
         <Parameter name="usePrior">true</Parameter>
     </Structure>
     <Structure name="dim2_param">
@@ -36,7 +36,7 @@
         <Parameter name="reproj_std">1.000</Parameter>
         <Parameter name="X_std">3.000</Parameter>
         <Parameter name="Y_std">3.000</Parameter>
-        <Parameter name="depth_std">0.500</Parameter>
+        <Parameter name="depth_std">inf</Parameter>
     </Structure>
     <Structure name="video_input_param">
         <!--video_input_params-->

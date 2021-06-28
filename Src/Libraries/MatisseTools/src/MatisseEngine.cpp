@@ -773,8 +773,13 @@ void JobTask::slot_stop()
         emit signal_jobStopped();
     }
 
-    m_user_log_file->close();
-    delete m_user_log_file;
+    if (m_user_log_file)
+    {
+        m_user_log_file->close();
+        delete m_user_log_file;
+        m_user_log_file = NULL;
+    }
+
 }
 
 bool JobTask::isCancelled() const

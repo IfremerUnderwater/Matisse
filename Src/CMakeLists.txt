@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name and version
-project(MatisseProject VERSION 1.3.2)
+project(MatisseProject VERSION 1.3.3)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 11)

@@ -75,7 +75,7 @@ bool NmeaFilesReader::loadFilesToMemory()
                 {
 
                     // get victor.nav msf2
-                    if (fields_com[4]==QString("victor.nav"))
+                    if (fields_com[4]==QString("victor.nav") && !fields_com[2].endsWith(":60.000"))
                     {
 
                         QDate nav_date= QDate::fromString(fields_com[1],"dd/MM/yyyy");

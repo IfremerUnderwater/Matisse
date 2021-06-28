@@ -29,7 +29,7 @@ void ProjectiveCamera::setK(const cv::Mat &K)
     Q_ASSERT(_scalingFactorIsSet);
     _K = _scalingFactor*K;
     _K.at<qreal>(2,2) = 1;
-    qDebug() << "Last K component ) " << _K.at<qreal>(2,2) ;
+
     _KIsSet = true;
 }
 cv::Mat ProjectiveCamera::m_H_i() const
