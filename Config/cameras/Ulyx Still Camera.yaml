@@ -1,20 +1,20 @@
 %YAML:1.0
 ---
-camera_name: Otus 2
-full_sensor_width: 6000
-full_sensor_height: 4000
+camera_name: Ulyx Still Camera
+full_sensor_width: 4864
+full_sensor_height: 3232
 K: !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [ 6600., 0., 3032., 0., 6600., 1986., 0., 0., 1. ]
+   data: [ 3.0429699999999998e+03, 0., 2.2811999999999998e+03, 0.,
+       3.0566199999999999e+03, 1.6633599999999999e+03, 0., 0., 1. ]
 distortion_model: 1
 distortion_coeff: !!opencv-matrix
    rows: 1
    cols: 3
    dt: d
-   data: [ 6.9468199999999994e-02, 1.0888700000000000e-01,
-       -9.1225000000000001e-02 ]
+   data: [ 0., 0., 0. ]
 vehicle_to_camera_transform: !!opencv-matrix
    rows: 1
    cols: 6

@@ -11,11 +11,11 @@ K: !!opencv-matrix
 distortion_model: 1
 distortion_coeff: !!opencv-matrix
    rows: 1
-   cols: 5
+   cols: 3
    dt: d
-   data: [ 0., 0., 0., 0., 0. ]
+   data: [ 0., 0., 0. ]
 vehicle_to_camera_transform: !!opencv-matrix
    rows: 1
    cols: 6
    dt: d
-   data: [ 0., 0., 0., 0., 0., 1.5707963267948966e+00 ]
+   data: [ 0., 0., 0., 0., 0., -1.5707963267948966e+00 ]

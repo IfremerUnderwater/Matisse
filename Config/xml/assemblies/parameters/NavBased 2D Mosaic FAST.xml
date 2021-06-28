@@ -10,13 +10,13 @@
         <Parameter name="disjoint_drawing">false</Parameter>
         <Parameter name="single_image_output">Geotiff only</Parameter>
         <Parameter name="filter_overlap">true</Parameter>
-        <Parameter name="max_overlap">0.60</Parameter>
-        <Parameter name="min_overlap">0.30</Parameter>
+        <Parameter name="max_overlap">0.50</Parameter>
+        <Parameter name="min_overlap">0.10</Parameter>
         <!--bundle_adjustment_params-->
         <!--blending_displaying_params-->
         <Parameter name="block_drawing">true</Parameter>
-        <Parameter name="block_width">7000</Parameter>
-        <Parameter name="block_height">7000</Parameter>
+        <Parameter name="block_width">14000</Parameter>
+        <Parameter name="block_height">14000</Parameter>
         <!--compute_feature-->
         <!--compute_matches-->
         <!--DensifyPointCloud-->
@@ -25,8 +25,7 @@
     </Structure>
     <Structure name="cam_param">
         <!--advanced_camera_params-->
-        <Parameter name="K">1440.00;0.00;960.00;0.00;1440.00;540.00;0.00;0.00;1.00</Parameter>
-        <Parameter name="V_Pose_C">0.000;0.000;0.000;0.000;0.000;-1.571</Parameter>
+        <Parameter name="camera_equipment">Unknown;0;0;0,0,0,0,0,0,0,0,1;1;0,0,0,0,0;0,0,0,0,0,0</Parameter>
     </Structure>
     <Structure name="dataset_param">
         <!--output_and_geo_params-->

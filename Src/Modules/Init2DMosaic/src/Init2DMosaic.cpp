@@ -16,7 +16,7 @@ Init2DMosaic::Init2DMosaic() :
 {
 
     //addExpectedParameter("cam_param",  "K");
-    //addExpectedParameter("algo_param", "scale_factor");
+    addExpectedParameter("algo_param", "scale_factor");
     //addExpectedParameter("cam_param",  "V_Pose_C");
     addExpectedParameter("cam_param", "camera_equipment");
 
@@ -81,8 +81,17 @@ void Init2DMosaic::onFlush(quint32 port)
 
     if (imageSet)
     {
-        QList<Image*> imageList = imageSet->getAllImages();
-        images_width = imageList[0]->width();
+        if(imageSet->getNumberOfImages()>0)
+        {
+            QList<Image*> imageList = imageSet->getAllImages();
+            images_width = imageList[0]->width();
+        }
+        else
+        {
+            emit signal_showErrorMessage(tr("Did not find any image"), tr("Did not find any image."));
+            return;
+        }
+
     }
     else
     {
@@ -99,7 +108,13 @@ void Init2DMosaic::onFlush(quint32 port)
 
     if (!Ok)
     {
-        emit signal_showErrorMessage(tr("Did not find the camera equipment"), tr("Did not found the camera equipment. Please check that the required equipment is available in the database."));
+        fatalErrorExit(tr("Did not found the camera equipment. Please check that the required equipment is available in the database."));
+        return;
+    }
+   
+    if (camera_equipment.cameraName() == "Unknown")
+    {
+        fatalErrorExit("It is not possible to use unknown camera equipment for 2D mosaicking.");
         return;
     }
 
@@ -110,13 +125,15 @@ void Init2DMosaic::onFlush(quint32 port)
 
     cv::Mat K = camera_equipment.K();
 
-    double scaling_factor = images_width / (double)full_sensor_width;
-    K.at<double>(0, 0) = scaling_factor * K.at<double>(0, 0);
-    K.at<double>(1, 1) = scaling_factor * K.at<double>(1, 1);
-    K.at<double>(0, 2) = scaling_factor * K.at<double>(0, 2);
-    K.at<double>(1, 2) = scaling_factor * K.at<double>(1, 2);
+    double on_run_scale_factor = _matisseParameters->getDoubleParamValue("algo_param", "scale_factor", Ok);
 
-    std::cout << "K = " << K << std::endl;
+    // on run scale factor is already included in images_width so we remove it as it is handled by the optical mapping framework
+    double scaling_factor_comp_to_calib = images_width / ((double)full_sensor_width*on_run_scale_factor); 
+    K.at<double>(0, 0) = scaling_factor_comp_to_calib * K.at<double>(0, 0);
+    K.at<double>(1, 1) = scaling_factor_comp_to_calib * K.at<double>(1, 1);
+    K.at<double>(0, 2) = scaling_factor_comp_to_calib * K.at<double>(0, 2);
+    K.at<double>(1, 2) = scaling_factor_comp_to_calib * K.at<double>(1, 2);
+
 
     emit signal_processCompletion(30);
 
@@ -149,7 +166,7 @@ void Init2DMosaic::onFlush(quint32 port)
             if (navImage) {
                 if (navImage->navInfo().altitude()>0.0)
                 {
-                    pCams->push_back(new ProjectiveCamera(navImage, K, V_T_C, V_R_C, 1.0));
+                    pCams->push_back(new ProjectiveCamera(navImage, K, V_T_C, V_R_C, on_run_scale_factor));
                 }
             }else{
                 qDebug() << "cannot cast as navImage \n";

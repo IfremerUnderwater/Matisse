@@ -8,7 +8,7 @@
         <!--blending_displaying_params-->
         <!--compute_feature-->
         <Parameter name="describer_method">SIFT_ANATOMY</Parameter>
-        <Parameter name="describer_preset">NORMAL</Parameter>
+        <Parameter name="describer_preset">ULTRA</Parameter>
         <!--compute_matches-->
         <Parameter name="nearest_matching_method">FASTCASCADEHASHINGL2</Parameter>
         <Parameter name="video_mode_matching">5</Parameter>
@@ -17,7 +17,7 @@
         <Parameter name="resolution_level">2</Parameter>
         <Parameter name="number_views_fuse">3</Parameter>
         <!--ReconstructMesh-->
-        <Parameter name="decimate_factor">0.50</Parameter>
+        <Parameter name="decimate_factor">1.00</Parameter>
         <!--TexReCon-->
         <Parameter name="keep_unseen_faces">false</Parameter>
     </Structure>
@@ -27,7 +27,7 @@
     </Structure>
     <Structure name="dataset_param">
         <!--output_and_geo_params-->
-        <Parameter name="navSource">DIM2</Parameter>
+        <Parameter name="navSource">AUTO</Parameter>
         <Parameter name="usePrior">true</Parameter>
     </Structure>
     <Structure name="dim2_param">
@@ -38,7 +38,7 @@
         <Parameter name="reproj_std">1.000</Parameter>
         <Parameter name="X_std">3.000</Parameter>
         <Parameter name="Y_std">3.000</Parameter>
-        <Parameter name="depth_std">0.500</Parameter>
+        <Parameter name="depth_std">inf</Parameter>
     </Structure>
     <Structure name="video_input_param">
         <!--video_input_params-->
