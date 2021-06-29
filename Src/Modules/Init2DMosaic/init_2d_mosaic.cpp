@@ -87,12 +87,12 @@ void Init2DMosaic::onFlush(quint32 _port)
     {
         if(image_set->getNumberOfImages()>0)
         {
-            QList<Image*> imageList = image_set->getAllImages();
+            QList<Image*> image_list = image_set->getAllImages();
             images_width = image_list[0]->width();
         }
         else
         {
-            emit signal_showErrorMessage(tr("Did not find any image"), tr("Did not find any image."));
+            emit si_showErrorMessage(tr("Did not find any image"), tr("Did not find any image."));
             return;
         }
 
@@ -103,14 +103,14 @@ void Init2DMosaic::onFlush(quint32 _port)
         return;
     }
 
-    emit signal_processCompletion(10);
+    emit si_processCompletion(10);
 
-    bool Ok = false;
+    bool ok = false;
 
     // Get camera equipment
-    CameraInfo camera_equipment = m_matisse_parameters->getCamInfoParamValue("cam_param", "camera_equipment", Ok);
+    CameraInfo camera_equipment = m_matisse_parameters->getCamInfoParamValue("cam_param", "camera_equipment", ok);
 
-    if (!Ok)
+    if (!ok)
     {
         fatalErrorExit(tr("Did not found the camera equipment. Please check that the required equipment is available in the database."));
         return;
@@ -129,7 +129,7 @@ void Init2DMosaic::onFlush(quint32 _port)
 
     cv::Mat K = camera_equipment.K();
 
-    double on_run_scale_factor = m_matisse_parameters->getDoubleParamValue("algo_param", "scale_factor", Ok);
+    double on_run_scale_factor = m_matisse_parameters->getDoubleParamValue("algo_param", "scale_factor", ok);
 
     // on run scale factor is already included in images_width so we remove it as it is handled by the optical mapping framework
     double scaling_factor_comp_to_calib = images_width / ((double)full_sensor_width*on_run_scale_factor); 
@@ -139,7 +139,7 @@ void Init2DMosaic::onFlush(quint32 _port)
     K.at<double>(1, 2) = scaling_factor_comp_to_calib * K.at<double>(1, 2);
 
 
-    emit signal_processCompletion(30);
+    emit si_processCompletion(30);
 
 
     // Get camera lever arm (inverted signs are due to different frames conventions between mosaicking and Matisse)
@@ -152,13 +152,13 @@ void Init2DMosaic::onFlush(quint32 _port)
 
     GeoTransform T;
 
-    V_R_C = T.RotZ(-vehicle_to_cam_trans.at<double>(0, 5))*T.RotY(-vehicle_to_cam_trans.at<double>(0, 4))*T.RotX(vehicle_to_cam_trans.at<double>(0, 3));
+    V_R_C = T.rotZ(-vehicle_to_cam_trans.at<double>(0, 5))*T.rotY(-vehicle_to_cam_trans.at<double>(0, 4))*T.rotX(vehicle_to_cam_trans.at<double>(0, 3));
 
     std::cout << "V_T_C = " << V_T_C << std::endl;
     std::cout << "V_R_C = " << V_R_C << std::endl;
     std::cout << "vehicle_to_cam_trans = " << vehicle_to_cam_trans << std::endl;
 
-    emit signal_processCompletion(60);
+    emit si_processCompletion(60);
 
     if (image_set){
 
@@ -168,7 +168,7 @@ void Init2DMosaic::onFlush(quint32 _port)
 
             NavImage *nav_image = dynamic_cast<NavImage*>(image);
             if (nav_image) {
-                if (navImage->navInfo().altitude()>0.0)
+                if (nav_image->navInfo().altitude()>0.0)
                 {
                     p_cams->push_back(new ProjectiveCamera(nav_image, K, V_T_C, V_R_C, on_run_scale_factor));
                 }

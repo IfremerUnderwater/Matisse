@@ -374,12 +374,12 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
 
         // Compute residual sfm to nav error
         std::vector<Vec3> X_SfM, X_GPS;
-        for (const auto& view_it : sfmEngine.Get_SfM_Data().GetViews())
+        for (const auto& view_it : sfm_engine.Get_SfM_Data().GetViews())
         {
             const sfm::ViewPriors* prior = dynamic_cast<sfm::ViewPriors*>(view_it.second.get());
-            if (prior != nullptr && prior->b_use_pose_center_ && sfmEngine.Get_SfM_Data().IsPoseAndIntrinsicDefined(prior))
+            if (prior != nullptr && prior->b_use_pose_center_ && sfm_engine.Get_SfM_Data().IsPoseAndIntrinsicDefined(prior))
             {
-                X_SfM.push_back(sfmEngine.Get_SfM_Data().GetPoses().at(prior->id_pose).center());
+                X_SfM.push_back(sfm_engine.Get_SfM_Data().GetPoses().at(prior->id_pose).center());
                 X_GPS.push_back(prior->pose_center_);
             }
         }
@@ -396,7 +396,7 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
 
             rms_error = sqrt(rms_error / (double)X_GPS.size());
             QString proc_info = logPrefix() + QString("RMS error between nav and sfm = %1 m").arg(rms_error);
-            emit signal_addToLog(proc_info);
+            emit si_addToLog(proc_info);
 
             if (rms_error > 2)
             {
