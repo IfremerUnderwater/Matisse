@@ -238,6 +238,7 @@ private:
     QAction* m_export_assembly_act;
     QAction* m_app_config_act;
     QAction* m_preprocessing_tool;
+    QAction* m_nmea_nav_extrator_tool;
     QAction* m_camera_manager_tool;
     QAction* m_camera_calib_tool;
     QAction* m_video_to_image_tool_act;
@@ -384,6 +385,7 @@ protected slots:
     void sl_swapDayNightDisplay();
     void sl_exportMapToImage();
     void sl_launchPreprocessingTool();
+    void sl_launchNmeaExtractorTool();
     void sl_launchCameraManagerTool();
     void sl_launchCameraCalibTool();
 

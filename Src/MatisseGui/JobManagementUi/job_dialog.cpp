@@ -84,6 +84,11 @@ void JobDialog::sl_close()
             return;
         }
 
+        if (!m_ui->_LE_navigationFile->text().endsWith("dim2"))
+        {
+            QMessageBox::warning(this, tr("Wrong navigation file"), tr("The navigation file you selected is not a dim2 file. If you want your model to be scaled you should use a dim2 file or have exif metadata in the images."));
+        }
+
         QString filename(name);
         filename.replace(" ", "_").append(".xml");
         QFileInfo info(m_jobs_path + QDir::separator() + filename);
@@ -163,7 +168,7 @@ void JobDialog::sl_selectDir()
 void JobDialog::sl_selectFile()
 {
     QString sel_file;
-    QDir data_root("./");
+    QDir data_root(m_ui->_LE_dataPath->text());
     QString current_path = data_root.path();
     QString field_text;
 

@@ -4,6 +4,7 @@
 #include "mosaic_descriptor.h"
 
 #include "Polygon.h"
+#include <QMessageBox>
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(Init2DMosaic, Init2DMosaic)
@@ -18,9 +19,10 @@ Init2DMosaic::Init2DMosaic() :
     Processor(NULL, "Init2DMosaic", "Init 2D mosaic Descriptor with navigation", 1, 1)
 {
 
-    addExpectedParameter("cam_param",  "K");
+    //addExpectedParameter("cam_param",  "K");
     addExpectedParameter("algo_param", "scale_factor");
-    addExpectedParameter("cam_param",  "V_Pose_C");
+    //addExpectedParameter("cam_param",  "V_Pose_C");
+    addExpectedParameter("cam_param", "camera_equipment");
 
     addExpectedParameter("algo_param","filter_overlap");
     addExpectedParameter("algo_param","min_overlap");
@@ -79,54 +81,84 @@ void Init2DMosaic::onFlush(quint32 _port)
         }
     }
 
-    emit si_processCompletion(10);
+    int images_width;
 
-    // Get camera matrix
-    bool ok;
-    QMatrix3x3 q_K = m_matisse_parameters->getMatrix3x3ParamValue("cam_param",  "K",  ok);
-    cv::Mat K(3,3,CV_64F);
-    if (ok){
-        qDebug() << "K Ok =" << ok;
-
-        for (int i=0; i<3; i++){
-            for(int j=0; j<3; j++){
-                K.at<double>(i,j) = q_K(i,j);
-            }
+    if (image_set)
+    {
+        if(image_set->getNumberOfImages()>0)
+        {
+            QList<Image*> imageList = image_set->getAllImages();
+            images_width = image_list[0]->width();
+        }
+        else
+        {
+            emit signal_showErrorMessage(tr("Did not find any image"), tr("Did not find any image."));
+            return;
         }
 
-    }else{
-        qDebug() << "K Ok =" << ok;
-        exit(1);
+    }
+    else
+    {
+        emit si_showErrorMessage(tr("Did not find any image"), tr("Did not find any image."));
+        return;
     }
 
-    std::cerr <<"K = " << K;
+    emit signal_processCompletion(10);
 
-    emit si_processCompletion(30);
+    bool Ok = false;
 
-    double scale_factor = m_matisse_parameters->getDoubleParamValue("algo_param", "scale_factor", ok);
+    // Get camera equipment
+    CameraInfo camera_equipment = m_matisse_parameters->getCamInfoParamValue("cam_param", "camera_equipment", Ok);
 
-    if (!ok){
-        qDebug() << "scale factor not provided Ok \n";
-        exit(1);
+    if (!Ok)
+    {
+        fatalErrorExit(tr("Did not found the camera equipment. Please check that the required equipment is available in the database."));
+        return;
+    }
+   
+    if (camera_equipment.cameraName() == "Unknown")
+    {
+        fatalErrorExit("It is not possible to use unknown camera equipment for 2D mosaicking.");
+        return;
     }
 
-    // Get camera lever arm
+
+    // Fill camera matrix
+    int full_sensor_width, full_sensor_height;
+    camera_equipment.fullSensorSize(full_sensor_width, full_sensor_height);
+
+    cv::Mat K = camera_equipment.K();
+
+    double on_run_scale_factor = m_matisse_parameters->getDoubleParamValue("algo_param", "scale_factor", Ok);
+
+    // on run scale factor is already included in images_width so we remove it as it is handled by the optical mapping framework
+    double scaling_factor_comp_to_calib = images_width / ((double)full_sensor_width*on_run_scale_factor); 
+    K.at<double>(0, 0) = scaling_factor_comp_to_calib * K.at<double>(0, 0);
+    K.at<double>(1, 1) = scaling_factor_comp_to_calib * K.at<double>(1, 1);
+    K.at<double>(0, 2) = scaling_factor_comp_to_calib * K.at<double>(0, 2);
+    K.at<double>(1, 2) = scaling_factor_comp_to_calib * K.at<double>(1, 2);
+
+
+    emit signal_processCompletion(30);
+
+
+    // Get camera lever arm (inverted signs are due to different frames conventions between mosaicking and Matisse)
     cv::Mat V_T_C(3,1,CV_64F), V_R_C(3,3,CV_64F);
+    cv::Mat vehicle_to_cam_trans = camera_equipment.vehicleToCameraTransform();
 
-    Matrix6x1 V_Pose_C = m_matisse_parameters->getMatrix6x1ParamValue("cam_param",  "V_Pose_C",  ok);
-    if (ok){
+    V_T_C.at<double>(0,0) = vehicle_to_cam_trans.at<double>(0,0);
+    V_T_C.at<double>(1,0) = -vehicle_to_cam_trans.at<double>(0, 1);
+    V_T_C.at<double>(2,0) = -vehicle_to_cam_trans.at<double>(0, 2);
 
-        for (int i=0; i<3; i++){
-            V_T_C.at<double>(i,0) = V_Pose_C(0,i);
-        }
+    GeoTransform T;
 
-        GeoTransform T;
+    V_R_C = T.RotZ(-vehicle_to_cam_trans.at<double>(0, 5))*T.RotY(-vehicle_to_cam_trans.at<double>(0, 4))*T.RotX(vehicle_to_cam_trans.at<double>(0, 3));
 
-        V_R_C = T.rotZ(V_Pose_C(0,5))*T.rotY(V_Pose_C(0,4))*T.rotX(V_Pose_C(0,3));
+    std::cout << "V_T_C = " << V_T_C << std::endl;
+    std::cout << "V_R_C = " << V_R_C << std::endl;
+    std::cout << "vehicle_to_cam_trans = " << vehicle_to_cam_trans << std::endl;
 
-    }
-
-    emit si_processCompletion(60);
+    emit signal_processCompletion(60);
 
     if (image_set){
 
@@ -136,9 +168,9 @@ void Init2DMosaic::onFlush(quint32 _port)
 
             NavImage *nav_image = dynamic_cast<NavImage*>(image);
             if (nav_image) {
-                if (nav_image->navInfo().altitude()>0.0)
+                if (navImage->navInfo().altitude()>0.0)
                 {
-                    p_cams->push_back(new ProjectiveCamera(nav_image, K, V_T_C, V_R_C, (double)scale_factor));
+                    p_cams->push_back(new ProjectiveCamera(nav_image, K, V_T_C, V_R_C, on_run_scale_factor));
                 }
             }else{
                 qDebug() << "cannot cast as navImage \n";

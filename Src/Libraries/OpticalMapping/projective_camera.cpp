@@ -33,7 +33,7 @@ void ProjectiveCamera::setK(const cv::Mat &_K)
     Q_ASSERT(m_scaling_factor_is_set);
     m_K = m_scaling_factor*_K;
     m_K.at<qreal>(2,2) = 1;
-    qDebug() << "Last K component ) " << m_K.at<qreal>(2,2) ;
+
     m_K_is_set = true;
 }
 cv::Mat ProjectiveCamera::m_H_i() const
@@ -82,7 +82,7 @@ void ProjectiveCamera::setScalingFactor(const qreal &_scaling_factor)
     if (_scaling_factor >= 1){
         m_scaling_factor = 1;
     }else if (_scaling_factor <= 0){
-        exit(1);
+        m_scalingFactor = 1;
     }else{
         m_scaling_factor = _scaling_factor;
     }

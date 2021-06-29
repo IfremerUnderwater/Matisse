@@ -769,8 +769,12 @@ void JobTask::sl_stop()
         emit si_jobStopped();
     }
 
-    m_user_log_file->close();
-    delete m_user_log_file;
+    if (m_user_log_file)
+    {
+        m_user_log_file->close();
+        delete m_user_log_file;
+        m_user_log_file = NULL;
+    }
 }
 
 bool JobTask::isCancelled() const
