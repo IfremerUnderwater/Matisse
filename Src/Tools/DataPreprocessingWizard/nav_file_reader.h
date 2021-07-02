@@ -23,6 +23,21 @@ public:
     double yawAtTime(double & _time);
 
 private:
+    struct CustomNavFileInfo
+    {
+        QString date_format;
+        int date_index=-1;
+        int time_index=-1;
+        int lat_index=-1;
+        int lon_index = -1;
+        int depth_index = -1;
+        int heading_index = -1;
+        int roll_index = -1;
+        int pitch_index = -1;
+        int alt_index = -1;
+    };
+
+
     QString m_file_path;
     std::vector<double> m_datetime;
     std::vector<std::pair<double, double>> m_lat;

@@ -970,7 +970,7 @@ bool MatisseParametersManager::saveParametersValues(QString _entity_name, bool _
         path = "xml/jobs/parameters/";
     }
 
-    QString filename = path.append(_entity_name).append(".xml");
+    QString filename = path.append(_entity_name).replace(' ', '_').append(".xml");
     bool save_status = writeParametersFile(filename, true);
     return save_status;
 }
@@ -986,7 +986,7 @@ bool MatisseParametersManager::loadParameters(QString _entity_name, bool _is_ass
         path = "xml/jobs/parameters/";
     }
 
-    QString filename = path.append(_entity_name).append(".xml");
+    QString filename = path.append(_entity_name).replace(' ','_').append(".xml");
     bool read_status = readParametersFile(filename, _is_assembly_template);
     m_full_parameters_widget->clearModifications();
     return read_status;
