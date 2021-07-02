@@ -949,6 +949,9 @@ void MainGui::sl_selectAssemblyOrJob(QTreeWidgetItem * _selected_item, int _colu
 {
     Q_UNUSED(_column)
 
+    if (!_selected_item)
+        return;
+
     if (m_is_map_view) {
         resetOngoingProcessIndicators();
     }
