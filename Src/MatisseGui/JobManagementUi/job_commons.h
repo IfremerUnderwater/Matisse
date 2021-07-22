@@ -1,4 +1,15 @@
-#ifndef JOB_COMMONS_H
-#define JOB_COMMONS_H
+#ifndef MATISSE_JOB_COMMONS_H_
+#define MATISSE_JOB_COMMONS_H_
 
-#endif // JOB_COMMONS_H
+namespace matisse {
+
+enum eJobStatusMessageLevel {
+    IDLE,
+    OK,
+    WARNING,
+    ERR
+};
+
+}
+
+#endif // MATISSE_JOB_COMMONS_H_

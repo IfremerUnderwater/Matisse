@@ -117,10 +117,10 @@ bool MatisseEngine::removeModuleAndExpectedParameters(QString _name)
     return true;
 }
 
-MatisseParameters* MatisseEngine::buildMatisseParameters(JobDefinition &_job) {
+MatisseParameters* MatisseEngine::buildMatisseParameters(JobDefinition *_job) {
 
 
-    QString file = ProcessDataManager::instance()->getJobParametersFilePath(_job.name());
+    QString file = ProcessDataManager::instance()->getJobParametersFilePath(_job->name());
 
     qDebug() << "Chargement du fichier de paramètres : " << file;
     MatisseParameters* parameters = NULL;
@@ -153,17 +153,36 @@ void MatisseEngine::setMessageStr(QString _message_Str, bool _error)
 
 void MatisseEngine::sl_currentJobProcessed()
 {
-    if(m_current_job == NULL)
-        return;
+    qDebug() << "Current job processed, updating job data...";
 
-    JobDefinition job_definition = m_current_job->jobDefinition();
-    bool is_cancelled = m_current_job->isCancelled();
-    QString job_name = job_definition.name();
-    job_definition.executionDefinition()->setExecuted(!is_cancelled);
-    if (!is_cancelled) {
-        job_definition.executionDefinition()->setResultFileNames(m_current_job->resultFileNames());
-        m_job_server->sendExecutionNotification(job_name);
+    if(m_current_job == NULL) {
+        // inconsistent case
+        qCritical() << "Job processed but pointer to current job is null";
+        return;
     }
+
+    JobDefinition *job_definition = m_current_job->jobDefinition();
+    bool is_cancelled = m_current_job->isCancelled();
+    QString job_name = job_definition->name();
+    job_definition->executionDefinition()->setExecuted(!is_cancelled);
+    qDebug() << "Task job definition execution status : " << job_definition->executionDefinition()->executed();
+    if (!is_cancelled) {
+        if (m_current_job->resultFileNames().isEmpty()) {
+            qWarning() << "No result file";
+        }
+
+        for (QString file_name:m_current_job->resultFileNames()) {
+            qDebug() << QString("Result file : %1").arg(file_name);
+        }
+
+        job_definition->executionDefinition()->setResultFileNames(m_current_job->resultFileNames());
+        m_job_server->sendExecutionNotification(job_name);
+    } else {
+        qDebug() << "Job canceled, no results";
+    }
+
+    // debug
+    job_definition->setComment("Test comment");
 
     disconnect(this, SLOT(sl_currentJobProcessed()));
     disconnect(this, SIGNAL(si_jobShowImageOnMainView(QString,Image *)));
@@ -175,7 +194,7 @@ void MatisseEngine::sl_currentJobProcessed()
     emit si_jobProcessed(job_name, is_cancelled);
 }
 
-bool MatisseEngine::buildJobTask(AssemblyDefinition &_assembly, JobDefinition &_job_definition, MatisseParameters *_matisse_parameters)
+bool MatisseEngine::buildJobTask(AssemblyDefinition *_assembly, JobDefinition *_job_definition, MatisseParameters *_matisse_parameters)
 {
     InputDataProvider* input_data_provider = NULL;
     QList<Processor*> processor_list;
@@ -185,7 +204,7 @@ bool MatisseEngine::buildJobTask(AssemblyDefinition &_assembly, JobDefinition &_
 
 
     // Verifier si les paramètres attendus sont présents pour la source
-    QString source_name = _assembly.sourceDefinition()->name();
+    QString source_name = _assembly->sourceDefinition()->name();
     qDebug() << "Verification présence de la source" << source_name;
     input_data_provider = m_input_data_providers.value(source_name);
     if (!input_data_provider) {
@@ -205,7 +224,7 @@ bool MatisseEngine::buildJobTask(AssemblyDefinition &_assembly, JobDefinition &_
     quint32 max_order = 0;
     // Verifier si les paramètres attendus sont présents pour les algorithmes
     qDebug() << "Verification présence des processeurs";
-    QList<ProcessorDefinition*> processor_defs = _assembly.processorDefs();
+    QList<ProcessorDefinition*> processor_defs = _assembly->processorDefs();
     foreach (ProcessorDefinition* proc_def, processor_defs) {
         quint32 order = proc_def->order();
         max_order = qMax(max_order, order);
@@ -236,7 +255,7 @@ bool MatisseEngine::buildJobTask(AssemblyDefinition &_assembly, JobDefinition &_
 
     // Verifier si les paramètres attendus sont présents pour la destination
     qDebug() << "Verification présence destination";
-    DestinationDefinition * destination_def= _assembly.destinationDefinition();
+    DestinationDefinition * destination_def= _assembly->destinationDefinition();
     if (!destination_def) {
          setMessageStr(tr("Destination not defined"));
         return false;
@@ -265,14 +284,14 @@ bool MatisseEngine::buildJobTask(AssemblyDefinition &_assembly, JobDefinition &_
 
     qDebug() << "Creation des ImageSet ";
     // Recuperation de l'ordre du raster...
-    quint32 destination_order = _assembly.destinationDefinition()->order();
+    quint32 destination_order = _assembly->destinationDefinition()->order();
 
     // Ports par ordre
     QHash<quint32, QList<ImageSetPort *>* > in_processor_ports_by_order;
     QHash<quint32, QList<ImageSetPort *>* > out_processor_ports_by_order;
 
 
-    QList<ConnectionDefinition*> connection_defs = _assembly.connectionDefs();
+    QList<ConnectionDefinition*> connection_defs = _assembly->connectionDefs();
     foreach (ConnectionDefinition* con_def, connection_defs) {
         quint32 startOrder = con_def->startOrder();
         quint32 endOrder = con_def->endOrder();
@@ -367,7 +386,7 @@ bool MatisseEngine::buildJobTask(AssemblyDefinition &_assembly, JobDefinition &_
 
 
 
-bool MatisseEngine::processJob(JobDefinition &_job_definition)
+bool MatisseEngine::processJob(JobDefinition *_job_definition)
 {
     setMessageStr();
 
@@ -391,7 +410,7 @@ bool MatisseEngine::processJob(JobDefinition &_job_definition)
 
     qDebug() << "Dump parametres:" << parameters->dumpStructures();
 
-    QString assembly_name = _job_definition.assemblyName();
+    QString assembly_name = _job_definition->assemblyName();
     AssemblyDefinition * assembly_definition = ProcessDataManager::instance()->getAssembly(assembly_name);
 
     if (!assembly_definition) {
@@ -399,7 +418,7 @@ bool MatisseEngine::processJob(JobDefinition &_job_definition)
         return false;
     }
 
-    if (!buildJobTask(*assembly_definition, _job_definition, parameters)) {
+    if (!buildJobTask(assembly_definition, _job_definition, parameters)) {
         setMessageStr(tr("Running assembly failed"));
         return false;
     }
@@ -549,7 +568,7 @@ void MatisseEngine::init(){
 
 
 JobTask::JobTask(InputDataProvider* _input_data_provider, QList<Processor*> _processors, OutputDataWriter* _output_data_writer,
-                 JobDefinition &_job_definition, MatisseParameters *_parameters )
+                 JobDefinition *_job_definition, MatisseParameters *_parameters )
     : m_user_log_file(NULL),
       m_input_data_provider(_input_data_provider),
       m_processors(_processors),
@@ -780,7 +799,7 @@ bool JobTask::isCancelled() const
 
 void JobTask::sl_showImageOnMainView(Image *_image)
 {
-    emit si_jobShowImageOnMainView(m_job_definition.name(), _image);
+    emit si_jobShowImageOnMainView(m_job_definition->name(), _image);
 }
 
 void JobTask::sl_userInformation(QString _user_text)
@@ -823,7 +842,7 @@ QStringList JobTask::resultFileNames() const
     return m_result_file_names;
 }
 
-JobDefinition &JobTask::jobDefinition() const
+JobDefinition *JobTask::jobDefinition() const
 {
     return m_job_definition;
 }

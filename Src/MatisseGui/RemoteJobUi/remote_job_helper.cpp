@@ -94,10 +94,29 @@ void RemoteJobHelper::init() {
     qFatal("RemoteJobHelper: Preferences not set");
   }
 
+  checkRemoteDirCreated();
   m_is_remote_exec_on = checkPreferences();
   m_host_and_creds_known = false;
 
   connectNetworkClientSignals();
+}
+
+void RemoteJobHelper::checkRemoteDirCreated()
+{
+  bool already_checked = !m_remote_output_path.isEmpty();
+
+  if (already_checked) {
+    return;
+  }
+
+  m_remote_output_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+    QDir::separator() + "toServer";
+
+  QDir remote_output_dir(m_remote_output_path);
+  if (!remote_output_dir.exists()) {
+      qDebug() << "Creating remote output directory " << m_remote_output_path;
+      remote_output_dir.mkpath(".");
+  }
 }
 
 void RemoteJobHelper::reinit() 

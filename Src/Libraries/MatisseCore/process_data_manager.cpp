@@ -424,14 +424,17 @@ bool ProcessDataManager::readJobFile(QString _filename, bool _is_archive_file, Q
     }
 
     if (_is_archive_file) {
+        // release memory for previous JobDefinition object
+        JobDefinition *old_job = m_archived_jobs.value(new_job->name());
+        if (old_job) {
+            delete old_job;
+        }
+
         m_archived_jobs.insert(new_job->name(), new_job);
         m_archived_job_name_by_file_name.insert(_filename, new_job->name());
         QString assembly_name = new_job->assemblyName();
 
         QStringList *archived_jobs;
-//        if (!_assembliesWithArchivedJobs.contains(assemblyName)) {
-//            _assembliesWithArchivedJobs.insert(assemblyName);
-//        }
 
         if (m_archived_jobs_by_assembly.contains(assembly_name)) {
             archived_jobs = m_archived_jobs_by_assembly.value(assembly_name);
@@ -443,6 +446,12 @@ bool ProcessDataManager::readJobFile(QString _filename, bool _is_archive_file, Q
         archived_jobs->append(new_job->name());
 
     } else {
+        // release memory for previous JobDefinition object
+        JobDefinition *old_job = m_jobs.value(new_job->name());
+        if (old_job) {
+            delete old_job;
+        }
+
         m_jobs.insert(new_job->name(), new_job);
         m_job_name_by_file_name.insert(_filename, new_job->name());
     }
@@ -719,6 +728,8 @@ QStringList ProcessDataManager::getArchivedJobNames() const
 
 bool ProcessDataManager::restoreArchivedJobs(QString _archive_path, QString _assembly_name, QStringList _jobs_to_restore)
 {
+    qDebug() << QString("Restoring jobs for assembly %1 ...").arg(_assembly_name);
+
     QDir archive_dir(_archive_path);
     if (!archive_dir.exists()) {
         qCritical() << QString("Archive directory '%1' does not exist, cannot restore job files").arg(_archive_path);
@@ -1048,7 +1059,7 @@ void ProcessDataManager::clearArchivedJobs()
 
 bool ProcessDataManager::copyJobFilesToResult(QString _job_name, QString _result_path)
 {
-    qDebug() << "Copying job files to result directory...";
+    qDebug() << QString("Copying job files to result directory %1 ...").arg(_result_path);
 
     if (!m_jobs.contains(_job_name)) {
         qCritical() << QString("Job '%1' not found in local repository, cannot copy files to result dir").arg(_job_name);
@@ -1065,11 +1076,11 @@ bool ProcessDataManager::copyJobFilesToResult(QString _job_name, QString _result
     }
 
     /* Creating log path if necessary */
-    QString job_log_dir_path = _result_path + "/" + RELATIVE_EXECUTION_LOG_PATH;
+    QString job_log_dir_path = _result_path + QDir::separator() + RELATIVE_EXECUTION_LOG_PATH;
     QDir job_log_dir(job_log_dir_path);
     if (!job_log_dir.exists()) {
         qDebug() << "Creating job logs dir...";
-        bool created = job_log_dir.mkdir(".");
+        bool created = job_log_dir.mkpath(".");
 
         if (!created) {
             qCritical() << QString("Failed to create job logs dir '%1', could not copy job files").arg(job_log_dir_path);
@@ -1078,18 +1089,26 @@ bool ProcessDataManager::copyJobFilesToResult(QString _job_name, QString _result
     }
 
     /* Resolving source and target paths */
-    QString source_job_file_path = m_jobs_path + "/" + job_file_name;
-    QString target_job_file_path = job_log_dir_path + "/" + job_file_name;
+    QString source_job_file_path = m_jobs_path + QDir::separator() + job_file_name;
+    QString target_job_file_path = job_log_dir_path + QDir::separator() + job_file_name;
 
-    QString source_job_parameters_file_path = m_jobs_parameters_path + "/" + job_file_name;
+    QString source_job_parameters_file_path = m_jobs_parameters_path + QDir::separator() + job_file_name;
 
     QString job_parameters_base_relative_path = m_jobs_parameters_path;
     job_parameters_base_relative_path.remove(0, m_jobs_path.length() + 1);
 
-    QString target_job_parameters_base_path = job_log_dir_path + "/" + job_parameters_base_relative_path;
+    QString target_job_parameters_base_path = job_log_dir_path + QDir::separator() + job_parameters_base_relative_path;
     QDir target_job_parameters_base_dir(target_job_parameters_base_path);
-    target_job_parameters_base_dir.mkdir(".");
-    QString target_job_parameters_file_path = target_job_parameters_base_path + "/" + job_file_name;
+    if (!target_job_parameters_base_dir.exists()) {
+        qDebug() << QString("Creating parameters dir '%1' in result file tree").arg(target_job_parameters_base_path);
+        bool result_param_dir_created = target_job_parameters_base_dir.mkpath(".");
+        if (!result_param_dir_created) {
+            qCritical() << QString("Parameters dir '%1' could not be created in result file tree").arg(target_job_parameters_base_path);
+            // try to continue process anyway
+        }
+    }
+
+    QString target_job_parameters_file_path = target_job_parameters_base_path + QDir::separator() + job_file_name;
 
     /* Removing existing copy files */
     bool copy_job_file = true;
@@ -1112,12 +1131,15 @@ bool ProcessDataManager::copyJobFilesToResult(QString _job_name, QString _result
         }
     }
 
+    bool copied_successfully = false;
+
     /* Copy files */
     if (copy_job_file) {
         QFile job_file(source_job_file_path);
         bool job_copied = job_file.copy(target_job_file_path);
         if (job_copied) {
             qDebug() << QString("Copied job file '%1' to result dir").arg(source_job_file_path);
+            copied_successfully = true;
         } else {
             qCritical() << QString("Could not copy job file '%1' to result dir").arg(source_job_file_path);
         }
@@ -1128,10 +1150,14 @@ bool ProcessDataManager::copyJobFilesToResult(QString _job_name, QString _result
         bool job_parameters_copied = job_parameters_file.copy(target_job_parameters_file_path);
         if (job_parameters_copied) {
             qDebug() << QString("Copied job parameters file '%1' to result dir").arg(source_job_parameters_file_path);
+            copied_successfully = true;
         } else {
             qCritical() << QString("Could not copy job parameters file '%1' to result dir").arg(source_job_parameters_file_path);
         }
+    }
 
+    // if anything went wrong
+    if (!copy_job_file || !copy_job_parameters_file || !copied_successfully) {
         return false;
     }
 
@@ -1140,7 +1166,7 @@ bool ProcessDataManager::copyJobFilesToResult(QString _job_name, QString _result
 
 bool ProcessDataManager::archiveJobFiles(QString _job_name, QString _archive_path)
 {
-    qDebug() << "Archiving job...";
+    qDebug() << QString("Archiving job %1 ...").arg(_job_name);
 
     if (!m_jobs.contains(_job_name)) {
         qCritical() << QString("Job '%1' not found in local repository, cannot archive files").arg(_job_name);
@@ -1157,25 +1183,28 @@ bool ProcessDataManager::archiveJobFiles(QString _job_name, QString _archive_pat
     QString job_file_name = current_job->filename();
 
     /* Resolving source and target paths */
-    QString source_job_file_path = m_jobs_path + "/" + job_file_name;
-    QString target_job_file_path = _archive_path + "/" + job_file_name;
+    QString source_job_file_path = m_jobs_path + QDir::separator() + job_file_name;
+    QString target_job_file_path = _archive_path + QDir::separator() + job_file_name;
 
-    QString source_job_parameters_file_path = m_jobs_parameters_path + "/" + job_file_name;
+    QString source_job_parameters_file_path = m_jobs_parameters_path + QDir::separator() + job_file_name;
 
     QString job_parameters_base_relative_path = m_jobs_parameters_path;
     job_parameters_base_relative_path.remove(0, m_jobs_path.length() + 1);
 
-    QString target_job_parameters_base_path = _archive_path + "/" + job_parameters_base_relative_path;
+    QString target_job_parameters_base_path = _archive_path + QDir::separator() + job_parameters_base_relative_path;
+
+    qDebug() << "Creating archive job parameters dir : " << target_job_parameters_base_path;
+
     QDir target_job_parameters_base_dir(target_job_parameters_base_path);
     if (!target_job_parameters_base_dir.exists()) {
-        bool created = target_job_parameters_base_dir.mkdir(".");
+        bool created = target_job_parameters_base_dir.mkpath(".");
 
         if (!created) {
             qCritical() << QString("Could not create archive job parameters dir");
             return false;
         }
     }
-    QString target_job_parameters_file_path = target_job_parameters_base_path + "/" + job_file_name;
+    QString target_job_parameters_file_path = target_job_parameters_base_path + QDir::separator() + job_file_name;
 
     bool moved_job_file = QFile::rename(source_job_file_path, target_job_file_path);
 

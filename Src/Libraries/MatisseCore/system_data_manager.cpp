@@ -153,6 +153,11 @@ bool SystemDataManager::readMatisseSettings(QString _filename)
     reader.clear();
     settings_file.close();
 
+    // TODO : use AppDataLocation once all paths have been transferred (including job files)
+//    m_platform_dump_path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+//            QDir::separator() + "platform";
+
+
     m_platform_summary_file_path = m_platform_dump_path + QDir::separator() + "PlatformSummary.xml";
     m_platform_env_dump_file_path = m_platform_dump_path + QDir::separator() + "PlatformEnvDump.txt";
 
@@ -340,6 +345,12 @@ bool SystemDataManager::writePlatformSummary()
 
     QMap<QString, QString> *components_info = m_platform_dump->getComponentsInfo();
     QList<QString> components_names = components_info->keys();
+
+    // create platform dir if it does not exist
+    QDir platform_dump_dir(m_platform_dump_path);
+    if (!platform_dump_dir.exists()) {
+        platform_dump_dir.mkpath(".");
+    }
 
     QFile platform_file(m_platform_summary_file_path);
 

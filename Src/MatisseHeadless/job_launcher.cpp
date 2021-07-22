@@ -82,7 +82,7 @@ void JobLauncher::launchJob(QString _job_name) {
 
   emit si_processRunning();
 
-  bool run_success = m_engine.processJob(*m_current_job);
+  bool run_success = m_engine.processJob(m_current_job);
 
   if (!run_success) {
     qCritical() << QString("Error launching job");
