@@ -14,7 +14,6 @@ Flusher::Flusher(QObject *_parent):
 {
     Q_UNUSED(_parent);
     m_image_set = new ImageSet();
-
 }
 
 Flusher::~Flusher()
@@ -39,13 +38,7 @@ bool Flusher::configure()
 
 bool Flusher::start()
 {    
-    ImageSet *next_step = m_image_set;
-
-    while (next_step) {
-//        m_image_set->flush();
-        next_step->flush();
-        next_step = next_step->nextStep();
-    }
+    callProcessingChain();
 
     qDebug() << logPrefix() << " out start";
     return true;

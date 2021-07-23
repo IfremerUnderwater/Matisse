@@ -32,7 +32,6 @@ public:
 private:
     PictureFileSet * m_picture_file_set;
     nav_tools::Dim2FileReader *m_dim2_file_reader;
-    ImageSet * m_image_set;
 
 signals:
     
