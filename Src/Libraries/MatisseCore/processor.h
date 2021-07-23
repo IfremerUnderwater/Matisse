@@ -73,11 +73,13 @@ protected:
     ///
     void postImage(quint32 _port, Image &_image);
 
+    virtual ImageSet * nextImageSet() override;
+
     ///
     /// \brief flush Traiter un lot d'images
     /// \param _port port de sortie
     ///
-    void flush(quint32 _port);
+//    void flush(quint32 _port);
 
 signals:
     void si_showImageOnMainView(Image* _image);

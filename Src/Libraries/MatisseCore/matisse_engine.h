@@ -34,10 +34,10 @@ class JobTask : public QObject{
     Q_OBJECT
 
 public:
-    explicit JobTask(InputDataProvider *_input_data_provider, QList<Processor *> _processors, OutputDataWriter *_output_data_writer , JobDefinition &_job_definition, MatisseParameters *_parameters);
+    explicit JobTask(InputDataProvider *_input_data_provider, QList<Processor *> _processors, OutputDataWriter *_output_data_writer , JobDefinition *_job_definition, MatisseParameters *_parameters);
     virtual ~JobTask();
     void stop(bool _cancel=false);
-    JobDefinition &jobDefinition() const;
+    JobDefinition *jobDefinition() const;
 
     QStringList resultFileNames() const;
 
@@ -68,7 +68,7 @@ private:
     InputDataProvider* m_input_data_provider;
     QList<Processor*> m_processors;
     OutputDataWriter* m_output_data_writer;
-    JobDefinition &m_job_definition;
+    JobDefinition *m_job_definition;
     MatisseParameters *m_mat_parameters;
     MatisseParameters *m_assembly_parameters;
     QStringList m_result_file_names;
@@ -98,7 +98,7 @@ public:
 
     bool removeModuleAndExpectedParameters(QString _name);
 
-    bool processJob(JobDefinition&  _job_definition);
+    bool processJob(JobDefinition*  _job_definition);
     bool isProcessingJob();
     bool stopJob(bool _cancel=false);
     bool errorFlag();
@@ -115,8 +115,8 @@ private slots:
     void sl_currentJobProcessed();
 
 private:
-    MatisseParameters* buildMatisseParameters(JobDefinition &_job);
-    bool buildJobTask( AssemblyDefinition &_assembly, JobDefinition &_job_definition, MatisseParameters *_matisse_parameters);
+    MatisseParameters* buildMatisseParameters(JobDefinition *_job);
+    bool buildJobTask( AssemblyDefinition *_assembly, JobDefinition *_job_definition, MatisseParameters *_matisse_parameters);
     void setMessageStr(QString _message_Str = "", bool _error = true);
     bool loadParametersDictionnary();
 

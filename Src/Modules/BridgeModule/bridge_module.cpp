@@ -48,7 +48,7 @@ void BridgeModule::onFlush(quint32 _port)
 {
     Q_UNUSED(_port)
     // Flush next module port
-    flush(0);
+//    flush(0);
 }
 
 } // namespace matisse

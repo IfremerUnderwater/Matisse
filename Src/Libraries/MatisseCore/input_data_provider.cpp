@@ -20,6 +20,16 @@ QString InputDataProvider::comment() const
     return m_comment;
 }
 
+void InputDataProvider::callProcessingChain()
+{
+    ImageSet *next_step = m_image_set;
+
+    while (next_step) {
+        next_step->flush();
+        next_step = next_step->nextStep();
+    }
+}
+
 } // namespace matisse
 
 

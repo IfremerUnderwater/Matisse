@@ -143,4 +143,18 @@ void ImageSet::setOutPort(ImageSetPort *outPort)
     m_out_port = outPort;
 }
 
+ImageSet * ImageSet::nextStep()
+{
+    if (!m_out_port) {
+        return nullptr;
+    }
+
+    ImageListener *listener = m_out_port->image_listener;
+    ImageListenerOutput * output = listener->nextImageSet();
+
+    ImageSet *next_step = static_cast<ImageSet*>(output);
+
+    return next_step;
+}
+
 } // namespace matisse_image

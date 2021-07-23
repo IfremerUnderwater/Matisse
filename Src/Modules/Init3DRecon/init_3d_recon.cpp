@@ -633,7 +633,7 @@ void Init3DRecon::onFlush(quint32 _port)
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
     emit si_addToLog(proc_info);
 
-    flush(0);
+//    flush(0);
 }
 
 } // namespace matisse

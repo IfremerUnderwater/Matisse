@@ -135,7 +135,7 @@ bool DTPictureFileSetImageProvider::start()
     }
     emit si_processCompletion(100);
 
-    m_image_set->flush();
+    callProcessingChain();
 
     qDebug() << logPrefix() << " out start";
     return true;

@@ -31,6 +31,7 @@ public:
 
 public:
     virtual QList<QFileInfo> rastersInfo() = 0;
+    virtual ImageListenerOutput * nextImageSet() override;
 
 signals:
     void si_userInformation(QString _user_text);

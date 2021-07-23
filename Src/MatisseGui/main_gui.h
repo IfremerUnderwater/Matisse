@@ -26,11 +26,11 @@
 #include "key_value_list.h"
 #include "matisse_engine.h"
 #include "graphical_charter.h"
-#include "assembly_dialog.h"
-#include "job_dialog.h"
+#include "assembly_helper.h"
+#include "job_commons.h"
+#include "job_helper.h"
+#include "import_export_helper.h"
 #include "preferences_dialog.h"
-#include "duplicate_dialog.h"
-#include "restore_jobs_dialog.h"
 #include "data_viewer.h"
 #include "assembly_editor.h"
 #include "dim2_file_reader.h"
@@ -42,7 +42,6 @@
 #include "about_dialog.h"
 #include "system_data_manager.h"
 #include "process_data_manager.h"
-#include "platform_comparison_status.h"
 #include "string_utils.h"
 #include "matisse_icon_factory.h"
 #include "iconized_button_wrapper.h"
@@ -60,14 +59,6 @@ class MainGui;
 }
 
 namespace matisse {
-
-enum eMessageIndicatorLevel {
-    IDLE,
-    OK,
-    WARNING,
-    ERR
-};
-
 
 enum eUserAction {
     SYSTEM_INIT,
@@ -119,6 +110,9 @@ public:
     void resetOngoingProcessIndicators();
     void updatePreferredDatasetParameters();
 
+    void setAssemblyHelper(AssemblyHelper *_assembly_helper);
+    void setJobHelper(JobHelper *_job_helper);
+    void setImportExportHelper(ImportExportHelper *_import_export_helper);
     void setRemoteJobHelper(RemoteJobHelper *_remote_job_helper);
 
     void initMapFeatures();
@@ -128,14 +122,12 @@ private:
     MatisseEngine m_engine;
     UserActionContext m_context;
 
+    AssemblyHelper *m_assembly_helper;
+    JobHelper *m_job_helper;
+    ImportExportHelper *m_import_export_helper;
     RemoteJobHelper *m_remote_job_helper;
 
     QString m_app_version;
-
-    QString m_export_path;
-    QString m_import_path;
-    QString m_archive_path;
-    QString m_remote_output_path;
 
     MatissePreferences* m_preferences;
     QTranslator* m_tools_translator_en;
@@ -149,12 +141,7 @@ private:
     bool m_is_assembly_complete;
 
     static const QString PREFERENCES_FILEPATH;
-    static const QString ASSEMBLY_EXPORT_PREFIX;
-    static const QString JOB_EXPORT_PREFIX;
     static const QString JOB_REMOTE_PREFIX;
-    static const QString DEFAULT_EXCHANGE_PATH;
-    static const QString DEFAULT_ARCHIVE_PATH;
-    static const QString DEFAULT_REMOTE_PATH;
     static const QString DEFAULT_RESULT_PATH;
     static const QString DEFAULT_MOSAIC_PREFIX;
 
@@ -184,7 +171,7 @@ private:
     QMap<eApplicationMode, QString> m_wheel_colors_by_mode;
     QMap<eApplicationMode, QString> m_colors_by_mode1;
     QMap<eApplicationMode, QString> m_colors_by_mode2;
-    QMap<eMessageIndicatorLevel, QString> m_colors_by_level;
+    QMap<eJobStatusMessageLevel, QString> m_colors_by_level;
     QToolButton* m_visu_mode_button;
     QToolButton* m_stop_button;
     QToolButton* m_maximize_or_restore_button;
@@ -283,6 +270,9 @@ private:
     void initProcessWheelSignalling();
     void initUserActions();
     void initEngine();
+    void initAssemblyHelper();
+    void initJobHelper();
+    void initImportExportHelper();
     void initRemoteJobHelper();
     void initAssemblyCreationScene();
     void initWelcomeDialog();
@@ -291,7 +281,6 @@ private:
     void displayJob(QString _job_name, bool _force_reload = false);
     void selectJob(QString _job_name, bool _reload_job = true);
     void selectAssembly(QString _assembly_name, bool _reload_assembly = true);
-    void showError(QString _title, QString _message);
     QTreeWidgetItem * addAssemblyInTree(AssemblyDefinition *_assembly);
     QTreeWidgetItem * addJobInTree(JobDefinition *_job, bool _is_new_job = false);
 
@@ -301,7 +290,7 @@ private:
     void displayAssemblyProperties(AssemblyDefinition *_selected_assembly);
 
     void initStatusBar();
-    void showStatusMessage(QString _message = "", eMessageIndicatorLevel _level = IDLE);
+    void showStatusMessage(QString _message = "", eJobStatusMessageLevel _level = IDLE);
 
     void initLanguages();
     void updateLanguage(QString _language, bool _force_retranslation = false);
@@ -321,16 +310,10 @@ private:
 
     void deleteAssemblyAndReload(bool _prompt_user);
 
-    void createExportDir();
-    void createImportDir();
     void executeImportWorkflow(bool _is_job_import_action = false);
     void executeExportWorkflow(bool _is_job_export_action, bool _is_for_remote_execution = false);
-    void checkArchiveDirCreated();
-    void checkRemoteDirCreated();
-    bool checkArchivePathChange();
-
     void updateJobStatus(QString _job_name, QTreeWidgetItem* _item,
-                         eMessageIndicatorLevel _indicator, QString _message);
+                         eJobStatusMessageLevel _indicator, QString _message);
 
 protected:
     void changeEvent(QEvent *_event); // overriding event handler for dynamic translation
@@ -362,7 +345,7 @@ protected slots:
     void sl_processCompletion(quint8 _percent_complete);
     void sl_showInformationMessage(QString _title, QString _message);
     void sl_showErrorMessage(QString _title, QString _message);
-    void sl_jobProcessed(QString _name, bool _is_cancelled);
+    void sl_jobProcessed(QString _job_name, bool _is_cancelled);
     void sl_assembliesReload();
     void sl_modifiedParameters(bool _changed);
     void sl_modifiedAssembly();

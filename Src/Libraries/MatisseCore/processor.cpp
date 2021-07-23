@@ -37,19 +37,29 @@ void Processor::postImage(quint32 _port, Image &_image)
         qWarning() << logPrefix() << "Port " << _port << " non connecté";
 }
 
-void Processor::flush(quint32 _port)
+
+ImageSet* Processor::nextImageSet()
 {
-    bool found = false;
     foreach (ImageSetPort *image_set_port, *m_output_port_list ) {
-        if (image_set_port->port_number == _port) {
-            image_set_port->image_set->flush();
-            found = true;
-            break;
+        if (image_set_port->port_number == 0) {
+            return image_set_port->image_set;
         }
     }
-    if (!found)
-        qWarning() << logPrefix() << "Port " << _port << " non connecté";
 }
+
+//void Processor::flush(quint32 _port)
+//{
+//    bool found = false;
+//    foreach (ImageSetPort *image_set_port, *m_output_port_list ) {
+//        if (image_set_port->port_number == _port) {
+//            image_set_port->image_set->flush();
+//            found = true;
+//            break;
+//        }
+//    }
+//    if (!found)
+//        qWarning() << logPrefix() << "Port " << _port << " non connecté";
+//}
 
 
 

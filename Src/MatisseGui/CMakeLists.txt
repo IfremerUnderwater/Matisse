@@ -16,6 +16,7 @@ add_executable(MatisseGui
     ExpertUi/assembly_editor.cpp
     ExpertUi/assembly_dialog.cpp
     ExpertUi/assembly_graphics_scene.cpp
+    ExpertUi/assembly_helper.cpp
     ExpertUi/destination_widget.cpp
     ExpertUi/element_widget.cpp
     ExpertUi/element_widget_provider.cpp
@@ -23,8 +24,9 @@ add_executable(MatisseGui
     ExpertUi/processor_widget.cpp
     ExpertUi/source_widget.cpp
     JobManagementUi/duplicate_dialog.cpp
+    JobManagementUi/import_export_helper.cpp
     JobManagementUi/job_dialog.cpp
-    #JobManagementUi/job_file_helper.cpp
+    JobManagementUi/job_helper.cpp
     JobManagementUi/restore_jobs_dialog.cpp
     ParametersUi/parameters_dialog.cpp
     ParametersUi/parameters_fold_button.cpp

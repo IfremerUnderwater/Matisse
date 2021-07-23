@@ -22,6 +22,8 @@
 #include "network_client.h"
 #include "sftp_client.h"
 #include "ssh_client.h"
+#include "assembly_helper.h"
+#include "job_helper.h"
 #include "remote_job_helper.h"
 
 using namespace matisse;
@@ -128,6 +130,11 @@ int main(int argc, char *argv[])
     ProcessDataManager* process_data_manager = ProcessDataManager::instance();
     process_data_manager->init(data_root_dir, user_data_path);
 
+    /* Create UI helpers */
+    AssemblyHelper assembly_helper;
+    JobHelper job_helper;
+    ImportExportHelper import_export_helper;
+
     /* Create remote process gateways and UI helper */
     NetworkClient* ssh_client = new SshClient();
     NetworkClient* sftp_client = new SftpClient();
@@ -148,6 +155,9 @@ int main(int argc, char *argv[])
                 );
 
     w.setObjectName("_MW_assemblyGui");
+    w.setAssemblyHelper(&assembly_helper);
+    w.setJobHelper(&job_helper);
+    w.setImportExportHelper(&import_export_helper);
     w.setRemoteJobHelper(&remote_job_helper);
     w.init();
     //w.loadDefaultStyleSheet();

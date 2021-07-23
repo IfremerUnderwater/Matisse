@@ -70,6 +70,8 @@ public:
     void setParametersManager(MatisseParametersManager* _param_manager);
     void setServerSettings(MatisseRemoteServerSettings* _server_settings);
 
+    QString remoteOutputPath() { return m_remote_output_path; }
+
 signals:
     void si_jobResultsReceived(QString _job_name);
     void si_transferMessage(QString _new_message);
@@ -93,6 +95,7 @@ private:
     MatisseParametersManager* m_param_manager = NULL;
     MatisseRemoteServerSettings *m_server_settings = NULL;
 
+    QString m_remote_output_path;
     bool m_host_and_creds_known = false;
     bool m_is_last_action_command = false;
     NetworkClient *m_ssh_client = NULL;
@@ -109,7 +112,7 @@ private:
     QString m_container_launcher_name; // launcher script name for server container
     QString m_container_image_path; // path to server container image
 
-
+    void checkRemoteDirCreated();
     void connectNetworkClientSignals();
     void disconnectNetworkClientSignals();
     bool checkPreferences();

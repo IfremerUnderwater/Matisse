@@ -57,6 +57,7 @@ public:
     // Methodes à surcharger - FIN
     //
 
+    void callProcessingChain();
 
 signals:
     void si_userInformation(QString _user_text);
@@ -66,6 +67,9 @@ signals:
     void si_show3DFileOnMainView(QString _filepath_p);
     void si_addRasterFileToMap(QString _filepath_p);
     void si_addToLog(QString _loggin_text);
+
+protected:
+    ImageSet * m_image_set;
 
 private:
     QString m_comment;
