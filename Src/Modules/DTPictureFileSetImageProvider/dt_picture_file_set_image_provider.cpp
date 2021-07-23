@@ -135,7 +135,13 @@ bool DTPictureFileSetImageProvider::start()
     }
     emit si_processCompletion(100);
 
-    m_image_set->flush();
+    ImageSet *next_step = m_image_set;
+
+    while (next_step) {
+//        m_image_set->flush();
+        next_step->flush();
+        next_step = next_step->nextStep();
+    }
 
     qDebug() << logPrefix() << " out start";
     return true;

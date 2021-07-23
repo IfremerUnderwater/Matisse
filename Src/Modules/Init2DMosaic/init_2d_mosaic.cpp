@@ -185,7 +185,7 @@ void Init2DMosaic::onFlush(quint32 _port)
 
 
     // Flush next module port
-    flush(0);
+//    flush(0);
 
 }
 

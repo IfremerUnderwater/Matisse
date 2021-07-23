@@ -26,7 +26,7 @@ struct ImageSetPort {
 ///
 /// Un ImageSet permet d'échanger des images entre une instance d'ImageProvider et une instance de Processor ou entre plusieurs instances de Processor.
 ///
-class ImageSet : public QObject
+class ImageSet : public QObject, public ImageListenerOutput
 {
 
     Q_OBJECT
@@ -130,6 +130,8 @@ public:
     /// \param _out_port
     ///
     void setOutPort(ImageSetPort *_out_port);
+
+    ImageSet * nextStep();
 
 private:
     QList<Image *> m_images;

@@ -380,7 +380,7 @@ void Texturing3D::onFlush(quint32 _port)
     emit si_addToLog(proc_info);
 
     // Flush next module port
-    flush(0);
+//    flush(0);
 
 }
 

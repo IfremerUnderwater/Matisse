@@ -278,7 +278,7 @@ void Meshing3D::onFlush(quint32 _port)
     //qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
 
     // Flush next module port
-    flush(0);
+//    flush(0);
 
 }
 

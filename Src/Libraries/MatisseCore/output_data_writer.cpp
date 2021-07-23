@@ -15,6 +15,10 @@ OutputDataWriter::~OutputDataWriter()
 {
 }
 
+ImageListenerOutput *OutputDataWriter::nextImageSet()
+{
+    return nullptr;
+}
 
 ImageSet *OutputDataWriter::imageSet() const
 {
