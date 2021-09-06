@@ -23,6 +23,8 @@
 #include "imageprocessing.h"
 #include "preprocessing_correction.h"
 
+using namespace image_processing;
+
 double RAD2DEG=180/M_PI;
 
 DataPreprocessingWizard::DataPreprocessingWizard(QWidget *parent) :
@@ -251,6 +253,15 @@ void DataPreprocessingWizard::video2Images()
             nav_out_file_stream.setDevice(&nav_out_file);
     }
 
+    // count num of checked video files
+    int video_files_to_proc_nb = 0;
+    for (int i = 0; i < m_found_files.size(); i++)
+    {
+        // Check if video is to process or not
+        if (ui->files_list->item(i)->checkState() == Qt::Checked)
+            video_files_to_proc_nb++;
+    }
+
     // loop on all video files
     for (int i=0; i<m_found_files.size(); i++)
     {
@@ -279,7 +290,7 @@ void DataPreprocessingWizard::video2Images()
             qDebug() << command_line;
             ffmpeg_process.start(command_line);
 
-            QProgressDialog ffmpeg_progress(QString("Extracting images files for video %1/%2").arg(i+1).arg(m_found_files.size()), "Abort extraction", 0, 100, this);
+            QProgressDialog ffmpeg_progress(QString("Extracting images files for video %1/%2").arg(i+1).arg(video_files_to_proc_nb), "Abort extraction", 0, 100, this);
             ffmpeg_progress.setWindowModality(Qt::WindowModal);
 
             QRegExp duration_rex(".+Duration: (\\d+):(\\d+):(\\d+).+");
@@ -725,7 +736,7 @@ void DataPreprocessingWizard::sl_finished(int _state)
         if (!m_nav_file->isValid() && m_data_type == "Video")
         {
 
-            if (QMessageBox::question(this, "Wrong navigation file", "You're processing a video and the navigation file you provided is not valid. Do you still want to process data ?",
+            if (QMessageBox::question(this, "Wrong navigation file", "You're processing a video and the navigation file you provided is not valid. Do you still want to process data ? If you use images for 3D reconstruction you will have to manually georeference and scale the model.",
                 QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
             {
                 QMessageBox::information(this, tr("Canceled"),

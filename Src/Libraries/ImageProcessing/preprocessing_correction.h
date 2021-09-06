@@ -1,11 +1,13 @@
-#ifndef PREPROCESSING_CORRECTION_H
-#define PREPROCESSING_CORRECTION_H
+#ifndef IMAGE_PROCESSING_PREPROCESSING_CORRECTION_H_
+#define IMAGE_PROCESSING_PREPROCESSING_CORRECTION_H_
 
 #include <opencv2/core/mat.hpp>
 #include <deque>
 #include <vector>
 #include <QString>
 #include <QWidget>
+
+namespace image_processing {
 
 class PreprocessingCorrection
 {
@@ -73,4 +75,6 @@ private:
 
 };
 
-#endif // PREPROCESSING_CORRECTION_H
+} // namespace image_processing
+
+#endif // IMAGE_PROCESSING_PREPROCESSING_CORRECTION_H_

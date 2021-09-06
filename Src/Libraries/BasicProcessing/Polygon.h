@@ -1,5 +1,5 @@
-#ifndef POLYGON_H
-#define POLYGON_H
+#ifndef BASIC_PROCESSING_POLYGON_H_
+#define BASIC_PROCESSING_POLYGON_H_
 
 
 #include "gpc.h"
@@ -8,7 +8,7 @@
 #include <QString>
 #include <QMetaType>
 
-namespace basicproc {
+namespace basic_processing {
 
 
 typedef struct                      /* Vertex list structure             */
@@ -67,28 +67,28 @@ public:
 
     ///
     /// \brief clip does a boolean operation between the current polygon and poly2_p
-    /// \param poly2_p polygon with the one clipping operation is done
-    /// \param result_p clipping result
-    /// \param operation : values "DIFF", "INT", "XOR" and "UNION" for corresponding boolean operation Difference, Intersection, Exclusive or, Union
+    /// \param _poly2_p polygon with the one clipping operation is done
+    /// \param _result_p clipping result
+    /// \param _operation : values "DIFF", "INT", "XOR" and "UNION" for corresponding boolean operation Difference, Intersection, Exclusive or, Union
     ///
-    void clip(Polygon &poly2_p, Polygon & result_p, poly_op operation);
+    void clip(Polygon &_poly2_p, Polygon & _result_p, poly_op _operation);
 
     ///
     /// \brief getBoundingBox return the polygon bounding box
-    /// \param tlx_p Top left x coordinate
-    /// \param tly_p Top left y coordinate
-    /// \param brx_p Bottom right x coordinate
-    /// \param bry_p Bottom right y coordinate
+    /// \param _tlx_p Top left x coordinate
+    /// \param _tly_p Top left y coordinate
+    /// \param _brx_p Bottom right x coordinate
+    /// \param _bry_p Bottom right y coordinate
     ///
-    void getBoundingBox(double &tlx_p, double &tly_p, double &brx_p, double &bry_p);
+    void getBoundingBox(double &_tlx_p, double &_tly_p, double &_brx_p, double &_bry_p);
 
     ///
     /// \brief getContourCenter get the polygon center
-    /// \param cx_p x coord
-    /// \param cy_p y coord
-    /// \param contourIndex contour for which you want the center
+    /// \param _cx_p x coord
+    /// \param _cy_p y coord
+    /// \param _contour_index contour for which you want the center
     ///
-    void getContourCenter(double &cx_p, double &cy_p, int contourIndex_p=0);
+    void getContourCenter(double &_cx_p, double &_cy_p, int _contour_index_p=0);
 
     ///
     /// \brief area this function compute the signed polygon area
@@ -98,28 +98,28 @@ public:
 
     ///
     /// \brief clipArea compute area of the clipped polygons
-    /// \param poly2_p polygon with the one clipping operation is done
-    /// \param operation : values "DIFF", "INT", "XOR" and "UNION" for corresponding boolean operation Difference, Intersection, Exclusive or, Union
+    /// \param _poly2_p polygon with the one clipping operation is done
+    /// \param _operation : values "DIFF", "INT", "XOR" and "UNION" for corresponding boolean operation Difference, Intersection, Exclusive or, Union
     /// \return area of clipped polygons
     ///
-    double clipArea(Polygon &poly2_p, poly_op operation);
+    double clipArea(Polygon &_poly2_p, poly_op _operation);
 
-    bool operator ==(const Polygon &polyB_p);
-    bool operator !=(const Polygon &polyB_p);
+    bool operator ==(const Polygon &_polyB_p);
+    bool operator !=(const Polygon &_polyB_p);
 
-    void operator =(Polygon &polyB_p);
+    void operator =(Polygon &_polyB_p);
 
 private:
-    gpc_polygon _gpcPolygon;
+    gpc_polygon m_gpc_polygon;
 
-    std::vector<vertexList> _contours;
-    std::vector<bool> _contoursHole;
-    bool _modifSinceUpdate;
+    std::vector<vertexList> m_contours;
+    std::vector<bool> m_contours_hole;
+    bool m_modif_since_update;
 
 };
 
-}
+} // namespace basic_processing
 
-Q_DECLARE_METATYPE(basicproc::Polygon)
+Q_DECLARE_METATYPE(basic_processing::Polygon)
 
-#endif // POLYGON_H
+#endif // BASIC_PROCESSING_POLYGON_H_

@@ -1,8 +1,10 @@
-#ifndef IMAGEPROCESSING_H
-#define IMAGEPROCESSING_H
+#ifndef IMAGE_PROCESSING_IMAGEPROCESSING_H_
+#define IMAGE_PROCESSING_IMAGEPROCESSING_H_
 
 #include <opencv2/opencv.hpp>
 #include <vector>
+
+namespace image_processing {
 
 ///
 /// \brief histogramStretch streches img histogram from _low_high_in to _low_high_out
@@ -47,4 +49,6 @@ double gamma_do(double _input, double _gamma_value=5.0);
 
 double gamma_undo(double _input, double _gamma_value=5.0);
 
-#endif // IMAGEPROCESSING_H
+} // namespace image_processing
+
+#endif // IMAGE_PROCESSING_IMAGEPROCESSING_H_

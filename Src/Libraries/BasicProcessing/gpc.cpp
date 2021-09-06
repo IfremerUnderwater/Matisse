@@ -42,6 +42,7 @@ Copyright: (C) 1997-2004, Advanced Interfaces Group,
 #include <math.h>
 #include <stdio.h>
 
+namespace basic_processing {
 
 /*
 ===========================================================================
@@ -2463,6 +2464,8 @@ void gpc_tristrip_clip(gpc_op op, gpc_polygon *subj, gpc_polygon *clip,
   FREE(s_heap);
   FREE(sbt);
 }
+
+} // namespace basic_processing
 
 /*
 ===========================================================================

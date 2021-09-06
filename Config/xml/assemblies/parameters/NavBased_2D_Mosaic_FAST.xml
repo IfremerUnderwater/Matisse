@@ -9,14 +9,14 @@
         <!--overlap_filtering_params-->
         <Parameter name="disjoint_drawing">false</Parameter>
         <Parameter name="single_image_output">Geotiff only</Parameter>
-        <Parameter name="filter_overlap">false</Parameter>
-        <Parameter name="max_overlap">0.00</Parameter>
-        <Parameter name="min_overlap">0.00</Parameter>
+        <Parameter name="filter_overlap">true</Parameter>
+        <Parameter name="max_overlap">0.50</Parameter>
+        <Parameter name="min_overlap">0.10</Parameter>
         <!--bundle_adjustment_params-->
         <!--blending_displaying_params-->
-        <Parameter name="block_drawing">false</Parameter>
-        <Parameter name="block_width">7000</Parameter>
-        <Parameter name="block_height">7000</Parameter>
+        <Parameter name="block_drawing">true</Parameter>
+        <Parameter name="block_width">14000</Parameter>
+        <Parameter name="block_height">14000</Parameter>
         <!--compute_feature-->
         <!--compute_matches-->
         <!--DensifyPointCloud-->

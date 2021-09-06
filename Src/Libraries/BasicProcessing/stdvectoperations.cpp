@@ -2,6 +2,9 @@
 #include <algorithm>
 #include <limits>
 #include <math.h>
+
+namespace basic_processing {
+
 #ifdef WIN32
 #ifndef round
 inline double round(double number)
@@ -11,7 +14,7 @@ inline double round(double number)
 #endif
 #endif
 
-double doubleVectorMean(vector<double> & _v )
+double doubleVectorMean(std::vector<double> & _v )
 {
     double sum = 0.0;
     int n = _v.size();
@@ -45,7 +48,7 @@ double doubleVectorMedian(std::vector<double> _vec)
     return 0.5 * (*i1 + *i2);
 }
 
-void doubleVectorScalarMult(vector<double> &_v, double _alpha)
+void doubleVectorScalarMult(std::vector<double> &_v, double _alpha)
 {
 
     for (unsigned int i=0; i < _v.size(); i++)
@@ -55,12 +58,12 @@ void doubleVectorScalarMult(vector<double> &_v, double _alpha)
 
 }
 
-vector<int> integerQuantiles(vector<int> _v, vector<double> _quantiles)
+std::vector<int> integerQuantiles(std::vector<int> _v, std::vector<double> _quantiles)
 {
     // sort vector
     sort(_v.begin(),_v.end());
 
-    vector<int> quantiles_limits;
+    std::vector<int> quantiles_limits;
 
     for (unsigned int i=0; i<_quantiles.size(); i++)
         quantiles_limits.push_back( _v[round(_quantiles[i]*(double)_v.size())] );
@@ -69,12 +72,12 @@ vector<int> integerQuantiles(vector<int> _v, vector<double> _quantiles)
 
 }
 
-vector<double> doubleQuantiles(vector<double> _v, vector<double> _quantiles)
+std::vector<double> doubleQuantiles(std::vector<double> _v, std::vector<double> _quantiles)
 {
     // sort vector
     sort(_v.begin(), _v.end());
 
-    vector<double> quantiles_limits;
+    std::vector<double> quantiles_limits;
 
     for (unsigned int i = 0; i < _quantiles.size(); i++)
         quantiles_limits.push_back(_v[round(_quantiles[i] * (double)_v.size())]);
@@ -82,3 +85,5 @@ vector<double> doubleQuantiles(vector<double> _v, vector<double> _quantiles)
     return quantiles_limits;
 
 }
+
+} // namespace basic_processing

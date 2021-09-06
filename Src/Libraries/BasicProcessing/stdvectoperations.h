@@ -1,17 +1,17 @@
-#ifndef STDVECTOPERATIONS
-#define STDVECTOPERATIONS
+#ifndef BASIC_PROCESSING_STDVECTOPERATIONS_H_
+#define BASIC_PROCESSING_STDVECTOPERATIONS_H_
 
 #include <vector>
 
 
-using namespace std;
+namespace basic_processing {
 
 ///
 /// \brief doubleVector Mean compute the vector mean
 /// \param _v input vector
 /// \return mean value
 ///
-double doubleVectorMean( vector<double> & _v );
+double doubleVectorMean(std::vector<double> & _v );
 
 ///
 /// \brief doubleVectorMedian compute the vector's median
@@ -25,7 +25,7 @@ double doubleVectorMedian(std::vector<double> _vec);
 /// \param _v input vector modified on output
 /// \param _alpha input double
 ///
-void doubleVectorScalarMult(vector<double> & _v, double _alpha );
+void doubleVectorScalarMult(std::vector<double> & _v, double _alpha );
 
 ///
 /// \brief integerQuantiles compute quantiles for integer vectors
@@ -33,7 +33,7 @@ void doubleVectorScalarMult(vector<double> & _v, double _alpha );
 /// \param _quantiles required quantiles list
 /// \return return quantiles limits
 ///
-vector<int> integerQuantiles(vector<int> _v, vector<double> _quantiles);
+std::vector<int> integerQuantiles(std::vector<int> _v, std::vector<double> _quantiles);
 
 ///
 /// \brief doubleQuantiles compute quantiles for double vectors
@@ -41,7 +41,9 @@ vector<int> integerQuantiles(vector<int> _v, vector<double> _quantiles);
 /// \param _quantiles required quantiles list
 /// \return return quantiles limits
 ///
-vector<double> doubleQuantiles(vector<double> _v, vector<double> _quantiles);
+std::vector<double> doubleQuantiles(std::vector<double> _v, std::vector<double> _quantiles);
 
-#endif // STDVECTOPERATIONS
+} // namespace basic_processing
+
+#endif // BASIC_PROCESSING_STDVECTOPERATIONS_H_
 
