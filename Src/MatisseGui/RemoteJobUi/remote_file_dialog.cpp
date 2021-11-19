@@ -39,7 +39,11 @@ void RemoteFileDialog::sl_onAccepted()
 
   /* If file was selected from columns other than name */
   if (index.column() > 0) {
-    index = index.siblingAtColumn(0);
+    #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+      index = index.siblingAtColumn(0);
+    #else
+      index = index.sibling(index.row(), 0);
+    #endif
   }
 
   QVariant item = m_ui->m_tv_file_tree->model()->data(index);
