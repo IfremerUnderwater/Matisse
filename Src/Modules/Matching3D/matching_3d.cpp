@@ -397,12 +397,28 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     unsigned int ui_max_cache_size = 0;
 
     // Set matching mode
-    if (video_mode_matching_enable)
-        i_matching_video_mode = vmm_param_val;
-    ePairMode pair_mode = (i_matching_video_mode == -1) ? PAIR_EXHAUSTIVE : PAIR_CONTIGUOUS;
+    ePairMode pair_mode = ePairMode::PAIR_EXHAUSTIVE;
 
+
+    // MODIFICATION FOR GPS BASED SPATIAL MATCHING
+    // ============================================
+    bool gps_based_spatial_matching_enabled = true;
+    double max_spatial_distance = 10.0; // Maximum X meters
+    i_matching_video_mode = 10; // N closest images
+
+
+
+    if (video_mode_matching_enable)
+    {
+        pair_mode = ePairMode::PAIR_CONTIGUOUS;
+    }
+    else if (gps_based_spatial_matching_enabled)
+    {
+        pair_mode = ePairMode::PAIR_FROM_GPS;
+    }
+        
     if (s_predefined_pair_list.length()) {
-        pair_mode = PAIR_FROM_FILE;
+        pair_mode = ePairMode::PAIR_FROM_FILE;
         if (i_matching_video_mode > 0) {
             fatalErrorExit("Matching : incompatible videomode + pairlist");
             //std::cerr << "\nIncompatible options: --videoModeMatching and --pairList" << std::endl;
@@ -540,9 +556,10 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
         std::cout << "Use: ";
         switch (pair_mode)
         {
-        case PAIR_EXHAUSTIVE: std::cout << "exhaustive pairwise matching" << std::endl; break;
-        case PAIR_CONTIGUOUS: std::cout << "sequence pairwise matching" << std::endl; break;
-        case PAIR_FROM_FILE:  std::cout << "user defined pairwise matching" << std::endl; break;
+        case ePairMode::PAIR_EXHAUSTIVE: std::cout << "exhaustive pairwise matching" << std::endl; break;
+        case ePairMode::PAIR_CONTIGUOUS: std::cout << "sequence pairwise matching" << std::endl; break;
+        case ePairMode::PAIR_FROM_FILE:  std::cout << "user defined pairwise matching" << std::endl; break;
+        case ePairMode::PAIR_FROM_GPS:  std::cout << "gps based spatial pairwise matching" << std::endl; break;
         }
 
         // Allocate the right Matcher according the Matching requested method
@@ -609,15 +626,87 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
             Pair_Set pairs;
             switch (pair_mode)
             {
-            case PAIR_EXHAUSTIVE: pairs = exhaustivePairs(sfm_data.GetViews().size()); break;
-            case PAIR_CONTIGUOUS: pairs = contiguousWithOverlap(sfm_data.GetViews().size(), i_matching_video_mode); break;
-            case PAIR_FROM_FILE:
+            case ePairMode::PAIR_EXHAUSTIVE: pairs = exhaustivePairs(sfm_data.GetViews().size()); break;
+            case ePairMode::PAIR_CONTIGUOUS: pairs = contiguousWithOverlap(sfm_data.GetViews().size(), i_matching_video_mode); break;
+            case ePairMode::PAIR_FROM_FILE:
+            {
                 if (!loadPairs(sfm_data.GetViews().size(), s_predefined_pair_list, pairs))
                 {
                     fatalErrorExit("Matching : cannot load pairs from file");
                     return false;
                 }
-                break;
+                break;          
+            }
+            case ePairMode::PAIR_FROM_GPS:
+            {
+                // List the poses priors
+                std::vector<Vec3> vec_pose_centers;
+                std::map<IndexT, IndexT> contiguous_to_pose_id;
+                std::set<IndexT> used_pose_ids;
+
+                for (const auto & view_it : sfm_data.GetViews())
+                {
+                    const sfm::ViewPriors * prior = dynamic_cast<sfm::ViewPriors*>(view_it.second.get());
+
+                    if (prior != nullptr && prior->b_use_pose_center_ && used_pose_ids.count(prior->id_pose) == 0)
+                    {
+                        vec_pose_centers.push_back( prior->pose_center_ );
+                        contiguous_to_pose_id[contiguous_to_pose_id.size()] = prior->id_pose;
+                        used_pose_ids.insert(prior->id_pose);
+                    }
+                }
+
+                if (vec_pose_centers.empty())
+                {
+                    std::cerr << "You are trying to use the gps_mode but your data does"
+                    << " not have any pose priors."
+                    << std::endl;
+
+                    std::cout << "Setting back to exhaustive matching!" << std::endl;
+                    
+                    pairs = exhaustivePairs(sfm_data.GetViews().size()); 
+                    break;
+                }
+
+                // Compute i_neighbor_count neighbor(s) for each pose
+                matching::ArrayMatcherBruteForce<double> matcher;
+
+                if (!matcher.Build(vec_pose_centers[0].data(), vec_pose_centers.size(), 3))
+                {
+                    return EXIT_FAILURE;
+                }
+
+                size_t contiguous_pose_id = 0;
+
+                for (const Vec3 pose_it : vec_pose_centers)
+                {
+                    const double * query = pose_it.data();
+                    IndMatches vec_indices;
+                    std::vector<double> vec_distance;
+                    const int NN = i_neighbor_count + 1; // since itself will be found
+
+                    if (matcher.SearchNeighbours(query, 1, &vec_indices, &vec_distance, NN))
+                    {
+                        for (size_t i = 1; i < vec_indices.size(); ++i)
+                        {
+                            // Do not add pair if images are too spread away
+                            if( vec_distance.at(i) > max_spatial_distance ) {
+                                continue;
+                            }
+
+                            IndexT idxI = contiguous_to_pose_id.at(contiguous_pose_id);
+                            IndexT idxJ = contiguous_to_pose_id.at(vec_indices[i].j_);
+                            if (idxI > idxJ) {
+                                std::swap(idxI, idxJ);
+                            }
+                            pairs.insert(Pair(idxI, idxJ));
+                        }
+                    }
+
+                    ++contiguous_pose_id;
+                }
+            }
+            break;
             }
             // Photometric matching of putative pairs
             collection_matcher->Match(regions_provider, pairs, map_putatives_matches, this);
