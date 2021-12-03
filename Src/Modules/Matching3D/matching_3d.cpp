@@ -45,6 +45,8 @@
 #include "openMVG/matching/pairwiseAdjacencyDisplay.hpp"
 #include "openMVG/stl/stl.hpp"
 
+#include "openMVG/matching/matcher_brute_force.hpp"
+
 #include <atomic>
 #include <cstdlib>
 #include <fstream>
@@ -668,7 +670,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                     break;
                 }
 
-                // Compute i_neighbor_count neighbor(s) for each pose
+                // Compute i_matching_video_mode neighbor(s) for each pose
                 matching::ArrayMatcherBruteForce<double> matcher;
 
                 if (!matcher.Build(vec_pose_centers[0].data(), vec_pose_centers.size(), 3))
@@ -683,7 +685,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                     const double * query = pose_it.data();
                     IndMatches vec_indices;
                     std::vector<double> vec_distance;
-                    const int NN = i_neighbor_count + 1; // since itself will be found
+                    const int NN = i_matching_video_mode + 1; // since itself will be found
 
                     if (matcher.SearchNeighbours(query, 1, &vec_indices, &vec_distance, NN))
                     {
