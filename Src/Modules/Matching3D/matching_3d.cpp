@@ -641,6 +641,8 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
             }
             case ePairMode::PAIR_FROM_GPS:
             {
+                std::cout << "\n Matching based on PAIR_FROM_GPS \n";
+
                 // List the poses priors
                 std::vector<Vec3> vec_pose_centers;
                 std::map<IndexT, IndexT> contiguous_to_pose_id;
@@ -669,6 +671,9 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                     pairs = exhaustivePairs(sfm_data.GetViews().size()); 
                     break;
                 }
+                
+                std::cout << "\n Found #" << vec_pose_centers.size() << " images with GPS coord.! \n";
+                
 
                 // Compute i_matching_video_mode neighbor(s) for each pose
                 matching::ArrayMatcherBruteForce<double> matcher;
@@ -685,14 +690,19 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                     const double * query = pose_it.data();
                     IndMatches vec_indices;
                     std::vector<double> vec_distance;
-                    const int NN = i_matching_video_mode + 1; // since itself will be found
+                    const int NN = i_matching_video_mode + 1; // since itself will be found    
+                    
+                    std::cout << "\n Spatial Matching for Image #" << contiguous_pose_id << " : \n";
 
                     if (matcher.SearchNeighbours(query, 1, &vec_indices, &vec_distance, NN))
                     {
+                        std::cout << "> Found #" << vec_indices.size() -1 << "neighbor(s)!\n";
+
                         for (size_t i = 1; i < vec_indices.size(); ++i)
                         {
                             // Do not add pair if images are too spread away
                             if( vec_distance.at(i) > max_spatial_distance ) {
+                                std::cout << "> Distance is  : " << vec_distance.at(i) << " m ==> REMOVING PAIR!\n";
                                 continue;
                             }
 
@@ -707,6 +717,8 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
 
                     ++contiguous_pose_id;
                 }
+                
+                std::cout << "\n Number of pairs #" << pairs.size() << " : \n";
             }
             break;
             }
