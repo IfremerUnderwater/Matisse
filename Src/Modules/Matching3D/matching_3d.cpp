@@ -345,6 +345,9 @@ bool Matching3D::computeFeatures()
 
                 // Compute features and descriptors and export them to files
                 auto regions = image_describer->Describe(image_gray, mask);
+
+                std::cout << "\n Image  #" << i << " -- nb features : " << regions->RegionCount() << "\n";
+
                 if (regions && !image_describer->Save(regions.get(), sFeat, sDesc)) {
                     std::cerr << "Cannot save regions for images: " << sView_filename << std::endl
                         << "Stopping feature extraction." << std::endl;
@@ -564,6 +567,15 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
         case ePairMode::PAIR_FROM_GPS:  std::cout << "gps based spatial pairwise matching" << std::endl; break;
         }
 
+        // if (pair_mode == ePairMode::PAIR_FROM_GPS)
+        // {
+        //     // If Spatial Matching Enabled, Apply BF matching!
+        //     if (regions_type->IsScalar())
+        //         s_nearest_matching_method = "BRUTEFORCEL2";
+        //     else
+        //         s_nearest_matching_method = "BRUTEFORCEHAMMING";
+        // }
+
         // Allocate the right Matcher according the Matching requested method
         std::unique_ptr<Matcher> collection_matcher;
         if (s_nearest_matching_method == "AUTO")
@@ -581,41 +593,42 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                 }
         }
         else
-            if (s_nearest_matching_method == "BRUTEFORCEL2")
-            {
-                std::cout << "Using BRUTE_FORCE_L2 matcher" << std::endl;
-                collection_matcher.reset(new Matcher_Regions(f_dist_ratio, BRUTE_FORCE_L2));
-            }
-            else
-                if (s_nearest_matching_method == "BRUTEFORCEHAMMING")
-                {
-                    std::cout << "Using BRUTE_FORCE_HAMMING matcher" << std::endl;
-                    collection_matcher.reset(new Matcher_Regions(f_dist_ratio, BRUTE_FORCE_HAMMING));
-                }
-                else
-                    if (s_nearest_matching_method == "HNSWL2")
-                    {
-                        std::cout << "Using HNSWL2 matcher" << std::endl;
-                        collection_matcher.reset(new Matcher_Regions(f_dist_ratio, HNSW_L2));
-                    }
-                    else
-                        if (s_nearest_matching_method == "ANNL2")
-                        {
-                            std::cout << "Using ANN_L2 matcher" << std::endl;
-                            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, ANN_L2));
-                        }
-                        else
-                            if (s_nearest_matching_method == "CASCADEHASHINGL2")
-                            {
-                                std::cout << "Using CASCADE_HASHING_L2 matcher" << std::endl;
-                                collection_matcher.reset(new Matcher_Regions(f_dist_ratio, CASCADE_HASHING_L2));
-                            }
-                            else
-                                if (s_nearest_matching_method == "FASTCASCADEHASHINGL2")
-                                {
-                                    std::cout << "Using FAST_CASCADE_HASHING_L2 matcher" << std::endl;
-                                    collection_matcher.reset(new Cascade_Hashing_Matcher_Regions(f_dist_ratio));
-                                }
+        if (s_nearest_matching_method == "BRUTEFORCEL2")
+        {
+            std::cout << "Using BRUTE_FORCE_L2 matcher" << std::endl;
+            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, BRUTE_FORCE_L2));
+        }
+        else
+        if (s_nearest_matching_method == "BRUTEFORCEHAMMING")
+        {
+            std::cout << "Using BRUTE_FORCE_HAMMING matcher" << std::endl;
+            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, BRUTE_FORCE_HAMMING));
+        }
+        else
+        if (s_nearest_matching_method == "HNSWL2")
+        {
+            std::cout << "Using HNSWL2 matcher" << std::endl;
+            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, HNSW_L2));
+        }
+        else
+        if (s_nearest_matching_method == "ANNL2")
+        {
+            std::cout << "Using ANN_L2 matcher" << std::endl;
+            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, ANN_L2));
+        }
+        else
+        if (s_nearest_matching_method == "CASCADEHASHINGL2")
+        {
+            std::cout << "Using CASCADE_HASHING_L2 matcher" << std::endl;
+            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, CASCADE_HASHING_L2));
+        }
+        else
+        if (s_nearest_matching_method == "FASTCASCADEHASHINGL2")
+        {
+            std::cout << "Using FAST_CASCADE_HASHING_L2 matcher" << std::endl;
+            collection_matcher.reset(new Cascade_Hashing_Matcher_Regions(f_dist_ratio));
+        }
+
         if (!collection_matcher)
         {
             fatalErrorExit("Matching : Invalid Nearest Neighbor method");
@@ -696,8 +709,12 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
 
                     if (matcher.SearchNeighbours(query, 1, &vec_indices, &vec_distance, NN))
                     {
-                        std::cout << "> Found #" << vec_indices.size() -1 << "neighbor(s)!\n";
+                        std::cout << "> Found #" << vec_indices.size() -1 << "neighbor(s) - ids : ";
+                        for (const auto & vec_id : vec_indices)
+                            std::cout << "(" << vec_id.i_ << "," << vec_id.j_ << "), ";
+                        std::cout << "!\n";
 
+                        // Starting at i=1 because 0 will always be the image itself
                         for (size_t i = 1; i < vec_indices.size(); ++i)
                         {
                             // Do not add pair if images are too spread away
@@ -713,6 +730,16 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                             }
                             pairs.insert(Pair(idxI, idxJ));
                         }
+                    }
+                    
+                    // MAKE SURE THAT Prev & Next views are added as candidates for matching
+                    if (contiguous_pose_id > 0)
+                    {
+                        pairs.insert(Pair(IndexT(contiguous_pose_id-1),IndexT(contiguous_pose_id)));
+                    }
+                    if (size_t(contiguous_pose_id+1) < sfm_data.GetViews().size())
+                    {
+                        pairs.insert(Pair(IndexT(contiguous_pose_id),IndexT(contiguous_pose_id+1)));
                     }
 
                     ++contiguous_pose_id;
