@@ -366,6 +366,7 @@ void Init3DRecon::onFlush(quint32 _port)
 
     // Loop on all images to initialize ***************************************************************
     int counter=0;
+    bool all_images_have_nav = true;
     for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin(); iter_image != vec_image.end(); ++iter_image)
     {
         counter++;
@@ -514,6 +515,8 @@ void Init3DRecon::onFlush(quint32 _port)
 
             // Add the view to the sfm_container
             sfm_data.views[v.id_view] = std::make_shared<View>(v);
+
+            all_images_have_nav = false;
         }
     }
 
@@ -584,6 +587,7 @@ void Init3DRecon::onFlush(quint32 _port)
     reconstruction_context->lat_origin = first_image_pos[0];
     reconstruction_context->lon_origin = first_image_pos[1];
     reconstruction_context->alt_origin = first_image_pos[2];
+    reconstruction_context->all_images_have_nav = all_images_have_nav;
     reconstruction_context->current_format = ReconFormat::openMVG;
     reconstruction_context->out_file_suffix = QString("");
 

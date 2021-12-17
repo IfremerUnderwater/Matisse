@@ -21,7 +21,8 @@ enum ePairMode
 {
     PAIR_EXHAUSTIVE = 0,
     PAIR_CONTIGUOUS = 1,
-    PAIR_FROM_FILE = 2
+    PAIR_FROM_FILE = 2,
+    PAIR_FROM_GPS = 3
 };
 
 /**

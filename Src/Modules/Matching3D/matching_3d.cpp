@@ -1,5 +1,6 @@
 ﻿#include "matching_3d.h"
 #include "nav_image.h"
+#include "reconstruction_context.h"
 
 #include <QProcess>
 #include <QElapsedTimer>
@@ -44,6 +45,8 @@
 #include "openMVG/matching_image_collection/Pair_Builder.hpp"
 #include "openMVG/matching/pairwiseAdjacencyDisplay.hpp"
 #include "openMVG/stl/stl.hpp"
+
+#include "openMVG/matching/matcher_brute_force.hpp"
 
 #include <atomic>
 #include <cstdlib>
@@ -100,6 +103,8 @@ Matching3D::Matching3D() :
     addExpectedParameter("algo_param", "nearest_matching_method");
     addExpectedParameter("algo_param", "video_mode_matching");
     addExpectedParameter("algo_param", "video_mode_matching_enable");
+    addExpectedParameter("algo_param", "nav_based_matching_enable");
+    addExpectedParameter("algo_param", "nav_based_matching_max_dist");
 }
 
 Matching3D::~Matching3D(){
@@ -343,6 +348,9 @@ bool Matching3D::computeFeatures()
 
                 // Compute features and descriptors and export them to files
                 auto regions = image_describer->Describe(image_gray, mask);
+
+                std::cout << "\n Image  #" << i << " -- nb features : " << regions->RegionCount() << "\n";
+
                 if (regions && !image_describer->Save(regions.get(), sFeat, sDesc)) {
                     std::cerr << "Cannot save regions for images: " << sView_filename << std::endl
                         << "Stopping feature extraction." << std::endl;
@@ -377,6 +385,17 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     emit si_userInformation("Matching : Compute Matches");
     emit si_processCompletion(0);
 
+    // Get context
+    QVariant* object = m_context->getObject("reconstruction_context");
+    reconstructionContext* rc = nullptr;
+    if (object)
+        rc = object->value<reconstructionContext*>();
+    else
+    {
+        fatalErrorExit("Matching 3D : Context error");
+        return false;
+    }
+
     // Compute Matches *****************************************************************************************************
  
     // nearest matching method
@@ -384,7 +403,20 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     
     ok = true;
     int vmm_param_val = m_matisse_parameters->getIntParamValue("algo_param", "video_mode_matching", ok);
+    if (!ok)
+        vmm_param_val = 5;
+
     bool video_mode_matching_enable = m_matisse_parameters->getBoolParamValue("algo_param", "video_mode_matching_enable", ok);
+    if (!ok)
+        video_mode_matching_enable = false;
+
+    bool nav_based_matching_enable = m_matisse_parameters->getBoolParamValue("algo_param", "nav_based_matching_enable", ok);
+    if (!ok)
+        nav_based_matching_enable = false;
+
+    double nav_based_matching_max_dist = m_matisse_parameters->getDoubleParamValue("algo_param", "nav_based_matching_max_dist", ok);
+    if (!ok)
+        nav_based_matching_max_dist = 10.0;
 
     std::string s_sfm_data_filename = q_sfm_data_filename.toStdString();
     std::string s_matches_directory = s_out_dir.toStdString();
@@ -397,12 +429,26 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     unsigned int ui_max_cache_size = 0;
 
     // Set matching mode
-    if (video_mode_matching_enable)
-        i_matching_video_mode = vmm_param_val;
-    ePairMode pair_mode = (i_matching_video_mode == -1) ? PAIR_EXHAUSTIVE : PAIR_CONTIGUOUS;
+    ePairMode pair_mode = ePairMode::PAIR_EXHAUSTIVE;
 
+    if (video_mode_matching_enable)
+    {
+        i_matching_video_mode = vmm_param_val;
+        pair_mode = ePairMode::PAIR_CONTIGUOUS;
+    }
+    else if (nav_based_matching_enable)
+    {
+        if (rc->all_images_have_nav)
+        {
+            i_matching_video_mode = vmm_param_val;
+            pair_mode = ePairMode::PAIR_FROM_GPS;
+        }
+        else
+            std::cout << "Nav based matching have been required but not all images have navigation -> switching to exhaustive !\n";
+    }
+        
     if (s_predefined_pair_list.length()) {
-        pair_mode = PAIR_FROM_FILE;
+        pair_mode = ePairMode::PAIR_FROM_FILE;
         if (i_matching_video_mode > 0) {
             fatalErrorExit("Matching : incompatible videomode + pairlist");
             //std::cerr << "\nIncompatible options: --videoModeMatching and --pairList" << std::endl;
@@ -540,10 +586,20 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
         std::cout << "Use: ";
         switch (pair_mode)
         {
-        case PAIR_EXHAUSTIVE: std::cout << "exhaustive pairwise matching" << std::endl; break;
-        case PAIR_CONTIGUOUS: std::cout << "sequence pairwise matching" << std::endl; break;
-        case PAIR_FROM_FILE:  std::cout << "user defined pairwise matching" << std::endl; break;
+        case ePairMode::PAIR_EXHAUSTIVE: std::cout << "exhaustive pairwise matching" << std::endl; break;
+        case ePairMode::PAIR_CONTIGUOUS: std::cout << "sequence pairwise matching" << std::endl; break;
+        case ePairMode::PAIR_FROM_FILE:  std::cout << "user defined pairwise matching" << std::endl; break;
+        case ePairMode::PAIR_FROM_GPS:  std::cout << "gps based spatial pairwise matching" << std::endl; break;
         }
+
+        // if (pair_mode == ePairMode::PAIR_FROM_GPS)
+        // {
+        //     // If Spatial Matching Enabled, Apply BF matching!
+        //     if (regions_type->IsScalar())
+        //         s_nearest_matching_method = "BRUTEFORCEL2";
+        //     else
+        //         s_nearest_matching_method = "BRUTEFORCEHAMMING";
+        // }
 
         // Allocate the right Matcher according the Matching requested method
         std::unique_ptr<Matcher> collection_matcher;
@@ -562,41 +618,42 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                 }
         }
         else
-            if (s_nearest_matching_method == "BRUTEFORCEL2")
-            {
-                std::cout << "Using BRUTE_FORCE_L2 matcher" << std::endl;
-                collection_matcher.reset(new Matcher_Regions(f_dist_ratio, BRUTE_FORCE_L2));
-            }
-            else
-                if (s_nearest_matching_method == "BRUTEFORCEHAMMING")
-                {
-                    std::cout << "Using BRUTE_FORCE_HAMMING matcher" << std::endl;
-                    collection_matcher.reset(new Matcher_Regions(f_dist_ratio, BRUTE_FORCE_HAMMING));
-                }
-                else
-                    if (s_nearest_matching_method == "HNSWL2")
-                    {
-                        std::cout << "Using HNSWL2 matcher" << std::endl;
-                        collection_matcher.reset(new Matcher_Regions(f_dist_ratio, HNSW_L2));
-                    }
-                    else
-                        if (s_nearest_matching_method == "ANNL2")
-                        {
-                            std::cout << "Using ANN_L2 matcher" << std::endl;
-                            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, ANN_L2));
-                        }
-                        else
-                            if (s_nearest_matching_method == "CASCADEHASHINGL2")
-                            {
-                                std::cout << "Using CASCADE_HASHING_L2 matcher" << std::endl;
-                                collection_matcher.reset(new Matcher_Regions(f_dist_ratio, CASCADE_HASHING_L2));
-                            }
-                            else
-                                if (s_nearest_matching_method == "FASTCASCADEHASHINGL2")
-                                {
-                                    std::cout << "Using FAST_CASCADE_HASHING_L2 matcher" << std::endl;
-                                    collection_matcher.reset(new Cascade_Hashing_Matcher_Regions(f_dist_ratio));
-                                }
+        if (s_nearest_matching_method == "BRUTEFORCEL2")
+        {
+            std::cout << "Using BRUTE_FORCE_L2 matcher" << std::endl;
+            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, BRUTE_FORCE_L2));
+        }
+        else
+        if (s_nearest_matching_method == "BRUTEFORCEHAMMING")
+        {
+            std::cout << "Using BRUTE_FORCE_HAMMING matcher" << std::endl;
+            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, BRUTE_FORCE_HAMMING));
+        }
+        else
+        if (s_nearest_matching_method == "HNSWL2")
+        {
+            std::cout << "Using HNSWL2 matcher" << std::endl;
+            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, HNSW_L2));
+        }
+        else
+        if (s_nearest_matching_method == "ANNL2")
+        {
+            std::cout << "Using ANN_L2 matcher" << std::endl;
+            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, ANN_L2));
+        }
+        else
+        if (s_nearest_matching_method == "CASCADEHASHINGL2")
+        {
+            std::cout << "Using CASCADE_HASHING_L2 matcher" << std::endl;
+            collection_matcher.reset(new Matcher_Regions(f_dist_ratio, CASCADE_HASHING_L2));
+        }
+        else
+        if (s_nearest_matching_method == "FASTCASCADEHASHINGL2")
+        {
+            std::cout << "Using FAST_CASCADE_HASHING_L2 matcher" << std::endl;
+            collection_matcher.reset(new Cascade_Hashing_Matcher_Regions(f_dist_ratio));
+        }
+
         if (!collection_matcher)
         {
             fatalErrorExit("Matching : Invalid Nearest Neighbor method");
@@ -609,15 +666,113 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
             Pair_Set pairs;
             switch (pair_mode)
             {
-            case PAIR_EXHAUSTIVE: pairs = exhaustivePairs(sfm_data.GetViews().size()); break;
-            case PAIR_CONTIGUOUS: pairs = contiguousWithOverlap(sfm_data.GetViews().size(), i_matching_video_mode); break;
-            case PAIR_FROM_FILE:
+            case ePairMode::PAIR_EXHAUSTIVE: pairs = exhaustivePairs(sfm_data.GetViews().size()); break;
+            case ePairMode::PAIR_CONTIGUOUS: pairs = contiguousWithOverlap(sfm_data.GetViews().size(), i_matching_video_mode); break;
+            case ePairMode::PAIR_FROM_FILE:
+            {
                 if (!loadPairs(sfm_data.GetViews().size(), s_predefined_pair_list, pairs))
                 {
                     fatalErrorExit("Matching : cannot load pairs from file");
                     return false;
                 }
-                break;
+                break;          
+            }
+            case ePairMode::PAIR_FROM_GPS:
+            {
+                std::cout << "\n Matching based on PAIR_FROM_GPS \n";
+
+                // List the poses priors
+                std::vector<Vec3> vec_pose_centers;
+                std::map<IndexT, IndexT> contiguous_to_pose_id;
+                std::set<IndexT> used_pose_ids;
+
+                for (const auto & view_it : sfm_data.GetViews())
+                {
+                    const sfm::ViewPriors * prior = dynamic_cast<sfm::ViewPriors*>(view_it.second.get());
+
+                    if (prior != nullptr && prior->b_use_pose_center_ && used_pose_ids.count(prior->id_pose) == 0)
+                    {
+                        vec_pose_centers.push_back( prior->pose_center_ );
+                        contiguous_to_pose_id[contiguous_to_pose_id.size()] = prior->id_pose;
+                        used_pose_ids.insert(prior->id_pose);
+                    }
+                }
+
+                if (vec_pose_centers.empty())
+                {
+                    std::cerr << "You are trying to use the gps_mode but your data does"
+                    << " not have any pose priors."
+                    << std::endl;
+
+                    std::cout << "Setting back to exhaustive matching!" << std::endl;
+                    
+                    pairs = exhaustivePairs(sfm_data.GetViews().size()); 
+                    break;
+                }
+                
+                std::cout << "\n Found #" << vec_pose_centers.size() << " images with GPS coord.! \n";
+                
+
+                // Compute i_matching_video_mode neighbor(s) for each pose
+                matching::ArrayMatcherBruteForce<double> matcher;
+
+                if (!matcher.Build(vec_pose_centers[0].data(), vec_pose_centers.size(), 3))
+                {
+                    return EXIT_FAILURE;
+                }
+
+                size_t contiguous_pose_id = 0;
+
+                for (const Vec3 pose_it : vec_pose_centers)
+                {
+                    const double * query = pose_it.data();
+                    IndMatches vec_indices;
+                    std::vector<double> vec_distance;
+                    const int NN = i_matching_video_mode + 1; // since itself will be found    
+                    
+                    std::cout << "\n Spatial Matching for Image #" << contiguous_pose_id << " : \n";
+
+                    if (matcher.SearchNeighbours(query, 1, &vec_indices, &vec_distance, NN))
+                    {
+                        std::cout << "> Found #" << vec_indices.size() -1 << "neighbor(s) - ids : ";
+                        for (const auto & vec_id : vec_indices)
+                            std::cout << "(" << vec_id.i_ << "," << vec_id.j_ << "), ";
+                        std::cout << "!\n";
+
+                        // Starting at i=1 because 0 will always be the image itself
+                        for (size_t i = 1; i < vec_indices.size(); ++i)
+                        {
+                            // Do not add pair if images are too spread away
+                            if( vec_distance.at(i) > nav_based_matching_max_dist) {
+                                std::cout << "> Distance is  : " << vec_distance.at(i) << " m ==> REMOVING PAIR!\n";
+                                continue;
+                            }
+
+                            IndexT idxI = contiguous_to_pose_id.at(contiguous_pose_id);
+                            IndexT idxJ = contiguous_to_pose_id.at(vec_indices[i].j_);
+                            if (idxI > idxJ) {
+                                std::swap(idxI, idxJ);
+                            }
+                            pairs.insert(Pair(idxI, idxJ));
+                        }
+                    }
+                    
+                    // MAKE SURE THAT Prev & Next views are added as candidates for matching
+                    if (contiguous_pose_id > 0)
+                    {
+                        pairs.insert(Pair(IndexT(contiguous_pose_id-1),IndexT(contiguous_pose_id)));
+                    }
+                    if (size_t(contiguous_pose_id+1) < sfm_data.GetViews().size())
+                    {
+                        pairs.insert(Pair(IndexT(contiguous_pose_id),IndexT(contiguous_pose_id+1)));
+                    }
+
+                    ++contiguous_pose_id;
+                }
+                
+                std::cout << "\n Number of pairs #" << pairs.size() << " : \n";
+            }
+            break;
             }
             // Photometric matching of putative pairs
             collection_matcher->Match(regions_provider, pairs, map_putatives_matches, this);
