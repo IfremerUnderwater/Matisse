@@ -16,6 +16,7 @@ struct reconstructionContext {
   double lat_origin;
   double lon_origin;
   double alt_origin;
+  bool all_images_have_nav;
   std::vector<int> components_ids;
   ReconFormat current_format;
   QString out_file_suffix;

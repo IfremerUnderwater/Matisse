@@ -18,6 +18,7 @@ AboutDialog::AboutDialog(QWidget *_parent, KeyValueList _meta) :
                          <tr><td colspan=\"2\"><h1>MATISSE 3D %1</h1></td></tr>\
                          <tr><td colspan=\"2\"><em>Technical support:</em></td></tr>\
                          <tr><td>Mail:</td><td><a href=\"mailto:aurelien.arnaubec@ifremer.fr\">aurelien.arnaubec@ifremer.fr</a></td></tr>\
+                         <tr><td>Mail:</td><td><a href=\"mailto:maxime.ferrera@ifremer.fr\">maxime.ferrera@ifremer.fr</a></td></tr>\
                         </table>");
     QString main_text = template_text.arg(version);
     m_ui->_LA_aboutMainText->setText(main_text);

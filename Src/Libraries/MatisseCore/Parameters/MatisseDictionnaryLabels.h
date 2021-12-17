@@ -37,6 +37,7 @@ public:
 		 */
 
 		/* GROUP : general_algo_params */
+		_paramLabelKeys.insert("general_algo_params", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "General algorithm params"));
 		_paramLabelKeys.insert("sift_code", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Sift algorithm"));
 		_paramLabelKeys.insert("scale_factor", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Image scaling factor"));
 		_paramLabelKeys.insert("maxdist_centers", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Research dist (m)"));
@@ -83,6 +84,8 @@ public:
 		_paramLabelKeys.insert("nearest_matching_method", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Matching algorithm"));
 		_paramLabelKeys.insert("video_mode_matching", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Transect Matching Im Nb"));
 		_paramLabelKeys.insert("video_mode_matching_enable", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Transect Mode"));
+		_paramLabelKeys.insert("nav_based_matching_enable", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Nav based matching"));
+		_paramLabelKeys.insert("nav_based_matching_max_dist", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Nav matching max dist"));
 
 		/* GROUP : DensifyPointCloud */
 		_groupLabelKeys.insert("DensifyPointCloud", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Densify Point Cloud"));
@@ -102,6 +105,7 @@ public:
 		 */
 
 		/* GROUP : vehicle_params */
+		_paramLabelKeys.insert("vehicle_params", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Vehicle related parameters"));
 		_paramLabelKeys.insert("reproj_std", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Retroprojection std (in px)"));
 		_paramLabelKeys.insert("X_std", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "X axis std (m)"));
 		_paramLabelKeys.insert("Y_std", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Y axis std (m)"));
@@ -146,6 +150,7 @@ public:
 		 */
 
 		/* GROUP : output_and_geo_params */
+		_paramLabelKeys.insert("output_and_geo_params", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Data related params"));
 		_paramLabelKeys.insert("dataset_dir", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Data path"));
 		_paramLabelKeys.insert("output_dir", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Output path"));
 		_paramLabelKeys.insert("output_filename", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Output name prefix"));

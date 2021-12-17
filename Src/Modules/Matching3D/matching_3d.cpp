@@ -1,5 +1,6 @@
 ﻿#include "matching_3d.h"
 #include "nav_image.h"
+#include "reconstruction_context.h"
 
 #include <QProcess>
 #include <QElapsedTimer>
@@ -102,6 +103,8 @@ Matching3D::Matching3D() :
     addExpectedParameter("algo_param", "nearest_matching_method");
     addExpectedParameter("algo_param", "video_mode_matching");
     addExpectedParameter("algo_param", "video_mode_matching_enable");
+    addExpectedParameter("algo_param", "nav_based_matching_enable");
+    addExpectedParameter("algo_param", "nav_based_matching_max_dist");
 }
 
 Matching3D::~Matching3D(){
@@ -382,6 +385,17 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     emit si_userInformation("Matching : Compute Matches");
     emit si_processCompletion(0);
 
+    // Get context
+    QVariant* object = m_context->getObject("reconstruction_context");
+    reconstructionContext* rc = nullptr;
+    if (object)
+        rc = object->value<reconstructionContext*>();
+    else
+    {
+        fatalErrorExit("Matching 3D : Context error");
+        return false;
+    }
+
     // Compute Matches *****************************************************************************************************
  
     // nearest matching method
@@ -389,7 +403,20 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     
     ok = true;
     int vmm_param_val = m_matisse_parameters->getIntParamValue("algo_param", "video_mode_matching", ok);
+    if (!ok)
+        vmm_param_val = 5;
+
     bool video_mode_matching_enable = m_matisse_parameters->getBoolParamValue("algo_param", "video_mode_matching_enable", ok);
+    if (!ok)
+        video_mode_matching_enable = false;
+
+    bool nav_based_matching_enable = m_matisse_parameters->getBoolParamValue("algo_param", "nav_based_matching_enable", ok);
+    if (!ok)
+        nav_based_matching_enable = false;
+
+    double nav_based_matching_max_dist = m_matisse_parameters->getDoubleParamValue("algo_param", "nav_based_matching_max_dist", ok);
+    if (!ok)
+        nav_based_matching_max_dist = 10.0;
 
     std::string s_sfm_data_filename = q_sfm_data_filename.toStdString();
     std::string s_matches_directory = s_out_dir.toStdString();
@@ -404,22 +431,20 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     // Set matching mode
     ePairMode pair_mode = ePairMode::PAIR_EXHAUSTIVE;
 
-
-    // MODIFICATION FOR GPS BASED SPATIAL MATCHING
-    // ============================================
-    bool gps_based_spatial_matching_enabled = true;
-    double max_spatial_distance = 10.0; // Maximum X meters
-    i_matching_video_mode = 10; // N closest images
-
-
-
     if (video_mode_matching_enable)
     {
+        i_matching_video_mode = vmm_param_val;
         pair_mode = ePairMode::PAIR_CONTIGUOUS;
     }
-    else if (gps_based_spatial_matching_enabled)
+    else if (nav_based_matching_enable)
     {
-        pair_mode = ePairMode::PAIR_FROM_GPS;
+        if (rc->all_images_have_nav)
+        {
+            i_matching_video_mode = vmm_param_val;
+            pair_mode = ePairMode::PAIR_FROM_GPS;
+        }
+        else
+            std::cout << "Nav based matching have been required but not all images have navigation -> switching to exhaustive !\n";
     }
         
     if (s_predefined_pair_list.length()) {
@@ -718,7 +743,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                         for (size_t i = 1; i < vec_indices.size(); ++i)
                         {
                             // Do not add pair if images are too spread away
-                            if( vec_distance.at(i) > max_spatial_distance ) {
+                            if( vec_distance.at(i) > nav_based_matching_max_dist) {
                                 std::cout << "> Distance is  : " << vec_distance.at(i) << " m ==> REMOVING PAIR!\n";
                                 continue;
                             }
