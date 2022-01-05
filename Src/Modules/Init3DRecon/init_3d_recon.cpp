@@ -313,7 +313,7 @@ void Init3DRecon::onFlush(quint32 _port)
     std::unique_ptr<Dim2FileReader> dim2_file_reader(new Dim2FileReader(dim2_file_name.c_str()));
     if(nav_mode == DIM2 && dim2_file_reader != NULL && dim2_file_reader->isFileValid() )
     {
-        for(int i=1; i<= dim2_file_reader->getNumberOfImages(); i++ )
+        for(int i=0; i< dim2_file_reader->getNumberOfImages(); i++ )
         {
             dim2_file_map.insert(std::make_pair(dim2_file_reader->getImageFilename(i),i));
         }
@@ -517,6 +517,8 @@ void Init3DRecon::onFlush(quint32 _port)
             sfm_data.views[v.id_view] = std::make_shared<View>(v);
 
             all_images_have_nav = false;
+
+            std::cout << "\n Image " << s_image_filename << " has no nav! \n";
         }
     }
 
