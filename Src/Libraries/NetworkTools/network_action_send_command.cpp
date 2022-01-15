@@ -3,7 +3,7 @@
 namespace network_tools {
 
 NetworkActionSendCommand::NetworkActionSendCommand(QString _command_string) :
-    NetworkCommandAction(NetworkActionType::SendCommand),
+    NetworkCommandAction(eNetworkActionType::SendCommand),
     m_command(_command_string)
 {
 

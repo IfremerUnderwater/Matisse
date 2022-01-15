@@ -12,7 +12,7 @@ class NetworkActionDirContent : public NetworkFileAction
 public:
     explicit NetworkActionDirContent(
         QString _remote_dir,
-        FileTypeFilters _flags = FileTypeFilter::Dirs,
+        FileTypeFilters _flags = eFileTypeFilter::Dirs,
         QStringList _file_filters = QStringList());
     void init();
     void execute();

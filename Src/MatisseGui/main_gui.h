@@ -306,7 +306,7 @@ private:
     QString getActualAssemblyOrJobName(QTreeWidgetItem* _current_item);
     QString getActualNewAssemblyName();
     bool promptAssemblyNotSaved();
-    void promptJobNotSaved();
+    bool promptJobNotSaved(bool _proceed_anyway = true);
 
     void deleteAssemblyAndReload(bool _prompt_user);
 

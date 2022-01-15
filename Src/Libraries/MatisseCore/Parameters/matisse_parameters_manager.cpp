@@ -915,10 +915,14 @@ void MatisseParametersManager::pushDatasetParameters(KeyValueList _kvl)
     QString output_file = _kvl.getValue(DATASET_PARAM_OUTPUT_FILENAME);
     QString data_path = _kvl.getValue(DATASET_PARAM_DATASET_DIR);
     QString navigation_file = _kvl.getValue(DATASET_PARAM_NAVIGATION_FILE);
+    QString navigation_source = "";
+    if (_kvl.getKeys().contains(DATASET_PARAM_NAVIGATION_SOURCE)) {
+        navigation_source = _kvl.getValue(DATASET_PARAM_NAVIGATION_SOURCE);
+    }
 
     m_job_extra_parameters.clear();
 
-    /* mettre a jour valeur de parametre pour le dossier de sortie */
+    /* update parameter value for output dir */
     EnrichedFormWidget* param_widget;
     param_widget = m_values_widgets.value(DATASET_STRUCTURE).value(DATASET_PARAM_OUTPUT_DIR);
     param_widget->setValue(result_path);
@@ -927,7 +931,7 @@ void MatisseParametersManager::pushDatasetParameters(KeyValueList _kvl)
         m_job_extra_parameters.insert(DATASET_PARAM_OUTPUT_DIR);
     }
 
-    /* mettre a jour valeur de parametre pour le nom du fichier de sortie */
+    /* update parameter value for output file name */
     param_widget = m_values_widgets.value(DATASET_STRUCTURE).value(DATASET_PARAM_OUTPUT_FILENAME);
     param_widget->setValue(output_file);
 
@@ -936,7 +940,7 @@ void MatisseParametersManager::pushDatasetParameters(KeyValueList _kvl)
     }
 
 
-    /* mettre a jour valeur de parametre pour le chemin du dataset */
+    /* update parameter value for dataset path */
     param_widget = m_values_widgets.value(DATASET_STRUCTURE).value(DATASET_PARAM_DATASET_DIR);
     param_widget->setValue(data_path);
 
@@ -945,12 +949,22 @@ void MatisseParametersManager::pushDatasetParameters(KeyValueList _kvl)
         m_job_extra_parameters.insert(DATASET_PARAM_DATASET_DIR);
     }
 
-    /* mettre a jour valeur de parametre pour le fichier de navigation */
+    /* update parameter value for navigation file */
     param_widget = m_values_widgets.value(DATASET_STRUCTURE).value(DATASET_PARAM_NAVIGATION_FILE);
     param_widget->setValue(navigation_file);
 
     if (!m_expected_parameters.contains(DATASET_PARAM_NAVIGATION_FILE)) {
         m_job_extra_parameters.insert(DATASET_PARAM_NAVIGATION_FILE);
+    }
+
+    /* update parameter value for navigation source */
+    if (!navigation_source.isEmpty()) {
+        param_widget = m_values_widgets.value(DATASET_STRUCTURE).value(DATASET_PARAM_NAVIGATION_SOURCE);
+        param_widget->setValue(navigation_source);
+
+        if (!m_expected_parameters.contains(DATASET_PARAM_NAVIGATION_SOURCE)) {
+            m_job_extra_parameters.insert(DATASET_PARAM_NAVIGATION_SOURCE);
+        }
     }
 }
 

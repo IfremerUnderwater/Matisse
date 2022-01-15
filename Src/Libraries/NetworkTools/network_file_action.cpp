@@ -2,7 +2,7 @@
 
 namespace network_tools {
 
-NetworkFileAction::NetworkFileAction(NetworkActionType _type) :
+NetworkFileAction::NetworkFileAction(eNetworkActionType _type) :
     NetworkAction(_type)
 {
 

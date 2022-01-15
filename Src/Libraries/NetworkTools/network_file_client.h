@@ -19,7 +19,7 @@ signals:
 
 protected slots:
     virtual void sl_initFileChannel() = 0;
-    virtual void sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload) = 0;
+    virtual void sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload, bool _recurse) = 0;
     virtual void sl_download(QString _remote_path, QString _local_path, bool _is_dir_download) = 0;
     virtual void sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters) = 0;
 
