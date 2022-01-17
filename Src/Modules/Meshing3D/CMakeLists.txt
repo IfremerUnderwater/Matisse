@@ -11,12 +11,10 @@ target_link_libraries(Meshing3D
 	Qt5::Xml
 	Qt5::Widgets
 	${QUAZIP_LIBRARIES}
-	GDAL::GDAL
-	${PROJ_LIBS}
+	${GDAL_LIBRARY}
 	OpenMVG::openMVG_system
 	OpenMVG::openMVG_image
     OpenMVG::openMVG_features
-	OpenMVG::vlsift
     OpenMVG::openMVG_sfm
     OpenMVG::openMVG_exif
 	OpenMVG::openMVG_stlplus

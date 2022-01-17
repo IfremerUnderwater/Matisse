@@ -20,7 +20,7 @@
 #include "openMVG/sfm/sfm_data_io.hpp"
 #include "openMVG/system/timer.hpp"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
-#include "nonFree/sift/SIFT_describer_io.hpp"
+#include "openMVG_dependencies/nonFree/sift/SIFT_describer_io.hpp"
 #include <cereal/details/helpers.hpp>
 
 // For matching
@@ -538,7 +538,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     }
 
     // Show the progress on the command line:
-    C_Progress_display progress;
+    //C_Progress_display progress;
 
     if (!regions_provider->load(sfm_data, s_matches_directory, regions_type, this)) {
         fatalErrorExit("Matching : invalid regions");

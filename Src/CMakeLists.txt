@@ -101,6 +101,8 @@ find_package(QSsh)
 
 find_package(LibKML REQUIRED)
 
+find_package(vlfeat REQUIRED)
+
 # qt
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)

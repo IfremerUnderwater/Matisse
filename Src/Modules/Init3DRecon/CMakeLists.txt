@@ -13,8 +13,7 @@ target_link_libraries(Init3DRecon PRIVATE
     Qt5::Xml
     Qt5::Widgets
     ${QUAZIP_LIBRARIES}
-    GDAL::GDAL
-    ${PROJ_LIBS}
+    ${GDAL_LIBRARY}
     ${GeographicLib_LIBRARIES}
 	OpenMVG::openMVG_system
 	OpenMVG::openMVG_image
@@ -22,7 +21,6 @@ target_link_libraries(Init3DRecon PRIVATE
     OpenMVG::openMVG_sfm
     OpenMVG::openMVG_exif
 	OpenMVG::openMVG_stlplus
-	OpenMVG::vlsift
 	)
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix

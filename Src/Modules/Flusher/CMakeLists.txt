@@ -16,7 +16,7 @@ target_link_libraries(Flusher
 	Qt5::Xml 
 	Qt5::Widgets 
 	${QUAZIP_LIBRARIES} 
-	GDAL::GDAL 
+	${GDAL_LIBRARY} 
 	${PROJ_LIBS}
 	)
 

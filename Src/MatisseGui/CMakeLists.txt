@@ -102,7 +102,7 @@ target_link_libraries(MatisseGui PUBLIC
      Qt5::XmlPatterns
  #    Qt5::Script
      Qt5::OpenGL
-     GDAL::GDAL
+     ${GDAL_LIBRARY}
      #QSsh::QSsh
      #${BOTAN_LIB}
      #${QUAZIP_LIBRARIES}

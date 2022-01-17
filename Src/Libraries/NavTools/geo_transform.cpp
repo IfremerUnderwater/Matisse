@@ -1,7 +1,7 @@
 #define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
 
 #include "geo_transform.h"
-#include <proj_api.h>
+//#include <proj.h>
 #include <stdio.h>
 #include <iostream>
 #include <QDebug>
@@ -16,7 +16,7 @@ GeoTransform::GeoTransform()
 bool GeoTransform::latLongToUTM(double _lat_p, double _lon_p, double & _x_p, double & _y_p, QString & _utm_zone_p, bool _force_zone)
 {
 
-    projPJ pj_latlong, pj_utm;
+    /*projPJ pj_latlong, pj_utm;
 
     QString utm_proj_param, utm_hemisphere_option;
 
@@ -64,13 +64,15 @@ bool GeoTransform::latLongToUTM(double _lat_p, double _lon_p, double & _x_p, dou
     qDebug()<<"Error code: " << p <<" Error message: "<<  pj_strerrno(p) << "\n";
 
     return (p>=0);
+	*/
+	return false;
 
 }
 
 bool GeoTransform::UTMToLatLong(double _x_p, double _y_p, QString _utm_zone_p, double &_lat_p, double &_lon_p)
 {
 
-    projPJ pj_latlong, pj_utm;
+    /*projPJ pj_latlong, pj_utm;
 
     QString utm_proj_param, utm_hemisphere_option;
 
@@ -106,6 +108,8 @@ bool GeoTransform::UTMToLatLong(double _x_p, double _y_p, QString _utm_zone_p, d
     printf("%f°\t%f°\n", _lat_p, _lon_p);
 
     return (p>=0);
+	*/
+	return false;
 
 }
 
