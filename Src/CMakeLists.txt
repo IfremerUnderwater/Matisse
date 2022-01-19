@@ -79,6 +79,7 @@ find_package( OpenCV REQUIRED )
 if(MSVC)
 find_package(QuaZip REQUIRED)
 find_package(cereal)
+find_package(vlfeat REQUIRED)
 else(MSVC)
 find_package(QuaZip5 REQUIRED)
 endif(MSVC)
@@ -100,8 +101,6 @@ find_package(OpenMVS REQUIRED)
 find_package(QSsh)
 
 find_package(LibKML REQUIRED)
-
-find_package(vlfeat REQUIRED)
 
 # qt
 set(CMAKE_AUTOMOC ON)
