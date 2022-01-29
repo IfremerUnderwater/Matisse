@@ -1,18 +1,13 @@
 #ifndef NETWORK_TOOLS_NETWORK_ACTION_H_
 #define NETWORK_TOOLS_NETWORK_ACTION_H_
 
+#include "network_commons.h"
+
 #include <QDir>
 #include <QObject>
 
 namespace network_tools {
 
-enum class eFileTypeFilter {
-  Dirs = 0x001,
-  Files = 0x002,
-  AllEntries = Dirs | Files
-};
-Q_DECLARE_FLAGS(FileTypeFilters, eFileTypeFilter)
-Q_DECLARE_OPERATORS_FOR_FLAGS(FileTypeFilters)
 
 class NetworkAction : public QObject
 {

@@ -20,6 +20,7 @@
 #include "MatisseConfig.h"
 #include <QSettings>
 #include "network_client.h"
+#include "secure_connection_wrapper.h"
 #include "sftp_client.h"
 #include "ssh_client.h"
 #include "assembly_helper.h"
@@ -136,8 +137,12 @@ int main(int argc, char *argv[])
     ImportExportHelper import_export_helper;
 
     /* Create remote process gateways and UI helper */
+    ConnectionWrapper* secure_network_command_handler = new SecureConnectionWrapper();
     NetworkClient* ssh_client = new SshClient();
+    ssh_client->setConnectionWrapper(secure_network_command_handler);
+    ConnectionWrapper* secure_network_file_handler = new SecureConnectionWrapper();
     NetworkClient* sftp_client = new SftpClient();
+    sftp_client->setConnectionWrapper(secure_network_file_handler);
     RemoteJobHelper remote_job_helper;
     remote_job_helper.setSshClient(ssh_client);
     remote_job_helper.setSftpClient(sftp_client);

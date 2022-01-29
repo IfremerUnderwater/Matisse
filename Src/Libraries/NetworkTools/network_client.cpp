@@ -2,29 +2,29 @@
 
 namespace network_tools {
 
-NetworkClientCredentials::NetworkClientCredentials(QString _username, QString _password) {
-    if (_username.isNull() || _username.isEmpty()) {
-        qCritical() << "SSH username null or empty";
-    }
+NetworkClient::NetworkClient()
+    : m_action_queue(), m_current_action(NULL)
+{
 
-    m_username = _username;
-
-    if (_password.isNull() || _password.isEmpty()) {
-        qCritical() << "SSH password null or empty";
-    }
-
-    m_password = _password;
 }
 
-NetworkFileInfo::NetworkFileInfo(QString _name, bool _is_dir, quint64 _size, QDateTime _last_modified)
-    : m_name(_name), m_is_dir(_is_dir), m_size(_size), m_last_modified(_last_modified) {}
+void NetworkClient::init()
+{
+    if (!m_cx_wrapper) {
+        qCritical() << "NetworkClient: connection wrapper not set";
+        return;
+    }
 
-NetworkClient::NetworkClient()
-    : m_action_queue(), m_current_action(NULL) {}
+    connect(m_cx_wrapper, SIGNAL(si_clearConnection()), SLOT(sl_onClearConnection()));
+    connect(m_cx_wrapper, SIGNAL(si_connected()), SLOT(sl_onConnected()));
+
+    // client specific initialization
+    doInit();
+}
 
 void NetworkClient::addAction(NetworkAction *_action) {
     if (!_action->isValid()) {
-        qCritical() << "Action type " << _action->type()
+        qCritical() << "NetworkClient: Action type " << _action->type()
                     << " cannot be performed, will be skipped";
         return;
     }
@@ -35,22 +35,106 @@ void NetworkClient::addAction(NetworkAction *_action) {
     }
 }
 
-bool NetworkClient::isConnected() { return m_connected; }
+void NetworkClient::processAction() {
+    if (!m_cx_wrapper->isConnected()) {
+        if (!m_cx_wrapper->isWaitingForConnection()) {
+            m_cx_wrapper->connectToRemoteHost();
+        }
+        return;
+    }
 
-void NetworkClient::setHost(QString _host) {
-    m_host = _host;
+    if (m_action_queue.isEmpty()) {
+        qWarning() << "NetworkClient: network action queue empty, no action to process";
+        return;
+    }
+
+
+    /* Nominal case : free previous action instance */
+    if (m_current_action) {
+        disconnectAction(m_current_action);
+        delete m_current_action;
+    }
+
+    doInitBeforeAction();
+
+    m_current_action = m_action_queue.dequeue();
+    connectAction(m_current_action);
+
+    qDebug() << "NetworkClient: Processing network action of type " << m_current_action->type();
+    m_current_action->init();
 }
 
-QString NetworkClient::host() { return m_host; }
-
-void NetworkClient::setCredentials(NetworkClientCredentials *_creds) {
-    m_creds = _creds;
+void NetworkClient::checkActionPending() {
+    if (m_action_queue.isEmpty()) {
+        m_cx_wrapper->disconnectFromHost();
+    } else {
+        /* If actions are still pending, start next action */
+        processAction();
+    }
 }
 
-QString NetworkClient::username() { return m_creds->username(); }
+void NetworkClient::resume() {
+    /* Try to reconnect after failed login */
+    m_cx_wrapper->connectToRemoteHost();
+}
+
+void NetworkClient::sl_onClearConnection() {
+    clearConnectionAndActionQueue();
+}
+
+void NetworkClient::clearConnectionAndActionQueue() {
+    m_cx_wrapper->disableConnection();
+
+    if (!m_action_queue.isEmpty()) {
+        qCritical() << QString(
+                           "NetworkAction: Disconnected while %1 actions are still "
+                           "pending in action queue, clearing queue...")
+                       .arg(m_action_queue.count());
+        qDeleteAll(m_action_queue);
+        m_action_queue.clear();
+    }
+
+    /* free last action instance */
+    if (m_current_action) {
+        disconnectAction(m_current_action);
+        delete m_current_action;
+        m_current_action = NULL;
+    }
+
+    m_cx_wrapper->freeConnection();
+}
+
+void NetworkClient::sl_onConnected() {
+    if (!m_current_action) {
+        processAction();
+    }
+}
+
+void NetworkClient::clearActions() {
+    clearConnectionAndActionQueue();
+}
+
+
+//bool NetworkClient::isConnected() { return m_connected; }
+
+//void NetworkClient::setHost(QString _host) {
+//    m_host = _host;
+//}
+
+//QString NetworkClient::host() { return m_host; }
+
+//void NetworkClient::setCredentials(NetworkCredentials *_creds) {
+//    m_creds = _creds;
+//}
+
+//QString NetworkClient::username() { return m_creds->username(); }
 
 void NetworkClient::setConnectionWrapper(ConnectionWrapper *_cx_wrapper) {
     m_cx_wrapper = _cx_wrapper;
+}
+
+ConnectionWrapper *NetworkClient::connectionWrapper() {
+    return m_cx_wrapper;
 }
 
 }  // namespace network_tools

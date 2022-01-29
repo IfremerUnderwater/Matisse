@@ -11,18 +11,24 @@ class NetworkCommandClient : public NetworkClient
 public:
     NetworkCommandClient();
 
-signals:
-    void si_shellOutputReceived(NetworkAction *_action, QByteArray _output);
-    void si_shellErrorReceived(NetworkAction *_action, QByteArray _error);
-
-protected slots:
-    virtual void sl_createRemoteShell(QString& _command) = 0;
-    virtual void sl_closeRemoteShell() = 0;
-    virtual void sl_executeCommand() = 0;
-
 protected:
+    void doInit();
+    void doInitBeforeAction();
     void connectAction(NetworkAction *_action);
     void disconnectAction(NetworkAction *_action);
+
+signals:
+    void si_commandOutputReceived(NetworkAction *_action, QByteArray _output);
+    void si_commandErrorReceived(NetworkAction *_action, QByteArray _error);
+
+protected slots:
+//    virtual void sl_createRemoteShell(QString& _command) = 0;
+//    virtual void sl_closeRemoteShell() = 0;
+//    virtual void sl_executeCommand() = 0;
+    void sl_onShellStarted();
+    void sl_onReadyReadStandardOutput();
+    void sl_onReadyReadStandardError();
+    void sl_onShellClosed();
 
 };
 

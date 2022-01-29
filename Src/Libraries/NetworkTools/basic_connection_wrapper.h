@@ -1,13 +1,17 @@
-#ifndef BASICCONNECTIONWRAPPER_H
-#define BASICCONNECTIONWRAPPER_H
+#ifndef NETWORK_CLIENT_BASIC_CONNECTION_WRAPPER_H_
+#define NETWORK_CLIENT_BASIC_CONNECTION_WRAPPER_H_
 
 #include <QObject>
 
-class BasicConnectionWrapper
+namespace network_tools {
+
+class BasicConnectionWrapper : public ConnectionWrapper
 {
     Q_OBJECT
 public:
-    BasicConnectionWrapper();
+    explicit BasicConnectionWrapper();
 };
 
-#endif // BASICCONNECTIONWRAPPER_H
+} // namespace network_tools
+
+#endif // NETWORK_CLIENT_BASIC_CONNECTION_WRAPPER_H_

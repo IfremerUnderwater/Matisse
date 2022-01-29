@@ -1,6 +1,10 @@
 #include "basic_connection_wrapper.h"
 
-BasicConnectionWrapper::BasicConnectionWrapper()
+namespace network_tools {
+
+BasicConnectionWrapper::BasicConnectionWrapper() : ConnectionWrapper()
 {
 
 }
+
+} // namespace network_tools

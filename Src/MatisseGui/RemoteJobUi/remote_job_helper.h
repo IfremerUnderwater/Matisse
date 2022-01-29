@@ -14,8 +14,10 @@
 #include "matisse_remote_server_settings.h"
 #include "process_data_manager.h"
 #include "remote_progress_dialog.h"
+#include "network_commons.h"
 #include "network_client.h"
 #include "network_file_client.h"
+#include "network_file_info.h"
 #include "network_command.h"
 
 using namespace network_tools;
@@ -81,8 +83,8 @@ private slots:
     void sl_onTransferFinished(NetworkAction *_action);
     void sl_onTransferFailed(NetworkAction* _action, eTransferError _err);
     void sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents);
-    void sl_onShellOutputReceived(NetworkAction* _action, QByteArray _output);
-    void sl_onShellErrorReceived(NetworkAction* _action, QByteArray _error);
+    void sl_onCommandOutputReceived(NetworkAction* _action, QByteArray _output);
+    void sl_onCommandErrorReceived(NetworkAction* _action, QByteArray _error);
     void sl_onRemotePathChanged(QString _new_path);
     void sl_onRestoreDefaultRemotePath();
     void sl_onGoToRemoteParentDir();
