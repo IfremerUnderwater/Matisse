@@ -13,6 +13,12 @@ AngleInterpolator::AngleInterpolator(const std::vector<std::pair<double, double>
   //in ascending order
   std::sort(_points.begin(), _points.end());
 
+  // keep only unique time
+  _points.erase(std::unique(_points.begin(),
+      _points.end(),
+      [](const std::pair<double, double>& x, const std::pair<double, double>& y)
+      {return x.first == y.first; }), _points.end());
+
   //Ensure that no 2 adjacent x values are equal,
   //lest we try to divide by zero when we interpolate.
   const double EPSILON{1.0E-8};
