@@ -50,7 +50,7 @@ public:
 	/// <param name="_correct_colors"></param>
 	/// <param name="_compensate_illumination"></param>
 	/// <param name="_prepro_img_scaling"></param>
-	void configureProcessing(bool _correct_colors = true, bool _compensate_illumination = true, double _prepro_img_scaling = 1.0, double _saturation_threshold = 0.0001);
+	void configureProcessing(const bool _correct_colors = true, const bool _compensate_illumination = true, const double _prepro_img_scaling = 1.0, const double _saturation_threshold = 0.0001, const cv::Mat& _mask_img = cv::Mat());
 
 
 private:
@@ -62,6 +62,7 @@ private:
 	double m_sat_thres;
 
 	std::vector<cv::Mat> m_bgr_lowres_img;
+	cv::Mat m_mask_img;
 
 	cv::Mat m_blue_median_img;
 	cv::Mat m_green_median_img;

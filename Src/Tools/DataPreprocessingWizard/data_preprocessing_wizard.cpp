@@ -646,6 +646,10 @@ void DataPreprocessingWizard::preprocessImages(QStringList &_images_list, QStrin
     QElapsedTimer timer;
     timer.start();
 
+    // Create mask img here to then forward it to
+    // the img_processor object
+    cv::Mat mask_img;
+
     if (ui->use_inpaint_mask->isChecked())
     {
         QFileInfo mask_file_info(ui->mask_file_le->text());
@@ -655,7 +659,7 @@ void DataPreprocessingWizard::preprocessImages(QStringList &_images_list, QStrin
             QProgressDialog inpaint_progress(QString("Inpainting images"), "Abort processing", 0, 100, this);
             inpaint_progress.setWindowModality(Qt::WindowModal);
 
-            cv::Mat mask_img = cv::imread(mask_file_info.absoluteFilePath().toStdString(), cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
+            mask_img = cv::imread(mask_file_info.absoluteFilePath().toStdString(), cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
             cv::Mat current_img, current_img_inpainted;
 
             double inpaintRadius = 3.0;
@@ -714,7 +718,7 @@ void DataPreprocessingWizard::preprocessImages(QStringList &_images_list, QStrin
             }
         }
 
-        img_processor.configureProcessing(need_colors_corr, need_illum_corr, preproc_scale, color_sat_value);
+        img_processor.configureProcessing(need_colors_corr, need_illum_corr, preproc_scale, color_sat_value, mask_img);
         img_processor.preprocessImageList(_images_list, _out_image_path);
 
     }

@@ -8,28 +8,19 @@ using namespace basic_processing;
 
 namespace image_processing {
 
-void histogramStretch(Mat &_in_img, Mat &_in_mask, Point _low_high_in, Point _low_high_out,  Mat &_stretched_img, bool _gamma_undo)
+void histogramStretch(Mat &_in_img, Point _low_high_in, Point _low_high_out,  Mat &_stretched_img, bool _gamma_undo)
 {
 
 
     // Init
     _stretched_img = Mat::zeros( _in_img.size(), _in_img.type() );
     int ch_num = _in_img.channels();
-    bool process_pixel=false;
+    bool process_pixel=true;
 
     /// Stretches the image from low_high_in to low_high_out with a cast
     for( int y = 0; y < _in_img.rows; y++ ){
         for( int x = 0; x < _in_img.cols; x++ ){
             for( int c = 0; c < ch_num; c++ ){
-
-                if(_in_mask.empty()){
-                    process_pixel = true;
-                }else{
-                    if (_in_mask.at<uchar>(y,x) != 0)
-                        process_pixel = true;
-                    else
-                        process_pixel = false;
-                }
 
                 if (process_pixel & (abs(_low_high_in.y - _low_high_in.x) >=1) ) {
 
@@ -98,11 +89,11 @@ void histogramQuantileStretch(Mat &_in_img, Mat &_in_mask, double _saturation_ra
     findImgColorQuantiles(_in_img, _in_mask, quantiles, ch1_lim, ch2_lim, ch3_lim);
 
     // Strech img according to saturation limit
-    stretchColorImg(_in_img, _in_mask, ch1_lim, ch2_lim, ch3_lim, _stretched_img, _gamma_undo);
+    stretchColorImg(_in_img, ch1_lim, ch2_lim, ch3_lim, _stretched_img, _gamma_undo);
 
 }
 
-void stretchColorImg(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<int>& _ch1_lim, std::vector<int>& _ch2_lim, std::vector<int>& _ch3_lim, cv::Mat& _stretched_img, bool _gamma_undo)
+void stretchColorImg(cv::Mat& _in_img, std::vector<int>& _ch1_lim, std::vector<int>& _ch2_lim, std::vector<int>& _ch3_lim, cv::Mat& _stretched_img, bool _gamma_undo)
 {
     // Split img channels
     vector<Mat> temp_rgb(3);
@@ -115,9 +106,9 @@ void stretchColorImg(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<int>& _ch1
     Point ch3_low_high_in(_ch3_lim[0], _ch3_lim[1]);
     Point low_high_out(0, 255);
 
-    histogramStretch(temp_rgb[0], _in_mask, ch1_low_high_in, low_high_out, temp_rgb_out[0], _gamma_undo);
-    histogramStretch(temp_rgb[1], _in_mask, ch2_low_high_in, low_high_out, temp_rgb_out[1], _gamma_undo);
-    histogramStretch(temp_rgb[2], _in_mask, ch3_low_high_in, low_high_out, temp_rgb_out[2], _gamma_undo);
+    histogramStretch(temp_rgb[0], ch1_low_high_in, low_high_out, temp_rgb_out[0], _gamma_undo);
+    histogramStretch(temp_rgb[1], ch2_low_high_in, low_high_out, temp_rgb_out[1], _gamma_undo);
+    histogramStretch(temp_rgb[2], ch3_low_high_in, low_high_out, temp_rgb_out[2], _gamma_undo);
 
     // Merge channels
     merge(temp_rgb_out, _stretched_img);

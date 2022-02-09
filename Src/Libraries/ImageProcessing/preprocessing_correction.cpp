@@ -84,10 +84,10 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 			quantiles.push_back(1 - m_sat_thres);
 
 			// Get channels saturation limits
-			//findImgColorQuantiles(current_img, empty_mask, quantiles, ch1_lim, ch2_lim, ch3_lim);
-			findImgQuantiles(m_bgr_lowres_img[0], empty_mask, quantiles, ch1_lim);
-			findImgQuantiles(m_bgr_lowres_img[1], empty_mask, quantiles, ch2_lim);
-			findImgQuantiles(m_bgr_lowres_img[2], empty_mask, quantiles, ch3_lim);
+			//findImgColorQuantiles(current_img, m_mask_img, quantiles, ch1_lim, ch2_lim, ch3_lim);
+			findImgQuantiles(m_bgr_lowres_img[0], m_mask_img, quantiles, ch1_lim);
+			findImgQuantiles(m_bgr_lowres_img[1], m_mask_img, quantiles, ch2_lim);
+			findImgQuantiles(m_bgr_lowres_img[2], m_mask_img, quantiles, ch3_lim);
 		}
 
 		// need illumination compensation
@@ -156,7 +156,7 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 		{
 
 			// Strech img according to saturation limit
-			stretchColorImg(current_img, empty_mask, ch1_lim, ch2_lim, ch3_lim, current_img, false);
+			stretchColorImg(current_img, ch1_lim, ch2_lim, ch3_lim, current_img, false);
 		}
 
 		// write image
@@ -397,7 +397,7 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 
 }
 
-void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _compensate_illumination, double _prepro_img_scaling, double _saturation_threshold)
+void PreprocessingCorrection::configureProcessing(const bool _correct_colors, const bool _compensate_illumination, const double _prepro_img_scaling, const double _saturation_threshold, const cv::Mat& _mask_img)
 {
 	m_correct_colors = _correct_colors;
 	m_compensate_illumination = _compensate_illumination;
@@ -411,6 +411,12 @@ void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _co
 	else
 		m_sat_thres = 0.001;
 
+	if (!_mask_img.empty())
+	{
+		_mask_img.copyTo(m_mask_img);
+		if (m_prepro_img_scaling < 1.0)
+			cv::resize(m_mask_img, m_mask_img, cv::Size(), m_prepro_img_scaling, m_prepro_img_scaling);
+	}
 }
 
 } // namespace image_processing
