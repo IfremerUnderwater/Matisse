@@ -37,8 +37,10 @@ bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, 
 	if (m_lowres_comp_scaling > 1.0)
 		m_lowres_comp_scaling = 1.0;
 
-	if (_input_img_files.size() < m_ws)
-		return false;
+	if (_input_img_files.size() < m_ws && m_compensate_illumination)
+	{
+		m_compensate_illumination = false;
+	}
 
 	int im_nb = _input_img_files.size();
 	int half_ws = (m_ws-1)/2;
