@@ -54,30 +54,29 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 		if (m_graphic_parent && prepro_progress.wasCanceled())
 			return false;
 
-		Mat current_img = imread(_input_img_files[i].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+		cv::Mat current_img = cv::imread(_input_img_files[i].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
 
 		// in case we need correction we will use the lower res image to speed up
 		if (m_correct_colors || m_compensate_illumination)
 		{
-			Mat reduced_img;
+			cv::Mat reduced_img;
 
 			if (m_lowres_comp_scaling < 1.0) {
-				resize(current_img, reduced_img, Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
-				split(reduced_img, m_bgr_lowres_img);
+				cv::resize(current_img, reduced_img, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
+				cv::split(reduced_img, m_bgr_lowres_img);
 			}
 			else {
-				split(current_img, m_bgr_lowres_img);
+				cv::split(current_img, m_bgr_lowres_img);
 			}
 
 		}
 
 		// check if we need to resize image
 		if (m_prepro_img_scaling < 1.0)
-			resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
+			cv::resize(current_img, current_img, cv::Size(), m_prepro_img_scaling, m_prepro_img_scaling);
 
 		// correct colors
 		vector<int> ch1_lim, ch2_lim, ch3_lim;
-		cv::Mat empty_mask;
 		if (m_correct_colors)
 		{
 			// Construct required quantiles vector
@@ -103,11 +102,11 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 
 					for (int j = 0; j < m_ws; j++)
 					{
-						Mat temp_img;
-						resize(imread(_input_img_files[j].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
+						cv::Mat temp_img;
+						cv::resize(cv::imread(_input_img_files[j].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
 
-						vector<Mat> temp_BRG(3);
-						split(temp_img, temp_BRG);
+						vector<cv::Mat> temp_BRG(3);
+						cv::split(temp_img, temp_BRG);
 
 						// stacking images for median
 						m_blue_stack_images.push_back(temp_BRG[0]);
@@ -121,10 +120,10 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 			else if (i + half_ws < im_nb - 1)
 			{
 				Mat temp_img;
-				resize(imread(_input_img_files[i + half_ws].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
+				cv::resize(cv::imread(_input_img_files[i + half_ws].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
 
-				vector<Mat> temp_BRG(3);
-				split(temp_img, temp_BRG);
+				vector<cv::Mat> temp_BRG(3);
+				cv::split(temp_img, temp_BRG);
 
 				// stacking images for median
 				m_blue_stack_images.pop_front();
@@ -140,16 +139,16 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 			if (!computeTemporalMedian())
 				return false;
 
-            vector<Mat> current_brg(3);
-            vector<Mat> current_brg_corr(3);
-            split(current_img, current_brg);
+            vector<cv::Mat> current_brg(3);
+            vector<cv::Mat> current_brg_corr(3);
+            cv::split(current_img, current_brg);
 
 			// compute illum correction
             compensateIllumination(current_brg[0], m_bgr_lowres_img[0], m_blue_median_img, current_brg_corr[0]);
             compensateIllumination(current_brg[1], m_bgr_lowres_img[1], m_green_median_img, current_brg_corr[1]);
             compensateIllumination(current_brg[2], m_bgr_lowres_img[2], m_red_median_img, current_brg_corr[2]);
 
-            merge(current_brg_corr, current_img);
+            cv::merge(current_brg_corr, current_img);
 
 		} // end need illumination compensation
 
