@@ -26,7 +26,7 @@ public:
 	/// <param name="_input_img_files">files path list</param>
 	/// <param name="_output_path">output folder path</param>
 	/// <returns>true on success</returns>
-	bool preprocessImageList(QStringList _input_img_files, QString _output_path);
+	bool preprocessImageList(const QStringList& _input_img_files, const QString& _output_path);
 
 	/// <summary>
 	/// Compute median image in the sliding window
@@ -42,7 +42,7 @@ public:
 	/// <param name="_temporal_median_image">Temporal median image</param>
 	/// <param name="_output_image">Compensated output image</param>
 	/// <returns>true on success</returns>
-	bool compensateIllumination(cv::Mat& _input_image, cv::Mat& _input_lowres, cv::Mat& _temporal_median_image, cv::Mat& _output_image);
+	bool compensateIllumination(const cv::Mat& _input_image, const cv::Mat& _input_lowres, const cv::Mat& _temporal_median_image, cv::Mat& _output_image);
 
 	/// <summary>
 	/// configure the preprocessing steps that are needed

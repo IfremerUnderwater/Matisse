@@ -29,7 +29,7 @@ m_sat_thres(0.001)
 	m_graphic_parent = _parent;
 }
 
-bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, QString _output_path)
+bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_files, const QString& _output_path)
 {
 	// check if we need to reduce image resolution
 	cv::Mat first_img = cv::imread(_input_img_files[0].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
@@ -229,7 +229,7 @@ bool PreprocessingCorrection::computeTemporalMedian()
 	return true;
 }
 
-bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _input_lowres, Mat& _temporal_median_image, Mat& _output_image)
+bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image, const cv::Mat& _input_lowres, const cv::Mat& _temporal_median_image, cv::Mat& _output_image)
 {
 	// This function contains empirical choices about model to correct and thresholds
 	// It is not to be understood just adjusted on multiples datasets
