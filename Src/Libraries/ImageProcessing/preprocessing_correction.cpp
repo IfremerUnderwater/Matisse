@@ -25,7 +25,7 @@ m_correct_colors(false),
 m_compensate_illumination(false),
 m_sat_thres(0.001)
 {
-	//m_bgr_lowres_img.resize(3);
+	//bgr_lowres_img.resize(3);
 	m_graphic_parent = _parent;
 }
 
@@ -49,12 +49,15 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 	int j = 1;
 
 	// preprocess
+	#pragma omp parallel for if (!m_compensate_illumination)
 	for (int i = 0; i < im_nb; i++)
 	{
 		if (m_graphic_parent && prepro_progress.wasCanceled())
 			return false;
 
 		cv::Mat current_img = cv::imread(_input_img_files[i].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+		
+		std::vector<cv::Mat> bgr_lowres_img;
 
 		// in case we need correction we will use the lower res image to speed up
 		if (m_correct_colors || m_compensate_illumination)
@@ -63,10 +66,10 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 
 			if (m_lowres_comp_scaling < 1.0) {
 				cv::resize(current_img, reduced_img, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
-				cv::split(reduced_img, m_bgr_lowres_img);
+				cv::split(reduced_img, bgr_lowres_img);
 			}
 			else {
-				cv::split(current_img, m_bgr_lowres_img);
+				cv::split(current_img, bgr_lowres_img);
 			}
 
 		}
@@ -86,9 +89,9 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 
 			// Get channels saturation limits
 			//findImgColorQuantiles(current_img, m_mask_img, quantiles, ch1_lim, ch2_lim, ch3_lim);
-			findImgQuantiles(m_bgr_lowres_img[0], m_mask_img, quantiles, ch1_lim);
-			findImgQuantiles(m_bgr_lowres_img[1], m_mask_img, quantiles, ch2_lim);
-			findImgQuantiles(m_bgr_lowres_img[2], m_mask_img, quantiles, ch3_lim);
+			findImgQuantiles(bgr_lowres_img[0], m_mask_img, quantiles, ch1_lim);
+			findImgQuantiles(bgr_lowres_img[1], m_mask_img, quantiles, ch2_lim);
+			findImgQuantiles(bgr_lowres_img[2], m_mask_img, quantiles, ch3_lim);
 		}
 
 		// need illumination compensation
@@ -144,9 +147,9 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
             cv::split(current_img, current_brg);
 
 			// compute illum correction
-            compensateIllumination(current_brg[0], m_bgr_lowres_img[0], m_blue_median_img, current_brg_corr[0]);
-            compensateIllumination(current_brg[1], m_bgr_lowres_img[1], m_green_median_img, current_brg_corr[1]);
-            compensateIllumination(current_brg[2], m_bgr_lowres_img[2], m_red_median_img, current_brg_corr[2]);
+            compensateIllumination(current_brg[0], bgr_lowres_img[0], m_blue_median_img, current_brg_corr[0]);
+            compensateIllumination(current_brg[1], bgr_lowres_img[1], m_green_median_img, current_brg_corr[1]);
+            compensateIllumination(current_brg[2], bgr_lowres_img[2], m_red_median_img, current_brg_corr[2]);
 
             cv::merge(current_brg_corr, current_img);
 

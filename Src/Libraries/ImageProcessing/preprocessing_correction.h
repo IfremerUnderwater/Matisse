@@ -61,7 +61,6 @@ private:
 	bool m_compensate_illumination;
 	double m_sat_thres;
 
-	std::vector<cv::Mat> m_bgr_lowres_img;
 	cv::Mat m_mask_img;
 
 	cv::Mat m_blue_median_img;
