@@ -114,54 +114,60 @@ void stretchColorImg(cv::Mat& _in_img, std::vector<int>& _ch1_lim, std::vector<i
     merge(temp_rgb_out, _stretched_img);
 }
 
-void findImgColorQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, vector<double>& _quantiles, vector<int>& _ch1_lim, vector<int>& _ch2_lim, vector<int>& _ch3_lim)
+void findImgColorQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, vector<double>& _quantiles, vector<int>& _ch1_lim, vector<int>& _ch2_lim, vector<int>& _ch3_lim)
 {
     int ch_num = _in_img.channels();
-    bool process_pixel = false;
+    if (ch_num < 3)
+        return findImgQuantiles(_in_img, _in_mask, _quantiles, _ch1_lim);
 
-    vector<int> ch1_values, ch2_values, ch3_values;
+    // No need to compute sqrt as we are only interested in the alpha coef
+    // being less than 1.0 or not
+    // double alpha = sqrt(1e6 / ((double)_in_img.cols * _in_img.rows));
+    const double alpha = 1e6 / ((double)_in_img.cols * _in_img.rows);
 
-    Mat* image_to_be_processed;
-    Mat reduced_img;
-    double alpha = sqrt(1e6 / ((double)_in_img.cols * _in_img.rows));
+    cv::Mat reduced_img;
 
     if (alpha < 1.0) {
-        resize(_in_img, reduced_img, Size(), alpha, alpha);
-        image_to_be_processed = &reduced_img;
+        cv::resize(_in_img, reduced_img, cv::Size(), alpha, alpha);
     }
     else {
-        image_to_be_processed = &_in_img;
+        reduced_img = _in_img;
     }
 
+    std::vector<int> ch1_values, ch2_values, ch3_values;
+    ch1_values.reserve(reduced_img.rows * reduced_img.cols);
+    ch2_values.reserve(reduced_img.rows * reduced_img.cols);
+    ch3_values.reserve(reduced_img.rows * reduced_img.cols);
+    
     // Stretches the image from low_high_in to low_high_out with a cast
-    for (int y = 0; y < image_to_be_processed->rows; y++) {
-        for (int x = 0; x < image_to_be_processed->cols; x++) {
-            for (int c = 0; c < ch_num; c++) {
+    // If a mask is to be used, do not consider masked pixels
+    if (_in_mask.empty())
+    {
+        for (int r = 0; r < reduced_img.rows; r++)
+        {
+            const Vec3b* img_row = reduced_img.ptr<Vec3b>(r);
+            for(int c = 0; c < reduced_img.cols; c++)
+            {
+                ch1_values.push_back(img_row[c][0]);
+                ch2_values.push_back(img_row[c][1]);
+                ch3_values.push_back(img_row[c][2]);
+            }
+        } 
+    }
+    else 
+    {
+        for (int r = 0; r < reduced_img.rows; r++)
+        {
+            const Vec3b* img_row = reduced_img.ptr<Vec3b>(r);
+            const uchar* mask_row = _in_mask.ptr<uchar>(r);
 
-                if (_in_mask.empty()) {
-                    process_pixel = true;
-                }
-                else {
-                    if (_in_mask.at<uchar>(y, x) != 0)
-                        process_pixel = true;
-                    else
-                        process_pixel = false;
-                }
-
-                if (process_pixel) {
-                    switch (c) {
-                    case 0:
-                        ch1_values.push_back(image_to_be_processed->at<Vec3b>(y, x)[c]);
-                        break;
-                    case 1:
-                        ch2_values.push_back(image_to_be_processed->at<Vec3b>(y, x)[c]);
-                        break;
-                    case 2:
-                        ch3_values.push_back(image_to_be_processed->at<Vec3b>(y, x)[c]);
-                        break;
-                    default:
-                        break;
-                    }
+            for(int c = 0; c < reduced_img.cols; c++)
+            {
+                if (mask_row[c] != 0)
+                {
+                    ch1_values.push_back(img_row[c][0]);
+                    ch2_values.push_back(img_row[c][1]);
+                    ch3_values.push_back(img_row[c][2]);
                 }
             }
         }
@@ -173,42 +179,50 @@ void findImgColorQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, vector<double>& 
     _ch3_lim = integerQuantiles(ch3_values, _quantiles);
 }
 
-void findImgQuantiles(cv::Mat& _in_img, cv::Mat& _in_mask, std::vector<double>& _quantiles, std::vector<int>& _ch_lim)
+void findImgQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, std::vector<double>& _quantiles, std::vector<int>& _ch_lim)
 {
-    bool process_pixel = false;
+    // No need to compute sqrt as we are only interested in the alpha coef
+    // being less than 1.0 or not
+    // double alpha = sqrt(1e6 / ((double)_in_img.cols * _in_img.rows));
+    const double alpha = 1e6 / ((double)_in_img.cols * _in_img.rows);
 
-    vector<int> ch_values;
-
-    Mat* image_to_be_processed;
-    Mat reduced_img;
-    double alpha = sqrt(1e6 / ((double)_in_img.cols * _in_img.rows));
+    cv::Mat reduced_img;
 
     if (alpha < 1.0) {
-        resize(_in_img, reduced_img, Size(), alpha, alpha);
-        image_to_be_processed = &reduced_img;
+        cv::resize(_in_img, reduced_img, cv::Size(), alpha, alpha);
     }
     else {
-        image_to_be_processed = &_in_img;
+        reduced_img = _in_img;
     }
 
+    std::vector<int> ch_values;
+    ch_values.reserve(reduced_img.rows * reduced_img.cols);
+    
     // Stretches the image from low_high_in to low_high_out with a cast
-    for (int y = 0; y < image_to_be_processed->rows; y++) {
-        for (int x = 0; x < image_to_be_processed->cols; x++) {
-                if (_in_mask.empty()) {
-                    process_pixel = true;
-                }
-                else {
-                    if (_in_mask.at<uchar>(y, x) != 0)
-                        process_pixel = true;
-                    else
-                        process_pixel = false;
-                }
+    // If a mask is to be used, do not consider masked pixels
+    if (_in_mask.empty())
+    {
+        for (int r = 0; r < reduced_img.rows; r++)
+        {
+            const uchar* img_row = reduced_img.ptr<uchar>(r);
+            for(int c = 0; c < reduced_img.cols; c++)
+                ch_values.push_back(img_row[c]);
+        } 
+    }
+    else 
+    {
+        for (int r = 0; r < reduced_img.rows; r++)
+        {
+            const uchar* img_row = reduced_img.ptr<uchar>(r);
+            const uchar* mask_row = _in_mask.ptr<uchar>(r);
 
-                if (process_pixel) {
-                        ch_values.push_back(image_to_be_processed->at<uchar>(y, x));
-                }
+            for(int c = 0; c < reduced_img.cols; c++)
+            {
+                if (mask_row[c] != 0)
+                    ch_values.push_back(img_row[c]);
+            }
         }
-     }
+    }
 
     // Get channel saturation limits
     _ch_lim = integerQuantiles(ch_values, _quantiles);
