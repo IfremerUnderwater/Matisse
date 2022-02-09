@@ -80,7 +80,7 @@ void DataPreprocessingWizard::sl_selectDataPath()
 void DataPreprocessingWizard::sl_selectOutputPath()
 {
     QString output_folder = QFileDialog::getExistingDirectory(this, tr("Output path"),
-                                                              "./",
+                                                              ui->out_data_path_line->text(),
                                                               QFileDialog::ShowDirsOnly
                                                               | QFileDialog::DontResolveSymlinks);
     if (!output_folder.isEmpty())
