@@ -46,14 +46,22 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 	int half_ws = (m_ws-1)/2;
 
 	QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, m_graphic_parent);
-	int j = 1;
+	int k = 1;
+
+	bool exit_required = false;
 
 	// preprocess
 	#pragma omp parallel for if (!m_compensate_illumination)
 	for (int i = 0; i < im_nb; i++)
 	{
+		if (exit_required)
+			continue;
+
 		if (m_graphic_parent && prepro_progress.wasCanceled())
-			return false;
+		{
+			exit_required = true;
+			continue;
+		}
 
 		cv::Mat current_img = cv::imread(_input_img_files[i].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
 		
@@ -139,19 +147,19 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 			}
 
 			// Compute temporal median
-			if (!computeTemporalMedian())
-				return false;
+			if (computeTemporalMedian())
+			{
+				std::vector<cv::Mat> current_brg(3);
+				std::vector<cv::Mat> current_brg_corr(3);
+				cv::split(current_img, current_brg);
 
-			std::vector<cv::Mat> current_brg(3);
-			std::vector<cv::Mat> current_brg_corr(3);
-			cv::split(current_img, current_brg);
+				// compute illum correction
+				compensateIllumination(current_brg[0], bgr_lowres_img[0], m_blue_median_img, current_brg_corr[0]);
+				compensateIllumination(current_brg[1], bgr_lowres_img[1], m_green_median_img, current_brg_corr[1]);
+				compensateIllumination(current_brg[2], bgr_lowres_img[2], m_red_median_img, current_brg_corr[2]);
 
-			// compute illum correction
-			compensateIllumination(current_brg[0], bgr_lowres_img[0], m_blue_median_img, current_brg_corr[0]);
-			compensateIllumination(current_brg[1], bgr_lowres_img[1], m_green_median_img, current_brg_corr[1]);
-			compensateIllumination(current_brg[2], bgr_lowres_img[2], m_red_median_img, current_brg_corr[2]);
-
-			cv::merge(current_brg_corr, current_img);
+				cv::merge(current_brg_corr, current_img);
+			}
 
 		} // end need illumination compensation
 
@@ -170,12 +178,15 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 
 		if (m_graphic_parent)
 		{
-			prepro_progress.setValue(round(100 * j / im_nb));
-			j++;
+			prepro_progress.setValue(round(100 * k / im_nb));
+			k++;
 			QApplication::processEvents();
 		}
 
 	}
+
+	if (exit_required)
+		return false;
 
 	return true;
 }

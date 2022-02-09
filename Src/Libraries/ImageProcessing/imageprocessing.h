@@ -13,7 +13,7 @@ namespace image_processing {
 /// \param _low_high_out output range
 /// \param _stretched_img streched image
 ///
-void histogramStretch(cv::Mat &_in_img, cv::Point _low_high_in, cv::Point _low_high_out,  cv::Mat &_stretched_img, bool _gamma_undo = true);
+void histogramStretch(const cv::Mat &_in_img, const cv::Point &_low_high_in, const cv::Point &_low_high_out, cv::Mat &_stretched_img, const bool _gamma_undo = true);
 
 ///
 /// \brief histogramQuantileStretch
@@ -22,9 +22,10 @@ void histogramStretch(cv::Mat &_in_img, cv::Point _low_high_in, cv::Point _low_h
 /// \param _saturation_percentage
 /// \param _stretched_img
 ///
-void histogramQuantileStretch(cv::Mat &_in_img, cv::Mat &_in_mask, double _saturation_percentage,  cv::Mat &_stretched_img, bool _gamma_undo=true);
+void histogramQuantileStretch(const cv::Mat &_in_img, const cv::Mat &_in_mask, const double _saturation_percentage, cv::Mat &_stretched_img, const bool _gamma_undo=true);
 
-void stretchColorImg(cv::Mat& _in_img, std::vector<int>& _ch1_lim, std::vector<int>& _ch2_lim, std::vector<int>& _ch3_lim, cv::Mat& _stretched_img, bool _gamma_undo = true);
+void stretchColorImg(const cv::Mat& _in_img, const std::vector<int>& _ch1_lim, const std::vector<int>& _ch2_lim, const std::vector<int>& _ch3_lim, cv::Mat& _stretched_img, const bool _gamma_undo = true);
+
 void findImgColorQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, std::vector<double> &_quantiles, std::vector<int> &_ch1_lim, std::vector<int> &_ch2_lim, std::vector<int> &_ch3_lim);
 
 void findImgQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, std::vector<double>& _quantiles, std::vector<int>& _ch_lim);
@@ -34,19 +35,19 @@ void findImgQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, std::vect
 /// </summary>
 /// <param name="_lin">linear value</param>
 /// <returns>rgb value</returns>
-double lin2rgbf(double _lin);
+double lin2rgbf(const double _lin);
 
 /// <summary>
 /// Remove gamma transformation from rgb to linear
 /// </summary>
 /// <param name="_lin">linear value</param>
 /// <returns>rgb value</returns>
-double rgb2linf(double _rgb);
+double rgb2linf(const double _rgb);
 
 
-double gamma_do(double _input, double _gamma_value=5.0);
+double gamma_do(const double _input, const double _gamma_value=5.0);
 
-double gamma_undo(double _input, double _gamma_value=5.0);
+double gamma_undo(const double _input, const double _gamma_value=5.0);
 
 } // namespace image_processing
 
