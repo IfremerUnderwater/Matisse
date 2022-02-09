@@ -79,13 +79,13 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 			cv::resize(current_img, current_img, cv::Size(), m_prepro_img_scaling, m_prepro_img_scaling);
 
 		// correct colors
-		vector<int> ch1_lim, ch2_lim, ch3_lim;
+		std::vector<int> ch1_lim, ch2_lim, ch3_lim;
 		if (m_correct_colors)
 		{
 			// Construct required quantiles vector
-			vector<double> quantiles;
+			std::vector<double> quantiles;
 			quantiles.push_back(m_sat_thres);
-			quantiles.push_back(1 - m_sat_thres);
+			quantiles.push_back(1.0 - m_sat_thres);
 
 			// Get channels saturation limits
 			//findImgColorQuantiles(current_img, m_mask_img, quantiles, ch1_lim, ch2_lim, ch3_lim);
@@ -108,7 +108,7 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 						cv::Mat temp_img;
 						cv::resize(cv::imread(_input_img_files[j].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
 
-						vector<cv::Mat> temp_BRG(3);
+						std::vector<cv::Mat> temp_BRG(3);
 						cv::split(temp_img, temp_BRG);
 
 						// stacking images for median
@@ -122,10 +122,10 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 			}
 			else if (i + half_ws < im_nb - 1)
 			{
-				Mat temp_img;
+				cv::Mat temp_img;
 				cv::resize(cv::imread(_input_img_files[i + half_ws].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
 
-				vector<cv::Mat> temp_BRG(3);
+				std::vector<cv::Mat> temp_BRG(3);
 				cv::split(temp_img, temp_BRG);
 
 				// stacking images for median
@@ -142,16 +142,16 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 			if (!computeTemporalMedian())
 				return false;
 
-            vector<cv::Mat> current_brg(3);
-            vector<cv::Mat> current_brg_corr(3);
-            cv::split(current_img, current_brg);
+			std::vector<cv::Mat> current_brg(3);
+			std::vector<cv::Mat> current_brg_corr(3);
+			cv::split(current_img, current_brg);
 
 			// compute illum correction
-            compensateIllumination(current_brg[0], bgr_lowres_img[0], m_blue_median_img, current_brg_corr[0]);
-            compensateIllumination(current_brg[1], bgr_lowres_img[1], m_green_median_img, current_brg_corr[1]);
-            compensateIllumination(current_brg[2], bgr_lowres_img[2], m_red_median_img, current_brg_corr[2]);
+			compensateIllumination(current_brg[0], bgr_lowres_img[0], m_blue_median_img, current_brg_corr[0]);
+			compensateIllumination(current_brg[1], bgr_lowres_img[1], m_green_median_img, current_brg_corr[1]);
+			compensateIllumination(current_brg[2], bgr_lowres_img[2], m_red_median_img, current_brg_corr[2]);
 
-            cv::merge(current_brg_corr, current_img);
+			cv::merge(current_brg_corr, current_img);
 
 		} // end need illumination compensation
 
