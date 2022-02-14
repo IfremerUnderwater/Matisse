@@ -26,7 +26,7 @@ public:
 	/// <param name="_input_img_files">files path list</param>
 	/// <param name="_output_path">output folder path</param>
 	/// <returns>true on success</returns>
-	bool preprocessImageList(QStringList _input_img_files, QString _output_path);
+	bool preprocessImageList(const QStringList& _input_img_files, const QString& _output_path);
 
 	/// <summary>
 	/// Compute median image in the sliding window
@@ -42,7 +42,7 @@ public:
 	/// <param name="_temporal_median_image">Temporal median image</param>
 	/// <param name="_output_image">Compensated output image</param>
 	/// <returns>true on success</returns>
-	bool compensateIllumination(cv::Mat& _input_image, cv::Mat& _input_lowres, cv::Mat& _temporal_median_image, cv::Mat& _output_image);
+	bool compensateIllumination(const cv::Mat& _input_image, const cv::Mat& _input_lowres, const cv::Mat& _temporal_median_image, cv::Mat& _output_image);
 
 	/// <summary>
 	/// configure the preprocessing steps that are needed
@@ -50,7 +50,7 @@ public:
 	/// <param name="_correct_colors"></param>
 	/// <param name="_compensate_illumination"></param>
 	/// <param name="_prepro_img_scaling"></param>
-	void configureProcessing(bool _correct_colors = true, bool _compensate_illumination = true, double _prepro_img_scaling = 1.0, double _saturation_threshold = 0.0001);
+	void configureProcessing(const bool _correct_colors = true, const bool _compensate_illumination = true, const double _prepro_img_scaling = 1.0, const double _saturation_threshold = 0.0001, const cv::Mat& _mask_img = cv::Mat());
 
 
 private:
@@ -61,7 +61,7 @@ private:
 	bool m_compensate_illumination;
 	double m_sat_thres;
 
-	std::vector<cv::Mat> m_bgr_lowres_img;
+	cv::Mat m_mask_img;
 
 	cv::Mat m_blue_median_img;
 	cv::Mat m_green_median_img;
