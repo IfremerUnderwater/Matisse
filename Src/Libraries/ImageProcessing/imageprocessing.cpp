@@ -131,18 +131,21 @@ void findImgColorQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, vect
     if (ch_num < 3)
         return findImgQuantiles(_in_img, _in_mask, _quantiles, _ch1_lim);
 
-    // No need to compute sqrt as we are only interested in the alpha coef
-    // being less than 1.0 or not
-    // double alpha = sqrt(1e6 / ((double)_in_img.cols * _in_img.rows));
-    const double alpha = 1e6 / ((double)_in_img.cols * _in_img.rows);
+    const double alpha = sqrt(1e6 / ((double)_in_img.cols * _in_img.rows));
 
-    cv::Mat reduced_img;
+    cv::Mat reduced_img, reduced_mask;
 
     if (alpha < 1.0) {
         cv::resize(_in_img, reduced_img, cv::Size(), alpha, alpha);
+
+        if (!_in_mask.empty()) {
+            // Nearest neighb interpolation used to keep 0 or 255 values only
+            cv::resize(_in_mask, reduced_mask, cv::Size(), alpha, alpha, cv::INTER_NEAREST);
+        }
     }
     else {
         reduced_img = _in_img;
+        reduced_mask = _in_mask;
     }
 
     std::vector<int> ch1_values, ch2_values, ch3_values;
@@ -170,7 +173,7 @@ void findImgColorQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, vect
         for (int r = 0; r < reduced_img.rows; r++)
         {
             const Vec3b* img_row = reduced_img.ptr<Vec3b>(r);
-            const uchar* mask_row = _in_mask.ptr<uchar>(r);
+            const uchar* mask_row = reduced_mask.ptr<uchar>(r);
 
             for(int c = 0; c < reduced_img.cols; c++)
             {
@@ -192,18 +195,21 @@ void findImgColorQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, vect
 
 void findImgQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, std::vector<double>& _quantiles, std::vector<int>& _ch_lim)
 {
-    // No need to compute sqrt as we are only interested in the alpha coef
-    // being less than 1.0 or not
-    // double alpha = sqrt(1e6 / ((double)_in_img.cols * _in_img.rows));
-    const double alpha = 1e6 / ((double)_in_img.cols * _in_img.rows);
+    const double alpha = sqrt(1e6 / ((double)_in_img.cols * _in_img.rows));
 
-    cv::Mat reduced_img;
+    cv::Mat reduced_img, reduced_mask;
 
     if (alpha < 1.0) {
         cv::resize(_in_img, reduced_img, cv::Size(), alpha, alpha);
+
+        if (!_in_mask.empty()) {
+            // Nearest neighb interpolation used to keep 0 or 255 values only
+            cv::resize(_in_mask, reduced_mask, cv::Size(), alpha, alpha, cv::INTER_NEAREST);
+        }
     }
     else {
         reduced_img = _in_img;
+        reduced_mask = _in_mask;
     }
 
     std::vector<int> ch_values;
@@ -225,7 +231,7 @@ void findImgQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, std::vect
         for (int r = 0; r < reduced_img.rows; r++)
         {
             const uchar* img_row = reduced_img.ptr<uchar>(r);
-            const uchar* mask_row = _in_mask.ptr<uchar>(r);
+            const uchar* mask_row = reduced_mask.ptr<uchar>(r);
 
             for(int c = 0; c < reduced_img.cols; c++)
             {
