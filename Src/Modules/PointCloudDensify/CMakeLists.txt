@@ -20,7 +20,8 @@ target_link_libraries(PointCloudDensify
 	OpenMVG::openMVG_stlplus
     OpenMVG::openMVG_multiview
 	OpenMVG::openMVG_matching_image_collection
-	IO MVS Math Common CGAL::CGAL Boost::filesystem
+	IO MVS Math Common 
+	CGAL::CGAL Boost::filesystem
 	)
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
