@@ -255,12 +255,12 @@ bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image
 	//imshow("median img", _temporal_spatial_median_image);
 	//waitKey();
 
-	double out_perc = 0.01; // outlier percentage
-	double maximum_corr_factor = 10.0; // if correction is greater we truncate to this value
+	const double out_perc = 0.01; // outlier percentage
+	const double maximum_corr_factor = 10.0; // if correction is greater we truncate to this value
 	vector<double> channel_limits;
 	vector<double> quantiles;
 	quantiles.push_back(out_perc);
-	quantiles.push_back(1 - out_perc);
+	quantiles.push_back(1.0 - out_perc);
 
     for (int w = 0; w < temporal_spatial_median_image.cols; w++)
 	{
@@ -332,7 +332,7 @@ bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image
 	Mat _dbl_lowres_output_image;
 	_output_image = _input_image;
 
-	double corr_factor;
+	// double corr_factor;
 	double lin_input_mean = 0;
 	double lin_corr_mean = 0;
 	double scale_factor = 1.0;
@@ -343,13 +343,13 @@ bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image
 	{
 		for (int h = 0; h < _input_image.rows; h++)
 		{
-			temp_x = static_cast<double>(w) * m_lowres_comp_scaling / m_prepro_img_scaling;
-			temp_y = static_cast<double>(h) * m_lowres_comp_scaling / m_prepro_img_scaling;
-			temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
+			double temp_x = static_cast<double>(w) * m_lowres_comp_scaling / m_prepro_img_scaling;
+			double temp_y = static_cast<double>(h) * m_lowres_comp_scaling / m_prepro_img_scaling;
+			double temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
 				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
 				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
 
-			corr_factor = 1.0 / (temp_z);
+			double corr_factor = 1.0 / temp_z;
 
 			if (corr_factor > maximum_corr_factor || temp_z < 0)
 			{
