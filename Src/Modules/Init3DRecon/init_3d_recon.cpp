@@ -166,9 +166,9 @@ std::pair<bool, Vec3> Init3DRecon::getPriorWeights
     double Y_std = m_matisse_parameters->getDoubleParamValue("vehic_param","Y_std",ok);
     double depth_std = m_matisse_parameters->getDoubleParamValue("vehic_param","depth_std",ok);
 
-    val.second[0]=(reproj_std*reproj_std)/(X_std*X_std);
-    val.second[1]=(reproj_std*reproj_std)/(Y_std*Y_std);
-    val.second[2]=(reproj_std*reproj_std)/(depth_std*depth_std);
+    val.second[0]=reproj_std/X_std;
+    val.second[1]=reproj_std/Y_std;
+    val.second[2]=reproj_std/depth_std;
 
     return val;
 }

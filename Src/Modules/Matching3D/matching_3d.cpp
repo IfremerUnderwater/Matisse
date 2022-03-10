@@ -20,7 +20,7 @@
 #include "openMVG/sfm/sfm_data_io.hpp"
 #include "openMVG/system/timer.hpp"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
-#include "nonFree/sift/SIFT_describer_io.hpp"
+#include "openMVG_dependencies/nonFree/sift/SIFT_describer_io.hpp"
 #include <cereal/details/helpers.hpp>
 
 // For matching
@@ -398,25 +398,31 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
 
     // Compute Matches *****************************************************************************************************
  
-    // nearest matching method
+    // nearest matching method (for descriptor matching)
     QString nmm_param_value = m_matisse_parameters->getStringParamValue("algo_param", "nearest_matching_method");
     
     ok = true;
-    int vmm_param_val = m_matisse_parameters->getIntParamValue("algo_param", "video_mode_matching", ok);
-    if (!ok)
-        vmm_param_val = 5;
 
+    // Video mode is a transect mode where candidates matching images are selected sequentially
     bool video_mode_matching_enable = m_matisse_parameters->getBoolParamValue("algo_param", "video_mode_matching_enable", ok);
     if (!ok)
         video_mode_matching_enable = false;
 
+    // video_mode_matching defines the number of images to select as matching candidates if video_mode_matching_enable is true
+    int vmm_param_val = m_matisse_parameters->getIntParamValue("algo_param", "video_mode_matching", ok);
+    if (!ok)
+        vmm_param_val = 5;
+
+    // Nav based matching mode uses the prior navigation given for each image in order to select matching candidates
+    // based on a spatial distance check (only takes as candidates images closer than a specified max radius from the current image)
     bool nav_based_matching_enable = m_matisse_parameters->getBoolParamValue("algo_param", "nav_based_matching_enable", ok);
     if (!ok)
         nav_based_matching_enable = false;
 
+    // nav_based_matching_max_dist is the maximum radius (distance) at which we consider an images as being a matching candidate
     double nav_based_matching_max_dist = m_matisse_parameters->getDoubleParamValue("algo_param", "nav_based_matching_max_dist", ok);
     if (!ok)
-        nav_based_matching_max_dist = 10.0;
+        nav_based_matching_max_dist = 8.0;
 
     std::string s_sfm_data_filename = q_sfm_data_filename.toStdString();
     std::string s_matches_directory = s_out_dir.toStdString();
@@ -440,7 +446,8 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     {
         if (rc->all_images_have_nav)
         {
-            i_matching_video_mode = vmm_param_val;
+            // Limiting the maximum number of candidates to 50 for the nav based matching mode
+            i_matching_video_mode = 50;
             pair_mode = ePairMode::PAIR_FROM_GPS;
         }
         else
@@ -538,7 +545,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     }
 
     // Show the progress on the command line:
-    C_Progress_display progress;
+    //C_Progress_display progress;
 
     if (!regions_provider->load(sfm_data, s_matches_directory, regions_type, this)) {
         fatalErrorExit("Matching : invalid regions");
@@ -744,7 +751,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                         {
                             // Do not add pair if images are too spread away
                             if( vec_distance.at(i) > nav_based_matching_max_dist) {
-                                std::cout << "> Distance is  : " << vec_distance.at(i) << " m ==> REMOVING PAIR!\n";
+                                std::cout << "> Images #" << vec_indices[i].j_ << " distance is  : " << vec_distance.at(i) << " m ==> REMOVING PAIR!\n";
                                 continue;
                             }
 
@@ -758,6 +765,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                     }
                     
                     // MAKE SURE THAT Prev & Next views are added as candidates for matching
+                    // (safer in case of bad prior nav)
                     if (contiguous_pose_id > 0)
                     {
                         pairs.insert(Pair(IndexT(contiguous_pose_id-1),IndexT(contiguous_pose_id)));

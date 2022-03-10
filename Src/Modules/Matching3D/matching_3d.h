@@ -3,7 +3,8 @@
 
 
 #include "processor.h"
-#include "third_party/progress/progress.hpp"
+#include "openMVG/system/progressinterface.hpp"
+//#include "third_party/progress/progress.hpp"
 
 namespace matisse {
 
@@ -29,7 +30,7 @@ enum ePairMode
  * Module1
  * @brief  Exemple de module pour implementer un algorithme de traitement dans Matisse
  */
-class Matching3D : public Processor, public C_Progress
+class Matching3D : public Processor, public openMVG::system::ProgressInterface
 {
     Q_OBJECT
     Q_INTERFACES(matisse::Processor)
@@ -47,18 +48,18 @@ public:
     virtual void onFlush(quint32 _port);
     virtual void onNewImage(quint32 _port, matisse_image::Image &_image);
 
-    /** @brief Initializer of the C_Progress class
-* @param _ul_expected_count The number of step of the process
-* @param _msg updates the status string. Can be empty to keep the last one.
-**/
-    void restart(unsigned long _ul_expected_count, const std::string& _msg = std::string()) override
-        //  Effects: display appropriate scale
-        //  Postconditions: count()==0, expected_count()==expected_count
+/** @brief Initializer of the ProgressInterface class
+   * @param[in] expected_count The number of step of the process
+   * @param[in] msg an optional status message
+   * @return void if the progress class can be initialized, else it return false
+   **/
+    virtual void Restart(const std::uint32_t expected_count, const std::string& msg = {})
     {
-        C_Progress::restart(_ul_expected_count, _msg); //-- Initialize the base class
-        if (!_msg.empty())
+      openMVG::system::ProgressInterface::Restart(expected_count,msg);
+	  
+        if (!msg.empty())
         {
-            QString qmsg = "Matching :" + QString::fromStdString(_msg).remove('\n').remove('-');
+            QString qmsg = "Matching :" + QString::fromStdString(msg).remove('\n').remove('-');
             emit si_userInformation(qmsg);
         }
 
@@ -69,9 +70,12 @@ private:
     bool computeMatches(eGeometricModel _geometric_model_to_compute = FUNDAMENTAL_MATRIX);
 
     /** @brief Function that ... **/
-    void inc_tic() override
+    std::uint32_t operator+=(const std::uint32_t increment) override
     {
-        emit si_processCompletion((int)(_count / (float)_expected_count * 100 + .5));
+		//openMVG::system::ProgressInterface::operator+=(increment);
+        emit si_processCompletion(Percent());
+		count_ += increment;
+        return count_;
     } // display_tic
 };
 

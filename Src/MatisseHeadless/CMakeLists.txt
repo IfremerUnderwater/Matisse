@@ -18,7 +18,7 @@ target_link_libraries(MatisseHeadless PUBLIC
 	Qt5::Xml 
 	Qt5::XmlPatterns 
 	Qt5::OpenGL 
-	GDAL::GDAL 
+	${GDAL_LIBRARY} 
 	${QUAZIP_LIBRARIES} 
 	${OPENSCENEGRAPH_LIBRARIES}
 	)

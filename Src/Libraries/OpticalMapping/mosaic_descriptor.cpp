@@ -6,6 +6,7 @@
 #include <iterator>
 #include "raster_georeferencer.h"
 #include "Polygon.h"
+#include <GeographicLib/UTMUPS.hpp>
 
 using namespace cv;
 using namespace basic_processing;
@@ -122,9 +123,14 @@ void MosaicDescriptor::initCamerasAndFrames(QVector<ProjectiveCamera*> _camera_n
         qDebug() << "Cannot retrieve UTM Zone\n";
         exit(1);
     }else{
-        QStringList utm_params = utm_zone.split(" ");
-        setUtmZone(utm_params.at(0).toInt());
-        setUtmHemisphere(utm_params.at(1));
+        int zone;
+        bool northp;
+        GeographicLib::UTMUPS::DecodeZone(utm_zone.toStdString(), zone, northp);
+        setUtmZone(zone);
+        if(northp)
+            setUtmHemisphere("N");
+        else
+            setUtmHemisphere("S");
     }
 
     // Projection of all images navigation to utmZone of the MosaicDescriptor

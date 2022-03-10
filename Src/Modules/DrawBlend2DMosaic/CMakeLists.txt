@@ -18,8 +18,7 @@ target_link_libraries(DrawBlend2DMosaic
 	Qt5::Xml 
 	Qt5::Widgets 
 	${QUAZIP_LIBRARIES} 
-	GDAL::GDAL 
-	${PROJ_LIBS}
+	${GDAL_LIBRARY} 
 	)
 
 add_custom_command(
