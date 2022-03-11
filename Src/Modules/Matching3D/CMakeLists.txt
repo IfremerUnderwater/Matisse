@@ -10,6 +10,7 @@ target_link_libraries(Matching3D
 	MatisseImage
 	BasicProcessing
 	OpticalMapping
+	SiftGpu
 	${OpenCV_LIBS}
 	Qt5::Core 
 	Qt5::Xml 
@@ -32,6 +33,7 @@ target_link_libraries(Matching3D
 	MatisseImage
 	BasicProcessing
 	OpticalMapping
+	SiftGpu
 	${OpenCV_LIBS}
 	Qt5::Core 
 	Qt5::Xml 

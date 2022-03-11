@@ -22,6 +22,7 @@
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include "openMVG_dependencies/nonFree/sift/SIFT_describer_io.hpp"
 #include <cereal/details/helpers.hpp>
+#include "SiftGPU.h"
 
 // For matching
 #include "openMVG/graph/graph.hpp"
@@ -135,6 +136,12 @@ bool Matching3D::computeFeatures()
     bool force_recompute = m_matisse_parameters->getBoolParamValue("algo_param", "force_recompute", ok);
     bool b_up_right = false;
 
+    //this will use overloaded new operators
+    /*SiftGPU* sift = new SiftGPU;
+    SiftMatchGPU* matcher = new SiftMatchGPU(4096);
+    if (sift->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
+        return 0;*/
+
     // get nb of threads
     int nbthreads = QThread::idealThreadCount();
 
@@ -167,16 +174,13 @@ bool Matching3D::computeFeatures()
     //---------------------------------------
     SfM_Data sfm_data;
     if (!Load(sfm_data, s_sfm_data_filename.toStdString(), ESfM_Data(VIEWS | INTRINSICS))) {
-        //std::cerr << std::endl
-        //    << "The input file \"" << sSfM_Data_Filename << "\" cannot be read" << std::endl;
-        fatalErrorExit("Matcching : input data cannot be read (sfm_data)");
+        fatalErrorExit("Matching : input data cannot be read (sfm_data)");
         return false;
     }
 
     // b. Init the image_describer
     // - retrieve the used one in case of pre-computed features
     // - else create the desired one
-
     using namespace openMVG::features;
     std::unique_ptr<Image_describer> image_describer;
 
@@ -234,8 +238,6 @@ bool Matching3D::computeFeatures()
         {
             fatalErrorExit("Matching : unable to open image describer");
             return false;
-            //std::cerr << "Cannot create the designed Image_describer:"
-            //    << methodParamval.toStdString() << "." << std::endl;
 
         }
         else

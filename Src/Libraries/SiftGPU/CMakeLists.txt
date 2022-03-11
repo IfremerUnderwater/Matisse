@@ -1,4 +1,4 @@
-if(NOT IS_MSVC)
+if(NOT MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
@@ -27,9 +27,9 @@ set(SIFT_GPU_SOURCE_FILES
 )
 
 
-add_library(sift_gpu ${SIFT_GPU_SOURCE_FILES})
+add_library(SiftGpu ${SIFT_GPU_SOURCE_FILES})
 
-target_link_libraries(sift_gpu
+target_link_libraries(SiftGpu
     ${SIFT_GPU_LIBRARIES}
     ${GLEW_LIBRARIES}
     ${OPENGL_gl_LIBRARY}
@@ -37,6 +37,6 @@ target_link_libraries(sift_gpu
 )
 
 # state that anybody linking to us needs to include the current source dir
-target_include_directories(sift_gpu
+target_include_directories(SiftGpu
           INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
           )
