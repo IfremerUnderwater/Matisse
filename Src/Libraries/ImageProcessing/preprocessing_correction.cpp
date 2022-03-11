@@ -351,15 +351,24 @@ bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image
 	{
 		// A = [x. ^ 3, y. ^ 3, x.*y. ^ 2, x. ^ 2. * y, x. ^ 2, y. ^ 2, x.*y, x, y, ones(size(x))];
 		// idx  0       1       2          3            4       5       6     7  8  9
-		A.at<double>(i, 0) = pow(x[i], 3);
-		A.at<double>(i, 1) = pow(y[i], 3);
-		A.at<double>(i, 2) = x[i]*pow(y[i], 2);
-		A.at<double>(i, 3) = pow(x[i],2)*y[i];
-		A.at<double>(i, 4) = pow(x[i], 2);
-		A.at<double>(i, 5) = pow(y[i], 2);
-		A.at<double>(i, 6) = x[i]*y[i];
-		A.at<double>(i, 7) = x[i];
-		A.at<double>(i, 8) = y[i];
+		
+		const double x1 = x[i];
+		const double x2 = x1*x1;
+		const double x3 = x2*x1;
+
+		const double y1 = y[i];
+		const double y2 = y1*y1;
+		const double y3 = y2*y1;
+
+		A.at<double>(i, 0) = x3;
+		A.at<double>(i, 1) = y3;
+		A.at<double>(i, 2) = x1*y2;
+		A.at<double>(i, 3) = x2*y1;
+		A.at<double>(i, 4) = x2;
+		A.at<double>(i, 5) = y2;
+		A.at<double>(i, 6) = x1*y1;
+		A.at<double>(i, 7) = x1;
+		A.at<double>(i, 8) = y1;
 		A.at<double>(i, 9) = 1;
 
 		b.at<double>(i) = z[i];
