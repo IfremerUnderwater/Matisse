@@ -33,9 +33,20 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 {
 	// check if we need to reduce image resolution
 	cv::Mat first_img = cv::imread(_input_img_files[0].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+
 	m_lowres_comp_scaling = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 0.1Mpx
 	if (m_lowres_comp_scaling > 1.0)
 		m_lowres_comp_scaling = 1.0;
+
+	// Setup the mask only once as the same mask is to be used for all images
+	cv::Mat lowres_mask;
+	if (!m_mask_img.empty()) 
+	{
+		if (m_lowres_comp_scaling < 1.0)
+			cv::resize(m_mask_img, lowres_mask, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
+		else
+			lowres_mask = m_mask_img;
+	}
 
 	if (_input_img_files.size() < m_ws && m_compensate_illumination)
 	{
@@ -97,9 +108,9 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 
 			// Get channels saturation limits
 			//findImgColorQuantiles(current_img, m_mask_img, quantiles, ch1_lim, ch2_lim, ch3_lim);
-			findImgQuantiles(bgr_lowres_img[0], m_mask_img, quantiles, ch1_lim);
-			findImgQuantiles(bgr_lowres_img[1], m_mask_img, quantiles, ch2_lim);
-			findImgQuantiles(bgr_lowres_img[2], m_mask_img, quantiles, ch3_lim);
+			findImgQuantiles(bgr_lowres_img[0], lowres_mask, quantiles, ch1_lim);
+			findImgQuantiles(bgr_lowres_img[1], lowres_mask, quantiles, ch2_lim);
+			findImgQuantiles(bgr_lowres_img[2], lowres_mask, quantiles, ch3_lim);
 		}
 
 		// need illumination compensation
@@ -166,7 +177,6 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 				// correct colors
 		if (m_correct_colors)
 		{
-
 			// Strech img according to saturation limit
 			stretchColorImg(current_img, ch1_lim, ch2_lim, ch3_lim, current_img, false);
 		}
@@ -176,6 +186,7 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 		QString outfile = _output_path + QDir::separator() + current_file_info.fileName();
 		cv::imwrite(outfile.toStdString(), current_img);
 
+		#pragma omp critical
 		if (m_graphic_parent)
 		{
 			prepro_progress.setValue(round(100 * k / im_nb));
@@ -429,8 +440,6 @@ void PreprocessingCorrection::configureProcessing(const bool _correct_colors, co
 	if (!_mask_img.empty())
 	{
 		_mask_img.copyTo(m_mask_img);
-		if (m_prepro_img_scaling < 1.0)
-			cv::resize(m_mask_img, m_mask_img, cv::Size(), m_prepro_img_scaling, m_prepro_img_scaling);
 	}
 }
 
