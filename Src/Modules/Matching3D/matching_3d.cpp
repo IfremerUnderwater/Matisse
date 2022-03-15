@@ -205,33 +205,37 @@ bool Matching3D::computeFeatures()
     }
     else
     {
-        // Create the desired Image_describer method.
-        // Don't use a factory, perform direct allocation
-        if (method_paramval == "SIFT")
-        {
-            image_describer.reset(new SIFT_Image_describer
-            (SIFT_Image_describer::Params(), !b_up_right));
-        }
-        else
-            if (method_paramval == "SIFT_ANATOMY")
-            {
-                image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params()));
+		// Create the desired Image_describer method.
+		// Don't use a factory, perform direct allocation
+		if (method_paramval == "SIFT_GPU")
+		{
+			image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params()));
+		}
+		else
+			if (method_paramval == "SIFT")
+			{
+				image_describer.reset(new SIFT_Image_describer
+				(SIFT_Image_describer::Params(), !b_up_right));
+			}
+			else
+				if (method_paramval == "SIFT_ANATOMY")
+				{
+					image_describer.reset(
+						new SIFT_Anatomy_Image_describer(SIFT_Anatomy_Image_describer::Params()));
+				}
+				else
+					if (method_paramval == "AKAZE_FLOAT")
+					{
+						image_describer = AKAZE_Image_describer::create
+						(AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MSURF), !b_up_right);
+					}
+					else
+						if (method_paramval == "AKAZE_MLDB")
+						{
+							image_describer = AKAZE_Image_describer::create
+							(AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MLDB), !b_up_right);
+						}
 
-                /*image_describer.reset(
-                    new SIFT_Anatomy_Image_describer(SIFT_Anatomy_Image_describer::Params()));*/
-            }
-            else
-                if (method_paramval == "AKAZE_FLOAT")
-                {
-                    image_describer = AKAZE_Image_describer::create
-                    (AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MSURF), !b_up_right);
-                }
-                else
-                    if (method_paramval == "AKAZE_MLDB")
-                    {
-                        image_describer = AKAZE_Image_describer::create
-                        (AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MLDB), !b_up_right);
-                    }
         if (!image_describer)
         {
             fatalErrorExit("Matching : unable to open image describer");

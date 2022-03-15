@@ -71,13 +71,54 @@ public:
 
       if (sift_gpu_)
       {
-          char* argv[] = { "-fo", "-1",  "-v", "1", "-maxd", "32768" };// temporary just for testing
-          int argc = sizeof(argv) / sizeof(char*);
-          sift_gpu_->ParseParam(argc, (const char**)argv);
+          UpdateConfigFromParam();
       }
 
   }
 
+  void UpdateConfigFromParam()
+  {
+      std::vector<std::string> sift_gpu_args;
+
+      sift_gpu_args.push_back("./sift_gpu");
+
+      sift_gpu_args.push_back("-da");
+      // No verbose logging.
+      sift_gpu_args.push_back("-v");
+      sift_gpu_args.push_back("0");
+
+      // Fixed maximum image dimension.
+      sift_gpu_args.push_back("-maxd");
+      sift_gpu_args.push_back(std::to_string(32768));
+
+      // Keep the highest level features.
+      //sift_gpu_args.push_back("-tc2");
+      //sift_gpu_args.push_back(std::to_string(params_.max_num_features));
+
+      // First octave level.
+      sift_gpu_args.push_back("-fo");
+      sift_gpu_args.push_back(std::to_string(params_.first_octave_));
+
+      // Number of octave levels.
+      sift_gpu_args.push_back("-d");
+      sift_gpu_args.push_back(std::to_string(params_.num_octaves_));
+
+      // Peak threshold.
+      sift_gpu_args.push_back("-t");
+      sift_gpu_args.push_back(std::to_string(params_.peak_threshold_));
+
+      // Edge threshold.
+      sift_gpu_args.push_back("-e");
+      sift_gpu_args.push_back(std::to_string(params_.edge_threshold_));
+
+      std::vector<const char*> sift_gpu_args_cstr;
+      sift_gpu_args_cstr.reserve(sift_gpu_args.size());
+      for (const auto& arg : sift_gpu_args) {
+          sift_gpu_args_cstr.push_back(arg.c_str());
+      }
+
+      sift_gpu_->ParseParam(sift_gpu_args_cstr.size(), sift_gpu_args_cstr.data());
+  }
 
   bool Set_configuration_preset(EDESCRIBER_PRESET preset) override
   {
@@ -97,6 +138,8 @@ public:
       OPENMVG_LOG_ERROR << "Invalid preset configuration";
       return false;
     }
+    UpdateConfigFromParam();
+
     return true;
   }
 

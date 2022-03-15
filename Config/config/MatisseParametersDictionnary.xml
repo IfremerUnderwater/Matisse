@@ -145,6 +145,7 @@
             <EnumValue name="ULTRA" text="ULTRA"/>
         </Enum>
         <Enum name="DESCRIBER_METHOD">
+		    <EnumValue name="SIFT_GPU" text="SIFT_GPU"/>
             <EnumValue name="SIFT_ANATOMY" text="SIFT_ANATOMY"/>
             <EnumValue name="SIFT" text="SIFT"/>
             <EnumValue name="AKAZE_FLOAT" text="AKAZE_FLOAT"/>
@@ -152,6 +153,7 @@
         </Enum>
         <Enum name="NEARESTMATCH_METHOD">
             <EnumValue name="AUTO" text="AUTO"/>
+		    <EnumValue name="GPU_BRUTEFORCE" text="GPU_BRUTEFORCE"/>
             <EnumValue name="BRUTEFORCEL2" text="BRUTEFORCEL2"/>
             <EnumValue name="ANNL2" text="ANNL2"/>
             <EnumValue name="CASCADEHASHINGL2" text="CASCADEHASHINGL2"/>
