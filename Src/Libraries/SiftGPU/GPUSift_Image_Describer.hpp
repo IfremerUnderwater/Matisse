@@ -99,9 +99,13 @@ public:
       sift_gpu_args.push_back("-fo");
       sift_gpu_args.push_back(std::to_string(params_.first_octave_));
 
-      // Number of octave levels.
+      // Number of dog levels in an octave.
       sift_gpu_args.push_back("-d");
-      sift_gpu_args.push_back(std::to_string(params_.num_octaves_));
+      sift_gpu_args.push_back(std::to_string(params_.num_scales_));
+
+      // Number of octave levels.
+      //sift_gpu_args.push_back("-d");
+      //sift_gpu_args.push_back(std::to_string(params_.num_scales_));
 
       // Peak threshold.
       sift_gpu_args.push_back("-t");
