@@ -23,6 +23,7 @@
 #include "openMVG_dependencies/nonFree/sift/SIFT_describer_io.hpp"
 #include <cereal/details/helpers.hpp>
 #include "SiftGPU.h"
+#include "GPUSift_Image_Describer_io.hpp"
 
 // For matching
 #include "openMVG/graph/graph.hpp"
@@ -136,11 +137,8 @@ bool Matching3D::computeFeatures()
     bool force_recompute = m_matisse_parameters->getBoolParamValue("algo_param", "force_recompute", ok);
     bool b_up_right = false;
 
-    //this will use overloaded new operators
-    /*SiftGPU* sift = new SiftGPU;
-    SiftMatchGPU* matcher = new SiftMatchGPU(4096);
-    if (sift->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
-        return 0;*/
+
+    //SiftMatchGPU* matcher = new SiftMatchGPU(4096);
 
     // get nb of threads
     int nbthreads = QThread::idealThreadCount();
@@ -219,8 +217,10 @@ bool Matching3D::computeFeatures()
         else
             if (method_paramval == "SIFT_ANATOMY")
             {
-                image_describer.reset(
-                    new SIFT_Anatomy_Image_describer(SIFT_Anatomy_Image_describer::Params()));
+                image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params()));
+
+                /*image_describer.reset(
+                    new SIFT_Anatomy_Image_describer(SIFT_Anatomy_Image_describer::Params()));*/
             }
             else
                 if (method_paramval == "AKAZE_FLOAT")
