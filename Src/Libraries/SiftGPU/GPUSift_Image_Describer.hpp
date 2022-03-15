@@ -71,7 +71,7 @@ public:
 
       if (sift_gpu_)
       {
-          char* argv[] = { "-fo", "-1",  "-v", "1" };// temporary just for testing
+          char* argv[] = { "-fo", "-1",  "-v", "1", "-maxd", "32768" };// temporary just for testing
           int argc = sizeof(argv) / sizeof(char*);
           sift_gpu_->ParseParam(argc, (const char**)argv);
       }

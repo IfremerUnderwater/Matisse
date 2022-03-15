@@ -96,7 +96,8 @@ features::EDESCRIBER_PRESET stringToEnum(const QString& _s_preset)
 
 
 Matching3D::Matching3D() :
-    Processor(NULL, "Matching3D", "Match images and filter with geometric transformation", 1, 1)
+    Processor(NULL, "Matching3D", "Match images and filter with geometric transformation", 1, 1),
+    m_gpu_features(false)
 {
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("algo_param", "force_recompute");
@@ -136,9 +137,6 @@ bool Matching3D::computeFeatures()
     bool ok = true;
     bool force_recompute = m_matisse_parameters->getBoolParamValue("algo_param", "force_recompute", ok);
     bool b_up_right = false;
-
-
-    //SiftMatchGPU* matcher = new SiftMatchGPU(4096);
 
     // get nb of threads
     int nbthreads = QThread::idealThreadCount();
@@ -266,6 +264,20 @@ bool Matching3D::computeFeatures()
         }
     }
 
+    // Check gpu feature usage as we must use mono thread for gpusift
+    // This way of detection work both for first config but also with json loading
+    if (dynamic_cast<GpuSift_Image_describer*>(image_describer.get()))
+    {
+        m_gpu_features = true;
+        std::cout << "Detected GPU usage for features extraction\n";
+    }
+    else
+    {
+        m_gpu_features = false;
+        std::cout << "No GPU usage for features extraction\n";
+    }
+
+
     // Feature extraction routines
     // For each View of the SfM_Data container:
     // - if regions file exists continue,
@@ -285,7 +297,7 @@ bool Matching3D::computeFeatures()
 
         omp_set_num_threads(nbthreads);
 
-#pragma omp parallel for schedule(dynamic) if (nbthreads > 0) private(image_gray)
+#pragma omp parallel for schedule(dynamic) if (nbthreads > 0 && !m_gpu_features) private(image_gray)
 
         for (int i = 0; i < static_cast<int>(sfm_data.views.size()); ++i)
         {
