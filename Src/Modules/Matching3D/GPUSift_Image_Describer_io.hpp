@@ -1,7 +1,7 @@
 #ifndef OPENMVG_FEATURES_SIFT_GPUSIFT_IMAGE_DESCRIBER_IO_HPP
 #define OPENMVG_FEATURES_SIFT_GPUSIFT_IMAGE_DESCRIBER_IO_HPP
 
-#include "GpuSift_Image_Describer.hpp"
+#include "GPUSift_Image_Describer.hpp"
 
 #include <cereal/cereal.hpp>
 #include <cereal/types/polymorphic.hpp>
