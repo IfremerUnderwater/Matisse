@@ -347,7 +347,7 @@ bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image
 	const size_t nb_els = z.size();
 	
 	#pragma omp parallel for
-	for (size_t i = 0; i < nb_els; i++)
+	for (int i = 0; i < nb_els; i++)
 	{
 		// A = [x. ^ 3, y. ^ 3, x.*y. ^ 2, x. ^ 2. * y, x. ^ 2, y. ^ 2, x.*y, x, y, ones(size(x))];
 		// idx  0       1       2          3            4       5       6     7  8  9
