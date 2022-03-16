@@ -85,11 +85,11 @@ public:
       sift_gpu_args.push_back("-da");
       // No verbose logging.
       sift_gpu_args.push_back("-v");
-      sift_gpu_args.push_back("0");
+      sift_gpu_args.push_back("1");
 
       // Fixed maximum image dimension.
       sift_gpu_args.push_back("-maxd");
-      sift_gpu_args.push_back(std::to_string(32768));
+      sift_gpu_args.push_back(std::to_string(32000));
 
       // Keep the highest level features.
       //sift_gpu_args.push_back("-tc2");
@@ -129,13 +129,13 @@ public:
     switch (preset)
     {
     case NORMAL_PRESET:
-      params_.peak_threshold_ = 0.04f;
+      params_.peak_threshold_ = 0.04f/3;
     break;
     case HIGH_PRESET:
-      params_.peak_threshold_ = 0.01f;
+      params_.peak_threshold_ = 0.02f/3;
     break;
     case ULTRA_PRESET:
-      params_.peak_threshold_ = 0.01f;
+      params_.peak_threshold_ = 0.02f/3;
       params_.first_octave_ = -1;
     break;
     default:

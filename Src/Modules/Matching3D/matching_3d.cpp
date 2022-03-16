@@ -49,6 +49,7 @@
 #include "openMVG/stl/stl.hpp"
 
 #include "openMVG/matching/matcher_brute_force.hpp"
+#include "GPUSift_Matcher_Regions.hpp"
 
 #include <atomic>
 #include <cstdlib>
@@ -643,6 +644,12 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                 }
         }
         else
+        if (s_nearest_matching_method == "GPU_BRUTEFORCE")
+        {
+            std::cout << "Using GPU_BRUTEFORCE matcher" << std::endl;
+            collection_matcher.reset(new GpuSift_Matcher_Regions(f_dist_ratio));
+        }
+        else
         if (s_nearest_matching_method == "BRUTEFORCEL2")
         {
             std::cout << "Using BRUTE_FORCE_L2 matcher" << std::endl;
@@ -755,21 +762,21 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                     std::vector<double> vec_distance;
                     const int NN = i_matching_video_mode + 1; // since itself will be found    
                     
-                    std::cout << "\n Spatial Matching for Image #" << contiguous_pose_id << " : \n";
+                    //std::cout << "\n Spatial Matching for Image #" << contiguous_pose_id << " : \n";
 
                     if (matcher.SearchNeighbours(query, 1, &vec_indices, &vec_distance, NN))
                     {
-                        std::cout << "> Found #" << vec_indices.size() -1 << "neighbor(s) - ids : ";
-                        for (const auto & vec_id : vec_indices)
-                            std::cout << "(" << vec_id.i_ << "," << vec_id.j_ << "), ";
-                        std::cout << "!\n";
+                        //std::cout << "> Found #" << vec_indices.size() -1 << "neighbor(s) - ids : ";
+                        //for (const auto & vec_id : vec_indices)
+                        //    std::cout << "(" << vec_id.i_ << "," << vec_id.j_ << "), ";
+                        //std::cout << "!\n";
 
                         // Starting at i=1 because 0 will always be the image itself
                         for (size_t i = 1; i < vec_indices.size(); ++i)
                         {
                             // Do not add pair if images are too spread away
                             if( vec_distance.at(i) > nav_based_matching_max_dist) {
-                                std::cout << "> Images #" << vec_indices[i].j_ << " distance is  : " << vec_distance.at(i) << " m ==> REMOVING PAIR!\n";
+                                //std::cout << "> Images #" << vec_indices[i].j_ << " distance is  : " << vec_distance.at(i) << " m ==> REMOVING PAIR!\n";
                                 continue;
                             }
 
