@@ -129,6 +129,8 @@ void Matching3D::onNewImage(quint32 _port, matisse_image::Image &_image)
 
 bool Matching3D::computeFeatures()
 {
+    SiftGPU *sift_gpu = new SiftGPU;
+
     static const QString SEP = QDir::separator();
 
     emit si_processCompletion(0);
@@ -181,35 +183,35 @@ bool Matching3D::computeFeatures()
     std::unique_ptr<Image_describer> image_describer;
 
     const std::string s_image_describer = stlplus::create_filespec(s_out_dir.toStdString(), "image_describer", "json");
-    if (!force_recompute && stlplus::is_file(s_image_describer))
-    {
-        // Dynamically load the image_describer from the file (will restore old used settings)
-        std::ifstream stream(s_image_describer.c_str());
-        if (!stream.is_open())
-        {
-            fatalErrorExit("Matching : unable to open image describer");
-            return false;
-        }
+    //if (!force_recompute && stlplus::is_file(s_image_describer))
+    //{
+    //    // Dynamically load the image_describer from the file (will restore old used settings)
+    //    std::ifstream stream(s_image_describer.c_str());
+    //    if (!stream.is_open())
+    //    {
+    //        fatalErrorExit("Matching : unable to open image describer");
+    //        return false;
+    //    }
 
 
-        try
-        {
-            cereal::JSONInputArchive archive(stream);
-            archive(cereal::make_nvp("image_describer", image_describer));
-        }
-        catch (const cereal::Exception& e)
-        {
-            fatalErrorExit("Matching : unable to open image describer");
-            return false;
-        }
-    }
-    else
+    //    try
+    //    {
+    //        cereal::JSONInputArchive archive(stream);
+    //        archive(cereal::make_nvp("image_describer", image_describer));
+    //    }
+    //    catch (const cereal::Exception& e)
+    //    {
+    //        fatalErrorExit("Matching : unable to open image describer");
+    //        return false;
+    //    }
+    //}
+    //else
     {
 		// Create the desired Image_describer method.
 		// Don't use a factory, perform direct allocation
 		if (method_paramval == "SIFT_GPU")
 		{
-			image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params()));
+			image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params(), sift_gpu));
 		}
 		else
 			if (method_paramval == "SIFT")
@@ -381,6 +383,8 @@ bool Matching3D::computeFeatures()
         }
         std::cout << "Task done in (s): " << timer.elapsed() << std::endl;
     }
+
+    delete sift_gpu;
 
     return true;
 }
