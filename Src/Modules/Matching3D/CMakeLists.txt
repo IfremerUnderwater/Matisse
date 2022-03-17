@@ -1,6 +1,7 @@
 add_library(Matching3D SHARED
     matching_3d.cpp
 	GPUSift_Matcher_Regions.cpp
+	opengl_utils.cc
     )
 
 include_directories(${OPENMVG_INSTALL_PATH}/include/openMVG_dependencies)

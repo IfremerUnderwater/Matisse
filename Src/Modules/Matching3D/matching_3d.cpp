@@ -22,8 +22,7 @@
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include "openMVG_dependencies/nonFree/sift/SIFT_describer_io.hpp"
 #include <cereal/details/helpers.hpp>
-#include "SiftGPU.h"
-#include "GPUSift_Image_Describer_io.hpp"
+
 
 // For matching
 #include "openMVG/graph/graph.hpp"
@@ -49,7 +48,7 @@
 #include "openMVG/stl/stl.hpp"
 
 #include "openMVG/matching/matcher_brute_force.hpp"
-#include "GPUSift_Matcher_Regions.hpp"
+
 
 #include <atomic>
 #include <cstdlib>
@@ -977,6 +976,9 @@ bool Matching3D::stop()
 void Matching3D::onFlush(quint32 _port)
 {
     Q_UNUSED(_port)
+
+    // switch opengl context to current processing thread
+    m_context_manager.MakeCurrent();
 
     // Log
     QString proc_info = logPrefix() + "Features matching started\n";

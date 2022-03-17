@@ -62,7 +62,8 @@ public:
       if (!sift_gpu)
       {
           sift_gpu_ = new SiftGPU;
-          if (sift_gpu_->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
+          //if (sift_gpu_->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
+          if (sift_gpu_->VerifyContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
           {
               delete sift_gpu_;
               sift_gpu_ = nullptr;
@@ -160,6 +161,8 @@ public:
   )
   {
     auto regions = std::unique_ptr<Regions_type>(new Regions_type);
+
+    UpdateConfigFromParam();
 
     if (image.size() == 0)
       return regions;
