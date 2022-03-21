@@ -204,7 +204,9 @@ public:
             {
                 for (std::size_t j = 0; j < 128; j++)
                 {
-                    descr[j] = static_cast<unsigned char>(512*descriptors[i * 128 + j]);
+                  // Cast float to unsigned char (32 bits ==> 8 bits)
+                  const float d = std::round(512.0f*descriptors[i * 128 + j]);
+                  descr[j] = cv::saturate_cast<unsigned char>(d);
                 }
                 regions->Descriptors().emplace_back(descr);
                 regions->Features().emplace_back(k.x, k.y, k.s, k.o);
