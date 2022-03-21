@@ -62,6 +62,7 @@
 #include <string>
 #include <vector>
 
+//#include "GlobalUtil.h"
 
 using namespace openMVG;
 using namespace openMVG::image;
@@ -129,7 +130,7 @@ void Matching3D::onNewImage(quint32 _port, matisse_image::Image &_image)
 
 bool Matching3D::computeFeatures()
 {
-    SiftGPU *sift_gpu = new SiftGPU;
+    //SiftGPU *sift_gpu = new SiftGPU;
 
     static const QString SEP = QDir::separator();
 
@@ -211,7 +212,9 @@ bool Matching3D::computeFeatures()
 		// Don't use a factory, perform direct allocation
 		if (method_paramval == "SIFT_GPU")
 		{
-			image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params(), sift_gpu));
+			//image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params(), sift_gpu));
+            image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params()));
+            //std::cout << "mbmb =" << GlobalParam::_MemCapGPU;
 		}
 		else
 			if (method_paramval == "SIFT")
@@ -384,7 +387,7 @@ bool Matching3D::computeFeatures()
         std::cout << "Task done in (s): " << timer.elapsed() << std::endl;
     }
 
-    delete sift_gpu;
+    //delete sift_gpu;
 
     return true;
 }

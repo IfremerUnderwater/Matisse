@@ -63,11 +63,12 @@ public:
       {
           sift_gpu_ = new SiftGPU;
           //if (sift_gpu_->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
-          if (sift_gpu_->VerifyContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
-          {
-              delete sift_gpu_;
-              sift_gpu_ = nullptr;
-          }
+
+          //if (sift_gpu_->VerifyContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
+          //{
+          //    delete sift_gpu_;
+          //    sift_gpu_ = nullptr;
+          //}
       }
 
       if (sift_gpu_)
@@ -95,6 +96,7 @@ public:
       // Keep the highest level features.
       //sift_gpu_args.push_back("-tc2");
       //sift_gpu_args.push_back(std::to_string(params_.max_num_features));
+      //sift_gpu_args.push_back(std::to_string(8000));
 
       // First octave level.
       sift_gpu_args.push_back("-fo");
@@ -145,6 +147,9 @@ public:
     }
     UpdateConfigFromParam();
 
+    if (sift_gpu_->VerifyContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
+        return false;
+
     return true;
   }
 
@@ -162,7 +167,7 @@ public:
   {
     auto regions = std::unique_ptr<Regions_type>(new Regions_type);
 
-    UpdateConfigFromParam();
+    //UpdateConfigFromParam();
 
     if (image.size() == 0)
       return regions;
