@@ -268,7 +268,7 @@ void DataViewer::sl_addRasterToImageView(Image * _image_p)
     displayImage(_image_p);
 }
 
-void DataViewer::load3DFile(QString _filename_p, bool _remove_previous_scenes_p, bool _reset_view)
+void DataViewer::invokeThreaded3DFileLoader(QString _filename_p, bool _remove_previous_scenes_p, bool _reset_view)
 {
     if (m_current_view_type!=OPEN_SCENE_GRAPH_VIEW)
         switchCartoViewTo(OPEN_SCENE_GRAPH_VIEW);
@@ -315,14 +315,14 @@ void DataViewer::sl_checkFor3DFiles()
     bool can_show_a_model = false;
     QString model_path;
 
-    foreach(QString ply_file, file_list)
+    foreach(QString three_d_file, file_list)
     {
-        QFileInfo ply_file_info(three_d_folder.absolutePath() + QDir::separator() + ply_file);
-        QDateTime ply_last_mod = ply_file_info.lastModified();
-        if (ply_last_mod > m_watcher_start_time && ply_last_mod > m_last_loaded_file_time)
+        QFileInfo three_d_file_info(three_d_folder.absolutePath() + QDir::separator() + three_d_file);
+        QDateTime three_d_last_mod = three_d_file_info.lastModified();
+        if (three_d_last_mod > m_watcher_start_time && three_d_last_mod > m_last_loaded_file_time)
         {
-            model_path = ply_file_info.absoluteFilePath();
-            m_last_loaded_file_time = ply_last_mod;
+            model_path = three_d_file_info.absoluteFilePath();
+            m_last_loaded_file_time = three_d_last_mod;
             can_show_a_model = true;
         }
     }
@@ -330,9 +330,9 @@ void DataViewer::sl_checkFor3DFiles()
     if (can_show_a_model)
     {
         if(m_watcher_first_file)
-            this->load3DFile(model_path, true, true);
+            this->invokeThreaded3DFileLoader(model_path, true, true);
         else
-            this->load3DFile(model_path, true, false);
+            this->invokeThreaded3DFileLoader(model_path, true, false);
 
         m_watcher_first_file = false;
     }

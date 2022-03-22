@@ -110,7 +110,7 @@ public:
     void displayCartoImage(CartoImage *_image);
     void resetJobForm();
     void loadRasterFile(QString _filename);
-    void load3DFile(QString _filename_p, bool _remove_previous_scenes_p=true, bool _reset_view=true);
+    void invokeThreaded3DFileLoader(QString _filename_p, bool _remove_previous_scenes_p=true, bool _reset_view=true);
     void autoAdd3DFileFromFolderOnMainView(QString _folderpath_p);
     void loadImageFile(QString _filename);
     void exportMapViewToImage(QString _image_file_path);

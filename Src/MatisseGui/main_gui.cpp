@@ -642,7 +642,7 @@ bool MainGui::loadResultToCartoView(QString _result_file_p, bool _remove_previou
         //_userFormWidget->loadShapefile(infoResult.absoluteFilePath());
 
     }else if (m_data_viewer->supported3DFileFormat().contains(info_result.suffix())){
-        m_data_viewer->load3DFile(info_result.absoluteFilePath(), _remove_previous_scenes);
+        m_data_viewer->invokeThreaded3DFileLoader(info_result.absoluteFilePath(), _remove_previous_scenes);
 
     }else if (m_data_viewer->supportedImageFormat().contains(info_result.suffix())){
         //qDebug() << "Loading image file " << resultFile_p;
@@ -1487,7 +1487,7 @@ void MainGui::sl_goHome()
 
 void MainGui::sl_show3DFileOnMainView(QString _filepath_p)
 {
-    m_data_viewer->load3DFile(_filepath_p);
+    m_data_viewer->invokeThreaded3DFileLoader(_filepath_p);
 }
 
 void MainGui::sl_autoAdd3DFileFromFolderOnMainView(QString _folderpath_p)
