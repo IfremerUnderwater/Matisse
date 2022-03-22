@@ -170,46 +170,59 @@ public:
     if (image.size() == 0)
       return regions;
 
-    std::vector<float > descriptors(1);
-    std::vector<SiftGPU::SiftKeypoint> keys(1);
-    int num = 0;
+    std::vector<float> descriptors;
+    std::vector<SiftGPU::SiftKeypoint> keys;
+    const int sift_dim = 128;
 
     // compute sift
     if (sift_gpu_->RunSIFT(image.GetMat().cols(), image.GetMat().rows(), image.GetMat().data(), GL_LUMINANCE, GL_UNSIGNED_BYTE))
     {
 
         //get feature count
-        num = sift_gpu_->GetFeatureNum();
+        const int num_sift = sift_gpu_->GetFeatureNum();
 
         //allocate memory
-        keys.resize(num);    descriptors.resize(128 * num);
+        keys.resize(num_sift);    
+        descriptors.resize(sift_dim * num_sift);
 
         //reading back feature vectors is faster than writing files
         //if you dont need keys or descriptors, just put NULLs here
         sift_gpu_->GetFeatureVector(&keys[0], &descriptors[0]);
         //this can be used to write your own sift file. 
 
-        
+        // ==============================
+        // Root Sift Impl.
+        // ==============================
+        if (true) // Could be set as an expert option? (Might not be worth it)
+        {
+          Eigen::Map<Eigen::Matrix<float,-1,-1,Eigen::RowMajor>> vdesc(descriptors.data(), num_sift, sift_dim);
 
-        for (std::size_t i=0; i<keys.size(); i++)
+          for (int r = 0 ; r < num_sift ; ++r)
+          {
+              const float norm_l1 = vdesc.row(r).lpNorm<1>();
+              vdesc.row(r) = (vdesc.row(r).eval() / norm_l1).array().sqrt();
+          }
+        }
+        
+        for (int i=0; i < num_sift; i++)
         {
             Descriptor<unsigned char, 128> descr;
-            SiftGPU::SiftKeypoint k =keys[i];
+            SiftGPU::SiftKeypoint k = keys[i];
 
             // Feature masking
             if (mask)
             {
-                const image::Image<unsigned char>& maskIma = *mask;
-                if (maskIma(k.y, k.x) == 0)
+                // const image::Image<unsigned char>& maskIma = *mask;
+                if ((*mask)(k.y, k.x) == 0)
                     continue;
             }
             // Create the SIFT region
             {
-                for (std::size_t j = 0; j < 128; j++)
+                for (int j = 0; j < sift_dim; j++)
                 {
                   // Cast float to unsigned char (32 bits ==> 8 bits)
-                  const float d = std::round(512.0f*descriptors[i * 128 + j]);
-                  descr[j] = cv::saturate_cast<unsigned char>(d);
+                  const float d_val = std::round(512.0f * descriptors[i*sift_dim + j]);
+                  descr[j] = cv::saturate_cast<unsigned char>(d_val);
                 }
                 regions->Descriptors().emplace_back(descr);
                 regions->Features().emplace_back(k.x, k.y, k.s, k.o);
