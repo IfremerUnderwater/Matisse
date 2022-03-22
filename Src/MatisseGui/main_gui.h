@@ -376,6 +376,7 @@ public slots:
     void sl_showApplicationMode(eApplicationMode _mode);
     void sl_goHome();
     void sl_show3DFileOnMainView(QString _filepath_p);
+    void sl_autoAdd3DFileFromFolderOnMainView(QString _folderpath_p);
     void sl_addRasterFileToMap(QString _filepath_p);
     void sl_addToLog(QString _loggin_text);
 

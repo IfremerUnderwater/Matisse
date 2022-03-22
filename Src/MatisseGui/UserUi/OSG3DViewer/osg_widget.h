@@ -107,7 +107,7 @@ public:
     /// \param _node node to be added
     /// \return true if loading succeded
     ///
-    bool addNodeToScene(osg::ref_ptr<osg::Node> _node, double _transparency=0.0);
+    bool addNodeToScene(osg::ref_ptr<osg::Node> _node, double _transparency=0.0, bool _home_model=true);
 
     ///
     /// \brief removeNodeFromScene remove a node from the scene

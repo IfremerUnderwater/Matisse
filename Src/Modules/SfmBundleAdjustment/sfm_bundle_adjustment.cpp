@@ -93,31 +93,6 @@ void SfmBundleAdjustment::onNewImage(quint32 _port, Image &_image)
 }
 
 
-void SfmBundleAdjustment::checkForNewFiles()
-{
-    QDir export_folder(m_out_complete_path_str);
-    export_folder.setNameFilters(QStringList() << "*.ply");
-    QStringList file_list = export_folder.entryList();
-
-    bool can_show_a_model = false;
-    QString model_path;
-
-    foreach(QString ply_file, file_list)
-    {
-        QFileInfo ply_file_info(m_out_complete_path_str + QDir::separator() + ply_file);
-        QDateTime ply_last_mod = ply_file_info.lastModified();
-        if (ply_last_mod > m_start_time && ply_last_mod > m_last_ply_time)
-        {
-            model_path = ply_file_info.absoluteFilePath();
-            m_last_ply_time = ply_last_mod;
-            can_show_a_model = true;
-        }
-    }
-
-    if (can_show_a_model)
-        emit si_show3DFileOnMainView(model_path);
-}
-
 bool SfmBundleAdjustment::splitMatchesFiles()
 {
     static const QString SEP = QDir::separator();
@@ -492,13 +467,17 @@ void SfmBundleAdjustment::onFlush(quint32 _port)
         // Fill out path
         m_out_complete_path_str = absoluteOutputTempDir() + SEP + "ModelPart"+QString("_%1").arg(rc->components_ids[i]);
 
+        // Ask for automatic 3D result loading
+        emit si_autoAdd3DFileFromFolderOnMainView(m_out_complete_path_str + QDir::separator() + "*.ply");
+
         // Compute Sfm bundle adjustment
         this->incrementalSfm(m_out_complete_path_str, m_matches_files_list[i]);
-
-        this->checkForNewFiles();
  
         emit si_processCompletion(100);
     }
+
+    // Stop checking 3D result loading
+    emit si_autoAdd3DFileFromFolderOnMainView("");
 
     // set format
     rc->current_format = ReconFormat::openMVG;

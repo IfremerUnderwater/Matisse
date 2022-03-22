@@ -1490,6 +1490,11 @@ void MainGui::sl_show3DFileOnMainView(QString _filepath_p)
     m_data_viewer->load3DFile(_filepath_p);
 }
 
+void MainGui::sl_autoAdd3DFileFromFolderOnMainView(QString _folderpath_p)
+{
+    m_data_viewer->autoAdd3DFileFromFolderOnMainView(_folderpath_p);
+}
+
 void MainGui::sl_addRasterFileToMap(QString _filepath_p)
 {
     m_data_viewer->loadRasterFile(_filepath_p);

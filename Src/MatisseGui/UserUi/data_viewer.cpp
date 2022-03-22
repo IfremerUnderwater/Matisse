@@ -51,6 +51,8 @@ DataViewer::DataViewer(QWidget *_parent) :
 
     m_repaint_behavior_state = EXTENT_AUTO_RESIZE;
 
+    connect(&m_3d_file_check_timer, SIGNAL(timeout()), this, SLOT(sl_checkFor3DFiles()));
+
     connect(m_extent_auto_resize, SIGNAL(triggered()), this, SLOT(sl_onAutoResizeTrigger()));
     connect(m_follow_last_item, SIGNAL(triggered()), this, SLOT(sl_onFollowLastItem()));
     connect(m_manual_move, SIGNAL(triggered()), this, SLOT(sl_onManualMove()));
@@ -61,8 +63,8 @@ DataViewer::DataViewer(QWidget *_parent) :
     connect(this,SIGNAL(si_loadRasterFromFile(QString)),&m_result_loading_task,SLOT(sl_loadRasterFromFile(QString)),Qt::QueuedConnection);
     connect(&m_result_loading_task,SIGNAL(si_addRasterToCartoView(CartoImage *)), this,SLOT(sl_addRasterToCartoView(CartoImage*)),Qt::QueuedConnection);
     connect(&m_result_loading_task,SIGNAL(si_addRasterToImageView(Image *)),this,SLOT(sl_addRasterToImageView(Image *)),Qt::QueuedConnection);
-    connect(this,SIGNAL(si_load3DSceneFromFile(QString,bool)),&m_result_loading_task,SLOT(sl_load3DSceneFromFile(QString,bool)),Qt::QueuedConnection);
-    connect(&m_result_loading_task,SIGNAL(si_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool)),this,SLOT(sl_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool)),Qt::QueuedConnection);
+    connect(this,SIGNAL(si_load3DSceneFromFile(QString,bool, bool)),&m_result_loading_task,SLOT(sl_load3DSceneFromFile(QString,bool,bool)),Qt::QueuedConnection);
+    connect(&m_result_loading_task,SIGNAL(si_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool, bool)),this,SLOT(sl_add3DSceneToCartoView(osg::ref_ptr<osg::Node>,bool,bool)),Qt::QueuedConnection);
 
     m_result_loading_task.moveToThread(&m_result_loading_thread);
     m_result_loading_thread.start();
@@ -266,16 +268,34 @@ void DataViewer::sl_addRasterToImageView(Image * _image_p)
     displayImage(_image_p);
 }
 
-void DataViewer::load3DFile(QString _filename_p, bool _remove_previous_scenes_p)
+void DataViewer::load3DFile(QString _filename_p, bool _remove_previous_scenes_p, bool _reset_view)
 {
     if (m_current_view_type!=OPEN_SCENE_GRAPH_VIEW)
         switchCartoViewTo(OPEN_SCENE_GRAPH_VIEW);
-    emit si_load3DSceneFromFile(_filename_p, _remove_previous_scenes_p);
+    emit si_load3DSceneFromFile(_filename_p, _remove_previous_scenes_p, _reset_view);
 }
 
-void DataViewer::sl_add3DSceneToCartoView(osg::ref_ptr<osg::Node> _scene_data_p, bool _remove_previous_scenes)
+void DataViewer::autoAdd3DFileFromFolderOnMainView(QString _folderpath_p)
 {
-    m_ui->_OSG_viewer->addNodeToScene(_scene_data_p);
+    m_watcher_first_file = true;
+
+    if (!_folderpath_p.isEmpty())
+    {
+        m_3d_folder_pattern = _folderpath_p;
+        m_3d_file_check_timer.start(1000);
+        m_watcher_start_time = QDateTime::currentDateTime();
+    }
+    else
+    {
+        m_3d_file_check_timer.stop();
+        m_3d_folder_pattern = "";
+    }
+        
+}
+
+void DataViewer::sl_add3DSceneToCartoView(osg::ref_ptr<osg::Node> _scene_data_p, bool _remove_previous_scenes, bool _reset_view)
+{
+    m_ui->_OSG_viewer->addNodeToScene(_scene_data_p, 0.0, _reset_view);
     if(_remove_previous_scenes)
     {
         for(int i=0; i<m_osg_nodes.size(); i++)
@@ -283,6 +303,40 @@ void DataViewer::sl_add3DSceneToCartoView(osg::ref_ptr<osg::Node> _scene_data_p,
         m_osg_nodes.clear();
     }
     m_osg_nodes.push_back(_scene_data_p);
+}
+
+void DataViewer::sl_checkFor3DFiles()
+{
+    QFileInfo three_d_folder(m_3d_folder_pattern);
+    QDir export_folder(three_d_folder.absolutePath());
+    export_folder.setNameFilters(QStringList() << three_d_folder.fileName());
+    QStringList file_list = export_folder.entryList();
+
+    bool can_show_a_model = false;
+    QString model_path;
+
+    foreach(QString ply_file, file_list)
+    {
+        QFileInfo ply_file_info(three_d_folder.absolutePath() + QDir::separator() + ply_file);
+        QDateTime ply_last_mod = ply_file_info.lastModified();
+        if (ply_last_mod > m_watcher_start_time && ply_last_mod > m_last_loaded_file_time)
+        {
+            model_path = ply_file_info.absoluteFilePath();
+            m_last_loaded_file_time = ply_last_mod;
+            can_show_a_model = true;
+        }
+    }
+
+    if (can_show_a_model)
+    {
+        if(m_watcher_first_file)
+            this->load3DFile(model_path, true, true);
+        else
+            this->load3DFile(model_path, true, false);
+
+        m_watcher_first_file = false;
+    }
+        
 }
 
 void DataViewer::sl_showMapContextMenu(const QPoint &_pos_p)
@@ -510,14 +564,14 @@ void resultLoadingTask::sl_loadRasterFromFile(QString _filename_p)
 
 }
 
-void resultLoadingTask::sl_load3DSceneFromFile(QString _filename_p, bool _remove_previous_scenes_p)
+void resultLoadingTask::sl_load3DSceneFromFile(QString _filename_p, bool _remove_previous_scenes_p, bool _reset_view)
 {
     // load the data
     setlocale(LC_ALL, "C");
 
     osg::ref_ptr<osg::Node> node = m_osgwidget->createNodeFromFile(_filename_p.toStdString());
 
-    emit si_add3DSceneToCartoView(node, _remove_previous_scenes_p);
+    emit si_add3DSceneToCartoView(node, _remove_previous_scenes_p, _reset_view);
 }
 
 } // namespace matisse
