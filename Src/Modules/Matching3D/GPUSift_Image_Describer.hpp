@@ -62,20 +62,18 @@ public:
       if (!sift_gpu)
       {
           sift_gpu_ = new SiftGPU;
-          //if (sift_gpu_->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
-
-          //if (sift_gpu_->VerifyContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
-          //{
-          //    delete sift_gpu_;
-          //    sift_gpu_ = nullptr;
-          //}
+          sift_gpu_owner_ = true;
       }
+      else
+          sift_gpu_owner_ = false;
 
-      if (sift_gpu_)
-      {
-          UpdateConfigFromParam();
-      }
 
+  }
+
+  ~GpuSift_Image_describer()
+  {
+      if (sift_gpu_owner_)
+          delete sift_gpu_;
   }
 
   void UpdateConfigFromParam()
@@ -241,6 +239,7 @@ public:
  private:
   Params params_;
   SiftGPU* sift_gpu_;
+  bool sift_gpu_owner_;
 };
 
 } // namespace features

@@ -70,6 +70,8 @@ int main(int argc, char *argv[])
     std::setlocale(LC_ALL, "C");
 #endif // !1
 
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
     QLoggingCategory::setFilterRules("qtc.ssh.debug=false");
 
     QApplication a(argc,argv);

@@ -109,10 +109,12 @@ Matching3D::Matching3D() :
     addExpectedParameter("algo_param", "video_mode_matching_enable");
     addExpectedParameter("algo_param", "nav_based_matching_enable");
     addExpectedParameter("algo_param", "nav_based_matching_max_dist");
+
+    m_context_manager = new OpenGLContextManager();
 }
 
 Matching3D::~Matching3D(){
-
+    //delete m_context_manager;
 }
 
 bool Matching3D::configure()
@@ -130,8 +132,6 @@ void Matching3D::onNewImage(quint32 _port, matisse_image::Image &_image)
 
 bool Matching3D::computeFeatures()
 {
-    //SiftGPU *sift_gpu = new SiftGPU;
-
     static const QString SEP = QDir::separator();
 
     emit si_processCompletion(0);
@@ -212,9 +212,8 @@ bool Matching3D::computeFeatures()
 		// Don't use a factory, perform direct allocation
 		if (method_paramval == "SIFT_GPU")
 		{
-			//image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params(), sift_gpu));
             image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params()));
-            //std::cout << "mbmb =" << GlobalParam::_MemCapGPU;
+            m_gpu_features = true;
 		}
 		else
 			if (method_paramval == "SIFT")
@@ -273,20 +272,6 @@ bool Matching3D::computeFeatures()
         }
     }
 
-    // Check gpu feature usage as we must use mono thread for gpusift
-    // This way of detection work both for first config but also with json loading
-    if (dynamic_cast<GpuSift_Image_describer*>(image_describer.get()))
-    {
-        m_gpu_features = true;
-        std::cout << "Detected GPU usage for features extraction\n";
-    }
-    else
-    {
-        m_gpu_features = false;
-        std::cout << "No GPU usage for features extraction\n";
-    }
-
-
     // Feature extraction routines
     // For each View of the SfM_Data container:
     // - if regions file exists continue,
@@ -295,8 +280,6 @@ bool Matching3D::computeFeatures()
         system::Timer timer;
         openMVG::image::Image<unsigned char> image_gray;
 
-        /*C_Progress_display my_progress_bar(sfm_data.GetViews().size(),
-            std::cout, "\n- EXTRACT FEATURES -\n");*/
         double total_count = double(sfm_data.GetViews().size());
         std::cout << "total img to extract features from : " << total_count << std::endl;
         int my_progress_bar = 0;
@@ -386,8 +369,6 @@ bool Matching3D::computeFeatures()
         }
         std::cout << "Task done in (s): " << timer.elapsed() << std::endl;
     }
-
-    //delete sift_gpu;
 
     return true;
 }
@@ -985,7 +966,7 @@ void Matching3D::onFlush(quint32 _port)
     Q_UNUSED(_port)
 
     // switch opengl context to current processing thread
-    m_context_manager.MakeCurrent();
+    m_context_manager->MakeCurrent();
 
     // Log
     QString proc_info = logPrefix() + "Features matching started\n";

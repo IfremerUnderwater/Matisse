@@ -28,9 +28,10 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //
 // Author: Johannes L. Schoenberger (jsch-at-demuc-dot-de)
+// Adapted from colmap version for Matisse
 
-#ifndef COLMAP_SRC_OPENGL_UTILS_H_
-#define COLMAP_SRC_OPENGL_UTILS_H_
+#ifndef COLMAP_SRC_OPENGL_UTILS_MOD_H_
+#define COLMAP_SRC_OPENGL_UTILS_MOD_H_
 
 
 #include <QAction>
@@ -49,6 +50,8 @@ class OpenGLContextManager : public QObject {
   OpenGLContextManager(int opengl_major_version = 2,
                        int opengl_minor_version = 1);
 
+  ~OpenGLContextManager();
+
   // Make the OpenGL context available by moving it from the thread where it was
   // created to the current thread and making it current.
   void MakeCurrent();
@@ -57,28 +60,12 @@ class OpenGLContextManager : public QObject {
   static bool HasOpenGL();
 
  private:
-  QOffscreenSurface surface_;
   QOpenGLContext context_;
+  QOffscreenSurface surface_;
   QThread* parent_thread_;
   QThread* current_thread_;
   QAction* make_current_action_;
 };
 
-// Run and wait for the thread, that uses the OpenGLContextManager, e.g.:
-//
-//    class TestThread : public Thread {
-//     private:
-//      void Run() { opengl_context_.MakeCurrent(); }
-//      OpenGLContextManager opengl_context_;
-//    };
-//    QApplication app(argc, argv);
-//    TestThread thread;
-//    RunThreadWithOpenGLContext(&thread);
-//
-//void RunThreadWithOpenGLContext(Thread* thread);
 
-// Get the OpenGL errors and print them to stderr.
-//void GLError(const char* file, const int line);
-
-
-#endif  // COLMAP_SRC_OPENGL_UTILS_H_
+#endif  // COLMAP_SRC_OPENGL_UTILS_MOD_H_

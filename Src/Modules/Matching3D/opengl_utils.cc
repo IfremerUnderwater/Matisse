@@ -31,6 +31,7 @@
 // Modified for Matisse
 
 #include "opengl_utils.h"
+#include <iostream>
 
 
 OpenGLContextManager::OpenGLContextManager(int opengl_major_version,
@@ -62,6 +63,14 @@ OpenGLContextManager::OpenGLContextManager(int opengl_major_version,
         context_.moveToThread(current_thread_);
       },
       Qt::BlockingQueuedConnection);
+
+}
+
+OpenGLContextManager::~OpenGLContextManager()
+{
+    //context_.moveToThread(QThread::currentThread());
+    context_.makeCurrent(0);
+    std::cout << "After doneCurrent";
 }
 
 void OpenGLContextManager::MakeCurrent() {
@@ -78,18 +87,5 @@ bool OpenGLContextManager::HasOpenGL() {
   context.create();
   return surface.isValid() && context.isValid();
 }
-
-/*void RunThreadWithOpenGLContext(Thread* thread) {
-  std::thread opengl_thread([thread]() {
-    thread->Start();
-    thread->Wait();
-    CHECK_NOTNULL(QCoreApplication::instance())->exit();
-  });
-  CHECK_NOTNULL(QCoreApplication::instance())->exec();
-  opengl_thread.join();
-  // Make sure that all triggered OpenGLContextManager events are processed in
-  // case the application exits before the contexts were made current.
-  QCoreApplication::processEvents();
-}*/
 
 
