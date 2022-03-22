@@ -70,6 +70,11 @@ configure_file(../Config/config/MatisseSettings.xml.in Run/Debug/config/MatisseS
 configure_file(MatisseConfig.h.in MatisseConfig.h)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+#for SiftGPU
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package(OpenGL REQUIRED)
+find_package(Glew REQUIRED)
+
 # qt5 also required for Quazip
 #find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script OpenGL REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns OpenGL REQUIRED)

@@ -23,6 +23,7 @@
 #include "openMVG_dependencies/nonFree/sift/SIFT_describer_io.hpp"
 #include <cereal/details/helpers.hpp>
 
+
 // For matching
 #include "openMVG/graph/graph.hpp"
 #include "openMVG/graph/graph_stats.hpp"
@@ -48,6 +49,7 @@
 
 #include "openMVG/matching/matcher_brute_force.hpp"
 
+
 #include <atomic>
 #include <cstdlib>
 #include <fstream>
@@ -60,6 +62,7 @@
 #include <string>
 #include <vector>
 
+//#include "GlobalUtil.h"
 
 using namespace openMVG;
 using namespace openMVG::image;
@@ -94,7 +97,8 @@ features::EDESCRIBER_PRESET stringToEnum(const QString& _s_preset)
 
 
 Matching3D::Matching3D() :
-    Processor(NULL, "Matching3D", "Match images and filter with geometric transformation", 1, 1)
+    Processor(NULL, "Matching3D", "Match images and filter with geometric transformation", 1, 1),
+    m_gpu_features(false)
 {
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("algo_param", "force_recompute");
@@ -105,10 +109,12 @@ Matching3D::Matching3D() :
     addExpectedParameter("algo_param", "video_mode_matching_enable");
     addExpectedParameter("algo_param", "nav_based_matching_enable");
     addExpectedParameter("algo_param", "nav_based_matching_max_dist");
+
+    m_context_manager = new OpenGLContextManager();
 }
 
 Matching3D::~Matching3D(){
-
+    //delete m_context_manager;
 }
 
 bool Matching3D::configure()
@@ -167,75 +173,77 @@ bool Matching3D::computeFeatures()
     //---------------------------------------
     SfM_Data sfm_data;
     if (!Load(sfm_data, s_sfm_data_filename.toStdString(), ESfM_Data(VIEWS | INTRINSICS))) {
-        //std::cerr << std::endl
-        //    << "The input file \"" << sSfM_Data_Filename << "\" cannot be read" << std::endl;
-        fatalErrorExit("Matcching : input data cannot be read (sfm_data)");
+        fatalErrorExit("Matching : input data cannot be read (sfm_data)");
         return false;
     }
 
     // b. Init the image_describer
     // - retrieve the used one in case of pre-computed features
     // - else create the desired one
-
     using namespace openMVG::features;
     std::unique_ptr<Image_describer> image_describer;
 
     const std::string s_image_describer = stlplus::create_filespec(s_out_dir.toStdString(), "image_describer", "json");
-    if (!force_recompute && stlplus::is_file(s_image_describer))
-    {
-        // Dynamically load the image_describer from the file (will restore old used settings)
-        std::ifstream stream(s_image_describer.c_str());
-        if (!stream.is_open())
-        {
-            fatalErrorExit("Matching : unable to open image describer");
-            return false;
-        }
+    //if (!force_recompute && stlplus::is_file(s_image_describer))
+    //{
+    //    // Dynamically load the image_describer from the file (will restore old used settings)
+    //    std::ifstream stream(s_image_describer.c_str());
+    //    if (!stream.is_open())
+    //    {
+    //        fatalErrorExit("Matching : unable to open image describer");
+    //        return false;
+    //    }
 
 
-        try
-        {
-            cereal::JSONInputArchive archive(stream);
-            archive(cereal::make_nvp("image_describer", image_describer));
-        }
-        catch (const cereal::Exception& e)
-        {
-            fatalErrorExit("Matching : unable to open image describer");
-            return false;
-        }
-    }
-    else
+    //    try
+    //    {
+    //        cereal::JSONInputArchive archive(stream);
+    //        archive(cereal::make_nvp("image_describer", image_describer));
+    //    }
+    //    catch (const cereal::Exception& e)
+    //    {
+    //        fatalErrorExit("Matching : unable to open image describer");
+    //        return false;
+    //    }
+    //}
+    //else
     {
-        // Create the desired Image_describer method.
-        // Don't use a factory, perform direct allocation
-        if (method_paramval == "SIFT")
-        {
-            image_describer.reset(new SIFT_Image_describer
-            (SIFT_Image_describer::Params(), !b_up_right));
-        }
-        else
-            if (method_paramval == "SIFT_ANATOMY")
-            {
-                image_describer.reset(
-                    new SIFT_Anatomy_Image_describer(SIFT_Anatomy_Image_describer::Params()));
-            }
-            else
-                if (method_paramval == "AKAZE_FLOAT")
-                {
-                    image_describer = AKAZE_Image_describer::create
-                    (AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MSURF), !b_up_right);
-                }
-                else
-                    if (method_paramval == "AKAZE_MLDB")
-                    {
-                        image_describer = AKAZE_Image_describer::create
-                        (AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MLDB), !b_up_right);
-                    }
+		// Create the desired Image_describer method.
+		// Don't use a factory, perform direct allocation
+		if (method_paramval == "SIFT_GPU")
+		{
+            image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params()));
+            m_gpu_features = true;
+		}
+		else
+			if (method_paramval == "SIFT")
+			{
+				image_describer.reset(new SIFT_Image_describer
+				(SIFT_Image_describer::Params(), !b_up_right));
+			}
+			else
+				if (method_paramval == "SIFT_ANATOMY")
+				{
+					image_describer.reset(
+						new SIFT_Anatomy_Image_describer(SIFT_Anatomy_Image_describer::Params()));
+				}
+				else
+					if (method_paramval == "AKAZE_FLOAT")
+					{
+						image_describer = AKAZE_Image_describer::create
+						(AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MSURF), !b_up_right);
+					}
+					else
+						if (method_paramval == "AKAZE_MLDB")
+						{
+							image_describer = AKAZE_Image_describer::create
+							(AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MLDB), !b_up_right);
+						}
+
         if (!image_describer)
         {
             fatalErrorExit("Matching : unable to open image describer");
             return false;
-            //std::cerr << "Cannot create the designed Image_describer:"
-            //    << methodParamval.toStdString() << "." << std::endl;
 
         }
         else
@@ -272,8 +280,6 @@ bool Matching3D::computeFeatures()
         system::Timer timer;
         openMVG::image::Image<unsigned char> image_gray;
 
-        /*C_Progress_display my_progress_bar(sfm_data.GetViews().size(),
-            std::cout, "\n- EXTRACT FEATURES -\n");*/
         double total_count = double(sfm_data.GetViews().size());
         std::cout << "total img to extract features from : " << total_count << std::endl;
         int my_progress_bar = 0;
@@ -283,7 +289,7 @@ bool Matching3D::computeFeatures()
 
         omp_set_num_threads(nbthreads);
 
-#pragma omp parallel for schedule(dynamic) if (nbthreads > 0) private(image_gray)
+#pragma omp parallel for schedule(dynamic) if (nbthreads > 0 && !m_gpu_features) private(image_gray)
 
         for (int i = 0; i < static_cast<int>(sfm_data.views.size()); ++i)
         {
@@ -625,6 +631,12 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                 }
         }
         else
+        if (s_nearest_matching_method == "GPU_BRUTEFORCE")
+        {
+            std::cout << "Using GPU_BRUTEFORCE matcher" << std::endl;
+            collection_matcher.reset(new GpuSift_Matcher_Regions(f_dist_ratio));
+        }
+        else
         if (s_nearest_matching_method == "BRUTEFORCEL2")
         {
             std::cout << "Using BRUTE_FORCE_L2 matcher" << std::endl;
@@ -737,21 +749,21 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                     std::vector<double> vec_distance;
                     const int NN = i_matching_video_mode + 1; // since itself will be found    
                     
-                    std::cout << "\n Spatial Matching for Image #" << contiguous_pose_id << " : \n";
+                    //std::cout << "\n Spatial Matching for Image #" << contiguous_pose_id << " : \n";
 
                     if (matcher.SearchNeighbours(query, 1, &vec_indices, &vec_distance, NN))
                     {
-                        std::cout << "> Found #" << vec_indices.size() -1 << "neighbor(s) - ids : ";
-                        for (const auto & vec_id : vec_indices)
-                            std::cout << "(" << vec_id.i_ << "," << vec_id.j_ << "), ";
-                        std::cout << "!\n";
+                        //std::cout << "> Found #" << vec_indices.size() -1 << "neighbor(s) - ids : ";
+                        //for (const auto & vec_id : vec_indices)
+                        //    std::cout << "(" << vec_id.i_ << "," << vec_id.j_ << "), ";
+                        //std::cout << "!\n";
 
                         // Starting at i=1 because 0 will always be the image itself
                         for (size_t i = 1; i < vec_indices.size(); ++i)
                         {
                             // Do not add pair if images are too spread away
                             if( vec_distance.at(i) > nav_based_matching_max_dist) {
-                                std::cout << "> Images #" << vec_indices[i].j_ << " distance is  : " << vec_distance.at(i) << " m ==> REMOVING PAIR!\n";
+                                //std::cout << "> Images #" << vec_indices[i].j_ << " distance is  : " << vec_distance.at(i) << " m ==> REMOVING PAIR!\n";
                                 continue;
                             }
 
@@ -952,6 +964,9 @@ bool Matching3D::stop()
 void Matching3D::onFlush(quint32 _port)
 {
     Q_UNUSED(_port)
+
+    // switch opengl context to current processing thread
+    m_context_manager->MakeCurrent();
 
     // Log
     QString proc_info = logPrefix() + "Features matching started\n";

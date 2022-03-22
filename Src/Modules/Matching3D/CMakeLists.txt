@@ -1,5 +1,7 @@
 add_library(Matching3D SHARED
     matching_3d.cpp
+	GPUSift_Matcher_Regions.cpp
+	opengl_utils.cc
     )
 
 include_directories(${OPENMVG_INSTALL_PATH}/include/openMVG_dependencies)
@@ -10,6 +12,7 @@ target_link_libraries(Matching3D
 	MatisseImage
 	BasicProcessing
 	OpticalMapping
+	SiftGpu
 	${OpenCV_LIBS}
 	Qt5::Core 
 	Qt5::Xml 
@@ -32,6 +35,7 @@ target_link_libraries(Matching3D
 	MatisseImage
 	BasicProcessing
 	OpticalMapping
+	SiftGpu
 	${OpenCV_LIBS}
 	Qt5::Core 
 	Qt5::Xml 

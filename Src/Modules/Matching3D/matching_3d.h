@@ -5,6 +5,10 @@
 #include "processor.h"
 #include "openMVG/system/progressinterface.hpp"
 //#include "third_party/progress/progress.hpp"
+#include "SiftGPU.h"
+#include "GPUSift_Image_Describer_io.hpp"
+#include "opengl_utils.h"
+#include "GPUSift_Matcher_Regions.hpp"
 
 namespace matisse {
 
@@ -68,6 +72,10 @@ public:
 private:
     bool computeFeatures();
     bool computeMatches(eGeometricModel _geometric_model_to_compute = FUNDAMENTAL_MATRIX);
+
+    bool m_gpu_features;
+
+    OpenGLContextManager *m_context_manager;
 
     /** @brief Function that ... **/
     std::uint32_t operator+=(const std::uint32_t increment) override
