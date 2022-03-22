@@ -309,6 +309,18 @@ void DataViewer::sl_checkFor3DFiles()
 {
     QFileInfo three_d_folder(m_3d_folder_pattern);
     QDir export_folder(three_d_folder.absolutePath());
+
+    QString file_filter_string = three_d_folder.fileName();
+    QStringList filter_string_split = file_filter_string.split(".");
+
+    if ( filter_string_split.size()!=2)
+        return;
+    else
+    {
+        if (filter_string_split[0] != QString("*") || !supported3DFileFormat().contains(filter_string_split[1]))
+            return;
+    }
+
     export_folder.setNameFilters(QStringList() << three_d_folder.fileName());
     QStringList file_list = export_folder.entryList();
 
