@@ -10,6 +10,8 @@
 #include "opengl_utils.h"
 #include "GPUSift_Matcher_Regions.hpp"
 
+#include "H_F_ACRobust.hpp"
+
 namespace matisse {
 
 enum eGeometricModel

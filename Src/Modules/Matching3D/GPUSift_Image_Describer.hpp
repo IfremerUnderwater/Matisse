@@ -89,12 +89,12 @@ public:
 
       // Fixed maximum image dimension.
       sift_gpu_args.push_back("-maxd");
-      sift_gpu_args.push_back(std::to_string(32000));
+      sift_gpu_args.push_back(std::to_string(6400));
 
       // Keep the highest level features.
-      //sift_gpu_args.push_back("-tc2");
-      //sift_gpu_args.push_back(std::to_string(params_.max_num_features));
-      //sift_gpu_args.push_back(std::to_string(8000));
+      sift_gpu_args.push_back("-tc2");
+      // sift_gpu_args.push_back(std::to_string(params_.max_num_features));
+      sift_gpu_args.push_back(std::to_string(8192));
 
       // First octave level.
       sift_gpu_args.push_back("-fo");

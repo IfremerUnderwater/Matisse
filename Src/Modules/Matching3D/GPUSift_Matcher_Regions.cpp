@@ -43,7 +43,7 @@ void Match
   my_progress_bar->Restart(pairs.size(), "- Matching -");
 
   // Init matcher
-  int max_matches = 32000;
+  int max_matches = 4096*4;
   SiftMatchGPU matcher(max_matches);
   if (matcher.VerifyContextGL() < 0)
       return;
