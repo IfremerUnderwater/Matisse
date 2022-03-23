@@ -17,7 +17,6 @@
 #include "network_commons.h"
 #include "network_client.h"
 #include "network_file_client.h"
-#include "network_file_info.h"
 #include "network_command.h"
 
 using namespace network_tools;

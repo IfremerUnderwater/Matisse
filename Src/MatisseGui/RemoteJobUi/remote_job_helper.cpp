@@ -72,13 +72,17 @@ void PasswordDialog::sl_onLoginCanceled() {
 
 RemoteJobHelper::RemoteJobHelper(QObject* _parent)
     : QObject(_parent),
+      m_remote_output_path(),
       m_pending_action_queue(),
       m_commands_by_action(),
       m_jobs_by_command(),
       m_jobs_by_action(),
       m_current_datasets_root_path(),
       m_previous_datasets_root_path(),
-      m_selected_remote_dataset_path()
+      m_selected_remote_dataset_path(),
+      m_current_job_name(),
+      m_container_launcher_name(),
+      m_container_image_path()
 {
 }
 
@@ -651,7 +655,7 @@ void RemoteJobHelper::connectNetworkClientSignals() {
             SIGNAL(si_transferFailed(NetworkAction*, eTransferError)),
             SLOT(sl_onTransferFailed(NetworkAction*, eTransferError)));
     connect(m_sftp_client->connectionWrapper(), SIGNAL(si_dirContents(QList<NetworkFileInfo*>)),
-            SLOT(sl_onDirContentsReceived(QList<NetworkFileInfo*>)));
+            this, SLOT(sl_onDirContentsReceived(QList<NetworkFileInfo*>)));
 
     connect(m_ssh_client->connectionWrapper(), SIGNAL(si_connectionFailed(eConnectionError)),
             SLOT(sl_onConnectionFailed(eConnectionError)));
@@ -991,7 +995,7 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
 }
 
 void RemoteJobHelper::sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents) {
-    qDebug() << "Received remote dir contents";
+    qDebug() << "RemoteJobHelper: received remote dir contents";
 
     hideProgress();
 

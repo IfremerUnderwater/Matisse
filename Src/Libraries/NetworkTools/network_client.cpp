@@ -3,7 +3,8 @@
 namespace network_tools {
 
 NetworkClient::NetworkClient()
-    : m_action_queue(), m_current_action(NULL)
+    : m_action_queue(),
+      m_current_action(NULL)
 {
 
 }
@@ -36,18 +37,32 @@ void NetworkClient::addAction(NetworkAction *_action) {
 }
 
 void NetworkClient::processAction() {
+    qDebug() << "NetworkClient: Processing new action...";
+
+    if (!m_cx_wrapper) {
+        qDebug() << "NetworkClient: cx_wrapper NULL";
+    }
+
+    qDebug() << "NetworkClient: 0";
+
     if (!m_cx_wrapper->isConnected()) {
+        qDebug() << "NetworkClient: 0.1";
         if (!m_cx_wrapper->isWaitingForConnection()) {
+            qDebug() << "NetworkClient: 0.2";
             m_cx_wrapper->connectToRemoteHost();
         }
+        qDebug() << "NetworkClient: 0.3";
         return;
     }
+
+    qDebug() << "NetworkClient: 1";
 
     if (m_action_queue.isEmpty()) {
         qWarning() << "NetworkClient: network action queue empty, no action to process";
         return;
     }
 
+    qDebug() << "NetworkClient: 2";
 
     /* Nominal case : free previous action instance */
     if (m_current_action) {
@@ -56,6 +71,8 @@ void NetworkClient::processAction() {
     }
 
     doInitBeforeAction();
+
+    qDebug() << "NetworkClient: 3";
 
     m_current_action = m_action_queue.dequeue();
     connectAction(m_current_action);
@@ -83,6 +100,8 @@ void NetworkClient::sl_onClearConnection() {
 }
 
 void NetworkClient::clearConnectionAndActionQueue() {
+    qDebug() << QString("NetworkClient: clearing connection and action queue...");
+
     m_cx_wrapper->disableConnection();
 
     if (!m_action_queue.isEmpty()) {

@@ -22,14 +22,14 @@ public:
     explicit SecureConnectionWrapper();
 
     void resetConnection();
-    QByteArray readShellStandardOutput();
-    QByteArray readShellStandardError();
 
 protected:
     void disableConnection();
     void freeConnection();
     void connectToRemoteHost();
     void disconnectFromHost();
+    QByteArray readShellStandardOutput();
+    QByteArray readShellStandardError();
 
 private slots:
     void sl_onConnected();
@@ -50,16 +50,16 @@ protected slots:
     void sl_initFileChannel();
     void sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload, bool _recurse);
     void sl_download(QString _remote_path, QString _local_path, bool _is_dir_download);
-    void sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_download=false);
+    void sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer=false);
 
     void sl_createRemoteShell(QString& _command);
     void sl_closeRemoteShell();
-    void sl_executeCommand();
+    void sl_executeShellCommand();
 
 private:
     void startDownloadDir(QString _remote_path, QString _local_path);
     void reinitBeforeFileOperation();
-    void reinitProgressIndicators(quint64 _transfer_size);
+//    void reinitProgressIndicators(quint64 _transfer_size);
     void mapConnectionError(QSsh::SshError _err);
     void mapTransferError(QSsh::SftpError _err);
 
@@ -68,17 +68,6 @@ private:
     QSsh::SftpChannel::Ptr m_channel;
     QSsh::SshRemoteProcess::Ptr m_shell;
 
-    QList<NetworkFileInfo*> m_dir_contents_buffer;
-    bool m_dir_contents_received;
-    bool m_download_dir_ongoing;
-    bool m_download_file_ongoing;
-    QString m_operation_remote_path;
-    QString m_operation_local_path;
-    FileTypeFilters m_file_type_flags;
-    QStringList m_file_filters;
-    quint64 m_current_transfer_size = 0;
-    QMap<quint32,quint64> m_progress_matrix;
-    quint64 m_total_received_bytes = 0;
 };
 
 } // namespace network_tools

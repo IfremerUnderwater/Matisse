@@ -21,6 +21,7 @@
 #include <QSettings>
 #include "network_client.h"
 #include "secure_connection_wrapper.h"
+#include "basic_connection_wrapper.h"
 #include "sftp_client.h"
 #include "ssh_client.h"
 #include "assembly_helper.h"
@@ -140,7 +141,8 @@ int main(int argc, char *argv[])
     ConnectionWrapper* secure_network_command_handler = new SecureConnectionWrapper();
     NetworkClient* ssh_client = new SshClient();
     ssh_client->setConnectionWrapper(secure_network_command_handler);
-    ConnectionWrapper* secure_network_file_handler = new SecureConnectionWrapper();
+//    ConnectionWrapper* secure_network_file_handler = new SecureConnectionWrapper();
+    ConnectionWrapper* secure_network_file_handler = new BasicConnectionWrapper();
     NetworkClient* sftp_client = new SftpClient();
     sftp_client->setConnectionWrapper(secure_network_file_handler);
     RemoteJobHelper remote_job_helper;

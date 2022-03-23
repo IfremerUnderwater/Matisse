@@ -45,7 +45,12 @@ void NetworkFileClient::sl_onChannelClosed() {
 }
 
 void NetworkFileClient::sl_onTransferFailed(eTransferError _error) {
+    qDebug() << "NetworkFileClient: before signalling transfer failed";
+    if (!m_current_action) {
+        qWarning() << "NetworkFileClient: current action null";
+    }
     emit si_transferFailed(m_current_action, _error);
+    qDebug() << "NetworkFileClient: after signalling transfer failed";
 }
 
 void NetworkFileClient::sl_onTransferFinished() {

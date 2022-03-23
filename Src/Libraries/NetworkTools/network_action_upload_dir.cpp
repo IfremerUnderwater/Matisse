@@ -20,13 +20,15 @@ NetworkActionUploadDir::NetworkActionUploadDir(QString _local_dir, QString _remo
 
 void NetworkActionUploadDir::init()
 {
+    qDebug() << "NetworkActionUploadDir: Init file channel";
     emit si_initFileChannel();
 }
 
 void NetworkActionUploadDir::execute()
 {
+    qDebug() << "NetworkActionUploadDir: Before upload";
     emit si_upload(m_local_dir, m_remote_base_dir, true, m_recurse);
-    qDebug() << "After upload";
+    qDebug() << "NetworkActionUploadDir: After upload";
 }
 
 QString NetworkActionUploadDir::progressMessage()

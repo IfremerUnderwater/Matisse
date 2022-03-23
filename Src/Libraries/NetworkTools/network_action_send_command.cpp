@@ -16,7 +16,7 @@ void NetworkActionSendCommand::init() {
 
 void NetworkActionSendCommand::execute() {
     qDebug() << "NetworkActionSendCommand: execute";
-    emit si_executeCommand();
+    emit si_executeShellCommand();
 }
 
 void NetworkActionSendCommand::doTerminate() {

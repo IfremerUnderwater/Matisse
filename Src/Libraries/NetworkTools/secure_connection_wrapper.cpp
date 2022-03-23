@@ -8,11 +8,7 @@ namespace network_tools {
 SecureConnectionWrapper::SecureConnectionWrapper() :
     ConnectionWrapper(),
     m_connection(NULL),
-    m_obsolete_connections(),
-    m_dir_contents_buffer(),
-    m_dir_contents_received(false),
-    m_file_filters(),
-    m_progress_matrix()
+    m_obsolete_connections()
 {
 
 }
@@ -178,7 +174,7 @@ void SecureConnectionWrapper::sl_download(QString _remote_path, QString _local_p
     }
 }
 
-void SecureConnectionWrapper::sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_download)
+void SecureConnectionWrapper::sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer)
 {
     qDebug() << tr("SecureConnectionWrapper: Listing content from dir %1 ...").arg(_remote_dir_path);
 
@@ -187,7 +183,7 @@ void SecureConnectionWrapper::sl_dirContent(QString _remote_dir_path, FileTypeFi
 
     QSsh::SftpJobId job;
 
-    if (!_is_for_dir_download) {
+    if (!_is_for_dir_transfer) {
         // Do not signal progress if called prior to dir downloading
         emit si_progressUpdate(10);
         m_last_signalled_progress = 10;
@@ -247,14 +243,14 @@ void SecureConnectionWrapper::startDownloadDir(QString _remote_path, QString _lo
     }
 }
 
-void SecureConnectionWrapper::reinitProgressIndicators(quint64 _transfer_size) {
-    //    qDebug() << QString("SecureConnectionWrapper: reinit progress indicators:");
-    //    qDebug() << QString("Transfer size: %1").arg(_transfer_size);
-    m_current_transfer_size = _transfer_size;
-    m_total_received_bytes = 0;
-    m_progress_matrix.clear();
-    m_last_signalled_progress = 0;
-}
+//void SecureConnectionWrapper::reinitProgressIndicators(quint64 _transfer_size) {
+//    //    qDebug() << QString("SecureConnectionWrapper: reinit progress indicators:");
+//    //    qDebug() << QString("Transfer size: %1").arg(_transfer_size);
+//    m_current_transfer_size = _transfer_size;
+//    m_total_received_bytes = 0;
+//    m_progress_matrix.clear();
+//    m_last_signalled_progress = 0;
+//}
 
 void SecureConnectionWrapper::sl_onConnected() {
     qDebug() << "SecureConnectionWrapper: Connected";
@@ -463,7 +459,6 @@ void SecureConnectionWrapper::sl_onTransferProgress(QSsh::SftpJobId _job, quint6
     /* Notify client process */
     float progress_rate = (float)m_total_received_bytes / (float)m_current_transfer_size;
     float progress_percentage = progress_rate * 100.0f;
-    //int rounded_progress = qRound(progress_percentage);
     int rounded_progress = (int)progress_percentage; // round to the lower bound to reduce hanging at 100%
     //    qDebug() << QString("SecureConnectionWrapper: raw progress indicators:");
     //    qDebug() << QString("received bytes: %1 - transfer size: %2").arg(m_total_received_bytes).arg(m_current_transfer_size);
@@ -612,7 +607,7 @@ void SecureConnectionWrapper::sl_closeRemoteShell()
     m_shell->close();
 }
 
-void SecureConnectionWrapper::sl_executeCommand()
+void SecureConnectionWrapper::sl_executeShellCommand()
 {
     QString command_and_nl = m_shell_command.append("\n");
 

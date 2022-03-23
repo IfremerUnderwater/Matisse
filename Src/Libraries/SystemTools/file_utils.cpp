@@ -649,7 +649,7 @@ QString FileUtils::getParentDir(QString _current_dir) {
     int last = path_match.lastCapturedIndex();
     int pos = path_match.capturedStart(last);
 
-    qDebug() << QString("Path leaf is '%1'").arg(path_match.capturedView(last));
+    qDebug() << QString("FileUtils: path leaf is '%1'").arg(path_match.capturedView(last));
 
     /* Remove leaf from path to get parent path */
     QString parent_path = _current_dir.left(pos);
@@ -668,7 +668,7 @@ bool FileUtils::isValidUnixPath(QString _path, bool _exclude_relative_path)
     QRegularExpression unix_exp(unix_path_pattern);
     QRegularExpressionMatch unix_match = unix_exp.match(_path);
 
-    qDebug() << QString("FileUtils: Pattern is %1").arg(unix_exp.pattern());
+//    qDebug() << QString("FileUtils: Pattern is %1").arg(unix_exp.pattern());
 
     bool is_unix_path = unix_match.hasMatch();
 

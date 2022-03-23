@@ -5,7 +5,6 @@
 
 #include "network_commons.h"
 #include "network_credentials.h"
-#include "network_file_info.h"
 
 namespace network_tools {
 
@@ -23,14 +22,16 @@ public:
     QString username();
 
     virtual void resetConnection() = 0;
-    virtual QByteArray readShellStandardOutput() = 0;
-    virtual QByteArray readShellStandardError() = 0;
 
 protected:
+    void reinitProgressIndicators(quint64 _transfer_size);
+
     virtual void disableConnection() = 0;
     virtual void freeConnection() = 0;
     virtual void connectToRemoteHost() = 0;
     virtual void disconnectFromHost() = 0;
+    virtual QByteArray readShellStandardOutput() = 0;
+    virtual QByteArray readShellStandardError() = 0;
 
     friend class NetworkClient;
     friend class NetworkCommandClient;
@@ -59,11 +60,11 @@ protected slots:
     virtual void sl_initFileChannel() = 0;
     virtual void sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload, bool _recurse) = 0;
     virtual void sl_download(QString _remote_path, QString _local_path, bool _is_dir_download) = 0;
-    virtual void sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_download=false) = 0;
+    virtual void sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer=false) = 0;
 
     virtual void sl_createRemoteShell(QString& _command) = 0;
     virtual void sl_closeRemoteShell() = 0;
-    virtual void sl_executeCommand() = 0;
+    virtual void sl_executeShellCommand() = 0;
 
 protected:
     QString m_host;
@@ -72,8 +73,19 @@ protected:
     bool m_waiting_for_connection = false;
     eConnectionError m_current_cx_error = eConnectionError::NO_ERROR;
     eTransferError m_current_tx_error = eTransferError::NO_ERROR;
-    int m_last_signalled_progress = 0;
     QString m_shell_command;
+    bool m_download_file_ongoing;
+    bool m_download_dir_ongoing;
+    QString m_operation_remote_path;
+    QString m_operation_local_path;
+    int m_last_signalled_progress = 0;
+    quint64 m_current_transfer_size = 0;
+    QMap<quint32,quint64> m_progress_matrix;
+    quint64 m_total_received_bytes = 0;
+    FileTypeFilters m_file_type_flags;
+    QStringList m_file_filters;
+    QList<NetworkFileInfo*> m_dir_contents_buffer;
+    bool m_dir_contents_received;
 };
 
 } // namespace network_tools

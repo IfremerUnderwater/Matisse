@@ -1,8 +1,8 @@
 #ifndef NETWORK_TOOLS_NETWORK_FILE_CLIENT_H_
 #define NETWORK_TOOLS_NETWORK_FILE_CLIENT_H_
 
+#include "network_commons.h"
 #include "network_client.h"
-#include "network_file_info.h"
 
 namespace network_tools {
 

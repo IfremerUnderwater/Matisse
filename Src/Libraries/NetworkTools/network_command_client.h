@@ -22,9 +22,6 @@ signals:
     void si_commandErrorReceived(NetworkAction *_action, QByteArray _error);
 
 protected slots:
-//    virtual void sl_createRemoteShell(QString& _command) = 0;
-//    virtual void sl_closeRemoteShell() = 0;
-//    virtual void sl_executeCommand() = 0;
     void sl_onShellStarted();
     void sl_onReadyReadStandardOutput();
     void sl_onReadyReadStandardError();

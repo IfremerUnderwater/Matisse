@@ -2,8 +2,8 @@
 #define NETWORK_TOOLS_NETWORK_ACTION_DIR_CONTENT_H_
 
 #include <QtDebug>
+#include "network_commons.h"
 #include "network_file_action.h"
-#include "network_file_info.h"
 
 namespace network_tools {
 

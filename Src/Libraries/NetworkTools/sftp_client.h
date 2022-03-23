@@ -3,8 +3,8 @@
 
 #include "sshconnection.h"
 #include "sftpchannel.h"
+#include "network_commons.h"
 #include "network_action.h"
-#include "network_file_info.h"
 #include "network_file_client.h"
 
 using namespace QSsh;

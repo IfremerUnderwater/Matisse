@@ -1,6 +1,6 @@
 add_library(NetworkTools
     connection_wrapper.cpp
-    #basic_connection_wrapper.cpp
+    basic_connection_wrapper.cpp
     secure_connection_wrapper.cpp
     network_action.cpp
     network_file_action.cpp
@@ -31,6 +31,7 @@ target_link_libraries(NetworkTools
 	Qt5::Network
 	QSsh::QSsh 
 	${BOTAN_LIB}
+        QFtp
 	)
 
 

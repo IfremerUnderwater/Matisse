@@ -20,14 +20,14 @@ void NetworkCommandClient::connectAction(NetworkAction *_action)
 {
     connect(_action, SIGNAL(si_createRemoteShell(QString&)), m_cx_wrapper, SLOT(sl_createRemoteShell(QString&)));
     connect(_action, SIGNAL(si_closeRemoteShell()), m_cx_wrapper, SLOT(sl_closeRemoteShell()));
-    connect(_action, SIGNAL(si_executeCommand()), m_cx_wrapper, SLOT(sl_executeCommand()));
+    connect(_action, SIGNAL(si_executeShellCommand()), m_cx_wrapper, SLOT(sl_executeShellCommand()));
 }
 
 void NetworkCommandClient::disconnectAction(NetworkAction *_action)
 {
     disconnect(_action, SIGNAL(si_createRemoteShell(QString&)), m_cx_wrapper, SLOT(sl_createRemoteShell(QString&)));
     disconnect(_action, SIGNAL(si_closeRemoteShell()), m_cx_wrapper, SLOT(sl_closeRemoteShell()));
-    disconnect(_action, SIGNAL(si_executeCommand()), m_cx_wrapper, SLOT(sl_executeCommand()));
+    disconnect(_action, SIGNAL(si_executeShellCommand()), m_cx_wrapper, SLOT(sl_executeShellCommand()));
 }
 
 void NetworkCommandClient::doInitBeforeAction() {
