@@ -105,6 +105,7 @@ find_package(CGAL)
 FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serialization)
 find_package(OpenMVS REQUIRED)
 find_package(QSsh)
+find_package(QFtp)
 
 find_package(LibKML REQUIRED)
 

@@ -3,7 +3,7 @@
 namespace network_tools {
 
 NetworkActionUploadFile::NetworkActionUploadFile(QString _local_file_path, QString _remote_path) :
-    NetworkFileAction(NetworkActionType::UploadFile)
+    NetworkFileAction(eNetworkActionType::UploadFile)
 {
     QFileInfo info(_local_file_path);
 
@@ -24,7 +24,7 @@ void NetworkActionUploadFile::init()
 
 void NetworkActionUploadFile::execute()
 {
-    emit si_upload(m_local_file_path, m_remote_path, false);
+    emit si_upload(m_local_file_path, m_remote_path, false, false);
 }
 
 QString NetworkActionUploadFile::progressMessage()

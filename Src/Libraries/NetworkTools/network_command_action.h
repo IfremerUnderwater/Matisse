@@ -9,12 +9,12 @@ class NetworkCommandAction : public NetworkAction
 {
     Q_OBJECT
 public:
-    NetworkCommandAction(NetworkActionType _type);
+    NetworkCommandAction(eNetworkActionType _type);
 
 signals:
     void si_createRemoteShell(QString& _command);
     void si_closeRemoteShell();
-    void si_executeCommand();
+    void si_executeShellCommand();
 };
 
 } // namespace network_tools

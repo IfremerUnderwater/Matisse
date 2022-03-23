@@ -2,6 +2,7 @@
 #define NETWORK_TOOLS_NETWORK_ACTION_DIR_CONTENT_H_
 
 #include <QtDebug>
+#include "network_commons.h"
 #include "network_file_action.h"
 
 namespace network_tools {
@@ -11,9 +12,9 @@ class NetworkActionDirContent : public NetworkFileAction
     Q_OBJECT
 public:
     explicit NetworkActionDirContent(
-        QString _remote_dir,
-        FileTypeFilters _flags = FileTypeFilter::Dirs,
-        QStringList _file_filters = QStringList());
+            QString _remote_dir,
+            FileTypeFilters _flags = eFileTypeFilter::Dirs,
+            QStringList _file_filters = QStringList());
     void init();
     void execute();
     QString remoteDir() { return m_remote_dir; }

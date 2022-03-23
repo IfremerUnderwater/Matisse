@@ -1,4 +1,7 @@
 add_library(NetworkTools
+    connection_wrapper.cpp
+    basic_connection_wrapper.cpp
+    secure_connection_wrapper.cpp
     network_action.cpp
     network_file_action.cpp
     network_command_action.cpp
@@ -9,7 +12,9 @@ add_library(NetworkTools
     network_action_send_command.cpp
     network_command.cpp
     network_command_pbs_qsub.cpp
+    network_commons.cpp
     network_client.cpp
+    network_credentials.cpp
     network_file_client.cpp
     network_command_client.cpp
     sftp_client.cpp
@@ -26,6 +31,7 @@ target_link_libraries(NetworkTools
 	Qt5::Network
 	QSsh::QSsh 
 	${BOTAN_LIB}
+        QFtp
 	)
 
 

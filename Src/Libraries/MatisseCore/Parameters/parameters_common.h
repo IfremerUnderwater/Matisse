@@ -17,6 +17,7 @@ namespace matisse {
 #define DATASET_PARAM_OUTPUT_FILENAME   "output_filename"
 #define DATASET_PARAM_DATASET_DIR       "dataset_dir"
 #define DATASET_PARAM_NAVIGATION_FILE   "navFile"
+#define DATASET_PARAM_NAVIGATION_SOURCE "navSource"
 
 struct eEnumValue {
     QString name;

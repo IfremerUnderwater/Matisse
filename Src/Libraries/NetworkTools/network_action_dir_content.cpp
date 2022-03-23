@@ -7,7 +7,7 @@ namespace network_tools {
 NetworkActionDirContent::NetworkActionDirContent(QString _remote_dir,
                                                  FileTypeFilters _flags,
                                                  QStringList _file_filters) :
-    NetworkFileAction(NetworkActionType::ListDirContent)
+    NetworkFileAction(eNetworkActionType::ListDirContent)
 {
     m_remote_dir = _remote_dir;
     m_flags = _flags;

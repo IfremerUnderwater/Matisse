@@ -112,11 +112,11 @@ bool SystemDataManager::readMatisseSettings(QString _filename)
               else if (server_setting_name == "binRoot") {
                 m_remote_server_settings->setBinRoot(server_setting);
               }              
+              else if (server_setting_name == "datasetsDir") {
+                m_remote_server_settings->setDatasetsDir(server_setting);
+              }
               else if (server_setting_name == "applicationFilesRoot") {
                 m_remote_server_settings->setApplicationFilesRoot(server_setting);
-              }              
-              else if (server_setting_name == "datasetsSubdir") {
-                m_remote_server_settings->setDatasetsSubdir(server_setting);
               }              
               else if (server_setting_name == "jobsSubdir") {
                 m_remote_server_settings->setJobsSubdir(server_setting);

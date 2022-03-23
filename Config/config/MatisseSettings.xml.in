@@ -17,12 +17,12 @@
 	
 	<!-- Remote server container settings -->
 	<RemoteServerSettings>
-		<RemoteServerSetting name="containerImage" path="/home/server/SfmEnv/singularity/ ubuntu_20_sfm_env_1_0.sif" alias=""/>
-		<RemoteServerSetting name="launcherParentDir" path="/home/server/SfmEnv/scripts" alias="matisse_script"/>
+		<RemoteServerSetting name="containerImage" path="/home/matisse/singularity/matisse_img_v_1.1.sif" alias=""/>
+		<RemoteServerSetting name="launcherParentDir" path="/home/matisse/scripts" alias="matisse_script"/>
 		<RemoteServerSetting name="launcherFile" path="matisse.sh" alias=""/>
-		<RemoteServerSetting name="binRoot" path="/home/server/SfmEnv/matisse_bin/Run/Release" alias="matisse_bin"/>
-		<RemoteServerSetting name="applicationFilesRoot" path="/home/server/matisse" alias=""/>
-		<RemoteServerSetting name="datasetsSubdir" path="datasets" alias="matisse_data"/>
+		<RemoteServerSetting name="binRoot" path="/home/matisse/dev/matisse/Build/Run/Release" alias="matisse_bin"/>
+		<RemoteServerSetting name="datasetsDir" path="/home/matisse/datasets" alias="matisse_data"/>
+		<RemoteServerSetting name="applicationFilesRoot" path="/home/matisse" alias=""/>
 		<RemoteServerSetting name="jobsSubdir" path="jobs" alias="matisse_jobs"/>
 		<RemoteServerSetting name="resultsSubdir" path="results" alias="matisse_results"/>	
 	</RemoteServerSettings>

@@ -2,8 +2,9 @@
 
 namespace network_tools {
 
-NetworkActionUploadDir::NetworkActionUploadDir(QString _local_dir, QString _remote_base_dir) :
-    NetworkFileAction(NetworkActionType::UploadDir)
+NetworkActionUploadDir::NetworkActionUploadDir(QString _local_dir, QString _remote_base_dir, bool _recurse) :
+    NetworkFileAction(eNetworkActionType::UploadDir),
+    m_recurse(_recurse)
 {
     QFileInfo info(_local_dir);
 
@@ -19,12 +20,15 @@ NetworkActionUploadDir::NetworkActionUploadDir(QString _local_dir, QString _remo
 
 void NetworkActionUploadDir::init()
 {
+    qDebug() << "NetworkActionUploadDir: Init file channel";
     emit si_initFileChannel();
 }
 
 void NetworkActionUploadDir::execute()
 {
-    emit si_upload(m_local_dir, m_remote_base_dir, true);
+    qDebug() << "NetworkActionUploadDir: Before upload";
+    emit si_upload(m_local_dir, m_remote_base_dir, true, m_recurse);
+    qDebug() << "NetworkActionUploadDir: After upload";
 }
 
 QString NetworkActionUploadDir::progressMessage()

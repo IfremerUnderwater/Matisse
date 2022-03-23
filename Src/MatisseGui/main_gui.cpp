@@ -877,33 +877,45 @@ void MainGui::checkAndSelectAssembly(QString _selected_assembly_name)
 }
 
 
-void MainGui::promptJobNotSaved()
+bool MainGui::promptJobNotSaved(bool _proceed_anyway)
 {
-    if (m_job_parameter_modified) {
-        if (!m_current_job) {
-            qCritical() << "Job parameters were modified but the current job is unknown, modifications if any will be lost";
-
-            /* reset modification flag */
-            m_job_parameter_modified = false;
-
-        } else {
-            QString current_job_name = m_current_job->name();
-
-            int user_response = QMessageBox::question(this, tr("Parameters modification..."), tr("Parameters from task '%1' were modified.\nSave mods before going on ?").arg(current_job_name), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-
-            if (user_response == QMessageBox::Yes) {
-                // save job parameters
-                m_engine.parametersManager()->saveParametersValues(current_job_name, false);
-            }
-
-            /* reset modification flag */
-            m_job_parameter_modified = false;
-
-            /* mark job as saved */
-            handleJobModified();
-        }
+    if (!m_job_parameter_modified) {
+        return false;
     }
 
+    if (!m_current_job) {
+        qCritical() << "Job parameters were modified but the current job is unknown, modifications if any will be lost";
+
+        /* reset modification flag */
+        m_job_parameter_modified = false;
+        return false;
+    }
+
+    bool job_saved = false;
+    QString current_job_name = m_current_job->name();
+
+    QString action_prompt = (_proceed_anyway) ? tr("Save parameters before proceeding ?") : tr("Save parameters now ?");
+
+    int user_response = QMessageBox::question(this, tr("Parameters modification..."), tr("Parameters from task '%1' were modified.\n").arg(current_job_name).append(action_prompt), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+    if (user_response == QMessageBox::Yes) {
+        // save job parameters
+        m_engine.parametersManager()->saveParametersValues(current_job_name, false);
+        job_saved = true;
+        /* reset modification flag */
+        m_job_parameter_modified = false;
+        /* mark job as saved */
+        handleJobModified();
+    }
+
+    if (job_saved || _proceed_anyway) {
+        /* reset modification flag */
+        m_job_parameter_modified = false;
+        /* mark job as saved */
+        handleJobModified();
+    }
+
+    return job_saved;
 }
 
 
@@ -1321,7 +1333,7 @@ void MainGui::executeExportWorkflow(bool _is_job_export_action, bool _is_for_rem
 
     if (_is_job_export_action) {
         if (m_is_map_view && m_job_parameter_modified) {
-            promptJobNotSaved();
+            confirm_action = promptJobNotSaved(false);
         }
     } else {
         if (!m_is_map_view) {
@@ -2627,19 +2639,9 @@ void MainGui::sl_launchJob()
 
     // If a parameter was modified, the user is prompted for saving parameter values
     if (m_job_parameter_modified) {
-        if (QMessageBox::No == QMessageBox::question(this, tr("Parameters changed..."),
-                                                     tr("One or more parameters were modified.\nDo you want to save task parameters ?"),
-                                                     QMessageBox::Yes,
-                                                     QMessageBox::No)) {
-
+        if (!promptJobNotSaved(false)) {
             qDebug() << "User aborted job execution";
             return;
-        } else {
-            qDebug() << "Saving job parameters before launch";
-            // Save parameter values
-            m_engine.parametersManager()->saveParametersValues(job_name, false);
-            m_job_parameter_modified = false;
-            handleJobModified();
         }
     }
 
@@ -2700,6 +2702,13 @@ void MainGui::sl_uploadJobData()
     if (!m_current_job) {
       qCritical() << "No job selected, cannot upload job data";
       return;
+    }
+
+    if (m_job_parameter_modified) {
+        if (!promptJobNotSaved(false)) {
+            qDebug() << "User aborted data upload to server";
+            return;
+        }
     }
 
     QString job_name = m_current_job->name();

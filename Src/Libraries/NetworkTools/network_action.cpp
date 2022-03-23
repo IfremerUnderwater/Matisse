@@ -7,7 +7,7 @@
 
 namespace network_tools {
 
-NetworkAction::NetworkAction(NetworkActionType _type) {
+NetworkAction::NetworkAction(eNetworkActionType _type) {
   m_type = _type;
 }
 
