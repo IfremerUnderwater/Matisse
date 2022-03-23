@@ -71,6 +71,7 @@ configure_file(MatisseConfig.h.in MatisseConfig.h)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 #for SiftGPU
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(Glew REQUIRED)
