@@ -12,6 +12,7 @@
 #include <limits>
 #include <utility>
 #include <vector>
+#include <mutex>
 
 #include "openMVG/matching/indMatch.hpp"
 #include "openMVG/matching/indMatchDecoratorXY.hpp"
@@ -25,6 +26,8 @@
 
 #include "openMVG/matching_image_collection/H_ACRobust.hpp"
 #include "openMVG/matching_image_collection/F_ACRobust.hpp"
+
+#include "SiftGPU.h"
 
 namespace openMVG {
 
@@ -40,10 +43,12 @@ struct GeometricFilter_H_F_AC
   GeometricFilter_H_F_AC
   (
     double dPrecision = std::numeric_limits<double>::infinity(),
-    uint32_t iteration = 1024
+    uint32_t iteration = 1024,
+    SiftMatchGPU* psift_gpu_matcher = nullptr
   ):
     m_f_filter(dPrecision, iteration),
     m_h_filter(dPrecision, iteration),
+    m_psift_gpu_matcher(psift_gpu_matcher),
     m_HMatrix_is_best(false)
   {
   }
@@ -71,7 +76,8 @@ struct GeometricFilter_H_F_AC
     if (num_f_inliers == 0 && num_h_inliers == 0)
       return false;
 
-    std::cout << "\n Inliers : (H)" << num_h_inliers << " / (F) " << num_f_inliers << " out of " << vec_PutativeMatches.size() << " matches!";
+    std::cout << "\n Inliers : (H)" << num_h_inliers << " / (F) " << num_f_inliers 
+        << " out of " << vec_PutativeMatches.size() << " matches!";
       
     // Init with FMatrix result
     geometric_inliers.swap(f_geometric_inliers);
@@ -89,6 +95,11 @@ struct GeometricFilter_H_F_AC
     else
       std::cout << "\n Fundamental Mat Chosen for Robust Geometry Filtering!";
     
+    const double dprec_robust = m_HMatrix_is_best ? m_h_filter.m_dPrecision_robust
+                                            : m_f_filter.m_dPrecision_robust;
+    
+    std::cout << "\n Robust Precision threshold : " << dprec_robust << "\n";
+
     return true;
   }
 
@@ -102,21 +113,197 @@ struct GeometricFilter_H_F_AC
   )
   {
     bool success = false;
-    if (m_HMatrix_is_best)
-      success = m_h_filter.Geometry_guided_matching(sfm_data, regions_provider, pairIndex, 
-                                      dDistanceRatio, matches);
-    else
-      success = m_f_filter.Geometry_guided_matching(sfm_data, regions_provider, pairIndex, 
-                                      dDistanceRatio, matches);
 
-    std::cout << "\n New number of matches : " << matches.size() << "\n";
+    if (m_psift_gpu_matcher != nullptr)
+    {
+      if (regions_provider->Type_id() == typeid(unsigned char).name())
+      {
+        success = Geometry_guided_matching_SiftGPU<unsigned char>(
+                    sfm_data, regions_provider, pairIndex, 
+                    dDistanceRatio, matches);
+      }
+      else if (regions_provider->Type_id() == typeid(float).name())
+      {
+        success = Geometry_guided_matching_SiftGPU<float>(
+                    sfm_data, regions_provider, pairIndex, 
+                    dDistanceRatio, matches);
+      }
+    }
+    else if (m_HMatrix_is_best)
+    {
+      success = m_h_filter.Geometry_guided_matching(
+                  sfm_data, regions_provider, pairIndex, 
+                  dDistanceRatio, matches);
+    }
+    else
+    {
+      success = m_f_filter.Geometry_guided_matching(
+                  sfm_data, regions_provider, pairIndex, 
+                  dDistanceRatio, matches);
+    }
+
+    std::cout << "\n GuidedMatching - new number of matches : " << matches.size() << "\n";
+
+    return success;
+  }
+
+  template<typename ScalarT>
+  bool Geometry_guided_matching_SiftGPU
+  (
+    const sfm::SfM_Data * sfm_data,
+    const std::shared_ptr<sfm::Regions_Provider> & regions_provider,
+    const Pair pairIndex,
+    const double dDistanceRatio,
+    matching::IndMatches & matches
+  )
+  {
+    // Check SiftGPU Init
+    // ========================================================
+    if (m_psift_gpu_matcher->VerifyContextGL() < 0)
+      return false;
+
+    const int max_matches = m_psift_gpu_matcher->GetMaxSift();
+
+    // Setup Features for matching
+    // ========================================================
+
+    // Get back corresponding view index
+    const IndexT iIndex = pairIndex.first;
+    const IndexT jIndex = pairIndex.second;
+
+    const std::shared_ptr<features::Regions>
+      regionsI = regions_provider->get(iIndex),
+      regionsJ = regions_provider->get(jIndex);
+    
+    // Get features points and descriptors for Image I
+    // ------------------------------------------------
+
+    // 1st Descriptor
+    const ScalarT * tabI =
+      reinterpret_cast<const ScalarT*>(regionsI->DescriptorRawData());
+    const size_t desc_size_I = regionsI->RegionCount();
+
+
+    // set image I descriptors
+    m_psift_gpu_matcher->SetDescriptors(0, desc_size_I, (unsigned char*)tabI); //image I (only support unsigned char for now)
+    
+    // 2nd Features location (MANDATORY ORDER!)
+    const std::vector<features::PointFeature> pointFeaturesI = regionsI->GetRegionsPositions();
+
+    std::vector<SiftGPU::SiftKeypoint> vkeysI;
+    vkeysI.reserve(pointFeaturesI.size());
+    for (const auto &kp : pointFeaturesI)
+    {
+      vkeysI.push_back({kp.x(), kp.y(), 1.f, 0.f});
+    }
+
+    // 2 is the amount of values to skip in vkeys struct
+    m_psift_gpu_matcher->SetFeautreLocation(0, reinterpret_cast<const float*>(vkeysI.data()), 2);
+    
+    if (desc_size_I != vkeysI.size())
+    {
+      std::cerr << "\n Not the same amount of keypoints and descriptor for Image I! ";
+      std::cerr << "Nb desc : " << desc_size_I << " / ";
+      std::cerr << "Nb keypoints : " << vkeysI.size() << "\n";
+      return false;
+    }
+
+    
+    // Get features points and descriptors for Image J
+    // ------------------------------------------------
+
+    // 1st Descriptor
+    const ScalarT * tabJ = reinterpret_cast<const ScalarT*>(regionsJ->DescriptorRawData());
+    const size_t desc_size_J = regionsJ->RegionCount();
+    
+    // set image J descriptors
+    m_psift_gpu_matcher->SetDescriptors(1, desc_size_J, (unsigned char*)tabJ); //image I (only support unsigned char for now)
+    
+    // 2nd Features location (MANDATORY ORDER!)
+    const std::vector<features::PointFeature> pointFeaturesJ = regionsJ->GetRegionsPositions();
+
+    std::vector<SiftGPU::SiftKeypoint> vkeysJ;
+    vkeysJ.reserve(pointFeaturesI.size());
+    for (const auto &kp : pointFeaturesJ)
+    {
+      vkeysJ.push_back({kp.x(), kp.y(), 1.f, 0.f});
+    }
+
+    // 2 is the amount of values to skip in vkeys struct
+    m_psift_gpu_matcher->SetFeautreLocation(1, reinterpret_cast<const float*>(vkeysJ.data()), 2);
+
+    if (desc_size_J != vkeysJ.size())
+    {
+      std::cerr << "\n Not the same amount of keypoints and descriptor for Image J! ";
+      std::cerr << "Nb desc : " << desc_size_J << " / ";
+      std::cerr << "Nb keypoints : " << vkeysJ.size() << "\n";
+      return false;
+    }
+
+    // Setup Homography / Fundamental Mat for Guided Matching
+    // ========================================================
+
+    Eigen::Matrix<float, 3, 3, Eigen::RowMajor> F;
+    Eigen::Matrix<float, 3, 3, Eigen::RowMajor> H;
+    float* F_ptr = nullptr;
+    float* H_ptr = nullptr;
+
+    if (m_HMatrix_is_best)
+    {
+      H = m_h_filter.m_H.cast<float>();
+      H_ptr = H.data();
+    }
+    else 
+    {
+      F = m_f_filter.m_F.cast<float>();
+      F_ptr = F.data();
+    }
+    
+    // Apply Guided Matching
+    // ========================================================
+    
+    // Perform matching between all the pairs
+    uint32_t(*match_buf)[2] = new uint32_t[max_matches][2];
+
+    const int mutual_best_match = 1;
+
+    const float sift_max_dist = 0.7; // Suggested max distance between two Sift descriptors
+
+    const int num_matches = 
+        m_psift_gpu_matcher->GetGuidedSiftMatch(
+            max_matches, 
+            match_buf, 
+            H_ptr, 
+            F_ptr, 
+            sift_max_dist, 
+            static_cast<float>(dDistanceRatio), 
+            static_cast<float>(Square(m_h_filter.m_dPrecision_robust)),
+            static_cast<float>(Square(m_f_filter.m_dPrecision_robust)),
+            mutual_best_match);
+
+    bool success = num_matches > 0;
+
+    if (success)
+    {
+      // Recover matches
+      // ====================
+      matches.reserve(num_matches);
+      for (int i=0; i < num_matches; ++i)
+      {
+        matches.emplace_back(match_buf[i][0], match_buf[i][1]);
+      }
+    }
+
+    delete[] match_buf;
 
     return success;
   }
 
   GeometricFilter_FMatrix_AC m_f_filter;
   GeometricFilter_HMatrix_AC m_h_filter;
+  SiftMatchGPU* m_psift_gpu_matcher;
   bool m_HMatrix_is_best;
+  
 };
 
 } // namespace matching_image_collection

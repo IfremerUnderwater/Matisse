@@ -108,12 +108,13 @@ Matching3D::Matching3D() :
     addExpectedParameter("algo_param", "video_mode_matching_enable");
     addExpectedParameter("algo_param", "nav_based_matching_enable");
     addExpectedParameter("algo_param", "nav_based_matching_max_dist");
+    addExpectedParameter("algo_param", "guided_matching");
 
-    m_context_manager = new OpenGLContextManager();
+    m_pcontext_manager.reset(new OpenGLContextManager());
 }
 
 Matching3D::~Matching3D(){
-    //delete m_context_manager;
+    //delete m_pcontext_manager;
 }
 
 bool Matching3D::configure()
@@ -429,13 +430,17 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     if (!ok)
         nav_based_matching_max_dist = 8.0;
 
+    //
+    bool b_guided_matching = m_matisse_parameters->getDoubleParamValue("algo_param", "guided_matching", ok);
+    if (!ok)
+        b_guided_matching = true;
+
     std::string s_sfm_data_filename = q_sfm_data_filename.toStdString();
     std::string s_matches_directory = s_out_dir.toStdString();
     float f_dist_ratio = 0.8f;
     int i_matching_video_mode = -1;
     std::string s_predefined_pair_list = "";
     std::string s_nearest_matching_method = nmm_param_value.toStdString();
-    bool b_guided_matching = false;
     int imax_iteration = 2048;
     unsigned int ui_max_cache_size = 0;
 
@@ -795,6 +800,9 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
             }
             // Photometric matching of putative pairs
             collection_matcher->Match(regions_provider, pairs, map_putatives_matches, this);
+
+            
+            collection_matcher.reset();
             //---------------------------------------
             //-- Export putative matches
             //---------------------------------------
@@ -827,24 +835,66 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     //    - Use an upper bound for the a contrario estimated threshold
     //---------------------------------------
 
-    std::unique_ptr<ImageCollectionGeometricFilter> filter_ptr(
-        new ImageCollectionGeometricFilter(&sfm_data, regions_provider));
-
+    std::unique_ptr<GpuImageCollectionGeometricFilter> filter_ptr(
+        new GpuImageCollectionGeometricFilter(&sfm_data, regions_provider));
+        
     if (filter_ptr)
     {
-        system::Timer timer;
-        const double d_distance_ratio = 0.75;
-        b_guided_matching = true;
-
+        system::Timer timer;        
         PairWiseMatches map_geometric_matches;
+
+        // Distance of 2nd best match w.r.t. 1st best match
+        // used for guided matching
+        const double d_distance_ratio = 0.75; // Optimal value?
+
+        bool use_sift_gpu_4_guided_matching = 
+            s_nearest_matching_method == "GPU_BRUTEFORCE";
+
+        // SiftGPU case
+        if (use_sift_gpu_4_guided_matching)
+        {
+            const int max_matches = 4096*4;
+            SiftMatchGPU sift_gpu_matcher(max_matches);
+
+            if (sift_gpu_matcher.VerifyContextGL() < 0)
+            {
+                std::cout << "\n Verify ContexGL returned false!\n";
+                std::cout << "Turning back to CPU guided matching if enabled\n";
+                use_sift_gpu_4_guided_matching = false;
+            }
+            else
+            {
+                const int best_mutual_matches = 1;
+                sift_gpu_matcher.Allocate(max_matches, best_mutual_matches);
+                
+                filter_ptr->Robust_model_estimation(
+                    GeometricFilter_H_F_AC(
+                        4.0, imax_iteration,
+                        &sift_gpu_matcher
+                        ),
+                    map_putatives_matches, b_guided_matching, 
+                    d_distance_ratio,
+                    use_sift_gpu_4_guided_matching,
+                    this);
+            }
+        }
         
-        filter_ptr->Robust_model_estimation(
-            GeometricFilter_H_F_AC(4.0, imax_iteration),
-            map_putatives_matches, b_guided_matching, 
-            d_distance_ratio, this);
-
+        // CPU case or SiftGPU failed case
+        if(!use_sift_gpu_4_guided_matching)
+        {
+            filter_ptr->Robust_model_estimation(
+                GeometricFilter_H_F_AC(
+                    4.0, imax_iteration
+                    ),
+                map_putatives_matches, b_guided_matching, 
+                d_distance_ratio,
+                use_sift_gpu_4_guided_matching, // false here
+                this);
+        }
+        
+        // Get resulting new matches
         map_geometric_matches = filter_ptr->Get_geometric_matches();
-
+        
         // switch (_geometric_model_to_compute)
         // {
         // case HOMOGRAPHY_MATRIX:
@@ -974,7 +1024,7 @@ void Matching3D::onFlush(quint32 _port)
     Q_UNUSED(_port)
 
     // switch opengl context to current processing thread
-    m_context_manager->MakeCurrent();
+    m_pcontext_manager->MakeCurrent();
 
     // Log
     QString proc_info = logPrefix() + "Features matching started\n";

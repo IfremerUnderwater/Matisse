@@ -12,6 +12,8 @@
 
 #include "H_F_ACRobust.hpp"
 
+#include "GPU_GeometricFilterer.hpp"
+
 namespace matisse {
 
 enum eGeometricModel
@@ -77,7 +79,7 @@ private:
 
     bool m_gpu_features;
 
-    OpenGLContextManager *m_context_manager;
+    std::unique_ptr<OpenGLContextManager> m_pcontext_manager;
 
     /** @brief Function that ... **/
     std::uint32_t operator+=(const std::uint32_t increment) override
