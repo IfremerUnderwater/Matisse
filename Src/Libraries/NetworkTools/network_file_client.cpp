@@ -12,7 +12,10 @@ void NetworkFileClient::doInit()
     connect(m_cx_wrapper, SIGNAL(si_channelReady()), SLOT(sl_onChannelReady()));
     connect(m_cx_wrapper, SIGNAL(si_channelClosed()), SLOT(sl_onChannelClosed()));
     connect(m_cx_wrapper, SIGNAL(si_transferFinished()), SLOT(sl_onTransferFinished()));
-    connect(m_cx_wrapper, SIGNAL(si_transferFailed(eTransferError)), SLOT(sl_onTransferFailed(eTransferError)));
+    connect(m_cx_wrapper, SIGNAL(si_transferFailed(eTransferError)), this, SLOT(sl_onTransferFailed(eTransferError)));
+
+    /* internal wiring to decouple the FTP error sequence from the GUI client */
+    connect(this, SIGNAL(si_transferFailedInternal(NetworkAction::eNetworkActionType, eTransferError)), this, SLOT(sl_onTransferFailedInternal(NetworkAction::eNetworkActionType, eTransferError)), Qt::ConnectionType::QueuedConnection);
 }
 
 void NetworkFileClient::connectAction(NetworkAction *_action)
@@ -49,8 +52,14 @@ void NetworkFileClient::sl_onTransferFailed(eTransferError _error) {
     if (!m_current_action) {
         qWarning() << "NetworkFileClient: current action null";
     }
-    emit si_transferFailed(m_current_action, _error);
+//    emit si_transferFailed(m_current_action, _error);
+    emit si_transferFailedInternal(m_current_action->type(), _error);
     qDebug() << "NetworkFileClient: after signalling transfer failed";
+}
+
+void NetworkFileClient::sl_onTransferFailedInternal(NetworkAction::eNetworkActionType _action_type, eTransferError _error) {
+    qDebug() << "NetworkFileClient: transfer failed internal loop";
+    emit si_transferFailed(_action_type, _error);
 }
 
 void NetworkFileClient::sl_onTransferFinished() {

@@ -80,7 +80,8 @@ signals:
 
 private slots:
     void sl_onTransferFinished(NetworkAction *_action);
-    void sl_onTransferFailed(NetworkAction* _action, eTransferError _err);
+//    void sl_onTransferFailed(NetworkAction* _action, eTransferError _err);
+    void sl_onTransferFailed(NetworkAction::eNetworkActionType _action_type, eTransferError _err);
     void sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents);
     void sl_onCommandOutputReceived(NetworkAction* _action, QByteArray _output);
     void sl_onCommandErrorReceived(NetworkAction* _action, QByteArray _error);

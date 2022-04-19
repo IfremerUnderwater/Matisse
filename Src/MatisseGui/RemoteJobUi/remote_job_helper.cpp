@@ -651,9 +651,10 @@ void RemoteJobHelper::connectNetworkClientSignals() {
             SLOT(sl_onConnectionFailed(eConnectionError)));
     connect(m_sftp_client, SIGNAL(si_transferFinished(NetworkAction*)),
             SLOT(sl_onTransferFinished(NetworkAction*)));
-    connect(m_sftp_client,
-            SIGNAL(si_transferFailed(NetworkAction*, eTransferError)),
-            SLOT(sl_onTransferFailed(NetworkAction*, eTransferError)));
+//    connect(m_sftp_client, SIGNAL(si_transferFailed(NetworkAction*, eTransferError)),
+//            SLOT(sl_onTransferFailed(NetworkAction*, eTransferError)));
+    connect(m_sftp_client, SIGNAL(si_transferFailed(NetworkAction::eNetworkActionType, eTransferError)),
+            this, SLOT(sl_onTransferFailed(NetworkAction::eNetworkActionType, eTransferError)), Qt::ConnectionType::QueuedConnection);
     connect(m_sftp_client->connectionWrapper(), SIGNAL(si_dirContents(QList<NetworkFileInfo*>)),
             this, SLOT(sl_onDirContentsReceived(QList<NetworkFileInfo*>)));
 
@@ -958,7 +959,7 @@ void RemoteJobHelper::sl_onTransferFinished(NetworkAction *_action) {
     }
 }
 
-void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
+void RemoteJobHelper::sl_onTransferFailed(NetworkAction::eNetworkActionType _action_type,
                                           eTransferError _err)
 {
 //    Q_UNUSED(_action)
@@ -966,6 +967,8 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
 
     QString failed_host = m_prefs->remoteFileServer();
     QString error_str = QVariant::fromValue(_err).toString();
+    QString type_str = QVariant::fromValue(_action_type).toString();
+    qDebug() << QString("RemoteJobHelper: transfer failed with err '%1' for action of type '%2'").arg(error_str).arg(type_str);
 
     bool invalid_user_datasets_path = false;
     QString warning_title = tr("Transfer failed");
@@ -973,7 +976,8 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
             .arg(failed_host)
             .arg(error_str);
 
-    if ((_action->type() == NetworkAction::eNetworkActionType::ListDirContent) &&
+//    if ((_action->type() == NetworkAction::eNetworkActionType::ListDirContent) &&
+    if ((_action_type == NetworkAction::eNetworkActionType::ListDirContent) &&
             (_err == eTransferError::FILE_NOT_FOUND)) {
         invalid_user_datasets_path = true;
         warning_title = tr("Invalid path");
@@ -982,7 +986,12 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
                 .arg(failed_host);
     }
 
+    qDebug() << QString("RemoteJobHelper: transfer failed 2");
+//    qWarning() << warning_title << " - " << warning_message;
+
     QMessageBox::warning(m_job_launcher, warning_title, warning_message);
+
+    qDebug() << QString("RemoteJobHelper: transfer failed 3");
 
     if (invalid_user_datasets_path) {
         m_current_datasets_root_path = ""; // invalidate current datasets path
@@ -990,8 +999,11 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
         QString restore_path = (m_previous_datasets_root_path.isEmpty()) ?
                     m_server_settings->datasetsPath() : m_previous_datasets_root_path;
 
+        qDebug() << QString("RemoteJobHelper: transfer failed 4");
         sl_onRemotePathChanged(restore_path);
     }
+
+    qDebug() << QString("RemoteJobHelper: transfer failed 5");
 }
 
 void RemoteJobHelper::sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents) {
@@ -1214,8 +1226,9 @@ void RemoteJobHelper::sl_onConnectionFailed(eConnectionError _err) {
 
     QObject* emitter = sender();
 
-    QString failed_host = (emitter == m_ssh_client) ?
+    QString failed_host = (emitter == m_ssh_client->connectionWrapper()) ?
                 m_prefs->remoteCommandServer() : m_prefs->remoteFileServer();
+//    qDebug() << QString("RemoteJobHelper: connection failed to host '%1'").arg(failed_host);
 
     if (_err == eConnectionError::AUTHENTICATION_ERROR) {
         qWarning() << QString("Authentication to remote host '%1' failed, retry login...").arg(failed_host);
@@ -1243,8 +1256,10 @@ void RemoteJobHelper::sl_onUserLogin(QString _password) {
             new NetworkCredentials(m_prefs->remoteUsername(), _password);
 
     /* Assume credentials are the same on both SFTP and SSH server */
+    qDebug() << "RemoteJobHelper: setting host for file client";
     m_sftp_client->connectionWrapper()->setHost(m_prefs->remoteFileServer());
     m_sftp_client->connectionWrapper()->setCredentials(creds);
+    qDebug() << "RemoteJobHelper: setting host for command client";
     m_ssh_client->connectionWrapper()->setHost(m_prefs->remoteCommandServer());
     m_ssh_client->connectionWrapper()->setCredentials(creds);
     m_host_and_creds_known = true;

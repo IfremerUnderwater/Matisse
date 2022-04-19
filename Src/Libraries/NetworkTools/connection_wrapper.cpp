@@ -25,6 +25,7 @@ bool ConnectionWrapper::isWaitingForConnection() {
 }
 
 void ConnectionWrapper::setHost(QString _host) {
+    qDebug() << QString("ConnectionWrapper: setting host '%1'").arg(_host);
     m_host = _host;
 }
 

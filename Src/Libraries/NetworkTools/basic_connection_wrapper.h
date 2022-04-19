@@ -8,6 +8,7 @@
 #include <QNetworkSession>
 #include <QNetworkConfigurationManager>
 #include <QQueue>
+#include <QTimer>
 
 #include "connection_wrapper.h"
 #include "QtFtp/qftp.h"
@@ -45,9 +46,11 @@ private slots:
     void sl_onNetworkSessionFailed(QNetworkSession::SessionError _error);
     void sl_onManagerStateChanged(int _state);
     void sl_onManagerSequenceDone(bool _error);
+    void sl_onOpStarted(int _job_id);
     void sl_onOpFinished(int _job_id, bool _has_error);
     void sl_onFileInfoAvailable(QUrlInfo _info);
     void sl_onTransferProgressReceived(qint64 _bytes_transferred, qint64 _bytes_total);
+    void sl_onOperationTimeout();
 
 private:
     void reinitBeforeFileOperation();
@@ -55,6 +58,8 @@ private:
     void uploadFile(QString _local_file_path);
     void downloadFile(QString _remote_file_name, QString _local_dir_path);
     void resumeDownloadDir();
+    void handleTimeout(QFtp::Command _ftp_command);
+    void releaseTransferFile(int _job_id);
     void mapConnectionError(QFtp::Error _err);
     void mapTransferError(QFtp::Error _err);
 
@@ -72,6 +77,10 @@ private:
     QList<QString> m_subdirs_buffer;
     QQueue<QString> m_dirs_to_upload;
     QString m_current_remote_path;
+//    QTimer *m_timeout_timer;
+    QMap<int, QTimer*> m_timer_by_job;
+
+    static const int CONNECTION_TIMEOUT_MS;
 };
 
 } // namespace network_tools

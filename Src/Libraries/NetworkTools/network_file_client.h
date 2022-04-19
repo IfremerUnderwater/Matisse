@@ -21,7 +21,9 @@ protected:
 
 signals:
     void si_transferFinished(NetworkAction *_action);
-    void si_transferFailed(NetworkAction *_action, eTransferError _err);
+//    void si_transferFailed(NetworkAction *_action, eTransferError _err);
+    void si_transferFailed(NetworkAction::eNetworkActionType, eTransferError _err);
+    void si_transferFailedInternal(NetworkAction::eNetworkActionType, eTransferError _err);
 //    void si_dirContents(QList<NetworkFileInfo *> _contents);
 
 protected slots:
@@ -35,6 +37,8 @@ protected slots:
     void sl_onTransferFailed(eTransferError _error);
     void sl_onTransferFinished();
 
+    /* Internal slot used to desynchronize the error processing sequence from the UI thread */
+    void sl_onTransferFailedInternal(NetworkAction::eNetworkActionType, eTransferError _error);
 
 //    eTransferError m_current_tx_error = eTransferError::NO_ERROR;
 };
