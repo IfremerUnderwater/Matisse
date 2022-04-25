@@ -49,7 +49,6 @@
 
 #include "openMVG/matching/matcher_brute_force.hpp"
 
-
 #include <atomic>
 #include <cstdlib>
 #include <fstream>
@@ -109,12 +108,13 @@ Matching3D::Matching3D() :
     addExpectedParameter("algo_param", "video_mode_matching_enable");
     addExpectedParameter("algo_param", "nav_based_matching_enable");
     addExpectedParameter("algo_param", "nav_based_matching_max_dist");
+    addExpectedParameter("algo_param", "guided_matching");
 
-    m_context_manager = new OpenGLContextManager();
+    m_pcontext_manager.reset(new OpenGLContextManager());
 }
 
 Matching3D::~Matching3D(){
-    //delete m_context_manager;
+    //delete m_pcontext_manager;
 }
 
 bool Matching3D::configure()
@@ -430,13 +430,17 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     if (!ok)
         nav_based_matching_max_dist = 8.0;
 
+    //
+    bool b_guided_matching = m_matisse_parameters->getDoubleParamValue("algo_param", "guided_matching", ok);
+    if (!ok)
+        b_guided_matching = true;
+
     std::string s_sfm_data_filename = q_sfm_data_filename.toStdString();
     std::string s_matches_directory = s_out_dir.toStdString();
     float f_dist_ratio = 0.8f;
     int i_matching_video_mode = -1;
     std::string s_predefined_pair_list = "";
     std::string s_nearest_matching_method = nmm_param_value.toStdString();
-    bool b_guided_matching = false;
     int imax_iteration = 2048;
     unsigned int ui_max_cache_size = 0;
 
@@ -796,6 +800,9 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
             }
             // Photometric matching of putative pairs
             collection_matcher->Match(regions_provider, pairs, map_putatives_matches, this);
+
+            
+            collection_matcher.reset();
             //---------------------------------------
             //-- Export putative matches
             //---------------------------------------
@@ -828,86 +835,137 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
     //    - Use an upper bound for the a contrario estimated threshold
     //---------------------------------------
 
-    std::unique_ptr<ImageCollectionGeometricFilter> filter_ptr(
-        new ImageCollectionGeometricFilter(&sfm_data, regions_provider));
-
+    std::unique_ptr<GpuImageCollectionGeometricFilter> filter_ptr(
+        new GpuImageCollectionGeometricFilter(&sfm_data, regions_provider));
+        
     if (filter_ptr)
     {
-        system::Timer timer;
-        const double d_distance_ratio = 0.6;
-
+        system::Timer timer;        
         PairWiseMatches map_geometric_matches;
-        switch (_geometric_model_to_compute)
-        {
-        case HOMOGRAPHY_MATRIX:
-        {
-            const bool b_geometric_only_guided_matching = true;
-            filter_ptr->Robust_model_estimation(
-                GeometricFilter_HMatrix_AC(4.0, imax_iteration),
-                map_putatives_matches, b_guided_matching,
-                b_geometric_only_guided_matching ? -1.0 : d_distance_ratio, this);
-            map_geometric_matches = filter_ptr->Get_geometric_matches();
-        }
-        break;
-        case FUNDAMENTAL_MATRIX:
-        {
-            filter_ptr->Robust_model_estimation(
-                GeometricFilter_FMatrix_AC(4.0, imax_iteration),
-                map_putatives_matches, b_guided_matching, d_distance_ratio, this);
-            map_geometric_matches = filter_ptr->Get_geometric_matches();
-        }
-        break;
-        case ESSENTIAL_MATRIX:
-        {
-            filter_ptr->Robust_model_estimation(
-                GeometricFilter_EMatrix_AC(4.0, imax_iteration),
-                map_putatives_matches, b_guided_matching, d_distance_ratio, this);
-            map_geometric_matches = filter_ptr->Get_geometric_matches();
 
-            //-- Perform an additional check to remove pairs with poor overlap
-            std::vector<PairWiseMatches::key_type> vec_toRemove;
-            for (const auto& pairwisematches_it : map_geometric_matches)
+        // Distance of 2nd best match w.r.t. 1st best match
+        // used for guided matching
+        const double d_distance_ratio = 0.75; // Optimal value?
+
+        bool use_sift_gpu_4_guided_matching = 
+            s_nearest_matching_method == "GPU_BRUTEFORCE";
+
+        // SiftGPU case
+        if (use_sift_gpu_4_guided_matching)
+        {
+            const int max_matches = 4096*4;
+            SiftMatchGPU sift_gpu_matcher(max_matches);
+
+            if (sift_gpu_matcher.VerifyContextGL() < 0)
             {
-                const size_t putative_photometric_count = map_putatives_matches.find(pairwisematches_it.first)->second.size();
-                const size_t putative_geometric_count = pairwisematches_it.second.size();
-                const float ratio = putative_geometric_count / static_cast<float>(putative_photometric_count);
-                if (putative_geometric_count < 50 || ratio < .3f) {
-                    // the pair will be removed
-                    vec_toRemove.push_back(pairwisematches_it.first);
-                }
+                std::cout << "\n Verify ContexGL returned false!\n";
+                std::cout << "Turning back to CPU guided matching if enabled\n";
+                use_sift_gpu_4_guided_matching = false;
             }
-            //-- remove discarded pairs
-            for (const auto& pair_to_remove_it : vec_toRemove)
+            else
             {
-                map_geometric_matches.erase(pair_to_remove_it);
+                const int best_mutual_matches = 1;
+                sift_gpu_matcher.Allocate(max_matches, best_mutual_matches);
+                
+                filter_ptr->Robust_model_estimation(
+                    GeometricFilter_H_F_AC(
+                        4.0, imax_iteration,
+                        &sift_gpu_matcher
+                        ),
+                    map_putatives_matches, b_guided_matching, 
+                    d_distance_ratio,
+                    use_sift_gpu_4_guided_matching,
+                    this);
             }
         }
-        break;
-        case ESSENTIAL_MATRIX_ANGULAR:
+        
+        // CPU case or SiftGPU failed case
+        if(!use_sift_gpu_4_guided_matching)
         {
             filter_ptr->Robust_model_estimation(
-                GeometricFilter_ESphericalMatrix_AC_Angular<false>(4.0, imax_iteration),
-                map_putatives_matches, b_guided_matching, d_distance_ratio, this);
-            map_geometric_matches = filter_ptr->Get_geometric_matches();
+                GeometricFilter_H_F_AC(
+                    4.0, imax_iteration
+                    ),
+                map_putatives_matches, b_guided_matching, 
+                d_distance_ratio,
+                use_sift_gpu_4_guided_matching, // false here
+                this);
         }
-        break;
-        case ESSENTIAL_MATRIX_ORTHO:
-        {
-            filter_ptr->Robust_model_estimation(
-                GeometricFilter_EOMatrix_RA(2.0, imax_iteration),
-                map_putatives_matches, b_guided_matching, d_distance_ratio, this);
-            map_geometric_matches = filter_ptr->Get_geometric_matches();
-        }
-        break;
-        case ESSENTIAL_MATRIX_UPRIGHT:
-        {
-            filter_ptr->Robust_model_estimation(
-                GeometricFilter_ESphericalMatrix_AC_Angular<true>(4.0, imax_iteration),
-                map_putatives_matches, b_guided_matching, d_distance_ratio, this);
-            map_geometric_matches = filter_ptr->Get_geometric_matches();
-        }
-        break;
-        }
+        
+        // Get resulting new matches
+        map_geometric_matches = filter_ptr->Get_geometric_matches();
+        
+        // switch (_geometric_model_to_compute)
+        // {
+        // case HOMOGRAPHY_MATRIX:
+        // {
+        //     const bool b_geometric_only_guided_matching = true;
+        //     filter_ptr->Robust_model_estimation(
+        //         GeometricFilter_HMatrix_AC(4.0, imax_iteration),
+        //         map_putatives_matches, b_guided_matching,
+        //         b_geometric_only_guided_matching ? -1.0 : d_distance_ratio, this);
+        //     map_geometric_matches = filter_ptr->Get_geometric_matches();
+        // }
+        // break;
+        // case FUNDAMENTAL_MATRIX:
+        // {
+        //     filter_ptr->Robust_model_estimation(
+        //         GeometricFilter_FMatrix_AC(4.0, imax_iteration),
+        //         map_putatives_matches, b_guided_matching, d_distance_ratio, this);
+        //     map_geometric_matches = filter_ptr->Get_geometric_matches();
+        // }
+        // break;
+        // case ESSENTIAL_MATRIX:
+        // {
+        //     filter_ptr->Robust_model_estimation(
+        //         GeometricFilter_EMatrix_AC(4.0, imax_iteration),
+        //         map_putatives_matches, b_guided_matching, d_distance_ratio, this);
+        //     map_geometric_matches = filter_ptr->Get_geometric_matches();
+
+        //     //-- Perform an additional check to remove pairs with poor overlap
+        //     std::vector<PairWiseMatches::key_type> vec_toRemove;
+        //     for (const auto& pairwisematches_it : map_geometric_matches)
+        //     {
+        //         const size_t putative_photometric_count = map_putatives_matches.find(pairwisematches_it.first)->second.size();
+        //         const size_t putative_geometric_count = pairwisematches_it.second.size();
+        //         const float ratio = putative_geometric_count / static_cast<float>(putative_photometric_count);
+        //         if (putative_geometric_count < 50 || ratio < .3f) {
+        //             // the pair will be removed
+        //             vec_toRemove.push_back(pairwisematches_it.first);
+        //         }
+        //     }
+        //     //-- remove discarded pairs
+        //     for (const auto& pair_to_remove_it : vec_toRemove)
+        //     {
+        //         map_geometric_matches.erase(pair_to_remove_it);
+        //     }
+        // }
+        // break;
+        // case ESSENTIAL_MATRIX_ANGULAR:
+        // {
+        //     filter_ptr->Robust_model_estimation(
+        //         GeometricFilter_ESphericalMatrix_AC_Angular<false>(4.0, imax_iteration),
+        //         map_putatives_matches, b_guided_matching, d_distance_ratio, this);
+        //     map_geometric_matches = filter_ptr->Get_geometric_matches();
+        // }
+        // break;
+        // case ESSENTIAL_MATRIX_ORTHO:
+        // {
+        //     filter_ptr->Robust_model_estimation(
+        //         GeometricFilter_EOMatrix_RA(2.0, imax_iteration),
+        //         map_putatives_matches, b_guided_matching, d_distance_ratio, this);
+        //     map_geometric_matches = filter_ptr->Get_geometric_matches();
+        // }
+        // break;
+        // case ESSENTIAL_MATRIX_UPRIGHT:
+        // {
+        //     filter_ptr->Robust_model_estimation(
+        //         GeometricFilter_ESphericalMatrix_AC_Angular<true>(4.0, imax_iteration),
+        //         map_putatives_matches, b_guided_matching, d_distance_ratio, this);
+        //     map_geometric_matches = filter_ptr->Get_geometric_matches();
+        // }
+        // break;
+        // }
 
         //---------------------------------------
         //-- Export geometric filtered matches
@@ -966,7 +1024,7 @@ void Matching3D::onFlush(quint32 _port)
     Q_UNUSED(_port)
 
     // switch opengl context to current processing thread
-    m_context_manager->MakeCurrent();
+    m_pcontext_manager->MakeCurrent();
 
     // Log
     QString proc_info = logPrefix() + "Features matching started\n";

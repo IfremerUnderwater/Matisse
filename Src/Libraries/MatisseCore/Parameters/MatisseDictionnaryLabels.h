@@ -86,6 +86,7 @@ public:
 		_paramLabelKeys.insert("video_mode_matching_enable", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Transect Mode"));
 		_paramLabelKeys.insert("nav_based_matching_enable", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Nav based matching"));
 		_paramLabelKeys.insert("nav_based_matching_max_dist", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Nav matching max dist"));
+		_paramLabelKeys.insert("guided_matching", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Apply Guided Matching based on 2-views Geometry"));
 
 		/* GROUP : DensifyPointCloud */
 		_groupLabelKeys.insert("DensifyPointCloud", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Densify Point Cloud"));

@@ -40,15 +40,16 @@ void Match
 {
   if (!my_progress_bar)
     my_progress_bar = &system::ProgressInterface::dummy();
+
   my_progress_bar->Restart(pairs.size(), "- Matching -");
 
   // Init matcher
-  int max_matches = 32000;
+  const int max_matches = 4096*4;
   SiftMatchGPU matcher(max_matches);
+
   if (matcher.VerifyContextGL() < 0)
       return;
   matcher.SetMaxSift(max_matches); // needed ?
-
 
   // Sort pairs according the first index to minimize later memory swapping
   using Map_vectorT = std::map<IndexT, std::vector<IndexT>>;
@@ -58,16 +59,14 @@ void Match
     map_Pairs[pair_idx.first].push_back(pair_idx.second);
   }
 
-
   // Perform matching between all the pairs
   uint32_t(*match_buf)[2] = new uint32_t[max_matches][2];
-  //std::vector<float> fdesci;
-  //std::vector<float> fdescj;
 
   for (const auto & pair_it : map_Pairs)
   {
     if (my_progress_bar->hasBeenCanceled())
       break;
+
     const IndexT I = pair_it.first;
     const std::vector<IndexT> & indexToCompare = pair_it.second;
 
@@ -79,17 +78,13 @@ void Match
     }
 
     // Get features points and descriptors
-    const std::vector<features::PointFeature> pointFeaturesI = regionsI->GetRegionsPositions();
+    // const std::vector<features::PointFeature> pointFeaturesI = regionsI->GetRegionsPositions();
     const ScalarT * tabI =
       reinterpret_cast<const ScalarT*>(regionsI->DescriptorRawData());
-    const size_t dimension = regionsI->DescriptorLength();
+    // const size_t dimension = regionsI->DescriptorLength();
     const size_t desc_size_I = regionsI->RegionCount();
 
     // set image I descriptors
-    //for (size_t m = 0; m < dimension*desc_size_I; m++)
-    //{
-    //    fdesci.push_back(((float)tabI[m]) / 512.0);
-    //}
     matcher.SetDescriptors(0, desc_size_I, (unsigned char*)tabI); //image I (only support unsigned char for now)
 
     // Loop on potential matching images J
@@ -97,6 +92,7 @@ void Match
     {
       if (my_progress_bar->hasBeenCanceled())
         continue;
+
       const size_t J = indexToCompare[j];
       const std::shared_ptr<features::Regions> regionsJ = regions_provider.get(J);
 
@@ -110,48 +106,43 @@ void Match
 
       // set image J descriptors
       const size_t desc_size_J = regionsJ->RegionCount();
-      //for (size_t m = 0; m < dimension*desc_size_J; m++)
-      //{
-      //    fdescj.push_back(((float)tabJ[m]) / 512.0);
-      //}
       matcher.SetDescriptors(1, desc_size_J, (unsigned char *)tabJ); //image J (only support unsigned char for now)
 
 
       //match and get result.    
       int num_match = matcher.GetSiftMatch(max_matches, match_buf, 0.7, fDistRatio); // should we put this 0.7 as a param ?
 
-      //fdesci.clear();
-      //fdescj.clear();
-
       if (num_match < 0)
       {
-          ++(*my_progress_bar);
-          std::cout << " no sift matches were found;\n";
-          continue;
+        ++(*my_progress_bar);
+        std::cout << " no sift matches were found;\n";
+        continue;
       }
       else
-          std::cout << num_match << " sift matches were found;\n";
-      
+        std::cout << num_match << " sift matches were found;\n";
 
       matching::IndMatches vec_putative_matches;
       vec_putative_matches.reserve(num_match);
-      for (size_t k=0; k < num_match; ++k)
+
+      for (int k=0; k < num_match; ++k)
       {
-          vec_putative_matches.emplace_back(match_buf[k][0], match_buf[k][1]);
+        vec_putative_matches.emplace_back(match_buf[k][0], match_buf[k][1]);
       }
 
-	  if (!vec_putative_matches.empty())
-	  {
-		  map_PutativeMatches.insert(
-			  {
-				{I,J},
-				std::move(vec_putative_matches)
-			  });
-	  }
-	  ++(*my_progress_bar);
-	}
+      if (!vec_putative_matches.empty())
+      {
+        map_PutativeMatches.insert(
+          {
+          {I,J},
+          std::move(vec_putative_matches)
+          });
+      }
+
+      ++(*my_progress_bar);
+    }
   }
   delete[] match_buf;
+  // delete matcher;
 }
 } // namespace impl
 

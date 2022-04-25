@@ -48,6 +48,7 @@
 				<Parameter name="video_mode_matching_enable" level="advanced" text="Transect Mode" type="bool" show="check" default="0"/>
                 <Parameter name="nav_based_matching_enable" level="advanced" text="Nav based matching" type="bool" show="check" default="1"/>
                 <Parameter name="nav_based_matching_max_dist" level="expert" text="Nav matching max dist" type="double" range="]0.1,20]" precision="2" show="spin" default="10.0"/>
+				<Parameter name="guided_matching" level="expert" text="Guided Matching based on 2-views Geometry" type="bool" show="check" default="1"/>
             </ParametersGroup>
             <ParametersGroup name="DensifyPointCloud" text="Densify Point Cloud">
                 <Parameter name="resolution_level" level="expert" text="Resolution level divider" type="integer" range="[1,10]" show="spin" default="2"/>
