@@ -17,12 +17,12 @@
 	
 	<!-- Remote server container settings -->
 	<RemoteServerSettings>
-		<RemoteServerSetting name="containerImage" path="/home/matisse/singularity/matisse_img_v_1.1.sif" alias=""/>
-		<RemoteServerSetting name="launcherParentDir" path="/home/matisse/scripts" alias="matisse_script"/>
+		<RemoteServerSetting name="containerImage" path="/home/datawork-matisse-extranet-s/MatisseEnv/singularity/matisse_img_v_1.4.sif" alias=""/>
+		<RemoteServerSetting name="launcherParentDir" path="/home/datawork-matisse-extranet-s/MatisseEnv/scripts" alias="matisse_script"/>
 		<RemoteServerSetting name="launcherFile" path="matisse.sh" alias=""/>
-		<RemoteServerSetting name="binRoot" path="/home/matisse/dev/matisse/Build/Run/Release" alias="matisse_bin"/>
-		<RemoteServerSetting name="datasetsDir" path="/home/matisse/datasets" alias="matisse_data"/>
-		<RemoteServerSetting name="applicationFilesRoot" path="/home/matisse" alias=""/>
+		<RemoteServerSetting name="binRoot" path="/home/datawork-matisse-extranet-s/MatisseEnv/matisse_bin/Build/Run/Release" alias="matisse_bin"/>
+		<RemoteServerSetting name="datasetsDir" path="/home/datawork-matisse-extranet-s/datasets" alias="matisse_data"/>
+		<RemoteServerSetting name="applicationFilesRoot" path="/home/datawork-matisse-extranet-s/MatisseEnv/matisse_app" alias=""/>
 		<RemoteServerSetting name="jobsSubdir" path="jobs" alias="matisse_jobs"/>
 		<RemoteServerSetting name="resultsSubdir" path="results" alias="matisse_results"/>	
 	</RemoteServerSettings>
