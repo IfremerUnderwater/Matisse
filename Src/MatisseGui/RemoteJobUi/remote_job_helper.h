@@ -115,10 +115,13 @@ private:
     QString m_current_datasets_root_path;
     QString m_previous_datasets_root_path;
     QString m_selected_remote_dataset_path;
+    QString m_selected_remote_dataset_parent_path;
     QString m_current_job_name;
 
     QString m_container_launcher_name; // launcher script name for server container
     QString m_container_image_path; // path to server container image
+
+    static const QString SYMBOLIC_REMOTE_ROOT_PATH;
 
     void checkRemoteDirCreated();
     void connectNetworkClientSignals();
@@ -127,8 +130,10 @@ private:
     void checkHostAndCredentials();
     bool checkRemoteExecutionActive(QString _customMessage);
     void resumeAction();
-    void updateJobParameters(QString _job_name, QString _remote_dataset_path,
-                             QString _remote_nav_file, QString _nav_source="");
+    void updateJobParameters(QString _job_name, KeyValueList _local_dataset_params, bool _is_selected_dataset=false);
+/*    void updateJobParameters(QString _job_name, QString _local_dataset_path,
+                             QString _nav_file, QString _remote_dataset_path,
+                             QString _nav_source=""); */
     void showProgress(QString _message = QString());
     void hideProgress();
     void clearPendingActionQueue();

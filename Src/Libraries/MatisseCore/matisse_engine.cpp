@@ -130,8 +130,19 @@ MatisseParameters* MatisseEngine::buildMatisseParameters(JobDefinition *_job) {
         setMessageStr(tr("Cannot find parameters file: %1").arg(file));
     }
 
-    return parameters;
+    if (m_is_server_mode) {
+        substituteRemoteDatasetParameters(parameters);
+    }
 
+    return parameters;
+}
+
+void MatisseEngine::substituteRemoteDatasetParameters(MatisseParameters *_parameters) {
+    /* substitute local dataset parameters with remote dataset parameters */
+    _parameters->substituteParamValue(REMOTE_DATASET_STRUCTURE, DATASET_PARAM_REMOTE_DATASET_DIR, DATASET_STRUCTURE, DATASET_PARAM_DATASET_DIR);
+    _parameters->substituteParamValue(REMOTE_DATASET_STRUCTURE, DATASET_PARAM_REMOTE_NAVIGATION_FILE, DATASET_STRUCTURE, DATASET_PARAM_NAVIGATION_FILE);
+    _parameters->substituteParamValue(REMOTE_DATASET_STRUCTURE, DATASET_PARAM_REMOTE_OUTPUT_DIR, DATASET_STRUCTURE, DATASET_PARAM_OUTPUT_DIR);
+    _parameters->substituteParamValue(REMOTE_DATASET_STRUCTURE, DATASET_PARAM_REMOTE_OUTPUT_FILENAME, DATASET_STRUCTURE, DATASET_PARAM_OUTPUT_FILENAME);
 }
 
 void MatisseEngine::setMessageStr(QString _message_Str, bool _error)
@@ -391,8 +402,7 @@ bool MatisseEngine::processJob(JobDefinition *_job_definition)
     setMessageStr();
 
     if (m_current_job) {
-        qDebug() << "A Thread is running";
-        // TODO Queue jobs?
+        qWarning() << "A Thread is running";
         return false;
     }
 

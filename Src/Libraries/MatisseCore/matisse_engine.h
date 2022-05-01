@@ -18,6 +18,7 @@
 #include "matisse_parameters_manager.h"
 #include "system_data_manager.h"
 #include "process_data_manager.h"
+#include "parameters_common.h"
 
 
 namespace matisse {
@@ -119,6 +120,7 @@ private:
     bool buildJobTask( AssemblyDefinition *_assembly, JobDefinition *_job_definition, MatisseParameters *_matisse_parameters);
     void setMessageStr(QString _message_Str = "", bool _error = true);
     bool loadParametersDictionnary();
+    void substituteRemoteDatasetParameters(MatisseParameters *_parameters);
 
     bool m_is_server_mode;
     QObject* m_job_launcher;

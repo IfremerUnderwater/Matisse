@@ -59,6 +59,7 @@ public:
     void toggleReadOnlyMode(bool _is_read_only);
     void pullDatasetParameters(KeyValueList &_kvl);
     void pushDatasetParameters(KeyValueList _kvl);
+    void pushRemoteDatasetParameters(KeyValueList _kvl);
     void pushPreferredDatasetParameters(KeyValueList _kvl);
 
     QString getParameterValue(QString _parameter_name);

@@ -2,6 +2,7 @@
 #define MATISSE_PARAMETERS_COMMON_H_
 
 #include <QVariant>
+#include <QSize>
 
 namespace matisse {
 
@@ -12,12 +13,20 @@ namespace matisse {
 #define PRECISION_MAX       5;
 #define PRECISION_DEFAULT   2;
 
-#define DATASET_STRUCTURE               "dataset_param"
-#define DATASET_PARAM_OUTPUT_DIR        "output_dir"
-#define DATASET_PARAM_OUTPUT_FILENAME   "output_filename"
-#define DATASET_PARAM_DATASET_DIR       "dataset_dir"
-#define DATASET_PARAM_NAVIGATION_FILE   "navFile"
-#define DATASET_PARAM_NAVIGATION_SOURCE "navSource"
+#define DATASET_STRUCTURE                       "dataset_param"
+#define DATASET_PARAM_OUTPUT_DIR                "output_dir"
+#define DATASET_PARAM_OUTPUT_FILENAME           "output_filename"
+#define DATASET_PARAM_DATASET_DIR               "dataset_dir"
+#define DATASET_PARAM_NAVIGATION_FILE           "navFile"
+#define DATASET_PARAM_NAVIGATION_SOURCE         "navSource"
+
+/* Dataset parameters for remote execution */
+#define REMOTE_DATASET_STRUCTURE                "remote_dataset_param"
+#define DATASET_PARAM_REMOTE_DATASET_DIR        "remote_dataset_dir"
+#define DATASET_PARAM_REMOTE_NAVIGATION_FILE    "remote_navFile"
+#define DATASET_PARAM_REMOTE_OUTPUT_DIR         "remote_output_dir"
+#define DATASET_PARAM_REMOTE_OUTPUT_FILENAME    "remote_output_filename"
+
 
 struct eEnumValue {
     QString name;

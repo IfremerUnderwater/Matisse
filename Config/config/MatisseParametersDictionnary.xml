@@ -104,6 +104,14 @@
               <Parameter name="utm_hemisphere" level="user" text="Hemisphere UTM" type="string" range="{N,S}" show="combo" default="N"/>
             </ParametersGroup>
         </Structure>
+        <Structure name="remote_dataset_param">
+            <ParametersGroup name="remote_output_params">
+              <Parameter name="remote_dataset_dir" level="user" text="Data path" type="string" show="dir" default ="./"/>
+              <Parameter name="remote_navFile" level="user" text="Navigation file" type="string" show="file" default="nav_file.dim2"/>
+              <Parameter name="remote_output_dir" level="user" text="Output path" type="string" show="dir" default="outReconstruction"/>
+              <Parameter name="remote_output_filename" level="user" text="Output name prefix" type="string" show="line" default="mosaic-output"/>
+            </ParametersGroup>
+        </Structure>
     </Structures>
     <Enums>
         <Enum name="SIFT_CODE">

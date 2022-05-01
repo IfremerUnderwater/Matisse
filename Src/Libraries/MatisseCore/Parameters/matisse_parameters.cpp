@@ -326,4 +326,31 @@ Matrix6x1 MatisseParameters::getMatrix6x1ParamValue(QString _param_struct_name, 
     return values;
 }
 
+void MatisseParameters::substituteParamValue(QString _source_structure, QString _source_param, QString _target_structure, QString _target_param) {
+    if (!m_hash_values.contains(_target_structure)) {
+        qCritical() << QString("Trying to substitue parameter value in unkbown structure '%1'").arg(_target_structure);
+        return;
+    }
+
+    if (!m_hash_values[_source_structure].contains(_target_param)) {
+        qCritical() << QString("Trying to substitue value for unknown parameter '%1'").arg(_target_param);
+        return;
+    }
+
+    if (!m_hash_values.contains(_source_structure)) {
+        qCritical() << QString("Trying to substitue parameter value from unknown source structure '%1'").arg(_source_structure);
+        return;
+    }
+
+    if (!m_hash_values[_source_structure].contains(_source_param)) {
+        qCritical() << QString("Trying to substitue parameter value from unknown source parameter '%1'").arg(_source_param);
+        return;
+    }
+
+    QString source_value = m_hash_values[_source_structure].value(_source_param);
+
+    qDebug() << QString("Substituting value for parameter %1/%2 : %3").arg(_target_structure).arg(_target_param).arg(source_value);
+    m_hash_values[_target_structure].insert(_target_param, source_value);
+}
+
 } // namespace matisse
