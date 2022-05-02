@@ -6,6 +6,7 @@
 #include <QDialog>
 #include <QValidator>
 
+#include "matisse_icon_factory.h"
 #include "network_client.h"
 #include "tree_model.h"
 
@@ -39,7 +40,7 @@ class RemoteFileDialog : public QDialog {
     Q_OBJECT
 
 public:
-    RemoteFileDialog(TreeModel *_model, QString _root_folder, QWidget *parent);
+    RemoteFileDialog(TreeModel *_model, QString _root_folder, MatisseIconFactory *_icon_factory, QWidget *parent);
     QString selectedFile() { return m_selected_file; }
 
 protected slots:

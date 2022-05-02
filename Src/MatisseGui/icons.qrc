@@ -14,5 +14,6 @@
         <file>icons/Message-orange.svg</file>
         <file>icons/Main_orange.svg</file>
         <file>icons/blank_button.svg</file>
+        <file>icons/up.svg</file>
     </qresource>
 </RCC>

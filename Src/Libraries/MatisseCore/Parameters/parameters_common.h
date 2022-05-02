@@ -26,6 +26,7 @@ namespace matisse {
 #define DATASET_PARAM_REMOTE_NAVIGATION_FILE    "remote_navFile"
 #define DATASET_PARAM_REMOTE_OUTPUT_DIR         "remote_output_dir"
 #define DATASET_PARAM_REMOTE_OUTPUT_FILENAME    "remote_output_filename"
+#define DATASET_PARAM_REMOTE_DATASET_PARENT_DIR "remote_dataset_parent_dir" // OS path to parent dir on remote host
 
 
 struct eEnumValue {

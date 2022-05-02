@@ -9,6 +9,7 @@
 #include <QQueue>
 #include <QtDebug>
 
+#include "matisse_icon_factory.h"
 #include "matisse_parameters_manager.h"
 #include "matisse_preferences.h"
 #include "matisse_remote_server_settings.h"
@@ -71,6 +72,7 @@ public:
     void setPreferences(MatissePreferences* _prefs);
     void setParametersManager(MatisseParametersManager* _param_manager);
     void setServerSettings(MatisseRemoteServerSettings* _server_settings);
+    void setIconFactory(MatisseIconFactory* _icon_factory);
 
     QString remoteOutputPath() { return m_remote_output_path; }
 
@@ -100,6 +102,7 @@ private:
     RemoteProgressDialog* m_progress_dialog = NULL;
     MatisseParametersManager* m_param_manager = NULL;
     MatisseRemoteServerSettings *m_server_settings = NULL;
+    MatisseIconFactory *m_icon_factory = NULL;
 
     QString m_remote_output_path;
     bool m_host_and_creds_known = false;
@@ -131,9 +134,6 @@ private:
     bool checkRemoteExecutionActive(QString _customMessage);
     void resumeAction();
     void updateJobParameters(QString _job_name, KeyValueList _local_dataset_params, bool _is_selected_dataset=false);
-/*    void updateJobParameters(QString _job_name, QString _local_dataset_path,
-                             QString _nav_file, QString _remote_dataset_path,
-                             QString _nav_source=""); */
     void showProgress(QString _message = QString());
     void hideProgress();
     void clearPendingActionQueue();

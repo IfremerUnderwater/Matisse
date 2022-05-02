@@ -430,6 +430,7 @@ void MainGui::initRemoteJobHelper()
   m_remote_job_helper->setParametersManager(m_engine.parametersManager());
   m_remote_job_helper->setPreferences(m_preferences);
   m_remote_job_helper->setServerSettings(SystemDataManager::instance()->remoteServerSettings());
+  m_remote_job_helper->setIconFactory(m_icon_factory);
   m_remote_job_helper->init();
   connect(m_remote_job_helper, SIGNAL(si_jobResultsReceived(QString)),
           SLOT(sl_onRemoteJobResultsReceived(QString)));

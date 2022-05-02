@@ -35,15 +35,21 @@
        </property>
        <item>
         <widget class="QPushButton" name="m_pb_default_path">
+         <property name="toolTip">
+          <string>Go to default dir</string>
+         </property>
          <property name="text">
-          <string>Default</string>
+          <string/>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="m_pb_dir_up">
+         <property name="toolTip">
+          <string>Go to parent dir</string>
+         </property>
          <property name="text">
-          <string>Up</string>
+          <string/>
          </property>
         </widget>
        </item>
