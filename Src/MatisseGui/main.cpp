@@ -19,6 +19,7 @@
 #include "camera_manager.h"
 #include "MatisseConfig.h"
 #include <QSettings>
+#include "network_commons.h"
 #include "network_client.h"
 #include "secure_connection_wrapper.h"
 #include "basic_connection_wrapper.h"
@@ -29,6 +30,7 @@
 #include "remote_job_helper.h"
 
 using namespace matisse;
+using namespace network_tools;
 
 void myMessageOutput(QtMsgType _type, const QMessageLogContext &, const QString &_msg)
 {
@@ -85,7 +87,10 @@ int main(int argc, char *argv[])
     qInstallMsgHandler(myMessageOutput);
 #endif
 
-    qRegisterMetaType< basic_processing::Polygon >();
+    qRegisterMetaType<basic_processing::Polygon >();
+    qRegisterMetaType<eConnectionError>();
+    qRegisterMetaType<eTransferError>("eTransferError");
+    qRegisterMetaType<NetworkAction::eNetworkActionType>("NetworkAction::eNetworkActionType");
 
     /* Define default encoding for all text streaming */
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));

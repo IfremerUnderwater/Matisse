@@ -8,6 +8,7 @@ QMap<QString, eParameterLevel> MatisseParametersManager::m_enum_levels;
 QMap<QString, eParameterShow> MatisseParametersManager::m_enum_shows;
 
 QSet<QString> MatisseParametersManager::m_dataset_param_names;
+QSet<QString> MatisseParametersManager::m_remote_dataset_param_names;
 
 QRegExp MatisseParametersManager::m_interval_range_expr("^(\\[|\\])((\\-?\\d+((\\.)\\d+)?)|(-inf)),((\\-?\\d+((\\.)\\d+)?)|(\\+?inf))(\\[|\\])$");
 QRegExp MatisseParametersManager::m_set_range_expr("^\\{\\w+(,\\w+)*\\}$");
@@ -74,6 +75,12 @@ void MatisseParametersManager::loadStaticCollections()
     m_dataset_param_names.insert(DATASET_PARAM_OUTPUT_FILENAME);
     m_dataset_param_names.insert(DATASET_PARAM_DATASET_DIR);
     m_dataset_param_names.insert(DATASET_PARAM_NAVIGATION_FILE);
+
+    m_remote_dataset_param_names.insert(DATASET_PARAM_REMOTE_OUTPUT_DIR);
+    m_remote_dataset_param_names.insert(DATASET_PARAM_REMOTE_OUTPUT_FILENAME);
+    m_remote_dataset_param_names.insert(DATASET_PARAM_REMOTE_DATASET_DIR);
+    m_remote_dataset_param_names.insert(DATASET_PARAM_REMOTE_NAVIGATION_FILE);
+    m_remote_dataset_param_names.insert(DATASET_PARAM_REMOTE_DATASET_PARENT_DIR);
 }
 
 void MatisseParametersManager::checkDictionnaryComplete()
@@ -863,6 +870,22 @@ void MatisseParametersManager::pullDatasetParameters(KeyValueList &_kvl)
     }
 }
 
+void MatisseParametersManager::pullRemoteDatasetParameters(KeyValueList &_kvl)
+{
+    foreach (QString remote_dataset_param_name, m_remote_dataset_param_names) {
+        if (_kvl.getKeys().contains(remote_dataset_param_name)) {
+
+            /* Get assembly template parameter value */
+            QString value = getValue(REMOTE_DATASET_STRUCTURE, remote_dataset_param_name);
+
+            /* Default value is not overriden if the parameter is not defined for the assembly */
+            if (value != "") {
+                _kvl.set(remote_dataset_param_name, value);
+            }
+        }
+    }
+}
+
 void MatisseParametersManager::pushPreferredDatasetParameters(KeyValueList _kvl)
 {
     m_preferred_dataset_parameters.insert(DATASET_PARAM_OUTPUT_DIR, _kvl.getValue(DATASET_PARAM_OUTPUT_DIR));
@@ -911,6 +934,8 @@ QString MatisseParametersManager::getParameterValue(QString _parameter_name)
 
 void MatisseParametersManager::pushDatasetParameters(KeyValueList _kvl)
 {
+    qDebug() << "Push dataset params :\n" << _kvl.getKeys() << "\n" << _kvl.getValues();
+
     QString result_path = _kvl.getValue(DATASET_PARAM_OUTPUT_DIR);
     QString output_file = _kvl.getValue(DATASET_PARAM_OUTPUT_FILENAME);
     QString data_path = _kvl.getValue(DATASET_PARAM_DATASET_DIR);
@@ -928,6 +953,7 @@ void MatisseParametersManager::pushDatasetParameters(KeyValueList _kvl)
     param_widget->setValue(result_path);
 
     if (!m_expected_parameters.contains(DATASET_PARAM_OUTPUT_DIR)) {
+        qDebug() << "Adding output_dir param to job extra parameters...";
         m_job_extra_parameters.insert(DATASET_PARAM_OUTPUT_DIR);
     }
 
@@ -966,6 +992,48 @@ void MatisseParametersManager::pushDatasetParameters(KeyValueList _kvl)
             m_job_extra_parameters.insert(DATASET_PARAM_NAVIGATION_SOURCE);
         }
     }
+}
+
+void MatisseParametersManager::pushRemoteDatasetParameters(KeyValueList _kvl)
+{
+    QString remote_dataset_dir = _kvl.getValue(DATASET_PARAM_REMOTE_DATASET_DIR);
+    QString remote_navigation_file = _kvl.getValue(DATASET_PARAM_REMOTE_NAVIGATION_FILE);
+    QString remote_result_path = _kvl.getValue(DATASET_PARAM_REMOTE_OUTPUT_DIR);
+    QString remote_output_file = _kvl.getValue(DATASET_PARAM_REMOTE_OUTPUT_FILENAME);
+    QString remote_dataset_parent_dir = _kvl.getValue(DATASET_PARAM_REMOTE_DATASET_PARENT_DIR);
+
+//    m_job_extra_parameters.clear();
+    EnrichedFormWidget* param_widget;
+
+    /* update parameter value for dataset path */
+    param_widget = m_values_widgets.value(REMOTE_DATASET_STRUCTURE).value(DATASET_PARAM_REMOTE_DATASET_DIR);
+    param_widget->setValue(remote_dataset_dir);
+
+    m_job_extra_parameters.insert(DATASET_PARAM_REMOTE_DATASET_DIR);
+
+    /* update parameter value for navigation file */
+    param_widget = m_values_widgets.value(REMOTE_DATASET_STRUCTURE).value(DATASET_PARAM_REMOTE_NAVIGATION_FILE);
+    param_widget->setValue(remote_navigation_file);
+
+    m_job_extra_parameters.insert(DATASET_PARAM_REMOTE_NAVIGATION_FILE);
+
+    /* update parameter value for output dir */
+    param_widget = m_values_widgets.value(REMOTE_DATASET_STRUCTURE).value(DATASET_PARAM_REMOTE_OUTPUT_DIR);
+    param_widget->setValue(remote_result_path);
+
+    m_job_extra_parameters.insert(DATASET_PARAM_REMOTE_OUTPUT_DIR);
+
+    /* update parameter value for output file name */
+    param_widget = m_values_widgets.value(REMOTE_DATASET_STRUCTURE).value(DATASET_PARAM_REMOTE_OUTPUT_FILENAME);
+    param_widget->setValue(remote_output_file);
+
+    m_job_extra_parameters.insert(DATASET_PARAM_REMOTE_OUTPUT_FILENAME);
+
+    /* update parameter value for dataset parent dir */
+    param_widget = m_values_widgets.value(REMOTE_DATASET_STRUCTURE).value(DATASET_PARAM_REMOTE_DATASET_PARENT_DIR);
+    param_widget->setValue(remote_dataset_parent_dir);
+
+    m_job_extra_parameters.insert(DATASET_PARAM_REMOTE_DATASET_PARENT_DIR);
 }
 
 void MatisseParametersManager::setIconFactory(MatisseIconFactory *_icon_factory)

@@ -14,7 +14,7 @@ MATISSE_BIN_PATH=<%bin.root.path%>
 MATISSE_BIN_BIND=<%bin.root.binding%>
 
 MATISSE_FILES_ROOT=<%runtime.files.root.path%>
-MATISSE_DATASETS_DIR=<%runtime.datasets.subdir%>
+MATISSE_DATASETS_DIR=<%runtime.datasets.dir%>
 MATISSE_DATASETS_BIND=<%runtime.datasets.binding%>
 MATISSE_JOBS_DIR=<%runtime.jobs.subdir%>
 MATISSE_JOBS_BIND=<%runtime.jobs.binding%>

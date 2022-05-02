@@ -138,6 +138,16 @@ public:
 
     CameraInfo getCamInfoParamValue(QString _param_struct_name, QString _param_name, bool &_ok);
 
+    ///
+    /// \brief Override target parameter with the value of a source parameter
+    /// \param _source_structure name of the parent structure of the source parameter
+    /// \param _source_param name of the source parameter
+    /// \param _target_structure name of the parent structure of the target parameter
+    /// \param _target_param name of the target parameter
+    /// \return
+    ///
+    void substituteParamValue(QString _source_structure, QString _source_param, QString _target_structure, QString _target_param);
+
 private:
     QString m_last_error_str;
     // Structure de stockage des parametres

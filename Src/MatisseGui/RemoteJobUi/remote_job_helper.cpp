@@ -70,6 +70,9 @@ void PasswordDialog::sl_onLoginCanceled() {
     reject();
 }
 
+const QString RemoteJobHelper::SYMBOLIC_REMOTE_ROOT_PATH = QString("{REMOTE}");
+
+
 RemoteJobHelper::RemoteJobHelper(QObject* _parent)
     : QObject(_parent),
       m_remote_output_path(),
@@ -80,6 +83,7 @@ RemoteJobHelper::RemoteJobHelper(QObject* _parent)
       m_current_datasets_root_path(),
       m_previous_datasets_root_path(),
       m_selected_remote_dataset_path(),
+      m_selected_remote_dataset_parent_path(),
       m_current_job_name(),
       m_container_launcher_name(),
       m_container_image_path()
@@ -185,22 +189,24 @@ void RemoteJobHelper::uploadDataset(QString _job_name) {
     m_current_datasets_root_path = "";
     m_previous_datasets_root_path = "";
     m_selected_remote_dataset_path = "";
+    m_selected_remote_dataset_parent_path = "";
     QSettings settings("IFREMER", "Matisse3D");
 
     /* Retrieve locally defined parameters */
-    KeyValueList kvl;
-    kvl.insert(DATASET_PARAM_DATASET_DIR, "");
-    kvl.insert(DATASET_PARAM_OUTPUT_DIR, "");
-    kvl.insert(DATASET_PARAM_NAVIGATION_FILE, "");
-    kvl.insert(DATASET_PARAM_NAVIGATION_SOURCE, "");
-    m_param_manager->pullDatasetParameters(kvl);
+    KeyValueList dataset_params;
+    dataset_params.insert(DATASET_PARAM_DATASET_DIR, "");
+    dataset_params.insert(DATASET_PARAM_OUTPUT_DIR, "");
+    dataset_params.insert(DATASET_PARAM_OUTPUT_FILENAME, "");
+    dataset_params.insert(DATASET_PARAM_NAVIGATION_FILE, "");
+    dataset_params.insert(DATASET_PARAM_NAVIGATION_SOURCE, "");
+    m_param_manager->pullDatasetParameters(dataset_params);
 
     QDir local_dataset_dir;
     QString local_dataset_dir_path = "";
     bool user_dataset_dir_found = false;
 
     /* By default, the dataset to upload is that specified by user */
-    QString user_dataset_dir_path = kvl.getValue(DATASET_PARAM_DATASET_DIR);
+    QString user_dataset_dir_path = dataset_params.getValue(DATASET_PARAM_DATASET_DIR);
     qDebug() << "User dataset param for job: " + user_dataset_dir_path;
 
     if (!user_dataset_dir_path.isEmpty()) {
@@ -259,6 +265,12 @@ void RemoteJobHelper::uploadDataset(QString _job_name) {
 
         local_dataset_dir_path = local_dataset_dir.canonicalPath();
 
+        /* update dataset dir parameter */
+        dataset_params.set(DATASET_PARAM_DATASET_DIR, local_dataset_dir_path);
+
+        /* Reinit nav file parameter */
+        dataset_params.set(DATASET_PARAM_NAVIGATION_FILE, "");
+
         /* Persist selected folder */
         QVariant new_ul_path_setting(local_dataset_dir_path);
         settings.setValue("remote/localUploadPath", new_ul_path_setting);
@@ -266,83 +278,82 @@ void RemoteJobHelper::uploadDataset(QString _job_name) {
 
     qDebug() << QString("Uploading dataset %1...").arg(local_dataset_dir_path);
 
-    /* Check for navigation files */
-    QString nav_source = kvl.getValue(DATASET_PARAM_NAVIGATION_SOURCE);
-    QString nav_file_path = kvl.getValue(DATASET_PARAM_NAVIGATION_FILE);
-    QString nav_file_name = "";
-
-    bool nav_file_found = false;
-
-    if (!nav_file_path.isEmpty()) {
-        QFileInfo user_nav_file(nav_file_path);
-
-        if (user_nav_file.exists()) {
-            /* Checking that navigation file defined in parameters is within the dataset path */
-            QDir parent_dir = user_nav_file.dir();
-            QString parent_dir_path = parent_dir.canonicalPath();
-            if (parent_dir_path == local_dataset_dir_path) {
-                qDebug() << QString("Upload: using navigation file defined in parameters %1").arg(nav_file_path);
-                nav_file_name = user_nav_file.fileName();
-                nav_file_found = true;
-            }
-
-        }
-    }
-
-    QStringList name_filters;
-    name_filters << "*.dim2";
-    QStringList nav_files = local_dataset_dir.entryList(name_filters, QDir::Files);
+    /* Check for navigation source */
+    QString nav_source = dataset_params.getValue(DATASET_PARAM_NAVIGATION_SOURCE);
     QString new_nav_source = "";
 
-    if (!nav_file_found) {
-        if (nav_source.isEmpty() || nav_source == "DIM2") {
+    if (nav_source.isEmpty() || nav_source == "DIM2") {
 
-            if (nav_files.isEmpty()) {
+        /* Check for navigation file */
+        QString nav_file_path = dataset_params.getValue(DATASET_PARAM_NAVIGATION_FILE);
 
-                QString no_nav_file_message = (nav_source == "DIM2") ?
-                            tr("The navigation source was set to DIM2") :
-                            tr("The navigation source was not defined");
-                no_nav_file_message.append(" ")
-                        .append(tr("but no navigation file (*.dim2) was found in the selected dataset dir '%1'.\n"))
-                        .append(tr("Only AUTO or EXIF options are possible with the current dataset.\n"))
-                        .append(tr("Continue with automatic navigation source resolution ?"));
+        bool nav_file_found = false;
 
-                QMessageBox::StandardButton answer = QMessageBox::question(
-                            m_job_launcher, tr("Navigation file not found"),
-                            no_nav_file_message.arg(local_dataset_dir_path));
+        if (!nav_file_path.isEmpty()) {
+            QFileInfo user_nav_file(nav_file_path);
 
-                if (answer == QMessageBox::No) {
-                    qDebug() << "Dataset upload cancelled by user : no navigation file in dataset";
-                    return;
+            if (user_nav_file.exists()) {
+                /* Checking that navigation file defined in parameters is within the dataset path */
+                QDir parent_dir = user_nav_file.dir();
+                QString parent_dir_path = parent_dir.canonicalPath();
+                if (parent_dir_path == local_dataset_dir_path) {
+                    qDebug() << QString("Upload: using navigation file defined in parameters %1").arg(nav_file_path);
+                    nav_file_found = true;
                 }
-
-                new_nav_source = "AUTO";
-
             }
+        }
 
-            if (new_nav_source != "AUTO") {
-                QString selected_nav_file = QFileDialog::getOpenFileName(
-                            m_job_launcher,
-                            tr("Select navigation file"), local_dataset_dir_path,
-                            tr("Navigation Files (%1)").arg(name_filters.join(" ")));
+        if (!nav_file_found) {
 
-                if (selected_nav_file.isEmpty()) {
-                    qWarning("Navigation file selection canceled by user, dataset cannot be uploaded");
-                    return;
+            QStringList name_filters;
+            name_filters << "*.dim2";
+            QStringList nav_files = local_dataset_dir.entryList(name_filters, QDir::Files);
+
+            if (nav_source.isEmpty() || nav_source == "DIM2") {
+
+                if (nav_files.isEmpty()) {
+
+                    QString no_nav_file_message = (nav_source == "DIM2") ?
+                                tr("The navigation source was set to DIM2") :
+                                tr("The navigation source was not defined");
+                    no_nav_file_message.append(" ")
+                            .append(tr("but no navigation file (*.dim2) was found in the selected dataset dir '%1'.\n"))
+                            .append(tr("Only AUTO or EXIF options are possible with the current dataset.\n"))
+                            .append(tr("Continue with automatic navigation source resolution ?"));
+
+                    QMessageBox::StandardButton answer = QMessageBox::question(
+                                m_job_launcher, tr("Navigation file not found"),
+                                no_nav_file_message.arg(local_dataset_dir_path));
+
+                    if (answer == QMessageBox::No) {
+                        qDebug() << "Dataset upload cancelled by user : no navigation file in dataset";
+                        return;
+                    }
+
+                    new_nav_source = "AUTO";
+                    dataset_params.set(DATASET_PARAM_NAVIGATION_SOURCE, new_nav_source);
                 }
 
-                QFileInfo nav_file_info(selected_nav_file);
-                nav_file_name = nav_file_info.fileName();
+                if (new_nav_source != "AUTO") {
+                    QString selected_nav_file = QFileDialog::getOpenFileName(
+                                m_job_launcher,
+                                tr("Select navigation file"), local_dataset_dir_path,
+                                tr("Navigation Files (%1)").arg(name_filters.join(" ")));
+
+                    if (selected_nav_file.isEmpty()) {
+                        qWarning("Navigation file selection canceled by user, dataset cannot be uploaded");
+                        return;
+                    }
+
+                    dataset_params.set(DATASET_PARAM_NAVIGATION_FILE, selected_nav_file);
+
+                }
             }
         }
     }
 
     /* Update job parameter file */
-    QString dataset_root_dir_bound = m_server_settings->datasetsPathBound();
-    QString dir_name = local_dataset_dir.dirName();
-    QString remote_dataset_dir = dataset_root_dir_bound + '/' + dir_name;
-
-    updateJobParameters(_job_name, remote_dataset_dir, nav_file_name, new_nav_source);
+    updateJobParameters(_job_name, dataset_params);
 
     /* Create and enqueue upload action */
     NetworkAction* action =
@@ -366,6 +377,7 @@ void RemoteJobHelper::selectRemoteDataset(QString _job_name) {
     m_current_datasets_root_path = "";
     m_previous_datasets_root_path = "";
     m_selected_remote_dataset_path = "";
+    m_selected_remote_dataset_parent_path = "";
 
     NetworkAction* action =
             new NetworkActionDirContent(m_server_settings->datasetsPath(),
@@ -385,6 +397,7 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
     m_current_datasets_root_path = "";
     m_previous_datasets_root_path = "";
     m_selected_remote_dataset_path = "";
+    m_selected_remote_dataset_parent_path = "";
 
     QFileInfo bundle_info(_local_job_bundle_file);
     if (!bundle_info.exists())
@@ -446,6 +459,13 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
     QString remote_job_bundle_path = remote_jobs_root + '/' + job_export_name;
     QString remote_job_bundle_path_bound = m_server_settings->jobsPathBound() + '/' + job_export_name;
 
+    KeyValueList remote_dataset_params;
+    remote_dataset_params.insert(DATASET_PARAM_REMOTE_DATASET_PARENT_DIR, "");
+    m_param_manager->pullRemoteDatasetParameters(remote_dataset_params);
+    QString remote_dataset_parent_dir_param = remote_dataset_params.getValue(DATASET_PARAM_REMOTE_DATASET_PARENT_DIR);
+    QString datasets_dir_path = remote_dataset_parent_dir_param.isEmpty() ?
+                m_server_settings->datasetsDir().path() : remote_dataset_parent_dir_param;
+
     QMap<QString, QString> variables;
     variables.insert("server.container.image", m_server_settings->containerImage().path());
     variables.insert("launch.script.path", m_server_settings->launcherParentDir().path());
@@ -454,7 +474,7 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
     variables.insert("bin.root.path", m_server_settings->binRoot().path());
     variables.insert("bin.root.binding", m_server_settings->binRoot().alias());
     variables.insert("runtime.files.root.path", m_server_settings->applicationFilesRoot().path());
-    variables.insert("runtime.datasets.subdir", m_server_settings->datasetsDir().path());
+    variables.insert("runtime.datasets.dir", datasets_dir_path);
     variables.insert("runtime.datasets.binding", m_server_settings->datasetsDir().alias());
     variables.insert("runtime.jobs.subdir", m_server_settings->jobsSubdir().path());
     variables.insert("runtime.jobs.binding", m_server_settings->jobsSubdir().alias());
@@ -645,15 +665,20 @@ void RemoteJobHelper::setServerSettings(MatisseRemoteServerSettings* _server_set
     m_server_settings = _server_settings;
 }
 
+void RemoteJobHelper::setIconFactory(MatisseIconFactory *_icon_factory) {
+    m_icon_factory = _icon_factory;
+}
+
 void RemoteJobHelper::connectNetworkClientSignals() {
     connect(m_sftp_client->connectionWrapper(),
             SIGNAL(si_connectionFailed(eConnectionError)),
             SLOT(sl_onConnectionFailed(eConnectionError)));
     connect(m_sftp_client, SIGNAL(si_transferFinished(NetworkAction*)),
             SLOT(sl_onTransferFinished(NetworkAction*)));
-    connect(m_sftp_client,
-            SIGNAL(si_transferFailed(NetworkAction*, eTransferError)),
-            SLOT(sl_onTransferFailed(NetworkAction*, eTransferError)));
+//    connect(m_sftp_client, SIGNAL(si_transferFailed(NetworkAction*, eTransferError)),
+//            SLOT(sl_onTransferFailed(NetworkAction*, eTransferError)));
+    connect(m_sftp_client, SIGNAL(si_transferFailed(NetworkAction::eNetworkActionType, eTransferError)),
+            this, SLOT(sl_onTransferFailed(NetworkAction::eNetworkActionType, eTransferError)), Qt::ConnectionType::QueuedConnection);
     connect(m_sftp_client->connectionWrapper(), SIGNAL(si_dirContents(QList<NetworkFileInfo*>)),
             this, SLOT(sl_onDirContentsReceived(QList<NetworkFileInfo*>)));
 
@@ -807,27 +832,76 @@ void RemoteJobHelper::resumeAction() {
 }
 
 void RemoteJobHelper::updateJobParameters(QString _job_name,
-                                          QString _remote_dataset_path,
-                                          QString _nav_file,
-                                          QString _nav_source)
+                                          KeyValueList _local_dataset_params, bool _is_selected_dataset)
 {
+    QString nav_file_name = "";
 
-    QString remote_nav_file_path = (_nav_file.isEmpty()) ? "" :
-                                                           _remote_dataset_path + '/' + _nav_file;
-    QString job_export_name = _job_name + '_' + m_prefs->remoteUsername();
-    QString job_result_path = m_server_settings->resultsPathBound() + '/' + job_export_name;
-
-    KeyValueList kvl;
-    kvl.set(DATASET_PARAM_DATASET_DIR, _remote_dataset_path);
-    kvl.set(DATASET_PARAM_NAVIGATION_FILE, remote_nav_file_path);
-    if (!_nav_source.isEmpty()) {
-        kvl.set(DATASET_PARAM_NAVIGATION_SOURCE, _nav_source);
+    QString local_nav_file_path = _local_dataset_params.getValue(DATASET_PARAM_NAVIGATION_FILE);
+    if (!local_nav_file_path.isEmpty()) {
+        QFileInfo local_nav_file_info(local_nav_file_path); /* existence checked prior to calling */
+        nav_file_name = local_nav_file_info.fileName();
     }
-    kvl.set(DATASET_PARAM_OUTPUT_DIR, job_result_path);
-    kvl.set(DATASET_PARAM_OUTPUT_FILENAME,
-            m_prefs->defaultMosaicFilenamePrefix());
-    qDebug() << "Dataset params :\n" << kvl.getKeys();
-    m_param_manager->pushDatasetParameters(kvl);
+
+    QString job_export_name = _job_name + '_' + m_prefs->remoteUsername();
+
+    /* Populate local dataset parameters with symbolic paths */
+    if (_is_selected_dataset) {
+        QDir dataset_dir(m_selected_remote_dataset_path);
+        QString dataset_name = dataset_dir.dirName();
+        QString symbolic_dataset_path = SYMBOLIC_REMOTE_ROOT_PATH + "/" + dataset_name;
+
+        _local_dataset_params.set(DATASET_PARAM_DATASET_DIR, symbolic_dataset_path);
+
+        if (!nav_file_name.isEmpty()) {
+            QString symbolic_nav_file_path = symbolic_dataset_path + "/" + nav_file_name;
+
+            _local_dataset_params.set(DATASET_PARAM_NAVIGATION_FILE, symbolic_nav_file_path);
+        }
+
+        QString symbolic_output_dir = SYMBOLIC_REMOTE_ROOT_PATH + "/" + job_export_name;
+        _local_dataset_params.set(DATASET_PARAM_OUTPUT_DIR, symbolic_output_dir);
+    }
+
+    qDebug() << "Dataset params :\n" << _local_dataset_params.getKeys() << "\n" << _local_dataset_params.getValues();
+    m_param_manager->pushDatasetParameters(_local_dataset_params);
+
+    /* resolving parameter values for remote execution */
+    QString remote_dataset_path;
+    QString remote_nav_file_path;
+    QString remote_dataset_parent_dir = "";
+
+    if (_is_selected_dataset) {
+        /* remote dataset parameter for selected dataset */
+
+        /* Substitute remote OS path for datasets root by container bound path */
+        remote_dataset_path = m_selected_remote_dataset_path;
+        remote_dataset_path.replace(m_selected_remote_dataset_parent_path, m_server_settings->datasetsPathBound());
+        remote_dataset_parent_dir = m_selected_remote_dataset_parent_path;
+
+    } else {
+        /* remote dataset parameter for uploaded dataset */
+        QString local_dataset_path = _local_dataset_params.getValue(DATASET_PARAM_DATASET_DIR);
+        QDir local_dataset_dir(local_dataset_path); /* dir existence checked prior to calling */
+        QString dataset_name = local_dataset_dir.dirName();
+        QString dataset_root_dir_bound = m_server_settings->datasetsPathBound();
+        remote_dataset_path = dataset_root_dir_bound + '/' + dataset_name;
+    }
+
+    remote_nav_file_path = (nav_file_name.isEmpty()) ? "" :
+                                                           remote_dataset_path + '/' + nav_file_name;
+
+    QString remote_result_path = m_server_settings->resultsPathBound() + '/' + job_export_name;
+    QString remote_output_filename = m_prefs->defaultMosaicFilenamePrefix();
+
+    KeyValueList remote_dataset_params;
+    remote_dataset_params.set(DATASET_PARAM_REMOTE_DATASET_DIR, remote_dataset_path);
+    remote_dataset_params.set(DATASET_PARAM_REMOTE_NAVIGATION_FILE, remote_nav_file_path);
+    remote_dataset_params.set(DATASET_PARAM_REMOTE_OUTPUT_DIR, remote_result_path);
+    remote_dataset_params.set(DATASET_PARAM_REMOTE_OUTPUT_FILENAME, remote_output_filename);
+    remote_dataset_params.set(DATASET_PARAM_REMOTE_DATASET_PARENT_DIR, remote_dataset_parent_dir);
+
+    m_param_manager->pushRemoteDatasetParameters(remote_dataset_params);
+
     m_param_manager->saveParametersValues(_job_name, false);
 }
 
@@ -958,7 +1032,7 @@ void RemoteJobHelper::sl_onTransferFinished(NetworkAction *_action) {
     }
 }
 
-void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
+void RemoteJobHelper::sl_onTransferFailed(NetworkAction::eNetworkActionType _action_type,
                                           eTransferError _err)
 {
 //    Q_UNUSED(_action)
@@ -966,6 +1040,8 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
 
     QString failed_host = m_prefs->remoteFileServer();
     QString error_str = QVariant::fromValue(_err).toString();
+    QString type_str = QVariant::fromValue(_action_type).toString();
+    qDebug() << QString("RemoteJobHelper: transfer failed with err '%1' for action of type '%2'").arg(error_str).arg(type_str);
 
     bool invalid_user_datasets_path = false;
     QString warning_title = tr("Transfer failed");
@@ -973,7 +1049,8 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
             .arg(failed_host)
             .arg(error_str);
 
-    if ((_action->type() == NetworkAction::eNetworkActionType::ListDirContent) &&
+//    if ((_action->type() == NetworkAction::eNetworkActionType::ListDirContent) &&
+    if ((_action_type == NetworkAction::eNetworkActionType::ListDirContent) &&
             (_err == eTransferError::FILE_NOT_FOUND)) {
         invalid_user_datasets_path = true;
         warning_title = tr("Invalid path");
@@ -982,7 +1059,12 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
                 .arg(failed_host);
     }
 
+    qDebug() << QString("RemoteJobHelper: transfer failed 2");
+//    qWarning() << warning_title << " - " << warning_message;
+
     QMessageBox::warning(m_job_launcher, warning_title, warning_message);
+
+    qDebug() << QString("RemoteJobHelper: transfer failed 3");
 
     if (invalid_user_datasets_path) {
         m_current_datasets_root_path = ""; // invalidate current datasets path
@@ -990,14 +1072,27 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction* _action,
         QString restore_path = (m_previous_datasets_root_path.isEmpty()) ?
                     m_server_settings->datasetsPath() : m_previous_datasets_root_path;
 
+        qDebug() << QString("RemoteJobHelper: transfer failed 4");
         sl_onRemotePathChanged(restore_path);
     }
+
+    qDebug() << QString("RemoteJobHelper: transfer failed 5");
 }
 
 void RemoteJobHelper::sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents) {
     qDebug() << "RemoteJobHelper: received remote dir contents";
 
     hideProgress();
+
+    KeyValueList dataset_params;
+    dataset_params.insert(DATASET_PARAM_DATASET_DIR, "");
+    dataset_params.insert(DATASET_PARAM_OUTPUT_DIR, "");
+    dataset_params.insert(DATASET_PARAM_OUTPUT_FILENAME, "");
+    dataset_params.insert(DATASET_PARAM_NAVIGATION_FILE, "");
+    dataset_params.insert(DATASET_PARAM_NAVIGATION_SOURCE, "");
+    m_param_manager->pullDatasetParameters(dataset_params);
+
+    QString selected_navfile("");
 
     if (m_selected_remote_dataset_path.isEmpty()) {
         /* First round : browsing for dataset dir */
@@ -1006,7 +1101,7 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents
 
         RemoteFileTreeModelFactory factory;
         TreeModel* model = factory.createModel(data_root_folder, _contents);
-        RemoteFileDialog rfd(model, data_root_folder, m_job_launcher);
+        RemoteFileDialog rfd(model, data_root_folder, m_icon_factory, m_job_launcher);
 
         connect(&rfd, SIGNAL(si_updatePath(QString)), SLOT(sl_onRemotePathChanged(QString)));
         connect(&rfd, SIGNAL(si_restoreDefaultPath()), SLOT(sl_onRestoreDefaultRemotePath()));
@@ -1027,26 +1122,35 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents
         qDebug() << "Selected dataset: " << selected_dataset;
 
         m_selected_remote_dataset_path = data_root_folder + '/' + selected_dataset;
+        m_selected_remote_dataset_parent_path = data_root_folder;
 
-        QStringList name_filters;
-        name_filters << "*.dim2";
+        QString nav_source = dataset_params.getValue(DATASET_PARAM_NAVIGATION_SOURCE);
 
-        NetworkAction* action = new NetworkActionDirContent(
-                    m_selected_remote_dataset_path,
-                    eFileTypeFilter::Files, name_filters);
+        /* If nav source DIM2, then prompt user for nav file selection */
+        if (nav_source.isEmpty() || nav_source == "DIM2") {
+            QStringList name_filters;
+            name_filters << "*.dim2";
 
-        m_pending_action_queue.enqueue(action);
-        resumeAction();
+            NetworkAction* action = new NetworkActionDirContent(
+                        m_selected_remote_dataset_path,
+                        eFileTypeFilter::Files, name_filters);
+
+            m_pending_action_queue.enqueue(action);
+            resumeAction();
+            return;
+        } else {
+            /* Reset nav file parameter */
+
+            // TODO reset value ?
+        }
 
     } else { // dataset dir already selected
 
-        /* Second round : selecting navigation file */
-        QString selected_navfile("");
-
+        /* Second round : selecting navigation file */        
         if (!_contents.isEmpty()) {
             RemoteFileTreeModelFactory factory;
             TreeModel* model = factory.createModel(m_selected_remote_dataset_path, _contents);
-            RemoteFileDialog rfd(model, m_selected_remote_dataset_path, m_job_launcher);
+            RemoteFileDialog rfd(model, m_selected_remote_dataset_path, m_icon_factory, m_job_launcher);
 
             if (rfd.exec()) {
                 selected_navfile = rfd.selectedFile();
@@ -1065,12 +1169,15 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents
                         .arg(m_selected_remote_dataset_path));
         }
 
-        /* Substitute OS path for datasets root by container bound path */
-        QString current_dataset_path_bound = m_selected_remote_dataset_path;
-        current_dataset_path_bound.replace(m_server_settings->datasetsPath(), m_server_settings->datasetsPathBound());
-
-        updateJobParameters(m_current_job_name, current_dataset_path_bound, selected_navfile);
     }
+
+    dataset_params.set(DATASET_PARAM_DATASET_DIR, m_selected_remote_dataset_path);
+    if (!selected_navfile.isEmpty()) {
+        dataset_params.set(DATASET_PARAM_NAVIGATION_FILE, selected_navfile);
+    }
+
+//        updateJobParameters(m_current_job_name, symbolic_dataset_path, selected_navfile, current_dataset_path_bound);
+    updateJobParameters(m_current_job_name, dataset_params, true);
 }
 
 void RemoteJobHelper::sl_onRemotePathChanged(QString _new_path)
@@ -1214,8 +1321,9 @@ void RemoteJobHelper::sl_onConnectionFailed(eConnectionError _err) {
 
     QObject* emitter = sender();
 
-    QString failed_host = (emitter == m_ssh_client) ?
+    QString failed_host = (emitter == m_ssh_client->connectionWrapper()) ?
                 m_prefs->remoteCommandServer() : m_prefs->remoteFileServer();
+//    qDebug() << QString("RemoteJobHelper: connection failed to host '%1'").arg(failed_host);
 
     if (_err == eConnectionError::AUTHENTICATION_ERROR) {
         qWarning() << QString("Authentication to remote host '%1' failed, retry login...").arg(failed_host);
@@ -1243,8 +1351,10 @@ void RemoteJobHelper::sl_onUserLogin(QString _password) {
             new NetworkCredentials(m_prefs->remoteUsername(), _password);
 
     /* Assume credentials are the same on both SFTP and SSH server */
+    qDebug() << "RemoteJobHelper: setting host for file client";
     m_sftp_client->connectionWrapper()->setHost(m_prefs->remoteFileServer());
     m_sftp_client->connectionWrapper()->setCredentials(creds);
+    qDebug() << "RemoteJobHelper: setting host for command client";
     m_ssh_client->connectionWrapper()->setHost(m_prefs->remoteCommandServer());
     m_ssh_client->connectionWrapper()->setCredentials(creds);
     m_host_and_creds_known = true;

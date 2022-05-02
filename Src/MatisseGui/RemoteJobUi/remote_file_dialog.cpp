@@ -2,6 +2,7 @@
 #include "ui_remote_file_dialog.h"
 
 #include "file_utils.h"
+#include "iconized_button_wrapper.h"
 
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -12,7 +13,7 @@ using namespace network_tools;
 
 namespace matisse {
 
-RemoteFileDialog::RemoteFileDialog(TreeModel *_model, QString _root_folder, QWidget *_parent)
+RemoteFileDialog::RemoteFileDialog(TreeModel *_model, QString _root_folder, MatisseIconFactory *_icon_factory, QWidget *_parent)
     : QDialog(_parent), m_ui(new Ui::RemoteFileDialog), m_root_folder(_root_folder), m_selected_file() {
     m_ui->setupUi(this);
     m_ui->m_le_path->setText(m_root_folder);
@@ -23,6 +24,12 @@ RemoteFileDialog::RemoteFileDialog(TreeModel *_model, QString _root_folder, QWid
     for (int i=0 ; i < _model->columnCount() ; i++) {
         m_ui->m_tv_file_tree->resizeColumnToContents(i);
     }
+
+    IconizedButtonWrapper *default_path_button_wrapper = new IconizedButtonWrapper(m_ui->m_pb_default_path);
+    IconizedButtonWrapper *dir_up_button_wrapper = new IconizedButtonWrapper(m_ui->m_pb_dir_up);
+
+    _icon_factory->attachIcon(default_path_button_wrapper, "lnf/icons/Maison.svg", false, false);
+    _icon_factory->attachIcon(dir_up_button_wrapper, "lnf/icons/up.svg", false, false);
 
     QPushButton *ok_button = m_ui->m_bb_buttons->button(QDialogButtonBox::Ok);
     ok_button->setEnabled(false); // OK button is disabled by default

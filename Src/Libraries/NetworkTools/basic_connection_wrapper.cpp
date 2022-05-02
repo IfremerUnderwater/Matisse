@@ -10,6 +10,8 @@ using namespace system_tools;
 
 namespace network_tools {
 
+const int BasicConnectionWrapper::CONNECTION_TIMEOUT_MS = 30000;
+
 BasicConnectionWrapper::BasicConnectionWrapper() :
     ConnectionWrapper(),
     m_ftp(NULL),
@@ -18,7 +20,8 @@ BasicConnectionWrapper::BasicConnectionWrapper() :
     m_files_by_job(),
     m_subdirs_buffer(),
     m_dirs_to_upload(),
-    m_current_remote_path()
+    m_current_remote_path(),
+    m_timer_by_job()
 {
 }
 
@@ -35,11 +38,13 @@ void BasicConnectionWrapper::disableConnection() {
     disconnect(this, SLOT(sl_onNetworkSessionOpened()));
     disconnect(this, SLOT(sl_onNetworkSessionFailed(QNetworkSession::SessionError)));
 
+    disconnect(this, SLOT(sl_onOpStarted(int)));
     disconnect(this, SLOT(sl_onOpFinished(int,bool)));
     disconnect(this, SLOT(sl_onFileInfoAvailable(QUrlInfo)));
     disconnect(this, SLOT(sl_onTransferProgressReceived(qint64,qint64)));
     disconnect(this, SLOT(sl_onManagerStateChanged(int)));
     disconnect(this, SLOT(sl_onManagerSequenceDone(bool)));
+    disconnect(this, SLOT(sl_onOperationTimeout()));
 }
 
 void BasicConnectionWrapper::freeConnection() {
@@ -50,12 +55,23 @@ void BasicConnectionWrapper::freeConnection() {
         m_ftp = NULL;
     }
 
+    qDebug() << QString("BasicConnectionWrapper: free connection 2");
+
     if (m_network_session) {
         m_network_session->stop();
         m_network_session->close();
         m_network_session->deleteLater();
         m_network_session = NULL;
     }
+
+    qDebug() << QString("BasicConnectionWrapper: free connection 3");
+
+    if (!m_timer_by_job.isEmpty()) {
+        qDeleteAll(m_timer_by_job);
+        m_timer_by_job.clear();
+    }
+
+    qDebug() << QString("BasicConnectionWrapper: free connection 4");
 }
 
 void BasicConnectionWrapper::reinitBeforeFileOperation() {
@@ -129,6 +145,7 @@ void BasicConnectionWrapper::disconnectFromHost() {
     qDebug() << QString("BasicConnectionWrapper: disconnecting from host...");
 
     if (m_ftp) {
+        m_ftp->clearPendingCommands();
         m_ftp->abort();
     }
 
@@ -137,6 +154,7 @@ void BasicConnectionWrapper::disconnectFromHost() {
 
 void BasicConnectionWrapper::sl_onNetworkSessionOpened() {
     m_ftp = new QFtp(this);
+    connect(m_ftp, SIGNAL(commandStarted(int)), this, SLOT(sl_onOpStarted(int)));
     connect(m_ftp, SIGNAL(commandFinished(int,bool)), this, SLOT(sl_onOpFinished(int,bool)));
     connect(m_ftp, SIGNAL(listInfo(QUrlInfo)), this, SLOT(sl_onFileInfoAvailable(QUrlInfo)));
     connect(m_ftp, SIGNAL(dataTransferProgress(qint64,qint64)), this, SLOT(sl_onTransferProgressReceived(qint64,qint64)));
@@ -197,12 +215,13 @@ void BasicConnectionWrapper::sl_onManagerSequenceDone(bool _error) {
         return;
     }
 
-    if (_error) {
-        QFtp::Error manager_error = m_ftp->error();
-        qCritical() << "BasicConnectionWrapper: an error occurred while executing FTP operations " << manager_error;
-        mapTransferError(manager_error);
-        emit si_transferFailed(m_current_tx_error);
-        disconnectFromHost();
+    if (_error) { // transfer error
+        qDebug() << "BasicConnectionWrapper: FTP sequence aborted with transfer error";
+//        QFtp::Error manager_error = m_ftp->error();
+//        qCritical() << "BasicConnectionWrapper: an error occurred while executing FTP operations " << manager_error;
+//        mapTransferError(manager_error);
+//        emit si_transferFailed(m_current_tx_error);
+//        disconnectFromHost();
         return;
     }
 
@@ -254,9 +273,40 @@ void BasicConnectionWrapper::sl_onManagerSequenceDone(bool _error) {
     }
 }
 
+void BasicConnectionWrapper::sl_onOpStarted(int _job_id) {
+    qDebug() << QString("BasicConnectionWrapper: starting FTP operation %1...").arg(_job_id);
+
+    QTimer* operation_timer = new QTimer(this);
+    m_timer_by_job.insert(_job_id, operation_timer);
+    connect(operation_timer, SIGNAL(timeout()), this, SLOT(sl_onOperationTimeout()));
+    operation_timer->start(CONNECTION_TIMEOUT_MS);
+}
+
+void BasicConnectionWrapper::releaseTransferFile(int _job_id)
+{
+    if (m_files_by_job.contains(_job_id)) {
+        QFile *file = m_files_by_job.value(_job_id);
+//            qDebug() << QString("BasicConnectionWrapper: closing file %1 opened for FTP put command #%2...").arg(file->fileName()).arg(_job_id);
+        file->close();
+        delete file;
+        m_files_by_job.remove(_job_id);
+    }
+}
+
 void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
     QFtp::Command ftp_command = m_ftp->currentCommand();
     m_last_ftp_command = ftp_command;
+
+    /* Disconnect from and release timeout timer */
+    if (m_timer_by_job.contains(_job_id)) {
+        qDebug() << QString("BasicConnectionWrapper: releasing timer for job #%1...").arg(_job_id);
+        QTimer *timer = m_timer_by_job.take(_job_id); /* remove from the map */
+        disconnect(timer, SIGNAL(timeout()), this, SLOT(sl_onOperationTimeout()));
+        timer->stop();
+        delete timer;
+    } else {
+        qCritical() << QString("BasicConnectionWrapper: could not find timer for job #%1 (command finished)").arg(_job_id);
+    }
 
     if (_has_error) {
         qCritical() << QString("BasicConnectionWrapper: FTP operation %1 #%2 failed").arg(ftp_command).arg(_job_id);
@@ -278,8 +328,15 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
             emit si_connectionFailed(m_current_cx_error);
 
         } else {
+            if (ftp_command == QFtp::Command::Put || ftp_command == QFtp::Command::Get) {
+                /* release file allocated for FTP transfer */
+                releaseTransferFile(_job_id);
+            }
+
             mapTransferError(error);
             emit si_transferFailed(m_current_tx_error);
+            disconnectFromHost();
+            qDebug() << QString("BasicConnectionWrapper: after disconnection...");
         }
 
         return;
@@ -301,13 +358,7 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
     case QFtp::Command::Get:
 
         /* Release file allocated for FTP transfer */
-        if (m_files_by_job.contains(_job_id)) {
-            QFile *file = m_files_by_job.value(_job_id);
-//            qDebug() << QString("BasicConnectionWrapper: closing file %1 opened for FTP put command #%2...").arg(file->fileName()).arg(_job_id);
-            file->close();
-            delete file;
-            m_files_by_job.remove(_job_id);
-        }
+        releaseTransferFile(_job_id);
 
         return;
 
@@ -396,6 +447,52 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
 //            m_files_by_job.remove(_job_id);
 //        }
 //    }
+}
+
+void BasicConnectionWrapper::sl_onOperationTimeout() {
+    QFtp::Command ftp_command = m_ftp->currentCommand();
+
+    qWarning() << "BasicConnectionWrapper: FTP operation timeout !";
+    QTimer *timer = static_cast<QTimer*>(sender());
+    timer->stop(); /* stop to prevent recurrent timeout */
+    QList<int> ongoing_jobs = m_timer_by_job.keys();
+
+    bool found = false;
+
+    for (int job_id: ongoing_jobs) {
+        if (m_timer_by_job.value(job_id) == timer) {
+            qWarning() << QString("BasicConnectionWrapper: timeout for job #%1").arg(job_id);
+            m_timer_by_job.remove(job_id);
+            disconnect(timer, SIGNAL(timeout()), this, SLOT(sl_onOperationTimeout()));
+            delete timer;
+            handleTimeout(ftp_command);
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        qCritical() << "BasicConnectionWrapper: could not find which job timed out";
+        /* signal error and disconnect anyway */
+        handleTimeout(ftp_command);
+    }
+
+}
+
+void BasicConnectionWrapper::handleTimeout(QFtp::Command _ftp_command) {
+    switch(_ftp_command) {
+    case QFtp::Command::ConnectToHost:
+    case QFtp::Command::Login:
+        m_waiting_for_connection = false;
+        emit si_connectionFailed(eConnectionError::TIMEOUT_ERROR);
+        emit si_clearConnection();
+        break;
+
+    default:
+        emit si_transferFailed(eTransferError::CONNECTION_LOST);
+        disconnectFromHost();
+        break;
+    }
 }
 
 void BasicConnectionWrapper::sl_onFileInfoAvailable(QUrlInfo _info) {
@@ -501,7 +598,14 @@ void BasicConnectionWrapper::sl_onTransferProgressReceived(qint64 _bytes_transfe
 //    qDebug() << QString("BasicConnectionWrapper: %1/%2 bytes transferred for job #%3")
 //                .arg(_bytes_transferred).arg(_bytes_total).arg(job_id);
 
-
+    /* restart timeout timer for job */
+    if (m_timer_by_job.contains(job_id)) {
+        QTimer *timeout_timer = m_timer_by_job.value(job_id);
+        timeout_timer->stop();
+        timeout_timer->start(CONNECTION_TIMEOUT_MS);
+    } else {
+        qWarning() << QString("BasicConnectionWrapper: could not find timer for job #%1 (progress tracking)").arg(job_id);
+    }
 
     if (m_current_transfer_size == 0) {
         if (m_download_file_ongoing) {
@@ -590,7 +694,7 @@ void BasicConnectionWrapper::sl_upload(QString _local_path, QString _remote_path
     qDebug() << QString("BasicConnectionWrapper: uploading %1 to %2...").arg(_local_path).arg(_remote_path);
 
     if (_recurse) {
-        qCritical() << "BasicConnectionWrapper: recursive upload...";
+        qDebug() << "BasicConnectionWrapper: recursive upload...";
         m_recursive_upload = true;
     }
 
@@ -815,6 +919,9 @@ void BasicConnectionWrapper::sl_dirContent(QString _remote_dir_path, FileTypeFil
         // Do not signal progress if called prior to dir downloading or uploading
         emit si_progressUpdate(10);
         m_last_signalled_progress = 10;
+
+        /* Check if remote folder exists (not checked by the List command) */
+        m_ftp->cd(_remote_dir_path);
     }
 
     m_ftp->list(_remote_dir_path);
@@ -856,7 +963,9 @@ void BasicConnectionWrapper::mapTransferError(QFtp::Error _err)
         break;
 
     case QFtp::UnknownError:
-        m_current_tx_error = eTransferError::BAD_MESSAGE;
+//        m_current_tx_error = eTransferError::BAD_MESSAGE;
+        /* in the context of FTP command Cd, means file not found */
+        m_current_tx_error = eTransferError::FILE_NOT_FOUND;
         break;
 
     default:
@@ -867,9 +976,6 @@ void BasicConnectionWrapper::mapTransferError(QFtp::Error _err)
 
     qDebug() << QString("BasicConnectionWrapper: transfer error occurred : ") << m_current_tx_error;
 }
-
-
-
 
 void BasicConnectionWrapper::sl_createRemoteShell(QString& _command) {
     Q_UNUSED(_command)
