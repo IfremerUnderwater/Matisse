@@ -303,6 +303,9 @@ void SecureConnectionWrapper::sl_onConnectionError(QSsh::SshError _err) {
 
     mapConnectionError(_err);
 
+    QString error_string = m_connection->errorString();
+    qCritical() << QString("SecureConnectionWrapper: SSH error : %1").arg(error_string);
+
     m_waiting_for_connection = false;
 
     /* In case of authentication error, prompt for new login
