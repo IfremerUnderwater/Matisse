@@ -1,69 +1,72 @@
-#include "network_file_client.h"
+#include "network_client_file_transfer.h"
 
 namespace network_tools {
 
-NetworkFileClient::NetworkFileClient() : NetworkClient()
+NetworkClientFileTransfer::NetworkClientFileTransfer() : NetworkClient()
 {
 
 }
 
-void NetworkFileClient::doInit()
+void NetworkClientFileTransfer::doInit()
 {
-    connect(m_cx_wrapper, SIGNAL(si_channelReady()), SLOT(sl_onChannelReady()));
-    connect(m_cx_wrapper, SIGNAL(si_channelClosed()), SLOT(sl_onChannelClosed()));
-    connect(m_cx_wrapper, SIGNAL(si_transferFinished()), SLOT(sl_onTransferFinished()));
-    connect(m_cx_wrapper, SIGNAL(si_transferFailed(eTransferError)), this, SLOT(sl_onTransferFailed(eTransferError)));
+    connect(m_connector, SIGNAL(si_channelReady()), SLOT(sl_onChannelReady()));
+    connect(m_connector, SIGNAL(si_channelClosed()), SLOT(sl_onChannelClosed()));
+    connect(m_connector, SIGNAL(si_transferFinished()), SLOT(sl_onTransferFinished()));
+    connect(m_connector, SIGNAL(si_transferFailed(eTransferError)), this, SLOT(sl_onTransferFailed(eTransferError)));
+    connect(m_connector, SIGNAL(si_dirContents(QList<NetworkFileInfo *>)), this, SLOT(sl_onDirContentsReceived(QList<NetworkFileInfo *>)));
 
     /* internal wiring to decouple the FTP error sequence from the GUI client */
     connect(this, SIGNAL(si_transferFailedInternal(NetworkAction::eNetworkActionType, eTransferError)), this, SLOT(sl_onTransferFailedInternal(NetworkAction::eNetworkActionType, eTransferError)), Qt::ConnectionType::QueuedConnection);
 }
 
-void NetworkFileClient::connectAction(NetworkAction *_action)
+void NetworkClientFileTransfer::connectAction(NetworkAction *_action)
 {
-    connect(_action, SIGNAL(si_initFileChannel()), m_cx_wrapper, SLOT(sl_initFileChannel()));
-    connect(_action, SIGNAL(si_upload(QString, QString, bool, bool)), m_cx_wrapper, SLOT(sl_upload(QString, QString, bool, bool)));
-    connect(_action, SIGNAL(si_download(QString, QString, bool)), m_cx_wrapper, SLOT(sl_download(QString, QString, bool)));
-    connect(_action, SIGNAL(si_dirContent(QString, FileTypeFilters, QStringList)), m_cx_wrapper, SLOT(sl_dirContent(QString, FileTypeFilters, QStringList)));
+    connect(_action, SIGNAL(si_initFileChannel()), m_connector, SLOT(sl_initFileChannel()));
+    connect(_action, SIGNAL(si_upload(QString, QString, bool, bool)), m_connector, SLOT(sl_upload(QString, QString, bool, bool)));
+    connect(_action, SIGNAL(si_download(QString, QString, bool)), m_connector, SLOT(sl_download(QString, QString, bool)));
+    connect(_action, SIGNAL(si_dirContent(QString, FileTypeFilters, QStringList)), m_connector, SLOT(sl_dirContent(QString, FileTypeFilters, QStringList)));
 }
 
-void NetworkFileClient::disconnectAction(NetworkAction *_action)
+void NetworkClientFileTransfer::disconnectAction(NetworkAction *_action)
 {
-    disconnect(_action, SIGNAL(si_initFileChannel()), m_cx_wrapper, SLOT(sl_initFileChannel()));
-    disconnect(_action, SIGNAL(si_upload(QString, QString, bool, bool)), m_cx_wrapper, SLOT(sl_upload(QString, QString, bool, bool)));
-    disconnect(_action, SIGNAL(si_download(QString, QString, bool)), m_cx_wrapper, SLOT(sl_download(QString, QString, bool)));
-    disconnect(_action, SIGNAL(si_dirContent(QString, FileTypeFilters, QStringList)), m_cx_wrapper, SLOT(sl_dirContent(QString, FileTypeFilters, QStringList)));
+    disconnect(_action, SIGNAL(si_initFileChannel()), m_connector, SLOT(sl_initFileChannel()));
+    disconnect(_action, SIGNAL(si_upload(QString, QString, bool, bool)), m_connector, SLOT(sl_upload(QString, QString, bool, bool)));
+    disconnect(_action, SIGNAL(si_download(QString, QString, bool)), m_connector, SLOT(sl_download(QString, QString, bool)));
+    disconnect(_action, SIGNAL(si_dirContent(QString, FileTypeFilters, QStringList)), m_connector, SLOT(sl_dirContent(QString, FileTypeFilters, QStringList)));
 }
 
-void NetworkFileClient::doInitBeforeAction() {
+void NetworkClientFileTransfer::doInitBeforeAction() {
 
 }
 
-void NetworkFileClient::sl_onChannelReady() {
-    qDebug() << "NetworkFileClient: Channel Initialized";
+void NetworkClientFileTransfer::sl_onChannelReady() {
+    qDebug() << "NetworkClientFileTransfer: Channel Initialized";
     m_current_action->execute();
 }
 
-void NetworkFileClient::sl_onChannelClosed() {
+void NetworkClientFileTransfer::sl_onChannelClosed() {
     checkActionPending();
 }
 
-void NetworkFileClient::sl_onTransferFailed(eTransferError _error) {
-    qDebug() << "NetworkFileClient: before signalling transfer failed";
+void NetworkClientFileTransfer::sl_onTransferFailed(eTransferError _error) {
     if (!m_current_action) {
-        qWarning() << "NetworkFileClient: current action null";
+        qWarning() << "NetworkClientFileTransfer: current action null";
     }
-//    emit si_transferFailed(m_current_action, _error);
+
     emit si_transferFailedInternal(m_current_action->type(), _error);
-    qDebug() << "NetworkFileClient: after signalling transfer failed";
 }
 
-void NetworkFileClient::sl_onTransferFailedInternal(NetworkAction::eNetworkActionType _action_type, eTransferError _error) {
-    qDebug() << "NetworkFileClient: transfer failed internal loop";
+void NetworkClientFileTransfer::sl_onTransferFailedInternal(NetworkAction::eNetworkActionType _action_type, eTransferError _error) {
+//    qDebug() << "NetworkClientFileTransfer: transfer failed internal loop";
     emit si_transferFailed(_action_type, _error);
 }
 
-void NetworkFileClient::sl_onTransferFinished() {
+void NetworkClientFileTransfer::sl_onTransferFinished() {
     emit si_transferFinished(m_current_action);
+}
+
+void NetworkClientFileTransfer::sl_onDirContentsReceived(QList<NetworkFileInfo *> _contents) {
+    emit si_dirContents(m_current_action, _contents);
 }
 
 } // namespace network_tools

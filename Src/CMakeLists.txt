@@ -47,7 +47,7 @@ add_custom_target(create_out_mod_folder ALL
 )
 
 add_custom_target(copy_config ALL
- COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../Config ${MATISSE_RUNTIME_ROOT} 
+ COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../Deploy ${MATISSE_RUNTIME_ROOT}
  COMMENT "Copying config folder ..."
 )
 
@@ -60,9 +60,9 @@ configure_file(../Install/generate_installer.bat.in Install/generate_installer.b
 configure_file(../Install/packages/Matisse3D/meta/package.xml.in Install/packages/Matisse3D/meta/package.xml)
 set(BINARYTOOL_HOMEDIR @HomeDir@)
 configure_file(../Install/config/config.xml.in Install/config/config.xml)
-configure_file(../Config/config/MatisseSettings.xml.in Run/Release/config/MatisseSettings.xml)
-configure_file(../Config/config/MatisseSettings.xml.in Run/RelWithDebInfo/config/MatisseSettings.xml)
-configure_file(../Config/config/MatisseSettings.xml.in Run/Debug/config/MatisseSettings.xml)
+configure_file(../Deploy/config/MatisseSettings.xml.in Run/Release/config/MatisseSettings.xml)
+configure_file(../Deploy/config/MatisseSettings.xml.in Run/RelWithDebInfo/config/MatisseSettings.xml)
+configure_file(../Deploy/config/MatisseSettings.xml.in Run/Debug/config/MatisseSettings.xml)
 
 
 # configure a header file to pass some of the CMake settings

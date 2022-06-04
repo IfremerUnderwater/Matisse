@@ -4,7 +4,7 @@ namespace network_tools {
 
 NetworkActionDownloadDir::NetworkActionDownloadDir(QString _remote_dir,
                                                    QString _local_base_dir) :
-    NetworkFileAction(eNetworkActionType::DownloadDir)
+    NetworkActionFileTransfer(eNetworkActionType::DownloadDir)
 {
     QFileInfo info(_local_base_dir);
 

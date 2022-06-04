@@ -1,15 +1,15 @@
-#ifndef NETWORK_TOOLS_NETWORK_FILE_ACTION_H_
-#define NETWORK_TOOLS_NETWORK_FILE_ACTION_H_
+#ifndef NETWORK_TOOLS_NETWORK_ACTION_FILE_TRANSFER_H_
+#define NETWORK_TOOLS_NETWORK_ACTION_FILE_TRANSFER_H_
 
 #include "network_action.h"
 
 namespace network_tools {
 
-class NetworkFileAction : public NetworkAction
+class NetworkActionFileTransfer : public NetworkAction
 {
     Q_OBJECT
 public:
-    NetworkFileAction(eNetworkActionType _type);
+    NetworkActionFileTransfer(eNetworkActionType _type);
 
 signals:
     void si_initFileChannel();
@@ -20,4 +20,4 @@ signals:
 
 } // namespace network_tools
 
-#endif // NETWORK_TOOLS_NETWORK_FILE_ACTION_H_
+#endif // NETWORK_TOOLS_NETWORK_ACTION_FILE_TRANSFER_H_

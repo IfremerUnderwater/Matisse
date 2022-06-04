@@ -26,6 +26,7 @@ private:
    /* Remote execution preferences */
    QString m_remote_command_server;
    QString m_remote_file_server;
+   QString m_remote_file_server_protocol;
    QString m_remote_username;
    QString m_remote_user_email;
    QString m_remote_queue_name;
@@ -52,6 +53,8 @@ public:
     void setRemoteCommandServer(const QString& _remote_command_server);
     QString remoteFileServer() const;
     void setRemoteFileServer(const QString& _remote_file_server);
+    QString remoteFileServerProtocol() const;
+    void setRemoteFileServerProtocol(const QString& _remote_file_server_protocol);
     QString remoteUsername() const;
     void setRemoteUsername(const QString& _remote_username);    
     QString remoteUserEmail() const;

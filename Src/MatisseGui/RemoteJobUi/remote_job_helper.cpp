@@ -14,6 +14,7 @@
 #include "network_action_send_command.h"
 #include "network_command_pbs_qsub.h"
 #include "parameters_common.h"
+#include "nav_commons.h"
 
 using namespace system_tools;
 using namespace network_tools;
@@ -76,6 +77,8 @@ const QString RemoteJobHelper::SYMBOLIC_REMOTE_ROOT_PATH = QString("{REMOTE}");
 RemoteJobHelper::RemoteJobHelper(QObject* _parent)
     : QObject(_parent),
       m_remote_output_path(),
+      m_file_clients(),
+      m_shell_clients(),
       m_pending_action_queue(),
       m_commands_by_action(),
       m_jobs_by_command(),
@@ -93,12 +96,40 @@ RemoteJobHelper::RemoteJobHelper(QObject* _parent)
 void RemoteJobHelper::init() {
     qDebug() << "RemoteJobHelper init";
 
-    if (!m_sftp_client) {
-        qFatal("RemoteJobHelper: SFTP client not initialized");
+    if (m_file_clients.isEmpty()) {
+        qFatal("RemoteJobHelper: no network file client registered");
     }
 
-    if (!m_ssh_client) {
-        qFatal("RemoteJobHelper: SSH client not initialized");
+    QMetaEnum file_protocol_enum = QMetaEnum::fromType<eFileTransferProtocol>();
+
+    for (int i=0 ; i < file_protocol_enum.keyCount(); i++) {
+        eFileTransferProtocol file_protocol = (eFileTransferProtocol) file_protocol_enum.value(i);
+        if (!m_file_clients.contains(file_protocol)) {
+            QString protocol_litteral = QVariant::fromValue(file_protocol).toString();
+            QString error_msg = QString("RemoteJobHelper: no network client registered for file transfer protocol %1").arg(protocol_litteral);
+            qFatal("%s", error_msg.toLatin1().constData());
+        }
+
+        NetworkClient *file_client = m_file_clients.value(file_protocol);
+        file_client->init();
+    }
+
+    if (m_shell_clients.isEmpty()) {
+        qFatal("RemoteJobHelper: no network shell client registered");
+    }
+
+    QMetaEnum shell_protocol_enum = QMetaEnum::fromType<eShellProtocol>();
+
+    for (int i=0 ; i < shell_protocol_enum.keyCount(); i++) {
+        eShellProtocol shell_protocol = (eShellProtocol) shell_protocol_enum.value(i);
+        if (!m_shell_clients.contains(shell_protocol)) {
+            QString protocol_litteral = QVariant::fromValue(shell_protocol).toString();
+            QString error_msg = QString("RemoteJobHelper: no network client registered for shell protocol %1").arg(protocol_litteral);
+            qFatal("%s", error_msg.toLatin1().constData());
+        }
+
+        NetworkClient *shell_client = m_shell_clients.value(shell_protocol);
+        shell_client->init();
     }
 
     if (!m_job_launcher) {
@@ -113,8 +144,6 @@ void RemoteJobHelper::init() {
     m_is_remote_exec_on = checkPreferences();
     m_host_and_creds_known = false;
 
-    m_sftp_client->init();
-    m_ssh_client->init();
     connectNetworkClientSignals();
 }
 
@@ -140,6 +169,10 @@ void RemoteJobHelper::checkRemoteDirCreated()
 
 void RemoteJobHelper::reinit() 
 {
+    NetworkClient *previous_file_client = m_current_file_client;
+    NetworkClient *previous_shell_client = m_current_shell_client;
+
+
     m_is_remote_exec_on = checkPreferences(); /* check preferences completeness */
     if (!m_is_remote_exec_on) {
         return;
@@ -149,18 +182,29 @@ void RemoteJobHelper::reinit()
         return;
     }
 
+    bool network_file_client_changed = m_current_file_client != previous_file_client;
+    bool network_shell_client_changed = m_current_shell_client != previous_shell_client;
+
     /* Check if connection preferences have changed */
-    QString current_ssh_host = m_ssh_client->connectionWrapper()->host();
-    QString current_username = m_ssh_client->connectionWrapper()->username(); /* username identical for SSH and SFTP servers */
-    QString current_sftp_host = m_sftp_client->connectionWrapper()->host();
+    QString previous_shell_host = m_current_shell_client->connector()->host();
+    QString previous_username = m_current_shell_client->connector()->username(); /* username identical for file and remote shell servers */
+    QString previous_file_host = m_current_file_client->connector()->host();
 
     bool host_and_creds_changed = false;
 
-    if (m_prefs->remoteCommandServer() != current_ssh_host
-            || m_prefs->remoteFileServer() != current_sftp_host
-            || m_prefs->remoteUsername() != current_username) {
+    if (m_prefs->remoteCommandServer() != previous_shell_host
+            || m_prefs->remoteFileServer() != previous_file_host
+            || m_prefs->remoteUsername() != previous_username) {
         host_and_creds_changed = true;
         m_host_and_creds_known = false;
+    }
+
+    /* If a different protocol has been selected in preferences, reinit client connexion */
+    if (network_file_client_changed || network_shell_client_changed) {
+        host_and_creds_changed = true;
+        m_host_and_creds_known = false;
+        disconnectNetworkClientSignals();
+        connectNetworkClientSignals();
     }
 
     if (host_and_creds_changed) {
@@ -170,8 +214,8 @@ void RemoteJobHelper::reinit()
         hideProgress(); /* Any ongoing action will be interrupted */
 
         /* reset connections */
-        m_sftp_client->connectionWrapper()->resetConnection();
-        m_ssh_client->connectionWrapper()->resetConnection();
+        previous_file_client->connector()->resetConnection();
+        previous_shell_client->connector()->resetConnection();
 
         clearPendingActionQueue();
     }
@@ -306,20 +350,16 @@ void RemoteJobHelper::uploadDataset(QString _job_name) {
         if (!nav_file_found) {
 
             QStringList name_filters;
-            name_filters << "*.dim2";
+            name_filters << NAV_FILE_TYPE_FILTER;
             QStringList nav_files = local_dataset_dir.entryList(name_filters, QDir::Files);
 
             if (nav_source.isEmpty() || nav_source == "DIM2") {
 
-                if (nav_files.isEmpty()) {
+                if (nav_files.isEmpty()) {                 
 
-                    QString no_nav_file_message = (nav_source == "DIM2") ?
-                                tr("The navigation source was set to DIM2") :
-                                tr("The navigation source was not defined");
-                    no_nav_file_message.append(" ")
-                            .append(tr("but no navigation file (*.dim2) was found in the selected dataset dir '%1'.\n"))
-                            .append(tr("Only AUTO or EXIF options are possible with the current dataset.\n"))
-                            .append(tr("Continue with automatic navigation source resolution ?"));
+                      QString no_nav_file_message = tr("No navigation file (%1) was found in the selected dataset dir '%2'.\n")
+                            .append(tr(" Are you sure you want to proceed without navigation file ?\n"))
+                              .arg(NAV_FILE_TYPE_FILTER).arg(local_dataset_dir_path);
 
                     QMessageBox::StandardButton answer = QMessageBox::question(
                                 m_job_launcher, tr("Navigation file not found"),
@@ -327,14 +367,11 @@ void RemoteJobHelper::uploadDataset(QString _job_name) {
 
                     if (answer == QMessageBox::No) {
                         qDebug() << "Dataset upload cancelled by user : no navigation file in dataset";
+                        QMessageBox::information(m_job_launcher, tr("Dataset upload canceled"), tr("Please add a navigation file in the dataset dir before uploading."));
                         return;
                     }
 
-                    new_nav_source = "AUTO";
-                    dataset_params.set(DATASET_PARAM_NAVIGATION_SOURCE, new_nav_source);
-                }
-
-                if (new_nav_source != "AUTO") {
+                } else {
                     QString selected_nav_file = QFileDialog::getOpenFileName(
                                 m_job_launcher,
                                 tr("Select navigation file"), local_dataset_dir_path,
@@ -355,11 +392,10 @@ void RemoteJobHelper::uploadDataset(QString _job_name) {
     /* Update job parameter file */
     updateJobParameters(_job_name, dataset_params);
 
-    /* Create and enqueue upload action */
-    NetworkAction* action =
-            new NetworkActionUploadDir(local_dataset_dir_path,
-                                       m_server_settings->datasetsPath(), false);
-    action->setMetaInfo("dataset");
+    /* Create and enqueue dir content action (check if dataset already exists) */
+    NetworkAction* action = new NetworkActionDirContent(
+                m_server_settings->datasetsPath(), eFileTypeFilter::Dirs);
+    action->setMetaInfo(local_dataset_dir_path);
     m_pending_action_queue.enqueue(action);
     m_jobs_by_action.insert(action, _job_name);
     checkHostAndCredentials();
@@ -631,21 +667,29 @@ void RemoteJobHelper::downloadResults(QString _job_name)
     checkHostAndCredentials();
 }
 
-void RemoteJobHelper::setSshClient(NetworkClient* _ssh_client) {
-    if (!_ssh_client) {
-        qFatal("SSH client implementation is null");
+void RemoteJobHelper::registerNetworkFileClient(eFileTransferProtocol _protocol, NetworkClient *_client) {
+    if (m_file_clients.contains(_protocol)) {
+        QString protocol_litteral = QVariant::fromValue(_protocol).toString();
+        qCritical() << QString("RemoteJobHelper: there is already a network client registered for file transfer protocol %1")
+                      .arg(protocol_litteral);
+        return;
     }
 
-    m_ssh_client = _ssh_client;
+    m_file_clients.insert(_protocol, _client);
 }
 
-void RemoteJobHelper::setSftpClient(NetworkClient* _sftp_client) {
-    if (!_sftp_client) {
-        qFatal("SFTP client implementation is null");
+void RemoteJobHelper::registerNetworkShellClient(eShellProtocol _protocol, NetworkClient *_client) {
+    if (m_shell_clients.contains(_protocol)) {
+        QString protocol_litteral = QVariant::fromValue(_protocol).toString();
+        qCritical() << QString("RemoteJobHelper: there is already a network client registered for shell protocol %1")
+                      .arg(protocol_litteral);
+        return;
     }
 
-    m_sftp_client = _sftp_client;
+    m_shell_clients.insert(_protocol, _client);
 }
+
+
 
 void RemoteJobHelper::setJobLauncher(QWidget* _job_launcher) {
     m_job_launcher = _job_launcher;
@@ -670,66 +714,105 @@ void RemoteJobHelper::setIconFactory(MatisseIconFactory *_icon_factory) {
 }
 
 void RemoteJobHelper::connectNetworkClientSignals() {
-    connect(m_sftp_client->connectionWrapper(),
+    connect(m_current_file_client->connector(),
             SIGNAL(si_connectionFailed(eConnectionError)),
             SLOT(sl_onConnectionFailed(eConnectionError)));
-    connect(m_sftp_client, SIGNAL(si_transferFinished(NetworkAction*)),
+    connect(m_current_file_client, SIGNAL(si_transferFinished(NetworkAction*)),
             SLOT(sl_onTransferFinished(NetworkAction*)));
-//    connect(m_sftp_client, SIGNAL(si_transferFailed(NetworkAction*, eTransferError)),
-//            SLOT(sl_onTransferFailed(NetworkAction*, eTransferError)));
-    connect(m_sftp_client, SIGNAL(si_transferFailed(NetworkAction::eNetworkActionType, eTransferError)),
+    connect(m_current_file_client, SIGNAL(si_transferFailed(NetworkAction::eNetworkActionType, eTransferError)),
             this, SLOT(sl_onTransferFailed(NetworkAction::eNetworkActionType, eTransferError)), Qt::ConnectionType::QueuedConnection);
-    connect(m_sftp_client->connectionWrapper(), SIGNAL(si_dirContents(QList<NetworkFileInfo*>)),
-            this, SLOT(sl_onDirContentsReceived(QList<NetworkFileInfo*>)));
+    connect(m_current_file_client, SIGNAL(si_dirContents(NetworkAction*, QList<NetworkFileInfo*>)),
+            this, SLOT(sl_onDirContentsReceived(NetworkAction*, QList<NetworkFileInfo*>)));
 
-    connect(m_ssh_client->connectionWrapper(), SIGNAL(si_connectionFailed(eConnectionError)),
+    connect(m_current_shell_client->connector(), SIGNAL(si_connectionFailed(eConnectionError)),
             SLOT(sl_onConnectionFailed(eConnectionError)));
-    connect(m_ssh_client, SIGNAL(si_commandOutputReceived(NetworkAction*, QByteArray)),
+    connect(m_current_shell_client, SIGNAL(si_commandOutputReceived(NetworkAction*, QByteArray)),
             SLOT(sl_onCommandOutputReceived(NetworkAction*, QByteArray)));
-    connect(m_ssh_client, SIGNAL(si_commandErrorReceived(NetworkAction*, QByteArray)),
+    connect(m_current_shell_client, SIGNAL(si_commandErrorReceived(NetworkAction*, QByteArray)),
             SLOT(sl_onCommandErrorReceived(NetworkAction*, QByteArray)));
+
+    if (m_progress_dialog) {
+        /* reconnect progress dialog with current network clients */
+        connect(m_current_shell_client->connector(), SIGNAL(si_progressUpdate(int)), m_progress_dialog, SLOT(sl_onProgressUpdate(int)));
+        connect(m_current_file_client->connector(), SIGNAL(si_progressUpdate(int)), m_progress_dialog, SLOT(sl_onProgressUpdate(int)));
+    }
 }
 
 void RemoteJobHelper::disconnectNetworkClientSignals() {
     disconnect(this, SLOT(sl_onConnectionFailed(eConnectionError)));
     disconnect(this, SLOT(sl_onTransferFinished(NetworkAction*)));
-    disconnect(this, SLOT(sl_onTransferFailed(NetworkAction*, eTransferError)));
-    disconnect(this, SLOT(sl_onDirContentsReceived(QList<NetworkFileInfo*>)));
+    disconnect(this, SLOT(sl_onTransferFailed(NetworkAction::eNetworkActionType, eTransferError)));
+    disconnect(this, SLOT(sl_onDirContentsReceived(NetworkAction*, QList<NetworkFileInfo*>)));
     disconnect(this, SLOT(sl_onCommandOutputReceived(NetworkAction*, QByteArray)));
     disconnect(this, SLOT(sl_onCommandErrorReceived(NetworkAction*, QByteArray)));
 
-    disconnect(m_sftp_client->connectionWrapper(), SIGNAL(si_connectionFailed(eConnectionError)));
-    disconnect(m_sftp_client, SIGNAL(si_transferFinished(NetworkAction*)));
-    disconnect(m_sftp_client, SIGNAL(si_transferFailed(NetworkAction*, eTransferError)));
-    disconnect(m_sftp_client, SIGNAL(si_dirContents(QList<NetworkFileInfo*>)));
+    disconnect(m_current_file_client->connector(), SIGNAL(si_connectionFailed(eConnectionError)));
+    disconnect(m_current_file_client, SIGNAL(si_transferFinished(NetworkAction*)));
+    disconnect(m_current_file_client, SIGNAL(si_transferFailed(NetworkAction::eNetworkActionType, eTransferError)));
+    disconnect(m_current_file_client, SIGNAL(si_dirContents(NetworkAction*, QList<NetworkFileInfo*>)));
 
-    disconnect(m_ssh_client->connectionWrapper(), SIGNAL(si_connectionFailed(eConnectionError)));
-    disconnect(m_ssh_client, SIGNAL(si_shellOutputReceived(NetworkAction*, QByteArray)));
-    disconnect(m_ssh_client, SIGNAL(si_shellErrorReceived(NetworkAction*, QByteArray)));
+    disconnect(m_current_shell_client->connector(), SIGNAL(si_connectionFailed(eConnectionError)));
+    disconnect(m_current_shell_client, SIGNAL(si_commandOutputReceived(NetworkAction*, QByteArray)));
+    disconnect(m_current_shell_client, SIGNAL(si_commandErrorReceived(NetworkAction*, QByteArray)));
+
+    if (m_progress_dialog) {
+        disconnect(m_current_shell_client->connector(), SIGNAL(si_progressUpdate(int)), m_progress_dialog, SLOT(sl_onProgressUpdate(int)));
+        disconnect(m_current_file_client->connector(), SIGNAL(si_progressUpdate(int)), m_progress_dialog, SLOT(sl_onProgressUpdate(int)));
+    }
+
 }
 
 bool RemoteJobHelper::checkPreferences() {
 
     /* Check preferences consistency */
-    QString ssh_host = m_prefs->remoteCommandServer();
-    QString sftp_host = m_prefs->remoteFileServer();
+    QString command_host = m_prefs->remoteCommandServer();
+    QString file_host = m_prefs->remoteFileServer();
+    QString file_protocol_pref = m_prefs->remoteFileServerProtocol();
     QString username = m_prefs->remoteUsername();
     QString queue = m_prefs->remoteQueueName();
     QString email = m_prefs->remoteUserEmail();
     int ncpus = m_prefs->remoteNbOfCpus();
 
-    if (ssh_host.isEmpty()) {
+    if (command_host.isEmpty()) {
         qWarning(
                     "Remote command host not defined, remote execution can not be "
                     "activated");
         return false;
     }
 
-    if (sftp_host.isEmpty()) {
+    if (file_host.isEmpty()) {
         qWarning(
                     "Remote file host not defined, remote execution can not be activated");
         return false;
     }
+
+    /* Checking remote file transfer protocol preference */
+    if (file_protocol_pref.isEmpty()) {
+        qWarning(
+                    "Remote file server protocol not defined, remote execution can not be activated");
+        return false;
+    }
+
+    QMetaEnum file_protocol_enum = QMetaEnum::fromType<eFileTransferProtocol>();
+    bool *status = new bool();
+    int file_protocol_id = file_protocol_enum.keyToValue(file_protocol_pref.toLatin1(), status);
+    if (!*status) {
+        qWarning() << QString("No registered file transfer protocol matches preference '%1', "
+                              "remote execution can not be activated").arg(file_protocol_pref);
+        return false;
+    }
+
+    qDebug() << QString("The remote file transfer protocol is %1").arg(file_protocol_pref);
+    eFileTransferProtocol file_protocol = (eFileTransferProtocol) file_protocol_id;
+    m_current_file_client = m_file_clients.value(file_protocol);
+
+    /* currently only one shell protocol (SSH) implemented */
+    QString ssh_litteral = QVariant::fromValue(eShellProtocol::SSH).toString();
+    QString shell_protocol_pref = ssh_litteral;
+    qDebug() << QString("The remote shell protocol is %1").arg(shell_protocol_pref);
+    eShellProtocol shell_protocol = eShellProtocol::SSH;
+    m_current_shell_client = m_shell_clients.value(shell_protocol);
+
 
     if (username.isEmpty()) {
         qWarning(
@@ -804,10 +887,10 @@ void RemoteJobHelper::resumeAction() {
     if (m_pending_action_queue.isEmpty()) {
         if (m_is_last_action_command) {
             qDebug() << "RemoteJobHelper: Resuming SSH action...";
-            m_ssh_client->resume();
+            m_current_shell_client->resume();
         } else {
             qDebug() << "RemoteJobHelper: Resuming SFTP action...";
-            m_sftp_client->resume();
+            m_current_file_client->resume();
         }
 
         showProgress();
@@ -819,11 +902,11 @@ void RemoteJobHelper::resumeAction() {
         /* Dispatch action to appropriate handler according to its type */
         if (current_action->type() == NetworkAction::eNetworkActionType::SendCommand) {
             qDebug() << "RemoteJobHelper: Enqueuing SSH action...";
-            m_ssh_client->addAction(current_action);
+            m_current_shell_client->addAction(current_action);
             m_is_last_action_command = true;
         } else {
             qDebug() << "RemoteJobHelper: Enqueuing SFTP action...";
-            m_sftp_client->addAction(current_action);
+            m_current_file_client->addAction(current_action);
             m_is_last_action_command = false;
         }
 
@@ -860,6 +943,14 @@ void RemoteJobHelper::updateJobParameters(QString _job_name,
 
         QString symbolic_output_dir = SYMBOLIC_REMOTE_ROOT_PATH + "/" + job_export_name;
         _local_dataset_params.set(DATASET_PARAM_OUTPUT_DIR, symbolic_output_dir);
+    } else {
+        /* upload */
+        QString current_output_dir = _local_dataset_params.getValue(DATASET_PARAM_OUTPUT_DIR);
+
+        if (current_output_dir.startsWith(SYMBOLIC_REMOTE_ROOT_PATH)) {
+            /* restore output path to default if dataset was previously selected from server */
+            _local_dataset_params.set(DATASET_PARAM_OUTPUT_DIR, m_prefs->defaultResultPath());
+        }
     }
 
     qDebug() << "Dataset params :\n" << _local_dataset_params.getKeys() << "\n" << _local_dataset_params.getValues();
@@ -910,8 +1001,8 @@ void RemoteJobHelper::showProgress(QString _message)
     if (!m_progress_dialog) {
         m_progress_dialog = new RemoteProgressDialog(m_job_launcher);
         m_progress_dialog->setModal(false);
-        connect(m_ssh_client->connectionWrapper(), SIGNAL(si_progressUpdate(int)), m_progress_dialog, SLOT(sl_onProgressUpdate(int)));
-        connect(m_sftp_client->connectionWrapper(), SIGNAL(si_progressUpdate(int)), m_progress_dialog, SLOT(sl_onProgressUpdate(int)));
+        connect(m_current_shell_client->connector(), SIGNAL(si_progressUpdate(int)), m_progress_dialog, SLOT(sl_onProgressUpdate(int)));
+        connect(m_current_file_client->connector(), SIGNAL(si_progressUpdate(int)), m_progress_dialog, SLOT(sl_onProgressUpdate(int)));
         connect(this, SIGNAL(si_transferMessage(QString)), m_progress_dialog,
                 SLOT(sl_onMessageUpdate(QString)), Qt::QueuedConnection);
     } else {
@@ -1049,7 +1140,6 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction::eNetworkActionType _act
             .arg(failed_host)
             .arg(error_str);
 
-//    if ((_action->type() == NetworkAction::eNetworkActionType::ListDirContent) &&
     if ((_action_type == NetworkAction::eNetworkActionType::ListDirContent) &&
             (_err == eTransferError::FILE_NOT_FOUND)) {
         invalid_user_datasets_path = true;
@@ -1059,12 +1149,7 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction::eNetworkActionType _act
                 .arg(failed_host);
     }
 
-    qDebug() << QString("RemoteJobHelper: transfer failed 2");
-//    qWarning() << warning_title << " - " << warning_message;
-
     QMessageBox::warning(m_job_launcher, warning_title, warning_message);
-
-    qDebug() << QString("RemoteJobHelper: transfer failed 3");
 
     if (invalid_user_datasets_path) {
         m_current_datasets_root_path = ""; // invalidate current datasets path
@@ -1072,17 +1157,67 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction::eNetworkActionType _act
         QString restore_path = (m_previous_datasets_root_path.isEmpty()) ?
                     m_server_settings->datasetsPath() : m_previous_datasets_root_path;
 
-        qDebug() << QString("RemoteJobHelper: transfer failed 4");
         sl_onRemotePathChanged(restore_path);
     }
-
-    qDebug() << QString("RemoteJobHelper: transfer failed 5");
 }
 
-void RemoteJobHelper::sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents) {
+void RemoteJobHelper::sl_onDirContentsReceived(NetworkAction *_action, QList<NetworkFileInfo*> _contents) {
     qDebug() << "RemoteJobHelper: received remote dir contents";
 
     hideProgress();
+
+    QString job_name = m_jobs_by_action.value(_action);
+
+    if (!job_name.isEmpty()) {
+        qCritical() << "RemoteJobHelper: Could not find job for completed action "
+                    << _action->type();
+
+        /* Checking dataset dir before uploading */
+        qDebug() << QString("RemoteJobHelper: received datasets dir contents");
+
+
+        QString job_dataset_dir_path = _action->metainfo();
+        QDir job_dataset_dir(job_dataset_dir_path);
+        if (!job_dataset_dir.exists()) {
+            qCritical() << QString("RemoteJobHelper: unconsistent case: dataset dir '%1' does not exist")
+                           .arg(job_dataset_dir_path);
+            return;
+        }
+
+        QString job_dataset_name = job_dataset_dir.dirName();
+
+        bool already_exists = false;
+        for (NetworkFileInfo *remote_dataset : _contents) {
+            if (remote_dataset->name() == job_dataset_name) {
+                qDebug() << QString("RemoteJobHelper: dataset dir '%1' already exists on server")
+                            .arg(job_dataset_name);
+                already_exists = true;
+                break;
+            }
+        }
+
+        if (already_exists) {
+            QMessageBox::warning(m_job_launcher,
+                                 tr("Dataset upload"),
+                                 tr("A dataset '%1' already exists on server.\n"
+                                    "Select existing dataset from the server "
+                                    "or rename your local dataset dir before uploading.")
+                                 .arg(job_dataset_name));
+            return;
+        }
+
+        NetworkAction* ul_action =
+                new NetworkActionUploadDir(job_dataset_dir_path,
+                                           m_server_settings->datasetsPath(),
+                                           false);
+        ul_action->setMetaInfo("dataset");
+        m_pending_action_queue.enqueue(ul_action);
+        m_jobs_by_action.insert(ul_action, job_name);
+        checkHostAndCredentials();
+
+        return;
+    }
+
 
     KeyValueList dataset_params;
     dataset_params.insert(DATASET_PARAM_DATASET_DIR, "");
@@ -1129,7 +1264,7 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents
         /* If nav source DIM2, then prompt user for nav file selection */
         if (nav_source.isEmpty() || nav_source == "DIM2") {
             QStringList name_filters;
-            name_filters << "*.dim2";
+            name_filters << NAV_FILE_TYPE_FILTER;
 
             NetworkAction* action = new NetworkActionDirContent(
                         m_selected_remote_dataset_path,
@@ -1164,9 +1299,9 @@ void RemoteJobHelper::sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents
         } else { // no nav file found in remote dataset dir
             QMessageBox::warning(
                         m_job_launcher, tr("Remote navigation file not found"),
-                        tr("No navigation file (*.dim2 or *.txt) was found in the selected "
-                           "dataset dir '%1'.\nPlease specify parameter manually.")
-                        .arg(m_selected_remote_dataset_path));
+                        tr("No navigation file (%1) was found in the selected "
+                           "dataset dir '%2'.\nPlease specify parameter manually.")
+                        .arg(NAV_FILE_TYPE_FILTER).arg(m_selected_remote_dataset_path));
         }
 
     }
@@ -1321,7 +1456,7 @@ void RemoteJobHelper::sl_onConnectionFailed(eConnectionError _err) {
 
     QObject* emitter = sender();
 
-    QString failed_host = (emitter == m_ssh_client->connectionWrapper()) ?
+    QString failed_host = (emitter == m_current_shell_client->connector()) ?
                 m_prefs->remoteCommandServer() : m_prefs->remoteFileServer();
 //    qDebug() << QString("RemoteJobHelper: connection failed to host '%1'").arg(failed_host);
 
@@ -1352,11 +1487,11 @@ void RemoteJobHelper::sl_onUserLogin(QString _password) {
 
     /* Assume credentials are the same on both SFTP and SSH server */
     qDebug() << "RemoteJobHelper: setting host for file client";
-    m_sftp_client->connectionWrapper()->setHost(m_prefs->remoteFileServer());
-    m_sftp_client->connectionWrapper()->setCredentials(creds);
+    m_current_file_client->connector()->setHost(m_prefs->remoteFileServer());
+    m_current_file_client->connector()->setCredentials(creds);
     qDebug() << "RemoteJobHelper: setting host for command client";
-    m_ssh_client->connectionWrapper()->setHost(m_prefs->remoteCommandServer());
-    m_ssh_client->connectionWrapper()->setCredentials(creds);
+    m_current_shell_client->connector()->setHost(m_prefs->remoteCommandServer());
+    m_current_shell_client->connector()->setCredentials(creds);
     m_host_and_creds_known = true;
     resumeAction();
 }
@@ -1364,8 +1499,8 @@ void RemoteJobHelper::sl_onUserLogin(QString _password) {
 void RemoteJobHelper::sl_onUserLoginCanceled() {
     qDebug() << "Login canceled by user, remote operation aborted...";
     clearPendingActionQueue();
-    m_sftp_client->clearActions();
-    m_ssh_client->clearActions();
+    m_current_file_client->clearActions();
+    m_current_shell_client->clearActions();
     m_is_last_action_command = false;
 }
 

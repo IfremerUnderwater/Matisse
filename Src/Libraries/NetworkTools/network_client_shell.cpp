@@ -1,73 +1,73 @@
-#include "network_command_client.h"
+#include "network_client_shell.h"
 
 namespace network_tools {
 
-NetworkCommandClient::NetworkCommandClient() :
+NetworkClientShell::NetworkClientShell() :
     NetworkClient()
 {
 
 }
 
-void NetworkCommandClient::doInit()
+void NetworkClientShell::doInit()
 {
-    connect(m_cx_wrapper, SIGNAL(si_shellStarted()), SLOT(sl_onShellStarted()));
-    connect(m_cx_wrapper, SIGNAL(si_readyReadStandardOutput()), SLOT(sl_onReadyReadStandardOutput()));
-    connect(m_cx_wrapper, SIGNAL(si_readyReadStandardError()), SLOT(sl_onReadyReadStandardError()));
-    connect(m_cx_wrapper, SIGNAL(si_shellClosed()), SLOT(sl_onShellClosed()));
+    connect(m_connector, SIGNAL(si_shellStarted()), SLOT(sl_onShellStarted()));
+    connect(m_connector, SIGNAL(si_readyReadStandardOutput()), SLOT(sl_onReadyReadStandardOutput()));
+    connect(m_connector, SIGNAL(si_readyReadStandardError()), SLOT(sl_onReadyReadStandardError()));
+    connect(m_connector, SIGNAL(si_shellClosed()), SLOT(sl_onShellClosed()));
 }
 
-void NetworkCommandClient::connectAction(NetworkAction *_action)
+void NetworkClientShell::connectAction(NetworkAction *_action)
 {
-    connect(_action, SIGNAL(si_createRemoteShell(QString&)), m_cx_wrapper, SLOT(sl_createRemoteShell(QString&)));
-    connect(_action, SIGNAL(si_closeRemoteShell()), m_cx_wrapper, SLOT(sl_closeRemoteShell()));
-    connect(_action, SIGNAL(si_executeShellCommand()), m_cx_wrapper, SLOT(sl_executeShellCommand()));
+    connect(_action, SIGNAL(si_createRemoteShell(QString&)), m_connector, SLOT(sl_createRemoteShell(QString&)));
+    connect(_action, SIGNAL(si_closeRemoteShell()), m_connector, SLOT(sl_closeRemoteShell()));
+    connect(_action, SIGNAL(si_executeShellCommand()), m_connector, SLOT(sl_executeShellCommand()));
 }
 
-void NetworkCommandClient::disconnectAction(NetworkAction *_action)
+void NetworkClientShell::disconnectAction(NetworkAction *_action)
 {
-    disconnect(_action, SIGNAL(si_createRemoteShell(QString&)), m_cx_wrapper, SLOT(sl_createRemoteShell(QString&)));
-    disconnect(_action, SIGNAL(si_closeRemoteShell()), m_cx_wrapper, SLOT(sl_closeRemoteShell()));
-    disconnect(_action, SIGNAL(si_executeShellCommand()), m_cx_wrapper, SLOT(sl_executeShellCommand()));
+    disconnect(_action, SIGNAL(si_createRemoteShell(QString&)), m_connector, SLOT(sl_createRemoteShell(QString&)));
+    disconnect(_action, SIGNAL(si_closeRemoteShell()), m_connector, SLOT(sl_closeRemoteShell()));
+    disconnect(_action, SIGNAL(si_executeShellCommand()), m_connector, SLOT(sl_executeShellCommand()));
 }
 
-void NetworkCommandClient::doInitBeforeAction() {
+void NetworkClientShell::doInitBeforeAction() {
 
 }
 
-void NetworkCommandClient::sl_onShellStarted() {
+void NetworkClientShell::sl_onShellStarted() {
     m_current_action->execute();
 }
 
-void NetworkCommandClient::sl_onReadyReadStandardOutput() {
-    qDebug() << "NetworkCommandClient: ready read standard output";
+void NetworkClientShell::sl_onReadyReadStandardOutput() {
+    qDebug() << "NetworkClientShell: ready read standard output";
 
     if (!m_current_action || m_current_action->isTerminated())
     {
-        qDebug() << "NetworkCommandClient: command action already terminated, ignoring output...";
+        qDebug() << "NetworkClientShell: command action already terminated, ignoring output...";
         return;
     }
 
-    QByteArray output = m_cx_wrapper->readShellStandardOutput();
+    QByteArray output = m_connector->readShellStandardOutput();
     if (!output.isEmpty()) {
         emit si_commandOutputReceived(m_current_action, output);
     }
 }
 
-void NetworkCommandClient::sl_onReadyReadStandardError() {
-    qDebug() << "NetworkCommandClient: ready read standard error";
+void NetworkClientShell::sl_onReadyReadStandardError() {
+    qDebug() << "NetworkClientShell: ready read standard error";
 
     if (!m_current_action || m_current_action->isTerminated()) {
-        qWarning() << "NetworkCommandClient: command action already terminated, ignoring error...";
+        qWarning() << "NetworkClientShell: command action already terminated, ignoring error...";
         return;
     }
 
-    QByteArray error = m_cx_wrapper->readShellStandardError();
+    QByteArray error = m_connector->readShellStandardError();
     if (!error.isEmpty()) {
         emit si_commandErrorReceived(m_current_action, error);
     }
 }
 
-void NetworkCommandClient::sl_onShellClosed() {
+void NetworkClientShell::sl_onShellClosed() {
     checkActionPending();
 }
 

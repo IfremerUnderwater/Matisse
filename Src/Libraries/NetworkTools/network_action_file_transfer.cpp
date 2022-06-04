@@ -1,8 +1,8 @@
-#include "network_file_action.h"
+#include "network_action_file_transfer.h"
 
 namespace network_tools {
 
-NetworkFileAction::NetworkFileAction(eNetworkActionType _type) :
+NetworkActionFileTransfer::NetworkActionFileTransfer(eNetworkActionType _type) :
     NetworkAction(_type)
 {
 

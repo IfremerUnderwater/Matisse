@@ -1,8 +1,8 @@
-#include "network_command_action.h"
+#include "network_action_shell.h"
 
 namespace network_tools {
 
-NetworkCommandAction::NetworkCommandAction(eNetworkActionType _type) :
+NetworkActionShell::NetworkActionShell(eNetworkActionType _type) :
     NetworkAction(_type)
 {
 

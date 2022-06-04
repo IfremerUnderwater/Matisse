@@ -17,7 +17,7 @@
 #include "remote_progress_dialog.h"
 #include "network_commons.h"
 #include "network_client.h"
-#include "network_file_client.h"
+//#include "network_client_file_transfer.h"
 #include "network_command.h"
 
 using namespace network_tools;
@@ -66,8 +66,9 @@ public:
     void scheduleJob(QString _job_name, QString _local_job_bundle_file);
     void downloadResults(QString _job_name);
 
-    void setSshClient(NetworkClient *_ssh_client);
-    void setSftpClient(NetworkClient *_sftp_client);
+    void registerNetworkFileClient(eFileTransferProtocol _protocol, NetworkClient* _client);
+    void registerNetworkShellClient(eShellProtocol _protocol, NetworkClient* _client);
+
     void setJobLauncher(QWidget* _job_launcher);
     void setPreferences(MatissePreferences* _prefs);
     void setParametersManager(MatisseParametersManager* _param_manager);
@@ -82,9 +83,8 @@ signals:
 
 private slots:
     void sl_onTransferFinished(NetworkAction *_action);
-//    void sl_onTransferFailed(NetworkAction* _action, eTransferError _err);
     void sl_onTransferFailed(NetworkAction::eNetworkActionType _action_type, eTransferError _err);
-    void sl_onDirContentsReceived(QList<NetworkFileInfo*> _contents);
+    void sl_onDirContentsReceived(NetworkAction *_action, QList<NetworkFileInfo*> _contents);
     void sl_onCommandOutputReceived(NetworkAction* _action, QByteArray _output);
     void sl_onCommandErrorReceived(NetworkAction* _action, QByteArray _error);
     void sl_onRemotePathChanged(QString _new_path);
@@ -107,10 +107,15 @@ private:
     QString m_remote_output_path;
     bool m_host_and_creds_known = false;
     bool m_is_last_action_command = false;
-    NetworkClient *m_ssh_client = NULL;
-    NetworkClient *m_sftp_client = NULL;
+
+    QMap<eFileTransferProtocol, NetworkClient*> m_file_clients;
+    QMap<eShellProtocol, NetworkClient*> m_shell_clients;
+    NetworkClient *m_current_file_client = NULL;
+    NetworkClient *m_current_shell_client = NULL;
+
     MatissePreferences* m_prefs = NULL;
     bool m_is_remote_exec_on = true;
+
     QQueue<NetworkAction*> m_pending_action_queue;
     QMap<NetworkAction*, NetworkCommand*> m_commands_by_action;
     QMap<NetworkCommand*, QString> m_jobs_by_command;

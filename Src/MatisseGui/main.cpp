@@ -21,10 +21,10 @@
 #include <QSettings>
 #include "network_commons.h"
 #include "network_client.h"
-#include "secure_connection_wrapper.h"
-#include "basic_connection_wrapper.h"
-#include "sftp_client.h"
-#include "ssh_client.h"
+#include "network_client_file_transfer.h"
+#include "network_client_shell.h"
+#include "network_connector_qssh.h"
+#include "network_connector_qftp.h"
 #include "assembly_helper.h"
 #include "job_helper.h"
 #include "remote_job_helper.h"
@@ -143,16 +143,22 @@ int main(int argc, char *argv[])
     ImportExportHelper import_export_helper;
 
     /* Create remote process gateways and UI helper */
-    ConnectionWrapper* secure_network_command_handler = new SecureConnectionWrapper();
-    NetworkClient* ssh_client = new SshClient();
-    ssh_client->setConnectionWrapper(secure_network_command_handler);
-//    ConnectionWrapper* secure_network_file_handler = new SecureConnectionWrapper();
-    ConnectionWrapper* secure_network_file_handler = new BasicConnectionWrapper();
-    NetworkClient* sftp_client = new SftpClient();
-    sftp_client->setConnectionWrapper(secure_network_file_handler);
+    NetworkConnector* ssh_handler = new NetworkConnectorQSsh();
+    NetworkClient* ssh_client = new NetworkClientShell();
+    ssh_client->setConnector(ssh_handler);
+
+    NetworkConnector* ftp_handler = new NetworkConnectorQFtp();
+    NetworkClient* ftp_client = new NetworkClientFileTransfer();
+    ftp_client->setConnector(ftp_handler);
+
+    NetworkConnector* sftp_handler = new NetworkConnectorQSsh();
+    NetworkClient* sftp_client = new NetworkClientFileTransfer();
+    sftp_client->setConnector(sftp_handler);
+
     RemoteJobHelper remote_job_helper;
-    remote_job_helper.setSshClient(ssh_client);
-    remote_job_helper.setSftpClient(sftp_client);
+    remote_job_helper.registerNetworkFileClient(eFileTransferProtocol::FTP, ftp_client);
+    remote_job_helper.registerNetworkFileClient(eFileTransferProtocol::SFTP, sftp_client);
+    remote_job_helper.registerNetworkShellClient(eShellProtocol::SSH, ssh_client);
 
     /* Create main window and set params */
     MainGui w;

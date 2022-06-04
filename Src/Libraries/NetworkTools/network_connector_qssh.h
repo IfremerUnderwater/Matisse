@@ -1,10 +1,10 @@
-#ifndef NETWORK_CLIENT_SECURE_CONNECTION_WRAPPER_H_
-#define NETWORK_CLIENT_SECURE_CONNECTION_WRAPPER_H_
+#ifndef NETWORK_TOOLS_NETWORK_CONNECTOR_QSSH_H_
+#define NETWORK_TOOLS_NETWORK_CONNECTOR_QSSH_H_
 
 #include <QObject>
 #include <QtDebug>
 
-#include "connection_wrapper.h"
+#include "network_connector.h"
 
 #include "sshconnection.h"
 #include "sftpchannel.h"
@@ -14,12 +14,12 @@ using namespace QSsh;
 
 namespace network_tools {
 
-class SecureConnectionWrapper : public ConnectionWrapper
+class NetworkConnectorQSsh : public NetworkConnector
 {
     Q_OBJECT
 
 public:
-    explicit SecureConnectionWrapper();
+    explicit NetworkConnectorQSsh();
 
     void resetConnection();
 
@@ -59,7 +59,6 @@ protected slots:
 private:
     void startDownloadDir(QString _remote_path, QString _local_path);
     void reinitBeforeFileOperation();
-//    void reinitProgressIndicators(quint64 _transfer_size);
     void mapConnectionError(QSsh::SshError _err);
     void mapTransferError(QSsh::SftpError _err);
 
@@ -72,4 +71,4 @@ private:
 
 } // namespace network_tools
 
-#endif // NETWORK_CLIENT_SECURE_CONNECTION_WRAPPER_H_
+#endif // NETWORK_TOOLS_NETWORK_CONNECTOR_QSSH_H_

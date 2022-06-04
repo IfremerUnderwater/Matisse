@@ -1,8 +1,8 @@
-#include "connection_wrapper.h"
+#include "network_connector.h"
 
 namespace network_tools {
 
-ConnectionWrapper::ConnectionWrapper() :
+NetworkConnector::NetworkConnector() :
     QObject(),
     m_host(),
     m_shell_command(),
@@ -16,33 +16,33 @@ ConnectionWrapper::ConnectionWrapper() :
 
 }
 
-bool ConnectionWrapper::isConnected() {
+bool NetworkConnector::isConnected() {
     return m_connected;
 }
 
-bool ConnectionWrapper::isWaitingForConnection() {
+bool NetworkConnector::isWaitingForConnection() {
     return m_waiting_for_connection;
 }
 
-void ConnectionWrapper::setHost(QString _host) {
-    qDebug() << QString("ConnectionWrapper: setting host '%1'").arg(_host);
+void NetworkConnector::setHost(QString _host) {
+    qDebug() << QString("NetworkConnector: setting host '%1'").arg(_host);
     m_host = _host;
 }
 
-QString ConnectionWrapper::host() {
+QString NetworkConnector::host() {
     return m_host;
 }
 
-void ConnectionWrapper::setCredentials(NetworkCredentials *_creds) {
+void NetworkConnector::setCredentials(NetworkCredentials *_creds) {
     m_creds = _creds;
 }
 
-QString ConnectionWrapper::username() {
+QString NetworkConnector::username() {
     return m_creds->username();
 }
 
-void ConnectionWrapper::reinitProgressIndicators(quint64 _transfer_size) {
-    //    qDebug() << QString("SecureConnectionWrapper: reinit progress indicators:");
+void NetworkConnector::reinitProgressIndicators(quint64 _transfer_size) {
+    //    qDebug() << QString("NetworkConnector: reinit progress indicators:");
     //    qDebug() << QString("Transfer size: %1").arg(_transfer_size);
     m_current_transfer_size = _transfer_size;
     m_total_received_bytes = 0;

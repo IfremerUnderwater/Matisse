@@ -1,19 +1,20 @@
-#include "basic_connection_wrapper.h"
+#include "network_connector_qftp.h"
+
+#include "file_utils.h"
 
 #include <QSettings>
 #include <QUrl>
 #include <QDir>
 
-#include "file_utils.h"
 
 using namespace system_tools;
 
 namespace network_tools {
 
-const int BasicConnectionWrapper::CONNECTION_TIMEOUT_MS = 30000;
+const int NetworkConnectorQFtp::CONNECTION_TIMEOUT_MS = 30000;
 
-BasicConnectionWrapper::BasicConnectionWrapper() :
-    ConnectionWrapper(),
+NetworkConnectorQFtp::NetworkConnectorQFtp() :
+    NetworkConnector(),
     m_ftp(NULL),
     m_network_session(NULL),
     m_config_manager(),
@@ -25,12 +26,12 @@ BasicConnectionWrapper::BasicConnectionWrapper() :
 {
 }
 
-void BasicConnectionWrapper::resetConnection() {
-    qDebug() << QString("BasicConnectionWrapper: reset connection...");
+void NetworkConnectorQFtp::resetConnection() {
+    qDebug() << QString("NetworkConnectorQFtp: reset connection...");
 }
 
-void BasicConnectionWrapper::disableConnection() {
-    qDebug() << QString("BasicConnectionWrapper: disable connection...");
+void NetworkConnectorQFtp::disableConnection() {
+    qDebug() << QString("NetworkConnectorQFtp: disable connection...");
 
     m_connected = false;
     m_waiting_for_connection = false;
@@ -47,15 +48,13 @@ void BasicConnectionWrapper::disableConnection() {
     disconnect(this, SLOT(sl_onOperationTimeout()));
 }
 
-void BasicConnectionWrapper::freeConnection() {
-    qDebug() << QString("BasicConnectionWrapper: free connection...");
+void NetworkConnectorQFtp::freeConnection() {
+    qDebug() << QString("NetworkConnectorQFtp: free connection...");
 
     if (m_ftp) {
         m_ftp->deleteLater();
         m_ftp = NULL;
     }
-
-    qDebug() << QString("BasicConnectionWrapper: free connection 2");
 
     if (m_network_session) {
         m_network_session->stop();
@@ -64,17 +63,13 @@ void BasicConnectionWrapper::freeConnection() {
         m_network_session = NULL;
     }
 
-    qDebug() << QString("BasicConnectionWrapper: free connection 3");
-
     if (!m_timer_by_job.isEmpty()) {
         qDeleteAll(m_timer_by_job);
         m_timer_by_job.clear();
     }
-
-    qDebug() << QString("BasicConnectionWrapper: free connection 4");
 }
 
-void BasicConnectionWrapper::reinitBeforeFileOperation() {
+void NetworkConnectorQFtp::reinitBeforeFileOperation() {
     m_download_dir_ongoing = false;
     m_download_file_ongoing = false;
     m_upload_dir_ongoing = false;
@@ -89,7 +84,7 @@ void BasicConnectionWrapper::reinitBeforeFileOperation() {
 
     /* Clearing dir contents buffer if previous operation was listing dir contents (and buffer was filled) */
     if (!m_dir_contents_buffer.isEmpty()) {
-        qDebug() << "BasicConnectionWrapper: clearing dir contents buffer for previous operation...";
+        qDebug() << "NetworkConnectorQFtp: clearing dir contents buffer for previous operation...";
         m_dir_contents_received = false;
         qDeleteAll(m_dir_contents_buffer);
         m_dir_contents_buffer.clear();
@@ -97,13 +92,13 @@ void BasicConnectionWrapper::reinitBeforeFileOperation() {
 
     /* Clearing files tracking list */
     if (!m_files_by_job.isEmpty()) {
-        qDebug() << "BasicConnectionWrapper: clearing allocated files tracking list for previous operation...";
+        qDebug() << "NetworkConnectorQFtp: clearing allocated files tracking list for previous operation...";
         qDeleteAll(m_files_by_job);
         m_files_by_job.clear();
     }
 }
 
-void BasicConnectionWrapper::connectToRemoteHost() {
+void NetworkConnectorQFtp::connectToRemoteHost() {
 
     qDebug() << "BsaicConnectionWrapper: 0";
 
@@ -111,7 +106,7 @@ void BasicConnectionWrapper::connectToRemoteHost() {
         qDebug() << "BsaicConnectionWrapper: 1";
         if (m_config_manager.capabilities() & QNetworkConfigurationManager::NetworkSessionRequired) {
             if (!m_network_session) {
-                qDebug() << "BasicConnectionWrapper: retrieving saved network configuration...";
+                qDebug() << "NetworkConnectorQFtp: retrieving saved network configuration...";
                 // Get saved network configuration
                 QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
                 settings.beginGroup(QLatin1String("QtNetwork"));
@@ -122,7 +117,7 @@ void BasicConnectionWrapper::connectToRemoteHost() {
                 QNetworkConfiguration config = m_config_manager.configurationFromIdentifier(id);
                 if ((config.state() & QNetworkConfiguration::Discovered) !=
                         QNetworkConfiguration::Discovered) {
-                    qWarning() << "BasicConnectionWrapper: saved network configuration not discovered, using system default network configuration";
+                    qWarning() << "NetworkConnectorQFtp: saved network configuration not discovered, using system default network configuration";
                     config = m_config_manager.defaultConfiguration();
                 }
 
@@ -131,18 +126,18 @@ void BasicConnectionWrapper::connectToRemoteHost() {
                 connect(m_network_session, SIGNAL(error(QNetworkSession::SessionError)), this, SLOT(sl_onNetworkSessionFailed(QNetworkSession::SessionError)));
             }
 
-            qDebug() << "BasicConnectionWrapper: opening network session...";
+            qDebug() << "NetworkConnectorQFtp: opening network session...";
             m_network_session->open();
             return;
         }
     }
-    qDebug() << "BasicConnectionWrapper: xx";
+
     sl_onNetworkSessionOpened();
 
 }
 
-void BasicConnectionWrapper::disconnectFromHost() {
-    qDebug() << QString("BasicConnectionWrapper: disconnecting from host...");
+void NetworkConnectorQFtp::disconnectFromHost() {
+    qDebug() << QString("NetworkConnectorQFtp: disconnecting from host...");
 
     if (m_ftp) {
         m_ftp->clearPendingCommands();
@@ -152,7 +147,7 @@ void BasicConnectionWrapper::disconnectFromHost() {
     emit si_clearConnection();
 }
 
-void BasicConnectionWrapper::sl_onNetworkSessionOpened() {
+void NetworkConnectorQFtp::sl_onNetworkSessionOpened() {
     m_ftp = new QFtp(this);
     connect(m_ftp, SIGNAL(commandStarted(int)), this, SLOT(sl_onOpStarted(int)));
     connect(m_ftp, SIGNAL(commandFinished(int,bool)), this, SLOT(sl_onOpFinished(int,bool)));
@@ -161,7 +156,7 @@ void BasicConnectionWrapper::sl_onNetworkSessionOpened() {
     connect(m_ftp, SIGNAL(stateChanged(int)), this, SLOT(sl_onManagerStateChanged(int)));
     connect(m_ftp, SIGNAL(done(bool)), this, SLOT(sl_onManagerSequenceDone(bool)));
 
-    qDebug() << QString("BasicConnectionWrapper: Connecting to FTP server %1 as %2...")
+    qDebug() << QString("NetworkConnectorQFtp: Connecting to FTP server %1 as %2...")
                 .arg(m_host).arg(m_creds->username());
     m_ftp->connectToHost(m_host, 21);
     m_ftp->login(m_creds->username(), m_creds->password());
@@ -169,65 +164,69 @@ void BasicConnectionWrapper::sl_onNetworkSessionOpened() {
     m_waiting_for_connection = true;
 }
 
-void BasicConnectionWrapper::sl_onNetworkSessionFailed(QNetworkSession::SessionError _error) {
-    qCritical() << "BasicConnectionWrapper: FTP connection error " << _error;
+void NetworkConnectorQFtp::sl_onNetworkSessionFailed(QNetworkSession::SessionError _error) {
+    qCritical() << "NetworkConnectorQFtp: FTP connection error " << _error;
 }
 
-void BasicConnectionWrapper::sl_onManagerStateChanged(int _state) {
+void NetworkConnectorQFtp::sl_onManagerStateChanged(int _state) {
     QFtp::State new_state = static_cast<QFtp::State>(_state);
 
+    QString current_state_str = enumLitteralState(m_current_manager_state);
+    QString new_state_str = enumLitteralState(new_state);
+
     if (m_current_manager_state == _state) {
-        qWarning() << QString("BasicConnectionWrapper: FTP manager already in state %1")
-                      .arg(m_current_manager_state);
+        qWarning() << QString("NetworkConnectorQFtp: FTP manager already in state %1")
+                      .arg(current_state_str);
         return;
     }
 
-    qDebug() << QString("BasicConnectionWrapper: FTP manager state changed from %1 to %2")
-                .arg(m_current_manager_state).arg(new_state);
+    qDebug() << QString("NetworkConnectorQFtp: FTP manager state changed from %1 to %2")
+                .arg(current_state_str).arg(new_state_str);
     m_current_manager_state = new_state;
 
     if (m_current_manager_state == QFtp::LoggedIn) {
         m_connected = true;
         m_waiting_for_connection = false;
         m_current_cx_error = eConnectionError::NO_ERROR;
-        qDebug() << QString("BasicConnectionWrapper: Connected to FTP server %1 as %2")
+        qDebug() << QString("NetworkConnectorQFtp: Connected to FTP server %1 as %2")
                     .arg(m_host).arg(m_creds->username());
         emit si_connected();
     }
 
     /* How to detect timeout ? */
     if (m_current_manager_state == QFtp::State::Unconnected) {
-        qDebug("BasicConnectionWrapper: new state unconnected");
+        qDebug("NetworkConnectorQFtp: new state unconnected");
         if (m_ftp) {
             QFtp::Error err = m_ftp->error();
             if (err != QFtp::Error::NoError) {
-                qCritical() << "BasicConnectionWrapper: connection lost with error: " << err;
+                QString error_str = enumLitteralError(err);
+                qCritical() << "NetworkConnectorQFtp: connection lost with error: " << error_str;
             } else {
-                qDebug() << "BasicConnectionWrapper: back to unconnected state";
+                qDebug() << "NetworkConnectorQFtp: back to unconnected state";
             }
         }
     }
 }
 
-void BasicConnectionWrapper::sl_onManagerSequenceDone(bool _error) {
+void NetworkConnectorQFtp::sl_onManagerSequenceDone(bool _error) {
     if (m_current_cx_error != eConnectionError::NO_ERROR) {
-        qDebug() << "BasicConnectionWrapper: FTP sequence aborted with connection error";
+        qDebug() << "NetworkConnectorQFtp: FTP sequence aborted with connection error";
         return;
     }
 
     if (_error) { // transfer error
-        qDebug() << "BasicConnectionWrapper: FTP sequence aborted with transfer error";
+        qDebug() << "NetworkConnectorQFtp: FTP sequence aborted with transfer error";
 //        QFtp::Error manager_error = m_ftp->error();
-//        qCritical() << "BasicConnectionWrapper: an error occurred while executing FTP operations " << manager_error;
+//        qCritical() << "NetworkConnectorQFtp: an error occurred while executing FTP operations " << manager_error;
 //        mapTransferError(manager_error);
 //        emit si_transferFailed(m_current_tx_error);
 //        disconnectFromHost();
         return;
     }
 
-    qDebug() << QString("BasicConnectionWrapper: FTP sequence complete");
-//    QFtp::Command ftp_command = m_ftp->currentCommand();
-    qDebug() << QString("BasicConnectionWrapper: last command : %1").arg(m_last_ftp_command);
+    qDebug() << QString("NetworkConnectorQFtp: FTP sequence complete");
+    QString last_cmd_str = enumLitteralCommand(m_last_ftp_command);
+    qDebug() << QString("NetworkConnectorQFtp: last command : %1").arg(last_cmd_str);
 
     bool clear_channel_and_connection = false;
 
@@ -235,16 +234,16 @@ void BasicConnectionWrapper::sl_onManagerSequenceDone(bool _error) {
     case QFtp::Command::Put:
         if (!m_subdirs_buffer.isEmpty()) {
             /* Dir upload: current dir has subdirs */
-            qDebug() << QString("BasicConnectionWrapper: recursive upload, checking if subdirs exist on remote server...");
+            qDebug() << QString("NetworkConnectorQFtp: recursive upload, checking if subdirs exist on remote server...");
             sl_dirContent(m_current_remote_path, eFileTypeFilter::Dirs, QStringList(), true);
             return;
         } else if (!m_dirs_to_upload.isEmpty()) {
             /* Dir upload: current dir has no subdir but more dir are waiting to be uploaded */
-            qDebug() << QString("BasicConnectionWrapper: resuming recursive upload sequence...");
+            qDebug() << QString("NetworkConnectorQFtp: resuming recursive upload sequence...");
             resumeUploadDir();
             return;
         } else {
-            qDebug() << QString("BasicConnectionWrapper: signalling transfer complete");
+            qDebug() << QString("NetworkConnectorQFtp: signalling transfer complete");
             emit si_transferFinished();
             clear_channel_and_connection = true;
             break;
@@ -253,7 +252,7 @@ void BasicConnectionWrapper::sl_onManagerSequenceDone(bool _error) {
 
 
     case QFtp::Command::Get:
-        qDebug() << QString("BasicConnectionWrapper: signalling transfer complete");
+        qDebug() << QString("NetworkConnectorQFtp: signalling transfer complete");
         emit si_transferFinished();
         clear_channel_and_connection = true;
         break;
@@ -267,14 +266,17 @@ void BasicConnectionWrapper::sl_onManagerSequenceDone(bool _error) {
     }
 
     if (clear_channel_and_connection) {
-        qDebug() << QString("BasicConnectionWrapper: clearing channel and connection after Put/Get/List sequence...");
+        qDebug() << QString("NetworkConnectorQFtp: clearing channel and connection after Put/Get/List sequence...");
         emit si_channelClosed();
 //        emit si_clearConnection();
     }
 }
 
-void BasicConnectionWrapper::sl_onOpStarted(int _job_id) {
-    qDebug() << QString("BasicConnectionWrapper: starting FTP operation %1...").arg(_job_id);
+void NetworkConnectorQFtp::sl_onOpStarted(int _job_id) {
+    QFtp::Command ftp_command = m_ftp->currentCommand();
+    QString cmd_str = enumLitteralCommand(ftp_command);
+
+    qDebug() << QString("NetworkConnectorQFtp: starting FTP operation '%1' #%2...").arg(cmd_str).arg(_job_id);
 
     QTimer* operation_timer = new QTimer(this);
     m_timer_by_job.insert(_job_id, operation_timer);
@@ -282,34 +284,36 @@ void BasicConnectionWrapper::sl_onOpStarted(int _job_id) {
     operation_timer->start(CONNECTION_TIMEOUT_MS);
 }
 
-void BasicConnectionWrapper::releaseTransferFile(int _job_id)
+void NetworkConnectorQFtp::releaseTransferFile(int _job_id)
 {
     if (m_files_by_job.contains(_job_id)) {
         QFile *file = m_files_by_job.value(_job_id);
-//            qDebug() << QString("BasicConnectionWrapper: closing file %1 opened for FTP put command #%2...").arg(file->fileName()).arg(_job_id);
+//            qDebug() << QString("NetworkConnectorQFtp: closing file %1 opened for FTP put command #%2...").arg(file->fileName()).arg(_job_id);
         file->close();
         delete file;
         m_files_by_job.remove(_job_id);
     }
 }
 
-void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
+void NetworkConnectorQFtp::sl_onOpFinished(int _job_id, bool _has_error)  {
     QFtp::Command ftp_command = m_ftp->currentCommand();
     m_last_ftp_command = ftp_command;
 
     /* Disconnect from and release timeout timer */
     if (m_timer_by_job.contains(_job_id)) {
-        qDebug() << QString("BasicConnectionWrapper: releasing timer for job #%1...").arg(_job_id);
+        qDebug() << QString("NetworkConnectorQFtp: releasing timer for job #%1...").arg(_job_id);
         QTimer *timer = m_timer_by_job.take(_job_id); /* remove from the map */
         disconnect(timer, SIGNAL(timeout()), this, SLOT(sl_onOperationTimeout()));
         timer->stop();
         delete timer;
     } else {
-        qCritical() << QString("BasicConnectionWrapper: could not find timer for job #%1 (command finished)").arg(_job_id);
+        qCritical() << QString("NetworkConnectorQFtp: could not find timer for job #%1 (command finished)").arg(_job_id);
     }
 
+    QString cmd_str = enumLitteralCommand(ftp_command);
+
     if (_has_error) {
-        qCritical() << QString("BasicConnectionWrapper: FTP operation %1 #%2 failed").arg(ftp_command).arg(_job_id);
+        qCritical() << QString("NetworkConnectorQFtp: FTP operation '%1' #%2 failed").arg(cmd_str).arg(_job_id);
         QFtp::Error error = m_ftp->error();
 
         if (ftp_command == QFtp::Command::ConnectToHost || ftp_command == QFtp::Command::Login) {
@@ -321,7 +325,7 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
             if (m_current_cx_error == eConnectionError::AUTHENTICATION_ERROR) {
                 m_ftp->clearPendingCommands();
             } else {
-                qDebug() << QString("BasicConnectionWrapper: clearing connection after error occurred...");
+                qDebug() << QString("NetworkConnectorQFtp: clearing connection after error occurred...");
                 emit si_clearConnection();
             }
 
@@ -336,13 +340,13 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
             mapTransferError(error);
             emit si_transferFailed(m_current_tx_error);
             disconnectFromHost();
-            qDebug() << QString("BasicConnectionWrapper: after disconnection...");
+            qDebug() << QString("NetworkConnectorQFtp: after disconnection...");
         }
 
         return;
     }
 
-    qDebug() << QString("BasicConnectionWrapper: FTP operation %1 #%2 complete").arg(ftp_command).arg(_job_id);
+    qDebug() << QString("NetworkConnectorQFtp: FTP operation '%1' #%2 complete").arg(cmd_str).arg(_job_id);
 
     switch (ftp_command) {
 
@@ -372,7 +376,7 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
             // Sub-case : job was started internally prior to uploading
             m_dir_contents_received = false;
 
-            qDebug() << QString("BasicConnectionWrapper: checking existing subdirs...");
+            qDebug() << QString("NetworkConnectorQFtp: checking existing subdirs...");
 
             QList<QString> non_existing_subdirs(m_subdirs_buffer);
 
@@ -383,7 +387,7 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
 
                 for (QString local_subdir_name : non_existing_subdirs) {
                     if (nfi->name() == local_subdir_name) {
-                        qDebug() << QString("BasicConnectionWrapper: remote dir '%1' already exists").arg(local_subdir_name);
+                        qDebug() << QString("NetworkConnectorQFtp: remote dir '%1' already exists").arg(local_subdir_name);
                         non_existing_subdirs.removeOne(local_subdir_name);
                         break;
                     }
@@ -395,7 +399,7 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
             }
 
             for (QString non_existing_subdir_name : non_existing_subdirs) {
-                qDebug() << QString("BasicConnectionWrapper: creating remote dir '%1'").arg(non_existing_subdir_name);
+                qDebug() << QString("NetworkConnectorQFtp: creating remote dir '%1'").arg(non_existing_subdir_name);
                 m_ftp->mkdir(non_existing_subdir_name);
             }
 
@@ -414,7 +418,7 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
                 transfer_size += sfi->size();
             }
 
-            qDebug() << QString("BasicConnectionWrapper: downloading %1 files for a total of %2 bytes").arg(file_count).arg(transfer_size);
+            qDebug() << QString("NetworkConnectorQFtp: downloading %1 files for a total of %2 bytes").arg(file_count).arg(transfer_size);
 
             reinitProgressIndicators(transfer_size);
 
@@ -426,7 +430,7 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
         else { // nominal sub-case : ListDirContents action was explicitely called
 
             // notify manager
-            qDebug() << "BasicConnectionWrapper: signalling dir contents...";
+            qDebug() << "NetworkConnectorQFtp: signalling dir contents...";
 
             /* Copy buffer (may be empty if elements were filtered) */
             QList<NetworkFileInfo*> dir_contents(m_dir_contents_buffer);
@@ -434,25 +438,12 @@ void BasicConnectionWrapper::sl_onOpFinished(int _job_id, bool _has_error)  {
         }
 
     }
-
-//    else if (ftp_command == QFtp::Command::Put) {
-////        qDebug() << QString("BasicConnectionWrapper: releasing resources after FTP put command #%1...").arg(_job_id);
-
-//        /* Release file allocated for FTP transfer */
-//        if (m_files_by_job.contains(_job_id)) {
-//            QFile *file = m_files_by_job.value(_job_id);
-////            qDebug() << QString("BasicConnectionWrapper: closing file %1 opened for FTP put command #%2...").arg(file->fileName()).arg(_job_id);
-//            file->close();
-//            delete file;
-//            m_files_by_job.remove(_job_id);
-//        }
-//    }
 }
 
-void BasicConnectionWrapper::sl_onOperationTimeout() {
+void NetworkConnectorQFtp::sl_onOperationTimeout() {
     QFtp::Command ftp_command = m_ftp->currentCommand();
 
-    qWarning() << "BasicConnectionWrapper: FTP operation timeout !";
+    qWarning() << "NetworkConnectorQFtp: FTP operation timeout !";
     QTimer *timer = static_cast<QTimer*>(sender());
     timer->stop(); /* stop to prevent recurrent timeout */
     QList<int> ongoing_jobs = m_timer_by_job.keys();
@@ -461,7 +452,7 @@ void BasicConnectionWrapper::sl_onOperationTimeout() {
 
     for (int job_id: ongoing_jobs) {
         if (m_timer_by_job.value(job_id) == timer) {
-            qWarning() << QString("BasicConnectionWrapper: timeout for job #%1").arg(job_id);
+            qWarning() << QString("NetworkConnectorQFtp: timeout for job #%1").arg(job_id);
             m_timer_by_job.remove(job_id);
             disconnect(timer, SIGNAL(timeout()), this, SLOT(sl_onOperationTimeout()));
             delete timer;
@@ -472,14 +463,14 @@ void BasicConnectionWrapper::sl_onOperationTimeout() {
     }
 
     if (!found) {
-        qCritical() << "BasicConnectionWrapper: could not find which job timed out";
+        qCritical() << "NetworkConnectorQFtp: could not find which job timed out";
         /* signal error and disconnect anyway */
         handleTimeout(ftp_command);
     }
 
 }
 
-void BasicConnectionWrapper::handleTimeout(QFtp::Command _ftp_command) {
+void NetworkConnectorQFtp::handleTimeout(QFtp::Command _ftp_command) {
     switch(_ftp_command) {
     case QFtp::Command::ConnectToHost:
     case QFtp::Command::Login:
@@ -495,9 +486,9 @@ void BasicConnectionWrapper::handleTimeout(QFtp::Command _ftp_command) {
     }
 }
 
-void BasicConnectionWrapper::sl_onFileInfoAvailable(QUrlInfo _info) {
+void NetworkConnectorQFtp::sl_onFileInfoAvailable(QUrlInfo _info) {
     QString entry_type = _info.isDir() ? "dir" : "file";
-    qDebug() << QString("BasicConnectionWrapper: received %1 info '%2'").arg(entry_type).arg(_info.name());
+    qDebug() << QString("NetworkConnectorQFtp: received %1 info '%2'").arg(entry_type).arg(_info.name());
 
     m_dir_contents_received = true;
 
@@ -505,12 +496,12 @@ void BasicConnectionWrapper::sl_onFileInfoAvailable(QUrlInfo _info) {
     bool keep_files = m_file_type_flags & eFileTypeFilter::Files;
 
     if (!_info.isValid()) {
-        qWarning("BasicConnectionWrapper: received invalid file info, ignoring...");
+        qWarning("NetworkConnectorQFtp: received invalid file info, ignoring...");
         return;
     }
 
     if (_info.isSymLink()) {
-        qDebug("BasicConnectionWrapper: received symbolic link file info, ignoring...");
+        qDebug("NetworkConnectorQFtp: received symbolic link file info, ignoring...");
         return;
     }
 
@@ -582,8 +573,8 @@ void BasicConnectionWrapper::sl_onFileInfoAvailable(QUrlInfo _info) {
             }
         }
 
-//        qDebug() << QString("BasicConnectionWrapper: last signalled progress: %1").arg(m_last_signalled_progress);
-//        qDebug() << QString("BasicConnectionWrapper: new progress: %1").arg(new_progress);
+//        qDebug() << QString("NetworkConnectorQFtp: last signalled progress: %1").arg(m_last_signalled_progress);
+//        qDebug() << QString("NetworkConnectorQFtp: new progress: %1").arg(new_progress);
 
         if (new_progress > 0) {
             emit si_progressUpdate(new_progress);
@@ -593,9 +584,9 @@ void BasicConnectionWrapper::sl_onFileInfoAvailable(QUrlInfo _info) {
 
 }
 
-void BasicConnectionWrapper::sl_onTransferProgressReceived(qint64 _bytes_transferred, qint64 _bytes_total) {
+void NetworkConnectorQFtp::sl_onTransferProgressReceived(qint64 _bytes_transferred, qint64 _bytes_total) {
     int job_id = m_ftp->currentId();
-//    qDebug() << QString("BasicConnectionWrapper: %1/%2 bytes transferred for job #%3")
+//    qDebug() << QString("NetworkConnectorQFtp: %1/%2 bytes transferred for job #%3")
 //                .arg(_bytes_transferred).arg(_bytes_total).arg(job_id);
 
     /* restart timeout timer for job */
@@ -604,14 +595,14 @@ void BasicConnectionWrapper::sl_onTransferProgressReceived(qint64 _bytes_transfe
         timeout_timer->stop();
         timeout_timer->start(CONNECTION_TIMEOUT_MS);
     } else {
-        qWarning() << QString("BasicConnectionWrapper: could not find timer for job #%1 (progress tracking)").arg(job_id);
+        qWarning() << QString("NetworkConnectorQFtp: could not find timer for job #%1 (progress tracking)").arg(job_id);
     }
 
     if (m_current_transfer_size == 0) {
         if (m_download_file_ongoing) {
             m_current_transfer_size = _bytes_total; // total transfer size is being discovered with current file size
         } else {
-            qCritical() << "BasicConnectionWrapper: current transfer size unknown (0), cannot signal progress";
+            qCritical() << "NetworkConnectorQFtp: current transfer size unknown (0), cannot signal progress";
             return;
         }
     }
@@ -627,7 +618,7 @@ void BasicConnectionWrapper::sl_onTransferProgressReceived(qint64 _bytes_transfe
     if (m_progress_matrix.contains(job_id)) {
         prev_progress = m_progress_matrix.value(job_id);
     }
-    //    qDebug() << QString("SecureConnectionWrapper: prev progress: %1").arg(prev_progress);
+    //    qDebug() << QString("NetworkConnectorQFtp: prev progress: %1").arg(prev_progress);
     quint64 increment = _bytes_transferred - prev_progress;
     m_total_received_bytes += increment;
 
@@ -636,7 +627,7 @@ void BasicConnectionWrapper::sl_onTransferProgressReceived(qint64 _bytes_transfe
 
     if (m_total_received_bytes > m_current_transfer_size) {
         qCritical() << QString(
-                           "BasicConnectionWrapper: something went wrong while computing "
+                           "NetworkConnectorQFtp: something went wrong while computing "
                            "progress : received=%1 ; total=%2")
                        .arg(m_total_received_bytes)
                        .arg(m_current_transfer_size);
@@ -647,14 +638,14 @@ void BasicConnectionWrapper::sl_onTransferProgressReceived(qint64 _bytes_transfe
     float progress_rate = (float)m_total_received_bytes / (float)m_current_transfer_size;
     float progress_percentage = progress_rate * 100.0f;
     int rounded_progress = (int)progress_percentage; // round to the lower bound to reduce hanging at 100%
-//        qDebug() << QString("BasicConnectionWrapper: raw progress indicators:");
+//        qDebug() << QString("NetworkConnectorQFtp: raw progress indicators:");
 //        qDebug() << QString("received bytes: %1 - transfer size: %2").arg(m_total_received_bytes).arg(m_current_transfer_size);
 //        qDebug() << QString("progress rate: %1 - percentage: %2 - rounded: %3").arg(progress_rate).arg(progress_percentage).arg(rounded_progress);
 //        qDebug() << QString("last signalled progress: %1").arg(m_last_signalled_progress);
 
     if (rounded_progress < m_last_signalled_progress) {
         qCritical() << QString(
-                           "BasicConnectionWrapper: something went wrong while computing "
+                           "NetworkConnectorQFtp: something went wrong while computing "
                            "progress : previous=%1 ; new=%2")
                        .arg(m_last_signalled_progress)
                        .arg(rounded_progress);
@@ -666,23 +657,23 @@ void BasicConnectionWrapper::sl_onTransferProgressReceived(qint64 _bytes_transfe
         return;
     }
 
-//    qDebug() << QString("BasicConnectionWrapper: rounded progress: %1").arg(rounded_progress);
+//    qDebug() << QString("NetworkConnectorQFtp: rounded progress: %1").arg(rounded_progress);
     m_last_signalled_progress = rounded_progress;
     emit si_progressUpdate(rounded_progress);
 }
 
-QByteArray BasicConnectionWrapper::readShellStandardOutput() {
-    qCritical() << "BasicConnectionWrapper: Telnet protocol not supported";
+QByteArray NetworkConnectorQFtp::readShellStandardOutput() {
+    qCritical() << "NetworkConnectorQFtp: Telnet protocol not supported";
     return QByteArray();
 }
 
-QByteArray BasicConnectionWrapper::readShellStandardError() {
-    qCritical() << "BasicConnectionWrapper: Telnet protocol not supported";
+QByteArray NetworkConnectorQFtp::readShellStandardError() {
+    qCritical() << "NetworkConnectorQFtp: Telnet protocol not supported";
     return QByteArray();
 }
 
-void BasicConnectionWrapper::sl_initFileChannel() {
-//    qDebug() << "BasicConnectionWrapper: Channel Initialized";
+void NetworkConnectorQFtp::sl_initFileChannel() {
+//    qDebug() << "NetworkConnectorQFtp: Channel Initialized";
 
     reinitBeforeFileOperation();
 
@@ -690,17 +681,17 @@ void BasicConnectionWrapper::sl_initFileChannel() {
     emit si_channelReady();
 }
 
-void BasicConnectionWrapper::sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload, bool _recurse) {
-    qDebug() << QString("BasicConnectionWrapper: uploading %1 to %2...").arg(_local_path).arg(_remote_path);
+void NetworkConnectorQFtp::sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload, bool _recurse) {
+    qDebug() << QString("NetworkConnectorQFtp: uploading %1 to %2...").arg(_local_path).arg(_remote_path);
 
     if (_recurse) {
-        qDebug() << "BasicConnectionWrapper: recursive upload...";
+        qDebug() << "NetworkConnectorQFtp: recursive upload...";
         m_recursive_upload = true;
     }
 
     QFileInfo local_file(_local_path);
     if (!local_file.exists()) {
-        qCritical() <<  QString("BasicConnectionWrapper: File/Dir '%1' does not exist, impossible to upload")
+        qCritical() <<  QString("NetworkConnectorQFtp: File/Dir '%1' does not exist, impossible to upload")
                         .arg(_local_path);
         return;
     }
@@ -718,12 +709,11 @@ void BasicConnectionWrapper::sl_upload(QString _local_path, QString _remote_path
         file_count = 1;
     }
 
-    qDebug() << QString("BasicConnectionWrapper: uploading %1 files for a total of %2 bytes...").arg(file_count).arg(transfer_size);
+    qDebug() << QString("NetworkConnectorQFtp: uploading %1 files for a total of %2 bytes...").arg(file_count).arg(transfer_size);
     reinitProgressIndicators(transfer_size);
 
-    qDebug() << QString("BasicConnectionWrapper: going to remote dir %1...").arg(_remote_path);
+    qDebug() << QString("NetworkConnectorQFtp: going to remote dir %1...").arg(_remote_path);
     m_ftp->cd(_remote_path);
-
 
     if (_is_dir_upload) {
         m_upload_dir_ongoing = true;
@@ -735,25 +725,25 @@ void BasicConnectionWrapper::sl_upload(QString _local_path, QString _remote_path
         m_subdirs_buffer.append(local_dir_name); // to check if dir exists at remote end
         m_dirs_to_upload.enqueue(_local_path); // to initiate recursive upload
         m_upload_local_root_index = m_operation_local_path.size() - local_dir_name.size();
+
         if (m_upload_local_root_index < 0) {
-            qCritical() << QString("BasicConnectionWrapper: upload local root index out of range: %1").arg(m_upload_local_root_index);
+            qCritical() << QString("NetworkConnectorQFtp: upload local root index out of range: %1").arg(m_upload_local_root_index);
             m_upload_local_root_index = 0;
         }
-        // Check if target dir already exists before proceeding
-        sl_dirContent(_remote_path, eFileTypeFilter::Dirs, QStringList(), true);
 
+        sl_dirContent(_remote_path, eFileTypeFilter::Dirs, QStringList(), true);
     } else {
         uploadFile(_local_path);
     }
 }
 
-void BasicConnectionWrapper::resumeUploadDir() {
+void NetworkConnectorQFtp::resumeUploadDir() {
 //    QString local_path = m_operation_local_path;
 //    if (m_recursive_upload && !m_subdirs_pipe.isEmpty()) {
 //        local_path = m_subdirs_pipe.dequeue();
 //    }
     if (m_dirs_to_upload.isEmpty()) {
-        qWarning() << QString("BasicConnectionWrapper: file tree upload complete");
+        qWarning() << QString("NetworkConnectorQFtp: file tree upload complete");
         return;
     }
 
@@ -766,7 +756,7 @@ void BasicConnectionWrapper::resumeUploadDir() {
     QString sep = (m_operation_remote_path.endsWith("/")) ? "" : "/";
     m_current_remote_path = m_operation_remote_path + sep + relative_path;
 
-    qDebug() << QString("BasicConnectionWrapper: changing remote dir to '%1'...").arg(m_current_remote_path);
+    qDebug() << QString("NetworkConnectorQFtp: changing remote dir to '%1'...").arg(m_current_remote_path);
     m_ftp->cd(m_current_remote_path);
 //    m_ftp->setTransferMode(QFtp::TransferMode::Passive);
 
@@ -786,7 +776,7 @@ void BasicConnectionWrapper::resumeUploadDir() {
         QFileInfoList subdirs = local_dir.entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot);
         for (QFileInfo subdir:subdirs) {
             QString subdir_path = subdir.canonicalFilePath();
-            qDebug() << QString("BasicConnectionWrapper: current local dir subdir: %1").arg(subdir_path);
+            qDebug() << QString("NetworkConnectorQFtp: current local dir subdir: %1").arg(subdir_path);
             QDir subdir_dir(subdir_path);
             QString subdir_name = subdir_dir.dirName();
             m_subdirs_buffer.append(subdir_name);
@@ -796,15 +786,15 @@ void BasicConnectionWrapper::resumeUploadDir() {
         /* if current dir has no files to upload but other dirs are waiting in the queue
          * proceed directly, otherwise wait for files upload sequence to complete */
         if (!dir_has_files) {
-            qDebug() << QString("BasicConnectionWrapper: current dir '%1' has no files to upload, skipping...").arg(local_path);
+            qDebug() << QString("NetworkConnectorQFtp: current dir '%1' has no files to upload, skipping...").arg(local_path);
             if (!m_subdirs_buffer.isEmpty()) { // current dir has subdirs
-                qDebug() << QString("BasicConnectionWrapper: recursive upload, checking if subdirs exist on remote server...");
+                qDebug() << QString("NetworkConnectorQFtp: recursive upload, checking if subdirs exist on remote server...");
                 sl_dirContent(m_current_remote_path, eFileTypeFilter::Dirs, QStringList(), true);
             } else if (!m_dirs_to_upload.isEmpty()) { // current dir has no subdirs but more dirs are waiting to be uploaded
-                qDebug() << QString("BasicConnectionWrapper: resuming recursive upload sequence...");
+                qDebug() << QString("NetworkConnectorQFtp: resuming recursive upload sequence...");
                 resumeUploadDir();
             } else {
-                qDebug() << QString("BasicConnectionWrapper: file tree upload complete, clearing channel and connection...");
+                qDebug() << QString("NetworkConnectorQFtp: file tree upload complete, clearing channel and connection...");
                 // send signals
                 emit si_transferFinished();
                 emit si_channelClosed();
@@ -813,10 +803,10 @@ void BasicConnectionWrapper::resumeUploadDir() {
     }
 }
 
-void BasicConnectionWrapper::uploadFile(QString _local_file_path) {
+void NetworkConnectorQFtp::uploadFile(QString _local_file_path) {
     QFile *local_file = new QFile(_local_file_path);
     if (!local_file->exists()) {
-        qCritical() << QString("BasicConnectionWrapper: File '%1' does not exist, impossible to upload")
+        qCritical() << QString("NetworkConnectorQFtp: File '%1' does not exist, impossible to upload")
                        .arg(_local_file_path);
         delete local_file;
         return;
@@ -825,29 +815,29 @@ void BasicConnectionWrapper::uploadFile(QString _local_file_path) {
     /* Open device for file reading */
     bool opened = local_file->open(QIODevice::ReadOnly);
     if (!opened) {
-        qCritical() << QString("BasicConnectionWrapper: Unable to open file '%1', impossible to upload")
+        qCritical() << QString("NetworkConnectorQFtp: Unable to open file '%1', impossible to upload")
                        .arg(_local_file_path);
         delete local_file;
         return;
     }
 
-    qDebug() << QString("BasicConnectionWrapper: scheduling upload for file %1...").arg(_local_file_path);
+    qDebug() << QString("NetworkConnectorQFtp: scheduling upload for file %1...").arg(_local_file_path);
     QFileInfo fi(_local_file_path);
     QString file_name = fi.fileName(); // warning : QFile.fileName() ==> returns full path leading to unknown QFtp error
-//    qDebug() << QString("BasicConnectionWrapper: file name %1...").arg(file_name);
+//    qDebug() << QString("NetworkConnectorQFtp: file name %1...").arg(file_name);
     int job_id = m_ftp->put(local_file, file_name); // Binary by default
     m_files_by_job.insert(job_id, local_file); // track file object to release memory when complete
 }
 
-void BasicConnectionWrapper::sl_download(QString _remote_path, QString _local_path, bool _is_dir_download) {
-    qDebug() << QString("BasicConnectionWrapper: downloading %1 to %2...").arg(_remote_path).arg(_local_path);
+void NetworkConnectorQFtp::sl_download(QString _remote_path, QString _local_path, bool _is_dir_download) {
+    qDebug() << QString("NetworkConnectorQFtp: downloading %1 to %2...").arg(_remote_path).arg(_local_path);
 
     if (_is_dir_download) {
         m_download_dir_ongoing = true;
         m_operation_remote_path = _remote_path;
         m_operation_local_path = _local_path;
 
-        qDebug() << QString("BasicConnectionWrapper: changing remote dir to '%1'...").arg(_remote_path);
+        qDebug() << QString("NetworkConnectorQFtp: changing remote dir to '%1'...").arg(_remote_path);
         m_ftp->cd(_remote_path);
 
         /* Start by listing source dir contents to enable progress tracking */
@@ -855,14 +845,14 @@ void BasicConnectionWrapper::sl_download(QString _remote_path, QString _local_pa
         sl_dirContent(_remote_path, eFileTypeFilter::Files, QStringList(), true);
 
     } else { // single file download
-        qDebug() << tr("SecureConnectionWrapper: Downloading file %1 to %2 ...")
+        qDebug() << tr("NetworkConnectorQFtp: Downloading file %1 to %2 ...")
                     .arg(_remote_path).arg(_local_path);
 
         m_download_file_ongoing = true;
         reinitProgressIndicators(0); /* Transfer size is not known yet */
 
         if (_remote_path.endsWith("/")) {
-            qCritical() << QString("BasicConnectionWrapper: remote path '%1' does not point to a file, aborting download...").arg(_remote_path);
+            qCritical() << QString("NetworkConnectorQFtp: remote path '%1' does not point to a file, aborting download...").arg(_remote_path);
             m_current_tx_error = eTransferError::FILE_NOT_FOUND;
             emit si_transferFailed(m_current_tx_error);
             disconnectFromHost();
@@ -876,20 +866,20 @@ void BasicConnectionWrapper::sl_download(QString _remote_path, QString _local_pa
         QString remote_file_name = _remote_path;
         remote_file_name.remove(0, dir_end + 1);
 
-        qDebug() << QString("BasicConnectionWrapper: changing remote dir to '%1'...").arg(remote_dir);
+        qDebug() << QString("NetworkConnectorQFtp: changing remote dir to '%1'...").arg(remote_dir);
         m_ftp->cd(remote_dir);
         downloadFile(remote_file_name, _local_path);
     }
 }
 
-void BasicConnectionWrapper::resumeDownloadDir() {
+void NetworkConnectorQFtp::resumeDownloadDir() {
     for (NetworkFileInfo *nfi: m_dir_contents_buffer) {
         QString file_name = nfi->name();
         downloadFile(file_name, m_operation_local_path);
     }
 }
 
-void BasicConnectionWrapper::downloadFile(QString _remote_file_name, QString _local_dir_path) {
+void NetworkConnectorQFtp::downloadFile(QString _remote_file_name, QString _local_dir_path) {
 
     QString target_local_file_path = _local_dir_path + QDir::separator() + _remote_file_name;
     QFile *target_local_file = new QFile(target_local_file_path);
@@ -897,25 +887,25 @@ void BasicConnectionWrapper::downloadFile(QString _remote_file_name, QString _lo
     /* Open device for file writing */
     bool opened = target_local_file->open(QIODevice::WriteOnly);
     if (!opened) {
-        qCritical() << QString("BasicConnectionWrapper: Unable to open local file '%1' for writing, impossible to download")
+        qCritical() << QString("NetworkConnectorQFtp: Unable to open local file '%1' for writing, impossible to download")
                        .arg(target_local_file_path);
         delete target_local_file;
         return;
     }
 
-    qDebug() << QString("BasicConnectionWrapper: scheduling download for file '%1' to '%2'").arg(_remote_file_name, _local_dir_path);
+    qDebug() << QString("NetworkConnectorQFtp: scheduling download for file '%1' to '%2'").arg(_remote_file_name, _local_dir_path);
     int job_id = m_ftp->get(_remote_file_name, target_local_file); // Binary by default
     m_files_by_job.insert(job_id, target_local_file); // track file object to release memory when complete
 }
 
-void BasicConnectionWrapper::sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer) {
-    qDebug() << QString("BasicConnectionWrapper: listing contents for dir %1...").arg(_remote_dir_path);
+void NetworkConnectorQFtp::sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer) {
+    qDebug() << QString("NetworkConnectorQFtp: listing contents for dir %1...").arg(_remote_dir_path);
 
     m_file_type_flags = _flags;
     m_file_filters = _file_filters;
 
     if (!_is_for_dir_transfer) {
-        qDebug() << "BasicConnectionWrapper: signalling initial progress for listing dir contents...";
+        qDebug() << "NetworkConnectorQFtp: signalling initial progress for listing dir contents...";
         // Do not signal progress if called prior to dir downloading or uploading
         emit si_progressUpdate(10);
         m_last_signalled_progress = 10;
@@ -927,7 +917,7 @@ void BasicConnectionWrapper::sl_dirContent(QString _remote_dir_path, FileTypeFil
     m_ftp->list(_remote_dir_path);
 }
 
-void BasicConnectionWrapper::mapConnectionError(QFtp::Error _err) {
+void NetworkConnectorQFtp::mapConnectionError(QFtp::Error _err) {
     switch (_err) {
     case QFtp::NoError:
         m_current_cx_error = eConnectionError::NO_ERROR;
@@ -943,15 +933,15 @@ void BasicConnectionWrapper::mapConnectionError(QFtp::Error _err) {
         break;
 
     default:
-        qWarning() << "BasicConnectionWrapper: unexpected connection error : " << _err;
+        qWarning() << "NetworkConnectorQFtp: unexpected connection error : " << _err;
         m_current_cx_error = eConnectionError::INTERNAL_ERROR;
         break;
     }
 
-    qDebug() << QString("BasicConnectionWrapper: connection error occurred : ") << m_current_cx_error;
+    qDebug() << QString("NetworkConnectorQFtp: connection error occurred : ") << m_current_cx_error;
 }
 
-void BasicConnectionWrapper::mapTransferError(QFtp::Error _err)
+void NetworkConnectorQFtp::mapTransferError(QFtp::Error _err)
 {
     switch (_err) {
     case QFtp::NoError:
@@ -969,25 +959,98 @@ void BasicConnectionWrapper::mapTransferError(QFtp::Error _err)
         break;
 
     default:
-        qWarning() << "BasicConnectionWrapper: unexpected transfer error : " << _err;
+        qWarning() << "NetworkConnectorQFtp: unexpected transfer error : " << _err;
         m_current_tx_error = eTransferError::UNSUPPORTED_OPERATION;
         break;
     }
 
-    qDebug() << QString("BasicConnectionWrapper: transfer error occurred : ") << m_current_tx_error;
+    qDebug() << QString("NetworkConnectorQFtp: transfer error occurred : ") << m_current_tx_error;
 }
 
-void BasicConnectionWrapper::sl_createRemoteShell(QString& _command) {
+void NetworkConnectorQFtp::sl_createRemoteShell(QString& _command) {
     Q_UNUSED(_command)
-    qCritical() << "BasicConnectionWrapper: Telnet protocol not supported";
+    qCritical() << "NetworkConnectorQFtp: Telnet protocol not supported";
 }
 
-void BasicConnectionWrapper::sl_closeRemoteShell() {
-    qCritical() << "BasicConnectionWrapper: Telnet protocol not supported";
+void NetworkConnectorQFtp::sl_closeRemoteShell() {
+    qCritical() << "NetworkConnectorQFtp: Telnet protocol not supported";
 }
 
-void BasicConnectionWrapper::sl_executeShellCommand() {
-    qCritical() << "BasicConnectionWrapper: Telnet protocol not supported";
+void NetworkConnectorQFtp::sl_executeShellCommand() {
+    qCritical() << "NetworkConnectorQFtp: Telnet protocol not supported";
+}
+
+QString NetworkConnectorQFtp::enumLitteralCommand(QFtp::Command _command) {
+    if (_command == QFtp::None) {
+        return "None";
+    } else if (_command == QFtp::SetTransferMode) {
+        return "SetTransferMode";
+    } else if (_command == QFtp::SetProxy) {
+        return "SetProxy";
+    } else if (_command == QFtp::ConnectToHost) {
+        return "ConnectToHost";
+    } else if (_command == QFtp::Login) {
+        return "Login";
+    } else if (_command == QFtp::Close) {
+        return "Close";
+    } else if (_command == QFtp::List) {
+        return "List";
+    } else if (_command == QFtp::Cd) {
+        return "Cd";
+    } else if (_command == QFtp::Get) {
+        return "Get";
+    } else if (_command == QFtp::Put) {
+        return "Put";
+    } else if (_command == QFtp::Remove) {
+        return "Remove";
+    } else if (_command == QFtp::Mkdir) {
+        return "Mkdir";
+    } else if (_command == QFtp::Rmdir) {
+        return "Rmdir";
+    } else if (_command == QFtp::Rename) {
+        return "Rename";
+    } else if (_command == QFtp::RawCommand) {
+        return "RawCommand";
+    } else {
+        qCritical() << "NetworkConnectorQFtp: unknown command : " << _command;
+        return "";
+    }
+}
+
+QString NetworkConnectorQFtp::enumLitteralState(QFtp::State _state) {
+    if (_state == QFtp::Unconnected) {
+        return "Unconnected";
+    } else if (_state == QFtp::HostLookup) {
+        return "HostLookup";
+    } else if (_state == QFtp::Connecting) {
+        return "Connecting";
+    } else if (_state == QFtp::Connected) {
+        return "Connected";
+    } else if (_state == QFtp::LoggedIn) {
+        return "LoggedIn";
+    } else if (_state == QFtp::Closing) {
+        return "Closing";
+    } else {
+        qCritical() << "NetworkConnectorQFtp: unknown state : " << _state;
+        return "";
+    }
+}
+
+QString NetworkConnectorQFtp::enumLitteralError(QFtp::Error _error) {
+    if (_error == QFtp::NoError) {
+        return "NoError";
+    } else if (_error == QFtp::HostNotFound) {
+        return "HostNotFound";
+    } else if (_error == QFtp::ConnectionRefused) {
+        return "ConnectionRefused";
+    } else if (_error == QFtp::NotConnected) {
+        return "NotConnected";
+    } else if (_error == QFtp::UnknownError) {
+        return "UnkonwnError";
+    } else {
+        qCritical() << "NetworkConnectorQFtp: unknown state : " << _error;
+        return "";
+    }
 }
 
 

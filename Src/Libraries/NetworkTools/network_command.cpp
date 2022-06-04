@@ -9,11 +9,11 @@ namespace network_tools {
 NetworkCommand::NetworkCommand(QString _command, int _min_args, int _max_args) :
   m_command(_command),
   m_arguments(), 
-  m_output_stream(),
-  m_error_stream(),
+  m_full_command_string(),
   m_min_args(_min_args),
   m_max_args(_max_args),
-  m_full_command_string() 
+  m_output_stream(),
+  m_error_stream()
 {
   if (m_command.isEmpty()) 
   {

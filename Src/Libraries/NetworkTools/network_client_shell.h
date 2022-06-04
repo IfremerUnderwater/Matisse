@@ -1,15 +1,15 @@
-#ifndef NETWORK_TOOLS_COMMAND_CLIENT_H_
-#define NETWORK_TOOLS_COMMAND_CLIENT_H_
+#ifndef NETWORK_TOOLS_NETWORK_CLIENT_SHELL_H_
+#define NETWORK_TOOLS_NETWORK_CLIENT_SHELL_H_
 
 #include "network_client.h"
 
 namespace network_tools {
 
-class NetworkCommandClient : public NetworkClient
+class NetworkClientShell : public NetworkClient
 {
     Q_OBJECT
 public:
-    NetworkCommandClient();
+    NetworkClientShell();
 
 protected:
     void doInit();
@@ -31,4 +31,4 @@ protected slots:
 
 } // namespace network_tools
 
-#endif // NETWORK_TOOLS_COMMAND_CLIENT_H_
+#endif // NETWORK_TOOLS_NETWORK_CLIENT_SHELL_H_

@@ -1,15 +1,15 @@
-#ifndef NETWORK_TOOLS_COMMAND_ACTION_H_
-#define NETWORK_TOOLS_COMMAND_ACTION_H_
+#ifndef NETWORK_TOOLS_NETWORK_ACTION_SHELL_H_
+#define NETWORK_TOOLS_NETWORK_ACTION_SHELL_H_
 
 #include "network_action.h"
 
 namespace network_tools {
 
-class NetworkCommandAction : public NetworkAction
+class NetworkActionShell : public NetworkAction
 {
     Q_OBJECT
 public:
-    NetworkCommandAction(eNetworkActionType _type);
+    NetworkActionShell(eNetworkActionType _type);
 
 signals:
     void si_createRemoteShell(QString& _command);
@@ -19,4 +19,4 @@ signals:
 
 } // namespace network_tools
 
-#endif // NETWORK_TOOLS_COMMAND_ACTION_H_
+#endif // NETWORK_TOOLS_NETWORK_ACTION_SHELL_H_
