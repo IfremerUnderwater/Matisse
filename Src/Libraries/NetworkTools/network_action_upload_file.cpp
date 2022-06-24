@@ -3,12 +3,12 @@
 namespace network_tools {
 
 NetworkActionUploadFile::NetworkActionUploadFile(QString _local_file_path, QString _remote_path) :
-    NetworkFileAction(eNetworkActionType::UploadFile)
+    NetworkActionFileTransfer(eNetworkActionType::UploadFile)
 {
     QFileInfo info(_local_file_path);
 
     if (!info.exists()) {
-        qCritical() << QString("QSshClient: %1 cannot be uploaded : file does not exist")
+        qCritical() << QString("NetworkActionUploadFile: %1 cannot be uploaded : file does not exist")
                        .arg(_local_file_path);
         m_is_valid = false;
     }

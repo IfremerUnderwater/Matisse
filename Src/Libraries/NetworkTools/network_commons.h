@@ -1,5 +1,5 @@
-#ifndef NETWORK_CLIENT_NETWORK_COMMONS_H_
-#define NETWORK_CLIENT_NETWORK_COMMONS_H_
+#ifndef NETWORK_TOOLS_NETWORK_COMMONS_H_
+#define NETWORK_TOOLS_NETWORK_COMMONS_H_
 
 #include <QObject>
 #include <QtDebug>
@@ -53,6 +53,25 @@ enum class eTransferError {
 
 Q_ENUM_NS(eTransferError)
 
+/*!
+  * \brief File transfer protocol to be used with the remote file server
+  */
+enum class eFileTransferProtocol {
+    FTP,
+    SFTP
+};
+
+Q_ENUM_NS(eFileTransferProtocol)
+
+/*!
+  * \brief Shell protocol to be used with the remote file server
+  */
+enum class eShellProtocol {
+    SSH
+};
+
+Q_ENUM_NS(eShellProtocol)
+
 enum class eFileTypeFilter {
   Dirs = 0x001,
   Files = 0x002,
@@ -82,4 +101,4 @@ private:
 
 } // namespace network_tools
 
-#endif // NETWORK_CLIENT_NETWORK_COMMONS_H_
+#endif // NETWORK_TOOLS_NETWORK_COMMONS_H_

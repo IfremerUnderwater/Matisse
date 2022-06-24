@@ -1,5 +1,7 @@
-#ifndef NETWORK_CLIENT_BASIC_CONNECTION_WRAPPER_H_
-#define NETWORK_CLIENT_BASIC_CONNECTION_WRAPPER_H_
+#ifndef NETWORK_TOOLS_NETWORK_CONNECTOR_QFTP_H_
+#define NETWORK_TOOLS_NETWORK_CONNECTOR_QFTP_H_
+
+#include "network_connector.h"
 
 #include <QObject>
 #include <QtDebug>
@@ -9,17 +11,23 @@
 #include <QNetworkConfigurationManager>
 #include <QQueue>
 #include <QTimer>
+#include <QMetaEnum>
 
-#include "connection_wrapper.h"
+#include "network_commons.h"
 #include "QtFtp/qftp.h"
+
 
 namespace network_tools {
 
-class BasicConnectionWrapper : public ConnectionWrapper
+//Q_NAMESPACE
+
+class NetworkConnectorQFtp : public NetworkConnector
 {
     Q_OBJECT
+
+
 public:
-    explicit BasicConnectionWrapper();
+    explicit NetworkConnectorQFtp();
 
     void resetConnection();
 
@@ -63,6 +71,11 @@ private:
     void mapConnectionError(QFtp::Error _err);
     void mapTransferError(QFtp::Error _err);
 
+    /* mapping QFtp enums that are not declared to MOC */
+    QString enumLitteralCommand(QFtp::Command _command);
+    QString enumLitteralState(QFtp::State _state);
+    QString enumLitteralError(QFtp::Error _error);
+
     QFtp *m_ftp;
 
     QNetworkSession *m_network_session;
@@ -77,7 +90,6 @@ private:
     QList<QString> m_subdirs_buffer;
     QQueue<QString> m_dirs_to_upload;
     QString m_current_remote_path;
-//    QTimer *m_timeout_timer;
     QMap<int, QTimer*> m_timer_by_job;
 
     static const int CONNECTION_TIMEOUT_MS;
@@ -85,4 +97,10 @@ private:
 
 } // namespace network_tools
 
-#endif // NETWORK_CLIENT_BASIC_CONNECTION_WRAPPER_H_
+//Q_DECLARE_METATYPE(QFtp::Command);
+//Q_DECLARE_METATYPE(QFtp::State);
+//Q_DECLARE_METATYPE(QFtp::Error);
+
+//    static QMetaEnum STATE_ENUM;// = QMetaEnum::fromType<QFtp::State>();
+
+#endif // NETWORK_TOOLS_NETWORK_CONNECTOR_QFTP_H_

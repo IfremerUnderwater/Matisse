@@ -3,13 +3,13 @@
 namespace network_tools {
 
 NetworkActionUploadDir::NetworkActionUploadDir(QString _local_dir, QString _remote_base_dir, bool _recurse) :
-    NetworkFileAction(eNetworkActionType::UploadDir),
+    NetworkActionFileTransfer(eNetworkActionType::UploadDir),
     m_recurse(_recurse)
 {
     QFileInfo info(_local_dir);
 
     if (!info.exists()) {
-        qCritical() << QString("QSshClient: %1 cannot be uploaded : dir does not exist")
+        qCritical() << QString("NetworkActionUploadDir: %1 cannot be uploaded : dir does not exist")
                        .arg(_local_dir);
         m_is_valid = false;
     }

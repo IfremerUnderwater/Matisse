@@ -2,11 +2,11 @@
 #define NETWORK_TOOLS_NETWORK_ACTION_DOWNLOAD_DIR_H_
 
 #include <QtDebug>
-#include "network_file_action.h"
+#include "network_action_file_transfer.h"
 
 namespace network_tools {
 
-class NetworkActionDownloadDir : public NetworkFileAction
+class NetworkActionDownloadDir : public NetworkActionFileTransfer
 {
     Q_OBJECT
 public:

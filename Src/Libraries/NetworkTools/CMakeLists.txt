@@ -1,10 +1,7 @@
 add_library(NetworkTools
-    connection_wrapper.cpp
-    basic_connection_wrapper.cpp
-    secure_connection_wrapper.cpp
     network_action.cpp
-    network_file_action.cpp
-    network_command_action.cpp
+    network_action_file_transfer.cpp
+    network_action_shell.cpp
     network_action_upload_file.cpp
     network_action_upload_dir.cpp
     network_action_download_dir.cpp
@@ -14,11 +11,12 @@ add_library(NetworkTools
     network_command_pbs_qsub.cpp
     network_commons.cpp
     network_client.cpp
+    network_client_file_transfer.cpp
+    network_client_shell.cpp
     network_credentials.cpp
-    network_file_client.cpp
-    network_command_client.cpp
-    sftp_client.cpp
-    ssh_client.cpp
+    network_connector.cpp
+    network_connector_qftp.cpp
+    network_connector_qssh.cpp
 )
 	
 #qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} NetworkTools_fr.ts NetworkTools_en.ts)

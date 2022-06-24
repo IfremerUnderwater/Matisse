@@ -1,28 +1,28 @@
-#include "secure_connection_wrapper.h"
+#include "network_connector_qssh.h"
 #include "file_utils.h"
 
 using namespace system_tools;
 
 namespace network_tools {
 
-SecureConnectionWrapper::SecureConnectionWrapper() :
-    ConnectionWrapper(),
+NetworkConnectorQSsh::NetworkConnectorQSsh() :
+    NetworkConnector(),
     m_connection(NULL),
     m_obsolete_connections()
 {
 
 }
 
-void SecureConnectionWrapper::sl_initFileChannel()
+void NetworkConnectorQSsh::sl_initFileChannel()
 {
-    qDebug() << "SecureConnectionWrapper: Creating SFTP channel...";
+    qDebug() << "NetworkConnectorQSsh: Creating SFTP channel...";
 
     reinitBeforeFileOperation();
 
     m_channel = m_connection->createSftpChannel();
 
     if (!m_channel) {
-        qCritical() << "SecureConnectionWrapper: Unexpected error null channel";
+        qCritical() << "NetworkConnectorQSsh: Unexpected error null channel";
         return;
     }
 
@@ -44,7 +44,7 @@ void SecureConnectionWrapper::sl_initFileChannel()
     m_channel->initialize();
 }
 
-void SecureConnectionWrapper::reinitBeforeFileOperation() {
+void NetworkConnectorQSsh::reinitBeforeFileOperation() {
     m_download_dir_ongoing = false;
     m_download_file_ongoing = false;
     m_operation_remote_path = "";
@@ -59,10 +59,10 @@ void SecureConnectionWrapper::reinitBeforeFileOperation() {
     }
 }
 
-void SecureConnectionWrapper::sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload, bool _recurse)
+void NetworkConnectorQSsh::sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload, bool _recurse)
 {
     QString entity = (_is_dir_upload) ? "dir" : "file";
-    qDebug() << tr("SecureConnectionWrapper: Uploading %1 %2 to %3 ...")
+    qDebug() << tr("NetworkConnectorQSsh: Uploading %1 %2 to %3 ...")
                 .arg(entity)
                 .arg(_local_path)
                 .arg(_remote_path);
@@ -80,7 +80,7 @@ void SecureConnectionWrapper::sl_upload(QString _local_path, QString _remote_pat
         file_count = 1;
     }
 
-    qDebug() << QString("SecureConnectionWrapper: uploading %1 files for a total of %2 bytes...").arg(file_count).arg(transfer_size);
+    qDebug() << QString("NetworkConnectorQSsh: uploading %1 files for a total of %2 bytes...").arg(file_count).arg(transfer_size);
 
     reinitProgressIndicators(transfer_size);
 
@@ -101,18 +101,18 @@ void SecureConnectionWrapper::sl_upload(QString _local_path, QString _remote_pat
                         QDir::separator() + "sftp" + QDir::separator() + "tmpuploaddata";
                 QDir temp_root_dir(temp_root_dir_path);
                 if (temp_root_dir.exists()) {
-                    qDebug() << QString("SecureConnectionWrapper: cleaning temp dir '%1'").arg(temp_root_dir_path);
+                    qDebug() << QString("NetworkConnectorQSsh: cleaning temp dir '%1'").arg(temp_root_dir_path);
                     bool removed = temp_root_dir.removeRecursively();
                     if (!removed) {
-                        qWarning() << QString("SecureConnectionWrapper: could not create temp dir '%1'").arg(temp_root_dir_path);
+                        qWarning() << QString("NetworkConnectorQSsh: could not create temp dir '%1'").arg(temp_root_dir_path);
                     }
                 }
                 QString temp_dir_path = temp_root_dir_path + QDir::separator() + local_dir.dirName();
-                qDebug() << QString("SecureConnectionWrapper: creating temp dir '%1'").arg(temp_dir_path);
+                qDebug() << QString("NetworkConnectorQSsh: creating temp dir '%1'").arg(temp_dir_path);
                 QDir temp_dir(temp_dir_path);
                 bool created = temp_dir.mkpath(".");
                 if (!created) {
-                    qWarning() << QString("SecureConnectionWrapper: could not create temp dir '%1'").arg(temp_dir_path);
+                    qWarning() << QString("NetworkConnectorQSsh: could not create temp dir '%1'").arg(temp_dir_path);
                 }
 
                 qDebug() << QString("Copying source to local temp dir '%1'...").arg(temp_dir_path);
@@ -120,7 +120,7 @@ void SecureConnectionWrapper::sl_upload(QString _local_path, QString _remote_pat
                 bool dir_copied = FileUtils::copyDir(_local_path, temp_dir_path, false, true);
 
                 if (!dir_copied) {
-                    qCritical() << QString("SecureConnectionWrapper: copying source to local temp dir '%1' failed, upload aborted");
+                    qCritical() << QString("NetworkConnectorQSsh: copying source to local temp dir '%1' failed, upload aborted");
                     return;
                 }
 
@@ -128,7 +128,7 @@ void SecureConnectionWrapper::sl_upload(QString _local_path, QString _remote_pat
             }
         }
 
-        qDebug() << tr("SecureConnectionWrapper: Uploading dir %1 to %2 ...")
+        qDebug() << tr("NetworkConnectorQSsh: Uploading dir %1 to %2 ...")
                     .arg(local_dir_path)
                     .arg(_remote_path);
 
@@ -139,13 +139,13 @@ void SecureConnectionWrapper::sl_upload(QString _local_path, QString _remote_pat
     }
 
     if (job != QSsh::SftpInvalidJob) {
-        qDebug() << "SecureConnectionWrapper upload: Starting job #" << job;
+        qDebug() << "NetworkConnectorQSsh upload: Starting job #" << job;
     } else {
-        qCritical() << "SecureConnectionWrapper upload: Invalid Job";
+        qCritical() << "NetworkConnectorQSsh upload: Invalid Job";
     }
 }
 
-void SecureConnectionWrapper::sl_download(QString _remote_path, QString _local_path, bool _is_dir_download)
+void NetworkConnectorQSsh::sl_download(QString _remote_path, QString _local_path, bool _is_dir_download)
 {
     if (_is_dir_download) {
         m_download_dir_ongoing = true;
@@ -157,7 +157,7 @@ void SecureConnectionWrapper::sl_download(QString _remote_path, QString _local_p
         sl_dirContent(_remote_path, eFileTypeFilter::Files, QStringList(), true);
 
     } else { // single file download
-        qDebug() << tr("SecureConnectionWrapper: Downloading file %1 to %2 ...")
+        qDebug() << tr("NetworkConnectorQSsh: Downloading file %1 to %2 ...")
                     .arg(_remote_path).arg(_local_path);
 
         m_download_file_ongoing = true;
@@ -167,16 +167,16 @@ void SecureConnectionWrapper::sl_download(QString _remote_path, QString _local_p
                                                       QSsh::SftpOverwriteExisting);
 
         if (job != QSsh::SftpInvalidJob) {
-            qDebug() << "SecureConnectionWrapper: Starting job #" << job;
+            qDebug() << "NetworkConnectorQSsh: Starting job #" << job;
         } else {
-            qCritical() << "SecureConnectionWrapper: Invalid Job";
+            qCritical() << "NetworkConnectorQSsh: Invalid Job";
         }
     }
 }
 
-void SecureConnectionWrapper::sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer)
+void NetworkConnectorQSsh::sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer)
 {
-    qDebug() << tr("SecureConnectionWrapper: Listing content from dir %1 ...").arg(_remote_dir_path);
+    qDebug() << tr("NetworkConnectorQSsh: Listing content from dir %1 ...").arg(_remote_dir_path);
 
     m_file_type_flags = _flags;
     m_file_filters = _file_filters;
@@ -192,20 +192,20 @@ void SecureConnectionWrapper::sl_dirContent(QString _remote_dir_path, FileTypeFi
     job = m_channel->listDirectory(_remote_dir_path);
 
     if (job != QSsh::SftpInvalidJob) {
-        qDebug() << "SecureConnectionWrapper: Starting job #" << job;
+        qDebug() << "NetworkConnectorQSsh: Starting job #" << job;
     } else {
-        qCritical() << "SecureConnectionWrapper: Invalid Job";
+        qCritical() << "NetworkConnectorQSsh: Invalid Job";
     }
 }
 
-void SecureConnectionWrapper::sl_createRemoteShell(QString& _command)
+void NetworkConnectorQSsh::sl_createRemoteShell(QString& _command)
 {
-    qDebug() << "SecureConnectionWrapper: Creating remote shell...";
+    qDebug() << "NetworkConnectorQSsh: Creating remote shell...";
 
     m_shell = m_connection->createRemoteShell();
 
     if (!m_shell) {
-        qCritical() << "SecureConnectionWrapper: Unexpected error null shell";
+        qCritical() << "NetworkConnectorQSsh: Unexpected error null shell";
         return;
     }
 
@@ -225,9 +225,9 @@ void SecureConnectionWrapper::sl_createRemoteShell(QString& _command)
     m_last_signalled_progress = 10;
 }
 
-void SecureConnectionWrapper::startDownloadDir(QString _remote_path, QString _local_path)
+void NetworkConnectorQSsh::startDownloadDir(QString _remote_path, QString _local_path)
 {
-    qDebug() << tr("SecureConnectionWrapper: Downloading dir %1 to %2 ...")
+    qDebug() << tr("NetworkConnectorQSsh: Downloading dir %1 to %2 ...")
                 .arg(_remote_path)
                 .arg(_local_path);
 
@@ -237,23 +237,14 @@ void SecureConnectionWrapper::startDownloadDir(QString _remote_path, QString _lo
                                  QSsh::SftpOverwriteMode::SftpOverwriteExisting);
 
     if (job != QSsh::SftpInvalidJob) {
-        qDebug() << "SecureConnectionWrapper: Starting job #" << job;
+        qDebug() << "NetworkConnectorQSsh: Starting job #" << job;
     } else {
-        qCritical() << "SecureConnectionWrapper: Invalid Job";
+        qCritical() << "NetworkConnectorQSsh: Invalid Job";
     }
 }
 
-//void SecureConnectionWrapper::reinitProgressIndicators(quint64 _transfer_size) {
-//    //    qDebug() << QString("SecureConnectionWrapper: reinit progress indicators:");
-//    //    qDebug() << QString("Transfer size: %1").arg(_transfer_size);
-//    m_current_transfer_size = _transfer_size;
-//    m_total_received_bytes = 0;
-//    m_progress_matrix.clear();
-//    m_last_signalled_progress = 0;
-//}
-
-void SecureConnectionWrapper::sl_onConnected() {
-    qDebug() << "SecureConnectionWrapper: Connected";
+void NetworkConnectorQSsh::sl_onConnected() {
+    qDebug() << "NetworkConnectorQSsh: Connected";
 
     m_connected = true;
     m_waiting_for_connection = false;
@@ -261,15 +252,15 @@ void SecureConnectionWrapper::sl_onConnected() {
     emit si_connected();
 }
 
-void SecureConnectionWrapper::sl_onDisconnected() {
-    qDebug() << "SecureConnectionWrapper: disconnected";
+void NetworkConnectorQSsh::sl_onDisconnected() {
+    qDebug() << "NetworkConnectorQSsh: disconnected";
 
     QObject* emitter = sender();
     QSsh::SshConnection* expired_connection = static_cast<QSsh::SshConnection*>(emitter);
 
     /* Case : the connection was closed by calling agent */
     if (m_obsolete_connections.contains(expired_connection)) {
-        qDebug() << "SecureConnectionWrapper: clearing obsolete connection";
+        qDebug() << "NetworkConnectorQSsh: clearing obsolete connection";
 
         disconnect(expired_connection, SIGNAL(connected()));
         disconnect(expired_connection, SIGNAL(error(QSsh::SshError)));
@@ -283,7 +274,7 @@ void SecureConnectionWrapper::sl_onDisconnected() {
 
     /* Unconsistent case : the connection is neither the current connection, nor tracked as an ancient connection */
     if (expired_connection != m_connection) {
-        qWarning() << "SecureConnectionWrapper: unknown connection object, clearing anyway";
+        qWarning() << "NetworkConnectorQSsh: unknown connection object, clearing anyway";
 
         disconnect(expired_connection, SIGNAL(connected()));
         disconnect(expired_connection, SIGNAL(error(QSsh::SshError)));
@@ -298,13 +289,13 @@ void SecureConnectionWrapper::sl_onDisconnected() {
     emit si_clearConnection();
 }
 
-void SecureConnectionWrapper::sl_onConnectionError(QSsh::SshError _err) {
-    qCritical() << "SecureConnectionWrapper: Connection error" << _err;
+void NetworkConnectorQSsh::sl_onConnectionError(QSsh::SshError _err) {
+    qCritical() << "NetworkConnectorQSsh: Connection error" << _err;
 
     mapConnectionError(_err);
 
     QString error_string = m_connection->errorString();
-    qCritical() << QString("SecureConnectionWrapper: SSH error : %1").arg(error_string);
+    qCritical() << QString("NetworkConnectorQSsh: SSH error : %1").arg(error_string);
 
     m_waiting_for_connection = false;
 
@@ -317,19 +308,19 @@ void SecureConnectionWrapper::sl_onConnectionError(QSsh::SshError _err) {
     emit si_connectionFailed(m_current_cx_error);
 }
 
-void SecureConnectionWrapper::sl_onChannelInitialized() {
-    qDebug() << "SecureConnectionWrapper: Channel Initialized";
+void NetworkConnectorQSsh::sl_onChannelInitialized() {
+    qDebug() << "NetworkConnectorQSsh: Channel Initialized";
 
     emit si_channelReady();
 //    m_current_action->execute();
 }
 
-void SecureConnectionWrapper::sl_onChannelError(const QString& _err) {
-    qCritical() << "SecureConnectionWrapper: Error: " << _err;
+void NetworkConnectorQSsh::sl_onChannelError(const QString& _err) {
+    qCritical() << "NetworkConnectorQSsh: Error: " << _err;
 }
 
-void SecureConnectionWrapper::sl_onChannelClosed() {
-    qDebug() << "SecureConnectionWrapper: Channel closed";
+void NetworkConnectorQSsh::sl_onChannelClosed() {
+    qDebug() << "NetworkConnectorQSsh: Channel closed";
     disconnect(this, SLOT(sl_onChannelInitialized()));
     disconnect(this, SLOT(sl_onChannelError(const QString&)));
     disconnect(this, SLOT(sl_onOpfinished(QSsh::SftpJobId, const SftpError,
@@ -341,32 +332,24 @@ void SecureConnectionWrapper::sl_onChannelClosed() {
     m_channel = NULL;
 
     emit si_channelClosed();
-
-//    if (m_action_queue.isEmpty()) {
-//        qDebug() << QString("SecureConnectionWrapper: Disconnecting from host %1...").arg(m_host);
-//        m_connection->disconnectFromHost();
-//    } else {
-//        /* If actions are still pending, start next action */
-//        processAction();
-//    }
 }
 
-void SecureConnectionWrapper::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_type,
+void NetworkConnectorQSsh::sl_onOpfinished(QSsh::SftpJobId _job, const SftpError _error_type,
                                  const QString& _error) {
 
     if (_error_type != QSsh::SftpError::NoError) {
         qCritical()
-                << QString("SecureConnectionWrapper: Job #%1 failed : %2").arg(_job).arg(_error);
+                << QString("NetworkConnectorQSsh: Job #%1 failed : %2").arg(_job).arg(_error);
 
         mapTransferError(_error_type);
         emit si_transferFailed(m_current_tx_error);
 
-        qDebug() << "SecureConnectionWrapper: Closing channel...";
+        qDebug() << "NetworkConnectorQSsh: Closing channel...";
         m_channel->closeChannel();
         return;
     }
 
-    qDebug() << "SecureConnectionWrapper: Finished job #" << _job << ": OK";
+    qDebug() << "NetworkConnectorQSsh: Finished job #" << _job << ": OK";
 
     if (m_dir_contents_received) { // Case job for listing dir contents complete
 
@@ -383,11 +366,10 @@ void SecureConnectionWrapper::sl_onOpfinished(QSsh::SftpJobId _job, const SftpEr
                 transfer_size += sfi->size();
             }
 
-            qDebug() << QString("SecureConnectionWrapper: downloading %1 files for a total of %2 bytes").arg(file_count).arg(transfer_size);
+            qDebug() << QString("NetworkConnectorQSsh: downloading %1 files for a total of %2 bytes").arg(file_count).arg(transfer_size);
 
             reinitProgressIndicators(transfer_size);
 
-//            NetworkActionDownloadDir* dl_action = static_cast<NetworkActionDownloadDir*>(m_current_action);
             startDownloadDir(m_operation_remote_path, m_operation_local_path);
             return; // do not close channel yet
         }
@@ -395,7 +377,7 @@ void SecureConnectionWrapper::sl_onOpfinished(QSsh::SftpJobId _job, const SftpEr
         else { // nominal sub-case : ListDirContents action was explicitely called
 
             // notify manager
-            qDebug() << "SecureConnectionWrapper: signalling dir contents...";
+            qDebug() << "NetworkConnectorQSsh: signalling dir contents...";
 
             /* Copy buffer (may be empty if elements were filtered) */
             QList<NetworkFileInfo*> dir_contents(m_dir_contents_buffer);
@@ -406,19 +388,19 @@ void SecureConnectionWrapper::sl_onOpfinished(QSsh::SftpJobId _job, const SftpEr
     } else { // Case : upload or download job complete
 
         // notify manager
-        qDebug() << "SecureConnectionWrapper: signalling download or upload complete...";
+        qDebug() << "NetworkConnectorQSsh: signalling download or upload complete...";
         emit si_transferFinished();
     }
 
-    qDebug() << "SecureConnectionWrapper: Closing channel...";
+    qDebug() << "NetworkConnectorQSsh: Closing channel...";
     m_channel->closeChannel();
 }
 
-void SecureConnectionWrapper::sl_onTransferProgress(QSsh::SftpJobId _job, quint64 _progress,
+void NetworkConnectorQSsh::sl_onTransferProgress(QSsh::SftpJobId _job, quint64 _progress,
                                        quint64 _total) {
 
     /* Too verbose logs : activate only for debugging */
-    //    qDebug() << QString("SecureConnectionWrapper: transfer job %1 progress %2 out of %3 bytes")
+    //    qDebug() << QString("NetworkConnectorQSsh: transfer job %1 progress %2 out of %3 bytes")
     //                    .arg(_job)
     //                    .arg(_progress)
     //                    .arg(_total);
@@ -427,7 +409,7 @@ void SecureConnectionWrapper::sl_onTransferProgress(QSsh::SftpJobId _job, quint6
         if (m_download_file_ongoing) {
             m_current_transfer_size = _total; // total transfer size is being discovered with current file size
         } else {
-            qCritical() << "SecureConnectionWrapper: current transfer size unknown (0), cannot signal progress";
+            qCritical() << "NetworkConnectorQSsh: current transfer size unknown (0), cannot signal progress";
             return;
         }
     }
@@ -443,7 +425,7 @@ void SecureConnectionWrapper::sl_onTransferProgress(QSsh::SftpJobId _job, quint6
     if (m_progress_matrix.contains(_job)) {
         prev_progress = m_progress_matrix.value(_job);
     }
-    //    qDebug() << QString("SecureConnectionWrapper: prev progress: %1").arg(prev_progress);
+    //    qDebug() << QString("NetworkConnectorQSsh: prev progress: %1").arg(prev_progress);
     quint64 increment = _progress - prev_progress;
     m_total_received_bytes += increment;
 
@@ -452,7 +434,7 @@ void SecureConnectionWrapper::sl_onTransferProgress(QSsh::SftpJobId _job, quint6
 
     if (m_total_received_bytes > m_current_transfer_size) {
         qCritical() << QString(
-                           "SecureConnectionWrapper: something went wrong while computing "
+                           "NetworkConnectorQSsh: something went wrong while computing "
                            "progress : received=%1 ; total=%2")
                        .arg(m_total_received_bytes)
                        .arg(m_current_transfer_size);
@@ -463,13 +445,13 @@ void SecureConnectionWrapper::sl_onTransferProgress(QSsh::SftpJobId _job, quint6
     float progress_rate = (float)m_total_received_bytes / (float)m_current_transfer_size;
     float progress_percentage = progress_rate * 100.0f;
     int rounded_progress = (int)progress_percentage; // round to the lower bound to reduce hanging at 100%
-    //    qDebug() << QString("SecureConnectionWrapper: raw progress indicators:");
+    //    qDebug() << QString("NetworkConnectorQSsh: raw progress indicators:");
     //    qDebug() << QString("received bytes: %1 - transfer size: %2").arg(m_total_received_bytes).arg(m_current_transfer_size);
     //    qDebug() << QString("progress rate: %1 - percentage: %2 - rounded: %3").arg(progress_rate).arg(progress_percentage).arg(rounded_progress);
 
     if (rounded_progress < m_last_signalled_progress) {
         qCritical() << QString(
-                           "SecureConnectionWrapper: something went wrong while computing "
+                           "NetworkConnectorQSsh: something went wrong while computing "
                            "progress : previous=%1 ; new=%2")
                        .arg(m_last_signalled_progress)
                        .arg(rounded_progress);
@@ -485,12 +467,12 @@ void SecureConnectionWrapper::sl_onTransferProgress(QSsh::SftpJobId _job, quint6
     emit si_progressUpdate(rounded_progress);
 }
 
-void SecureConnectionWrapper::sl_onFileInfoAvailable(
+void NetworkConnectorQSsh::sl_onFileInfoAvailable(
         QSsh::SftpJobId _job, const QList<QSsh::SftpFileInfo>& _file_info_list)
 {
     Q_UNUSED(_job)
 
-    qDebug() << QString("SecureConnectionWrapper: Received %1 file info elements")
+    qDebug() << QString("NetworkConnectorQSsh: Received %1 file info elements")
                 .arg(_file_info_list.count());
 
     m_dir_contents_received = true;
@@ -570,7 +552,6 @@ void SecureConnectionWrapper::sl_onFileInfoAvailable(
 
     } // _file_info_list
 
-//    if (m_current_action->type() == NetworkAction::eNetworkActionType::ListDirContent) {
     if (!m_download_dir_ongoing) {
         // Do not signal progress if job started internally prior to dir downloading
 
@@ -594,11 +575,11 @@ void SecureConnectionWrapper::sl_onFileInfoAvailable(
 }
 
 
-void SecureConnectionWrapper::sl_closeRemoteShell()
+void NetworkConnectorQSsh::sl_closeRemoteShell()
 {
     if (!m_shell)
     {
-        qCritical() << "SecureConnectionWrapper: trying to close shell, but shell is null";
+        qCritical() << "NetworkConnectorQSsh: trying to close shell, but shell is null";
         return;
     }
 
@@ -610,18 +591,18 @@ void SecureConnectionWrapper::sl_closeRemoteShell()
     m_shell->close();
 }
 
-void SecureConnectionWrapper::sl_executeShellCommand()
+void NetworkConnectorQSsh::sl_executeShellCommand()
 {
     QString command_and_nl = m_shell_command.append("\n");
 
     qDebug()
-            << QString("SecureConnectionWrapper: remote shell send command %1").arg(command_and_nl);
+            << QString("NetworkConnectorQSsh: remote shell send command %1").arg(command_and_nl);
 
     m_shell->write(command_and_nl.toLatin1());
 }
 
-void SecureConnectionWrapper::sl_onShellStarted() {
-    qDebug() << "SecureConnectionWrapper: Shell started";
+void NetworkConnectorQSsh::sl_onShellStarted() {
+    qDebug() << "NetworkConnectorQSsh: Shell started";
 
     /* Signal 30% progress on shell established */
     emit si_progressUpdate(30);
@@ -631,8 +612,8 @@ void SecureConnectionWrapper::sl_onShellStarted() {
     //  m_current_action->execute();
 }
 
-void SecureConnectionWrapper::sl_onReadyReadStandardOutput() {
-    qDebug() << "SecureConnectionWrapper: ready read standard output";
+void NetworkConnectorQSsh::sl_onReadyReadStandardOutput() {
+    qDebug() << "NetworkConnectorQSsh: ready read standard output";
 
     emit si_readyReadStandardOutput();
 
@@ -643,7 +624,7 @@ void SecureConnectionWrapper::sl_onReadyReadStandardOutput() {
     //  }
 }
 
-QByteArray SecureConnectionWrapper::readShellStandardOutput() {
+QByteArray NetworkConnectorQSsh::readShellStandardOutput() {
 
     if (!m_shell->isRunning())
     {
@@ -673,18 +654,13 @@ QByteArray SecureConnectionWrapper::readShellStandardOutput() {
     return output_stream;
 }
 
-void SecureConnectionWrapper::sl_onReadyReadStandardError() {
-    qDebug() << "SecureConnectionWrapper: ready read standard error";
+void NetworkConnectorQSsh::sl_onReadyReadStandardError() {
+    qDebug() << "NetworkConnectorQSsh: ready read standard error";
 
     emit si_readyReadStandardError();
-
-    //  if (!m_current_action || m_current_action->isTerminated()) {
-    //    qWarning() << "Command action already terminated, ignoring error...";
-    //    return;
-    //  }
 }
 
-QByteArray SecureConnectionWrapper::readShellStandardError() {
+QByteArray NetworkConnectorQSsh::readShellStandardError() {
     if (!m_shell->isRunning())
     {
         qCritical() << "Shell not running properly, ignoring error...";
@@ -697,8 +673,8 @@ QByteArray SecureConnectionWrapper::readShellStandardError() {
 }
 
 
-void SecureConnectionWrapper::sl_onShellClosed(int _exit_status) {
-    qDebug() << QString("SecureConnectionWrapper: Shell closed with exit status %1").arg(_exit_status);
+void NetworkConnectorQSsh::sl_onShellClosed(int _exit_status) {
+    qDebug() << QString("NetworkConnectorQSsh: Shell closed with exit status %1").arg(_exit_status);
 
     disconnect(this, SLOT(sl_onShellClosed(int)));
 
@@ -708,9 +684,9 @@ void SecureConnectionWrapper::sl_onShellClosed(int _exit_status) {
 }
 
 
-void SecureConnectionWrapper::resetConnection() {
+void NetworkConnectorQSsh::resetConnection() {
     if (m_connected) {
-        qDebug() << "SecureConnectionWrapper: Closing SSH/SFTP connection...";
+        qDebug() << "NetworkConnectorQSsh: Closing SSH/SFTP connection...";
         m_connection->disconnectFromHost();
         m_connected = false;
         m_waiting_for_connection = false;
@@ -720,18 +696,20 @@ void SecureConnectionWrapper::resetConnection() {
         emit si_clearConnection();
 
     } else {
-        qDebug() << "SecureConnectionWrapper: SSH/SFTP gateway not connected, ready to reconnect";
+        qDebug() << "NetworkConnectorQSsh: SSH/SFTP gateway not connected, ready to reconnect";
     }
 }
 
 
-void SecureConnectionWrapper::connectToRemoteHost() {
+void NetworkConnectorQSsh::connectToRemoteHost() {
     if (m_waiting_for_connection) {
-        qWarning() << QString("SecureConnectionWrapper: already waiting for connection...");
+        qWarning() << QString("NetworkConnectorQSsh: already waiting for connection...");
         return;
     }
 
-    qDebug() << QString("SecureConnectionWrapper: Connecting to host %1 as %2 ...")
+    qDebug() << "NetworkConnectorQSsh: connect 1";
+
+    qDebug() << QString("NetworkConnectorQSsh: Connecting to host %1 as %2 ...")
                 .arg(m_host)
                 .arg(m_creds->username());
 
@@ -756,17 +734,17 @@ void SecureConnectionWrapper::connectToRemoteHost() {
     m_connection->connectToHost();
 }
 
-void SecureConnectionWrapper::disconnectFromHost() {
+void NetworkConnectorQSsh::disconnectFromHost() {
     if (!m_connection) {
-        qWarning() << "SecureConnectionWrapper: already disconnected";
+        qWarning() << "NetworkConnectorQSsh: already disconnected";
         return;
     }
 
-    qDebug() << QString("SecureConnectionWrapper: disconnecting from host %1...").arg(m_host);
+    qDebug() << QString("NetworkConnectorQSsh: disconnecting from host %1...").arg(m_host);
     m_connection->disconnectFromHost();
 }
 
-void SecureConnectionWrapper::disableConnection() {
+void NetworkConnectorQSsh::disableConnection() {
     m_connected = false;
     m_waiting_for_connection = false;
 
@@ -775,25 +753,7 @@ void SecureConnectionWrapper::disableConnection() {
     disconnect(this, SLOT(sl_onDisconnected()));
 }
 
-//    emit si_connectionDisabled(); // make sure slot is synchronous
-
-    //  if (!m_action_queue.isEmpty()) {
-    //    qCritical() << QString(
-    //                       "SecureConnectionWrapper: Disconnected while %1 actions are still "
-    //                       "pending in action queue, clearing queue...")
-    //                       .arg(m_action_queue.count());
-    //    qDeleteAll(m_action_queue);
-    //    m_action_queue.clear();
-    //  }
-
-    //  /* free last action instance */
-    //  if (m_current_action) {
-    //      disconnectAction(m_current_action);
-    //      delete m_current_action;
-    //      m_current_action = NULL;
-    //  }
-
-void SecureConnectionWrapper::freeConnection() {
+void NetworkConnectorQSsh::freeConnection() {
     /* free connection except if it was tracked as obsolete (connection already reset by calling agent) */
     if (m_connection) {
         delete m_connection;
@@ -801,7 +761,7 @@ void SecureConnectionWrapper::freeConnection() {
     }
 }
 
-void SecureConnectionWrapper::mapConnectionError(QSsh::SshError _err) {
+void NetworkConnectorQSsh::mapConnectionError(QSsh::SshError _err) {
     switch (_err) {
     case QSsh::SshError::SshNoError:
         m_current_cx_error = eConnectionError::NO_ERROR;
@@ -844,10 +804,10 @@ void SecureConnectionWrapper::mapConnectionError(QSsh::SshError _err) {
         break;
     }
 
-    qDebug() << QString("SecureConnectionWrapper: SSH connection error occurred : ") << m_current_cx_error;
+    qDebug() << QString("NetworkConnectorQSsh: SSH connection error occurred : ") << m_current_cx_error;
 }
 
-void SecureConnectionWrapper::mapTransferError(QSsh::SftpError _err)
+void NetworkConnectorQSsh::mapTransferError(QSsh::SftpError _err)
 {
     switch (_err) {
     case QSsh::SftpError::NoError:
@@ -887,7 +847,7 @@ void SecureConnectionWrapper::mapTransferError(QSsh::SftpError _err)
         break;
     }
 
-    qWarning() << "SecureConnectionWrapper: SFTP error occurred : " << m_current_tx_error;
+    qWarning() << "NetworkConnectorQSsh: SFTP error occurred : " << m_current_tx_error;
 }
 
 } // namespace network_tools

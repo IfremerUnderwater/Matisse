@@ -11,13 +11,13 @@ NetworkClient::NetworkClient()
 
 void NetworkClient::init()
 {
-    if (!m_cx_wrapper) {
+    if (!m_connector) {
         qCritical() << "NetworkClient: connection wrapper not set";
         return;
     }
 
-    connect(m_cx_wrapper, SIGNAL(si_clearConnection()), SLOT(sl_onClearConnection()));
-    connect(m_cx_wrapper, SIGNAL(si_connected()), SLOT(sl_onConnected()));
+    connect(m_connector, SIGNAL(si_clearConnection()), SLOT(sl_onClearConnection()));
+    connect(m_connector, SIGNAL(si_connected()), SLOT(sl_onConnected()));
 
     // client specific initialization
     doInit();
@@ -39,30 +39,22 @@ void NetworkClient::addAction(NetworkAction *_action) {
 void NetworkClient::processAction() {
     qDebug() << "NetworkClient: Processing new action...";
 
-    if (!m_cx_wrapper) {
-        qDebug() << "NetworkClient: cx_wrapper NULL";
-    }
-
-    qDebug() << "NetworkClient: 0";
-
-    if (!m_cx_wrapper->isConnected()) {
-        qDebug() << "NetworkClient: 0.1";
-        if (!m_cx_wrapper->isWaitingForConnection()) {
-            qDebug() << "NetworkClient: 0.2";
-            m_cx_wrapper->connectToRemoteHost();
-        }
-        qDebug() << "NetworkClient: 0.3";
+    if (!m_connector) {
+        qCritical() << "NetworkClient: network connector is NULL";
         return;
     }
 
-    qDebug() << "NetworkClient: 1";
+    if (!m_connector->isConnected()) {
+        if (!m_connector->isWaitingForConnection()) {
+            m_connector->connectToRemoteHost();
+        }
+        return;
+    }
 
     if (m_action_queue.isEmpty()) {
         qWarning() << "NetworkClient: network action queue empty, no action to process";
         return;
     }
-
-    qDebug() << "NetworkClient: 2";
 
     /* Nominal case : free previous action instance */
     if (m_current_action) {
@@ -71,8 +63,6 @@ void NetworkClient::processAction() {
     }
 
     doInitBeforeAction();
-
-    qDebug() << "NetworkClient: 3";
 
     m_current_action = m_action_queue.dequeue();
     connectAction(m_current_action);
@@ -83,7 +73,7 @@ void NetworkClient::processAction() {
 
 void NetworkClient::checkActionPending() {
     if (m_action_queue.isEmpty()) {
-        m_cx_wrapper->disconnectFromHost();
+        m_connector->disconnectFromHost();
     } else {
         /* If actions are still pending, start next action */
         processAction();
@@ -92,7 +82,7 @@ void NetworkClient::checkActionPending() {
 
 void NetworkClient::resume() {
     /* Try to reconnect after failed login */
-    m_cx_wrapper->connectToRemoteHost();
+    m_connector->connectToRemoteHost();
 }
 
 void NetworkClient::sl_onClearConnection() {
@@ -102,7 +92,7 @@ void NetworkClient::sl_onClearConnection() {
 void NetworkClient::clearConnectionAndActionQueue() {
     qDebug() << QString("NetworkClient: clearing connection and action queue...");
 
-    m_cx_wrapper->disableConnection();
+    m_connector->disableConnection();
 
     if (!m_action_queue.isEmpty()) {
         qCritical() << QString(
@@ -120,7 +110,7 @@ void NetworkClient::clearConnectionAndActionQueue() {
         m_current_action = NULL;
     }
 
-    m_cx_wrapper->freeConnection();
+    m_connector->freeConnection();
 }
 
 void NetworkClient::sl_onConnected() {
@@ -133,27 +123,12 @@ void NetworkClient::clearActions() {
     clearConnectionAndActionQueue();
 }
 
-
-//bool NetworkClient::isConnected() { return m_connected; }
-
-//void NetworkClient::setHost(QString _host) {
-//    m_host = _host;
-//}
-
-//QString NetworkClient::host() { return m_host; }
-
-//void NetworkClient::setCredentials(NetworkCredentials *_creds) {
-//    m_creds = _creds;
-//}
-
-//QString NetworkClient::username() { return m_creds->username(); }
-
-void NetworkClient::setConnectionWrapper(ConnectionWrapper *_cx_wrapper) {
-    m_cx_wrapper = _cx_wrapper;
+void NetworkClient::setConnector(NetworkConnector *_cx_wrapper) {
+    m_connector = _cx_wrapper;
 }
 
-ConnectionWrapper *NetworkClient::connectionWrapper() {
-    return m_cx_wrapper;
+NetworkConnector *NetworkClient::connector() {
+    return m_connector;
 }
 
 }  // namespace network_tools

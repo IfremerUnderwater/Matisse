@@ -1,5 +1,5 @@
-#ifndef NETWORK_CLIENT_CONNECTION_WRAPPER_H_
-#define NETWORK_CLIENT_CONNECTION_WRAPPER_H_
+#ifndef NETWORK_TOOLS_NETWORK_CONNECTOR_H_
+#define NETWORK_TOOLS_NETWORK_CONNECTOR_H_
 
 #include <QObject>
 
@@ -8,11 +8,11 @@
 
 namespace network_tools {
 
-class ConnectionWrapper : public QObject
+class NetworkConnector : public QObject
 {
     Q_OBJECT
 public:
-    explicit ConnectionWrapper();
+    explicit NetworkConnector();
 
     bool isConnected();
     bool isWaitingForConnection();
@@ -34,8 +34,8 @@ protected:
     virtual QByteArray readShellStandardError() = 0;
 
     friend class NetworkClient;
-    friend class NetworkCommandClient;
-    friend class NetworkFileClient;
+    friend class NetworkClientShell;
+    friend class NetworkClientFileTransfer;
 
 signals:
     void si_connected();
@@ -53,6 +53,7 @@ signals:
     void si_shellClosed();
     void si_readyReadStandardOutput();
     void si_readyReadStandardError();
+
 //    void si_shellOutputReceived(QByteArray _output);
 //    void si_shellErrorReceived(QByteArray _error);
 
@@ -90,4 +91,4 @@ protected:
 
 } // namespace network_tools
 
-#endif // NETWORK_CLIENT_CONNECTION_WRAPPER_H_
+#endif // NETWORK_TOOLS_NETWORK_CONNECTOR_H_

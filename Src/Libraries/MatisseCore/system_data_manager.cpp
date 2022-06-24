@@ -224,6 +224,9 @@ bool SystemDataManager::readMatissePreferences(QString _filename, MatissePrefere
             else if (element_name == "RemoteFileServer") {
               _prefs.setRemoteFileServer(reader.readElementText());
             }
+            else if (element_name == "RemoteFileServerProtocol") {
+              _prefs.setRemoteFileServerProtocol(reader.readElementText());
+            }
             else if (element_name == "RemoteUsername") {
               _prefs.setRemoteUsername(reader.readElementText());
             }
@@ -307,6 +310,10 @@ bool SystemDataManager::writeMatissePreferences(QString _filename, MatissePrefer
     
     writer.writeStartElement("RemoteFileServer");
     writer.writeCharacters(_prefs.remoteFileServer());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteFileServerProtocol");
+    writer.writeCharacters(_prefs.remoteFileServerProtocol());
     writer.writeEndElement();
 
     writer.writeStartElement("RemoteUsername");

@@ -92,6 +92,14 @@ void MatissePreferences::setRemoteFileServer(
   m_remote_file_server = _remote_file_server;
 }
 
+QString MatissePreferences::remoteFileServerProtocol() const {
+    return m_remote_file_server_protocol;
+}
+
+void MatissePreferences::setRemoteFileServerProtocol(const QString &_remote_file_server_protocol) {
+    m_remote_file_server_protocol = _remote_file_server_protocol;
+}
+
 QString MatissePreferences::remoteUsername() const
 {
     return m_remote_username;
