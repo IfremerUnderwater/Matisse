@@ -9,7 +9,7 @@
     <Language>EN</Language>
     <RemoteCommandServer>datarmor</RemoteCommandServer>
 	<RemoteFileServer>datarmor</RemoteFileServer>
-    <RemoteUsername>aarnaubec</RemoteUsername>
+    <RemoteUsername>aarnaube</RemoteUsername>
     <RemoteUserEmail>aurelien.arnaubec@ifremer.fr</RemoteUserEmail>
     <RemoteQueueName>omp</RemoteQueueName>
 	<RemoteNbOfCpus>32</RemoteNbOfCpus>
