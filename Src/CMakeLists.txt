@@ -8,12 +8,14 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(MSVC)
+add_definitions(-DWINDOWS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005")
 set(PROJ_LIBS ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/proj.lib)
 set(OPENMVG_INSTALL_PATH ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET})
 set(BOTAN_LIB ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/botan.lib)
 set(D_EXT "dll")
 else(MSVC)
+add_definitions(-DLINUX)
 list(APPEND CMAKE_MODULE_PATH /usr/share/quazip/)
 list(APPEND CMAKE_MODULE_PATH /usr/share/cmake/geographiclib/)
 list(APPEND CMAKE_MODULE_PATH /usr/lib/cmake/Ceres/)
@@ -106,6 +108,7 @@ FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serial
 find_package(OpenMVS REQUIRED)
 find_package(QSsh)
 find_package(QFtp)
+find_package(CURL REQUIRED)
 
 find_package(LibKML REQUIRED)
 

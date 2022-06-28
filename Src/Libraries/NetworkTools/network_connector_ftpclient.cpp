@@ -1,0 +1,135 @@
+#include "network_connector_ftpclient.h"
+
+#include "file_utils.h"
+
+#include <QSettings>
+#include <QUrl>
+#include <QDir>
+
+
+using namespace system_tools;
+using namespace embeddedmz;
+
+namespace network_tools {
+
+const int NetworkConnectorFTPClient::CONNECTION_TIMEOUT_MS = 30000;
+
+NetworkConnectorFTPClient::NetworkConnectorFTPClient() :
+    m_ftp(NULL)
+{
+}
+
+void NetworkConnectorFTPClient::resetConnection() {
+    qDebug() << QString("NetworkConnectorFTPClient: reset connection...");
+}
+
+// To check
+void NetworkConnectorFTPClient::disableConnection() {
+    qDebug() << QString("NetworkConnectorFTPClient: disable connection...");
+
+    m_connected = false;
+    m_waiting_for_connection = false;
+
+}
+
+void NetworkConnectorFTPClient::freeConnection() {
+    qDebug() << QString("NetworkConnectorFTPClient: free connection...");
+
+    if (m_ftp) {
+        m_ftp->CleanupSession();
+		delete m_ftp;
+        m_ftp = NULL;
+    }
+
+}
+
+void NetworkConnectorFTPClient::connectToRemoteHost() {
+
+    qDebug() << "BasicConnectionWrapper: 0";
+
+    if (!m_connected)
+	{
+		if (!m_ftp)
+			m_ftp = new CFTPClient([](const std::string& strLogMsg){ std::cout << strLogMsg << std::endl; });
+		
+        if (m_ftp->InitSession(m_host.toStdString(), 21, m_creds->username().toStdString(), m_creds->password().toStdString()))
+        {
+            m_connected = true;
+            emit si_connected();
+        }
+        else
+            emit si_connectionFailed(eConnectionError::INTERNAL_ERROR);
+
+	}
+	
+}
+
+void NetworkConnectorFTPClient::disconnectFromHost() {
+    qDebug() << QString("NetworkConnectorFTPClient: disconnecting from host...");
+
+    if (m_ftp) {
+        m_ftp->CleanupSession();
+    }
+
+    emit si_clearConnection();
+}
+
+
+QByteArray NetworkConnectorFTPClient::readShellStandardOutput() {
+    qCritical() << "NetworkConnectorFTPClient: Telnet protocol not supported";
+    return QByteArray();
+}
+
+QByteArray NetworkConnectorFTPClient::readShellStandardError() {
+    qCritical() << "NetworkConnectorFTPClient: Telnet protocol not supported";
+    return QByteArray();
+}
+
+void NetworkConnectorFTPClient::sl_initFileChannel() {
+//    qDebug() << "NetworkConnectorFTPClient: Channel Initialized";
+
+    /* This step is skipped with FTPClient API */
+    emit si_channelReady();
+}
+
+void NetworkConnectorFTPClient::sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload, bool _recurse) {
+    qDebug() << QString("NetworkConnectorFTPClient: uploading %1 to %2...").arg(_local_path).arg(_remote_path);
+
+    if (_recurse) {
+        qDebug() << "NetworkConnectorFTPClient: recursive upload...";
+        //m_recursive_upload = true;
+    }
+	// To be completed
+
+}
+
+void NetworkConnectorFTPClient::sl_download(QString _remote_path, QString _local_path, bool _is_dir_download) {
+    qDebug() << QString("NetworkConnectorFTPClient: downloading %1 to %2...").arg(_remote_path).arg(_local_path);
+
+
+}
+
+
+
+void NetworkConnectorFTPClient::sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer) {
+    qDebug() << QString("NetworkConnectorFTPClient: listing contents for dir %1...").arg(_remote_dir_path);
+
+
+}
+
+
+void NetworkConnectorFTPClient::sl_createRemoteShell(QString& _command) {
+    Q_UNUSED(_command)
+    qCritical() << "NetworkConnectorFTPClient: Telnet protocol not supported";
+}
+
+void NetworkConnectorFTPClient::sl_closeRemoteShell() {
+    qCritical() << "NetworkConnectorFTPClient: Telnet protocol not supported";
+}
+
+void NetworkConnectorFTPClient::sl_executeShellCommand() {
+    qCritical() << "NetworkConnectorFTPClient: Telnet protocol not supported";
+}
+
+
+} // namespace network_tools

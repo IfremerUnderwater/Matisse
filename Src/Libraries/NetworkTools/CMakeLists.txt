@@ -15,6 +15,7 @@ add_library(NetworkTools
     network_client_shell.cpp
     network_credentials.cpp
     network_connector.cpp
+	network_connector_ftpclient.cpp
     network_connector_qftp.cpp
     network_connector_qssh.cpp
 )
@@ -30,6 +31,7 @@ target_link_libraries(NetworkTools
 	QSsh::QSsh 
 	${BOTAN_LIB}
         QFtp
+		FTPClient
 	)
 
 

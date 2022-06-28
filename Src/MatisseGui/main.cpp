@@ -25,6 +25,7 @@
 #include "network_client_shell.h"
 #include "network_connector_qssh.h"
 #include "network_connector_qftp.h"
+#include "network_connector_ftpclient.h"
 #include "assembly_helper.h"
 #include "job_helper.h"
 #include "remote_job_helper.h"
@@ -149,7 +150,8 @@ int main(int argc, char *argv[])
     NetworkClient* ssh_client = new NetworkClientShell();
     ssh_client->setConnector(ssh_handler);
 
-    NetworkConnector* ftp_handler = new NetworkConnectorQFtp();
+    //NetworkConnector* ftp_handler = new NetworkConnectorQFtp();
+    NetworkConnector* ftp_handler = new NetworkConnectorFTPClient();
     NetworkClient* ftp_client = new NetworkClientFileTransfer();
     ftp_client->setConnector(ftp_handler);
 
