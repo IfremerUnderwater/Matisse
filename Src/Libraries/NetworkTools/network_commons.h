@@ -5,6 +5,7 @@
 #include <QtDebug>
 #include <QFlags>
 #include <QDateTime>
+#include <QMetaType>
 
 namespace network_tools {
 
@@ -100,5 +101,7 @@ private:
 };
 
 } // namespace network_tools
+
+Q_DECLARE_METATYPE(QList<network_tools::NetworkFileInfo*>)
 
 #endif // NETWORK_TOOLS_NETWORK_COMMONS_H_

@@ -52,7 +52,7 @@ protected slots:
     void sl_qftpConnected();
 
 private slots:
-
+    void sl_receiveDirContents(QList<network_tools::NetworkFileInfo*> _dir_contents);
 
 private:
 

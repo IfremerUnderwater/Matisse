@@ -53,6 +53,8 @@ void NetworkConnectorFTPClient::connectToRemoteHost() {
         {
             m_ftp = new QFTPClient();
             connect(m_ftp, SIGNAL(si_connected()), this, SLOT(sl_qftpConnected()));
+            connect(m_ftp, SIGNAL(si_dirContents(QList<network_tools::NetworkFileInfo*>)), this, SLOT(sl_receiveDirContents(QList<network_tools::NetworkFileInfo*>)));
+
         }
 		
         m_ftp->connectToHost(m_host, m_creds->username(), m_creds->password(), 21);
@@ -112,6 +114,11 @@ void NetworkConnectorFTPClient::sl_dirContent(QString _remote_dir_path, FileType
     qDebug() << QString("NetworkConnectorFTPClient: listing contents for dir %1...").arg(_remote_dir_path);
     m_ftp->listDir(_remote_dir_path);
 
+}
+
+void NetworkConnectorFTPClient::sl_receiveDirContents(QList<network_tools::NetworkFileInfo*> _dir_contents)
+{
+    emit si_dirContents(_dir_contents);
 }
 
 

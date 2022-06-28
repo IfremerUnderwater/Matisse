@@ -12,7 +12,7 @@ QFTPClient::QFTPClient(QObject *parent) : QObject(parent)
 	// connect sig/slot (thread safe)
 	connect(&m_ftp_client, SIGNAL(si_connected()), this, SLOT(sl_connected()));
 	connect(&m_ftp_client, SIGNAL(si_connectionFailed(QString)), this, SLOT(sl_connectionFailed(QString)));
-
+	connect(&m_ftp_client, SIGNAL(si_dirContents(QList<network_tools::NetworkFileInfo*>)), this, SLOT(sl_dirContents(QList<network_tools::NetworkFileInfo*>)));
 
 	m_ftp_thread.start();
 }
@@ -36,4 +36,9 @@ void QFTPClient::sl_connected()
 void QFTPClient::sl_connectionFailed(QString _err)
 {
 	emit si_connectionFailed(_err);
+}
+
+void QFTPClient::sl_dirContents(QList<network_tools::NetworkFileInfo*> _dir_contents)
+{
+	emit si_dirContents(_dir_contents);
 }

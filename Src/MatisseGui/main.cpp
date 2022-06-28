@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<eConnectionError>();
     qRegisterMetaType<eTransferError>("eTransferError");
     qRegisterMetaType<NetworkAction::eNetworkActionType>("NetworkAction::eNetworkActionType");
+    qRegisterMetaType < QList<network_tools::NetworkFileInfo*> >();
 
     /* Define default encoding for all text streaming */
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
