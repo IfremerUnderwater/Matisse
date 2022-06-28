@@ -764,11 +764,11 @@ void NetworkConnectorQSsh::freeConnection() {
 void NetworkConnectorQSsh::mapConnectionError(QSsh::SshError _err) {
     switch (_err) {
     case QSsh::SshError::SshNoError:
-        m_current_cx_error = eConnectionError::NO_ERROR;
+        m_current_cx_error = eConnectionError::NO_ERROR_NC;
         break;
 
     case QSsh::SshError::SshSocketError:
-        m_current_cx_error = eConnectionError::SOCKET_ERROR;
+        m_current_cx_error = eConnectionError::SOCKET_ERROR_NC;
         break;
 
     case QSsh::SshError::SshTimeoutError:
@@ -811,7 +811,7 @@ void NetworkConnectorQSsh::mapTransferError(QSsh::SftpError _err)
 {
     switch (_err) {
     case QSsh::SftpError::NoError:
-        m_current_tx_error = eTransferError::NO_ERROR;
+        m_current_tx_error = eTransferError::NO_ERROR_NC;
         break;
 
     case QSsh::SftpError::EndOfFile:

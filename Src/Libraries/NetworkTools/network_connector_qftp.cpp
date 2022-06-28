@@ -187,7 +187,7 @@ void NetworkConnectorQFtp::sl_onManagerStateChanged(int _state) {
     if (m_current_manager_state == QFtp::LoggedIn) {
         m_connected = true;
         m_waiting_for_connection = false;
-        m_current_cx_error = eConnectionError::NO_ERROR;
+        m_current_cx_error = eConnectionError::NO_ERROR_NC;
         qDebug() << QString("NetworkConnectorQFtp: Connected to FTP server %1 as %2")
                     .arg(m_host).arg(m_creds->username());
         emit si_connected();
@@ -209,7 +209,7 @@ void NetworkConnectorQFtp::sl_onManagerStateChanged(int _state) {
 }
 
 void NetworkConnectorQFtp::sl_onManagerSequenceDone(bool _error) {
-    if (m_current_cx_error != eConnectionError::NO_ERROR) {
+    if (m_current_cx_error != eConnectionError::NO_ERROR_NC) {
         qDebug() << "NetworkConnectorQFtp: FTP sequence aborted with connection error";
         return;
     }
@@ -920,11 +920,11 @@ void NetworkConnectorQFtp::sl_dirContent(QString _remote_dir_path, FileTypeFilte
 void NetworkConnectorQFtp::mapConnectionError(QFtp::Error _err) {
     switch (_err) {
     case QFtp::NoError:
-        m_current_cx_error = eConnectionError::NO_ERROR;
+        m_current_cx_error = eConnectionError::NO_ERROR_NC;
         break;
 
     case QFtp::HostNotFound:
-        m_current_cx_error = eConnectionError::SOCKET_ERROR;
+        m_current_cx_error = eConnectionError::SOCKET_ERROR_NC;
         break;
 
     case QFtp::ConnectionRefused:
@@ -945,7 +945,7 @@ void NetworkConnectorQFtp::mapTransferError(QFtp::Error _err)
 {
     switch (_err) {
     case QFtp::NoError:
-        m_current_tx_error = eTransferError::NO_ERROR;
+        m_current_tx_error = eTransferError::NO_ERROR_NC;
         break;
 
     case QFtp::NotConnected:

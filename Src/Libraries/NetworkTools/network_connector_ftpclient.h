@@ -14,7 +14,7 @@
 #include <QMetaEnum>
 
 #include "network_commons.h"
-#include "FTPClient.h"
+#include "qftpclient.h"
 
 
 namespace network_tools {
@@ -49,12 +49,14 @@ protected slots:
     void sl_closeRemoteShell();
     void sl_executeShellCommand();
 
+    void sl_qftpConnected();
+
 private slots:
 
 
 private:
 
-    embeddedmz::CFTPClient *m_ftp;
+    QFTPClient *m_ftp;
 
     static const int CONNECTION_TIMEOUT_MS;
 };

@@ -72,8 +72,8 @@ protected:
     NetworkCredentials *m_creds;
     bool m_connected = false;
     bool m_waiting_for_connection = false;
-    eConnectionError m_current_cx_error = eConnectionError::NO_ERROR;
-    eTransferError m_current_tx_error = eTransferError::NO_ERROR;
+    eConnectionError m_current_cx_error = eConnectionError::NO_ERROR_NC;
+    eTransferError m_current_tx_error = eTransferError::NO_ERROR_NC;
     QString m_shell_command;
     bool m_download_file_ongoing;
     bool m_download_dir_ongoing;

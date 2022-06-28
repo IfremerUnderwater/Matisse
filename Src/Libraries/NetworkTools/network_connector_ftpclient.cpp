@@ -36,7 +36,7 @@ void NetworkConnectorFTPClient::freeConnection() {
     qDebug() << QString("NetworkConnectorFTPClient: free connection...");
 
     if (m_ftp) {
-        m_ftp->CleanupSession();
+        //m_ftp->CleanupSession();
 		delete m_ftp;
         m_ftp = NULL;
     }
@@ -49,16 +49,13 @@ void NetworkConnectorFTPClient::connectToRemoteHost() {
 
     if (!m_connected)
 	{
-		if (!m_ftp)
-			m_ftp = new CFTPClient([](const std::string& strLogMsg){ std::cout << strLogMsg << std::endl; });
-		
-        if (m_ftp->InitSession(m_host.toStdString(), 21, m_creds->username().toStdString(), m_creds->password().toStdString()))
+        if (!m_ftp)
         {
-            m_connected = true;
-            emit si_connected();
+            m_ftp = new QFTPClient();
+            connect(m_ftp, SIGNAL(si_connected()), this, SLOT(sl_qftpConnected()));
         }
-        else
-            emit si_connectionFailed(eConnectionError::INTERNAL_ERROR);
+		
+        m_ftp->connectToHost(m_host, m_creds->username(), m_creds->password(), 21);
 
 	}
 	
@@ -68,7 +65,7 @@ void NetworkConnectorFTPClient::disconnectFromHost() {
     qDebug() << QString("NetworkConnectorFTPClient: disconnecting from host...");
 
     if (m_ftp) {
-        m_ftp->CleanupSession();
+        //m_ftp->CleanupSession();
     }
 
     emit si_clearConnection();
@@ -113,7 +110,7 @@ void NetworkConnectorFTPClient::sl_download(QString _remote_path, QString _local
 
 void NetworkConnectorFTPClient::sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer) {
     qDebug() << QString("NetworkConnectorFTPClient: listing contents for dir %1...").arg(_remote_dir_path);
-
+    m_ftp->listDir(_remote_dir_path);
 
 }
 
@@ -129,6 +126,12 @@ void NetworkConnectorFTPClient::sl_closeRemoteShell() {
 
 void NetworkConnectorFTPClient::sl_executeShellCommand() {
     qCritical() << "NetworkConnectorFTPClient: Telnet protocol not supported";
+}
+
+void NetworkConnectorFTPClient::sl_qftpConnected()
+{
+    m_connected = true;
+    emit si_connected();
 }
 
 

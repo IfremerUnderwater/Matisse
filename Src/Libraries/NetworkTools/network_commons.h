@@ -16,9 +16,9 @@ Q_NAMESPACE
   */
 enum class eConnectionError {
     /// No error has occured
-    NO_ERROR,
+    NO_ERROR_NC,
     /// There was a network socket error
-    SOCKET_ERROR,
+    SOCKET_ERROR_NC,
     /// The connection timed out
     TIMEOUT_ERROR,
     /// There was an error communicating with the server
@@ -40,7 +40,7 @@ enum class eConnectionError {
 Q_ENUM_NS(eConnectionError)
 
 enum class eTransferError {
-    NO_ERROR,
+    NO_ERROR_NC,
     END_OF_FILE,
     FILE_NOT_FOUND,
     PERMISSION_DENIED,
