@@ -13,6 +13,13 @@ QFTPClient::QFTPClient(QObject *parent) : QObject(parent)
 	connect(&m_ftp_client, SIGNAL(si_connected()), this, SLOT(sl_connected()));
 	connect(&m_ftp_client, SIGNAL(si_connectionFailed(QString)), this, SLOT(sl_connectionFailed(QString)));
 	connect(&m_ftp_client, SIGNAL(si_dirContents(QList<network_tools::NetworkFileInfo*>)), this, SLOT(sl_dirContents(QList<network_tools::NetworkFileInfo*>)));
+	connect(&m_ftp_client, SIGNAL(si_progressUpdate(int)), this, SLOT(sl_progressUpdate(int)));
+	connect(&m_ftp_client, SIGNAL(si_transferFinished()), this, SLOT(sl_transferFinished()));
+
+	connect(this, SIGNAL(si_uploadFile(QString, QString)), &m_ftp_client, SLOT(sl_uploadFile(QString, QString)));
+	connect(this, SIGNAL(si_downloadFile(QString, QString)), &m_ftp_client, SLOT(sl_downloadFile(QString, QString)));
+	connect(this, SIGNAL(si_uploadDir(QString, QString, bool)), &m_ftp_client, SLOT(sl_uploadDir(QString, QString, bool)));
+	connect(this, SIGNAL(si_downloadDir(QString, QString, bool)), &m_ftp_client, SLOT(sl_downloadDir(QString, QString, bool)));
 
 	m_ftp_thread.start();
 }
@@ -28,11 +35,37 @@ void QFTPClient::listDir(QString _dir)
 	emit si_listDir(_dir);
 }
 
+void QFTPClient::uploadFile(QString _local_file_path, QString _remote_file_path)
+{
+	emit si_uploadFile(_local_file_path, _remote_file_path);
+}
+
+void QFTPClient::downloadFile(QString _remote_file_path, QString _local_file_path)
+{
+	emit si_downloadFile(_remote_file_path, _local_file_path);
+}
+
+void QFTPClient::uploadDir(QString _local_dir_path, QString _remote_dir_path, bool _recursive)
+{
+	emit si_uploadDir(_local_dir_path, _remote_dir_path, _recursive);
+}
+
+void QFTPClient::downloadDir(QString _remote_dir_path, QString _local_dir_path, bool _recursive)
+{
+	emit si_downloadDir(_remote_dir_path, _local_dir_path,  _recursive);
+}
+
+void QFTPClient::stopThread()
+{
+	m_ftp_thread.quit();
+	m_ftp_thread.wait();
+}
 
 void QFTPClient::sl_connected()
 {
 	emit si_connected();
 }
+
 void QFTPClient::sl_connectionFailed(QString _err)
 {
 	emit si_connectionFailed(_err);
@@ -41,4 +74,14 @@ void QFTPClient::sl_connectionFailed(QString _err)
 void QFTPClient::sl_dirContents(QList<network_tools::NetworkFileInfo*> _dir_contents)
 {
 	emit si_dirContents(_dir_contents);
+}
+
+void QFTPClient::sl_progressUpdate(int _progress)
+{
+	emit si_progressUpdate(_progress);
+}
+
+void QFTPClient::sl_transferFinished()
+{
+	emit si_transferFinished();
 }

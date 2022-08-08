@@ -96,3 +96,55 @@ QString ThreadableFTPClient::replaceMonthMMMByNumber(const QString& _date_string
 
     return replaced_date_string;
 }
+
+
+bool ThreadableFTPClient::sl_uploadFile(QString _local_file_path, QString _remote_file_path)
+{
+    if (m_connected)
+    {
+        if (!m_ftp.UploadFile(_local_file_path.toStdString(), _remote_file_path.toStdString(), true))
+        {
+            emit si_errorOccured(2, "Cannot upload file (permission issue or folder in folder not created)");
+            return false;
+        }
+    }
+    else
+    {
+        emit si_errorOccured(1, "Cannot upload a file while not connected");
+        return false;
+    }
+    return true;
+
+}
+void ThreadableFTPClient::sl_downloadFile(QString _remote_file_path, QString _local_file_path)
+{
+
+}
+void ThreadableFTPClient::sl_uploadDir(QString _local_dir_path, QString _remote_dir_path, bool _recursive)
+{
+    QDir local_dir(_local_dir_path);
+    QFileInfoList dir_entries = local_dir.entryInfoList(QDir::Filter::Files | QDir::Filter::NoDotAndDotDot);
+
+    bool dir_has_files = !dir_entries.isEmpty();
+
+    if (dir_has_files) {
+        for (int i = 0; i < dir_entries.size(); i++) {
+
+            QFileInfo entry = dir_entries[i];
+            QStringList file_parts = QDir::toNativeSeparators(entry.canonicalFilePath()).split(QDir::separator());
+
+            if (file_parts.size() > 2)
+            {
+                int progress = round( 100.0*(double)i/(double)dir_entries.size() );
+                QString remote_file_path = _remote_dir_path + "/" + file_parts[file_parts.size() - 2] + "/" + entry.fileName(); // only support linux server
+                sl_uploadFile(entry.canonicalFilePath(), remote_file_path);
+                emit si_progressUpdate(progress);
+            }
+        }
+        emit si_transferFinished();
+    }
+}
+void ThreadableFTPClient::sl_downloadDir(QString _remote_dir_path, QString _local_dir_path, bool _recursive)
+{
+
+}

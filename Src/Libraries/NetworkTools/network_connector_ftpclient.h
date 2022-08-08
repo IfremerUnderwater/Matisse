@@ -44,6 +44,8 @@ protected slots:
     void sl_upload(QString _local_path, QString _remote_path, bool _is_dir_upload, bool _recurse);
     void sl_download(QString _remote_path, QString _local_path, bool _is_dir_download);
     void sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer=false);
+    void sl_progressUpdate(int _progress);
+    void sl_transferFinished();
 
     void sl_createRemoteShell(QString& _command);
     void sl_closeRemoteShell();
