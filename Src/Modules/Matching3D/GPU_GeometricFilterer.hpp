@@ -80,7 +80,7 @@ void GpuImageCollectionGeometricFilter::Robust_model_estimation
 
 
 #ifdef OPENMVG_USE_OPENMP
-#pragma omp parallel for schedule(dynamic) if (!use_sift_gpu)
+#pragma omp parallel for schedule(dynamic) // if (!use_sift_gpu)
 #endif
   for (int i = 0; i < (int)putative_matches.size(); ++i)
   {
