@@ -1168,9 +1168,10 @@ void RemoteJobHelper::sl_onDirContentsReceived(NetworkAction *_action, QList<Net
 
     QString job_name = m_jobs_by_action.value(_action);
 
+    // case you upload data from the job definition
     if (!job_name.isEmpty()) {
-        qCritical() << "RemoteJobHelper: Could not find job for completed action "
-                    << _action->type();
+       // qCritical() << "RemoteJobHelper: Could not find job for completed action "
+       //             << _action->type();
 
         /* Checking dataset dir before uploading */
         qDebug() << QString("RemoteJobHelper: received datasets dir contents");
@@ -1218,7 +1219,7 @@ void RemoteJobHelper::sl_onDirContentsReceived(NetworkAction *_action, QList<Net
         return;
     }
 
-
+    // case you select data on the server
     KeyValueList dataset_params;
     dataset_params.insert(DATASET_PARAM_DATASET_DIR, "");
     dataset_params.insert(DATASET_PARAM_OUTPUT_DIR, "");

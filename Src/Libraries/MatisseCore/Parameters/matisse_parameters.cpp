@@ -332,7 +332,7 @@ void MatisseParameters::substituteParamValue(QString _source_structure, QString 
         return;
     }
 
-    if (!m_hash_values[_source_structure].contains(_target_param)) {
+    if (!m_hash_values[_target_structure].contains(_target_param)) {
         qCritical() << QString("Trying to substitue value for unknown parameter '%1'").arg(_target_param);
         return;
     }
