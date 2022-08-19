@@ -55,7 +55,7 @@ public:
     /// \param _mosaic_plane_pt_p mosaic plane point
     /// \param _corner_p
     ///
-    void projectImageOnMosaickingPlane(cv::UMat & _mosaic_plane_image_p, cv::UMat & mosaic_plane_mask_p, cv::Point & _corner_p);
+    void projectImageOnMosaickingPlane(cv::UMat & _mosaic_plane_image_p, cv::UMat & _mosaic_plane_mask_p, cv::Point & _corner_p);
 
     ///
     /// \brief computeImageExtent compute image origin and size

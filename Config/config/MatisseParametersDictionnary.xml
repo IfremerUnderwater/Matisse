@@ -19,7 +19,8 @@
                 <Parameter name="filter_overlap" level="expert" text="Overlap filtering" type="bool" show="check" default="0"/>
                 <Parameter name="max_overlap" level="expert" text="Max overlap between 2 images" type="double" range="[0,1]" precision="2" show="spin" default="0.9"/>
                 <Parameter name="min_overlap" level="expert" text="Min overlap between 2 images" type="double" range="[0,1]" precision="2" show="spin" default="0.7"/>
-		<Parameter name="do_realtime_mosaicking" level="user" text="Activate realtime mosaicking" type="bool" show="check" default="1"/>
+		        <Parameter name="do_realtime_mosaicking" level="user" text="Activate realtime mosaicking" type="bool" show="check" default="1"/>
+                <Parameter name="use_gpu_with_opencl" level="expert" text="Activate the use of GPU acceleration with OpenCL" type="bool" show="check" default="0"/>
             </ParametersGroup>
             <ParametersGroup name="bundle_adjustment_params" text="Bundle adjustment">
                 <Parameter name="MaxIter" level="expert" text="Max iterations in optimization" type="integer" range="]1,inf[" show="spin" default="50"/>
