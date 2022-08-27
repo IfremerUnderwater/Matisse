@@ -499,6 +499,7 @@ void RemoteJobHelper::scheduleJob(QString _job_name, QString _local_job_bundle_f
     remote_dataset_params.insert(DATASET_PARAM_REMOTE_DATASET_PARENT_DIR, "");
     m_param_manager->pullRemoteDatasetParameters(remote_dataset_params);
     QString remote_dataset_parent_dir_param = remote_dataset_params.getValue(DATASET_PARAM_REMOTE_DATASET_PARENT_DIR);
+
     QString datasets_dir_path = remote_dataset_parent_dir_param.isEmpty() ?
                 m_server_settings->datasetsDir().path() : remote_dataset_parent_dir_param;
 
@@ -577,10 +578,10 @@ void RemoteJobHelper::downloadResults(QString _job_name)
 
     /* Retrieve bound result path from parameters */
     KeyValueList kvl;
-    kvl.insert(DATASET_PARAM_OUTPUT_DIR, "");
-    m_param_manager->pullDatasetParameters(kvl);
+    kvl.insert(DATASET_PARAM_REMOTE_OUTPUT_DIR, "");
+    m_param_manager->pullRemoteDatasetParameters(kvl);
 
-    QString remote_dir_path = kvl.getValue(DATASET_PARAM_OUTPUT_DIR);
+    QString remote_dir_path = kvl.getValue(DATASET_PARAM_REMOTE_OUTPUT_DIR);
 
     /* Substitute container bound result path by real path */
     remote_dir_path.replace(m_server_settings->resultsPathBound(), m_server_settings->resultsPath());
@@ -976,6 +977,7 @@ void RemoteJobHelper::updateJobParameters(QString _job_name,
         QString dataset_name = local_dataset_dir.dirName();
         QString dataset_root_dir_bound = m_server_settings->datasetsPathBound();
         remote_dataset_path = dataset_root_dir_bound + '/' + dataset_name;
+        remote_dataset_parent_dir = m_server_settings->datasetsDir().path();
     }
 
     remote_nav_file_path = (nav_file_name.isEmpty()) ? "" :
@@ -1135,6 +1137,7 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction::eNetworkActionType _act
     qDebug() << QString("RemoteJobHelper: transfer failed with err '%1' for action of type '%2'").arg(error_str).arg(type_str);
 
     bool invalid_user_datasets_path = false;
+    bool invalid_user_datasets_path_setting = false;
     QString warning_title = tr("Transfer failed");
     QString warning_message = tr("Transfer to/from host '%1' failed with error code '%2'")
             .arg(failed_host)
@@ -1143,15 +1146,29 @@ void RemoteJobHelper::sl_onTransferFailed(NetworkAction::eNetworkActionType _act
     if ((_action_type == NetworkAction::eNetworkActionType::ListDirContent) &&
             (_err == eTransferError::FILE_NOT_FOUND)) {
         invalid_user_datasets_path = true;
+        invalid_user_datasets_path_setting = (m_current_datasets_root_path == m_server_settings->datasetsPath()) ||
+                (m_current_datasets_root_path.isEmpty()); // case first round of the remote selection session
+
         warning_title = tr("Invalid path");
-        warning_message = tr("The path entered '%1' does not exist on host '%2'")
-                .arg(m_current_datasets_root_path)
-                .arg(failed_host);
+
+        if (invalid_user_datasets_path_setting) {
+            warning_message = tr("The path configured for remote datasets '%1' does not exist on host '%2'.\nPlease contact your administrator.")
+                    .arg(m_server_settings->datasetsPath())
+                    .arg(failed_host);
+
+        } else {
+            warning_message = tr("The path entered '%1' does not exist on host '%2'")
+                    .arg(m_current_datasets_root_path)
+                    .arg(failed_host);
+        }
     }
 
     QMessageBox::warning(m_job_launcher, warning_title, warning_message);
 
-    if (invalid_user_datasets_path) {
+    if (invalid_user_datasets_path_setting) {
+        // Interrupt the selection process to avoid looping on error
+        return;
+    } else if (invalid_user_datasets_path) {
         m_current_datasets_root_path = ""; // invalidate current datasets path
 
         QString restore_path = (m_previous_datasets_root_path.isEmpty()) ?
@@ -1311,7 +1328,6 @@ void RemoteJobHelper::sl_onDirContentsReceived(NetworkAction *_action, QList<Net
         dataset_params.set(DATASET_PARAM_NAVIGATION_FILE, selected_navfile);
     }
 
-//        updateJobParameters(m_current_job_name, symbolic_dataset_path, selected_navfile, current_dataset_path_bound);
     updateJobParameters(m_current_job_name, dataset_params, true);
 }
 
