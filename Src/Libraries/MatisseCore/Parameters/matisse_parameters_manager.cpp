@@ -1238,12 +1238,18 @@ bool MatisseParametersManager::readParametersFile(QString _filename, bool _is_as
                 }
 
                 bool is_extra_dataset_param = false;
+                bool is_remote_dataset_param = false;
 
                 if (!m_expected_parameters.contains(param_name)) {
                     if (!_is_assembly_template && m_dataset_param_names.contains(param_name)) {
                         qDebug() << QString("Extra parameter '%1' found in job parameters file. Keeping as dataset parameter").arg(param_name);
                         is_extra_dataset_param = true;
-                    } else {
+                    } else if (!_is_assembly_template && m_remote_dataset_param_names.contains(param_name)) {
+                       qDebug() << QString("Extra parameter '%1' found in job parameters file. Keeping as remote dataset parameter").arg(param_name);
+                       is_extra_dataset_param = true;
+                       is_remote_dataset_param = true;
+                    }
+                    else {
                         // Signaler incoherence et ignorer parametre
                         qWarning() << QString("Parameter '%1' found in parameters file is not referenced as expected by the assembly, skipping...")
                                       .arg(param_name);
@@ -1253,7 +1259,7 @@ bool MatisseParametersManager::readParametersFile(QString _filename, bool _is_as
 
                 /* Dataset parameters are excluded from assembly parameters (generic template) */
                 /* Since dataset parameters are not to be expected parameters, we should never reach this */
-                if (_is_assembly_template && m_dataset_param_names.contains(param_name)) {
+                if (_is_assembly_template && (m_dataset_param_names.contains(param_name) || m_remote_dataset_param_names.contains(param_name))) {
                     qWarning() << QString("Dataset parameter '%1' was referenced as expected").arg(param_name);
                     continue;
                 }
@@ -1272,12 +1278,15 @@ bool MatisseParametersManager::readParametersFile(QString _filename, bool _is_as
 
                 if (is_extra_dataset_param) {
                     m_job_extra_parameters.insert(param_name);
-                    actual_param_widget->show(); // montrer le parametre non defini dans l'assemblage
 
-                    /* show dataset param group */
-                    QMap<QString, QWidget*> structure_groups_widgets = m_groups_widgets.value(dico_structure_name);
-                    QWidget* group_widget = structure_groups_widgets.value(param_name);
-                    group_widget->show();
+                    if (!is_remote_dataset_param) { // remote dataset parameters are never shown
+                        actual_param_widget->show(); // show extra parameter not defined in assembly
+
+                        /* show dataset param group */
+                        QMap<QString, QWidget*> structure_groups_widgets = m_groups_widgets.value(dico_structure_name);
+                        QWidget* group_widget = structure_groups_widgets.value(param_name);
+                        group_widget->show();
+                    }
                 }
             }
 

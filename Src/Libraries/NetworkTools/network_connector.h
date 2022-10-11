@@ -41,7 +41,6 @@ signals:
     void si_connected();
     void si_connectionFailed(eConnectionError _err);
     void si_clearConnection();
-//    void si_connectionClosed();
     void si_progressUpdate(int _progress);
     void si_channelReady();
     void si_channelClosed();
