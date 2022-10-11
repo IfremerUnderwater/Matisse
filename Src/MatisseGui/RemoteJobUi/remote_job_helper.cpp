@@ -959,7 +959,7 @@ void RemoteJobHelper::updateJobParameters(QString _job_name,
     /* resolving parameter values for remote execution */
     QString remote_dataset_path;
     QString remote_nav_file_path;
-    QString remote_dataset_parent_dir = "";
+    QString remote_dataset_parent_dir = "/home/datawork-matisse-extranet-s/datasets";
 
     if (_is_selected_dataset) {
         /* remote dataset parameter for selected dataset */
