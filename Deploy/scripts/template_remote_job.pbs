@@ -2,8 +2,8 @@
 #PBS -m abe
 #PBS -M <%job.owner.email%>
 #PBS -q <%scheduler.queue.name%>
-#PBS -l walltime=00:10:00
-#PBS -l mem=500mb
+#PBS -l walltime=20:00:00
+#PBS -l mem=64000mb
 #PBS -l ncpus=<%job.resources.ncpus%>
 #PBS -o <%jobs.root.path%>/<%job.export.name%>.out
 #PBS -e <%jobs.root.path%>/<%job.export.name%>.err
