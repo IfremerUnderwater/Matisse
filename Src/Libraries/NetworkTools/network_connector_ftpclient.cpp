@@ -105,6 +105,10 @@ void NetworkConnectorFTPClient::sl_upload(QString _local_path, QString _remote_p
 void NetworkConnectorFTPClient::sl_download(QString _remote_path, QString _local_path, bool _is_dir_download) {
     qDebug() << QString("NetworkConnectorFTPClient: downloading %1 to %2...").arg(_remote_path).arg(_local_path);
 
+    if (_is_dir_download)
+        m_ftp->downloadDir(_remote_path, _local_path, true);
+    else
+        m_ftp->downloadFile(_remote_path, _local_path);
 
 }
 

@@ -3,6 +3,46 @@
 
 using namespace embeddedmz;
 
+int ThreadableFTPClient::DLProgressCallback(void* ptr, double dTotalToDownload, double dNowDownloaded, double dTotalToUpload, double dNowUploaded) {
+
+    CFTPClient::ProgressFnStruct* progress_data = static_cast<CFTPClient::ProgressFnStruct*>(ptr);
+    ThreadableFTPClient* ftp_client = static_cast<ThreadableFTPClient*>(progress_data->pOwner);
+
+    // ensure that the file to be downloaded is not empty
+    // because that would cause a division by zero error later on
+    if (dTotalToDownload <= 0.0) return 0;
+
+    // how wide you want the progress meter to be
+    const int iTotalDots = 20;
+    double dFractionDownloaded = dNowDownloaded / dTotalToDownload;
+    // part of the progressmeter that's already "full"
+    int iDots = static_cast<int>(round(dFractionDownloaded * iTotalDots));
+
+    // create the "meter"
+    int iDot = 0;
+    std::cout << static_cast<unsigned>(dFractionDownloaded * 100) << "% [";
+
+    ftp_client->emitProgress(static_cast<int>(dFractionDownloaded * 100));
+
+    // part  that's full already
+    for (; iDot < iDots; iDot++) std::cout << "=";
+
+    // remaining part (spaces)
+    for (; iDot < iTotalDots; iDot++) std::cout << " ";
+
+    // and back to line begin - do not forget the fflush to avoid output buffering problems!
+    std::cout << "]           \r" << std::flush;
+
+    // if you don't return 0, the transfer will be aborted - see the documentation
+    return 0;
+}
+
+void ThreadableFTPClient::emitProgress(int _progress)
+{
+    if(m_current_state == DOWNLOADING)
+        emit si_progressUpdate(_progress);
+}
+
 ThreadableFTPClient::ThreadableFTPClient(QObject *_parent) : QObject(_parent),
 m_ftp([](const std::string& _strLogMsg) { std::cout << _strLogMsg << std::endl; }),
 m_connected(false)
@@ -12,6 +52,8 @@ m_connected(false)
 
 void ThreadableFTPClient::sl_connectToHost(QString _host, QString _username, QString _password, unsigned _port)
 {
+    m_ftp.SetProgressFnCallback(this, ThreadableFTPClient::DLProgressCallback);
+
     if (m_ftp.InitSession(_host.toStdString(), _port, _username.toStdString(), _password.toStdString()))
     {
         m_connected = true;
@@ -102,11 +144,13 @@ bool ThreadableFTPClient::sl_uploadFile(QString _local_file_path, QString _remot
 {
     if (m_connected)
     {
+        m_current_state = ThreadableFTPClient::UPLOADING;
         if (!m_ftp.UploadFile(_local_file_path.toStdString(), _remote_file_path.toStdString(), true))
         {
             emit si_errorOccured(2, "Cannot upload file (permission issue or folder in folder not created)");
             return false;
         }
+        m_current_state = ThreadableFTPClient::IDLE;
     }
     else
     {
@@ -118,6 +162,17 @@ bool ThreadableFTPClient::sl_uploadFile(QString _local_file_path, QString _remot
 }
 void ThreadableFTPClient::sl_downloadFile(QString _remote_file_path, QString _local_file_path)
 {
+    if (m_connected)
+    {
+        m_current_state = ThreadableFTPClient::DOWNLOADING;
+        if (!m_ftp.DownloadFile(_local_file_path.toStdString(), _remote_file_path.toStdString()))
+            emit si_errorOccured(2, "Cannot download (permission issue ?)");
+        m_current_state = ThreadableFTPClient::IDLE;
+    }
+    else
+        emit si_errorOccured(1, "Cannot download a file while not connected");
+
+    emit si_transferFinished();
 
 }
 void ThreadableFTPClient::sl_uploadDir(QString _local_dir_path, QString _remote_dir_path, bool _recursive)
@@ -128,6 +183,7 @@ void ThreadableFTPClient::sl_uploadDir(QString _local_dir_path, QString _remote_
     bool dir_has_files = !dir_entries.isEmpty();
 
     if (dir_has_files) {
+        m_current_state = ThreadableFTPClient::UPLOADING;
         for (int i = 0; i < dir_entries.size(); i++) {
 
             QFileInfo entry = dir_entries[i];
@@ -142,9 +198,22 @@ void ThreadableFTPClient::sl_uploadDir(QString _local_dir_path, QString _remote_
             }
         }
         emit si_transferFinished();
+        m_current_state = ThreadableFTPClient::IDLE;
     }
 }
 void ThreadableFTPClient::sl_downloadDir(QString _remote_dir_path, QString _local_dir_path, bool _recursive)
 {
+
+    if (m_connected)
+    {
+        m_current_state = ThreadableFTPClient::DOWNLOADING;
+        if (!m_ftp.DownloadWildcard(_local_dir_path.toStdString(), _remote_dir_path.toStdString() + "/*"))
+            emit si_errorOccured(2, "Cannot download (permission issue ?)");
+        m_current_state = ThreadableFTPClient::IDLE;
+    }
+    else
+        emit si_errorOccured(1, "Cannot download a file while not connected");
+
+    emit si_transferFinished();
 
 }

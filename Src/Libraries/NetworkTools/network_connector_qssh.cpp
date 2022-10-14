@@ -721,6 +721,7 @@ void NetworkConnectorQSsh::connectToRemoteHost() {
     params.setPassword(m_creds->password());
     params.authenticationType = QSsh::SshConnectionParameters::
             AuthenticationTypeTryAllPasswordBasedMethods;
+    params.options = QSsh::SshIgnoreDefaultProxy; // Not working on datarmor without this
     params.timeout = 30;
     params.setPort(22);
 

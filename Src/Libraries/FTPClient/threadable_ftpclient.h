@@ -9,8 +9,17 @@
 class ThreadableFTPClient : public QObject
 {
     Q_OBJECT
+
+    enum state {
+        UPLOADING,
+        DOWNLOADING,
+        IDLE
+    };
+
 public:
     explicit ThreadableFTPClient(QObject *_parent = nullptr);
+    static int DLProgressCallback(void* ptr, double dTotalToDownload, double dNowDownloaded, double dTotalToUpload, double dNowUploaded);
+    void emitProgress(int _progress);
 
 public slots:
     void sl_connectToHost(QString _host, QString _username, QString _password, unsigned _port=21);
@@ -26,6 +35,7 @@ private:
 
     embeddedmz::CFTPClient m_ftp;
     bool m_connected;
+    state m_current_state;
 
 signals:
     void si_connected();
