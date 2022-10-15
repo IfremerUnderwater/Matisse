@@ -43,7 +43,7 @@ void ThreadableFTPClient::emitProgress(int _progress)
         emit si_progressUpdate(_progress);
 }
 
-/*bool ThreadableFTPClient::isConnectionOk()
+bool ThreadableFTPClient::isConnectionOk()
 {
     std::string strList;
 
@@ -58,7 +58,7 @@ void ThreadableFTPClient::emitProgress(int _progress)
     }
     else
         return false;
-}*/
+}
 
 ThreadableFTPClient::ThreadableFTPClient(QObject *_parent) : QObject(_parent),
 m_ftp([](const std::string& _strLogMsg) { std::cout << _strLogMsg << std::endl; }),
@@ -73,16 +73,18 @@ void ThreadableFTPClient::sl_connectToHost(QString _host, QString _username, QSt
 
     if (m_ftp.InitSession(_host.toStdString(), _port, _username.toStdString(), _password.toStdString()))
     {
-        //if (isConnectionOk())
+        if (isConnectionOk())
         {
             m_connected = true;
             emit si_connected();
-            //return;
+            return;
         }
 
     }
-    else
-        emit si_connectionFailed("Internal connection error");
+    
+    m_ftp.CleanupSession();
+    m_connected = false;
+    emit si_connectionFailed("Connection Error, wrong credentials or connectivity failure");
 }
 
 void ThreadableFTPClient::sl_listDir(QString _dir)
@@ -169,14 +171,14 @@ bool ThreadableFTPClient::sl_uploadFile(QString _local_file_path, QString _remot
         m_current_state = ThreadableFTPClient::UPLOADING;
         if (!m_ftp.UploadFile(_local_file_path.toStdString(), _remote_file_path.toStdString(), true))
         {
-            emit si_errorOccured(2, "Cannot upload file (permission issue or folder in folder not created)");
+            emit si_errorOccured(network_tools::eTransferError::PERMISSION_DENIED, "Cannot upload file (permission issue or folder in folder not created)");
             return false;
         }
         m_current_state = ThreadableFTPClient::IDLE;
     }
     else
     {
-        emit si_errorOccured(1, "Cannot upload a file while not connected");
+        emit si_errorOccured(network_tools::eTransferError::NO_CONNECTION, "Cannot upload a file while not connected");
         return false;
     }
     return true;
@@ -188,11 +190,11 @@ void ThreadableFTPClient::sl_downloadFile(QString _remote_file_path, QString _lo
     {
         m_current_state = ThreadableFTPClient::DOWNLOADING;
         if (!m_ftp.DownloadFile(_local_file_path.toStdString(), _remote_file_path.toStdString()))
-            emit si_errorOccured(2, "Cannot download (permission issue ?)");
+            emit si_errorOccured(network_tools::eTransferError::PERMISSION_DENIED, "Cannot download (permission issue ?)");
         m_current_state = ThreadableFTPClient::IDLE;
     }
     else
-        emit si_errorOccured(1, "Cannot download a file while not connected");
+        emit si_errorOccured(network_tools::eTransferError::NO_CONNECTION, "Cannot download a file while not connected");
 
     emit si_transferFinished();
 
@@ -230,11 +232,11 @@ void ThreadableFTPClient::sl_downloadDir(QString _remote_dir_path, QString _loca
     {
         m_current_state = ThreadableFTPClient::DOWNLOADING;
         if (!m_ftp.DownloadWildcard(_local_dir_path.toStdString(), _remote_dir_path.toStdString() + "/*"))
-            emit si_errorOccured(2, "Cannot download (permission issue ?)");
+            emit si_errorOccured(network_tools::eTransferError::PERMISSION_DENIED, "Cannot download (permission issue ?)");
         m_current_state = ThreadableFTPClient::IDLE;
     }
     else
-        emit si_errorOccured(1, "Cannot download a file while not connected");
+        emit si_errorOccured(network_tools::eTransferError::NO_CONNECTION, "Cannot download a file while not connected");
 
     emit si_transferFinished();
 

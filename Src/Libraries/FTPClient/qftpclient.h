@@ -25,6 +25,7 @@ private:
 private slots:
     void sl_connected();
     void sl_connectionFailed(QString _err);
+    void sl_errorOccured(network_tools::eTransferError _error_type, QString _error_msg);
     void sl_dirContents(QList<network_tools::NetworkFileInfo*> _dir_contents);
     void sl_progressUpdate(int _progress);
     void sl_transferFinished();
@@ -33,6 +34,7 @@ private slots:
 signals:
     void si_connected();
     void si_connectionFailed(QString _err);
+    void si_errorOccured(network_tools::eTransferError _error_type, QString _error_msg);
     void si_connectToHost(QString _host, QString _username, QString _password, unsigned _port);
     void si_listDir(QString _dir);
     void si_dirContents(QList<network_tools::NetworkFileInfo*> _dir_contents);

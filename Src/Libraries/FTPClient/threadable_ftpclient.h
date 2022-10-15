@@ -20,7 +20,7 @@ public:
     explicit ThreadableFTPClient(QObject *_parent = nullptr);
     static int DLProgressCallback(void* ptr, double dTotalToDownload, double dNowDownloaded, double dTotalToUpload, double dNowUploaded);
     void emitProgress(int _progress);
-    //bool isConnectionOk();
+    bool isConnectionOk();
 
 public slots:
     void sl_connectToHost(QString _host, QString _username, QString _password, unsigned _port=21);
@@ -41,7 +41,7 @@ private:
 signals:
     void si_connected();
     void si_connectionFailed(QString _err);
-    void si_errorOccured(int _error_type, QString _error_msg);
+    void si_errorOccured(network_tools::eTransferError _error_type, QString _error_msg);
     void si_dirContents(QList<network_tools::NetworkFileInfo*> _contents);
     void si_progressUpdate(int _progress);
     void si_transferFinished();

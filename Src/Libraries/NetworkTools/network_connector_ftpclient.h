@@ -46,6 +46,8 @@ protected slots:
     void sl_dirContent(QString _remote_dir_path, FileTypeFilters _flags, QStringList _file_filters, bool _is_for_dir_transfer=false);
     void sl_progressUpdate(int _progress);
     void sl_transferFinished();
+    void sl_connectionFailed(QString _err);
+    void sl_errorOccured(network_tools::eTransferError _error_type, QString _error_msg);
 
     void sl_createRemoteShell(QString& _command);
     void sl_closeRemoteShell();

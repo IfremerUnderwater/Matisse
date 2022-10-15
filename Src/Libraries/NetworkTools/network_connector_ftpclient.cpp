@@ -56,6 +56,8 @@ void NetworkConnectorFTPClient::connectToRemoteHost() {
             connect(m_ftp, SIGNAL(si_dirContents(QList<network_tools::NetworkFileInfo*>)), this, SLOT(sl_receiveDirContents(QList<network_tools::NetworkFileInfo*>)));
             connect(m_ftp, SIGNAL(si_progressUpdate(int)), this, SLOT(sl_progressUpdate(int)));
             connect(m_ftp, SIGNAL(si_transferFinished()), this, SLOT(sl_transferFinished()));
+            connect(m_ftp, SIGNAL(si_connectionFailed(QString)), this, SLOT(sl_connectionFailed(QString)));
+            connect(m_ftp, SIGNAL(si_errorOccured(network_tools::eTransferError, QString)), this, SLOT(sl_errorOccured(network_tools::eTransferError, QString)));
         }
 		
         m_ftp->connectToHost(m_host, m_creds->username(), m_creds->password(), 21);
@@ -157,6 +159,17 @@ void NetworkConnectorFTPClient::sl_transferFinished()
 {
     emit si_transferFinished();
     emit si_channelClosed();
+}
+
+void NetworkConnectorFTPClient::sl_connectionFailed(QString _err)
+{
+    emit si_connectionFailed(eConnectionError::AUTHENTICATION_ERROR); // ftpclient does not support different type of connection error
+}
+
+void NetworkConnectorFTPClient::sl_errorOccured(network_tools::eTransferError _error_type, QString _error_msg)
+{
+    qDebug() << _error_msg;
+    emit si_transferFailed(_error_type);
 }
 
 } // namespace network_tools
