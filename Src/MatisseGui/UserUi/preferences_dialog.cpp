@@ -22,6 +22,14 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent, MatisseIconFactory *_icon
 
     m_ui->_LE_remoteCommandServerAddress->setText(m_prefs->remoteCommandServer());
     m_ui->_LE_remoteFileServerAddress->setText(m_prefs->remoteFileServer());
+
+    if (m_prefs->remoteFileServerProtocol() == "SFTP") {
+        m_ui->m_rb_sftp->setChecked(true);
+    } else {
+        /* default value */
+        m_ui->m_rb_ftp->setChecked(true);
+    }
+
     m_ui->_LE_remoteUsername->setText(m_prefs->remoteUsername());
     m_ui->_LE_remoteUserEmail->setText(m_prefs->remoteUserEmail());
     m_ui->_LE_remoteQueueName->setText(m_prefs->remoteQueueName());
@@ -100,6 +108,8 @@ void PreferencesDialog::sl_close()
 
         m_prefs->setRemoteCommandServer(m_ui->_LE_remoteCommandServerAddress->text());
         m_prefs->setRemoteFileServer(m_ui->_LE_remoteFileServerAddress->text());
+        QString file_transfer_protocol_litteral = m_ui->m_rb_ftp->isChecked() ? "FTP" : "SFTP";
+        m_prefs->setRemoteFileServerProtocol(file_transfer_protocol_litteral);
         m_prefs->setRemoteUsername(m_ui->_LE_remoteUsername->text());
         m_prefs->setRemoteUserEmail(m_ui->_LE_remoteUserEmail->text());
         m_prefs->setRemoteQueueName(m_ui->_LE_remoteQueueName->text());

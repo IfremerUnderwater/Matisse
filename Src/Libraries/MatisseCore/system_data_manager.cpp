@@ -112,11 +112,11 @@ bool SystemDataManager::readMatisseSettings(QString _filename)
               else if (server_setting_name == "binRoot") {
                 m_remote_server_settings->setBinRoot(server_setting);
               }              
+              else if (server_setting_name == "datasetsDir") {
+                m_remote_server_settings->setDatasetsDir(server_setting);
+              }
               else if (server_setting_name == "applicationFilesRoot") {
                 m_remote_server_settings->setApplicationFilesRoot(server_setting);
-              }              
-              else if (server_setting_name == "datasetsSubdir") {
-                m_remote_server_settings->setDatasetsSubdir(server_setting);
               }              
               else if (server_setting_name == "jobsSubdir") {
                 m_remote_server_settings->setJobsSubdir(server_setting);
@@ -224,6 +224,9 @@ bool SystemDataManager::readMatissePreferences(QString _filename, MatissePrefere
             else if (element_name == "RemoteFileServer") {
               _prefs.setRemoteFileServer(reader.readElementText());
             }
+            else if (element_name == "RemoteFileServerProtocol") {
+              _prefs.setRemoteFileServerProtocol(reader.readElementText());
+            }
             else if (element_name == "RemoteUsername") {
               _prefs.setRemoteUsername(reader.readElementText());
             }
@@ -307,6 +310,10 @@ bool SystemDataManager::writeMatissePreferences(QString _filename, MatissePrefer
     
     writer.writeStartElement("RemoteFileServer");
     writer.writeCharacters(_prefs.remoteFileServer());
+    writer.writeEndElement();
+
+    writer.writeStartElement("RemoteFileServerProtocol");
+    writer.writeCharacters(_prefs.remoteFileServerProtocol());
     writer.writeEndElement();
 
     writer.writeStartElement("RemoteUsername");

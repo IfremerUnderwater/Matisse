@@ -58,7 +58,9 @@ public:
     void applyApplicationContext(bool _is_expert, bool _is_programming);
     void toggleReadOnlyMode(bool _is_read_only);
     void pullDatasetParameters(KeyValueList &_kvl);
+    void pullRemoteDatasetParameters(KeyValueList &_kvl);
     void pushDatasetParameters(KeyValueList _kvl);
+    void pushRemoteDatasetParameters(KeyValueList _kvl);
     void pushPreferredDatasetParameters(KeyValueList _kvl);
 
     QString getParameterValue(QString _parameter_name);
@@ -124,6 +126,7 @@ private:
     static QMap<QString, eParameterShow> m_enum_shows;
 
     static QSet<QString> m_dataset_param_names;
+    static QSet<QString> m_remote_dataset_param_names;
 
     static QRegExp m_interval_range_expr;
     static QRegExp m_set_range_expr;

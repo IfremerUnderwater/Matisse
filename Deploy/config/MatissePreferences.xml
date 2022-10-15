@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MatissePreferences>
     <LastUpdate>03/05/2018 08:40</LastUpdate>
-    <ImportExportPath>xml\exchange</ImportExportPath>
-    <ArchivePath>xml\archive</ArchivePath>
+    <ImportExportPath>exchange</ImportExportPath>
+    <ArchivePath>archive</ArchivePath>
     <DefaultResultPath>outReconstruction</DefaultResultPath>
     <DefaultMosaicFilenamePrefix>MyProcessing</DefaultMosaicFilenamePrefix>
     <ProgrammingModeEnabled>false</ProgrammingModeEnabled>
     <Language>EN</Language>
     <RemoteCommandServer>datarmor</RemoteCommandServer>
-	<RemoteFileServer>datarmor</RemoteFileServer>
-    <RemoteUsername>aarnaubec</RemoteUsername>
+	<RemoteFileServer>datacopy.ifremer.fr</RemoteFileServer>
+	<RemoteFileServerProtocol>FTP</RemoteFileServerProtocol>
+    <RemoteUsername>aarnaube</RemoteUsername>
     <RemoteUserEmail>aurelien.arnaubec@ifremer.fr</RemoteUserEmail>
     <RemoteQueueName>omp</RemoteQueueName>
 	<RemoteNbOfCpus>32</RemoteNbOfCpus>

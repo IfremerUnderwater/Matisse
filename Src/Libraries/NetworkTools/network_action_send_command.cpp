@@ -3,7 +3,7 @@
 namespace network_tools {
 
 NetworkActionSendCommand::NetworkActionSendCommand(QString _command_string) :
-    NetworkCommandAction(NetworkActionType::SendCommand),
+    NetworkActionShell(eNetworkActionType::SendCommand),
     m_command(_command_string)
 {
 
@@ -16,7 +16,7 @@ void NetworkActionSendCommand::init() {
 
 void NetworkActionSendCommand::execute() {
     qDebug() << "NetworkActionSendCommand: execute";
-    emit si_executeCommand();
+    emit si_executeShellCommand();
 }
 
 void NetworkActionSendCommand::doTerminate() {

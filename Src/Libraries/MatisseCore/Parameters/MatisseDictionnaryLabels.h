@@ -161,6 +161,15 @@ public:
 		_paramLabelKeys.insert("utm_zone", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Zone UTM"));
 		_paramLabelKeys.insert("utm_hemisphere", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Hemisphere UTM"));
 
+        /*
+         * STRUCTURE : remote_dataset_param
+         */
+
+        /* GROUP : remote_output_params */
+        _paramLabelKeys.insert("remote_dataset_dir", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Remote data path"));
+        _paramLabelKeys.insert("remote_navFile", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Remote navigation file"));
+        _paramLabelKeys.insert("remote_output_dir", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Remote output path"));
+        _paramLabelKeys.insert("remote_output_filename", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Remote output name prefix"));
 	}
 	
 	QString getParamLabel(QString paramName) {

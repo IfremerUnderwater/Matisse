@@ -1,6 +1,8 @@
 #include "job_dialog.h"
 #include "ui_job_dialog.h"
 
+#include "nav_commons.h"
+
 namespace matisse {
 
 JobDialog::JobDialog(QWidget *_parent, MatisseIconFactory *_icon_factory, KeyValueList *_key_values, QString _jobs_path, QStringList _existing_job_names, QStringList _archived_job_names) :
@@ -182,7 +184,12 @@ void JobDialog::sl_selectFile()
         }
     }
 
-    sel_file = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Select navigation file"), current_path, "Nav files (*.dim2 *.txt)");
+    // sel_file = QFileDialog::getOpenFileName(qobject_cast<QWidget *>(sender()), tr("Select navigation file"), current_path, "Nav files (*.dim2 *.txt)");
+    sel_file = QFileDialog::getOpenFileName(
+                qobject_cast<QWidget *>(sender()),
+                tr("Select navigation file"),
+                current_path,
+                tr("Nav files (%1)").arg(NAV_FILE_TYPE_FILTER));
 
     if (sel_file.isEmpty()) {
         return;
