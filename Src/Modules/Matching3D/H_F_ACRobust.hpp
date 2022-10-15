@@ -157,13 +157,6 @@ struct GeometricFilter_H_F_AC
     matching::IndMatches & matches
   )
   {
-    // Check SiftGPU Init
-    // ========================================================
-    if (m_psift_gpu_matcher->VerifyContextGL() < 0)
-      return false;
-
-    const int max_matches = m_psift_gpu_matcher->GetMaxSift();
-
     // Setup Features for matching
     // ========================================================
 
@@ -182,10 +175,6 @@ struct GeometricFilter_H_F_AC
     const ScalarT * tabI =
       reinterpret_cast<const ScalarT*>(regionsI->DescriptorRawData());
     const size_t desc_size_I = regionsI->RegionCount();
-
-
-    // set image I descriptors
-    m_psift_gpu_matcher->SetDescriptors(0, desc_size_I, (unsigned char*)tabI); //image I (only support unsigned char for now)
     
     // 2nd Features location (MANDATORY ORDER!)
     const std::vector<features::PointFeature> pointFeaturesI = regionsI->GetRegionsPositions();
@@ -196,9 +185,6 @@ struct GeometricFilter_H_F_AC
     {
       vkeysI.push_back({kp.x(), kp.y(), 1.f, 0.f});
     }
-
-    // 2 is the amount of values to skip in vkeys struct
-    m_psift_gpu_matcher->SetFeautreLocation(0, reinterpret_cast<const float*>(vkeysI.data()), 2);
     
     if (desc_size_I != vkeysI.size())
     {
@@ -216,9 +202,6 @@ struct GeometricFilter_H_F_AC
     const ScalarT * tabJ = reinterpret_cast<const ScalarT*>(regionsJ->DescriptorRawData());
     const size_t desc_size_J = regionsJ->RegionCount();
     
-    // set image J descriptors
-    m_psift_gpu_matcher->SetDescriptors(1, desc_size_J, (unsigned char*)tabJ); //image I (only support unsigned char for now)
-    
     // 2nd Features location (MANDATORY ORDER!)
     const std::vector<features::PointFeature> pointFeaturesJ = regionsJ->GetRegionsPositions();
 
@@ -228,9 +211,6 @@ struct GeometricFilter_H_F_AC
     {
       vkeysJ.push_back({kp.x(), kp.y(), 1.f, 0.f});
     }
-
-    // 2 is the amount of values to skip in vkeys struct
-    m_psift_gpu_matcher->SetFeautreLocation(1, reinterpret_cast<const float*>(vkeysJ.data()), 2);
 
     if (desc_size_J != vkeysJ.size())
     {
@@ -262,12 +242,29 @@ struct GeometricFilter_H_F_AC
     // Apply Guided Matching
     // ========================================================
     
+    std::unique_lock<std::mutex> lock(m_sift_gpu_mutex);
+
+    // Check SiftGPU Init
+    // ========================================================
+    if (m_psift_gpu_matcher->VerifyContextGL() < 0)
+      return false;
+
+    const int max_matches = m_psift_gpu_matcher->GetMaxSift();
+
+    // set image I descriptors
+    m_psift_gpu_matcher->SetDescriptors(0, desc_size_I, (unsigned char*)tabI); //image I (only support unsigned char for now)
+    m_psift_gpu_matcher->SetFeautreLocation(0, reinterpret_cast<const float*>(vkeysI.data()), 2); // 2 is the amount of values to skip in vkeys struct
+    
+    // set image J descriptors
+    m_psift_gpu_matcher->SetDescriptors(1, desc_size_J, (unsigned char*)tabJ); //image J (only support unsigned char for now)
+    m_psift_gpu_matcher->SetFeautreLocation(1, reinterpret_cast<const float*>(vkeysJ.data()), 2); // 2 is the amount of values to skip in vkeys struct
+
     // Perform matching between all the pairs
     uint32_t(*match_buf)[2] = new uint32_t[max_matches][2];
 
-    const int mutual_best_match = 1;
+    static const int mutual_best_match = 1;
 
-    const float sift_max_dist = 0.7; // Suggested max distance between two Sift descriptors
+    static const float sift_max_dist = 0.7; // Suggested max distance between two Sift descriptors
 
     const int num_matches = 
         m_psift_gpu_matcher->GetGuidedSiftMatch(
@@ -281,7 +278,7 @@ struct GeometricFilter_H_F_AC
             static_cast<float>(Square(m_f_filter.m_dPrecision_robust)),
             mutual_best_match);
 
-    bool success = num_matches > 0;
+    const bool success = num_matches > 0;
 
     if (success)
     {
@@ -304,6 +301,7 @@ struct GeometricFilter_H_F_AC
   SiftMatchGPU* m_psift_gpu_matcher;
   bool m_HMatrix_is_best;
   
+  static std::mutex m_sift_gpu_mutex;
 };
 
 } // namespace matching_image_collection

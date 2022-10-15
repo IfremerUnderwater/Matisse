@@ -54,6 +54,7 @@ public:
 		_paramLabelKeys.insert("max_overlap", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Max overlap between 2 images"));
 		_paramLabelKeys.insert("min_overlap", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Min overlap between 2 images"));
 		_paramLabelKeys.insert("do_realtime_mosaicking", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Activate realtime mosaicking"));
+		_paramLabelKeys.insert("do_realtime_mosaicking", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Activate the use of GPU acceleration with OpenCL"));
 
 		/* GROUP : bundle_adjustment_params */
 		_groupLabelKeys.insert("bundle_adjustment_params", QT_TRANSLATE_NOOP("MatisseTools::MatisseDictionnaryLabels", "Bundle adjustment"));

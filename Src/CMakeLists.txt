@@ -82,6 +82,8 @@ find_package(Glew REQUIRED)
 #find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script OpenGL REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns OpenGL REQUIRED)
 
+# Got error with OpenCV 4.5.0 on Ubuntu on the use of parallel_for_
+# but works with OpenCV 4.5.5
 find_package( OpenCV REQUIRED )
 
 if(MSVC)

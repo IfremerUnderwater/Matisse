@@ -99,10 +99,8 @@ void ProjectiveCamera::projectPtOnMosaickingPlane(const Mat _cam_plane_pt_p, Mat
     }
 }
 
-void ProjectiveCamera::projectImageOnMosaickingPlane(UMat &_mosaic_plane_image_p, UMat &mosaic_plane_mask_p, cv::Point & _corner_p)
+void ProjectiveCamera::projectImageOnMosaickingPlane(UMat &_mosaic_plane_image_p, UMat &_mosaic_plane_mask_p, cv::Point & _corner_p)
 {
-
-
     cv::Size _dst_size;
 
     computeImageExtent(_corner_p, _dst_size);
@@ -110,15 +108,14 @@ void ProjectiveCamera::projectImageOnMosaickingPlane(UMat &_mosaic_plane_image_p
     // Project image on mosaic
     cv::Mat H = (cv::Mat_<qreal>(3,3) <<1, 0, -_corner_p.x,0, 1, -_corner_p.y,0, 0, 1)*m_m_H_i;
 
-    cv::warpPerspective(*(image()->imageData()), _mosaic_plane_image_p, H, _dst_size, INTER_LINEAR, BORDER_REFLECT);
+    cv::warpPerspective(*(image()->imageData()), _mosaic_plane_image_p, H, _dst_size, INTER_LINEAR); //, BORDER_REFLECT);
 
     // Project mask corresponding to images
     cv::Mat _image_mask;
     _image_mask.create(image()->imageData()->size(), CV_8U);
     _image_mask.setTo(Scalar::all(255));
 
-    cv::warpPerspective(_image_mask, mosaic_plane_mask_p, H, _dst_size);
-
+    cv::warpPerspective(_image_mask, _mosaic_plane_mask_p, H, _dst_size);
 }
 
 void ProjectiveCamera::computeImageExtent(Point &_corner_p, Size &_dst_size_p)

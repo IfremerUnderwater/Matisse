@@ -11,6 +11,10 @@
 #include "nav_image.h"
 #include "raster_georeferencer.h"
 
+#include <opencv2/core/ocl.hpp>
+
+// #include <opencv2/oc
+
 using namespace cv;
 using namespace system_tools;
 using namespace optical_mapping;
@@ -38,6 +42,7 @@ DrawBlend2DMosaic::DrawBlend2DMosaic() :
     addExpectedParameter("algo_param", "disjoint_drawing");
     addExpectedParameter("algo_param", "single_image_output");
 
+    addExpectedParameter("algo_param","use_gpu_with_opencl");
 }
 
 DrawBlend2DMosaic::~DrawBlend2DMosaic(){
@@ -124,13 +129,13 @@ void DrawBlend2DMosaic::onFlush(quint32 _port)
 
     // Get drawing parameters
     bool ok;
-    bool block_draw = m_matisse_parameters->getBoolParamValue("algo_param", "block_drawing", ok);
+    const bool block_draw = m_matisse_parameters->getBoolParamValue("algo_param", "block_drawing", ok);
     qDebug() << logPrefix() << "block_drawing = " << block_draw;
 
-    int block_width = m_matisse_parameters->getIntParamValue("algo_param", "block_width", ok);
+    const int block_width = m_matisse_parameters->getIntParamValue("algo_param", "block_width", ok);
     qDebug() << logPrefix() << "block_width = " << block_width;
 
-    int block_height = m_matisse_parameters->getIntParamValue("algo_param", "block_height", ok);
+    const int block_height = m_matisse_parameters->getIntParamValue("algo_param", "block_height", ok);
     qDebug() << logPrefix() << "block_height = " << block_height;
 
     // Get drawing prefix
@@ -160,6 +165,12 @@ void DrawBlend2DMosaic::onFlush(quint32 _port)
     {
         draw_geotiff = true;
         draw_jpeg = true;
+    }
+
+    const bool use_gpu_with_opencl = m_matisse_parameters->getIntParamValue("algo_param", "use_gpu_with_opencl", ok);
+    if (!use_gpu_with_opencl)
+    {
+        cv::ocl::setUseOpenCL(use_gpu_with_opencl);
     }
 
 
@@ -192,10 +203,10 @@ void DrawBlend2DMosaic::onFlush(quint32 _port)
         emit si_processCompletion(50);
 
         // copy mask to force data pointer allocation in the right order
-        Mat mask_copy;
+        cv::Mat mask_copy;
         mosaic_mask.copyTo(mask_copy);
         mosaic_mask.release();
-        Mat mat_mosaic_image = mosaic_image.getMat(ACCESS_READ);
+        cv::Mat mat_mosaic_image = mosaic_image.getMat(ACCESS_READ);
         // Write geofile
         p_mosaic_d->writeToGeoTiff(mat_mosaic_image,mask_copy,m_output_dirname_str + QDir::separator() + output_filename + ".tiff");
 
@@ -207,7 +218,7 @@ void DrawBlend2DMosaic::onFlush(quint32 _port)
        
         
         QStringList output_files = mosaic_drawer.blockDrawBlendAndWrite(*p_mosaic_d,
-                                                                      Point2d(block_width, block_height),
+                                                                      cv::Point2d(block_width, block_height),
                                                                       m_output_dirname_str, output_filename);
         foreach (QString filename, output_files) {
             output_file_info.setFile(QDir(m_output_dirname_str), filename);

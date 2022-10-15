@@ -44,7 +44,7 @@ void Match
   my_progress_bar->Restart(pairs.size(), "- Matching -");
 
   // Init matcher
-  const int max_matches = 4096*4;
+  static const int max_matches = 4096*4;
   SiftMatchGPU matcher(max_matches);
 
   if (matcher.VerifyContextGL() < 0)
@@ -110,7 +110,7 @@ void Match
 
 
       //match and get result.    
-      int num_match = matcher.GetSiftMatch(max_matches, match_buf, 0.7, fDistRatio); // should we put this 0.7 as a param ?
+      const int num_match = matcher.GetSiftMatch(max_matches, match_buf, 0.7, fDistRatio); // should we put this 0.7 as a param ?
 
       if (num_match < 0)
       {
