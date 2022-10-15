@@ -156,6 +156,7 @@ void NetworkConnectorFTPClient::sl_progressUpdate(int _progress)
 void NetworkConnectorFTPClient::sl_transferFinished()
 {
     emit si_transferFinished();
+    emit si_channelClosed();
 }
 
 } // namespace network_tools

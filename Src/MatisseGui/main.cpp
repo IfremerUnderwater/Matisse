@@ -151,8 +151,8 @@ int main(int argc, char *argv[])
     NetworkClient* ssh_client = new NetworkClientShell();
     ssh_client->setConnector(ssh_handler);
 
-    NetworkConnector* ftp_handler = new NetworkConnectorQFtp();
-    //NetworkConnector* ftp_handler = new NetworkConnectorFTPClient();
+    //NetworkConnector* ftp_handler = new NetworkConnectorQFtp();
+    NetworkConnector* ftp_handler = new NetworkConnectorFTPClient();
     NetworkClient* ftp_client = new NetworkClientFileTransfer();
     ftp_client->setConnector(ftp_handler);
 

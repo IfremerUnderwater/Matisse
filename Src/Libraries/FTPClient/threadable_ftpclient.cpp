@@ -43,6 +43,23 @@ void ThreadableFTPClient::emitProgress(int _progress)
         emit si_progressUpdate(_progress);
 }
 
+/*bool ThreadableFTPClient::isConnectionOk()
+{
+    std::string strList;
+
+    // test connection by listing home directory
+    if (m_ftp.List("~/", strList, false))
+    {
+        std::cout << "strList = " << strList <<std::endl;
+        if (!strList.empty())
+            return true;
+        else
+            return false;
+    }
+    else
+        return false;
+}*/
+
 ThreadableFTPClient::ThreadableFTPClient(QObject *_parent) : QObject(_parent),
 m_ftp([](const std::string& _strLogMsg) { std::cout << _strLogMsg << std::endl; }),
 m_connected(false)
@@ -56,8 +73,13 @@ void ThreadableFTPClient::sl_connectToHost(QString _host, QString _username, QSt
 
     if (m_ftp.InitSession(_host.toStdString(), _port, _username.toStdString(), _password.toStdString()))
     {
-        m_connected = true;
-        emit si_connected();
+        //if (isConnectionOk())
+        {
+            m_connected = true;
+            emit si_connected();
+            //return;
+        }
+
     }
     else
         emit si_connectionFailed("Internal connection error");

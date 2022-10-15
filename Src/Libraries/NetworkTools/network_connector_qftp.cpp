@@ -159,7 +159,6 @@ void NetworkConnectorQFtp::sl_onNetworkSessionOpened() {
 
     qDebug() << QString("NetworkConnectorQFtp: Connecting to FTP server %1 as %2...")
                 .arg(m_host).arg(m_creds->username());
-    //m_ftp->setProxy(QString("\a"),21);
     m_ftp->connectToHost(m_host, 21);
     m_ftp->login(m_creds->username(), m_creds->password());
 
