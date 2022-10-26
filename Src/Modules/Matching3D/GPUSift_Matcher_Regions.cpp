@@ -1,7 +1,7 @@
 
 #include "GPUSift_Matcher_Regions.hpp"
 
-#include "openMVG/matching/cascade_hasher.hpp"
+//#include "openMVG/matching/cascade_hasher.hpp"
 #include "openMVG/features/feature.hpp"
 #include "openMVG/matching/matching_filters.hpp"
 #include "openMVG/matching/indMatchDecoratorXY.hpp"
@@ -26,7 +26,7 @@ GpuSift_Matcher_Regions
 {
 }
 
-namespace impl
+namespace gpu_impl
 {
 template <typename ScalarT>
 void Match
@@ -144,7 +144,7 @@ void Match
   delete[] match_buf;
   // delete matcher;
 }
-} // namespace impl
+} // namespace gpu_impl
 
 void GpuSift_Matcher_Regions::Match
 (
@@ -163,7 +163,7 @@ void GpuSift_Matcher_Regions::Match
 
   if (regions_provider->Type_id() == typeid(unsigned char).name())
   {
-    impl::Match<unsigned char>(
+    gpu_impl::Match<unsigned char>(
       *regions_provider.get(),
       pairs,
       f_dist_ratio_,
@@ -173,7 +173,7 @@ void GpuSift_Matcher_Regions::Match
   else
   if (regions_provider->Type_id() == typeid(float).name())
   {
-    impl::Match<float>(
+    gpu_impl::Match<float>(
       *regions_provider.get(),
       pairs,
       f_dist_ratio_,
