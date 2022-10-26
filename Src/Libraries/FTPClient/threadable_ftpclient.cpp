@@ -199,15 +199,16 @@ void ThreadableFTPClient::sl_downloadFile(QString _remote_file_path, QString _lo
     emit si_transferFinished();
 
 }
-void ThreadableFTPClient::sl_uploadDir(QString _local_dir_path, QString _remote_dir_path, bool _recursive)
+bool ThreadableFTPClient::sl_uploadDir(QString _local_dir_path, QString _remote_dir_path, bool _recursive, bool _in_recursive_call)
 {
     QDir local_dir(_local_dir_path);
-    QFileInfoList dir_entries = local_dir.entryInfoList(QDir::Filter::Files | QDir::Filter::NoDotAndDotDot);
+    QFileInfoList dir_entries = local_dir.entryInfoList(QDir::Filter::Files | QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot);
 
-    bool dir_has_files = !dir_entries.isEmpty();
+    bool dir_not_empty = !dir_entries.isEmpty();
 
-    if (dir_has_files) {
+    if (dir_not_empty) {
         m_current_state = ThreadableFTPClient::UPLOADING;
+
         for (int i = 0; i < dir_entries.size(); i++) {
 
             QFileInfo entry = dir_entries[i];
@@ -215,15 +216,38 @@ void ThreadableFTPClient::sl_uploadDir(QString _local_dir_path, QString _remote_
 
             if (file_parts.size() > 2)
             {
-                int progress = round( 100.0*(double)i/(double)dir_entries.size() );
-                QString remote_file_path = _remote_dir_path + "/" + file_parts[file_parts.size() - 2] + "/" + entry.fileName(); // only support linux server
-                sl_uploadFile(entry.canonicalFilePath(), remote_file_path);
+                if (entry.isDir() && _recursive)
+                {
+                    if (!sl_uploadDir(_local_dir_path+QDir::separator()+entry.fileName(), _remote_dir_path+ "/" + file_parts[file_parts.size() - 2], _recursive, true))
+                        return false;
+                    qDebug() << "Should upload dir : " << entry.fileName();
+                }
+                if (entry.isFile())
+                {
+                    QString remote_file_path = _remote_dir_path + "/" + file_parts[file_parts.size() - 2] + "/" + entry.fileName(); // only support linux server
+                    if (!sl_uploadFile(entry.canonicalFilePath(), remote_file_path))
+                        return false;
+                }
+
+            }
+
+            if (!_in_recursive_call) // only increment progress on main loop
+            {
+                int progress = round(100.0 * (double)i / (double)dir_entries.size());
                 emit si_progressUpdate(progress);
             }
         }
-        emit si_transferFinished();
-        m_current_state = ThreadableFTPClient::IDLE;
+
+        if (!_in_recursive_call)
+        {
+            emit si_transferFinished();
+            m_current_state = ThreadableFTPClient::IDLE;
+        }
+
+        return true;
     }
+
+    return true;
 }
 void ThreadableFTPClient::sl_downloadDir(QString _remote_dir_path, QString _local_dir_path, bool _recursive)
 {

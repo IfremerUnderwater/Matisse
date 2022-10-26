@@ -28,7 +28,7 @@ public slots:
 
     bool sl_uploadFile(QString _local_file_path, QString _remote_file_path);
     void sl_downloadFile(QString _remote_file_path, QString _local_file_path);
-    void sl_uploadDir(QString _local_dir_path, QString _remote_dir_path, bool _recursive);
+    bool sl_uploadDir(QString _local_dir_path, QString _remote_dir_path, bool _recursive, bool _in_recursive_call=false);
     void sl_downloadDir(QString _remote_dir_path, QString _local_dir_path, bool _recursive);
 
 private:
