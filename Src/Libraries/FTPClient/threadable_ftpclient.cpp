@@ -1,5 +1,6 @@
 #include "threadable_ftpclient.h"
 #include <QDir>
+#include <math.h>
 
 using namespace embeddedmz;
 
