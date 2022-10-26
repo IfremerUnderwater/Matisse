@@ -82,6 +82,7 @@ bool Processor::setOutputPortList(QList<ImageSetPort *> * _output_port_list)
 void Processor::fatalErrorExit(QString _message)
 {
       askToStop(true);
+      qDebug() << "Fatal error message :" << _message;
       emit si_showErrorMessage(logPrefix(), _message);
       m_ok_status = false;
       emit si_fatalError();
