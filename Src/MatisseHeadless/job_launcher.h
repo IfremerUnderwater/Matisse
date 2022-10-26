@@ -54,6 +54,9 @@ public slots:
     void sl_jobProcessed(QString _job_name, bool _is_canceled);
     void sl_processCompletion(quint8 _ret_code);
     void sl_userInformation(QString _user_information);
+
+    void sl_showInformationMessage(QString _title, QString _msg);
+    void sl_showErrorMessage(QString _title, QString _msg);
 };
 
 } // namespace matisse

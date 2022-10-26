@@ -639,9 +639,10 @@ void JobTask::sl_start()
 
     connect(m_input_data_provider, SIGNAL(si_userInformation(QString)), this, SLOT(sl_userInformation(QString)));
     connect(m_input_data_provider, SIGNAL(si_processCompletion(quint8)), this, SLOT(sl_processCompletion(quint8)));
+    connect(m_input_data_provider, SIGNAL(si_showInformationMessage(QString, QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString, QString)));
+    connect(m_input_data_provider, SIGNAL(si_showErrorMessage(QString, QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString, QString)));
     if (!m_is_server_mode) {
-      connect(m_input_data_provider, SIGNAL(si_showInformationMessage(QString, QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString, QString)));
-      connect(m_input_data_provider, SIGNAL(si_showErrorMessage(QString, QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString, QString)));
+
       connect(m_input_data_provider, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(sl_show3DFileOnMainView(QString)));
       connect(m_input_data_provider, SIGNAL(si_autoAdd3DFileFromFolderOnMainView(QString)), m_job_launcher, SLOT(sl_autoAdd3DFileFromFolderOnMainView(QString)));
       connect(m_input_data_provider, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(sl_addRasterFileToMap(QString)));

@@ -119,4 +119,14 @@ void JobLauncher::sl_userInformation(QString _user_information) {
   qDebug() << "==> User Information : " << _user_information;
 }
 
+void JobLauncher::sl_showInformationMessage(QString _title, QString _msg)
+{
+    qDebug() << "==> Information msg : (title)" << _title << " (message) " << _msg;
+}
+
+void JobLauncher::sl_showErrorMessage(QString _title, QString _msg)
+{
+    qDebug() << "==> Error msg : (title)" << _title << " (message) " << _msg;
+}
+
 }  // namespace matisse
