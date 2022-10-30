@@ -31,6 +31,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "file_utils.h"
 
 
 using namespace openMVG;
@@ -278,7 +279,8 @@ void Init3DRecon::onFlush(quint32 _port)
     else
         nav_mode = DIM2;
 
-    QString navigation_file = m_matisse_parameters->getStringParamValue("dataset_param", "navFile");
+    QString navigation_file = system_tools::FileUtils::resolveUnixPath(
+        m_matisse_parameters->getStringParamValue("dataset_param", "navFile"));
 
     if (navigation_file.isEmpty())
         navigation_file = QString("noNav.dim2");
