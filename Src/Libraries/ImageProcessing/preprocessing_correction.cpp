@@ -11,6 +11,10 @@
 
 #include <iostream>
 #include <fstream>
+#include <omp.h>
+#include <QMutex>
+#include <QDebug>
+#include <QThread>
 
 using namespace std;
 using namespace cv;
@@ -60,8 +64,11 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 	const int im_nb = _input_img_files.size();
 	const int half_ws = (m_ws-1)/2;
 
-	QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, m_graphic_parent);
-	int k = 1;
+	//QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, m_graphic_parent);
+	QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100);
+	int k = 0;
+	QMutex prog_mut;
+	Qt::HANDLE main_thread = QThread::currentThreadId();
 
 	bool exit_required = false;
 
@@ -183,15 +190,26 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 		const QString outfile = _output_path + QDir::separator() + current_file_info.fileName();
 		cv::imwrite(outfile.toStdString(), current_img);
 
-		#pragma omp critical
+		//#pragma omp critical
 		if (m_graphic_parent)
 		{
-			prepro_progress.setValue(round(100 * k / im_nb));
+
+			prog_mut.lock();
 			k++;
-			QApplication::processEvents();
+			prog_mut.unlock();
+
+			// We're not just dumb testing if main thread, it just that setValue cannot be executed from another thread that main thread
+			if (main_thread == QThread::currentThreadId())
+			{
+				prepro_progress.setValue(round(100 * k / im_nb));
+				QApplication::processEvents();
+			}
+
+
 		}
 
 	}
+
 
 	if (exit_required)
 		return false;
