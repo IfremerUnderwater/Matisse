@@ -33,6 +33,17 @@
 using namespace matisse;
 using namespace network_tools;
 
+#ifdef _WIN32
+// Use discrete GPU by default.
+extern "C" {
+    // http://developer.download.nvidia.com/devzone/devcenter/gamegraphics/files/OptimusRenderingPolicies.pdf
+    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+
+    // http://developer.amd.com/community/blog/2015/10/02/amd-enduro-system-for-developers/
+    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+#endif
+
 void myMessageOutput(QtMsgType _type, const QMessageLogContext &, const QString &_msg)
 {
     QByteArray local_msg = _msg.toLocal8Bit();
@@ -67,6 +78,8 @@ void myMessageOutput(QtMsgType _type, const QMessageLogContext &, const QString 
 
 int main(int argc, char *argv[])
 {
+
+
 
     // set all locales to avoid numbers with , instead of .
     setlocale(LC_ALL, "C");
