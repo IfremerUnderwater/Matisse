@@ -82,6 +82,8 @@ find_package(Glew REQUIRED)
 #find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script OpenGL REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns OpenGL REQUIRED)
 
+message("Found Qt5 lib : ${Qt5_VERSION} - ${Qt5_INCLUDE_DIRS}")
+
 # Got error with OpenCV 4.5.0 on Ubuntu on the use of parallel_for_
 # but works with OpenCV 4.5.5
 find_package( OpenCV REQUIRED )
@@ -109,7 +111,7 @@ find_package(CGAL)
 FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serialization)
 find_package(OpenMVS REQUIRED)
 find_package(QSsh)
-find_package(QFtp)
+# find_package(QFtp)
 find_package(CURL REQUIRED)
 
 find_package(LibKML REQUIRED)

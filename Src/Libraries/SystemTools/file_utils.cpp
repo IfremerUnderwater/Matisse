@@ -649,7 +649,7 @@ QString FileUtils::getParentDir(QString _current_dir) {
     int last = path_match.lastCapturedIndex();
     int pos = path_match.capturedStart(last);
 
-    qDebug() << QString("FileUtils: path leaf is '%1'").arg(path_match.capturedView(last));
+    // qDebug() << QString("FileUtils: path leaf is '%1'").arg(path_match.capturedView(last));
 
     /* Remove leaf from path to get parent path */
     QString parent_path = _current_dir.left(pos);

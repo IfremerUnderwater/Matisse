@@ -103,7 +103,7 @@ target_link_libraries(MatisseGui PUBLIC
  #    Qt5::Script
      Qt5::OpenGL
      ${GDAL_LIBRARY}
-     QFtp
+    #  QFtp
 	 FTPClient
 	 CURL::libcurl
      #QSsh::QSsh
