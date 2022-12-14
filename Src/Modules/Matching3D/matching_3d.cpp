@@ -845,7 +845,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
 
         // Distance of 2nd best match w.r.t. 1st best match
         // used for guided matching
-        const double d_distance_ratio = 0.75; // Optimal value?
+        const double d_distance_ratio = 0.7; // Optimal value?
 
         bool use_sift_gpu_4_guided_matching = 
             s_nearest_matching_method == "GPU_BRUTEFORCE";

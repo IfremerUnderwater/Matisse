@@ -13,6 +13,10 @@
 #include <map>
 #include <vector>
 
+#ifndef OPENMVG_USE_OPENMP
+#define OPENMVG_USE_OPENMP
+#endif
+
 #include "openMVG/features/feature.hpp"
 #include "openMVG/matching/indMatch.hpp"
 #include "openMVG/system/progressinterface.hpp"
@@ -80,7 +84,7 @@ void GpuImageCollectionGeometricFilter::Robust_model_estimation
 
 
 #ifdef OPENMVG_USE_OPENMP
-#pragma omp parallel for schedule(dynamic) // if (!use_sift_gpu)
+#pragma omp parallel for schedule(dynamic) if (!use_sift_gpu)
 #endif
   for (int i = 0; i < (int)putative_matches.size(); ++i)
   {
@@ -118,6 +122,9 @@ void GpuImageCollectionGeometricFilter::Robust_model_estimation
           std::swap(putative_inliers, guided_geometric_inliers);
         }
 
+#ifdef OPENMVG_USE_OPENMP
+#pragma omp critical
+#endif
         {
           _map_GeometricMatches.insert( {current_pair, std::move(putative_inliers)});
         }
