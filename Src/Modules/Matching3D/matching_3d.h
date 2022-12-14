@@ -77,8 +77,6 @@ private:
     bool computeFeatures();
     bool computeMatches(eGeometricModel _geometric_model_to_compute = FUNDAMENTAL_MATRIX);
 
-    bool m_gpu_features;
-
     /** @brief Function that ... **/
     std::uint32_t operator+=(const std::uint32_t increment) override
     {

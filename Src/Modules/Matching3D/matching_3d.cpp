@@ -96,8 +96,7 @@ features::EDESCRIBER_PRESET stringToEnum(const QString& _s_preset)
 
 
 Matching3D::Matching3D() :
-    Processor(NULL, "Matching3D", "Match images and filter with geometric transformation", 1, 1),
-    m_gpu_features(false)
+    Processor(NULL, "Matching3D", "Match images and filter with geometric transformation", 1, 1)
 {
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("algo_param", "force_recompute");
@@ -204,13 +203,14 @@ bool Matching3D::computeFeatures()
     //    }
     //}
     //else
+    bool use_gpu_features = false;
     {
 		// Create the desired Image_describer method.
 		// Don't use a factory, perform direct allocation
 		if (method_paramval == "SIFT_GPU")
 		{
             image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params()));
-            m_gpu_features = true;
+            use_gpu_features = true;
 		}
 		else
 			if (method_paramval == "SIFT")
@@ -286,7 +286,7 @@ bool Matching3D::computeFeatures()
 
         omp_set_num_threads(nbthreads);
 
-#pragma omp parallel for schedule(dynamic) if (nbthreads > 0 && !m_gpu_features) private(image_gray)
+#pragma omp parallel for schedule(dynamic) if (nbthreads > 0 && !use_gpu_features) private(image_gray)
 
         for (int i = 0; i < static_cast<int>(sfm_data.views.size()); ++i)
         {
