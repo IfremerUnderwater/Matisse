@@ -109,13 +109,10 @@ Matching3D::Matching3D() :
     addExpectedParameter("algo_param", "nav_based_matching_enable");
     addExpectedParameter("algo_param", "nav_based_matching_max_dist");
     addExpectedParameter("algo_param", "guided_matching");
-
-    m_pcontext_manager.reset(new OpenGLContextManager());
 }
 
-Matching3D::~Matching3D(){
-    //delete m_pcontext_manager;
-}
+Matching3D::~Matching3D()
+{}
 
 bool Matching3D::configure()
 {
@@ -1024,7 +1021,9 @@ void Matching3D::onFlush(quint32 _port)
     Q_UNUSED(_port)
 
     // switch opengl context to current processing thread
-    m_pcontext_manager->MakeCurrent();
+    std::unique_ptr<OpenGLContextManager> m_pcontext_manager;
+    m_pcontext_manager.reset(new OpenGLContextManager());
+    // m_pcontext_manager->MakeCurrent();
 
     // Log
     QString proc_info = logPrefix() + "Features matching started\n";

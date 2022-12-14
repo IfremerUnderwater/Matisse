@@ -69,8 +69,8 @@ OpenGLContextManager::OpenGLContextManager(int opengl_major_version,
 OpenGLContextManager::~OpenGLContextManager()
 {
     //context_.moveToThread(QThread::currentThread());
-    context_.makeCurrent(0);
-    std::cout << "After doneCurrent";
+    // context_.makeCurrent(0);
+    // std::cout << "After doneCurrent";
 }
 
 void OpenGLContextManager::MakeCurrent() {

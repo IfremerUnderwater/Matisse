@@ -79,8 +79,6 @@ private:
 
     bool m_gpu_features;
 
-    std::unique_ptr<OpenGLContextManager> m_pcontext_manager;
-
     /** @brief Function that ... **/
     std::uint32_t operator+=(const std::uint32_t increment) override
     {
