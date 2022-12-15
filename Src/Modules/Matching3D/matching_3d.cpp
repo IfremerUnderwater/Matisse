@@ -109,6 +109,7 @@ Matching3D::Matching3D() :
     addExpectedParameter("algo_param", "nav_based_matching_enable");
     addExpectedParameter("algo_param", "nav_based_matching_max_dist");
     addExpectedParameter("algo_param", "guided_matching");
+    addExpectedParameter("algo_param", "force_gpu_usage");
 
     m_pcontext_manager.reset(new OpenGLContextManager());
 }
@@ -139,6 +140,7 @@ bool Matching3D::computeFeatures()
 
     bool ok = true;
     bool force_recompute = m_matisse_parameters->getBoolParamValue("algo_param", "force_recompute", ok);
+    bool force_gpu_usage = m_matisse_parameters->getBoolParamValue("algo_param", "force_gpu_usage", ok);
     bool b_up_right = false;
 
     // get nb of threads
@@ -210,7 +212,7 @@ bool Matching3D::computeFeatures()
     {
 		// Create the desired Image_describer method.
 		// Don't use a factory, perform direct allocation
-		if (method_paramval == "SIFT_GPU")
+		if (method_paramval == "SIFT_GPU" || force_gpu_usage)
 		{
             image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params()));
             m_gpu_features = true;
@@ -381,6 +383,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
 
     bool ok = true;
     bool force_recompute = m_matisse_parameters->getBoolParamValue("algo_param", "force_recompute", ok);
+    bool force_gpu_usage = m_matisse_parameters->getBoolParamValue("algo_param", "force_gpu_usage", ok);
 
     // get nb of threads
     int nbthreads = QThread::idealThreadCount();
@@ -620,7 +623,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
 
         // Allocate the right Matcher according the Matching requested method
         std::unique_ptr<Matcher> collection_matcher;
-        if (s_nearest_matching_method == "AUTO")
+        if (s_nearest_matching_method == "AUTO" && !force_gpu_usage)
         {
             if (regions_type->IsScalar())
             {
@@ -635,7 +638,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                 }
         }
         else
-        if (s_nearest_matching_method == "GPU_BRUTEFORCE")
+        if (s_nearest_matching_method == "GPU_BRUTEFORCE" || force_gpu_usage)
         {
             std::cout << "Using GPU_BRUTEFORCE matcher" << std::endl;
             collection_matcher.reset(new GpuSift_Matcher_Regions(f_dist_ratio));
@@ -848,7 +851,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
         const double d_distance_ratio = 0.75; // Optimal value?
 
         bool use_sift_gpu_4_guided_matching = 
-            s_nearest_matching_method == "GPU_BRUTEFORCE";
+            s_nearest_matching_method == "GPU_BRUTEFORCE" || force_gpu_usage;
 
         // SiftGPU case
         if (use_sift_gpu_4_guided_matching)

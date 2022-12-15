@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MatisseParametersDictionnary xmlns="Matisse" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="Matisse ../schemas/MatisseParametersDictionnary.xsd ">
-    <Structures publicationTimestamp="2022-10-15T13:29:34">
+    <Structures publicationTimestamp="2022-12-15T09:21:42">
         <Structure name="algo_param">
             <ParametersGroup name="general_algo_params">
                 <Parameter name="sift_code" level="expert" text="Sift algorithm" type="string" range= "{$SIFT_CODE}" show="combo" default="GPU_sift"/>
@@ -12,6 +12,7 @@
                 <Parameter name="Last_processed_image" level="user" text="Last image index" type="integer" range="[1,inf[" show="spin" default="inf"/>
                 <Parameter name="step_im" level="user" text="Images step" type="integer" range="[1,inf[" show="spin" default="1"/>
                 <Parameter name="force_recompute" level="user" text="Force recompute" type="bool" show="check" default="0"/>
+				<Parameter name="force_gpu_usage" level="user" text="Force gpu usage" type="bool" show="check" default="0"/>
             </ParametersGroup>
             <ParametersGroup name="overlap_filtering_params" text="Images overlap handling">
                 <Parameter name="disjoint_drawing" level="user" text="Disjoint mosaicking" type="bool" show="check" default="0"/>
