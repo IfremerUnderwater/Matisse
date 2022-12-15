@@ -96,8 +96,7 @@ features::EDESCRIBER_PRESET stringToEnum(const QString& _s_preset)
 
 
 Matching3D::Matching3D() :
-    Processor(NULL, "Matching3D", "Match images and filter with geometric transformation", 1, 1),
-    m_gpu_features(false)
+    Processor(NULL, "Matching3D", "Match images and filter with geometric transformation", 1, 1)
 {
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("algo_param", "force_recompute");
@@ -110,13 +109,10 @@ Matching3D::Matching3D() :
     addExpectedParameter("algo_param", "nav_based_matching_max_dist");
     addExpectedParameter("algo_param", "guided_matching");
     addExpectedParameter("algo_param", "force_gpu_usage");
-
-    m_pcontext_manager.reset(new OpenGLContextManager());
 }
 
-Matching3D::~Matching3D(){
-    //delete m_pcontext_manager;
-}
+Matching3D::~Matching3D()
+{}
 
 bool Matching3D::configure()
 {
@@ -209,13 +205,14 @@ bool Matching3D::computeFeatures()
     //    }
     //}
     //else
+    bool use_gpu_features = false;
     {
 		// Create the desired Image_describer method.
 		// Don't use a factory, perform direct allocation
 		if (method_paramval == "SIFT_GPU" || force_gpu_usage)
 		{
             image_describer.reset(new GpuSift_Image_describer(GpuSift_Image_describer::Params()));
-            m_gpu_features = true;
+            use_gpu_features = true;
 		}
 		else
 			if (method_paramval == "SIFT")
@@ -291,7 +288,7 @@ bool Matching3D::computeFeatures()
 
         omp_set_num_threads(nbthreads);
 
-#pragma omp parallel for schedule(dynamic) if (nbthreads > 0 && !m_gpu_features) private(image_gray)
+#pragma omp parallel for schedule(dynamic) if (nbthreads > 0 && !use_gpu_features) private(image_gray)
 
         for (int i = 0; i < static_cast<int>(sfm_data.views.size()); ++i)
         {
@@ -848,7 +845,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
 
         // Distance of 2nd best match w.r.t. 1st best match
         // used for guided matching
-        const double d_distance_ratio = 0.75; // Optimal value?
+        const double d_distance_ratio = 0.7; // Optimal value?
 
         bool use_sift_gpu_4_guided_matching = 
             s_nearest_matching_method == "GPU_BRUTEFORCE" || force_gpu_usage;
@@ -1027,7 +1024,9 @@ void Matching3D::onFlush(quint32 _port)
     Q_UNUSED(_port)
 
     // switch opengl context to current processing thread
-    m_pcontext_manager->MakeCurrent();
+    std::unique_ptr<OpenGLContextManager> m_pcontext_manager;
+    m_pcontext_manager.reset(new OpenGLContextManager());
+    // m_pcontext_manager->MakeCurrent();
 
     // Log
     QString proc_info = logPrefix() + "Features matching started\n";

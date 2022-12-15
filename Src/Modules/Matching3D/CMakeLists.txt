@@ -1,7 +1,6 @@
 add_library(Matching3D SHARED
     matching_3d.cpp
 		GPUSift_Matcher_Regions.cpp
-		H_F_ACRobust.cpp
 		opengl_utils.cc
     )
 

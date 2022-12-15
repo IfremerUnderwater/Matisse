@@ -36,3 +36,5 @@ out
 /.vs
 /Src/MatisseGui/MatisseServer.aps
 /.vs/VSWorkspaceState.json
+*.vscode/
+*matisse_build/

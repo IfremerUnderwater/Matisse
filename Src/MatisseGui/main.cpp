@@ -24,7 +24,7 @@
 #include "network_client_file_transfer.h"
 #include "network_client_shell.h"
 #include "network_connector_qssh.h"
-#include "network_connector_qftp.h"
+// #include "network_connector_qftp.h"
 #include "network_connector_ftpclient.h"
 #include "assembly_helper.h"
 #include "job_helper.h"

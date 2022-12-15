@@ -241,11 +241,8 @@ struct GeometricFilter_H_F_AC
     
     // Apply Guided Matching
     // ========================================================
-    
-    std::unique_lock<std::mutex> lock(m_sift_gpu_mutex);
 
     // Check SiftGPU Init
-    // ========================================================
     if (m_psift_gpu_matcher->VerifyContextGL() < 0)
       return false;
 
@@ -300,8 +297,6 @@ struct GeometricFilter_H_F_AC
   GeometricFilter_HMatrix_AC m_h_filter;
   SiftMatchGPU* m_psift_gpu_matcher;
   bool m_HMatrix_is_best;
-  
-  static std::mutex m_sift_gpu_mutex;
 };
 
 } // namespace matching_image_collection

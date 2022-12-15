@@ -111,7 +111,13 @@ void RemoteFileDialog::sl_onGoToSubDir(const QModelIndex &_index) {
         return;
     }
 
-    QModelIndex target_type_index = _index.siblingAtColumn(1);
+    QModelIndex target_type_index;
+
+    #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+      target_type_index = _index.siblingAtColumn(1);
+    #else
+      target_type_index = _index.sibling(_index.row(), 1);
+    #endif
 
     QVariant item_type = m_ui->m_tv_file_tree->model()->data(target_type_index);
     QString type = item_type.toString();
@@ -125,7 +131,11 @@ void RemoteFileDialog::sl_onGoToSubDir(const QModelIndex &_index) {
 
     /* If folder was clicked from columns other than name */
     if (_index.column() > 0) {
-        target_index = _index.siblingAtColumn(0);
+        #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+            target_index = _index.siblingAtColumn(0);
+        #else
+            target_index = _index.sibling(_index.row(), 0);
+        #endif
     }
 
     QVariant item = m_ui->m_tv_file_tree->model()->data(target_index);

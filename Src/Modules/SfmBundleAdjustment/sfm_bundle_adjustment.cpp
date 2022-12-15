@@ -349,6 +349,12 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
 
         // Compute residual sfm to nav error
         std::vector<Vec3> X_SfM, X_GPS;
+        std::vector<std::string> X_img_path;
+
+        X_SfM.reserve(sfm_engine.Get_SfM_Data().GetViews().size());
+        X_GPS.reserve(X_SfM.size());
+        X_img_path.reserve(X_SfM.size());
+        
         for (const auto& view_it : sfm_engine.Get_SfM_Data().GetViews())
         {
             const sfm::ViewPriors* prior = dynamic_cast<sfm::ViewPriors*>(view_it.second.get());
@@ -356,24 +362,27 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
             {
                 X_SfM.push_back(sfm_engine.Get_SfM_Data().GetPoses().at(prior->id_pose).center());
                 X_GPS.push_back(prior->pose_center_);
+                X_img_path.push_back(view_it.second->s_Img_path);
             }
         }
 
-        Vec3 error;
-        double rms_error = 0;
-        if (X_GPS.size() > 0)
+        double rms_error = 0.;
+        if (!X_GPS.empty())
         {
-            for (int i = 0; i < X_GPS.size(); i++)
+            for (size_t i = 0; i < X_GPS.size(); ++i)
             {
-                error = X_GPS[i] - X_SfM[i];
-                rms_error += error.squaredNorm();
+                const double err = (X_GPS[i] - X_SfM[i]).squaredNorm();
+                rms_error += err;
+
+                if (err > 9.)
+                    std::cout << "\n Image " << X_img_path[i] << " has an important error w.r.t. to nav -- error: " << err << " m \n";
             }
 
-            rms_error = sqrt(rms_error / (double)X_GPS.size());
+            rms_error = std::sqrt(rms_error / static_cast<double>(X_GPS.size()));
             QString proc_info = logPrefix() + QString("RMS error between nav and sfm = %1 m").arg(rms_error);
             emit si_addToLog(proc_info);
 
-            if (rms_error > 2)
+            if (rms_error > 2.)
             {
                 emit si_showInformationMessage(tr("RMS error too high"),tr("The RMS error between optical navigation and vehicle navigation is quite high (%1 m). You should double check the vehicle navigation.").arg(rms_error));
             }
