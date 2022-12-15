@@ -1,4 +1,5 @@
 ﻿#include <QStyle>
+#include <QProcess>
 #include <QDesktopWidget>
 #include <QMessageBox>
 
@@ -1266,6 +1267,11 @@ void MainGui::sl_launchPreprocessingTool()
     }
 
     QString tool_path = external_tools.value("preprocessingTool");
+
+    #ifdef LINUX
+        tool_path.replace(".exe","");
+    #endif
+
     QFileInfo tool_path_file(tool_path);
 
     if (!tool_path_file.exists()) {
@@ -1274,8 +1280,13 @@ void MainGui::sl_launchPreprocessingTool()
         return;
     }
 
-    QUrl url = QUrl::fromLocalFile(tool_path_file.absoluteFilePath());
-    QDesktopServices::openUrl(url);
+    QProcess tool_process;
+    tool_process.start(tool_path_file.absoluteFilePath());
+
+    tool_process.waitForFinished(-1);
+
+    QString output = tool_process.readAllStandardOutput() + "\n" + tool_process.readAllStandardError();
+    qDebug() << output;
 }
 
 void MainGui::sl_launchNmeaExtractorTool()
@@ -1288,6 +1299,11 @@ void MainGui::sl_launchNmeaExtractorTool()
     }
 
     QString tool_path = external_tools.value("nmeaNavExtractor");
+    
+    #ifdef LINUX
+        tool_path.replace(".exe","");
+    #endif
+    
     QFileInfo tool_path_file(tool_path);
 
     if (!tool_path_file.exists()) {
@@ -1296,8 +1312,13 @@ void MainGui::sl_launchNmeaExtractorTool()
         return;
     }
 
-    QUrl url = QUrl::fromLocalFile(tool_path_file.absoluteFilePath());
-    QDesktopServices::openUrl(url);
+    QProcess tool_process;
+    tool_process.start(tool_path_file.absoluteFilePath());
+
+    tool_process.waitForFinished(-1);
+
+    QString output = tool_process.readAllStandardOutput() + "\n" + tool_process.readAllStandardError();
+    qDebug() << output;
 }
 
 void MainGui::sl_launchCameraManagerTool()
