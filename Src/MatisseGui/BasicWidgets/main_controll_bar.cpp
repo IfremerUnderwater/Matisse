@@ -44,6 +44,7 @@ void MainControllBar::setSwitchModeButtonEnable(bool _enabled_p)
 {
     QToolButton* switch_mode_button = findChild<QToolButton*>(QString("_TBU_visuModeSwap"));
     switch_mode_button->setEnabled(_enabled_p);
+    m_ui->homeWidget->setEnabled(_enabled_p);
 }
 
 
