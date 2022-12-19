@@ -365,7 +365,7 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
                 X_img_path.push_back(view_it.second->s_Img_path);
             }
         }
-
+            
         double rms_error = 0.;
         if (!X_GPS.empty())
         {
@@ -379,15 +379,23 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
             }
 
             rms_error = std::sqrt(rms_error / static_cast<double>(X_GPS.size()));
-            QString proc_info = logPrefix() + QString("RMS error between nav and sfm = %1 m").arg(rms_error);
+            QString proc_info = QString("Model #%1 -- RMS error between nav and sfm = %2 m").arg(m_model_idx+1).arg(rms_error);
             emit si_addToLog(proc_info);
 
             if (rms_error > 2.)
             {
-                emit si_showInformationMessage(tr("RMS error too high"),tr("The RMS error between optical navigation and vehicle navigation is quite high (%1 m). You should double check the vehicle navigation.").arg(rms_error));
+                emit si_showInformationMessage(tr("Model #%1 -- RMS error too high").arg(m_model_idx+1),tr("The RMS error between optical navigation and vehicle navigation is quite high (%1 m) for Model #%2. You should double check the vehicle navigation.").arg(rms_error).arg(m_model_idx+1));
             }
-
         }
+
+        QString proc_info = QString("Model #%1 : %2 images reconstructed\n").arg(m_model_idx+1).arg(X_SfM.size());
+        emit si_addToLog(proc_info);
+
+        // emit si_showInformationMessage(tr("Number of Reconstructed Images for model #%1").arg(m_model_idx+1),tr("Number of images successfully reconstructed %1.").arg(X_SfM.size()));
+
+        m_nb_img_registered += (int)X_SfM.size();
+        if (m_nb_img_tot == 0)
+            m_nb_img_tot = (int)sfm_engine.Get_SfM_Data().GetViews().size();
 
         return true;
     }
@@ -454,13 +462,14 @@ void SfmBundleAdjustment::onFlush(quint32 _port)
     }
 
     // Reconstruct sparse for each connected components
-    for (int i=0; i<m_matches_files_list.size(); i++)
+    m_nb_img_registered = 0;
+    m_nb_img_tot = 0;
+    for (m_model_idx=0; m_model_idx<m_matches_files_list.size(); ++m_model_idx)
     {
-
         // Get match file id
         QRegExp match_file_rex(".+_(\\d+)_(\\d+)");
 
-        if (m_matches_files_list[i].contains(match_file_rex))
+        if (m_matches_files_list[m_model_idx].contains(match_file_rex))
         {
             rc->components_ids.push_back(match_file_rex.cap(1).toInt());
         }
@@ -471,19 +480,24 @@ void SfmBundleAdjustment::onFlush(quint32 _port)
         }
 
         emit si_processCompletion(-1); // cannot monitor percentage
-        emit si_userInformation(QString("Reconstruct 3D part %1/%2").arg(i+1).arg(m_matches_files_list.size()));
+        emit si_userInformation(QString("Reconstruct 3D part %1/%2").arg(m_model_idx+1).arg(m_matches_files_list.size()));
 
         // Fill out path
-        m_out_complete_path_str = absoluteOutputTempDir() + SEP + "ModelPart"+QString("_%1").arg(rc->components_ids[i]);
+        m_out_complete_path_str = absoluteOutputTempDir() + SEP + "ModelPart"+QString("_%1").arg(rc->components_ids[m_model_idx]);
 
         // Ask for automatic 3D result loading
         emit si_autoAdd3DFileFromFolderOnMainView(m_out_complete_path_str + QDir::separator() + "*.ply");
 
         // Compute Sfm bundle adjustment
-        this->incrementalSfm(m_out_complete_path_str, m_matches_files_list[i]);
+        this->incrementalSfm(m_out_complete_path_str, m_matches_files_list[m_model_idx]);
  
         emit si_processCompletion(100);
     }
+
+    QString sfm_info = QString("Full SfM Reconstructed %1 images reconstructed out of %2").arg(m_nb_img_registered).arg(m_nb_img_tot);
+    emit si_addToLog(sfm_info);
+
+    emit si_showInformationMessage(tr("Full SfM Reconstruction"),tr("%1/%2 images successfully reconstructed.\n").arg(m_nb_img_registered).arg(m_nb_img_tot));
 
     // Stop checking 3D result loading
     emit si_autoAdd3DFileFromFolderOnMainView("");
