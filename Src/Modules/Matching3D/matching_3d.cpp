@@ -431,7 +431,7 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
         nav_based_matching_max_dist = 8.0;
 
     //
-    bool b_guided_matching = m_matisse_parameters->getDoubleParamValue("algo_param", "guided_matching", ok);
+    bool b_guided_matching = m_matisse_parameters->getBoolParamValue("algo_param", "guided_matching", ok);
     if (!ok)
         b_guided_matching = true;
 
