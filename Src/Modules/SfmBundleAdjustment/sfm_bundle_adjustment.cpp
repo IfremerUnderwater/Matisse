@@ -195,8 +195,33 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
  
     // params that should be exposed to Matisse in future version
     std::string s_intrinsic_refinement_options = "ADJUST_ALL";
-    std::string s_sfm_initializer_method = "STELLAR";
+    std::string s_sfm_initializer_method = "MAX_PAIR";
+
+    // init camera model
     int i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
+    bool ok = false;
+    CameraInfo camera_equipment = m_matisse_parameters->getCamInfoParamValue("cam_param", "camera_equipment", ok);
+    if (ok)
+    {
+        switch (camera_equipment.distortionModel())
+        {
+        case 0:
+            i_User_camera_model = PINHOLE_CAMERA_RADIAL1;
+            break;
+        case 1:
+            i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
+            break;
+        case 2:
+            i_User_camera_model = PINHOLE_CAMERA_BROWN;
+            break;
+        case 3:
+            i_User_camera_model = PINHOLE_CAMERA_FISHEYE;
+            break;
+        }
+    }
+        
+
+
     bool b_use_motion_priors = true;
     int triangulation_method = static_cast<int>(ETriangulationMethod::DEFAULT);
     int resection_method = static_cast<int>(resection::SolverType::DEFAULT);
