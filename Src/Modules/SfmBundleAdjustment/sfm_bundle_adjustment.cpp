@@ -6,6 +6,7 @@
 #include "openMVG/cameras/Camera_Common.hpp"
 #include "openMVG/cameras/Cameras_Common_command_line_helper.hpp"
 #include "openMVG/sfm/pipelines/sequential/sequential_SfM2.hpp"
+#include "openMVG/sfm/pipelines/sequential/sequential_SfM.hpp"
 #include "openMVG/sfm/pipelines/sequential/SfmSceneInitializerMaxPair.hpp"
 //#include "openMVG/sfm/pipelines/sequential/SfmSceneInitializerStellar.hpp"
 #include "SfmSceneInitializerAutoPair.hpp"
@@ -74,6 +75,8 @@ SfmBundleAdjustment::SfmBundleAdjustment() :
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("dataset_param", "output_dir");
     addExpectedParameter("dataset_param", "usePrior");
+    addExpectedParameter("algo_param", "quality_vs_speed");
+    
 }
 
 SfmBundleAdjustment::~SfmBundleAdjustment(){
@@ -197,7 +200,7 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
     // params that should be exposed to Matisse in future version
     std::string s_intrinsic_refinement_options = "ADJUST_ALL";
     // std::string s_sfm_initializer_method = "STELLAR";
-    int i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
+    int i_user_camera_model = PINHOLE_CAMERA_RADIAL3;
     bool ok = false;
     CameraInfo camera_equipment = m_matisse_parameters->getCamInfoParamValue("cam_param", "camera_equipment", ok);
     if (ok)
@@ -205,20 +208,21 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
         switch (camera_equipment.distortionModel())
         {
         case 0:
-            i_User_camera_model = PINHOLE_CAMERA_RADIAL1;
+            i_user_camera_model = PINHOLE_CAMERA_RADIAL1;
             break;
         case 1:
-            i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
+            i_user_camera_model = PINHOLE_CAMERA_RADIAL3;
             break;
         case 2:
-            i_User_camera_model = PINHOLE_CAMERA_BROWN;
+            i_user_camera_model = PINHOLE_CAMERA_BROWN;
             break;
         case 3:
-            i_User_camera_model = PINHOLE_CAMERA_FISHEYE;
+            i_user_camera_model = PINHOLE_CAMERA_FISHEYE;
             break;
         }
     }
         
+    QString quality_vs_speed = m_matisse_parameters->getStringParamValue("algo_param", "quality_vs_speed");
 
 
     bool b_use_motion_priors = true;
@@ -231,7 +235,7 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
         return false;
     }
 
-    if (!isValid(openMVG::cameras::EINTRINSIC(i_User_camera_model))) {
+    if (!isValid(openMVG::cameras::EINTRINSIC(i_user_camera_model))) {
         std::cerr << "\n Invalid camera type" << std::endl;
         return false;
     }
@@ -243,13 +247,6 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
         std::cerr << "Invalid input for the Bundle Adjusment Intrinsic parameter refinement option" << std::endl;
         return false;
     }
-
-    // eSfMSceneInitializer scene_initializer_enum;
-    // if (!StringToEnum_ESfMSceneInitializer(s_sfm_initializer_method, scene_initializer_enum))
-    // {
-    //     std::cerr << "Invalid input for the SfM initializer option" << std::endl;
-    //     return false;
-    // }
 
     // Load input SfM_Data scene
     SfM_Data sfm_data;
@@ -304,37 +301,6 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
     //---------------------------------------
 
     openMVG::system::Timer timer;
-
-    // std::unique_ptr<SfMSceneInitializer> scene_initializer;
-    // switch (scene_initializer_enum)
-    // {
-    // case eSfMSceneInitializer::INITIALIZE_AUTO_PAIR:
-    //     std::cerr << "Not yet implemented." << std::endl;
-    //     return false;
-    //     break;
-    // case eSfMSceneInitializer::INITIALIZE_MAX_PAIR:
-    //     scene_initializer.reset(new SfMSceneInitializerMaxPair(sfm_data,
-    //         feats_provider.get(),
-    //         matches_provider.get()));
-    //     break;
-    // case eSfMSceneInitializer::INITIALIZE_EXISTING_POSES:
-    //     scene_initializer.reset(new SfMSceneInitializer(sfm_data,
-    //         feats_provider.get(),
-    //         matches_provider.get()));
-    //     break;
-    // case eSfMSceneInitializer::INITIALIZE_STELLAR:
-    //     scene_initializer.reset(new SfMSceneInitializerStellar(sfm_data,
-    //         feats_provider.get(),
-    //         matches_provider.get()));
-    //     break;
-    // default:
-    //     return false;
-    // }
-    // if (!scene_initializer)
-    // {
-    //     std::cerr << "Invalid scene initializer." << std::endl;
-    //     return false;
-    // }
     
     std::unique_ptr<SfMSceneInitializer> scene_initializer_auto_pair, scene_initializer_max_pair;
     scene_initializer_auto_pair = std::make_unique<SfMSceneInitializerAutoPair>(
@@ -347,57 +313,88 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
                                                     feats_provider.get(),
                                                     matches_provider.get());
 
-    // 1st Try SfM With the Auto pair Initialization
+    // choose between v1 or v2 engine
     // ============================================
-    std::unique_ptr<SequentialSfMReconstructionEngine2> psfm_engine = 
-                                        std::make_unique<SequentialSfMReconstructionEngine2>(
-                                                scene_initializer_auto_pair.get(),
-                                                sfm_data,
-                                                _out_dir.toStdString(),
-                                                stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html"));
+    bool use_bundle_v1 = true;
+    if (quality_vs_speed == "Speed")
+        use_bundle_v1 = false;
+    
 
-    // Configure the features_provider & the matches_provider
-    psfm_engine->SetFeaturesProvider(feats_provider.get());
-    psfm_engine->SetMatchesProvider(matches_provider.get());
-
-    // Configure reconstruction parameters
-    psfm_engine->Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
-    psfm_engine->SetUnknownCameraType(EINTRINSIC(i_User_camera_model));
-    psfm_engine->Set_Use_Motion_Prior(m_use_prior);
-    psfm_engine->SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
-    psfm_engine->SetResectionMethod(static_cast<resection::SolverType>(resection_method));
-
-    // // Run SfM with Auto pair Init!
-    // // ==========================
-    bool sfm_success = psfm_engine->Process();
-
-    if (!sfm_success)
+    std::unique_ptr<ReconstructionEngine> psfm_engine;
+    if(use_bundle_v1)
     {
-        // Auto pair init failed... 
-        std::cout << "\n\nAuto pair based Init Failed...\n==> Trying Max_Pair based init!\n\n";
-
-        // Run SfM with MAX_PAIR Init!
-        // ==========================
-        psfm_engine.reset( new SequentialSfMReconstructionEngine2(
-            scene_initializer_max_pair.get(),
-            sfm_data,
-            _out_dir.toStdString(),
-            stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html")));
+        SequentialSfMReconstructionEngine* psfm_engine_v1 =
+            new SequentialSfMReconstructionEngine(
+                sfm_data,
+                _out_dir.toStdString(),
+                stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html"));
 
         // Configure the features_provider & the matches_provider
-        psfm_engine->SetFeaturesProvider(feats_provider.get());
-        psfm_engine->SetMatchesProvider(matches_provider.get());
+        psfm_engine_v1->SetFeaturesProvider(feats_provider.get());
+        psfm_engine_v1->SetMatchesProvider(matches_provider.get());
 
         // Configure reconstruction parameters
-        psfm_engine->Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
-        psfm_engine->SetUnknownCameraType(EINTRINSIC(i_User_camera_model));
-        psfm_engine->Set_Use_Motion_Prior(m_use_prior);
-        psfm_engine->SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
-        psfm_engine->SetResectionMethod(static_cast<resection::SolverType>(resection_method));
+        psfm_engine_v1->Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
+        psfm_engine_v1->SetUnknownCameraType(EINTRINSIC(i_user_camera_model));
+        psfm_engine_v1->Set_Use_Motion_Prior(m_use_prior);
+        psfm_engine_v1->SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
+        psfm_engine_v1->SetResectionMethod(static_cast<resection::SolverType>(resection_method));
 
-        // Run SfM with Max_pair Init!
-        sfm_success = psfm_engine->Process();
+        psfm_engine.reset(psfm_engine_v1);
     }
+    else
+    {
+        SequentialSfMReconstructionEngine2 * psfm_engine_v2=
+            new SequentialSfMReconstructionEngine2(
+                scene_initializer_auto_pair.get(),
+                sfm_data,
+                _out_dir.toStdString(),
+                stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html"));
+
+        // Configure the features_provider & the matches_provider
+        psfm_engine_v2->SetFeaturesProvider(feats_provider.get());
+        psfm_engine_v2->SetMatchesProvider(matches_provider.get());
+
+        // Configure reconstruction parameters
+        psfm_engine_v2->Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
+        psfm_engine_v2->SetUnknownCameraType(EINTRINSIC(i_user_camera_model));
+        psfm_engine_v2->Set_Use_Motion_Prior(m_use_prior);
+        psfm_engine_v2->SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
+        psfm_engine_v2->SetResectionMethod(static_cast<resection::SolverType>(resection_method));
+
+        psfm_engine.reset(psfm_engine_v2);
+
+        // Deactivate max_pair for the moment (not sure it could work better than auto_pair)
+        //if (!sfm_success)
+        //{
+        //    // Auto pair init failed... 
+        //    std::cout << "\n\nAuto pair based Init Failed...\n==> Trying Max_Pair based init!\n\n";
+
+        //    // Run SfM with MAX_PAIR Init!
+        //    // ==========================
+        //    psfm_engine.reset(new SequentialSfMReconstructionEngine2(
+        //        scene_initializer_max_pair.get(),
+        //        sfm_data,
+        //        _out_dir.toStdString(),
+        //        stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html")));
+
+        //    // Configure the features_provider & the matches_provider
+        //    psfm_engine->SetFeaturesProvider(feats_provider.get());
+        //    psfm_engine->SetMatchesProvider(matches_provider.get());
+
+        //    // Configure reconstruction parameters
+        //    psfm_engine->Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
+        //    psfm_engine->SetUnknownCameraType(EINTRINSIC(i_user_camera_model));
+        //    psfm_engine->Set_Use_Motion_Prior(m_use_prior);
+        //    psfm_engine->SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
+        //    psfm_engine->SetResectionMethod(static_cast<resection::SolverType>(resection_method));
+
+        //    // Run SfM with Max_pair Init!
+        //    sfm_success = psfm_engine->Process();
+        //}
+    }
+
+    bool sfm_success = psfm_engine->Process();
 
     if (sfm_success)
     {
