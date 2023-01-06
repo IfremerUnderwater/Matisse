@@ -1,5 +1,6 @@
 add_library(SfmBundleAdjustment SHARED
     sfm_bundle_adjustment.cpp
+    SfmSceneInitializerAutoPair.cpp
     )
 
 target_link_libraries(SfmBundleAdjustment

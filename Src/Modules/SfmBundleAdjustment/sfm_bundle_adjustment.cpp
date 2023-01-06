@@ -7,7 +7,8 @@
 #include "openMVG/cameras/Cameras_Common_command_line_helper.hpp"
 #include "openMVG/sfm/pipelines/sequential/sequential_SfM2.hpp"
 #include "openMVG/sfm/pipelines/sequential/SfmSceneInitializerMaxPair.hpp"
-#include "openMVG/sfm/pipelines/sequential/SfmSceneInitializerStellar.hpp"
+//#include "openMVG/sfm/pipelines/sequential/SfmSceneInitializerStellar.hpp"
+#include "SfmSceneInitializerAutoPair.hpp"
 #include "openMVG/sfm/pipelines/sfm_features_provider.hpp"
 #include "openMVG/sfm/pipelines/sfm_matches_provider.hpp"
 #include "openMVG/sfm/sfm_report.hpp"
@@ -335,8 +336,8 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
     //     return false;
     // }
     
-    std::unique_ptr<SfMSceneInitializer> scene_initializer_stellar, scene_initializer_max_pair;
-    scene_initializer_stellar = std::make_unique<SfMSceneInitializerStellar>(
+    std::unique_ptr<SfMSceneInitializer> scene_initializer_auto_pair, scene_initializer_max_pair;
+    scene_initializer_auto_pair = std::make_unique<SfMSceneInitializerAutoPair>(
                                                     sfm_data,
                                                     feats_provider.get(),
                                                     matches_provider.get());
@@ -346,11 +347,11 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
                                                     feats_provider.get(),
                                                     matches_provider.get());
 
-    // 1st Try SfM With the Stellar Initialization
+    // 1st Try SfM With the Auto pair Initialization
     // ============================================
     std::unique_ptr<SequentialSfMReconstructionEngine2> psfm_engine = 
                                         std::make_unique<SequentialSfMReconstructionEngine2>(
-                                                scene_initializer_stellar.get(),
+                                                scene_initializer_auto_pair.get(),
                                                 sfm_data,
                                                 _out_dir.toStdString(),
                                                 stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html"));
@@ -366,14 +367,14 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
     psfm_engine->SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
     psfm_engine->SetResectionMethod(static_cast<resection::SolverType>(resection_method));
 
-    // // Run SfM with Stellar Init!
+    // // Run SfM with Auto pair Init!
     // // ==========================
     bool sfm_success = psfm_engine->Process();
 
     if (!sfm_success)
     {
-        // Stellar init failed... 
-        std::cout << "\n\nStellar based Init Failed...\n==> Trying Max_Pair based init!\n\n";
+        // Auto pair init failed... 
+        std::cout << "\n\nAuto pair based Init Failed...\n==> Trying Max_Pair based init!\n\n";
 
         // Run SfM with MAX_PAIR Init!
         // ==========================
@@ -394,7 +395,7 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
         psfm_engine->SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
         psfm_engine->SetResectionMethod(static_cast<resection::SolverType>(resection_method));
 
-        // Run SfM with Stellar Init!
+        // Run SfM with Max_pair Init!
         sfm_success = psfm_engine->Process();
     }
 
