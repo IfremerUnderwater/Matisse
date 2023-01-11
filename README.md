@@ -16,6 +16,10 @@ Matisse is a user friendly software to make structure-from-motion techniques (3D
 Data preprocessing is mainly optimized to work for underwater images but it can also be used any type of optical images.
 It is based on multiple open source libraries such as openMVG, openMVS, MVE... and written in C++.
 
+## Manual
+
+More information on software features and usages can be found in the manual present in the software or available through this link : [Manual](https://github.com/IfremerUnderwater/Matisse/blob/master/Config/help/MatisseHelp_EN.pdf)
+
 ## License 
 
 Matisse is released under the LGPLv3 licence. Please have a look at the licence file at the repository root.
