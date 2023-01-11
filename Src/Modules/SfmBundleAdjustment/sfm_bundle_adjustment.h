@@ -39,6 +39,10 @@ private:
     QString m_out_complete_path_str;
     QStringList m_matches_files_list;
     bool m_use_prior;
+
+    int m_model_idx;
+    int m_nb_img_registered;
+    int m_nb_img_tot;
  
     void checkForNewFiles();
     bool splitMatchesFiles();

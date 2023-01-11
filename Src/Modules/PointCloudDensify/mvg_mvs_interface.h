@@ -4,15 +4,19 @@
 
 // I N C L U D E S /////////////////////////////////////////////////
 
+#include <fstream>
+
 #include "openMVG/cameras/Camera_Pinhole.hpp"
 #include "openMVG/cameras/Camera_undistort_image.hpp"
 #include "openMVG/image/image_io.hpp"
 #include "openMVG/sfm/sfm_data.hpp"
 #include "openMVG/sfm/sfm_data_io.hpp"
+#include "openMVG/system/logger.hpp"
+#include "openMVG/system/loggerprogress.hpp"
+
 
 #include "third_party/cmdLine/cmdLine.h"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
-#include "third_party/progress/progress_display.hpp"
 
 #include <atomic>
 #include <cstdlib>
@@ -21,8 +25,6 @@
 #ifdef OPENMVG_USE_OPENMP
 #include <omp.h>
 #endif
-
-#include <fstream>
 
 // D E F I N E S ///////////////////////////////////////////////////
 
@@ -515,7 +517,7 @@ bool exportToOpenMVS(
   const std::string & sOutFile,
   const std::string & sOutDir,
   const int iNumThreads = 0,
-  C_Progress * my_progress_bar = nullptr
+  openMVG::system::ProgressInterface * prog_interface = nullptr
   )
 {
   // Create undistorted images directory structure
@@ -534,7 +536,7 @@ bool exportToOpenMVS(
   size_t nPoses(0);
   const uint32_t nViews((uint32_t)sfm_data.GetViews().size());
 
-  my_progress_bar->restart(nViews, "- PROCESS VIEWS -");
+  openMVG::system::LoggerProgress my_progress_bar(nViews,"- PROCESS VIEWS -");
 
   // OpenMVG can have not contiguous index, use a map to create the required OpenMVS contiguous ID index
   std::map<openMVG::IndexT, uint32_t> map_intrinsic, map_view;
@@ -550,6 +552,8 @@ bool exportToOpenMVS(
 	  LOCAL_MVS::Interface::Platform platform;
       // add the camera
 	  LOCAL_MVS::Interface::Platform::Camera camera;
+      camera.width = cam->w();
+      camera.height = cam->h();
       camera.K = cam->K();
       // sub-pose
       camera.R = openMVG::Mat3::Identity();
@@ -563,20 +567,25 @@ bool exportToOpenMVS(
   scene.images.reserve(nViews);
   for (const auto& view : sfm_data.GetViews())
   {
-    map_view[view.first] = scene.images.size();
-	LOCAL_MVS::Interface::Image image;
+    ++my_progress_bar;
+
     const std::string srcImage = stlplus::create_filespec(sfm_data.s_root_path, view.second->s_Img_path);
-    image.name = stlplus::create_filespec(sOutDir, swapExtToPng(view.second->s_Img_path)); // output png better dark value handling with undist img (not lossy)
-    image.platformID = map_intrinsic.at(view.second->id_intrinsic);
-	LOCAL_MVS::Interface::Platform& platform = scene.platforms[image.platformID];
-    image.cameraID = 0;
     if (!stlplus::is_file(srcImage))
     {
       std::cout << "Cannot read the corresponding image: " << srcImage << std::endl;
       return EXIT_FAILURE;
     }
-    if (sfm_data.IsPoseAndIntrinsicDefined(view.second.get()))
+
+    if (sfm_data.IsPoseAndIntrinsicDefined(view.second.get())) 
     {
+      map_view[view.first] = scene.images.size();
+
+      LOCAL_MVS::Interface::Image image;
+      image.name = stlplus::create_filespec(sOutDir, swapExtToPng(view.second->s_Img_path)); // output png better dark value handling with undist img (not lossy)
+      image.platformID = map_intrinsic.at(view.second->id_intrinsic);
+      LOCAL_MVS::Interface::Platform& platform = scene.platforms[image.platformID];
+      image.cameraID = 0;
+
       LOCAL_MVS::Interface::Platform::Pose pose;
       image.poseID = platform.poses.size();
       const openMVG::geometry::Pose3 poseMVG(sfm_data.GetPoseOrDie(view.second.get()));
@@ -584,21 +593,17 @@ bool exportToOpenMVS(
       pose.C = poseMVG.center();
       platform.poses.push_back(pose);
       ++nPoses;
+
+      scene.images.emplace_back(image);
     }
     else
     {
-      // image have not valid pose, so set an undefined pose
-      image.poseID = NO_ID;
-      // just copy the image
-      //stlplus::file_copy(srcImage, image.name);
+      std::cout << "Cannot read the corresponding pose or intrinsic of view " << view.first;
     }
-    scene.images.emplace_back(image);
-    ++(*my_progress_bar);
   }
 
   // Export undistorted images
-  my_progress_bar->restart(sfm_data.views.size(), "- UNDISTORT IMAGES -");
-
+  openMVG::system::LoggerProgress my_progress_bar_images(sfm_data.views.size(), "- UNDISTORT IMAGES " );
   std::atomic<bool> bOk(true); // Use a boolean to track the status of the loop process
 #ifdef OPENMVG_USE_OPENMP
   const unsigned int nb_max_thread = (iNumThreads > 0)? iNumThreads : omp_get_max_threads();
@@ -607,12 +612,12 @@ bool exportToOpenMVS(
 #endif
   for (int i = 0; i < static_cast<int>(sfm_data.views.size()); ++i)
   {
-    ++(*my_progress_bar);
+    ++my_progress_bar_images;
 
     if (!bOk)
       continue;
 
-	openMVG::sfm::Views::const_iterator iterViews = sfm_data.views.begin();
+    openMVG::sfm::Views::const_iterator iterViews = sfm_data.views.begin();
     std::advance(iterViews, i);
     const openMVG::sfm::View * view = iterViews->second.get();
 
@@ -620,12 +625,7 @@ bool exportToOpenMVS(
     const std::string srcImage = stlplus::create_filespec(sfm_data.s_root_path, view->s_Img_path);
     const std::string imageName = stlplus::create_filespec(sOutDir, swapExtToPng(view->s_Img_path));
 
-    if (!stlplus::is_file(srcImage))
-    {
-      std::cerr << "Cannot read the corresponding image: " << srcImage << std::endl;
-      bOk = false;
-      continue;
-    }
+
     if (sfm_data.IsPoseAndIntrinsicDefined(view))
     {
       // export undistorted images
@@ -707,38 +707,6 @@ bool exportToOpenMVS(
     );
     vert.X = landmark.X.cast<float>();
     scene.vertices.push_back(vert);
-  }
-
-  // normalize camera intrinsics
-  for (size_t p=0; p<scene.platforms.size(); ++p)
-  {
-	  LOCAL_MVS::Interface::Platform& platform = scene.platforms[p];
-    for (size_t c=0; c<platform.cameras.size(); ++c) {
-		LOCAL_MVS::Interface::Platform::Camera& camera = platform.cameras[c];
-      // find one image using this camera
-		LOCAL_MVS::Interface::Image* pImage(nullptr);
-      for (LOCAL_MVS::Interface::Image& image: scene.images)
-      {
-        if (image.platformID == p && image.cameraID == c && image.poseID != NO_ID)
-        {
-          pImage = &image;
-          break;
-        }
-      }
-      if (!pImage)
-      {
-        std::cerr << "error: no image using camera " << c << " of platform " << p << std::endl;
-        continue;
-      }
-      // read image meta-data
-	  openMVG::image::ImageHeader imageHeader;
-      ReadImageHeader(pImage->name.c_str(), &imageHeader);
-      const double fScale(1.0/std::max(imageHeader.width, imageHeader.height));
-      camera.K(0, 0) *= fScale;
-      camera.K(1, 1) *= fScale;
-      camera.K(0, 2) *= fScale;
-      camera.K(1, 2) *= fScale;
-    }
   }
 
   // write OpenMVS data

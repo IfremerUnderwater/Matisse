@@ -1,6 +1,8 @@
 ﻿#include "processor.h"
 #include <QDebug>
 
+using namespace matisse_image;
+
 namespace matisse {
 
 Processor::Processor(QObject *_parent, QString _name, QString _comment, quint16 _in_number, quint16 _out_number) :
@@ -80,6 +82,7 @@ bool Processor::setOutputPortList(QList<ImageSetPort *> * _output_port_list)
 void Processor::fatalErrorExit(QString _message)
 {
       askToStop(true);
+      qDebug() << "Fatal error message :" << _message;
       emit si_showErrorMessage(logPrefix(), _message);
       m_ok_status = false;
       emit si_fatalError();

@@ -1,5 +1,6 @@
 ﻿#include "lifecycle_component.h"
 #include <QDir>
+#include "file_utils.h"
 
 namespace matisse {
 
@@ -76,12 +77,12 @@ bool LifecycleComponent::callStop()
 
 QString LifecycleComponent::absoluteDatasetDir()
 {
-    return m_matisse_parameters->getStringParamValue("dataset_param", "dataset_dir");
+    return system_tools::FileUtils::resolveUnixPath(m_matisse_parameters->getStringParamValue("dataset_param", "dataset_dir"));
 }
 
 QString LifecycleComponent::absoluteOutputDir()
 {
-    QDir output_dir(m_matisse_parameters->getStringParamValue("dataset_param", "output_dir"));
+    QDir output_dir(system_tools::FileUtils::resolveUnixPath(m_matisse_parameters->getStringParamValue("dataset_param", "output_dir")));
     
     if (output_dir.isRelative())
     {

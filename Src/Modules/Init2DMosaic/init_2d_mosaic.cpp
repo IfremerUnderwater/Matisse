@@ -28,7 +28,6 @@ Init2DMosaic::Init2DMosaic() :
     addExpectedParameter("algo_param","min_overlap");
     addExpectedParameter("algo_param","max_overlap");
     addExpectedParameter("algo_param", "disjoint_drawing");
-
 }
 
 Init2DMosaic::~Init2DMosaic(){

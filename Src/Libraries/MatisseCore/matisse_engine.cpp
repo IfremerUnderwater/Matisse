@@ -130,8 +130,19 @@ MatisseParameters* MatisseEngine::buildMatisseParameters(JobDefinition *_job) {
         setMessageStr(tr("Cannot find parameters file: %1").arg(file));
     }
 
-    return parameters;
+    if (m_is_server_mode) {
+        substituteRemoteDatasetParameters(parameters);
+    }
 
+    return parameters;
+}
+
+void MatisseEngine::substituteRemoteDatasetParameters(MatisseParameters *_parameters) {
+    /* substitute local dataset parameters with remote dataset parameters */
+    _parameters->substituteParamValue(REMOTE_DATASET_STRUCTURE, DATASET_PARAM_REMOTE_DATASET_DIR, DATASET_STRUCTURE, DATASET_PARAM_DATASET_DIR);
+    _parameters->substituteParamValue(REMOTE_DATASET_STRUCTURE, DATASET_PARAM_REMOTE_NAVIGATION_FILE, DATASET_STRUCTURE, DATASET_PARAM_NAVIGATION_FILE);
+    _parameters->substituteParamValue(REMOTE_DATASET_STRUCTURE, DATASET_PARAM_REMOTE_OUTPUT_DIR, DATASET_STRUCTURE, DATASET_PARAM_OUTPUT_DIR);
+    _parameters->substituteParamValue(REMOTE_DATASET_STRUCTURE, DATASET_PARAM_REMOTE_OUTPUT_FILENAME, DATASET_STRUCTURE, DATASET_PARAM_OUTPUT_FILENAME);
 }
 
 void MatisseEngine::setMessageStr(QString _message_Str, bool _error)
@@ -391,8 +402,7 @@ bool MatisseEngine::processJob(JobDefinition *_job_definition)
     setMessageStr();
 
     if (m_current_job) {
-        qDebug() << "A Thread is running";
-        // TODO Queue jobs?
+        qWarning() << "A Thread is running";
         return false;
     }
 
@@ -629,10 +639,12 @@ void JobTask::sl_start()
 
     connect(m_input_data_provider, SIGNAL(si_userInformation(QString)), this, SLOT(sl_userInformation(QString)));
     connect(m_input_data_provider, SIGNAL(si_processCompletion(quint8)), this, SLOT(sl_processCompletion(quint8)));
+    connect(m_input_data_provider, SIGNAL(si_showInformationMessage(QString, QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString, QString)));
+    connect(m_input_data_provider, SIGNAL(si_showErrorMessage(QString, QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString, QString)));
     if (!m_is_server_mode) {
-      connect(m_input_data_provider, SIGNAL(si_showInformationMessage(QString, QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString, QString)));
-      connect(m_input_data_provider, SIGNAL(si_showErrorMessage(QString, QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString, QString)));
+
       connect(m_input_data_provider, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(sl_show3DFileOnMainView(QString)));
+      connect(m_input_data_provider, SIGNAL(si_autoAdd3DFileFromFolderOnMainView(QString)), m_job_launcher, SLOT(sl_autoAdd3DFileFromFolderOnMainView(QString)));
       connect(m_input_data_provider, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(sl_addRasterFileToMap(QString)));
       connect(m_input_data_provider, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(sl_addToLog(QString)));
       connect(m_input_data_provider, SIGNAL(si_addToLog(QString)), this, SLOT(sl_logToFile(QString)));
@@ -661,6 +673,7 @@ void JobTask::sl_start()
           connect(processor, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString,QString)));
           connect(processor, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString,QString)));
           connect(processor, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(sl_show3DFileOnMainView(QString)));
+          connect(processor, SIGNAL(si_autoAdd3DFileFromFolderOnMainView(QString)), m_job_launcher, SLOT(sl_autoAdd3DFileFromFolderOnMainView(QString)));
           connect(processor, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(sl_addRasterFileToMap(QString)));
           connect(processor, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(sl_addToLog(QString)));
         }
@@ -675,6 +688,7 @@ void JobTask::sl_start()
       connect(m_output_data_writer, SIGNAL(si_showInformationMessage(QString,QString)), m_job_launcher, SLOT(sl_showInformationMessage(QString,QString)));
       connect(m_output_data_writer, SIGNAL(si_showErrorMessage(QString,QString)), m_job_launcher, SLOT(sl_showErrorMessage(QString,QString)));
       connect(m_output_data_writer, SIGNAL(si_show3DFileOnMainView(QString)), m_job_launcher, SLOT(sl_show3DFileOnMainView(QString)));
+      connect(m_output_data_writer, SIGNAL(si_autoAdd3DFileFromFolderOnMainView(QString)), m_job_launcher, SLOT(sl_autoAdd3DFileFromFolderOnMainView(QString)));
       connect(m_output_data_writer, SIGNAL(si_addRasterFileToMap(QString)), m_job_launcher, SLOT(sl_addRasterFileToMap(QString)));
       connect(m_output_data_writer, SIGNAL(si_addToLog(QString)), m_job_launcher, SLOT(sl_addToLog(QString)));
     }

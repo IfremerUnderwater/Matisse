@@ -2,11 +2,11 @@
 #define NETWORK_TOOLS_NETWORK_ACTION_UPLOAD_FILE_H_
 
 #include <QtDebug>
-#include "network_file_action.h"
+#include "network_action_file_transfer.h"
 
 namespace network_tools {
 
-class NetworkActionUploadFile : public NetworkFileAction
+class NetworkActionUploadFile : public NetworkActionFileTransfer
 {
     Q_OBJECT
 public:

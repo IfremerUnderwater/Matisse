@@ -2,11 +2,11 @@
 #define NETWORK_TOOLS_NETWORK_ACTION_SEND_COMMAND_H_
 
 #include <QtDebug>
-#include "network_command_action.h"
+#include "network_action_shell.h"
 
 namespace network_tools {
 
-class NetworkActionSendCommand : public NetworkCommandAction
+class NetworkActionSendCommand : public NetworkActionShell
 {
     Q_OBJECT
 public:

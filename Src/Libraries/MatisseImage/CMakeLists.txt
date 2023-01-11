@@ -12,7 +12,7 @@ add_library(MatisseImage
 
 
 #target_link_libraries( MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml Qt5::XmlPatterns Qt5::Script ${QUAZIP_LIBRARIES})
-target_link_libraries( MatisseImage Qt5::Core Qt5::Widgets ${OpenCV_LIBS} GDAL::GDAL ${PROJ_LIBS})
+target_link_libraries( MatisseImage Qt5::Core Qt5::Widgets ${OpenCV_LIBS} ${GDAL_LIBRARY} ${PROJ_LIBS})
 
 
 

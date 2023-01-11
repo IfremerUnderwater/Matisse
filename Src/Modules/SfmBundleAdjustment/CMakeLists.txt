@@ -1,5 +1,6 @@
 add_library(SfmBundleAdjustment SHARED
     sfm_bundle_adjustment.cpp
+    SfmSceneInitializerAutoPair.cpp
     )
 
 target_link_libraries(SfmBundleAdjustment
@@ -10,8 +11,7 @@ target_link_libraries(SfmBundleAdjustment
 	Qt5::Xml
 	Qt5::Widgets
 	${QUAZIP_LIBRARIES}
-	GDAL::GDAL
-	${PROJ_LIBS}
+	${GDAL_LIBRARY}
 	OpenMVG::openMVG_system
 	OpenMVG::openMVG_image
     OpenMVG::openMVG_features

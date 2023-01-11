@@ -1,11 +1,14 @@
 #define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
 
 #include "geo_transform.h"
-#include <proj_api.h>
+//#include <proj.h>
+#include <GeographicLib/UTMUPS.hpp>
 #include <stdio.h>
 #include <iostream>
 #include <QDebug>
 #include <cmath>
+
+using namespace GeographicLib;
 
 namespace nav_tools {
 
@@ -16,7 +19,15 @@ GeoTransform::GeoTransform()
 bool GeoTransform::latLongToUTM(double _lat_p, double _lon_p, double & _x_p, double & _y_p, QString & _utm_zone_p, bool _force_zone)
 {
 
-    projPJ pj_latlong, pj_utm;
+    int zone;
+    bool northp;
+    double x, y;
+    UTMUPS::Forward(_lat_p, _lon_p, zone, northp, _x_p, _y_p);
+    std::string zonestr = UTMUPS::EncodeZone(zone, northp);
+
+    _utm_zone_p = QString::fromStdString(zonestr);
+
+    /*projPJ pj_latlong, pj_utm;
 
     QString utm_proj_param, utm_hemisphere_option;
 
@@ -64,13 +75,22 @@ bool GeoTransform::latLongToUTM(double _lat_p, double _lon_p, double & _x_p, dou
     qDebug()<<"Error code: " << p <<" Error message: "<<  pj_strerrno(p) << "\n";
 
     return (p>=0);
+	*/
+	return true;
 
 }
 
 bool GeoTransform::UTMToLatLong(double _x_p, double _y_p, QString _utm_zone_p, double &_lat_p, double &_lon_p)
 {
+    // Sample reverse calculation
+    std::string zonestr = _utm_zone_p.toStdString();
+    int zone;
+    bool northp;
+    UTMUPS::DecodeZone(zonestr, zone, northp);
 
-    projPJ pj_latlong, pj_utm;
+    UTMUPS::Reverse(zone, northp, _x_p, _y_p, _lat_p, _lon_p);
+
+    /*projPJ pj_latlong, pj_utm;
 
     QString utm_proj_param, utm_hemisphere_option;
 
@@ -106,6 +126,8 @@ bool GeoTransform::UTMToLatLong(double _x_p, double _y_p, QString _utm_zone_p, d
     printf("%f°\t%f°\n", _lat_p, _lon_p);
 
     return (p>=0);
+	*/
+	return true;
 
 }
 

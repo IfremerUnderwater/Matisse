@@ -49,6 +49,7 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 #include "carto_scene.h"
 #include "carto_image.h"
 #include <vector>
+#include <QTimer>
 
 using namespace nav_tools;
 
@@ -79,11 +80,11 @@ public:
 signals:
     void si_addRasterToCartoView(CartoImage  * _image_p);
     void si_addRasterToImageView(Image  * _image_p);
-    void si_add3DSceneToCartoView(osg::ref_ptr<osg::Node> _scene_data_p, bool _remove_previous_scenes_p);
+    void si_add3DSceneToCartoView(osg::ref_ptr<osg::Node> _scene_data_p, bool _remove_previous_scenes_p, bool _reset_view);
 
 public slots:
     void sl_loadRasterFromFile(QString _filename_p = "");
-    void sl_load3DSceneFromFile(QString _filename_p, bool _remove_previous_scenes_p);
+    void sl_load3DSceneFromFile(QString _filename_p, bool _remove_previous_scenes_p, bool _reset_view);
 
 private:
     OSGWidget* m_osgwidget;
@@ -109,7 +110,8 @@ public:
     void displayCartoImage(CartoImage *_image);
     void resetJobForm();
     void loadRasterFile(QString _filename);
-    void load3DFile(QString _filename_p, bool _remove_previous_scenes_p=true);
+    void invokeThreaded3DFileLoader(QString _filename_p, bool _remove_previous_scenes_p=true, bool _reset_view=true);
+    void autoAdd3DFileFromFolderOnMainView(QString _folderpath_p);
     void loadImageFile(QString _filename);
     void exportMapViewToImage(QString _image_file_path);
 
@@ -123,7 +125,8 @@ public:
 protected slots:
     void sl_addRasterToCartoView(CartoImage *_image_p);
     void sl_addRasterToImageView(Image *_image_p);
-    void sl_add3DSceneToCartoView(osg::ref_ptr<osg::Node> _scene_data_p, bool _remove_previous_scenes=true);
+    void sl_add3DSceneToCartoView(osg::ref_ptr<osg::Node> _scene_data_p, bool _remove_previous_scenes=true, bool _reset_view=true);
+    void sl_checkFor3DFiles();
     void sl_showMapContextMenu(const QPoint& _pos_p);
     void sl_onAutoResizeTrigger();
     void sl_onFollowLastItem();
@@ -142,7 +145,7 @@ protected slots:
 
 signals:
     void si_loadRasterFromFile(QString _filename_p = "");
-    void si_load3DSceneFromFile(QString _filename_p, bool _remove_previous_scenes_p);
+    void si_load3DSceneFromFile(QString _filename_p, bool _remove_previous_scenes_p, bool _reset_view);
 
 private:
 
@@ -158,6 +161,12 @@ private:
 
     QThread m_result_loading_thread;
     resultLoadingTask m_result_loading_task;
+
+    QTimer m_3d_file_check_timer;
+    QString m_3d_folder_pattern;
+    QDateTime m_watcher_start_time;
+    QDateTime m_last_loaded_file_time;
+    bool m_watcher_first_file;
 
     QStringList m_supported_raster_format;
     QStringList m_supported_vector_format;

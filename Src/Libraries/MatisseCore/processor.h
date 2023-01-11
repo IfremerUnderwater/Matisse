@@ -20,7 +20,7 @@ namespace matisse {
 ///
 /// \brief Classe de base des modules chargeables dans MatisseServer
 ///
-class Processor : public QObject, public ImageListener, public LifecycleComponent
+class Processor : public QObject, public matisse_image::ImageListener, public LifecycleComponent
 {
     Q_OBJECT
     Q_INTERFACES(matisse_image::ImageListener)
@@ -33,8 +33,8 @@ public:
     quint16 inNumber() {return m_in_number;}
     quint16 outNumber() {return m_out_number;}
 
-    bool setInputPortList(QList<ImageSetPort *> * _input_port_list);
-    bool setOutputPortList(QList<ImageSetPort *> * _output_port_list);
+    bool setInputPortList(QList<matisse_image::ImageSetPort *> * _input_port_list);
+    bool setOutputPortList(QList<matisse_image::ImageSetPort *> * _output_port_list);
 
     bool okStatus() { return m_ok_status; }
 
@@ -62,7 +62,7 @@ protected:
     /// \param _port
     /// \param _image
     ///
-    virtual void onNewImage(quint32 _port, Image &_image) = 0;
+    virtual void onNewImage(quint32 _port, matisse_image::Image &_image) = 0;
 
     ///
     /// \brief Emission d'une image sur un port de sortie.
@@ -71,9 +71,9 @@ protected:
     /// \param _port port de sortie
     /// \param _image Image à envoyer
     ///
-    void postImage(quint32 _port, Image &_image);
+    void postImage(quint32 _port, matisse_image::Image &_image);
 
-    virtual ImageSet * nextImageSet() override;
+    virtual matisse_image::ImageSet * nextImageSet() override;
 
     ///
     /// \brief flush Traiter un lot d'images
@@ -82,13 +82,14 @@ protected:
 //    void flush(quint32 _port);
 
 signals:
-    void si_showImageOnMainView(Image* _image);
+    void si_showImageOnMainView(matisse_image::Image* _image);
     void si_userInformation(QString _user_text);
     void si_processCompletion(quint8 _percent_complete);
     void si_showInformationMessage(QString _title, QString _text);
     void si_showErrorMessage(QString _title, QString _text);
     void si_fatalError();
     void si_show3DFileOnMainView(QString _filepath_p);
+    void si_autoAdd3DFileFromFolderOnMainView(QString _folderpath_p);
     void si_addRasterFileToMap(QString _filepath_p);
     void si_addToLog(QString _loggin_text);
 
@@ -98,8 +99,8 @@ private:
     quint16 m_out_number;
 
 protected:
-    QList<ImageSetPort *> * m_input_port_list;
-    QList<ImageSetPort *> * m_output_port_list;
+    QList<matisse_image::ImageSetPort *> * m_input_port_list;
+    QList<matisse_image::ImageSetPort *> * m_output_port_list;
 
     volatile bool m_ok_status;
 

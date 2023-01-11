@@ -16,7 +16,7 @@
 /* WIDGET SIZES AND MARGINS FOR A REFERENCE DPI (then adapted to other dpi) */
 
 // Main window
-#define MAIN_WINDOW_MIN_WIDTH          1280
+#define MAIN_WINDOW_MIN_WIDTH          1340
 #define MAIN_WINDOW_MIN_HEIGHT          800
 
 // ControlBar
@@ -25,7 +25,7 @@
 #define CB_HOME_BUTTON_ICON             36
 #define CB_VISU_SWAP_ICON               36
 #define CB_VERSION_WIDTH                240
-#define CB_VISU_INFO_WIDTH              160
+#define CB_VISU_INFO_WIDTH              220
 #define CB_ON_PROCESS_WIDTH             420
 #define CB_STOP_BUTTON_ICON             36
 

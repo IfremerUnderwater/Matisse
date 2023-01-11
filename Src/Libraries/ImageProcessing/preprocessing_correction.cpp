@@ -11,6 +11,10 @@
 
 #include <iostream>
 #include <fstream>
+#include <omp.h>
+#include <QMutex>
+#include <QDebug>
+#include <QThread>
 
 using namespace std;
 using namespace cv;
@@ -25,153 +29,190 @@ m_correct_colors(false),
 m_compensate_illumination(false),
 m_sat_thres(0.001)
 {
-	//m_bgr_lowres_img.resize(3);
+	//bgr_lowres_img.resize(3);
 	m_graphic_parent = _parent;
+
+	// Make sure that m_ws is odd
+	if (m_ws % 2 == 0)
+		m_ws += 1;
 }
 
-bool PreprocessingCorrection::preprocessImageList(QStringList _input_img_files, QString _output_path)
+bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_files, const QString& _output_path)
 {
 	// check if we need to reduce image resolution
 	cv::Mat first_img = cv::imread(_input_img_files[0].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+
 	m_lowres_comp_scaling = sqrt(1e5 / ((double)first_img.cols * first_img.rows)); // process image at maximum 0.1Mpx
 	if (m_lowres_comp_scaling > 1.0)
 		m_lowres_comp_scaling = 1.0;
 
-	if (_input_img_files.size() < m_ws)
-		return false;
+	// Setup the mask only once as the same mask is to be used for all images
+	cv::Mat lowres_mask;
+	if (!m_mask_img.empty()) 
+	{
+		if (m_lowres_comp_scaling < 1.0)
+			cv::resize(m_mask_img, lowres_mask, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
+		else
+			lowres_mask = m_mask_img;
+	}
 
-	int im_nb = _input_img_files.size();
-	int half_ws = (m_ws-1)/2;
+	if (_input_img_files.size() < m_ws && m_compensate_illumination)
+	{
+		m_compensate_illumination = false;
+	}
 
-	QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, m_graphic_parent);
-	int j = 1;
+	const int im_nb = _input_img_files.size();
+	const int half_ws = (m_ws-1)/2;
+
+	//QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100, m_graphic_parent);
+	QProgressDialog prepro_progress(QString("Preprocessing images files"), "Abort processing", 0, 100);
+	int k = 0;
+	QMutex prog_mut;
+	Qt::HANDLE main_thread = QThread::currentThreadId();
+
+	bool exit_required = false;
 
 	// preprocess
+	#pragma omp parallel for if (!m_compensate_illumination)
 	for (int i = 0; i < im_nb; i++)
 	{
-		if (m_graphic_parent && prepro_progress.wasCanceled())
-			return false;
+		if (exit_required)
+			continue;
 
-		Mat current_img = imread(_input_img_files[i].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+		if (m_graphic_parent && prepro_progress.wasCanceled())
+		{
+			exit_required = true;
+			continue;
+		}
+
+		cv::Mat current_img = cv::imread(_input_img_files[i].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+		
+		std::vector<cv::Mat> bgr_lowres_img;
 
 		// in case we need correction we will use the lower res image to speed up
 		if (m_correct_colors || m_compensate_illumination)
 		{
-			Mat reduced_img;
+			cv::Mat reduced_img;
 
 			if (m_lowres_comp_scaling < 1.0) {
-				resize(current_img, reduced_img, Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
-				split(reduced_img, m_bgr_lowres_img);
+				cv::resize(current_img, reduced_img, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
+				cv::split(reduced_img, bgr_lowres_img);
 			}
 			else {
-				split(current_img, m_bgr_lowres_img);
+				cv::split(current_img, bgr_lowres_img);
 			}
 
 		}
 
 		// check if we need to resize image
 		if (m_prepro_img_scaling < 1.0)
-			resize(current_img, current_img, Size(), m_prepro_img_scaling, m_prepro_img_scaling);
+			cv::resize(current_img, current_img, cv::Size(), m_prepro_img_scaling, m_prepro_img_scaling);
 
 		// correct colors
-		vector<int> ch1_lim, ch2_lim, ch3_lim;
-		cv::Mat empty_mask;
+		std::vector<int> ch1_lim, ch2_lim, ch3_lim;
 		if (m_correct_colors)
 		{
 			// Construct required quantiles vector
-			vector<double> quantiles;
+			std::vector<double> quantiles;
 			quantiles.push_back(m_sat_thres);
-			quantiles.push_back(1 - m_sat_thres);
+			quantiles.push_back(1.0 - m_sat_thres);
 
 			// Get channels saturation limits
-			//findImgColorQuantiles(current_img, empty_mask, quantiles, ch1_lim, ch2_lim, ch3_lim);
-			findImgQuantiles(m_bgr_lowres_img[0], empty_mask, quantiles, ch1_lim);
-			findImgQuantiles(m_bgr_lowres_img[1], empty_mask, quantiles, ch2_lim);
-			findImgQuantiles(m_bgr_lowres_img[2], empty_mask, quantiles, ch3_lim);
+			//findImgColorQuantiles(current_img, m_mask_img, quantiles, ch1_lim, ch2_lim, ch3_lim);
+			findImgQuantiles(bgr_lowres_img[0], lowres_mask, quantiles, ch1_lim);
+			findImgQuantiles(bgr_lowres_img[1], lowres_mask, quantiles, ch2_lim);
+			findImgQuantiles(bgr_lowres_img[2], lowres_mask, quantiles, ch3_lim);
 		}
 
 		// need illumination compensation
 		if (m_compensate_illumination)
 		{
-			if (i - half_ws <= 0)
+			// If first image, just add m_ws images for computing temporal median
+			if (i == 0)
 			{
-
-				if (i == 0)
+				for (int j = 0; j < m_ws; j++)
 				{
+					cv::Mat temp_img;
+					cv::resize(cv::imread(_input_img_files[j].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
 
-					for (int j = 0; j < m_ws; j++)
-					{
-						Mat temp_img;
-						resize(imread(_input_img_files[j].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
+					std::vector<cv::Mat> temp_BGR(3);
+					cv::split(temp_img, temp_BGR);
 
-						vector<Mat> temp_BRG(3);
-						split(temp_img, temp_BRG);
-
-						// stacking images for median
-						m_blue_stack_images.push_back(temp_BRG[0]);
-						m_green_stack_images.push_back(temp_BRG[1]);
-						m_red_stack_images.push_back(temp_BRG[2]);
-
-					}
+					// stacking images for median
+					m_blue_stack_images.push_back(temp_BGR[0]);
+					m_green_stack_images.push_back(temp_BGR[1]);
+					m_red_stack_images.push_back(temp_BGR[2]);
 				}
-
 			}
-			else if (i + half_ws < im_nb - 1)
+			else if (i + half_ws >= m_ws && i + half_ws < im_nb)
 			{
-				Mat temp_img;
-				resize(imread(_input_img_files[i + half_ws].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
+				cv::Mat temp_img;
+				cv::resize(cv::imread(_input_img_files[i + half_ws].toStdString(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION), temp_img, cv::Size(), m_lowres_comp_scaling, m_lowres_comp_scaling);
 
-				vector<Mat> temp_BRG(3);
-				split(temp_img, temp_BRG);
+				std::vector<cv::Mat> temp_BGR(3);
+				cv::split(temp_img, temp_BGR);
 
 				// stacking images for median
 				m_blue_stack_images.pop_front();
-				m_blue_stack_images.push_back(temp_BRG[0]);
+				m_blue_stack_images.push_back(temp_BGR[0]);
 				m_green_stack_images.pop_front();
-				m_green_stack_images.push_back(temp_BRG[1]);
+				m_green_stack_images.push_back(temp_BGR[1]);
 				m_red_stack_images.pop_front();
-				m_red_stack_images.push_back(temp_BRG[2]);
-
+				m_red_stack_images.push_back(temp_BGR[2]);
 			}
 
 			// Compute temporal median
-			if (!computeTemporalMedian())
-				return false;
+			if (computeTemporalMedian())
+			{
+				std::vector<cv::Mat> current_bgr(3);
+				std::vector<cv::Mat> current_bgr_corr(3);
+				cv::split(current_img, current_bgr);
 
-            vector<Mat> current_brg(3);
-            vector<Mat> current_brg_corr(3);
-            split(current_img, current_brg);
+				// compute illum correction
+				compensateIllumination(current_bgr[0], bgr_lowres_img[0], m_blue_median_img, current_bgr_corr[0]);
+				compensateIllumination(current_bgr[1], bgr_lowres_img[1], m_green_median_img, current_bgr_corr[1]);
+				compensateIllumination(current_bgr[2], bgr_lowres_img[2], m_red_median_img, current_bgr_corr[2]);
 
-			// compute illum correction
-            compensateIllumination(current_brg[0], m_bgr_lowres_img[0], m_blue_median_img, current_brg_corr[0]);
-            compensateIllumination(current_brg[1], m_bgr_lowres_img[1], m_green_median_img, current_brg_corr[1]);
-            compensateIllumination(current_brg[2], m_bgr_lowres_img[2], m_red_median_img, current_brg_corr[2]);
-
-            merge(current_brg_corr, current_img);
+				cv::merge(current_bgr_corr, current_img);
+			}
 
 		} // end need illumination compensation
 
-				// correct colors
+		// correct colors
 		if (m_correct_colors)
 		{
-
 			// Strech img according to saturation limit
-			stretchColorImg(current_img, empty_mask, ch1_lim, ch2_lim, ch3_lim, current_img, false);
+			stretchColorImg(current_img, ch1_lim, ch2_lim, ch3_lim, current_img, false);
 		}
 
 		// write image
-		QFileInfo current_file_info(_input_img_files[i]);
-		QString outfile = _output_path + QDir::separator() + current_file_info.fileName();
+		const QFileInfo current_file_info(_input_img_files[i]);
+		const QString outfile = _output_path + QDir::separator() + current_file_info.fileName();
 		cv::imwrite(outfile.toStdString(), current_img);
 
+		//#pragma omp critical
 		if (m_graphic_parent)
 		{
-			prepro_progress.setValue(round(100 * j / im_nb));
-			j++;
-			QApplication::processEvents();
+
+			prog_mut.lock();
+			k++;
+			prog_mut.unlock();
+
+			// We're not just dumb testing if main thread, it just that setValue cannot be executed from another thread that main thread
+			if (main_thread == QThread::currentThreadId())
+			{
+				prepro_progress.setValue(round(100 * k / im_nb));
+				QApplication::processEvents();
+			}
+
+
 		}
 
 	}
+
+
+	if (exit_required)
+		return false;
 
 	return true;
 }
@@ -189,181 +230,243 @@ bool PreprocessingCorrection::computeTemporalMedian()
 	// TODO check type, we only support color 8bits images for the moment
 
 	// compute median
-	Size images_size = m_blue_stack_images[0].size();
-	int stack_size = m_blue_stack_images.size();
-	m_blue_median_img = Mat::zeros(images_size, CV_32FC1);
-	m_green_median_img = Mat::zeros(images_size, CV_32FC1);
-	m_red_median_img = Mat::zeros(images_size, CV_32FC1);
+	cv::Size images_size = m_blue_stack_images[0].size();
+	const size_t stack_size = m_blue_stack_images.size();
+	m_blue_median_img = cv::Mat::zeros(images_size, CV_32FC1);
+	m_green_median_img = cv::Mat::zeros(images_size, CV_32FC1);
+	m_red_median_img = cv::Mat::zeros(images_size, CV_32FC1);
 
-	vector<double> blue_pixel_stack; blue_pixel_stack.resize(stack_size);
-	vector<double> green_pixel_stack; green_pixel_stack.resize(stack_size);
-	vector<double> red_pixel_stack; red_pixel_stack.resize(stack_size);
+	const double inv_max_val = 1.0 / 255.0;
 
 	#pragma omp parallel for
 	for (int w = 0; w < images_size.width; w++)
 	{
 		for (int h = 0; h < images_size.height; h++)
 		{
-			for (int k = 0; k < m_blue_stack_images.size(); k++)
+			std::vector<double> blue_pixel_stack; blue_pixel_stack.resize(stack_size);
+			std::vector<double> green_pixel_stack; green_pixel_stack.resize(stack_size);
+			std::vector<double> red_pixel_stack; red_pixel_stack.resize(stack_size);
+
+			for (size_t k = 0; k < stack_size; k++)
 			{
-				blue_pixel_stack[k] = gamma_undo(static_cast<double>(m_blue_stack_images[k].at<uchar>(h, w)) / 255.0);
-				green_pixel_stack[k] = gamma_undo(static_cast<double>(m_green_stack_images[k].at<uchar>(h, w)) / 255.0);
-				red_pixel_stack[k] = gamma_undo(static_cast<double>(m_red_stack_images[k].at<uchar>(h, w)) / 255.0);
+				blue_pixel_stack[k] = gamma_undo(static_cast<double>(m_blue_stack_images[k].at<uchar>(h, w)) * inv_max_val);
+				green_pixel_stack[k] = gamma_undo(static_cast<double>(m_green_stack_images[k].at<uchar>(h, w)) * inv_max_val);
+				red_pixel_stack[k] = gamma_undo(static_cast<double>(m_red_stack_images[k].at<uchar>(h, w)) * inv_max_val);
 			}
-			double tempMedian;
 
-			tempMedian = doubleVectorMedian(blue_pixel_stack);
-			m_blue_median_img.at<float>(h, w) = static_cast<float>(tempMedian);
-
-			tempMedian = doubleVectorMedian(green_pixel_stack);
-			m_green_median_img.at<float>(h, w) = static_cast<float>(tempMedian);
-
-			tempMedian = doubleVectorMedian(red_pixel_stack);
-			m_red_median_img.at<float>(h, w) = static_cast<float>(tempMedian);
-
+			m_blue_median_img.at<float>(h, w) = static_cast<float>(doubleVectorMedian(blue_pixel_stack));
+			m_green_median_img.at<float>(h, w) = static_cast<float>(doubleVectorMedian(green_pixel_stack));
+			m_red_median_img.at<float>(h, w) = static_cast<float>(doubleVectorMedian(red_pixel_stack));
 		}
 	}
 
 	return true;
 }
 
-bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _input_lowres, Mat& _temporal_median_image, Mat& _output_image)
+bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image, const cv::Mat& _input_lowres, const cv::Mat& _temporal_median_image, cv::Mat& _output_image)
 {
 	// This function contains empirical choices about model to correct and thresholds
 	// It is not to be understood just adjusted on multiples datasets
 
 	// spatially filter temporal median image
-    Mat temporal_spatial_median_image;
-    std::vector<double> temporal_spatial_median_vect;
-    medianBlur(_temporal_median_image, temporal_spatial_median_image, 5);
+	cv::Mat temporal_spatial_median_image;
+	std::vector<double> temporal_spatial_median_vect;
+	cv::medianBlur(_temporal_median_image, temporal_spatial_median_image, 5);
 
 	//imshow("median img", _temporal_spatial_median_image);
 	//waitKey();
 
-	double out_perc = 0.01; // outlier percentage
-	double maximum_corr_factor = 10.0; // if correction is greater we truncate to this value
-	vector<double> channel_limits;
-	vector<double> quantiles;
-	quantiles.push_back(out_perc);
-	quantiles.push_back(1 - out_perc);
-
-    for (int w = 0; w < temporal_spatial_median_image.cols; w++)
+	for (int r = 0; r < temporal_spatial_median_image.rows; r++)
 	{
-        for (int h = 0; h < temporal_spatial_median_image.rows; h++)
-		{
-            temporal_spatial_median_vect.push_back(temporal_spatial_median_image.at<float>(h, w));
-		}
+		const float* img_row = temporal_spatial_median_image.ptr<float>(r);
+		for (int c = 0; c < temporal_spatial_median_image.cols; c++)
+			temporal_spatial_median_vect.push_back(img_row[c]);
 	}
-    channel_limits = doubleQuantiles(temporal_spatial_median_vect, quantiles);
+  
+	const double out_perc = 0.01; // outlier percentage
+	const double maximum_corr_factor = 10.0; // if correction is greater we truncate to this value
+	
+	std::vector<double> quantiles;
+	quantiles.push_back(out_perc);
+	quantiles.push_back(1.0 - out_perc);
+
+	std::vector<double> channel_limits;
+	channel_limits = doubleQuantiles(temporal_spatial_median_vect, quantiles);
+
+	const int nb_med_img_px = temporal_spatial_median_image.cols * temporal_spatial_median_image.rows;
+	const int needed_fitting_points_nb = nb_med_img_px > 5000 ? 5000 : nb_med_img_px;
 
 	// Construct x,y,z fitting dataset (x = width, y = height, z=intensity) for paraboloid model
-	vector<double> x, y, z;
-	double temp_x, temp_y, temp_z;
-	int needed_fitting_points_nb = 5000;
-	
-	int fitting_points_nb = 0;
-	std::random_device rd;  //Will be used to obtain a seed for the random number engine
-	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> width_dist(0, temporal_spatial_median_image.cols-1);
-    std::uniform_int_distribution<> height_dist(0, temporal_spatial_median_image.rows-1);
+	std::vector<double> x, y, z;
+	x.reserve(needed_fitting_points_nb);
+	y.reserve(needed_fitting_points_nb);
+	z.reserve(needed_fitting_points_nb);
 
-	while (fitting_points_nb < needed_fitting_points_nb)
+	if (needed_fitting_points_nb == nb_med_img_px)
 	{
-		int w = width_dist(gen);
-		int h = height_dist(gen);
-		temp_x = static_cast<double>( w );
-		temp_y = static_cast<double>( h );
-        temp_z = temporal_spatial_median_image.at<float>(h, w);
-
-		if (temp_z > channel_limits[0] && temp_z < channel_limits[1])
+		for (int r = 0; r < temporal_spatial_median_image.rows; r++)
 		{
-			x.push_back(w);
-			y.push_back(h);
-			z.push_back(temp_z);
-			fitting_points_nb++;
+			const float* img_row = temporal_spatial_median_image.ptr<float>(r);
+			for (int c = 0; c < temporal_spatial_median_image.cols; c++)
+			{
+				const double temp_z = static_cast<double>(img_row[c]);
+				if (temp_z > channel_limits[0] && temp_z < channel_limits[1])
+				{
+					x.push_back(static_cast<double>(c));
+					y.push_back(static_cast<double>(r));
+					z.push_back(temp_z);
+				}
+			}
+		}
+	}
+	else 
+	{
+		int fitting_points_nb = 0;
+		std::random_device rd;  //Will be used to obtain a seed for the random number engine
+		std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+		std::uniform_int_distribution<> width_dist(0, temporal_spatial_median_image.cols-1);
+		std::uniform_int_distribution<> height_dist(0, temporal_spatial_median_image.rows-1);
+
+		// Set to avoid using two times the same px coords.
+		std::set<std::pair<int,int>> checked_px_set;
+
+		while (fitting_points_nb < needed_fitting_points_nb)
+		{
+			const int w = width_dist(gen);
+			const int h = height_dist(gen);
+
+			const std::pair<int,int> px = std::make_pair(w,h);
+			if (checked_px_set.count(px))
+				continue;
+			else
+				checked_px_set.insert(px);
+			
+			const double temp_z = static_cast<double>(temporal_spatial_median_image.at<float>(h, w));
+
+			if (temp_z > channel_limits[0] && temp_z < channel_limits[1])
+			{
+				x.push_back(static_cast<double>(w));
+				y.push_back(static_cast<double>(h));
+				z.push_back(temp_z);
+				fitting_points_nb++;
+			}
+
+			// Safety break in case there is not enough values withib the channel limits 
+			// boundaries (in such case leave once all pixels have been checked)
+			if ((int)checked_px_set.size() == nb_med_img_px)
+				break;
 		}
 	}
 
 	// Solve paraboloid model
-	Mat A = cv::Mat::zeros(cv::Size(10, x.size()), CV_64FC1);
-	Mat b = cv::Mat::zeros(cv::Size(1, z.size()), CV_64FC1);
+	cv::Mat A = cv::Mat::zeros(cv::Size(10, x.size()), CV_64FC1);
+	cv::Mat b = cv::Mat::zeros(cv::Size(1, z.size()), CV_64FC1);
 	
-	for (int i = 0; i < z.size(); i++)
+	const size_t nb_els = z.size();
+	
+	#pragma omp parallel for
+	for (int i = 0; i < nb_els; i++)
 	{
 		// A = [x. ^ 3, y. ^ 3, x.*y. ^ 2, x. ^ 2. * y, x. ^ 2, y. ^ 2, x.*y, x, y, ones(size(x))];
 		// idx  0       1       2          3            4       5       6     7  8  9
-		A.at<double>(i, 0) = pow(x[i], 3);
-		A.at<double>(i, 1) = pow(y[i], 3);
-		A.at<double>(i, 2) = x[i]*pow(y[i], 2);
-		A.at<double>(i, 3) = pow(x[i],2)*y[i];
-		A.at<double>(i, 4) = pow(x[i], 2);
-		A.at<double>(i, 5) = pow(y[i], 2);
-		A.at<double>(i, 6) = x[i]*y[i];
-		A.at<double>(i, 7) = x[i];
-		A.at<double>(i, 8) = y[i];
+		
+		const double x1 = x[i];
+		const double x2 = x1*x1;
+		const double x3 = x2*x1;
+
+		const double y1 = y[i];
+		const double y2 = y1*y1;
+		const double y3 = y2*y1;
+
+		A.at<double>(i, 0) = x3;
+		A.at<double>(i, 1) = y3;
+		A.at<double>(i, 2) = x1*y2;
+		A.at<double>(i, 3) = x2*y1;
+		A.at<double>(i, 4) = x2;
+		A.at<double>(i, 5) = y2;
+		A.at<double>(i, 6) = x1*y1;
+		A.at<double>(i, 7) = x1;
+		A.at<double>(i, 8) = y1;
 		A.at<double>(i, 9) = 1;
 
 		b.at<double>(i) = z[i];
 
 	}
 
-	Mat alpha;
+	cv::Mat alpha;
 
-	solve(A, b, alpha, DECOMP_SVD);
+	cv::solve(A, b, alpha, cv::DECOMP_SVD);
 
 	// Correct image
-	vector<double> dbl_lowres_input_vec, dbl_lowres_corr_vec;
-	Mat _dbl_output_image = Mat(_input_image.size(), CV_64FC1);
-	Mat _dbl_lowres_output_image;
-	_output_image = _input_image;
+	cv::Mat _dbl_output_image = cv::Mat(_input_image.size(), CV_64FC1);
+	_output_image = cv::Mat(_input_image.size(), _input_image.type());
 
-	double corr_factor;
-	double lin_input_mean = 0;
-	double lin_corr_mean = 0;
-	double scale_factor = 1.0;
+	// double corr_factor;
+	// double lin_input_mean = 0;
+	// double lin_corr_mean = 0;
+	// double scale_factor = 1.0;
+
+	const double inv_max_val = 1.0 / 255.0;
+	const double scaling_factor = m_lowres_comp_scaling / m_prepro_img_scaling;
 
 	// first apply correction without normalization
 	#pragma omp parallel for
-	for (int w = 0; w < _input_image.cols; w++)
+	for (int r = 0; r < _input_image.rows; r++)
 	{
-		for (int h = 0; h < _input_image.rows; h++)
+		const uchar* in_img_row = _input_image.ptr<uchar>(r);
+		double* out_img_row = _dbl_output_image.ptr<double>(r);
+
+		for (int c = 0; c < _input_image.cols; c++)
 		{
-			temp_x = static_cast<double>(w) * m_lowres_comp_scaling / m_prepro_img_scaling;
-			temp_y = static_cast<double>(h) * m_lowres_comp_scaling / m_prepro_img_scaling;
-			temp_z = alpha.at<double>(0) * pow(temp_x, 3) + alpha.at<double>(1) * pow(temp_y, 3) + alpha.at<double>(2) * temp_x * pow(temp_y, 2)
-				+ alpha.at<double>(3) * pow(temp_x, 2) * temp_y + alpha.at<double>(4) * pow(temp_x, 2) + alpha.at<double>(5) * pow(temp_y, 2)
-				+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y + alpha.at<double>(9);
+			const double temp_x = static_cast<double>(c) * scaling_factor;
+			const double temp_y = static_cast<double>(r) * scaling_factor;
 
-			corr_factor = 1.0 / (temp_z);
+			const double temp_x2 = temp_x * temp_x;
+			const double temp_y2 = temp_y * temp_y;
 
-			if (corr_factor > maximum_corr_factor || temp_z < 0)
+			const double temp_x3 = temp_x2 * temp_x;
+			const double temp_y3 = temp_y2 * temp_y;
+
+			const double temp_z = alpha.at<double>(0) * temp_x3 + alpha.at<double>(1) * temp_y3 + alpha.at<double>(2) * temp_x * temp_y2
+													+ alpha.at<double>(3) * temp_x2 * temp_y + alpha.at<double>(4) * temp_x2 + alpha.at<double>(5) * temp_y2
+													+ alpha.at<double>(6) * temp_x * temp_y + alpha.at<double>(7) * temp_x + alpha.at<double>(8) * temp_y 
+													+ alpha.at<double>(9);
+
+			double corr_factor = 1.0 / temp_z;
+
+			if (corr_factor > maximum_corr_factor || temp_z < 0.0)
 			{
 				corr_factor = maximum_corr_factor;
 			}
 
 			// correct accounting for gamma factor
-			_dbl_output_image.at<double>(h, w) = corr_factor*gamma_undo(saturate_cast<double>(_input_image.at<uchar>(h, w))/255.0);
-
+			out_img_row[c] = corr_factor*gamma_undo(static_cast<double>(in_img_row[c]) * inv_max_val);
 		}
 	}
 
 	// compute low res for faster quantile computation
-	resize(_dbl_output_image, _dbl_lowres_output_image, _input_lowres.size());
+	cv::Mat _dbl_lowres_output_image;
+	cv::resize(_dbl_output_image, _dbl_lowres_output_image, _input_lowres.size());
 
-	for (int w = 0; w < _input_lowres.cols; w++)
+	const int lowres_img_nb_px = _input_lowres.cols * _input_lowres.rows;
+	std::vector<double> dbl_lowres_input_vec, dbl_lowres_corr_vec;
+	dbl_lowres_input_vec.reserve(lowres_img_nb_px);
+	dbl_lowres_corr_vec.reserve(lowres_img_nb_px);
+
+	for (int r = 0; r < _input_lowres.rows; r++)
 	{
-		for (int h = 0; h < _input_lowres.rows; h++)
+		const uchar* in_img_row = _input_lowres.ptr<uchar>(r);
+		const double* dbl_img_row = _dbl_lowres_output_image.ptr<double>(r);
+
+		for (int c = 0; c < _input_lowres.cols; c++)
 		{
 			// correct accounting for gamma factor
-			double dbl_input = gamma_undo(static_cast<double>(_input_lowres.at<uchar>(h, w)) / 255.0);
-			dbl_lowres_input_vec.push_back(dbl_input);
-
-			dbl_lowres_corr_vec.push_back(_dbl_lowres_output_image.at<double>(h, w));
-
+			dbl_lowres_input_vec.push_back(gamma_undo(static_cast<double>(in_img_row[c]) * inv_max_val));
+			dbl_lowres_corr_vec.push_back(dbl_img_row[c]);
 		}
 	}
 
-	vector<double> required_quant, lin_input_quant,lin_corr_quant;
+	std::vector<double> required_quant, lin_input_quant, lin_corr_quant;
 
 	// We suppose that well illuminated area should match before and after corr so we adjust exposure according to this assumption
 	// using 0.8 (so threshold giving the 20% brightest pixels)
@@ -374,30 +477,33 @@ bool PreprocessingCorrection::compensateIllumination(Mat& _input_image, Mat& _in
 	required_quant.push_back(0.999);
 	lin_corr_quant = doubleQuantiles(dbl_lowres_corr_vec, required_quant);
 
-	scale_factor = lin_input_quant[0] / lin_corr_quant[0];
+	double scale_factor = lin_input_quant[0] / lin_corr_quant[0];
 
-	cout << "lin_input_quant=" << lin_input_quant[0] << ", lin_corr_quant=" << lin_corr_quant[0] <<endl;
+	std::cout << "lin_input_quant=" << lin_input_quant[0] << ", lin_corr_quant=" << lin_corr_quant[0] << std::endl;
 
-	if (scale_factor*lin_corr_quant[1] > 1)
+	if (scale_factor*lin_corr_quant[1] > 1.0)
 	{
-		cout << "scale factor=" << scale_factor << ", sat =" << lin_corr_quant[1]  <<endl;
-		scale_factor = 1.0 /lin_corr_quant[1];
+		std::cout << "scale factor=" << scale_factor << ", sat =" << lin_corr_quant[1]  << std::endl;
+		scale_factor = 1.0 / lin_corr_quant[1];
 	}
 
 	// apply scaling factor
 	#pragma omp parallel for
-	for (int w = 0; w < _input_image.cols; w++)
+	for (int r = 0; r < _input_image.rows; r++)
 	{
-		for (int h = 0; h < _input_image.rows; h++)
+		const double* dbl_img_row = _dbl_output_image.ptr<double>(r);
+		uchar* out_img_row = _output_image.ptr<uchar>(r);
+
+		for (int c = 0; c < _input_image.cols; c++)
 		{
 			// correct accounting for gamma factor
-			_output_image.at<uchar>(h, w) = saturate_cast<uchar>(255 * gamma_do(scale_factor * _dbl_output_image.at<double>(h, w)) );
+			out_img_row[c] = cv::saturate_cast<uchar>(255.0 * gamma_do(scale_factor * dbl_img_row[c]));
 		}
 	}
 
 }
 
-void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _compensate_illumination, double _prepro_img_scaling, double _saturation_threshold)
+void PreprocessingCorrection::configureProcessing(const bool _correct_colors, const bool _compensate_illumination, const double _prepro_img_scaling, const double _saturation_threshold, const cv::Mat& _mask_img)
 {
 	m_correct_colors = _correct_colors;
 	m_compensate_illumination = _compensate_illumination;
@@ -411,6 +517,10 @@ void PreprocessingCorrection::configureProcessing(bool _correct_colors, bool _co
 	else
 		m_sat_thres = 0.001;
 
+	if (!_mask_img.empty())
+	{
+		_mask_img.copyTo(m_mask_img);
+	}
 }
 
 } // namespace image_processing

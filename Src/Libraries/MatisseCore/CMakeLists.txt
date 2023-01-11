@@ -53,8 +53,8 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/Parameters
 	)
 
-#target_link_libraries(MatisseCmd PUBLIC MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml Qt5::XmlPatterns Qt5::Script Qt5::OpenGL GDAL::GDAL ${QUAZIP_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES})
-#target_link_libraries(MatisseCmd PUBLIC MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml Qt5::XmlPatterns Qt5::OpenGL GDAL::GDAL ${QUAZIP_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES})
+#target_link_libraries(MatisseCmd PUBLIC MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml Qt5::XmlPatterns Qt5::Script Qt5::OpenGL ${GDAL_LIBRARY} ${QUAZIP_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES})
+#target_link_libraries(MatisseCmd PUBLIC MatisseTools MatisseCommon ${OpenCV_LIBS} Qt5::Core Qt5::Widgets Qt5::Network Qt5::Xml Qt5::XmlPatterns Qt5::OpenGL ${GDAL_LIBRARY} ${QUAZIP_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES})
 target_link_libraries(MatisseCore PUBLIC 
 	MatisseImage 
 	SystemTools 

@@ -61,7 +61,7 @@ void doubleVectorScalarMult(std::vector<double> &_v, double _alpha)
 std::vector<int> integerQuantiles(std::vector<int> _v, std::vector<double> _quantiles)
 {
     // sort vector
-    sort(_v.begin(),_v.end());
+    std::sort(_v.begin(),_v.end());
 
     std::vector<int> quantiles_limits;
 
@@ -75,7 +75,7 @@ std::vector<int> integerQuantiles(std::vector<int> _v, std::vector<double> _quan
 std::vector<double> doubleQuantiles(std::vector<double> _v, std::vector<double> _quantiles)
 {
     // sort vector
-    sort(_v.begin(), _v.end());
+    std::sort(_v.begin(), _v.end());
 
     std::vector<double> quantiles_limits;
 

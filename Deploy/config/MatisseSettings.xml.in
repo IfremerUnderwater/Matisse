@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MatisseSettings>
+
+    <!-- Application version : must conform to the 'X.Y.Z' pattern  -->
+    <!-- X : product serie ; Y : major version ; Z : minor version  -->
+    <!-- To be incremented for each product release                 -->
+    <Version>@MatisseProject_VERSION_MAJOR@.@MatisseProject_VERSION_MINOR@.@MatisseProject_VERSION_PATCH@</Version>
+    <!-- Application version date -->
+    <!-- Date>13/06/2016</Date-->
+    <Date>@BUILD_DATE@</Date>
+
+    <DllRootDir>./Modules</DllRootDir>
+    <XmlRootDir>./xml</XmlRootDir>
+    <Port>8888</Port>
+    <DataRootDir>.</DataRootDir>
+    <PlatformDir>./platforms</PlatformDir>
+	
+	<!-- Remote server container settings -->
+	<RemoteServerSettings>
+		<RemoteServerSetting name="containerImage" path="/home/datawork-matisse-extranet-s/MatisseEnv/singularity/matisse_img_v_1.5.0.sif" alias=""/>
+		<RemoteServerSetting name="launcherParentDir" path="/home/datawork-matisse-extranet-s/MatisseEnv/scripts" alias="matisse_script"/>
+		<RemoteServerSetting name="launcherFile" path="matisse.sh" alias=""/>
+		<RemoteServerSetting name="binRoot" path="/home/datawork-matisse-extranet-s/MatisseEnv/matisse_bin/Run" alias="matisse_bin"/>
+		<RemoteServerSetting name="datasetsDir" path="/home/datawork-matisse-extranet-s/datasets" alias="matisse_data"/>
+		<RemoteServerSetting name="applicationFilesRoot" path="/home/datawork-matisse-extranet-s/MatisseEnv/matisse_app" alias=""/>
+		<RemoteServerSetting name="jobsSubdir" path="jobs" alias="matisse_jobs"/>
+		<RemoteServerSetting name="resultsSubdir" path="results" alias="matisse_results"/>	
+	</RemoteServerSettings>
+	
+	<!-- External tools definition -->
+	<ExternalTools>
+        <ExternalTool name="preprocessingTool" exePath="DataPreprocessingWizard.exe"/>
+		<ExternalTool name="nmeaNavExtractor" exePath="NmeaNavExtractor.exe"/>
+    </ExternalTools>
+</MatisseSettings>

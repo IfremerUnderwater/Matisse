@@ -73,6 +73,39 @@ bool NmeaFilesReader::loadFilesToMemory()
 
                 if(fields_com.size()>=5)
                 {
+                    // get hrov.nav msf2
+                    if (fields_com[4]==QString("hrov.nav"))
+                    {
+                        QDate nav_date= QDate::fromString(fields_com[1],"dd/MM/yyyy");
+                        QTime time = QTime::fromString(fields_com[2],"hh:mm:ss.zzz");
+                        QDateTime date_time(nav_date,time);
+                        m_nav_datetime.push_back((double)date_time.toMSecsSinceEpoch());
+
+                        std::pair<double, double> pair;
+
+                        pair.first = (double)date_time.toMSecsSinceEpoch();
+
+                        pair.second = fields_com[6].mid(9,-1).toDouble();
+                        m_lat.push_back(pair);
+
+                        pair.second = fields_com[7].mid(10,-1).toDouble();
+                        m_lon.push_back(pair);
+
+                        pair.second = fields_com[8].mid(6,-1).toDouble();
+                        m_depth.push_back(pair);
+
+                        pair.second = fields_com[9].mid(9,-1).toDouble();
+                        m_alt.push_back(pair);
+
+                        pair.second = DEG2RAD*fields_com[10].mid(8,-1).toDouble();
+                        m_yaw.push_back(pair);
+
+                        pair.second = DEG2RAD*fields_com[11].mid(5,-1).toDouble();;
+                        m_roll.push_back(pair);
+
+                        pair.second = DEG2RAD*fields_com[12].mid(6,-1).toDouble();;
+                        m_pitch.push_back(pair);
+                    }
 
                     // get victor.nav msf2
                     if (fields_com[4]==QString("victor.nav") && !fields_com[2].endsWith(":60.000"))

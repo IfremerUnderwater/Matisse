@@ -3,6 +3,7 @@
 
 #include <QtDebug>
 #include <QPainter>
+#include <QPainterPath>
 
 #include "fold_unfold_button.h"
 #include "graphical_charter.h"

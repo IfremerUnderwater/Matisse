@@ -1,4 +1,5 @@
 ﻿#include <QStyle>
+#include <QProcess>
 #include <QDesktopWidget>
 #include <QMessageBox>
 
@@ -430,6 +431,7 @@ void MainGui::initRemoteJobHelper()
   m_remote_job_helper->setParametersManager(m_engine.parametersManager());
   m_remote_job_helper->setPreferences(m_preferences);
   m_remote_job_helper->setServerSettings(SystemDataManager::instance()->remoteServerSettings());
+  m_remote_job_helper->setIconFactory(m_icon_factory);
   m_remote_job_helper->init();
   connect(m_remote_job_helper, SIGNAL(si_jobResultsReceived(QString)),
           SLOT(sl_onRemoteJobResultsReceived(QString)));
@@ -642,7 +644,7 @@ bool MainGui::loadResultToCartoView(QString _result_file_p, bool _remove_previou
         //_userFormWidget->loadShapefile(infoResult.absoluteFilePath());
 
     }else if (m_data_viewer->supported3DFileFormat().contains(info_result.suffix())){
-        m_data_viewer->load3DFile(info_result.absoluteFilePath(), _remove_previous_scenes);
+        m_data_viewer->invokeThreaded3DFileLoader(info_result.absoluteFilePath(), _remove_previous_scenes);
 
     }else if (m_data_viewer->supportedImageFormat().contains(info_result.suffix())){
         //qDebug() << "Loading image file " << resultFile_p;
@@ -877,33 +879,45 @@ void MainGui::checkAndSelectAssembly(QString _selected_assembly_name)
 }
 
 
-void MainGui::promptJobNotSaved()
+bool MainGui::promptJobNotSaved(bool _proceed_anyway)
 {
-    if (m_job_parameter_modified) {
-        if (!m_current_job) {
-            qCritical() << "Job parameters were modified but the current job is unknown, modifications if any will be lost";
-
-            /* reset modification flag */
-            m_job_parameter_modified = false;
-
-        } else {
-            QString current_job_name = m_current_job->name();
-
-            int user_response = QMessageBox::question(this, tr("Parameters modification..."), tr("Parameters from task '%1' were modified.\nSave mods before going on ?").arg(current_job_name), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-
-            if (user_response == QMessageBox::Yes) {
-                // save job parameters
-                m_engine.parametersManager()->saveParametersValues(current_job_name, false);
-            }
-
-            /* reset modification flag */
-            m_job_parameter_modified = false;
-
-            /* mark job as saved */
-            handleJobModified();
-        }
+    if (!m_job_parameter_modified) {
+        return false;
     }
 
+    if (!m_current_job) {
+        qCritical() << "Job parameters were modified but the current job is unknown, modifications if any will be lost";
+
+        /* reset modification flag */
+        m_job_parameter_modified = false;
+        return false;
+    }
+
+    bool job_saved = false;
+    QString current_job_name = m_current_job->name();
+
+    QString action_prompt = (_proceed_anyway) ? tr("Save parameters before proceeding ?") : tr("Save parameters now ?");
+
+    int user_response = QMessageBox::question(this, tr("Parameters modification..."), tr("Parameters from task '%1' were modified.\n").arg(current_job_name).append(action_prompt), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+    if (user_response == QMessageBox::Yes) {
+        // save job parameters
+        m_engine.parametersManager()->saveParametersValues(current_job_name, false);
+        job_saved = true;
+        /* reset modification flag */
+        m_job_parameter_modified = false;
+        /* mark job as saved */
+        handleJobModified();
+    }
+
+    if (job_saved || _proceed_anyway) {
+        /* reset modification flag */
+        m_job_parameter_modified = false;
+        /* mark job as saved */
+        handleJobModified();
+    }
+
+    return job_saved;
 }
 
 
@@ -1253,6 +1267,11 @@ void MainGui::sl_launchPreprocessingTool()
     }
 
     QString tool_path = external_tools.value("preprocessingTool");
+
+    #ifdef LINUX
+        tool_path.replace(".exe","");
+    #endif
+
     QFileInfo tool_path_file(tool_path);
 
     if (!tool_path_file.exists()) {
@@ -1261,8 +1280,13 @@ void MainGui::sl_launchPreprocessingTool()
         return;
     }
 
-    QUrl url = QUrl::fromLocalFile(tool_path_file.absoluteFilePath());
-    QDesktopServices::openUrl(url);
+    QProcess tool_process;
+    tool_process.start(tool_path_file.absoluteFilePath());
+
+    tool_process.waitForFinished(-1);
+
+    QString output = tool_process.readAllStandardOutput() + "\n" + tool_process.readAllStandardError();
+    qDebug() << output;
 }
 
 void MainGui::sl_launchNmeaExtractorTool()
@@ -1275,6 +1299,11 @@ void MainGui::sl_launchNmeaExtractorTool()
     }
 
     QString tool_path = external_tools.value("nmeaNavExtractor");
+    
+    #ifdef LINUX
+        tool_path.replace(".exe","");
+    #endif
+    
     QFileInfo tool_path_file(tool_path);
 
     if (!tool_path_file.exists()) {
@@ -1283,8 +1312,13 @@ void MainGui::sl_launchNmeaExtractorTool()
         return;
     }
 
-    QUrl url = QUrl::fromLocalFile(tool_path_file.absoluteFilePath());
-    QDesktopServices::openUrl(url);
+    QProcess tool_process;
+    tool_process.start(tool_path_file.absoluteFilePath());
+
+    tool_process.waitForFinished(-1);
+
+    QString output = tool_process.readAllStandardOutput() + "\n" + tool_process.readAllStandardError();
+    qDebug() << output;
 }
 
 void MainGui::sl_launchCameraManagerTool()
@@ -1321,7 +1355,7 @@ void MainGui::executeExportWorkflow(bool _is_job_export_action, bool _is_for_rem
 
     if (_is_job_export_action) {
         if (m_is_map_view && m_job_parameter_modified) {
-            promptJobNotSaved();
+            confirm_action = promptJobNotSaved(false);
         }
     } else {
         if (!m_is_map_view) {
@@ -1487,7 +1521,12 @@ void MainGui::sl_goHome()
 
 void MainGui::sl_show3DFileOnMainView(QString _filepath_p)
 {
-    m_data_viewer->load3DFile(_filepath_p);
+    m_data_viewer->invokeThreaded3DFileLoader(_filepath_p);
+}
+
+void MainGui::sl_autoAdd3DFileFromFolderOnMainView(QString _folderpath_p)
+{
+    m_data_viewer->autoAdd3DFileFromFolderOnMainView(_folderpath_p);
 }
 
 void MainGui::sl_addRasterFileToMap(QString _filepath_p)
@@ -2622,19 +2661,9 @@ void MainGui::sl_launchJob()
 
     // If a parameter was modified, the user is prompted for saving parameter values
     if (m_job_parameter_modified) {
-        if (QMessageBox::No == QMessageBox::question(this, tr("Parameters changed..."),
-                                                     tr("One or more parameters were modified.\nDo you want to save task parameters ?"),
-                                                     QMessageBox::Yes,
-                                                     QMessageBox::No)) {
-
+        if (!promptJobNotSaved(false)) {
             qDebug() << "User aborted job execution";
             return;
-        } else {
-            qDebug() << "Saving job parameters before launch";
-            // Save parameter values
-            m_engine.parametersManager()->saveParametersValues(job_name, false);
-            m_job_parameter_modified = false;
-            handleJobModified();
         }
     }
 
@@ -2695,6 +2724,13 @@ void MainGui::sl_uploadJobData()
     if (!m_current_job) {
       qCritical() << "No job selected, cannot upload job data";
       return;
+    }
+
+    if (m_job_parameter_modified) {
+        if (!promptJobNotSaved(false)) {
+            qDebug() << "User aborted data upload to server";
+            return;
+        }
     }
 
     QString job_name = m_current_job->name();

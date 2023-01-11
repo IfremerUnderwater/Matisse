@@ -20,6 +20,7 @@ DTPictureFileSetImageProvider::DTPictureFileSetImageProvider(QObject *_parent):
     m_image_set = new ImageSet();
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("dataset_param", "navFile");
+//    addExpectedParameter("dataset_param", "navSource");
     addExpectedParameter("algo_param", "First_processed_image");
     addExpectedParameter("algo_param", "Last_processed_image");
     addExpectedParameter("algo_param", "step_im");

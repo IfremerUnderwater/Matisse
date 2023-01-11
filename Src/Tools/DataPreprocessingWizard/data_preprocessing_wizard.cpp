@@ -17,6 +17,7 @@
 #include <QTime>
 #include <QDateTime>
 #include <QImageReader>
+#include <QElapsedTimer>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/opencv.hpp"
@@ -79,7 +80,7 @@ void DataPreprocessingWizard::sl_selectDataPath()
 void DataPreprocessingWizard::sl_selectOutputPath()
 {
     QString output_folder = QFileDialog::getExistingDirectory(this, tr("Output path"),
-                                                              "./",
+                                                              ui->out_data_path_line->text(),
                                                               QFileDialog::ShowDirsOnly
                                                               | QFileDialog::DontResolveSymlinks);
     if (!output_folder.isEmpty())
@@ -642,6 +643,12 @@ void DataPreprocessingWizard::handleImages()
 
 void DataPreprocessingWizard::preprocessImages(QStringList &_images_list, QString _out_image_path)
 {
+    QElapsedTimer timer;
+    timer.start();
+
+    // Create mask img here to then forward it to
+    // the img_processor object
+    cv::Mat mask_img;
 
     if (ui->use_inpaint_mask->isChecked())
     {
@@ -652,7 +659,7 @@ void DataPreprocessingWizard::preprocessImages(QStringList &_images_list, QStrin
             QProgressDialog inpaint_progress(QString("Inpainting images"), "Abort processing", 0, 100, this);
             inpaint_progress.setWindowModality(Qt::WindowModal);
 
-            cv::Mat mask_img = cv::imread(mask_file_info.absoluteFilePath().toStdString(), cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
+            mask_img = cv::imread(mask_file_info.absoluteFilePath().toStdString(), cv::IMREAD_GRAYSCALE | cv::IMREAD_IGNORE_ORIENTATION);
             cv::Mat current_img, current_img_inpainted;
 
             double inpaintRadius = 3.0;
@@ -711,10 +718,13 @@ void DataPreprocessingWizard::preprocessImages(QStringList &_images_list, QStrin
             }
         }
 
-        img_processor.configureProcessing(need_colors_corr, need_illum_corr, preproc_scale, color_sat_value);
+        img_processor.configureProcessing(need_colors_corr, need_illum_corr, preproc_scale, color_sat_value, mask_img);
         img_processor.preprocessImageList(_images_list, _out_image_path);
 
     }
+
+    double elapsed_time = timer.elapsed() / 1000.0;
+    std::cout << "\n Pre-processing took : " << elapsed_time << " secs!\n";
 }
 
 void DataPreprocessingWizard::sl_finished(int _state)

@@ -39,6 +39,7 @@ signals:
     void si_showInformationMessage(QString _title, QString _text);
     void si_showErrorMessage(QString _title, QString _text);
     void si_show3DFileOnMainView(QString _filepath_p);
+    void si_autoAdd3DFileFromFolderOnMainView(QString _folderpath_p);
     void si_addRasterFileToMap(QString _filepath_p);
     void si_addToLog(QString _loggin_text);
 

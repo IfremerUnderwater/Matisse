@@ -1,19 +1,21 @@
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name and version
-project(MatisseProject VERSION 1.4.0)
+project(MatisseProject VERSION 1.5.0)
 
 # specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(MSVC)
+add_definitions(-DWINDOWS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005")
 set(PROJ_LIBS ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/proj.lib)
 set(OPENMVG_INSTALL_PATH ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET})
 set(BOTAN_LIB ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/botan.lib)
 set(D_EXT "dll")
 else(MSVC)
+add_definitions(-DLINUX)
 list(APPEND CMAKE_MODULE_PATH /usr/share/quazip/)
 list(APPEND CMAKE_MODULE_PATH /usr/share/cmake/geographiclib/)
 list(APPEND CMAKE_MODULE_PATH /usr/lib/cmake/Ceres/)
@@ -47,7 +49,7 @@ add_custom_target(create_out_mod_folder ALL
 )
 
 add_custom_target(copy_config ALL
- COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../Config ${MATISSE_RUNTIME_ROOT} 
+ COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../Deploy ${MATISSE_RUNTIME_ROOT}
  COMMENT "Copying config folder ..."
 )
 
@@ -60,9 +62,9 @@ configure_file(../Install/generate_installer.bat.in Install/generate_installer.b
 configure_file(../Install/packages/Matisse3D/meta/package.xml.in Install/packages/Matisse3D/meta/package.xml)
 set(BINARYTOOL_HOMEDIR @HomeDir@)
 configure_file(../Install/config/config.xml.in Install/config/config.xml)
-configure_file(../Config/config/MatisseSettings.xml.in Run/Release/config/MatisseSettings.xml)
-configure_file(../Config/config/MatisseSettings.xml.in Run/RelWithDebInfo/config/MatisseSettings.xml)
-configure_file(../Config/config/MatisseSettings.xml.in Run/Debug/config/MatisseSettings.xml)
+configure_file(../Deploy/config/MatisseSettings.xml.in Run/Release/config/MatisseSettings.xml)
+configure_file(../Deploy/config/MatisseSettings.xml.in Run/RelWithDebInfo/config/MatisseSettings.xml)
+configure_file(../Deploy/config/MatisseSettings.xml.in Run/Debug/config/MatisseSettings.xml)
 
 
 # configure a header file to pass some of the CMake settings
@@ -70,15 +72,26 @@ configure_file(../Config/config/MatisseSettings.xml.in Run/Debug/config/MatisseS
 configure_file(MatisseConfig.h.in MatisseConfig.h)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+#for SiftGPU
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package(OpenGL REQUIRED)
+find_package(Glew REQUIRED)
+
 # qt5 also required for Quazip
 #find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns Script OpenGL REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets Network Xml XmlPatterns OpenGL REQUIRED)
 
+message("Found Qt5 lib : ${Qt5_VERSION} - ${Qt5_INCLUDE_DIRS}")
+
+# Got error with OpenCV 4.5.0 on Ubuntu on the use of parallel_for_
+# but works with OpenCV 4.5.5
 find_package( OpenCV REQUIRED )
 
 if(MSVC)
 find_package(QuaZip REQUIRED)
 find_package(cereal)
+find_package(vlfeat REQUIRED)
 else(MSVC)
 find_package(QuaZip5 REQUIRED)
 endif(MSVC)
@@ -98,8 +111,17 @@ find_package(CGAL)
 FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serialization)
 find_package(OpenMVS REQUIRED)
 find_package(QSsh)
+# find_package(QFtp)
+find_package(CURL REQUIRED)
 
 find_package(LibKML REQUIRED)
+
+find_package(OpenMP)
+if(OPENMP_FOUND)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
 
 # qt
 set(CMAKE_AUTOMOC ON)

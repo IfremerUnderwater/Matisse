@@ -11,18 +11,17 @@ target_link_libraries(PointCloudDensify
 	Qt5::Xml
 	Qt5::Widgets
 	${QUAZIP_LIBRARIES}
-	GDAL::GDAL
-	${PROJ_LIBS}
+	${GDAL_LIBRARY}
 	OpenMVG::openMVG_system
 	OpenMVG::openMVG_image
     OpenMVG::openMVG_features
-	OpenMVG::vlsift
     OpenMVG::openMVG_sfm
     OpenMVG::openMVG_exif
 	OpenMVG::openMVG_stlplus
     OpenMVG::openMVG_multiview
 	OpenMVG::openMVG_matching_image_collection
-	IO MVS Math Common CGAL::CGAL Boost::filesystem
+	IO MVS Math Common 
+	CGAL::CGAL Boost::filesystem
 	)
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix

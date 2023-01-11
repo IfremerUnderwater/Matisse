@@ -26,6 +26,7 @@ public:
 protected slots:
     void slot_generateTranslationFiles();
     void slot_publishDictionnary();
+    void slot_selectWorkspace();
 private:
     Ui::DictionnaryValidator *ui;
     void init();
@@ -40,6 +41,8 @@ private:
     static const QString XML_TIMESTAMP_PREFIX;
     static const QString XML_TIMESTAMP_SUFFIX;
     static const QString XML_TIMESTAMP_FORMAT;
+
+    QString m_matisse_worspace_path;
 };
 
 #endif // DICTIONNARYVALIDATOR_H

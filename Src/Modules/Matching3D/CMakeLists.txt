@@ -1,31 +1,59 @@
 add_library(Matching3D SHARED
     matching_3d.cpp
+		GPUSift_Matcher_Regions.cpp
+		opengl_utils.cc
     )
 
 include_directories(${OPENMVG_INSTALL_PATH}/include/openMVG_dependencies)
 
+if(MSVC)
 target_link_libraries(Matching3D 
 	MatisseCore
 	MatisseImage
 	BasicProcessing
 	OpticalMapping
+	SiftGpu
 	${OpenCV_LIBS}
 	Qt5::Core 
 	Qt5::Xml 
 	Qt5::Widgets 
 	${QUAZIP_LIBRARIES} 
-	GDAL::GDAL 
-	${PROJ_LIBS}
+	${GDAL_LIBRARY} 
 	OpenMVG::openMVG_system
 	OpenMVG::openMVG_image
 	OpenMVG::openMVG_features
-	OpenMVG::vlsift
+	OpenMVG::openMVG_sfm
+	OpenMVG::openMVG_exif
+	OpenMVG::openMVG_stlplus
+	OpenMVG::openMVG_multiview
+	OpenMVG::openMVG_matching_image_collection
+	unofficial::vlfeat::vl
+	)
+else(MSVC)
+target_link_libraries(Matching3D 
+	MatisseCore
+	MatisseImage
+	BasicProcessing
+	OpticalMapping
+	SiftGpu
+	${OpenCV_LIBS}
+	Qt5::Core 
+	Qt5::Xml 
+	Qt5::Widgets 
+	${QUAZIP_LIBRARIES} 
+	${GDAL_LIBRARY} 
+	OpenMVG::openMVG_system
+	OpenMVG::openMVG_image
+	OpenMVG::openMVG_features
 	OpenMVG::openMVG_sfm
 	OpenMVG::openMVG_exif
 	OpenMVG::openMVG_stlplus
 	OpenMVG::openMVG_multiview
 	OpenMVG::openMVG_matching_image_collection
 	)
+endif(MSVC)
+
+
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix
 set_target_properties(Matching3D PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${MATISSE_RUNTIME_ROOT}/$<0:>)

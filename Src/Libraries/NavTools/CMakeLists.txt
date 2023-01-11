@@ -14,7 +14,7 @@ target_link_libraries(NavTools
 	Qt5::Core 
 	Qt5::Widgets 
 	${OpenCV_LIBS} 
-	GDAL::GDAL 
+	${GDAL_LIBRARY} 
 	${PROJ_LIBS}
 	)
 

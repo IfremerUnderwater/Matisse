@@ -30,13 +30,19 @@
 #define TEMP_DIR_TEMPLATE_FORMAT        "'%1'yyyyMMdd'-'hhmmss'.'zzz"
 #define TEMP_DIR_MAX_TRIALS             3
 #define DEFAULT_TEMP_DIR_PREFIX         "matisse-"
+//#define GENERIC_UNIX_PATH_PATTERN       "(^/|^\\.|^\\.\\.)(/[^/\\0]+)*/?$"
+//#define ABSOLUTE_UNIX_PATH_PATTERN      "^(?=/)(/[^/\\0]+)*/?$"
+#define GENERIC_UNIX_PATH_PATTERN       "^((?=/)|\\.|\\.\\.)(/[^/\\0]+)*/?$"
+#define ABSOLUTE_UNIX_PATH_PATTERN      "^(?=/)(/[^/\\0]+)*/?$"
+#define UNIX_ROOT_PATH_PATTERN          "^/$"
 
 namespace system_tools {
 
 
 class FileUtils
-{
+{   
 public:
+    static bool copyDir(QString _src_dir_path, QString _dst_dir_path, bool _recurse, bool _overwrite);
     static bool removeDir(const QString &_dir_name);
     static bool zipFiles(QString _zip_archive_path, QString _base_dir_path, QStringList _file_names, bool _append = false);
     static bool unzipFiles(QString _zip_archive_path, QString _dest_dir_path);
@@ -48,6 +54,9 @@ public:
     static quint64 dirSize(QString _dir_path, bool _include_subdirs = false);
     static quint32 fileCount(QString _dir_path, bool _include_subdirs = false);
     static QString resolveUnixPath(QString _file_spec);
+    static QString getParentDir(QString _current_dir);
+    static bool isValidUnixPath(QString _path, bool _exclude_relative_path = false);
+    static bool isRootPath(QString _path);
 };
 
 } // namespace system_tools

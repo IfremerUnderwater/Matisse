@@ -1,11 +1,14 @@
 #include "dictionnary_validator.h"
 #include "ui_dictionnary_validator.h"
+#include <QFileDialog>
+#include <QDir>
 
-const QString DictionnaryValidator::HEADER_TEMPLATE_PATH = QString("../../template/MatisseDictionnaryLabels.h");
-const QString DictionnaryValidator::HEADER_GEN_PATH = QString("../../gen/MatisseDictionnaryLabels.h");
-const QString DictionnaryValidator::HEADER_DEST_PATH = QString("../../../../Libraries/MatisseTools/src/MatisseDictionnaryLabels.h");
-const QString DictionnaryValidator::DICTIONNARY_SRC_PATH = QString("../../config/MatisseParametersDictionnary.xml");
-const QString DictionnaryValidator::DICTIONNARY_DEST_PATH = QString("../../../../../Config/config/MatisseParametersDictionnary.xml");
+const QString DictionnaryValidator::HEADER_TEMPLATE_PATH = QString("Src/Tools/MatisseDictionnaryValidator/template/MatisseDictionnaryLabels.h");
+const QString DictionnaryValidator::HEADER_GEN_PATH = QString("Src/Tools/MatisseDictionnaryValidator/gen/MatisseDictionnaryLabels.h");
+const QString DictionnaryValidator::HEADER_DEST_PATH = QString("Src/Libraries/MatisseCore/Parameters/MatisseDictionnaryLabels.h");
+//const QString DictionnaryValidator::DICTIONNARY_SRC_PATH = QString("Src/Tools/MatisseDictionnaryValidator/config/MatisseParametersDictionnary.xml");
+const QString DictionnaryValidator::DICTIONNARY_SRC_PATH = QString("Deploy/config/MatisseParametersDictionnary.xml");
+const QString DictionnaryValidator::DICTIONNARY_DEST_PATH = QString("Deploy/config/MatisseParametersDictionnary.xml");
 const QString DictionnaryValidator::BACKUP_TIMESTAMP_FORMAT = QString(".yyyyMMdd.hhmmss");
 const QString DictionnaryValidator::XML_TIMESTAMP_REGEXP = QString("publicationTimestamp=\"[^\"]*\"");
 const QString DictionnaryValidator::XML_TIMESTAMP_PREFIX = QString("publicationTimestamp=\"");
@@ -35,6 +38,8 @@ void DictionnaryValidator::init()
 
     connect(ui->_TB_Generate, SIGNAL(clicked(bool)), this, SLOT(slot_generateTranslationFiles()));
     connect(ui->_TB_publish, SIGNAL(clicked(bool)), this, SLOT(slot_publishDictionnary()));
+    connect(ui->select_path, SIGNAL(clicked(bool)), this, SLOT(slot_selectWorkspace()));
+
 }
 
 void DictionnaryValidator::slot_generateTranslationFiles()
@@ -45,18 +50,18 @@ void DictionnaryValidator::slot_generateTranslationFiles()
     QString timestampText = timestamp.toString("dd/MM/yyyy hh:mm:ss");
 
     /* Reading template header file */
-    QFile headerTemplateFile(HEADER_TEMPLATE_PATH);
+    QFile headerTemplateFile(m_matisse_worspace_path+QDir::separator()+HEADER_TEMPLATE_PATH);
     headerTemplateFile.open(QIODevice::ReadOnly);
     QTextStream templateReader(&headerTemplateFile);
     QString  templateContent = templateReader.readAll();
     headerTemplateFile.close();
 
-    QFile previousHeaderFile(HEADER_GEN_PATH);
+    QFile previousHeaderFile(m_matisse_worspace_path + QDir::separator() + HEADER_GEN_PATH);
 
     if (previousHeaderFile.exists()) {
         qDebug() << "Backing up previous dictionnary header file...";
         QString backupSuffix = timestamp.toString(BACKUP_TIMESTAMP_FORMAT);
-        previousHeaderFile.rename(HEADER_GEN_PATH + backupSuffix);
+        previousHeaderFile.rename(m_matisse_worspace_path + QDir::separator() + HEADER_GEN_PATH + backupSuffix);
     }
 
 
@@ -66,7 +71,7 @@ void DictionnaryValidator::slot_generateTranslationFiles()
     /* Generate label declaration */
     QString genDeclareLabels;
 
-    QFile dicoFile(DICTIONNARY_SRC_PATH);
+    QFile dicoFile(m_matisse_worspace_path + QDir::separator() + DICTIONNARY_SRC_PATH);
     dicoFile.open(QIODevice::ReadOnly);
 
     QXmlStreamReader xmlReader(&dicoFile);
@@ -113,7 +118,7 @@ void DictionnaryValidator::slot_generateTranslationFiles()
     genContent.replace("${declare_labels}", genDeclareLabels);
 
     /* write contents */
-    QFile headerFile(HEADER_GEN_PATH);
+    QFile headerFile(m_matisse_worspace_path + QDir::separator() + HEADER_GEN_PATH);
 
     headerFile.open(QIODevice::WriteOnly);
     QTextStream writer(&headerFile);
@@ -133,25 +138,25 @@ void DictionnaryValidator::slot_publishDictionnary()
 
     QDateTime timestamp = QDateTime::currentDateTime();
 
-    QFile generatedHeaderFile(HEADER_GEN_PATH);
+    QFile generatedHeaderFile(m_matisse_worspace_path + QDir::separator() + HEADER_GEN_PATH);
 
     if (!generatedHeaderFile.exists()) {
         qCritical() << "Matisse dictionnary labels header file was not generated";
         return;
     }
 
-    QFile currentDictionnaryFile(DICTIONNARY_SRC_PATH);
+    QFile currentDictionnaryFile(m_matisse_worspace_path + QDir::separator() + DICTIONNARY_SRC_PATH);
     qDebug() << "Updating dictionnary timestamp...";
     currentDictionnaryFile.open(QIODevice::ReadOnly);
     QTextStream reader(&currentDictionnaryFile);
     QString content = reader.readAll();
     currentDictionnaryFile.close();
 
-    qDebug() << "Backing up previous dictionnary definition file...";
+    /*qDebug() << "Backing up previous dictionnary definition file...";
     QString backupSuffix = timestamp.toString(BACKUP_TIMESTAMP_FORMAT);
-    currentDictionnaryFile.rename(DICTIONNARY_SRC_PATH + backupSuffix);
+    currentDictionnaryFile.rename(m_matisse_worspace_path + QDir::separator() + DICTIONNARY_SRC_PATH + backupSuffix);*/
 
-    QFile newDictionnaryFile(DICTIONNARY_SRC_PATH);
+    QFile newDictionnaryFile(m_matisse_worspace_path + QDir::separator() + DICTIONNARY_SRC_PATH);
 
     QRegExp timestampRex(XML_TIMESTAMP_REGEXP);
     QString timestampReplacement = XML_TIMESTAMP_PREFIX;
@@ -167,22 +172,28 @@ void DictionnaryValidator::slot_publishDictionnary()
 
     qDebug("Copying dictionnary files...");
 
-    QFile previousDestDictionnaryFile(DICTIONNARY_DEST_PATH);
-    if (previousDestDictionnaryFile.exists()) {
+    QFile previousDestDictionnaryFile(m_matisse_worspace_path + QDir::separator() + DICTIONNARY_DEST_PATH);
+    /*if (previousDestDictionnaryFile.exists()) {
         qDebug() << "Replacing dictionnary definition file...";
         previousDestDictionnaryFile.remove();
-    }
+    }*/
 
-    QFile previousDestHeaderFile(HEADER_DEST_PATH);
+    QFile previousDestHeaderFile(m_matisse_worspace_path + QDir::separator() + HEADER_DEST_PATH);
     if (previousDestHeaderFile.exists()) {
         qDebug() << "Replacing dictionnary header file...";
         previousDestHeaderFile.remove();
     }
 
-    newDictionnaryFile.copy(DICTIONNARY_DEST_PATH);
-    generatedHeaderFile.copy(HEADER_DEST_PATH);
+    //newDictionnaryFile.copy(m_matisse_worspace_path + QDir::separator() + DICTIONNARY_DEST_PATH);
+    generatedHeaderFile.copy(m_matisse_worspace_path + QDir::separator() + HEADER_DEST_PATH);
 
     qDebug() << "Dictionnary published on " << timestamp.toString("dd/MM/yyyy hh:mm:ss");
 
     ui->_TB_publish->setEnabled(false);
+}
+
+void DictionnaryValidator::slot_selectWorkspace()
+{
+    m_matisse_worspace_path = QFileDialog::getExistingDirectory(this, "Select Matisse workspace folder (containing Src folder)");
+    ui->workspace_path->setText(m_matisse_worspace_path);
 }

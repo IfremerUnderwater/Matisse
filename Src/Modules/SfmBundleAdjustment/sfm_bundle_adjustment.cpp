@@ -6,8 +6,10 @@
 #include "openMVG/cameras/Camera_Common.hpp"
 #include "openMVG/cameras/Cameras_Common_command_line_helper.hpp"
 #include "openMVG/sfm/pipelines/sequential/sequential_SfM2.hpp"
+#include "openMVG/sfm/pipelines/sequential/sequential_SfM.hpp"
 #include "openMVG/sfm/pipelines/sequential/SfmSceneInitializerMaxPair.hpp"
-#include "openMVG/sfm/pipelines/sequential/SfmSceneInitializerStellar.hpp"
+//#include "openMVG/sfm/pipelines/sequential/SfmSceneInitializerStellar.hpp"
+#include "SfmSceneInitializerAutoPair.hpp"
 #include "openMVG/sfm/pipelines/sfm_features_provider.hpp"
 #include "openMVG/sfm/pipelines/sfm_matches_provider.hpp"
 #include "openMVG/sfm/sfm_report.hpp"
@@ -73,6 +75,8 @@ SfmBundleAdjustment::SfmBundleAdjustment() :
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("dataset_param", "output_dir");
     addExpectedParameter("dataset_param", "usePrior");
+    addExpectedParameter("algo_param", "quality_vs_speed");
+    
 }
 
 SfmBundleAdjustment::~SfmBundleAdjustment(){
@@ -92,31 +96,6 @@ void SfmBundleAdjustment::onNewImage(quint32 _port, Image &_image)
     postImage(0, _image);
 }
 
-
-void SfmBundleAdjustment::checkForNewFiles()
-{
-    QDir export_folder(m_out_complete_path_str);
-    export_folder.setNameFilters(QStringList() << "*.ply");
-    QStringList file_list = export_folder.entryList();
-
-    bool can_show_a_model = false;
-    QString model_path;
-
-    foreach(QString ply_file, file_list)
-    {
-        QFileInfo ply_file_info(m_out_complete_path_str + QDir::separator() + ply_file);
-        QDateTime ply_last_mod = ply_file_info.lastModified();
-        if (ply_last_mod > m_start_time && ply_last_mod > m_last_ply_time)
-        {
-            model_path = ply_file_info.absoluteFilePath();
-            m_last_ply_time = ply_last_mod;
-            can_show_a_model = true;
-        }
-    }
-
-    if (can_show_a_model)
-        emit si_show3DFileOnMainView(model_path);
-}
 
 bool SfmBundleAdjustment::splitMatchesFiles()
 {
@@ -220,8 +199,32 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
  
     // params that should be exposed to Matisse in future version
     std::string s_intrinsic_refinement_options = "ADJUST_ALL";
-    std::string s_sfm_initializer_method = "STELLAR";
-    int i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
+    // std::string s_sfm_initializer_method = "STELLAR";
+    int i_user_camera_model = PINHOLE_CAMERA_RADIAL3;
+    bool ok = false;
+    CameraInfo camera_equipment = m_matisse_parameters->getCamInfoParamValue("cam_param", "camera_equipment", ok);
+    if (ok)
+    {
+        switch (camera_equipment.distortionModel())
+        {
+        case 0:
+            i_user_camera_model = PINHOLE_CAMERA_RADIAL1;
+            break;
+        case 1:
+            i_user_camera_model = PINHOLE_CAMERA_RADIAL3;
+            break;
+        case 2:
+            i_user_camera_model = PINHOLE_CAMERA_BROWN;
+            break;
+        case 3:
+            i_user_camera_model = PINHOLE_CAMERA_FISHEYE;
+            break;
+        }
+    }
+        
+    QString quality_vs_speed = m_matisse_parameters->getStringParamValue("algo_param", "quality_vs_speed");
+
+
     bool b_use_motion_priors = true;
     int triangulation_method = static_cast<int>(ETriangulationMethod::DEFAULT);
     int resection_method = static_cast<int>(resection::SolverType::DEFAULT);
@@ -232,7 +235,7 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
         return false;
     }
 
-    if (!isValid(openMVG::cameras::EINTRINSIC(i_User_camera_model))) {
+    if (!isValid(openMVG::cameras::EINTRINSIC(i_user_camera_model))) {
         std::cerr << "\n Invalid camera type" << std::endl;
         return false;
     }
@@ -242,13 +245,6 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
     if (intrinsic_refinement_options == static_cast<cameras::Intrinsic_Parameter_Type>(0))
     {
         std::cerr << "Invalid input for the Bundle Adjusment Intrinsic parameter refinement option" << std::endl;
-        return false;
-    }
-
-    eSfMSceneInitializer scene_initializer_enum;
-    if (!StringToEnum_ESfMSceneInitializer(s_sfm_initializer_method, scene_initializer_enum))
-    {
-        std::cerr << "Invalid input for the SfM initializer option" << std::endl;
         return false;
     }
 
@@ -305,105 +301,170 @@ bool SfmBundleAdjustment::incrementalSfm(QString _out_dir, QString _match_file)
     //---------------------------------------
 
     openMVG::system::Timer timer;
+    
+    std::unique_ptr<SfMSceneInitializer> scene_initializer_auto_pair, scene_initializer_max_pair;
+    scene_initializer_auto_pair = std::make_unique<SfMSceneInitializerAutoPair>(
+                                                    sfm_data,
+                                                    feats_provider.get(),
+                                                    matches_provider.get());
 
-    std::unique_ptr<SfMSceneInitializer> scene_initializer;
-    switch (scene_initializer_enum)
+    scene_initializer_max_pair = std::make_unique<SfMSceneInitializerMaxPair>(
+                                                    sfm_data,
+                                                    feats_provider.get(),
+                                                    matches_provider.get());
+
+    // choose between v1 or v2 engine
+    // ============================================
+    bool use_bundle_v1 = true;
+    if (quality_vs_speed == "Speed")
+        use_bundle_v1 = false;
+    
+
+    std::unique_ptr<ReconstructionEngine> psfm_engine;
+    if(use_bundle_v1)
     {
-    case eSfMSceneInitializer::INITIALIZE_AUTO_PAIR:
-        std::cerr << "Not yet implemented." << std::endl;
-        return false;
-        break;
-    case eSfMSceneInitializer::INITIALIZE_MAX_PAIR:
-        scene_initializer.reset(new SfMSceneInitializerMaxPair(sfm_data,
-            feats_provider.get(),
-            matches_provider.get()));
-        break;
-    case eSfMSceneInitializer::INITIALIZE_EXISTING_POSES:
-        scene_initializer.reset(new SfMSceneInitializer(sfm_data,
-            feats_provider.get(),
-            matches_provider.get()));
-        break;
-    case eSfMSceneInitializer::INITIALIZE_STELLAR:
-        scene_initializer.reset(new SfMSceneInitializerStellar(sfm_data,
-            feats_provider.get(),
-            matches_provider.get()));
-        break;
-    default:
-        return false;
+        SequentialSfMReconstructionEngine* psfm_engine_v1 =
+            new SequentialSfMReconstructionEngine(
+                sfm_data,
+                _out_dir.toStdString(),
+                stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html"));
+
+        // Configure the features_provider & the matches_provider
+        psfm_engine_v1->SetFeaturesProvider(feats_provider.get());
+        psfm_engine_v1->SetMatchesProvider(matches_provider.get());
+
+        // Configure reconstruction parameters
+        psfm_engine_v1->Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
+        psfm_engine_v1->SetUnknownCameraType(EINTRINSIC(i_user_camera_model));
+        psfm_engine_v1->Set_Use_Motion_Prior(m_use_prior);
+        psfm_engine_v1->SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
+        psfm_engine_v1->SetResectionMethod(static_cast<resection::SolverType>(resection_method));
+
+        psfm_engine.reset(psfm_engine_v1);
     }
-    if (!scene_initializer)
+    else
     {
-        std::cerr << "Invalid scene initializer." << std::endl;
-        return false;
+        SequentialSfMReconstructionEngine2 * psfm_engine_v2=
+            new SequentialSfMReconstructionEngine2(
+                scene_initializer_auto_pair.get(),
+                sfm_data,
+                _out_dir.toStdString(),
+                stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html"));
+
+        // Configure the features_provider & the matches_provider
+        psfm_engine_v2->SetFeaturesProvider(feats_provider.get());
+        psfm_engine_v2->SetMatchesProvider(matches_provider.get());
+
+        // Configure reconstruction parameters
+        psfm_engine_v2->Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
+        psfm_engine_v2->SetUnknownCameraType(EINTRINSIC(i_user_camera_model));
+        psfm_engine_v2->Set_Use_Motion_Prior(m_use_prior);
+        psfm_engine_v2->SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
+        psfm_engine_v2->SetResectionMethod(static_cast<resection::SolverType>(resection_method));
+
+        psfm_engine.reset(psfm_engine_v2);
+
+        // Deactivate max_pair for the moment (not sure it could work better than auto_pair)
+        //if (!sfm_success)
+        //{
+        //    // Auto pair init failed... 
+        //    std::cout << "\n\nAuto pair based Init Failed...\n==> Trying Max_Pair based init!\n\n";
+
+        //    // Run SfM with MAX_PAIR Init!
+        //    // ==========================
+        //    psfm_engine.reset(new SequentialSfMReconstructionEngine2(
+        //        scene_initializer_max_pair.get(),
+        //        sfm_data,
+        //        _out_dir.toStdString(),
+        //        stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html")));
+
+        //    // Configure the features_provider & the matches_provider
+        //    psfm_engine->SetFeaturesProvider(feats_provider.get());
+        //    psfm_engine->SetMatchesProvider(matches_provider.get());
+
+        //    // Configure reconstruction parameters
+        //    psfm_engine->Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
+        //    psfm_engine->SetUnknownCameraType(EINTRINSIC(i_user_camera_model));
+        //    psfm_engine->Set_Use_Motion_Prior(m_use_prior);
+        //    psfm_engine->SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
+        //    psfm_engine->SetResectionMethod(static_cast<resection::SolverType>(resection_method));
+
+        //    // Run SfM with Max_pair Init!
+        //    sfm_success = psfm_engine->Process();
+        //}
     }
 
-    SequentialSfMReconstructionEngine2 sfm_engine(
-        scene_initializer.get(),
-        sfm_data,
-        _out_dir.toStdString(),
-        stlplus::create_filespec(_out_dir.toStdString(), "Reconstruction_Report.html"));
+    bool sfm_success = psfm_engine->Process();
 
-    // Configure the features_provider & the matches_provider
-    sfm_engine.SetFeaturesProvider(feats_provider.get());
-    sfm_engine.SetMatchesProvider(matches_provider.get());
-
-    // Configure reconstruction parameters
-    sfm_engine.Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
-    sfm_engine.SetUnknownCameraType(EINTRINSIC(i_User_camera_model));
-    sfm_engine.Set_Use_Motion_Prior(m_use_prior);
-    sfm_engine.SetTriangulationMethod(static_cast<ETriangulationMethod>(triangulation_method));
-    sfm_engine.SetResectionMethod(static_cast<resection::SolverType>(resection_method));
-
-    if (sfm_engine.Process())
+    if (sfm_success)
     {
         std::cout << std::endl << " Total Ac-Sfm took (s): " << timer.elapsed() << std::endl;
 
         std::cout << "...Generating SfM_Report.html" << std::endl;
-        Generate_SfM_Report(sfm_engine.Get_SfM_Data(),
+        Generate_SfM_Report(psfm_engine->Get_SfM_Data(),
             stlplus::create_filespec(_out_dir.toStdString(), "SfMReconstruction_Report.html"));
 
         //-- Export to disk computed scene (data & visualizable results)
         std::cout << "...Export SfM_Data to disk." << std::endl;
-        Save(sfm_engine.Get_SfM_Data(),
+        Save(psfm_engine->Get_SfM_Data(),
             stlplus::create_filespec(_out_dir.toStdString(), "sfm_data", ".bin"),
             ESfM_Data(ALL));
 
-        Save(sfm_engine.Get_SfM_Data(),
+        Save(psfm_engine->Get_SfM_Data(),
             stlplus::create_filespec(_out_dir.toStdString(), "cloud_and_poses", ".ply"),
             ESfM_Data(ALL));
 
         // Compute residual sfm to nav error
         std::vector<Vec3> X_SfM, X_GPS;
-        for (const auto& view_it : sfm_engine.Get_SfM_Data().GetViews())
+        std::vector<std::string> X_img_path;
+
+        const int nb_img_registered = psfm_engine->Get_SfM_Data().GetPoses().size();
+        
+        X_SfM.reserve(nb_img_registered);
+        X_GPS.reserve(nb_img_registered);
+        X_img_path.reserve(nb_img_registered);
+        
+        for (const auto& view_it : psfm_engine->Get_SfM_Data().GetViews())
         {
             const sfm::ViewPriors* prior = dynamic_cast<sfm::ViewPriors*>(view_it.second.get());
-            if (prior != nullptr && prior->b_use_pose_center_ && sfm_engine.Get_SfM_Data().IsPoseAndIntrinsicDefined(prior))
+            if (prior != nullptr && prior->b_use_pose_center_ && psfm_engine->Get_SfM_Data().IsPoseAndIntrinsicDefined(prior))
             {
-                X_SfM.push_back(sfm_engine.Get_SfM_Data().GetPoses().at(prior->id_pose).center());
+                X_SfM.push_back(psfm_engine->Get_SfM_Data().GetPoses().at(prior->id_pose).center());
                 X_GPS.push_back(prior->pose_center_);
+                X_img_path.push_back(view_it.second->s_Img_path);
             }
         }
-
-        Vec3 error;
-        double rms_error = 0;
-        if (X_GPS.size() > 0)
+            
+        double rms_error = 0.;
+        if (!X_GPS.empty())
         {
-            for (int i = 0; i < X_GPS.size(); i++)
+            for (size_t i = 0; i < X_GPS.size(); ++i)
             {
-                error = X_GPS[i] - X_SfM[i];
-                rms_error += error.squaredNorm();
+                const double err = (X_GPS[i] - X_SfM[i]).squaredNorm();
+                rms_error += err;
+
+                if (err > 9.)
+                    std::cout << "\n Image " << X_img_path[i] << " has an important error w.r.t. to nav -- error: " << err << " m \n";
             }
 
-            rms_error = sqrt(rms_error / (double)X_GPS.size());
-            QString proc_info = logPrefix() + QString("RMS error between nav and sfm = %1 m").arg(rms_error);
+            rms_error = std::sqrt(rms_error / static_cast<double>(X_GPS.size()));
+            QString proc_info = QString("Model #%1 -- RMS error between nav and sfm = %2 m").arg(m_model_idx+1).arg(rms_error);
             emit si_addToLog(proc_info);
 
-            if (rms_error > 2)
+            if (rms_error > 2.)
             {
-                emit si_showInformationMessage(tr("RMS error too high"),tr("The RMS error between optical navigation and vehicle navigation is quite high (%1 m). You should double check the vehicle navigation.").arg(rms_error));
+                emit si_showInformationMessage(tr("Model #%1 -- RMS error too high").arg(m_model_idx+1),tr("The RMS error between optical navigation and vehicle navigation is quite high (%1 m) for Model #%2. You should double check the vehicle navigation.").arg(rms_error).arg(m_model_idx+1));
             }
-
         }
+
+        QString proc_info = QString("Model #%1 : %2 images reconstructed\n").arg(m_model_idx+1).arg(nb_img_registered);
+        emit si_addToLog(proc_info);
+
+        // emit si_showInformationMessage(tr("Number of Reconstructed Images for model #%1").arg(m_model_idx+1),tr("Number of images successfully reconstructed %1.").arg(X_SfM.size()));
+
+        m_nb_img_registered += nb_img_registered;
+        if (m_nb_img_tot == 0)
+            m_nb_img_tot = (int)psfm_engine->Get_SfM_Data().GetViews().size();
 
         return true;
     }
@@ -470,13 +531,14 @@ void SfmBundleAdjustment::onFlush(quint32 _port)
     }
 
     // Reconstruct sparse for each connected components
-    for (int i=0; i<m_matches_files_list.size(); i++)
+    m_nb_img_registered = 0;
+    m_nb_img_tot = 0;
+    for (m_model_idx=0; m_model_idx<m_matches_files_list.size(); ++m_model_idx)
     {
-
         // Get match file id
         QRegExp match_file_rex(".+_(\\d+)_(\\d+)");
 
-        if (m_matches_files_list[i].contains(match_file_rex))
+        if (m_matches_files_list[m_model_idx].contains(match_file_rex))
         {
             rc->components_ids.push_back(match_file_rex.cap(1).toInt());
         }
@@ -487,18 +549,27 @@ void SfmBundleAdjustment::onFlush(quint32 _port)
         }
 
         emit si_processCompletion(-1); // cannot monitor percentage
-        emit si_userInformation(QString("Reconstruct 3D part %1/%2").arg(i+1).arg(m_matches_files_list.size()));
+        emit si_userInformation(QString("Reconstruct 3D part %1/%2").arg(m_model_idx+1).arg(m_matches_files_list.size()));
 
         // Fill out path
-        m_out_complete_path_str = absoluteOutputTempDir() + SEP + "ModelPart"+QString("_%1").arg(rc->components_ids[i]);
+        m_out_complete_path_str = absoluteOutputTempDir() + SEP + "ModelPart"+QString("_%1").arg(rc->components_ids[m_model_idx]);
+
+        // Ask for automatic 3D result loading
+        emit si_autoAdd3DFileFromFolderOnMainView(m_out_complete_path_str + QDir::separator() + "*.ply");
 
         // Compute Sfm bundle adjustment
-        this->incrementalSfm(m_out_complete_path_str, m_matches_files_list[i]);
-
-        this->checkForNewFiles();
+        this->incrementalSfm(m_out_complete_path_str, m_matches_files_list[m_model_idx]);
  
         emit si_processCompletion(100);
     }
+
+    QString sfm_info = QString("Full SfM Reconstructed %1 images reconstructed out of %2").arg(m_nb_img_registered).arg(m_nb_img_tot);
+    emit si_addToLog(sfm_info);
+
+    emit si_showInformationMessage(tr("Full SfM Reconstruction"),tr("%1/%2 images successfully reconstructed.\n").arg(m_nb_img_registered).arg(m_nb_img_tot));
+
+    // Stop checking 3D result loading
+    emit si_autoAdd3DFileFromFolderOnMainView("");
 
     // set format
     rc->current_format = ReconFormat::openMVG;

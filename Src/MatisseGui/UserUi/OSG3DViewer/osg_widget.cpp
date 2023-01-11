@@ -972,7 +972,7 @@ osg::ref_ptr<osg::Node> OSGWidget::createNodeFromFileWithGDAL(std::string _scene
 /// \param _node node to be added
 /// \return true if loading succeded
 ///
-bool OSGWidget::addNodeToScene(osg::ref_ptr<osg::Node> _node, double _transparency)
+bool OSGWidget::addNodeToScene(osg::ref_ptr<osg::Node> _node, double _transparency, bool _home_model)
 {
     if (_node)
     {
@@ -1015,7 +1015,8 @@ bool OSGWidget::addNodeToScene(osg::ref_ptr<osg::Node> _node, double _transparen
 
         setCameraOnNode(_node);
 
-        home();
+        if(_home_model)
+            home();
 
         // set transparency
         setNodeTransparency(_node, _transparency);

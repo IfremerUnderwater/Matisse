@@ -31,6 +31,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "file_utils.h"
 
 
 using namespace openMVG;
@@ -166,9 +167,9 @@ std::pair<bool, Vec3> Init3DRecon::getPriorWeights
     double Y_std = m_matisse_parameters->getDoubleParamValue("vehic_param","Y_std",ok);
     double depth_std = m_matisse_parameters->getDoubleParamValue("vehic_param","depth_std",ok);
 
-    val.second[0]=(reproj_std*reproj_std)/(X_std*X_std);
-    val.second[1]=(reproj_std*reproj_std)/(Y_std*Y_std);
-    val.second[2]=(reproj_std*reproj_std)/(depth_std*depth_std);
+    val.second[0]=reproj_std/X_std;
+    val.second[1]=reproj_std/Y_std;
+    val.second[2]=reproj_std/depth_std;
 
     return val;
 }
@@ -278,7 +279,8 @@ void Init3DRecon::onFlush(quint32 _port)
     else
         nav_mode = DIM2;
 
-    QString navigation_file = m_matisse_parameters->getStringParamValue("dataset_param", "navFile");
+    QString navigation_file = system_tools::FileUtils::resolveUnixPath(
+        m_matisse_parameters->getStringParamValue("dataset_param", "navFile"));
 
     if (navigation_file.isEmpty())
         navigation_file = QString("noNav.dim2");
@@ -313,7 +315,7 @@ void Init3DRecon::onFlush(quint32 _port)
     std::unique_ptr<Dim2FileReader> dim2_file_reader(new Dim2FileReader(dim2_file_name.c_str()));
     if(nav_mode == DIM2 && dim2_file_reader != NULL && dim2_file_reader->isFileValid() )
     {
-        for(int i=1; i<= dim2_file_reader->getNumberOfImages(); i++ )
+        for(int i=0; i< dim2_file_reader->getNumberOfImages(); i++ )
         {
             dim2_file_map.insert(std::make_pair(dim2_file_reader->getImageFilename(i),i));
         }
@@ -366,6 +368,7 @@ void Init3DRecon::onFlush(quint32 _port)
 
     // Loop on all images to initialize ***************************************************************
     int counter=0;
+    bool all_images_have_nav = true;
     for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin(); iter_image != vec_image.end(); ++iter_image)
     {
         counter++;
@@ -514,6 +517,10 @@ void Init3DRecon::onFlush(quint32 _port)
 
             // Add the view to the sfm_container
             sfm_data.views[v.id_view] = std::make_shared<View>(v);
+
+            all_images_have_nav = false;
+
+            std::cout << "\n Image " << s_image_filename << " has no nav! \n";
         }
     }
 
@@ -584,6 +591,7 @@ void Init3DRecon::onFlush(quint32 _port)
     reconstruction_context->lat_origin = first_image_pos[0];
     reconstruction_context->lon_origin = first_image_pos[1];
     reconstruction_context->alt_origin = first_image_pos[2];
+    reconstruction_context->all_images_have_nav = all_images_have_nav;
     reconstruction_context->current_format = ReconFormat::openMVG;
     reconstruction_context->out_file_suffix = QString("");
 

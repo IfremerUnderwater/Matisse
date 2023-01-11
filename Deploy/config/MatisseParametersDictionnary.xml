@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MatisseParametersDictionnary xmlns="Matisse" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="Matisse ../schemas/MatisseParametersDictionnary.xsd ">
+    <Structures publicationTimestamp="2023-01-06T16:53:25">
+        <Structure name="algo_param">
+            <ParametersGroup name="general_algo_params">
+                <Parameter name="sift_code" level="expert" text="Sift algorithm" type="string" range= "{$SIFT_CODE}" show="combo" default="GPU_sift"/>
+                <Parameter name="scale_factor" level="user" text="Image scaling factor" suffix="%" type="double" range="[0,1]" precision="3" show="spin" default="1"/>
+                <Parameter name="maxdist_centers" level="expert" text="Research dist (m)" suffix="pixels" type="double" range="]0,inf[" precision="3" show="spin" default="10"/>
+                <Parameter name="min_matches" level="advanced" text="Minimum matches" type="integer" range="[4,inf[" show="spin" default="10"/>
+                <Parameter name="max_matches" level="advanced" text="Maximum matches" type="integer" range="[4,inf[" show="spin" default="inf"/>
+                <Parameter name="First_processed_image" level="user" text="First image index" type="integer" range="[1,inf[" show="spin" default="1"/>
+                <Parameter name="Last_processed_image" level="user" text="Last image index" type="integer" range="[1,inf[" show="spin" default="inf"/>
+                <Parameter name="step_im" level="user" text="Images step" type="integer" range="[1,inf[" show="spin" default="1"/>
+                <Parameter name="force_recompute" level="user" text="Force recompute" type="bool" show="check" default="0"/>
+                <Parameter name="force_gpu_usage" level="user" text="Force gpu usage" type="bool" show="check" default="0"/>
+                <Parameter name="quality_vs_speed" level="advanced" text="Quality vs speed" type="string" range= "{$QUAL_VS_SPEED}" show="combo" default="Quality"/>
+            </ParametersGroup>
+            <ParametersGroup name="overlap_filtering_params" text="Images overlap handling">
+                <Parameter name="disjoint_drawing" level="user" text="Disjoint mosaicking" type="bool" show="check" default="0"/>
+                <Parameter name="single_image_output" level="user" text="Single image output type" type="string" range= "{$DRAWING_OUTPUT_TYPE}" show="combo" default="geotiff_only"/>
+                <Parameter name="filter_overlap" level="expert" text="Overlap filtering" type="bool" show="check" default="0"/>
+                <Parameter name="max_overlap" level="expert" text="Max overlap between 2 images" type="double" range="[0,1]" precision="2" show="spin" default="0.9"/>
+                <Parameter name="min_overlap" level="expert" text="Min overlap between 2 images" type="double" range="[0,1]" precision="2" show="spin" default="0.7"/>
+		        <Parameter name="do_realtime_mosaicking" level="user" text="Activate realtime mosaicking" type="bool" show="check" default="1"/>
+                <Parameter name="use_gpu_with_opencl" level="expert" text="Activate the use of GPU acceleration with OpenCL" type="bool" show="check" default="0"/>
+            </ParametersGroup>
+            <ParametersGroup name="bundle_adjustment_params" text="Bundle adjustment">
+                <Parameter name="MaxIter" level="expert" text="Max iterations in optimization" type="integer" range="]1,inf[" show="spin" default="50"/>
+                <Parameter name="max_Roll" level="expert" text="Max roll" type="double" range="[0,inf[" precision="3" show="spin" default="0.1"/>
+                <Parameter name="max_Pitch" level="expert" text="Max pitch" type="double" range="[0,inf[" precision="3" show="spin" default="0.1"/>
+                <Parameter name="ba_method" level="user" text="Mosaicking method" type="string" range="{$BA_METHOD}" show="combo" default="Nav_only"/>
+                <Parameter name="cosmetic_stretch" level="user" text="Color correction" type="bool" show="check" default="0"/>
+            </ParametersGroup>
+            <ParametersGroup name="blending_displaying_params" text="Blending and display parameters">
+                <Parameter name="expo_comp_method" level="expert" text="Exposition comp. method" type="string" range="{$EXPO_COMP_METHOD}" show="combo" default="gain"/>
+                <Parameter name="seam_method" level="expert" text="Seaming algorithm" type="string" range="{$SEAM_METHOD}" show="combo" default="gc_color"/>
+                <Parameter name="blending_method" level="expert" text="Blending algorithm" type="string" range="{$BLENDING_METHOD}" show="combo" default="multiband"/>
+                <Parameter name="no_plot" level="user" text="No plot (just progression bar)" type="bool" show="check" default="1"/>
+                <Parameter name="WriteGeoTiff" level="user" text="Write GeoTiff" type="bool" show="check" default="1"/>
+                <Parameter name="block_drawing" level="user" text="Block drawing (better mem management)" type="bool" show="check" default="0"/>
+                <Parameter name="block_width" level="user" text="Mean block width" type="integer" range="]0,inf[" show="spin" default="7000"/>
+                <Parameter name="block_height" level="user" text="Mean block height" type="integer" range="]0,inf[" show="spin" default="7000"/>
+            </ParametersGroup>
+            <ParametersGroup name="compute_feature" text="Compute Features">
+                <Parameter name="describer_method" level="expert" text="Feature algorithm" type="string" range="{$DESCRIBER_METHOD}" show="combo" default="SIFT_ANATOMY"/>
+                <Parameter name="describer_preset" level="expert" text="Feature preset" type="string" range="{$DESCRIBER_PRESET}" show="combo" default="ULTRA"/>
+            </ParametersGroup>
+            <ParametersGroup name="compute_matches" text="Compute Matches">
+                <Parameter name="nearest_matching_method" level="expert" text="Matching algorithm" type="string" range="{$NEARESTMATCH_METHOD}" show="combo" default="FASTCASCADEHASHINGL2"/>
+                <Parameter name="video_mode_matching" level="advanced" text="Transect Matching Im Nb" type="integer" range="[2,100]" show="spin" default="8"/>
+				<Parameter name="video_mode_matching_enable" level="advanced" text="Transect Mode" type="bool" show="check" default="0"/>
+                <Parameter name="nav_based_matching_enable" level="advanced" text="Nav based matching" type="bool" show="check" default="1"/>
+                <Parameter name="nav_based_matching_max_dist" level="expert" text="Nav matching max dist" type="double" range="]0.1,20]" precision="2" show="spin" default="10.0"/>
+				<Parameter name="guided_matching" level="expert" text="Guided Matching based on 2-views Geometry" type="bool" show="check" default="1"/>
+            </ParametersGroup>
+            <ParametersGroup name="DensifyPointCloud" text="Densify Point Cloud">
+                <Parameter name="resolution_level" level="expert" text="Resolution level divider" type="integer" range="[1,10]" show="spin" default="2"/>
+                <Parameter name="number_views_fuse" level="expert" text="Number Views Fuse" type="integer" range="[2,10]" show="spin" default="3"/>
+            </ParametersGroup>
+            <ParametersGroup name="ReconstructMesh" text="Reconstruct Mesh">
+                <Parameter name="decimate_factor" level="expert" text="Decimation Factor" type="double" range="]0,1]" precision="2" show="spin" default="1.0"/>
+            </ParametersGroup>
+            <ParametersGroup name="TexReCon" text="Texture Mesh">
+                <Parameter name="keep_unseen_faces" level="expert" text="Keep Unseen Faces" type="bool" show="check" default="0"/>
+            </ParametersGroup>
+        </Structure>
+        <Structure name="vehic_param">
+            <ParametersGroup name="vehicle_params">
+                <Parameter name="reproj_std" level="advanced" text="Retroprojection std (in px)" type="double" range="]0,inf[" precision="3" show="spin" default="1"/>
+                <Parameter name="X_std" level="advanced" text="X axis std (m)" type="double" range="]0,inf[" precision="3" show="spin" default="3"/>
+                <Parameter name="Y_std" level="advanced" text="Y axis std (m)" type="double" range="]0,inf[" precision="3" show="spin" default="3"/>
+                <Parameter name="alt_std" level="advanced" text="Altitude std (m)" type="double" range="]0,inf[" precision="3" show="spin" default="0.8"/>
+				<Parameter name="depth_std" level="advanced" text="depth std (m)" type="double" range="]0,inf[" precision="3" show="spin" default="0.5"/>
+                <Parameter name="Roll_std" level="advanced" text="roll std (rad)" type="double" range="]0,inf[" precision="3" show="spin" default="0.01"/>
+                <Parameter name="Pitch_std" level="advanced" text="pitch std (rad)" type="double" range="]0,inf[" precision="3" show="spin" default="0.01"/>
+                <Parameter name="Yaw_std" level="advanced" text="heading std (rad)" type="double" range="]0,inf[" precision="3" show="spin" default="0.1"/>
+            </ParametersGroup>
+        </Structure>
+        <Structure name="cam_param">
+            <ParametersGroup name="advanced_camera_params" text="Camera parameters">
+                <Parameter name="K" level="advanced" text="Camera calibration matrix" type="double" size="(3,3)" range="]-inf,inf[" precision="2" formatTemplate="9999.99" show="table" default="1440; 0; 960; 0; 1440; 540; 0; 0; 1"/>
+                <Parameter name="V_Pose_C" level="advanced" text="Cam/IMU rel. position" type="double" size="(6,1)" range="]-inf,inf[" precision="3" formatTemplate="-9.999" show="table" default="-1.1000; 0.2500; -0.1500; 0; 0; -1.5708"/>
+		        <Parameter name="still_camera_port" level="user" text="Still camera TCP port" type="integer" range="[1000,99999]" show="spin" default="5600"/>
+                <Parameter name="still_camera_address" level="user" text="Still camera address" type="string" show="line" default="192.168.1.104"/>
+		        <Parameter name="sensor_width" level="advanced" text="Full sensor width (px)" type="integer" range="[0,20000]" show="spin" default="1920"/>
+		        <Parameter name="sensor_height" level="advanced" text="Full sensor height (pixels)" type="integer" range="[0,20000]" show="spin" default="1080"/>
+		        <Parameter name="camera_equipment" level="user" text="Camera equipment" type="camera" show="cam_combo" default="Unknown; 0; 0; 0, 0, 0, 0, 0, 0, 0, 0, 0; 2; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0"/>
+            </ParametersGroup>
+        </Structure>
+        <Structure name="video_input_param">
+            <ParametersGroup name="video_input_params">
+                <Parameter name="idCamera" level="user" text="N. Camera" type="integer" range="[0,inf[" show="spin" default="0"/>
+                <Parameter name="intervalCapture" level="user" text="Capture reccurence (ms)" type="integer" range="[100,10000[" show="spin" default="1000"/>
+            </ParametersGroup>
+        </Structure>
+        <Structure name="dim2_param">
+            <ParametersGroup name="network_nav_input_params">
+                <Parameter name="udp_port" level="user" text="Udp dim2 port" type="integer" range="[5000,9000]" show="spin" default="7777"/>
+            </ParametersGroup>
+        </Structure>
+        <Structure name="dataset_param">
+            <ParametersGroup name="output_and_geo_params">
+              <Parameter name="dataset_dir" level="user" text="Data path" type="string" show="dir" default ="./"/>
+              <Parameter name="output_dir" level="user" text="Output path" type="string" show="dir" default="outReconstruction"/>
+              <Parameter name="output_filename" level="user" text="Output name prefix" type="string" show="line" default="mosaic-output"/>
+              <Parameter name="navFile" level="user" text="Navigation file" type="string" show="file" default="nav_file.dim2"/>
+              <Parameter name="navSource" level="user" text="Navigation source"  type="string" range="{$NAV_SOURCES}" show="combo" default="AUTO"/>
+              <Parameter name="usePrior" level="advanced" text="Use navigation prior" type="bool" show="check" default="1"/>
+              <Parameter name="utm_zone" level="user" text="Zone UTM" type="integer" range="[1,60]" show="spin" default="31"/>
+              <Parameter name="utm_hemisphere" level="user" text="Hemisphere UTM" type="string" range="{N,S}" show="combo" default="N"/>
+            </ParametersGroup>
+        </Structure>
+        <Structure name="remote_dataset_param">
+            <ParametersGroup name="remote_output_params">
+              <Parameter name="remote_dataset_dir" level="user" text="Data path" type="string" show="dir" default ="./"/>
+              <Parameter name="remote_navFile" level="user" text="Navigation file" type="string" show="file" default="nav_file.dim2"/>
+              <Parameter name="remote_output_dir" level="user" text="Output path" type="string" show="dir" default="outReconstruction"/>
+              <Parameter name="remote_output_filename" level="user" text="Output name prefix" type="string" show="line" default="mosaic-output"/>
+              <Parameter name="remote_dataset_parent_dir" level="user" text="Data parent path" type="string" show="dir" default ="./"/>
+            </ParametersGroup>
+        </Structure>
+    </Structures>
+    <Enums>
+        <Enum name="SIFT_CODE">
+            <EnumValue name="GPU_sift" text="GPU_sift"/>
+            <EnumValue name="Lowe_sift" text="Lowe_sift"/>
+            <EnumValue name="OpenCV_sift" text="OpenCV_sift"/>
+        </Enum>
+        <Enum name="QUAL_VS_SPEED">
+            <EnumValue name="Quality" text="Quality"/>
+            <EnumValue name="Speed" text="Speed"/>
+        </Enum>
+        <Enum name="BA_METHOD">
+            <EnumValue name="Ferrer_2008_with_nav" text="Ferrer_2008_with_nav"/>
+            <EnumValue name="Ferrer_without_nav" text="Ferrer_without_nav"/>
+            <EnumValue name="Robust_2D_with_nav" text="Robust_2D_with_nav"/>
+        </Enum>
+        <Enum name="DRAWING_OUTPUT_TYPE">
+            <EnumValue name="geotiff_only" text="Geotiff only"/>
+            <EnumValue name="jpeg_only" text="JPEG only"/>
+            <EnumValue name="geotiff_and_jpeg" text="Geotiff and JPEG"/>
+        </Enum>
+        <Enum name="EXPO_COMP_METHOD">
+            <EnumValue name="no" text="no"/>
+            <EnumValue name="gain" text="gain"/>
+            <EnumValue name="gain_blocks" text="gain_blocks"/>
+        </Enum>
+        <Enum name="SEAM_METHOD">
+            <EnumValue name="no" text="no"/>
+            <EnumValue name="voronoi" text="voronoi"/>
+            <EnumValue name="gc_color" text="gc_color"/>
+            <EnumValue name="gc_colorgrad" text="gc_colorgrad"/>
+        </Enum>
+        <Enum name="BLENDING_METHOD">
+            <EnumValue name="no" text="no"/>
+            <EnumValue name="feather" text="feather"/>
+            <EnumValue name="multiband" text="multiband"/>
+        </Enum>
+        <Enum name="DESCRIBER_PRESET">
+            <EnumValue name="NORMAL" text="NORMAL"/>
+            <EnumValue name="HIGH" text="HIGH"/>
+            <EnumValue name="ULTRA" text="ULTRA"/>
+        </Enum>
+        <Enum name="DESCRIBER_METHOD">
+		    <EnumValue name="SIFT_GPU" text="SIFT_GPU"/>
+            <EnumValue name="SIFT_ANATOMY" text="SIFT_ANATOMY"/>
+            <EnumValue name="SIFT" text="SIFT"/>
+            <EnumValue name="AKAZE_FLOAT" text="AKAZE_FLOAT"/>
+            <EnumValue name="AKAZE_MLDB" text="AKAZE_MLDB"/>
+        </Enum>
+        <Enum name="NEARESTMATCH_METHOD">
+            <EnumValue name="AUTO" text="AUTO"/>
+		    <EnumValue name="GPU_BRUTEFORCE" text="GPU_BRUTEFORCE"/>
+            <EnumValue name="BRUTEFORCEL2" text="BRUTEFORCEL2"/>
+            <EnumValue name="ANNL2" text="ANNL2"/>
+            <EnumValue name="CASCADEHASHINGL2" text="CASCADEHASHINGL2"/>
+            <EnumValue name="FASTCASCADEHASHINGL2" text="FASTCASCADEHASHINGL2"/>
+            <EnumValue name="BRUTEFORCEHAMMING" text="BRUTEFORCEHAMMING"/>
+        </Enum>
+        <Enum name="NAV_SOURCES">
+            <EnumValue name="AUTO" text="AUTO"/>
+            <EnumValue name="EXIF" text="EXIF"/>
+            <EnumValue name="DIM2" text="DIM2"/>
+            <EnumValue name="NO_NAV" text="NO_NAV"/>
+        </Enum>
+    </Enums>
+</MatisseParametersDictionnary>
