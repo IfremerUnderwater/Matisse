@@ -35,6 +35,7 @@ DataPreprocessingWizard::DataPreprocessingWizard(QWidget *parent) :
     m_dim2_file(NULL)
 {
     ui->setupUi(this);
+    ui->sat_spinbox->setValue(0.6); // set saturation default value
 
     connect(ui->use_rt_dim2_cb, SIGNAL(stateChanged(int)), this, SLOT(sl_handleUseRtDim2()));
     connect(ui->use_inpaint_mask, SIGNAL(stateChanged(int)), this, SLOT(sl_handleUseInpaintMask()));
