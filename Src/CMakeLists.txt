@@ -48,7 +48,12 @@ add_custom_target(create_out_mod_folder ALL
  COMMENT "Creating output modules folder ..."
 )
 
-add_custom_target(copy_config ALL
+add_custom_target(copy_thirdPartExe ALL
+ COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../ThirdPartExe ${MATISSE_RUNTIME_ROOT}
+ COMMENT "Copying config folder ..."
+)
+
+add_custom_target(copy_deploy ALL
  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../Deploy ${MATISSE_RUNTIME_ROOT}
  COMMENT "Copying config folder ..."
 )
