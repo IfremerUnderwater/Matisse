@@ -177,7 +177,7 @@ void findImgColorQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, vect
 
             for(int c = 0; c < reduced_img.cols; c++)
             {
-                if (mask_row[c] != 0)
+                if (mask_row[c] == 0)
                 {
                     ch1_values.push_back(img_row[c][0]);
                     ch2_values.push_back(img_row[c][1]);
@@ -211,7 +211,7 @@ void findImgQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, std::vect
         reduced_img = _in_img;
         reduced_mask = _in_mask;
     }
-
+    
     std::vector<int> ch_values;
     ch_values.reserve(reduced_img.rows * reduced_img.cols);
     
@@ -235,7 +235,7 @@ void findImgQuantiles(const cv::Mat& _in_img, const cv::Mat& _in_mask, std::vect
 
             for(int c = 0; c < reduced_img.cols; c++)
             {
-                if (mask_row[c] != 0)
+                if (mask_row[c] == 0)
                     ch_values.push_back(img_row[c]);
             }
         }
