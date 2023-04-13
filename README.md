@@ -18,7 +18,7 @@ It is based on multiple open source libraries such as openMVG, openMVS, MVE... a
 
 ## Manual
 
-More information on software features and usages can be found in the manual present in the software or available through this link : [Manual](https://github.com/IfremerUnderwater/Matisse/blob/master/Config/help/MatisseHelp_EN.pdf)
+More information on software features and usages can be found in the manual present in the software or available through this link : [Manual](https://github.com/IfremerUnderwater/Matisse/blob/master/Deploy/help/MatisseHelp_EN.pdf)
 
 ## License 
 
