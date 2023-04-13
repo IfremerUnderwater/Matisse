@@ -762,11 +762,29 @@ bool Matching3D::computeMatches(eGeometricModel _geometric_model_to_compute)
                         //    std::cout << "(" << vec_id.i_ << "," << vec_id.j_ << "), ";
                         //std::cout << "!\n";
 
+                        // Store min dist in case no good candidates found
+                        double min_dist = std::numeric_limits<double>::max();
+                        
+                        // Starting at i=1 because 0 will always be the image itself
+                        for (size_t i = 1; i < vec_indices.size(); ++i)
+                        {
+                            min_dist = std::min(vec_distance.at(i), min_dist);
+                            if (min_dist < nav_based_matching_max_dist)
+                                break;
+                        }
+
+                        // Setup maximum spatial distance for matching candidates based
+                        // on current data: if user selected distance returns no candidate,
+                        // update the distance to use
+                        const double matching_max_dist = min_dist < nav_based_matching_max_dist ?
+                                                            nav_based_matching_max_dist
+                                                            : 2.*min_dist;
+
                         // Starting at i=1 because 0 will always be the image itself
                         for (size_t i = 1; i < vec_indices.size(); ++i)
                         {
                             // Do not add pair if images are too spread away
-                            if( vec_distance.at(i) > nav_based_matching_max_dist) {
+                            if (vec_distance.at(i) > matching_max_dist) {
                                 //std::cout << "> Images #" << vec_indices[i].j_ << " distance is  : " << vec_distance.at(i) << " m ==> REMOVING PAIR!\n";
                                 continue;
                             }
