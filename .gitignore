@@ -12,8 +12,6 @@ Makefile.Release*
 
 /Doc
 
-*.exe
-
 /main/qt/MatisseServer/temp
 
 *.pdb

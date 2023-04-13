@@ -169,9 +169,9 @@ bool PreprocessingCorrection::preprocessImageList(const QStringList& _input_img_
 				cv::split(current_img, current_bgr);
 
 				// compute illum correction
-				compensateIllumination(current_bgr[0], bgr_lowres_img[0], m_blue_median_img, current_bgr_corr[0]);
-				compensateIllumination(current_bgr[1], bgr_lowres_img[1], m_green_median_img, current_bgr_corr[1]);
-				compensateIllumination(current_bgr[2], bgr_lowres_img[2], m_red_median_img, current_bgr_corr[2]);
+				compensateIllumination(current_bgr[0], bgr_lowres_img[0], lowres_mask, m_blue_median_img, current_bgr_corr[0]);
+				compensateIllumination(current_bgr[1], bgr_lowres_img[1], lowres_mask, m_green_median_img, current_bgr_corr[1]);
+				compensateIllumination(current_bgr[2], bgr_lowres_img[2], lowres_mask, m_red_median_img, current_bgr_corr[2]);
 
 				cv::merge(current_bgr_corr, current_img);
 			}
@@ -263,7 +263,7 @@ bool PreprocessingCorrection::computeTemporalMedian()
 	return true;
 }
 
-bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image, const cv::Mat& _input_lowres, const cv::Mat& _temporal_median_image, cv::Mat& _output_image)
+bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image, const cv::Mat& _input_lowres, const cv::Mat _mask_img_low_res, const cv::Mat& _temporal_median_image, cv::Mat& _output_image)
 {
 	// This function contains empirical choices about model to correct and thresholds
 	// It is not to be understood just adjusted on multiples datasets
@@ -272,6 +272,10 @@ bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image
 	cv::Mat temporal_spatial_median_image;
 	std::vector<double> temporal_spatial_median_vect;
 	cv::medianBlur(_temporal_median_image, temporal_spatial_median_image, 5);
+
+	cv::Mat med_mask_img;
+	if (!_mask_img_low_res.empty())
+		cv::medianBlur(_mask_img_low_res, med_mask_img, 5);
 
 	//imshow("median img", _temporal_spatial_median_image);
 	//waitKey();
@@ -293,8 +297,24 @@ bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image
 	std::vector<double> channel_limits;
 	channel_limits = doubleQuantiles(temporal_spatial_median_vect, quantiles);
 
-	const int nb_med_img_px = temporal_spatial_median_image.cols * temporal_spatial_median_image.rows;
-	const int needed_fitting_points_nb = nb_med_img_px > 5000 ? 5000 : nb_med_img_px;
+	// Set mask with 0 value to indicate valid data and 255 to indicate non-valid data
+	const cv::Mat mask_med_higher_ch0 = (temporal_spatial_median_image <= channel_limits[0]);
+	const cv::Mat mask_med_lower_ch1 = (temporal_spatial_median_image >= channel_limits[1]);
+
+	cv::Mat tmp_mask, full_mask;
+	cv::bitwise_or(mask_med_higher_ch0, mask_med_lower_ch1, tmp_mask);
+	if (!med_mask_img.empty())
+		cv::bitwise_or(med_mask_img, tmp_mask, full_mask);
+	else
+		full_mask = tmp_mask;
+
+	// Nb of valid pixels
+	const int nb_med_img_px = (full_mask.rows * full_mask.cols) - cv::countNonZero(full_mask); 
+	// const int nb_med_img_px = temporal_spatial_median_image.cols * temporal_spatial_median_image.rows;
+
+	// Only pick 5000 random pixels if significantly more valid pixels available to avoid
+	// losing time in random pixel coord. generation (as we want unique pixels here)
+	const int needed_fitting_points_nb = nb_med_img_px > 7500 ? 5000 : nb_med_img_px;
 
 	// Construct x,y,z fitting dataset (x = width, y = height, z=intensity) for paraboloid model
 	std::vector<double> x, y, z;
@@ -302,24 +322,25 @@ bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image
 	y.reserve(needed_fitting_points_nb);
 	z.reserve(needed_fitting_points_nb);
 
+	// If 7500 or less valid pixels ==> use them all
 	if (needed_fitting_points_nb == nb_med_img_px)
 	{
 		for (int r = 0; r < temporal_spatial_median_image.rows; r++)
 		{
 			const float* img_row = temporal_spatial_median_image.ptr<float>(r);
+			const uchar* full_mask_row = full_mask.ptr<uchar>(r);
 			for (int c = 0; c < temporal_spatial_median_image.cols; c++)
 			{
-				const double temp_z = static_cast<double>(img_row[c]);
-				if (temp_z > channel_limits[0] && temp_z < channel_limits[1])
+				if (full_mask_row[c] == 0)
 				{
 					x.push_back(static_cast<double>(c));
 					y.push_back(static_cast<double>(r));
-					z.push_back(temp_z);
+					z.push_back(static_cast<double>(img_row[c]));
 				}
 			}
 		}
 	}
-	else 
+	else // If more than 7500 valid pixels, pick 5000 random ones
 	{
 		int fitting_points_nb = 0;
 		std::random_device rd;  //Will be used to obtain a seed for the random number engine
@@ -335,26 +356,19 @@ bool PreprocessingCorrection::compensateIllumination(const cv::Mat& _input_image
 			const int w = width_dist(gen);
 			const int h = height_dist(gen);
 
-			const std::pair<int,int> px = std::make_pair(w,h);
-			if (checked_px_set.count(px))
-				continue;
-			else
-				checked_px_set.insert(px);
-			
-			const double temp_z = static_cast<double>(temporal_spatial_median_image.at<float>(h, w));
-
-			if (temp_z > channel_limits[0] && temp_z < channel_limits[1])
+			if (full_mask.at<uchar>(h,w) == 0)
 			{
+				const std::pair<int,int> px = std::make_pair(w,h);
+				if (checked_px_set.count(px))
+					continue;
+				else
+					checked_px_set.insert(px);
+
 				x.push_back(static_cast<double>(w));
 				y.push_back(static_cast<double>(h));
-				z.push_back(temp_z);
-				fitting_points_nb++;
+				z.push_back(static_cast<double>(temporal_spatial_median_image.at<float>(h, w)));
+				++fitting_points_nb;
 			}
-
-			// Safety break in case there is not enough values withib the channel limits 
-			// boundaries (in such case leave once all pixels have been checked)
-			if ((int)checked_px_set.size() == nb_med_img_px)
-				break;
 		}
 	}
 

@@ -39,10 +39,11 @@ public:
 	/// </summary>
 	/// <param name="_input_image">Input image</param>
 	/// <param name="_input_lowres">Input image in low resolution</param>
+	/// <param name="_mask_img_low_res">Mask image in low resolution</param>
 	/// <param name="_temporal_median_image">Temporal median image</param>
 	/// <param name="_output_image">Compensated output image</param>
 	/// <returns>true on success</returns>
-	bool compensateIllumination(const cv::Mat& _input_image, const cv::Mat& _input_lowres, const cv::Mat& _temporal_median_image, cv::Mat& _output_image);
+	bool compensateIllumination(const cv::Mat& _input_image, const cv::Mat& _input_lowres, const cv::Mat _mask_img_low_res, const cv::Mat& _temporal_median_image, cv::Mat& _output_image);
 
 	/// <summary>
 	/// configure the preprocessing steps that are needed

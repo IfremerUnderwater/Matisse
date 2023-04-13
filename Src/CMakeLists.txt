@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name and version
-project(MatisseProject VERSION 1.5.0)
+project(MatisseProject VERSION 1.5.1)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 14)
@@ -78,7 +78,7 @@ configure_file(MatisseConfig.h.in MatisseConfig.h)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 #for SiftGPU
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(Glew REQUIRED)
@@ -110,7 +110,7 @@ find_package(OpenSceneGraph REQUIRED osgDB osgUtil osgGA osgViewer)
 
 find_package(OpenMVG REQUIRED)
 
-find_package(Ceres REQUIRED)
+# find_package(Ceres REQUIRED)
 
 find_package(CGAL)
 FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serialization)
