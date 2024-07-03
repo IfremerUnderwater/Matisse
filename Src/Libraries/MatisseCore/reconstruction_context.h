@@ -7,6 +7,7 @@
 #include <vector>
 
 enum class ReconFormat {
+    colmap,
     openMVG,
     openMVS,
     MVE

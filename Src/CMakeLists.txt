@@ -6,10 +6,14 @@ project(MatisseProject VERSION 1.5.1)
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_FIND_DEBUG_MODE False)
 
+
+message(STATUS ${colmap_DIR})
 if(MSVC)
 add_definitions(-DWINDOWS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005")
+list(APPEND CMAKE_PREFIX_PATH "C:/ThirdPartyLibs/colmap_cuda_install/share/colmap")
 set(PROJ_LIBS ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/proj.lib)
 set(OPENMVG_INSTALL_PATH ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET})
 set(BOTAN_LIB ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/botan.lib)
@@ -109,6 +113,8 @@ find_package(OpenSceneGraph REQUIRED osgDB osgUtil osgGA osgViewer)
 # libOpenThreads & libosg automatically searched
 
 find_package(OpenMVG REQUIRED)
+
+find_package(colmap REQUIRED)
 
 # find_package(Ceres REQUIRED)
 
