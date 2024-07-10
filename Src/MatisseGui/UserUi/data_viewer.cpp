@@ -12,6 +12,8 @@ using namespace nav_tools;
 
 namespace matisse {
 
+static colmap::OptionManager viewer_options;
+
 DataViewer::DataViewer(QWidget *_parent) :
     QWidget(_parent),
     m_ui(new Ui::DataViewer),
@@ -20,11 +22,15 @@ DataViewer::DataViewer(QWidget *_parent) :
 {
     m_ui->setupUi(this);
 
+    m_colmap_viewer = new colmap::ModelViewerWidget(m_ui->colmap_page, &viewer_options);
+
+    m_ui->colmap_layout->addWidget(m_colmap_viewer);
+
     // must be set to open osg files
     m_result_loading_task.setOSGWidget(m_ui->_OSG_viewer);
 
     // Default view is OpenSceneGraphView
-    switchCartoViewTo(OPEN_SCENE_GRAPH_VIEW);
+    switchCartoViewTo(COLMAP_VIEW);
 
     m_supported_raster_format << "tif" << "tiff";
     m_supported_vector_format << "shp";
@@ -177,6 +183,11 @@ void DataViewer::switchCartoViewTo(eCartoViewType _carto_view_type_p)
         m_current_view_type = OPEN_SCENE_GRAPH_VIEW;
         break;
 
+    case COLMAP_VIEW:
+        m_ui->_stackedWidget->setCurrentIndex(3);
+        m_current_view_type = COLMAP_VIEW;
+        break;
+
     }
 }
 
@@ -273,6 +284,11 @@ void DataViewer::invokeThreaded3DFileLoader(QString _filename_p, bool _remove_pr
     if (m_current_view_type!=OPEN_SCENE_GRAPH_VIEW)
         switchCartoViewTo(OPEN_SCENE_GRAPH_VIEW);
     emit si_load3DSceneFromFile(_filename_p, _remove_previous_scenes_p, _reset_view);
+}
+
+void DataViewer::updateColmapViewer(std::shared_ptr<colmap::Reconstruction>_reconstruction)
+{
+    // tata
 }
 
 void DataViewer::autoAdd3DFileFromFolderOnMainView(QString _folderpath_p)

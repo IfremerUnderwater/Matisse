@@ -65,6 +65,7 @@ target_link_libraries(MatisseCore PUBLIC
 	Qt5::XmlPatterns	
 	Qt5::Network 
 	${QUAZIP_LIBRARIES}
+	colmap::colmap
 	)
 
 # add the binary tree to the search path for include files

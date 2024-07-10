@@ -62,7 +62,7 @@
       <number>0</number>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="_WID_pageQGis">
       <property name="sizePolicy">
@@ -95,6 +95,17 @@
        </property>
        <item row="0" column="0">
         <widget class="matisse::WheelGraphicsView" name="_GV_view"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="colmap_page">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QVBoxLayout" name="colmap_layout">
+         <property name="topMargin">
+          <number>10</number>
+         </property>
+        </layout>
        </item>
       </layout>
      </widget>

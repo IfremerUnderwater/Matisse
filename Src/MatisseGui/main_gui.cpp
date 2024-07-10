@@ -1524,6 +1524,11 @@ void MainGui::sl_show3DFileOnMainView(QString _filepath_p)
     m_data_viewer->invokeThreaded3DFileLoader(_filepath_p);
 }
 
+void MainGui::sl_updateColmapViewer(std::shared_ptr<colmap::Reconstruction> _reconstruction)
+{
+    m_data_viewer->updateColmapViewer(_reconstruction);
+}
+
 void MainGui::sl_autoAdd3DFileFromFolderOnMainView(QString _folderpath_p)
 {
     m_data_viewer->autoAdd3DFileFromFolderOnMainView(_folderpath_p);

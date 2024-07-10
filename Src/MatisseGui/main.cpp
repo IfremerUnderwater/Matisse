@@ -29,6 +29,9 @@
 #include "assembly_helper.h"
 #include "job_helper.h"
 #include "remote_job_helper.h"
+#include "colmap/scene/reconstruction.h"
+
+Q_DECLARE_METATYPE(std::shared_ptr<colmap::Reconstruction>)
 
 using namespace matisse;
 using namespace network_tools;
@@ -106,6 +109,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<eTransferError>("eTransferError");
     qRegisterMetaType<NetworkAction::eNetworkActionType>("NetworkAction::eNetworkActionType");
     qRegisterMetaType < QList<network_tools::NetworkFileInfo*> >();
+    qRegisterMetaType < std::shared_ptr<colmap::Reconstruction> >();
 
     /* Define default encoding for all text streaming */
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));

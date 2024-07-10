@@ -16,28 +16,12 @@
 #include <osgDB/WriteFile>
 #include <osgUtil/Optimizer>
 
+#include "colmap/ui/model_viewer_widget.h"
+
 
 Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 
 
-#if 0
-#include <qgsmapcanvas.h>
-#include <qgsvectorlayer.h>
-#include <qgsmapcanvas.h>
-#include <qgsrasterlayer.h>
-//#include <qgsmaplayerregistry.h>
-
-#include <qgsvectordataprovider.h>
-#include <qgsgeometry.h>
-//#include <qgsmarkersymbollayerv2.h>
-//#include <qgssinglesymbolrendererv2.h>
-//#include <qgsrendererv2.h>
-#include <qgsproject.h>
-#include <qgsmapcanvas.h>
-#include <qgsmaptoolpan.h>
-#include <qgsmaptoolzoom.h>
-#include <qgscomposition.h>
-#endif
 //#include <opencv2/opencv.hpp>
 
 #include "image.h"
@@ -51,6 +35,8 @@ Q_DECLARE_METATYPE(osg::ref_ptr<osg::Node>)
 #include <vector>
 #include <QTimer>
 
+#include "colmap/scene/reconstruction.h"
+
 using namespace nav_tools;
 
 
@@ -63,7 +49,7 @@ namespace matisse {
 
 class OSGWidget;
 
-enum eCartoViewType { QGIS_MAP_LAYER, QIMAGE_VIEW, OPEN_SCENE_GRAPH_VIEW };
+enum eCartoViewType { QGIS_MAP_LAYER, QIMAGE_VIEW, OPEN_SCENE_GRAPH_VIEW, COLMAP_VIEW };
 
 enum eRepaintBehaviorState { EXTENT_AUTO_RESIZE, FOLLOW_LAST_ITEM, MANUAL_MOVE };
 
@@ -114,6 +100,7 @@ public:
     void autoAdd3DFileFromFolderOnMainView(QString _folderpath_p);
     void loadImageFile(QString _filename);
     void exportMapViewToImage(QString _image_file_path);
+    void updateColmapViewer(std::shared_ptr<colmap::Reconstruction>_reconstruction);
 
     eCartoViewType currentViewType() const;
 
@@ -183,6 +170,8 @@ private:
     QLabel *m_coords;
 
     std::vector< osg::ref_ptr<osg::Node> > m_osg_nodes;
+
+    colmap::ModelViewerWidget* m_colmap_viewer;
 
 };
 

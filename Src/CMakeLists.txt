@@ -15,7 +15,6 @@ add_definitions(-DWINDOWS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005")
 list(APPEND CMAKE_PREFIX_PATH "C:/ThirdPartyLibs/colmap_cuda_install/share/colmap")
 set(PROJ_LIBS ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/proj.lib)
-set(OPENMVG_INSTALL_PATH ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET})
 set(BOTAN_LIB ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/botan.lib)
 set(D_EXT "dll")
 else(MSVC)
@@ -26,7 +25,6 @@ list(APPEND CMAKE_MODULE_PATH /usr/lib/cmake/Ceres/)
 set(PROJ_LIBS "proj")
 set(BOTAN_LIB "-lbotan-2")
 set(D_EXT "so")
-set(OPENMVG_INSTALL_PATH "/usr/local")
 endif(MSVC)
 
 string(TIMESTAMP BUILD_DATE "%Y-%m-%d")
@@ -111,8 +109,6 @@ find_package(GeographicLib REQUIRED)
 
 find_package(OpenSceneGraph REQUIRED osgDB osgUtil osgGA osgViewer)
 # libOpenThreads & libosg automatically searched
-
-find_package(OpenMVG REQUIRED)
 
 find_package(colmap REQUIRED)
 

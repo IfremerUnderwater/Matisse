@@ -111,7 +111,8 @@ target_link_libraries(MatisseGui PUBLIC
      #${QUAZIP_LIBRARIES}
      ${OPENSCENEGRAPH_LIBRARIES}
 	 ${GeographicLib_LIBRARIES}
-	 kmldom kmlbase)
+	 kmldom kmlbase
+	 colmap::colmap)
 
 # add the binary tree to the search path for include files
 # so that we will find MatisseConfig.h
