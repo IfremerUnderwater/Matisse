@@ -1529,6 +1529,11 @@ void MainGui::sl_updateColmapViewer(std::shared_ptr<colmap::Reconstruction> _rec
     m_data_viewer->updateColmapViewer(_reconstruction);
 }
 
+void MainGui::sl_configColmapViewer(colmap::OptionManager _options)
+{
+    m_data_viewer->configColmapViewer(_options);
+}
+
 void MainGui::sl_autoAdd3DFileFromFolderOnMainView(QString _folderpath_p)
 {
     m_data_viewer->autoAdd3DFileFromFolderOnMainView(_folderpath_p);

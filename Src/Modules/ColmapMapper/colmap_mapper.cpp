@@ -123,6 +123,9 @@ void ColmapMapper::onFlush(quint32 _port)
     *options.image_path = absoluteDatasetDir().toStdString();
     *options.database_path = database_file.toStdString();
 
+    // Give options to viewer
+    emit si_configColmapViewer(options);
+
     if (!ExistsDir(output_path)) {
         if (!output_dir.mkdir("sparse"))
         {
@@ -157,6 +160,34 @@ void ColmapMapper::onFlush(quint32 _port)
                 prev_num_reconstructions = reconstruction_manager->Size();
             }
         });
+
+    mapper.AddCallback(
+        IncrementalMapperController::INITIAL_IMAGE_PAIR_REG_CALLBACK, [&]() {
+            size_t rec_idx = reconstruction_manager->Size() - 1;
+            emit si_updateColmapViewer(reconstruction_manager->Get(rec_idx));
+        });
+    mapper.AddCallback(
+        IncrementalMapperController::NEXT_IMAGE_REG_CALLBACK, [&]() {
+            size_t rec_idx = reconstruction_manager->Size() - 1;
+            emit si_updateColmapViewer(reconstruction_manager->Get(rec_idx));
+        });
+    mapper.AddCallback(
+        IncrementalMapperController::LAST_IMAGE_REG_CALLBACK, [&]() {
+            size_t rec_idx = reconstruction_manager->Size() - 1;
+            emit si_updateColmapViewer(reconstruction_manager->Get(rec_idx));
+        });
+
+    //mapper.AddCallback(
+    //    ControllerThread<IncrementalMapperController>::FINISHED_CALLBACK,
+    //    [this]() {
+    //        if (!mapper->IsStopped()) {
+    //            action_render_now_->trigger();
+    //            action_reconstruction_finish_->trigger();
+    //        }
+    //        if (mapper->Size() == 0) {
+    //            action_reconstruction_reset_->trigger();
+    //        }
+    //    });
 
     mapper.Run();
 

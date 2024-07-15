@@ -101,6 +101,13 @@
      <widget class="QWidget" name="colmap_page">
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>Colmap View</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <layout class="QVBoxLayout" name="colmap_layout">
          <property name="topMargin">
           <number>10</number>

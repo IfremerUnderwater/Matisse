@@ -100,7 +100,8 @@ public:
     void autoAdd3DFileFromFolderOnMainView(QString _folderpath_p);
     void loadImageFile(QString _filename);
     void exportMapViewToImage(QString _image_file_path);
-    void updateColmapViewer(std::shared_ptr<colmap::Reconstruction>_reconstruction);
+    void updateColmapViewer(std::shared_ptr<colmap::Reconstruction> _reconstruction);
+    void configColmapViewer(colmap::OptionManager& _options);
 
     eCartoViewType currentViewType() const;
 

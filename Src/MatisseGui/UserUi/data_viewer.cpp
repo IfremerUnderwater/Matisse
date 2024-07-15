@@ -24,13 +24,19 @@ DataViewer::DataViewer(QWidget *_parent) :
 
     m_colmap_viewer = new colmap::ModelViewerWidget(m_ui->colmap_page, &viewer_options);
 
+    m_colmap_viewer->statusbar_status_label =
+        new QLabel("0 Images - 0 Points", this); // Not really used for now but required by colmap
+
     m_ui->colmap_layout->addWidget(m_colmap_viewer);
+    m_colmap_viewer->EnableCoordinateGrid();
+    m_colmap_viewer->SetBackgroundColor(0, 0, 0);
 
     // must be set to open osg files
     m_result_loading_task.setOSGWidget(m_ui->_OSG_viewer);
 
     // Default view is OpenSceneGraphView
     switchCartoViewTo(COLMAP_VIEW);
+    //switchCartoViewTo(OPEN_SCENE_GRAPH_VIEW);
 
     m_supported_raster_format << "tif" << "tiff";
     m_supported_vector_format << "shp";
@@ -174,18 +180,17 @@ void DataViewer::switchCartoViewTo(eCartoViewType _carto_view_type_p)
         m_ui->_GV_view->setZoomFactor(1.0 / m_scene.scaleFactor());
         m_current_view_type = QGIS_MAP_LAYER;
         break;
-    case QIMAGE_VIEW:
+    case COLMAP_VIEW:
         m_ui->_stackedWidget->setCurrentIndex(1);
+        m_current_view_type = COLMAP_VIEW;
+        break;
+    case QIMAGE_VIEW:
+        m_ui->_stackedWidget->setCurrentIndex(2);
         m_current_view_type = QIMAGE_VIEW;
         break;
     case OPEN_SCENE_GRAPH_VIEW:
-        m_ui->_stackedWidget->setCurrentIndex(2);
-        m_current_view_type = OPEN_SCENE_GRAPH_VIEW;
-        break;
-
-    case COLMAP_VIEW:
         m_ui->_stackedWidget->setCurrentIndex(3);
-        m_current_view_type = COLMAP_VIEW;
+        m_current_view_type = OPEN_SCENE_GRAPH_VIEW;
         break;
 
     }
@@ -286,9 +291,15 @@ void DataViewer::invokeThreaded3DFileLoader(QString _filename_p, bool _remove_pr
     emit si_load3DSceneFromFile(_filename_p, _remove_previous_scenes_p, _reset_view);
 }
 
-void DataViewer::updateColmapViewer(std::shared_ptr<colmap::Reconstruction>_reconstruction)
+void DataViewer::updateColmapViewer(std::shared_ptr<colmap::Reconstruction> _reconstruction)
 {
-    // tata
+    m_colmap_viewer->reconstruction = _reconstruction;
+    m_colmap_viewer->ReloadReconstruction();
+}
+
+void DataViewer::configColmapViewer(colmap::OptionManager& _options)
+{
+    viewer_options = _options;
 }
 
 void DataViewer::autoAdd3DFileFromFolderOnMainView(QString _folderpath_p)

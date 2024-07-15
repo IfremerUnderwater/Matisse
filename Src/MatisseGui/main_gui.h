@@ -377,6 +377,7 @@ public slots:
     void sl_goHome();
     void sl_show3DFileOnMainView(QString _filepath_p);
     void sl_updateColmapViewer(std::shared_ptr<colmap::Reconstruction> _reconstruction);
+    void sl_configColmapViewer(colmap::OptionManager _options);
     void sl_autoAdd3DFileFromFolderOnMainView(QString _folderpath_p);
     void sl_addRasterFileToMap(QString _filepath_p);
     void sl_addToLog(QString _loggin_text);

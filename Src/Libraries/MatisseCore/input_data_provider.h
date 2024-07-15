@@ -7,6 +7,8 @@
 #include "Context.h"
 #include "lifecycle_component.h"
 #include "Polygon.h"
+#include "colmap/scene/reconstruction.h"
+#include "colmap/controllers/option_manager.h"
 
 using namespace matisse_image;
 
@@ -66,6 +68,8 @@ signals:
     void si_showErrorMessage(QString _title, QString _text);
     void si_show3DFileOnMainView(QString _filepath_p);
     void si_autoAdd3DFileFromFolderOnMainView(QString _folderpath_p);
+    void si_updateColmapViewer(std::shared_ptr<colmap::Reconstruction> _reconstruction);
+    void si_configColmapViewer(colmap::OptionManager _options);
     void si_addRasterFileToMap(QString _filepath_p);
     void si_addToLog(QString _loggin_text);
 
