@@ -17,7 +17,7 @@ add_library(NetworkTools
     network_connector.cpp
 	network_connector_ftpclient.cpp
     # network_connector_qftp.cpp
-    network_connector_qssh.cpp
+    # network_connector_qssh.cpp
 )
 	
 #qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} NetworkTools_fr.ts NetworkTools_en.ts)
@@ -28,10 +28,10 @@ target_link_libraries(NetworkTools
 	SystemTools 
 	Qt5::Core 
 	Qt5::Network
-	QSsh::QSsh 
+	# QSsh::QSsh 
 	${BOTAN_LIB}
-        # QFtp
-		FTPClient
+    # QFtp
+    FTPClient
 	)
 
 

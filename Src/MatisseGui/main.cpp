@@ -23,7 +23,7 @@
 #include "network_client.h"
 #include "network_client_file_transfer.h"
 #include "network_client_shell.h"
-#include "network_connector_qssh.h"
+// #include "network_connector_qssh.h"
 // #include "network_connector_qftp.h"
 #include "network_connector_ftpclient.h"
 #include "assembly_helper.h"
@@ -167,7 +167,22 @@ int main(int argc, char *argv[])
     ImportExportHelper import_export_helper;
 
     /* Create remote process gateways and UI helper */
-    NetworkConnector* ssh_handler = new NetworkConnectorQSsh();
+
+
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    ////////////////      !!!!   WARNING   !!!!         ////////
+    //
+    //  RemoteJobHelper requires SFTP & SHELL CLIENTS:
+    //  So we give it fake ones using FTPClient...
+    //
+    ////////////////      !!!!   WARNING   !!!!         ////////
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+
+
+    // NetworkConnector* ssh_handler = new NetworkConnectorQSsh();
+    NetworkConnector* ssh_handler = new NetworkConnectorFTPClient();
     NetworkClient* ssh_client = new NetworkClientShell();
     ssh_client->setConnector(ssh_handler);
 
@@ -176,7 +191,8 @@ int main(int argc, char *argv[])
     NetworkClient* ftp_client = new NetworkClientFileTransfer();
     ftp_client->setConnector(ftp_handler);
 
-    NetworkConnector* sftp_handler = new NetworkConnectorQSsh();
+    // NetworkConnector* sftp_handler = new NetworkConnectorQSsh();
+    NetworkConnector* sftp_handler = new NetworkConnectorFTPClient();
     NetworkClient* sftp_client = new NetworkClientFileTransfer();
     sftp_client->setConnector(sftp_handler);
 
