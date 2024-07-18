@@ -23,6 +23,7 @@ target_link_libraries(
         ${OpenCV_LIBS}
 	${QUAZIP_LIBRARIES}
         ${OPENSCENEGRAPH_LIBRARIES}
+		${QUAZIP_LIB}
 	)
 
 # state that anybody linking to us needs to include the current source dir
