@@ -4,13 +4,10 @@ add_library(ColmapMapper SHARED
 
 target_link_libraries(ColmapMapper
 	MatisseCore
-	BasicProcessing
-	${OpenCV_LIBS}
+	MatisseImage
 	Qt5::Core
 	Qt5::Xml
 	Qt5::Widgets
-	${QUAZIP_LIBRARIES}
-	${GDAL_LIBRARY}
 	colmap::colmap
 	)
 

@@ -1,5 +1,4 @@
 ﻿#include "colmap_matching_3d.h"
-#include "nav_image.h"
 #include "reconstruction_context.h"
 
 #include "dim2_file_reader.h"
@@ -71,17 +70,25 @@ void ColmapMatching3D::onNewImage(quint32 _port, matisse_image::Image &_image)
 bool ColmapMatching3D::computeFeatures()
 {
     // Dir init
-    QDir dataset_dir(absoluteDatasetDir());
-    QDir output_dir(absoluteOutputTempDir());
-    QString qsep = QDir::separator();
+    const QDir dataset_dir(absoluteDatasetDir());
+    const QDir output_dir(absoluteOutputTempDir());
+    const QString qsep = QDir::separator();
 
-    QString colmap_db_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
+    const QString colmap_db_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
     // colmap database path
-    QString database_file_path = absoluteOutputTempDir() + qsep + colmap_db_filename_prefix + ".db";
+    const QString database_file_path = absoluteOutputTempDir() + qsep + colmap_db_filename_prefix + ".db";
 
     // Todo : handle that in Matisse param ?
     std::string descriptor_normalization = "l1_root";
+
+    #ifdef COLMAP_CUDA_ENABLED
+    const std::string info_msg = "COLMAP_CUDA_ENABLED is accessible!";
+    emit si_showInformationMessage(this->logPrefix(), info_msg.c_str());
+    #else
+    const std::string info_msg = "COLMAP_CUDA_ENABLED is NOT accessible!";
+    emit si_showInformationMessage(this->logPrefix(), info_msg.c_str());
+    #endif
 
     bool kUseOpenGL = false;
 
@@ -150,14 +157,14 @@ bool ColmapMatching3D::computeFeatures()
 bool ColmapMatching3D::computeMatches()
 {
     // Dir init
-    QDir dataset_dir(absoluteDatasetDir());
-    QDir output_dir(absoluteOutputTempDir());
-    QString qsep = QDir::separator();
+    const QDir dataset_dir(absoluteDatasetDir());
+    const QDir output_dir(absoluteOutputTempDir());
+    const QString qsep = QDir::separator();
 
-    QString colmap_db_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
+    const QString colmap_db_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
     // colmap database path
-    QString database_file_path = absoluteOutputTempDir() + qsep + colmap_db_filename_prefix + ".db";
+    const QString database_file_path = absoluteOutputTempDir() + qsep + colmap_db_filename_prefix + ".db";
 
     OptionManager options;
     bool kUseOpenGL = false;
@@ -194,14 +201,14 @@ bool ColmapMatching3D::computeMatches()
 bool ColmapMatching3D::writeNavPriors()
 {
     // Dir init
-    QDir dataset_dir(absoluteDatasetDir());
-    QDir output_dir(absoluteOutputTempDir());
-    QString qsep = QDir::separator();
+    const QDir dataset_dir(absoluteDatasetDir());
+    const QDir output_dir(absoluteOutputTempDir());
+    const QString qsep = QDir::separator();
 
-    QString colmap_db_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
+    const QString colmap_db_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
     // colmap database path
-    QString database_file_path = absoluteOutputTempDir() + qsep + colmap_db_filename_prefix + ".db";
+    const QString database_file_path = absoluteOutputTempDir() + qsep + colmap_db_filename_prefix + ".db";
 
     // Nav path file
     const QString nav_source =  m_matisse_parameters->getStringParamValue("dataset_param", "navSource");
@@ -305,11 +312,6 @@ void ColmapMatching3D::onFlush(quint32 _port)
 {
     Q_UNUSED(_port)
 
-    // switch opengl context to current processing thread
-    //std::unique_ptr<OpenGLContextManager> m_pcontext_manager;
-    //m_pcontext_manager.reset(new OpenGLContextManager());
-    // m_pcontext_manager->MakeCurrent();
-
     // Log
     QString proc_info = logPrefix() + "Features matching started\n";
     emit si_addToLog(proc_info);
@@ -319,22 +321,28 @@ void ColmapMatching3D::onFlush(quint32 _port)
 
     if (!this->computeFeatures())
     {
-
+        const QString msg = "Failed to compute features!";
+        emit si_showInformationMessage(this->logPrefix(),msg);
         return;
     }
 
-    this->writeNavPriors();
+    if (!this->writeNavPriors())
+    {
+        const QString msg = "Failed to write priors!";
+        emit si_showInformationMessage(this->logPrefix(),msg);
+    }
 
-    this->computeMatches();
+    if (!this->computeMatches())
+    {
+        const QString msg = "Failed to match images!";
+        emit si_showInformationMessage(this->logPrefix(),msg);
+    }
 
     // Log elapsed time
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
     emit si_addToLog(proc_info);
 
-
-    // Flush next module port
 //    flush(0);
-
 }
 
 } // namespace matisse

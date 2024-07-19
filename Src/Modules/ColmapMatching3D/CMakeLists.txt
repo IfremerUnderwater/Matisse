@@ -9,7 +9,6 @@ target_link_libraries(ColmapMatching3D
 PRIVATE
 	MatisseCore
 	MatisseImage
-	BasicProcessing
 	NavTools
 	Qt5::Core 
 	Qt5::Xml 
