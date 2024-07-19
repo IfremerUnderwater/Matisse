@@ -4,18 +4,18 @@
 
 namespace nav_tools {
 
-Dim2FileReader::Dim2FileReader(QString _filename, quint32 _first_line, quint32 _last_line, quint32 _step):
+Dim2FileReader::Dim2FileReader(QString _filename, uint32_t _first_line, uint32_t _last_line, uint32_t _step):
     m_filename(_filename),
     m_file_is_valid(false)
 {
-        readDim2File(_first_line, _last_line, _step);
+    readDim2File(_first_line, _last_line, _step);
 }
 
 Dim2FileReader::~Dim2FileReader()
 {
 }
 
-bool Dim2FileReader::readDim2File(quint32 _first_line, quint32 _last_line, quint32 _step)
+bool Dim2FileReader::readDim2File(uint32_t _first_line, uint32_t _last_line, uint32_t _step)
 {
 
     Q_ASSERT( (_first_line>0) && (_first_line<=_last_line) );
@@ -39,11 +39,12 @@ bool Dim2FileReader::readDim2File(quint32 _first_line, quint32 _last_line, quint
     QTextStream reader(&fi);
 
     // lecture du fichier et remplissage des listes
-   m_file_is_valid = true;
-   m_dim2_lines.clear();
-   quint32 line_count = 0;
-           // on suppose que la premiere ligne, correspondant à l'index est 1
-    while (!reader.atEnd()) {
+    m_file_is_valid = true;
+    m_dim2_lines.clear();
+    uint32_t line_count = 0;
+    // on suppose que la premiere ligne, correspondant à l'index est 1
+    while (!reader.atEnd()) 
+    {
         QString newLine = reader.readLine();
         line_count++;
         // test borne min et step
@@ -61,10 +62,10 @@ bool Dim2FileReader::readDim2File(quint32 _first_line, quint32 _last_line, quint
     return m_file_is_valid;
 }
 
-NavInfo Dim2FileReader::getNavInfo(quint32 _image_id)
+NavInfo Dim2FileReader::getNavInfo(uint32_t _image_id)
 {
     NavInfo nav_info;
-    if ((quint32)m_dim2_lines.length() > _image_id) {
+    if ((uint32_t)m_dim2_lines.length() > _image_id) {
         Dim2 dim2 = m_dim2_lines.at(_image_id);
         nav_info.setInfo(dim2.diveNumber(),
                         dim2.dateTime(),
@@ -88,30 +89,30 @@ int Dim2FileReader::getNumberOfImages()
     return m_dim2_lines.length();
 }
 
-QString Dim2FileReader::getImageFilename(quint32 _image_id)
+QString Dim2FileReader::getImageFilename(uint32_t _image_id)
 {
     QString filename;
-    if ((quint32)m_dim2_lines.length() > _image_id ) {
+    if ((uint32_t)m_dim2_lines.length() > _image_id ) {
         filename = m_dim2_lines.at(_image_id).filename();
     }
 
     return filename;
 }
 
-QString Dim2FileReader::getImageSource(quint32 _image_id)
+QString Dim2FileReader::getImageSource(uint32_t _image_id)
 {
     QString src;
-    if ((quint32)m_dim2_lines.length() > _image_id ) {
+    if ((uint32_t)m_dim2_lines.length() > _image_id ) {
         src = m_dim2_lines.at(_image_id).source();
     }
 
     return src;
 }
 
-QString Dim2FileReader::getImageFormat(quint32 _image_id)
+QString Dim2FileReader::getImageFormat(uint32_t _image_id)
 {
     QString format;
-    if ((quint32)m_dim2_lines.length() > _image_id ) {
+    if ((uint32_t)m_dim2_lines.length() > _image_id ) {
         format = m_dim2_lines.at(_image_id).format();
     }
 

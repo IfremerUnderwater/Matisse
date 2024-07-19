@@ -33,7 +33,7 @@ public:
     /// \param _last_line dernière ligne à lire
     /// \param _step pas entre lignes
     ///
-    Dim2FileReader(QString _filename = "", quint32 _first_line = 1, quint32 _last_line = 999999, quint32 _step = 1);
+    Dim2FileReader(QString _filename = "", uint32_t _first_line = 1, uint32_t _last_line = 999999, uint32_t _step = 1);
     
     
     virtual ~Dim2FileReader();
@@ -45,35 +45,35 @@ public:
     /// \param _step pas entre lignes
     /// \return true si le fichier a été lu correctement
     ///
-    bool readDim2File(quint32 _first_line = 1, quint32 _last_line = 999999, quint32 _step = 1);
+    bool readDim2File(uint32_t _first_line = 1, uint32_t _last_line = 999999, uint32_t _step = 1);
    
     ///
     /// \brief Retourne le nom de l'image à l'index dans la collection des lignes lues
     /// \param _image_id
     /// \return
     ///
-    QString getImageFilename(quint32 _image_id);
+    QString getImageFilename(uint32_t _image_id);
 
     ///
     /// \brief Retourne le nom de la source de l'image à l'index dans la collection des lignes lues
     /// \param _image_id
     /// \return
     ///
-    QString getImageSource(quint32 _image_id);
+    QString getImageSource(uint32_t _image_id);
 
     ///
     /// \brief Retourne le format de l'image à l'index dans la collection des lignes lues
     /// \param _image_id
     /// \return
     ///
-    QString getImageFormat(quint32 _image_id);
+    QString getImageFormat(uint32_t _image_id);
 
     ///
     /// \brief Retourne les informations NavInfo correspondant à l'index dans la collection des lignes lues
     /// \param _image_id
     /// \return
     ///
-    NavInfo getNavInfo(quint32 _image_id);
+    NavInfo getNavInfo(uint32_t _image_id);
 
     int getNumberOfImages();
 
