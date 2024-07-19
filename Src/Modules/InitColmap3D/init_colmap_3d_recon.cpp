@@ -39,9 +39,11 @@ InitColmap3D::InitColmap3D() :
 {
 
     addExpectedParameter("dataset_param", "dataset_dir");
-    addExpectedParameter("dataset_param", "navFile");   // dim2 - défaut OTUS.dim2
-    addExpectedParameter("dataset_param", "navSource"); // AUTO, GPS, DIM2, NO_NAV
-    addExpectedParameter("dataset_param", "usePrior");
+    addExpectedParameter("dataset_param", "output_filename");
+    
+    // addExpectedParameter("dataset_param", "navFile");   // dim2 - défaut OTUS.dim2
+    // addExpectedParameter("dataset_param", "navSource"); // AUTO, GPS, DIM2, NO_NAV
+    // addExpectedParameter("dataset_param", "usePrior");
 
     addExpectedParameter("cam_param",  "camera_equipment");
 
@@ -103,10 +105,10 @@ void InitColmap3D::onFlush(quint32 _port)
     QDir output_dir(absoluteOutputTempDir());
     QString qsep = QDir::separator();
 
-    QString filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
+    QString colmap_db_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
     // check input exists
-    if ( !dataset_dir.exists())
+    if (!dataset_dir.exists())
     {
         fatalErrorExit("The input directory doesn't exist");
         return;
@@ -117,16 +119,16 @@ void InitColmap3D::onFlush(quint32 _port)
     {
         if (!output_dir.mkpath(output_dir.absolutePath()))
         {
-                    fatalErrorExit("Cannot create output directory");
-                    return;
+            fatalErrorExit("Cannot create output directory");
+            return;
         }
     }
 
     // Create colmap database
-    QString database_file = absoluteOutputTempDir() + qsep + filename_prefix + ".db";
+    QString database_file_path = absoluteOutputTempDir() + qsep + colmap_db_filename_prefix + ".db";
     try
     {
-        colmap::Database sfm_database(database_file.toStdString());
+        colmap::Database sfm_database(database_file_path.toStdString());
     }
     catch (...)
     {

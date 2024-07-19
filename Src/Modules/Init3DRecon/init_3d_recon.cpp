@@ -107,7 +107,7 @@ bool Init3DRecon::getCameraIntrinsics(double & _focal, double & _ppx, double & _
 
 }
 
-static std::pair<bool, Vec3> checkGPS(const std::string & filename)
+static std::pair<bool, Vec3> checkGPS(const std::string &filename)
 {
     std::pair<bool, Vec3> val(false, Vec3::Zero());
     std::unique_ptr<Exif_IO> exif_reader(new Exif_IO_EasyExif);
@@ -132,14 +132,11 @@ static std::pair<bool, Vec3> checkGPS(const std::string & filename)
     return val;
 }
 
-static std::pair<bool, Vec3> checkDIM2
-(
-        const std::string & filename,
-        Dim2FileReader *dim2_reader,
-        std::map<QString, int> &dim2FileMap
-        )
+static std::pair<bool, Vec3> checkDIM2(const std::string &filename,
+                                       Dim2FileReader *dim2_reader,
+                                       std::map<QString, int> &dim2FileMap)
 {
-    QString fname = stlplus::filename_part(filename).c_str();
+    const QString fname = stlplus::filename_part(filename).c_str();
 
     std::pair<bool, Vec3> val(false, Vec3::Zero());
     if (dim2_reader && dim2_reader->isFileValid())
@@ -157,8 +154,7 @@ static std::pair<bool, Vec3> checkDIM2
 }
 
 /// Check string of prior weights
-std::pair<bool, Vec3> Init3DRecon::getPriorWeights
-()
+std::pair<bool, Vec3> Init3DRecon::getPriorWeights()
 {
     std::pair<bool, Vec3> val(true, Vec3::Zero());
     bool ok=false; // there is always a default value, no need to check ok bool
