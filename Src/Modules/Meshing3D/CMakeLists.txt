@@ -14,14 +14,15 @@ target_link_libraries(Meshing3D
 	${GDAL_LIBRARY}
 	OpenMVG::openMVG_system
 	OpenMVG::openMVG_image
-    OpenMVG::openMVG_features
-    OpenMVG::openMVG_sfm
-    OpenMVG::openMVG_exif
+	OpenMVG::openMVG_features
+	OpenMVG::openMVG_sfm
+	OpenMVG::openMVG_exif
 	OpenMVG::openMVG_stlplus
-    OpenMVG::openMVG_multiview
+	OpenMVG::openMVG_multiview
 	OpenMVG::openMVG_matching_image_collection
 	IO MVS Math Common 
-	CGAL::CGAL Boost::filesystem
+	CGAL::CGAL 
+	Boost::filesystem
 	)
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix

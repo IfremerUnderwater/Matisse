@@ -58,8 +58,8 @@ Q_ENUM_NS(eTransferError)
   * \brief File transfer protocol to be used with the remote file server
   */
 enum class eFileTransferProtocol {
-    FTP,
-    SFTP
+    FTP
+    , SFTP
 };
 
 Q_ENUM_NS(eFileTransferProtocol)
