@@ -5,16 +5,9 @@ add_library(InitColmap3D SHARED
 target_link_libraries(InitColmap3D PRIVATE
     MatisseCore
     MatisseImage
-    NavTools
-    BasicProcessing
-    OpticalMapping
-    ${OpenCV_LIBS}
     Qt5::Core
     Qt5::Xml
     Qt5::Widgets
-    ${QUAZIP_LIBRARIES}
-    ${GDAL_LIBRARY}
-    ${GeographicLib_LIBRARIES}
     colmap::colmap
 	)
 
