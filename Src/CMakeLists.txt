@@ -4,12 +4,11 @@ cmake_minimum_required(VERSION 3.10)
 project(MatisseProject VERSION 1.5.1)
 
 # specify the C++ standard
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_FIND_DEBUG_MODE False)
 
 
-message(STATUS ${colmap_DIR})
 if(MSVC)
 add_definitions(-DWINDOWS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005")
@@ -122,6 +121,7 @@ find_package(colmap REQUIRED)
 find_package(CGAL)
 FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serialization)
 find_package(OpenMVS REQUIRED)
+include_directories(${OpenMVS_INCLUDE_DIRS})
 find_package(QSsh)
 # find_package(QFtp)
 find_package(CURL REQUIRED)

@@ -32,7 +32,9 @@ private:
 
     bool m_use_prior;
 
-    bool incrementalSfm(QString _out_dir, QString _match_file);
+    bool sfmMapper();
+
+    bool undistortImages(QString &_image_path, QString &_sfmdir, QString &_outdir);
 
 };
 
