@@ -644,7 +644,7 @@ namespace matisse {
 				EnsureRotationMatrix((Matrix3x3d&)pose.R);
 				Eigen::Map<EVec3d>(&pose.C.x) = -(imageColmap.q.inverse() * imageColmap.t);
 				MVS::Interface::Image image;
-				image.name = MAKE_PATH_REL(strOutFolder, OPT::strImageFolder + imageColmap.name);
+				image.name = "images/" + imageColmap.name;//MAKE_PATH_REL(strOutFolder, OPT::strImageFolder + imageColmap.name);
 				image.platformID = mapCameras.at(imageColmap.idCamera);
 				image.cameraID = 0;
 				image.ID = imageColmap.ID;
@@ -1372,17 +1372,23 @@ namespace matisse {
 			return;
 		}
 
-		QString log_path = output_dir.absolutePath() + qsep + ".." + qsep + "log" + qsep;
-		WORKING_FOLDER = log_path.toStdString();
-		WORKING_FOLDER_FULL = log_path.toStdString();
-		Initialize();
+		//QString log_path = output_dir.absolutePath() + qsep + ".." + qsep + "log" + qsep;
+		//WORKING_FOLDER = log_path.toStdString();
+		//WORKING_FOLDER_FULL = log_path.toStdString();
+		
 
 		// Loop on all component
 		for (int i : rc->components_ids)
 		{
 
+
 			QString openmvs_dir = output_dir.absolutePath() + qsep + "openmvs_result_" + QString::number(i) + qsep;
 			QDir openmvs_qdir(openmvs_dir);
+
+			// Erase working folder so that images are found (path is stored relative to working folder)
+			WORKING_FOLDER = openmvs_dir.toStdString();
+			WORKING_FOLDER_FULL = openmvs_dir.toStdString();
+			Initialize();
 
 			// check output and try to create it
 			if (!openmvs_qdir.exists())
@@ -1421,6 +1427,13 @@ namespace matisse {
 			VERBOSE("Exported data: %u images, %u points%s",
 				scene.images.size(), scene.vertices.size(), pointcloud.IsEmpty() ? "" : String::FormatString(", %d dense points", pointcloud.GetSize()).c_str());
 
+			// Finalize
+			MVS::Finalize();
+
+			CLOSE_LOGFILE();
+			//CLOSE_LOGCONSOLE();
+			CLOSE_LOG();
+
 		}
 
 		// context for next module
@@ -1431,12 +1444,7 @@ namespace matisse {
 		proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
 		emit si_addToLog(proc_info);
 
-		// Finalize
-		MVS::Finalize();
 
-		CLOSE_LOGFILE();
-		//CLOSE_LOGCONSOLE();
-		CLOSE_LOG();
 
 		//    flush(0);
 	}

@@ -12,15 +12,7 @@ target_link_libraries(PointCloudDensify
 	Qt5::Widgets
 	${QUAZIP_LIBRARIES}
 	${GDAL_LIBRARY}
-	OpenMVG::openMVG_system
-	OpenMVG::openMVG_image
-    OpenMVG::openMVG_features
-    OpenMVG::openMVG_sfm
-    OpenMVG::openMVG_exif
-	OpenMVG::openMVG_stlplus
-    OpenMVG::openMVG_multiview
-	OpenMVG::openMVG_matching_image_collection
-	IO MVS Math Common 
+	OpenMVS::IO OpenMVS::MVS OpenMVS::Math OpenMVS::Common 
 	CGAL::CGAL Boost::filesystem
 	)
 
@@ -36,6 +28,6 @@ add_custom_command(
 )
 
 # state that anybody linking to us needs to include the current source dir
-target_include_directories(Meshing3D
+target_include_directories(PointCloudDensify
           INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
           )

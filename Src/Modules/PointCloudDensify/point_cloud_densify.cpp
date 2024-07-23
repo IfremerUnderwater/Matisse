@@ -2,8 +2,6 @@
 #include "reconstruction_context.h"
 #include "nav_image.h"
 
-#define OPENMVG_USE_OPENMP
-#include "mvg_mvs_interface.h"
 
 #include <QProcess>
 #include <QElapsedTimer>
@@ -33,11 +31,6 @@ namespace OPT {
     unsigned n_max_threads;
 } // namespace OPT
 
-using namespace openMVG;
-using namespace openMVG::cameras;
-using namespace openMVG::geometry;
-using namespace openMVG::image;
-using namespace openMVG::sfm;
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(PointCloudDensify, PointCloudDensify)
@@ -229,43 +222,25 @@ void PointCloudDensify::onFlush(quint32 _port)
     for (unsigned int i=0; i<rc->components_ids.size(); i++)
     {
 
-        QString scene_dir_i = m_outdir + QDir::separator() + "ModelPart" + QString("_%1").arg(rc->components_ids[i]);
+        QString scene_dir_i = m_outdir + QDir::separator() + QString("openmvs_result_%1").arg(rc->components_ids[i]);
 
-        if (rc->current_format == ReconFormat::openMVG)
+        if (rc->current_format == ReconFormat::openMVS)
         {
 
-            QString undist_out_dir_i = scene_dir_i + SEP + "undist_imgs";
-            QString sfm_data_file = scene_dir_i + SEP + "sfm_data.bin";
-            QString mvs_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".mvs";
-
-            // Read the input SfM scene
-            SfM_Data sfm_data;
-            if (!Load(sfm_data, sfm_data_file.toStdString(), ESfM_Data(ALL))) {
+            // compute dense scene
+            if (!this->DensifyPointCloud(scene_dir_i, QString("scene.mvs")))
                 continue;
-            }
-
-            // Convert from openMVG to openMVS
-            if (!exportToOpenMVS(sfm_data,
-                mvs_data_file.toStdString(),
-                undist_out_dir_i.toStdString(),
-                0,
-                this
-            ))
-                continue;
-
 
         }
         else
         {
-            fatalErrorExit("Input point Cloud is not in the right format. Only openMVG supported for now");
+            fatalErrorExit("Input point Cloud is not in the right format. Only openMVS supported for now");
         }
 
         emit si_processCompletion(-1);
         emit si_userInformation("PointCloudDensify");
 
-        // compute dense scene
-        if (!this->DensifyPointCloud(scene_dir_i, m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".mvs") )
-            continue;
+
 
   
 
