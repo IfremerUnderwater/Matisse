@@ -160,7 +160,7 @@ if ((ARCHIVE_TYPE) OPT::n_archive_type != ARCHIVE_MVS) {
 
 // save the final mesh
 scene.Save((fullpath_basename + QString("_dense.mvs")).toStdString(), (ARCHIVE_TYPE)OPT::n_archive_type);
-scene.pointcloud.Save((fullpath_basename + QString("_dense.ply")).toStdString());
+scene.pointcloud.Save((fullpath_basename + QString("_dense_pcl.ply")).toStdString());
 
 #if 0
 scene.ExportCamerasMLP(baseFileName + _T(".mlp"), baseFileName + _T(".ply"));

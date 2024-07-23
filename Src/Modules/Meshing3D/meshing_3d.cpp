@@ -2,8 +2,7 @@
 #include "reconstruction_context.h"
 #include "nav_image.h"
 
-#define OPENMVG_USE_OPENMP
-#include "mvg_mvs_interface.h"
+
 
 #include <QProcess>
 #include <QElapsedTimer>
@@ -27,12 +26,6 @@
 #include <QFileInfo>
 
 using namespace MVS;
-
-using namespace openMVG;
-using namespace openMVG::cameras;
-using namespace openMVG::geometry;
-using namespace openMVG::image;
-using namespace openMVG::sfm;
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(Meshing3D, Meshing3D)
@@ -156,8 +149,10 @@ bool Meshing3D::meshing(QString _mvs_data_file)
 	// reconstruct a coarse mesh from the given point-cloud
     if (OPT::b_use_constant_weight)
 		scene.pointcloud.pointWeights.Release();
-    if (!scene.ReconstructMesh(OPT::f_dist_insert, OPT::b_use_free_space_support, 4, OPT::f_thickness_factor, OPT::f_quality_factor))
-		return false;
+  //  if (!scene.ReconstructMesh(OPT::f_dist_insert, OPT::b_use_free_space_support, false, 4, OPT::f_thickness_factor, OPT::f_quality_factor))
+		//return false; //TODO API changed leave default option for fast modification
+    if (!scene.ReconstructMesh())
+        return false;
 
 	// clean the mesh
     scene.mesh.Clean(OPT::f_decimate_mesh, OPT::f_remove_spurious, OPT::b_remove_spikes, OPT::n_close_holes, OPT::n_smooth_mesh, false);
@@ -167,7 +162,7 @@ bool Meshing3D::meshing(QString _mvs_data_file)
 	// save the final mesh
     QString output_filename = mvs_file_info.dir().absoluteFilePath(mvs_file_info.baseName() + "_mesh");
     scene.Save(output_filename.toStdString()+".mvs", (ARCHIVE_TYPE)OPT::n_archive_type);
-    scene.mesh.Save(output_filename.toStdString() +"." + OPT::str_export_type);
+    scene.mesh.Save(output_filename.toStdString() +".ply");
 
 
 	return true;
@@ -226,40 +221,26 @@ void Meshing3D::onFlush(quint32 _port)
     for (unsigned int i=0; i<rc->components_ids.size(); i++)
     {
 
-        QString scene_dir_i = m_outdir +QDir::separator() + "ModelPart" + QString("_%1").arg(rc->components_ids[i]);
-        QString mvs_data_file = scene_dir_i + SEP + m_out_filename_prefix + QString("_%1").arg(rc->components_ids[i]) + rc->out_file_suffix + ".mvs";
+        QString scene_dir_i = m_outdir + QDir::separator() + QString("openmvs_result_%1").arg(rc->components_ids[i]);
+        QString mvs_data_file = scene_dir_i + SEP + QString("scene")+ rc->out_file_suffix + ".mvs";
 
-        if (rc->current_format == ReconFormat::openMVG)
+        if (rc->current_format != ReconFormat::openMVS)
         {
-
-            QString undist_out_dir_i = scene_dir_i + SEP + "undist_imgs";
-            QString sfm_data_file = scene_dir_i + SEP + "sfm_data.bin";
-
-            // Read the input SfM scene
-            SfM_Data sfm_data;
-            if (!Load(sfm_data, sfm_data_file.toStdString(), ESfM_Data(ALL))) {
-                continue;
-            }
-
-            // Convert from openMVG to openMVS
-            if (!exportToOpenMVS(sfm_data,
-                mvs_data_file.toStdString(),
-                undist_out_dir_i.toStdString(),
-                0,
-                this
-            ))
-                continue;
-
-
+            fatalErrorExit("Input point Cloud is not in the right format. Only openMVS supported for now");
+            return;
         }
-        else if (rc->current_format != ReconFormat::openMVS)
-        {
-            fatalErrorExit("Input point Cloud is not in the right format. Only openMVG and openMVS supported for now");
-        }
+
+        // backup current path & set new one (so that openMVS find images)
+        namespace fs = boost::filesystem;
+        fs::path cur_working_dir(fs::current_path());
+        fs::current_path(fs::path(scene_dir_i.toStdString()));
 
         // compute dense scene
         if (!this->meshing(mvs_data_file) )
             continue;
+
+        // restore path
+        fs::current_path(cur_working_dir);
 
         //// Compute Mesh
         emit si_userInformation("Meshing...");
