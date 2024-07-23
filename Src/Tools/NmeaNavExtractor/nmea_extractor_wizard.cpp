@@ -51,7 +51,7 @@ void NmeaExtractorWizard::sl_selectNmeaPath()
                                                             | QFileDialog::DontResolveSymlinks);
     if (!data_folder.isEmpty())
     {
-        if (QDir::separator()=="\\")
+        if (QDir::separator() == QChar('\\'))
             data_folder.replace("/","\\");
 
         ui->nmea_path_line->setText(data_folder);
@@ -64,7 +64,7 @@ void NmeaExtractorWizard::sl_selectNavOutputFile()
 
     if (!output_nav_file.isEmpty())
     {
-        if (QDir::separator()=="\\")
+        if (QDir::separator() == QChar('\\'))
             output_nav_file.replace("/","\\");
         ui->nav_output_file->setText(output_nav_file);
     }

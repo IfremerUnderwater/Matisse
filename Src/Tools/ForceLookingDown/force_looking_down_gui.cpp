@@ -92,7 +92,7 @@ void ForceLookingDownGUI::sl_selectDataPath()
 		| QFileDialog::DontResolveSymlinks);
 	if (!data_folder.isEmpty())
 	{
-		if (QDir::separator() == "\\")
+		if (QDir::separator() == QChar('\\'))
 			data_folder.replace("/", "\\");
 
 		ui->dataset_path->setText(data_folder);

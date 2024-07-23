@@ -70,7 +70,7 @@ void DataPreprocessingWizard::sl_selectDataPath()
                                                             | QFileDialog::DontResolveSymlinks);
     if (!data_folder.isEmpty())
     {
-        if (QDir::separator()=="\\")
+        if (QDir::separator() == QChar('\\'))
             data_folder.replace("/","\\");
 
         ui->data_path_line->setText(data_folder);
@@ -86,7 +86,7 @@ void DataPreprocessingWizard::sl_selectOutputPath()
                                                               | QFileDialog::DontResolveSymlinks);
     if (!output_folder.isEmpty())
     {
-        if (QDir::separator()=="\\")
+        if (QDir::separator() == QChar('\\'))
             output_folder.replace("/","\\");
         ui->out_data_path_line->setText(output_folder);
     }
@@ -99,7 +99,7 @@ void  DataPreprocessingWizard::sl_selectDim2File()
 
     if (!dim2_file.isEmpty())
     {
-        if (QDir::separator() == "\\")
+        if (QDir::separator() == QChar('\\'))
             dim2_file.replace("/", "\\");
         ui->rt_dim2_file->setText(dim2_file);
     }
@@ -112,7 +112,7 @@ void  DataPreprocessingWizard::sl_selectMaskFile()
 
     if (!mask_file.isEmpty())
     {
-        if (QDir::separator() == "\\")
+        if (QDir::separator() == QChar('\\'))
             mask_file.replace("/", "\\");
         ui->mask_file_le->setText(mask_file);
     }
@@ -125,7 +125,7 @@ void DataPreprocessingWizard::sl_selectNavFile()
 
     if (!nav_file.isEmpty())
     {
-        if (QDir::separator()=="\\")
+        if (QDir::separator() == QChar('\\'))
             nav_file.replace("/","\\");
         ui->nav_file_line->setText(nav_file);
     }
