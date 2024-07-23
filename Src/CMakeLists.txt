@@ -120,7 +120,9 @@ find_package(colmap REQUIRED)
 
 find_package(CGAL)
 find_package(Boost COMPONENTS iostreams program_options filesystem system serialization)
+
 find_package(OpenMVS REQUIRED)
+
 # find_package(QSsh)
 # find_package(QFtp)
 find_package(CURL REQUIRED)
