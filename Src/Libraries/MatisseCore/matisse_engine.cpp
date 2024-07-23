@@ -663,7 +663,7 @@ void JobTask::sl_start()
     }
 
 
-    qDebug() << "Configuration des Processeurs";
+    std::cout << "Configuration des Processeurs";
     foreach (Processor* processor, m_processors) {
         qDebug() << "Configuration du processeur " << processor->name();
         connect(processor, SIGNAL(si_showImageOnMainView(Image*)), this, SLOT(sl_showImageOnMainView(Image*)));
@@ -684,7 +684,7 @@ void JobTask::sl_start()
         processor->callConfigure(m_context, m_mat_parameters);
     }
 
-    qDebug() << "Configuration de la destination";
+    std::cout << "Configuration de la destination";
     connect(m_output_data_writer, SIGNAL(si_userInformation(QString)), this, SLOT(sl_userInformation(QString)));
     connect(m_output_data_writer, SIGNAL(si_processCompletion(quint8)), this, SLOT(sl_processCompletion(quint8)));
     connect(m_output_data_writer, SIGNAL(si_addToLog(QString)), this, SLOT(sl_logToFile(QString)));
@@ -700,35 +700,35 @@ void JobTask::sl_start()
     }
     ok = m_output_data_writer->callConfigure(m_context, m_mat_parameters);
     if (!ok) {
-        qDebug() << "Error on raster provider configuration";
+        std::cout << "Error on raster provider configuration";
         return;
     }
 
 
-    qDebug() << "Démarrage du raster provider";
+    std::cout << "Démarrage du raster provider";
     ok = m_output_data_writer->callStart();
     if (!ok) {
-        qDebug() << "Error on raster provider start";
+        std::cout << "Error on raster provider start";
         return;
     }
 
-    qDebug() << "Démarrage des processeurs";
+    std::cout << "Démarrage des processeurs";
     foreach (Processor *processor, m_processors) {
         ok = processor->callStart();
         if (!ok) {
-            qDebug() << "Error on processor start: " << processor->name();
+            std::cout << "Error on processor start: " << processor->name().toStdString();
             return;
         }
     }
 
-    qDebug() << "Démarrage du image provider";
+    std::cout << "Démarrage du image provider";
     ok = m_input_data_provider->callStart();
     if (!ok) {
-        qDebug() << "Error on image provider start";
+        //qDebug() << "Error on image provider start";
         return;
     }
 
-    qDebug() << "Fin de sl_start";
+    std::cout << "Fin de sl_start";
 
     QThread::currentThread()->exit();
 }

@@ -30,7 +30,7 @@ ImageSet * Flusher::imageSet(quint16 _port)
 
 bool Flusher::configure()
 {
-    qDebug() << logPrefix() << "Flusher configure";
+    //qDebug() << logPrefix() << "Flusher configure";
 
     return true;
 
@@ -40,7 +40,7 @@ bool Flusher::start()
 {    
     callProcessingChain();
 
-    qDebug() << logPrefix() << " out start";
+    //qDebug() << logPrefix() << " out start";
     return true;
 }
 

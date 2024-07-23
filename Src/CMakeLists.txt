@@ -4,12 +4,11 @@ cmake_minimum_required(VERSION 3.10)
 project(MatisseProject VERSION 1.5.1)
 
 # specify the C++ standard
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_FIND_DEBUG_MODE False)
 
 
-message(STATUS ${colmap_DIR})
 if(MSVC)
 add_definitions(-DWINDOWS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005")

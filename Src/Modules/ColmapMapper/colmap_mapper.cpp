@@ -25,6 +25,7 @@
 #include "colmap/sfm/observation_manager.h"
 #include "colmap/util/misc.h"
 #include "colmap/util/opengl_utils.h"
+#include "colmap/image/undistortion.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(ColmapMapper, ColmapMapper)
@@ -63,47 +64,8 @@ void ColmapMapper::onNewImage(quint32 _port, matisse_image::Image &_image)
     postImage(0, _image);
 }
 
-
-
-bool ColmapMapper::incrementalSfm(QString _out_dir, QString _match_file)
+bool ColmapMapper::sfmMapper()
 {
- 
-    return true;
-
-}
-
-bool ColmapMapper::start()
-{
-    setOkStatus();
-
-    static const QString SEP = QDir::separator();
-
-    // Get flags
-    bool ok;
-    m_use_prior = m_matisse_parameters->getBoolParamValue("dataset_param", "usePrior", ok);
-    if (!ok)
-        m_use_prior = true;
-
-
-    return true;
-}
-
-bool ColmapMapper::stop()
-{
-    return true;
-}
-
-void ColmapMapper::onFlush(quint32 _port)
-{
-    Q_UNUSED(_port)
-
-    // Log
-    QString proc_info = logPrefix() + "Bundle adjustement started\n";
-    emit si_addToLog(proc_info);
-
-    QElapsedTimer timer;
-    timer.start();
-
     // Dir init
     QDir dataset_dir(absoluteDatasetDir());
     QDir output_dir(absoluteOutputTempDir());
@@ -114,20 +76,23 @@ void ColmapMapper::onFlush(quint32 _port)
     // colmap database path
     QString database_file = absoluteOutputTempDir() + qsep + filename_prefix + ".db";
 
-    std::string output_path = absoluteOutputTempDir().toStdString() + qsep.toStdString() + "sparse";
+    QString qoutput_path = absoluteOutputTempDir() + qsep + "sfm";
+    std::string output_path = qoutput_path.toStdString();
 
     OptionManager options;
     *options.image_path = absoluteDatasetDir().toStdString();
     *options.database_path = database_file.toStdString();
 
+    options.mapper->triangulation.ignore_two_view_tracks = false;
+
     // Give options to viewer
     emit si_configColmapViewer(options);
 
     if (!ExistsDir(output_path)) {
-        if (!output_dir.mkdir("sparse"))
+        if (!output_dir.mkdir("sfm"))
         {
             fatalErrorExit("`output_path` is not a directory.");
-            return;
+            return false;
         }
     }
 
@@ -190,11 +155,129 @@ void ColmapMapper::onFlush(quint32 _port)
 
     if (reconstruction_manager->Size() == 0) {
         fatalErrorExit("failed to create sparse model");
-        return;
+        return false;
     }
+
+    return true;
+}
+
+bool ColmapMapper::undistortImages(QString &_image_path, QString &_sfmdir, QString &_outdir)
+{
+    std::string input_path = _sfmdir.toStdString();
+    std::string output_path= _outdir.toStdString();
+    int num_patch_match_src_images = 20;
+    CopyType copy_type;
+
+    UndistortCameraOptions undistort_camera_options;
+
+    OptionManager options;
+    *options.image_path = _image_path.toStdString();
+
+    CreateDirIfNotExists(output_path);
+
+    PrintHeading1("Reading reconstruction");
+    Reconstruction reconstruction;
+    reconstruction.Read(input_path);
+    LOG(INFO) << StringPrintf("=> Reconstruction with %d images and %d points",
+        reconstruction.NumImages(),
+        reconstruction.NumPoints3D());
+
+    std::vector<image_t> image_ids;
+    copy_type = CopyType::COPY;
+
+    std::unique_ptr<BaseController> undistorter;
+        undistorter =
+            std::make_unique<COLMAPUndistorter>(undistort_camera_options,
+                reconstruction,
+                *options.image_path,
+                output_path,
+                num_patch_match_src_images,
+                copy_type,
+                image_ids);
+    
+
+    undistorter->Run();
+
+    return true;
+}
+
+bool ColmapMapper::start()
+{
+    setOkStatus();
+
+    static const QString SEP = QDir::separator();
+
+    // Get flags
+    bool ok;
+    m_use_prior = m_matisse_parameters->getBoolParamValue("dataset_param", "usePrior", ok);
+    if (!ok)
+        m_use_prior = true;
+
+
+    return true;
+}
+
+bool ColmapMapper::stop()
+{
+    return true;
+}
+
+void ColmapMapper::onFlush(quint32 _port)
+{
+    Q_UNUSED(_port)
+
+    // Log
+    QString proc_info = logPrefix() + "Bundle adjustement started\n";
+    emit si_addToLog(proc_info);
+
+    QElapsedTimer timer;
+    timer.start();
+
+    if (!sfmMapper())
+        return;
 
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
     emit si_addToLog(proc_info);
+
+    // Dir
+    QString qsep = QDir::separator();
+    QString qoutput_path = absoluteOutputTempDir() + qsep + "sfm";
+    std::string output_path = qoutput_path.toStdString();
+
+    // Fill context for next block
+    QDir recons_dir(QString::fromStdString(output_path));
+    QVariant* object = m_context->getObject("reconstruction_context");
+
+    reconstructionContext* rc;
+    if (object)
+        rc = object->value<reconstructionContext*>();
+    else
+    {
+        fatalErrorExit("Reconstruction context not found !");
+        return;
+    }
+
+    QStringList recons_folders = recons_dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    // Push folders idx as recons idx (colmap make idx folders)
+    for (int i = 0; i < recons_folders.size();i++) {
+        rc->components_ids.push_back(i);
+        QString sfmdir = qoutput_path + qsep + QString::number(i);
+        QString outdir = absoluteOutputTempDir() + qsep + QString("openmvs_result_%1").arg(i);
+        QString img_path = absoluteDatasetDir();
+		try {
+			undistortImages(img_path, sfmdir, outdir);
+		}
+		catch (const std::future_error& e) {
+			std::cerr << "Future error: " << e.what() << std::endl;
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Standard exception: " << e.what() << std::endl;
+		}
+		catch (...) {
+			std::cerr << "Unknown exception caught!" << std::endl;
+		}
+    }
 
     // Flush next module port
 //    flush(0);
