@@ -1315,44 +1315,19 @@ namespace matisse {
 	{
 		// initialize log and console
 		OPEN_LOG();
-		OPEN_LOGCONSOLE();
+		//OPEN_LOGCONSOLE();
 
 		OPT::strConfigFileName = APPNAME _T(".cfg");
 		OPT::nArchiveType = ARCHIVE_MVS;
 		OPT::nMaxThreads = 0; // Zero is all cpu
-		g_nVerbosityLevel = 2;
+		g_nVerbosityLevel = 0;
 		OPT::bNormalizeIntrinsics = false;
 		OPT::bForceSparsePointCloud = false;
 
 		// initialize the log file
 		OPEN_LOGFILE(MAKE_PATH(APPNAME _T("-") + Util::getUniqueName(0) + _T(".log")));
 
-		// print application details: version and command line
-		LOG(_T("OpenMVS %s v%u.%u.%u"),
-#ifdef _ENVIRONMENT64
-			_T("x64"),
-#else
-			_T("x32"),
-#endif
-			OpenMVS_MAJOR_VERSION, OpenMVS_MINOR_VERSION, OpenMVS_PATCH_VERSION);
-#if TD_VERBOSE == TD_VERBOSE_OFF
-		LOG(_T("Build date: ") __DATE__);
-#else
-		LOG(_T("Build date: ") __DATE__ _T(", ") __TIME__);
-#endif
-		LOG(_T("CPU: %s (%u cores)"), Util::GetCPUInfo().c_str(), Thread::hardwareConcurrency());
-		LOG((_T("RAM: ") + Util::GetRAMInfo()).c_str());
-		LOG((_T("OS: ") + Util::GetOSInfo()).c_str());
-#ifdef _SUPPORT_CPP17
-		LOG((_T("Disk: ") + Util::GetDiskInfo(WORKING_FOLDER_FULL)).c_str());
-#endif
-		if (!SIMD_ENABLED.isSet(Util::SSE)) LOG(_T("warning: no SSE compatible CPU or OS detected"));
-		else if (!SIMD_ENABLED.isSet(Util::AVX)) LOG(_T("warning: no AVX compatible CPU or OS detected"));
-		else LOG(_T("SSE & AVX compatible CPU & OS detected"));
-		//Util::LogBuild();
-
-		if (OPT::nMaxThreads != 0)
-			omp_set_num_threads(OPT::nMaxThreads);
+		omp_set_num_threads(OPT::nMaxThreads);
 
 		// initialize random number generator
 		Util::Init();
@@ -1460,7 +1435,7 @@ namespace matisse {
 		MVS::Finalize();
 
 		CLOSE_LOGFILE();
-		CLOSE_LOGCONSOLE();
+		//CLOSE_LOGCONSOLE();
 		CLOSE_LOG();
 
 		//    flush(0);

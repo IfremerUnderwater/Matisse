@@ -268,7 +268,18 @@ void ColmapMapper::onFlush(quint32 _port)
         QString sfmdir = qoutput_path + qsep + QString::number(i);
         QString outdir = absoluteOutputTempDir() + qsep + QString("openmvs_result_%1").arg(i);
         QString img_path = absoluteDatasetDir();
-        undistortImages(img_path, sfmdir, outdir);
+		try {
+			undistortImages(img_path, sfmdir, outdir);
+		}
+		catch (const std::future_error& e) {
+			std::cerr << "Future error: " << e.what() << std::endl;
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Standard exception: " << e.what() << std::endl;
+		}
+		catch (...) {
+			std::cerr << "Unknown exception caught!" << std::endl;
+		}
     }
 
     // Flush next module port
