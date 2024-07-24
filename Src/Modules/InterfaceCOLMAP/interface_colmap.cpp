@@ -12,8 +12,8 @@
 #include <vector>
 #include "file_utils.h"
 
-#include "OpenMVS/MVS/Common.h"
-#include "OpenMVS/MVS/Scene.h"
+#include <OpenMVS/MVS/Common.h>
+#include <OpenMVS/MVS/Scene.h>
 
 #include "endian.h"
 

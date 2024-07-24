@@ -29,7 +29,7 @@ public:
 private:
     bool computeFeatures();
     bool computeMatches();
-
+    bool writeNavPriors();
 };
 
 } // namespace matisse

@@ -6,15 +6,13 @@ include_directories(${OPENMVG_INSTALL_PATH}/include/openMVG_dependencies)
 
 
 target_link_libraries(ColmapMatching3D 
+PRIVATE
 	MatisseCore
 	MatisseImage
-	BasicProcessing
-	${OpenCV_LIBS}
+	NavTools
 	Qt5::Core 
 	Qt5::Xml 
 	Qt5::Widgets 
-	${QUAZIP_LIBRARIES} 
-	${GDAL_LIBRARY}
 	colmap::colmap
 	)
 

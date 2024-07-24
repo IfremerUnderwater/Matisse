@@ -91,28 +91,28 @@ include_directories(
     )
 
 target_link_libraries(MatisseGui PUBLIC 
-	 MatisseCore
-     NetworkTools
-     NavTools
-     ${OpenCV_LIBS}
-     Qt5::Core
-     Qt5::Widgets
-     #Qt5::Network
-     Qt5::Xml
-     Qt5::XmlPatterns
- #    Qt5::Script
-     Qt5::OpenGL
-     ${GDAL_LIBRARY}
-    #  QFtp
-	 FTPClient
-	 CURL::libcurl
-     #QSsh::QSsh
-     #${BOTAN_LIB}
-     #${QUAZIP_LIBRARIES}
-     ${OPENSCENEGRAPH_LIBRARIES}
-	 ${GeographicLib_LIBRARIES}
-	 kmldom kmlbase
-	 colmap::colmap)
+    MatisseCore
+    NetworkTools
+    NavTools
+    ${OpenCV_LIBS}
+    Qt5::Core
+    Qt5::Widgets
+    #Qt5::Network
+    Qt5::Xml
+    Qt5::XmlPatterns
+    #Qt5::Script
+    Qt5::OpenGL
+    ${GDAL_LIBRARY}
+    #QFtp
+    FTPClient
+    CURL::libcurl
+    #QSsh::QSsh
+    #${BOTAN_LIB}
+    #${QUAZIP_LIBRARIES}
+    ${OPENSCENEGRAPH_LIBRARIES}
+    ${GeographicLib_LIBRARIES}
+    kmldom kmlbase
+    colmap::colmap)
 
 # add the binary tree to the search path for include files
 # so that we will find MatisseConfig.h

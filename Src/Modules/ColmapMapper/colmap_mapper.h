@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <QFileSystemWatcher>
-#include <QDateTime>
 #include "processor.h"
 
 namespace matisse {

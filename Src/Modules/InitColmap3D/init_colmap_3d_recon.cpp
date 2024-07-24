@@ -1,11 +1,7 @@
 ﻿#include "init_colmap_3d_recon.h"
-#include "nav_image.h"
 
 #include "reconstruction_context.h"
 
-#include "Polygon.h"
-
-#include "dim2_file_reader.h"
 #include <QElapsedTimer>
 
 
@@ -20,10 +16,6 @@
 #include "colmap/scene/database.h"
 
 
-
-using namespace nav_tools;
-
-
 // Export de la classe InitMatchModule dans la bibliotheque de plugin InitMatchModule
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(InitColmap3D, InitColmap3D)
@@ -31,25 +23,11 @@ Q_EXPORT_PLUGIN2(InitColmap3D, InitColmap3D)
 
 namespace matisse {
 
-
-
-
 InitColmap3D::InitColmap3D() :
     Processor(NULL, "InitColmap3D", "Init 3D reconstruction database", 1, 1)
 {
-
     addExpectedParameter("dataset_param", "dataset_dir");
-    addExpectedParameter("dataset_param", "navFile");   // dim2 - défaut OTUS.dim2
-    addExpectedParameter("dataset_param", "navSource"); // AUTO, GPS, DIM2, NO_NAV
-    addExpectedParameter("dataset_param", "usePrior");
-
-    addExpectedParameter("cam_param",  "camera_equipment");
-
-    addExpectedParameter("vehic_param",  "reproj_std");
-    addExpectedParameter("vehic_param",  "X_std");
-    addExpectedParameter("vehic_param",  "Y_std");
-    addExpectedParameter("vehic_param",  "depth_std");
-
+    addExpectedParameter("dataset_param", "output_filename");
 }
 
 InitColmap3D::~InitColmap3D(){
@@ -91,22 +69,21 @@ void InitColmap3D::onFlush(quint32 _port)
     reconstructionContext *reconstruction_context = new reconstructionContext();
 
     // Log
-    QString proc_info =  logPrefix() + "Create Colmap database\n";
+    QString proc_info = logPrefix() + "Create Colmap database\n";
     emit si_addToLog(proc_info);
 
     emit si_processCompletion(0);
     emit si_userInformation("InitColmap3D - start");
 
-
     // Dir checks
-    QDir dataset_dir (absoluteDatasetDir());
-    QDir output_dir(absoluteOutputTempDir());
-    QString qsep = QDir::separator();
+    const QDir dataset_dir(absoluteDatasetDir());
+    const QDir output_dir(absoluteOutputTempDir());
+    const QString qsep = QDir::separator();
 
-    QString filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
+    const QString colmap_db_filename_prefix = m_matisse_parameters->getStringParamValue("dataset_param", "output_filename");
 
     // check input exists
-    if ( !dataset_dir.exists())
+    if (!dataset_dir.exists())
     {
         fatalErrorExit("The input directory doesn't exist");
         return;
@@ -117,16 +94,16 @@ void InitColmap3D::onFlush(quint32 _port)
     {
         if (!output_dir.mkpath(output_dir.absolutePath()))
         {
-                    fatalErrorExit("Cannot create output directory");
-                    return;
+            fatalErrorExit("Cannot create output directory");
+            return;
         }
     }
 
     // Create colmap database
-    QString database_file = absoluteOutputTempDir() + qsep + filename_prefix + ".db";
+    const QString database_file_path = absoluteOutputTempDir() + qsep + colmap_db_filename_prefix + ".db";
     try
     {
-        colmap::Database sfm_database(database_file.toStdString());
+        colmap::Database sfm_database(database_file_path.toStdString());
     }
     catch (...)
     {
@@ -142,13 +119,9 @@ void InitColmap3D::onFlush(quint32 _port)
     reconstruction_context_stocker->setValue(reconstruction_context);
     m_context->addObject("reconstruction_context",reconstruction_context_stocker);
 
- 
-
     // Log elapsed time
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
     emit si_addToLog(proc_info);
-
-//    flush(0);
 }
 
 } // namespace matisse

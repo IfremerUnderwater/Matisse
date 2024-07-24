@@ -2,21 +2,21 @@ add_library(InterfaceColmap SHARED
     interface_colmap.cpp
     )
 
+target_include_directories(InterfaceColmap
+PUBLIC
+    ${OpenMVS_INCLUDE_DIRS})
+
+include_directories(${OpenMVS_INCLUDE_DIRS})
+    
 target_link_libraries(InterfaceColmap PRIVATE
     MatisseCore
     MatisseImage
-    NavTools
-    BasicProcessing
-    OpticalMapping
-    ${OpenCV_LIBS}
     Qt5::Core
     Qt5::Xml
     Qt5::Widgets
-    ${QUAZIP_LIBRARIES}
-    ${GDAL_LIBRARY}
-    ${GeographicLib_LIBRARIES}
-    OpenMVS::IO OpenMVS::MVS OpenMVS::Math OpenMVS::Common 
 	CGAL::CGAL Boost::filesystem
+PUBLIC
+    OpenMVS::IO OpenMVS::MVS OpenMVS::Math OpenMVS::Common
 	)
 
 # linux treat it as a lib and windows as a binary so we set both prop and remove lib prefix

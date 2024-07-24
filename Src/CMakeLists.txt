@@ -16,7 +16,7 @@ include_directories("C:/ThirdPartyLibs/quazip_install/include/QuaZip-Qt5-1.4/qua
 set(QUAZIP_LIB "C:/ThirdPartyLibs/quazip_install/lib/quazip1-qt5.lib")
 list(APPEND CMAKE_PREFIX_PATH "C:/ThirdPartyLibs/colmap_cuda_install/share/colmap")
 list(APPEND CMAKE_PREFIX_PATH "C:/ThirdPartyLibs/openMVS_cuda_install/CMake/OpenMVS")
-list(APPEND CMAKE_PREFIX_PATH "C:/ThirdPartyLibs/QSsh_install/share/QSsh")
+# list(APPEND CMAKE_PREFIX_PATH "C:/ThirdPartyLibs/QSsh_install/share/QSsh")
 list(APPEND CMAKE_PREFIX_PATH "C:/ThirdPartyLibs/quazip_install/lib/cmake/QuaZip-Qt5-1.4")
 set(PROJ_LIBS ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/proj.lib)
 set(BOTAN_LIB ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/botan-3.lib)
@@ -119,10 +119,11 @@ find_package(colmap REQUIRED)
 # find_package(Ceres REQUIRED)
 
 find_package(CGAL)
-FIND_PACKAGE(Boost COMPONENTS iostreams program_options filesystem system serialization)
+find_package(Boost COMPONENTS iostreams program_options filesystem system serialization)
+
 find_package(OpenMVS REQUIRED)
-include_directories(${OpenMVS_INCLUDE_DIRS})
-find_package(QSsh)
+
+# find_package(QSsh)
 # find_package(QFtp)
 find_package(CURL REQUIRED)
 

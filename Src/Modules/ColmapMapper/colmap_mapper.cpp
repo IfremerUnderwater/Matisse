@@ -1,5 +1,6 @@
 ﻿#include "colmap_mapper.h"
 #include "reconstruction_context.h"
+
 #include <QProcess>
 #include <QElapsedTimer>
 
@@ -25,10 +26,6 @@
 #include "colmap/util/misc.h"
 #include "colmap/util/opengl_utils.h"
 #include "colmap/image/undistortion.h"
-
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(ColmapMapper, ColmapMapper)
