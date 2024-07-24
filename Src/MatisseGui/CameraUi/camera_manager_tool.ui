@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>735</width>
-    <height>435</height>
+    <height>491</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -239,24 +239,62 @@ translation and rotation:</string>
        </item>
        <item row="5" column="1">
         <widget class="QComboBox" name="dist_model_cb">
+         <property name="currentIndex">
+          <number>3</number>
+         </property>
          <item>
           <property name="text">
-           <string>Radial K1 (1 radial)</string>
+           <string>Simple pinhole (no distortion, f, cx, cy)</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Radial K3 (3 radial)</string>
+           <string>Pinhole (no distortion, fx, fy, cx, cy)</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Brown T2 (3 radial+ 2 tan)</string>
+           <string>Simple radial (f, cx, cy, k)</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Fisheye</string>
+           <string>Radial (f, cx, cy, k1, k2)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>OpenCV (fx, fy, cx, cy, k1, k2, p1, p2)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>OpenCV Fisheye (fx, fy, cx, cy, k1, k2, k3, k4)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>OpenCV Full (not supported for now)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>FOV (fx, fy, cx, cy, omega)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Simple radial fisheye (f, cx, cy, k)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Radial Fisheye (f, cx, cy, k1, k2)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Thin Prism Fisheye (not supported for now</string>
           </property>
          </item>
         </widget>

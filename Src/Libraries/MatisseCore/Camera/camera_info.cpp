@@ -7,7 +7,7 @@ namespace matisse {
 
 CameraInfo::CameraInfo():
     m_camera_name(""),
-    m_distortion_model(1),
+    m_distortion_model(3),
     m_distortion_coeff(1,5,CV_64F,0.0),
     m_K(3,3,CV_64F,0.0),
     m_vehicle_to_camera_transform(1,6,CV_64F,0.0),

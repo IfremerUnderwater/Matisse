@@ -9,7 +9,7 @@ K: !!opencv-matrix
    dt: d
    data: [ 1.4248900000000001e+03, 0., 960., 0., 1.4248900000000001e+03,
        540., 0., 0., 1. ]
-distortion_model: 1
+distortion_model: 3
 distortion_coeff: !!opencv-matrix
    rows: 1
    cols: 3

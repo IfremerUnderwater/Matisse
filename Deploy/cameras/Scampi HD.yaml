@@ -8,7 +8,7 @@ K: !!opencv-matrix
    cols: 3
    dt: d
    data: [ 1880., 0., 960., 0., 1880., 540., 0., 0., 1. ]
-distortion_model: 1
+distortion_model: 3
 distortion_coeff: !!opencv-matrix
    rows: 1
    cols: 5
