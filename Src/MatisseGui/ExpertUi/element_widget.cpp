@@ -7,7 +7,7 @@ ElementWidget::ElementWidget(QGraphicsItem *_parent) :
     QObject(0),
     QGraphicsItem(_parent)
 {
-    m_body_rect = QRect(-70, -30, 140, 60);
+    m_body_rect = QRect(-90, -30, 220, 60);
     m_brush.setColor(Qt::white);
     m_pen.setColor(QColor::fromRgb(245, 247, 250)); // gris clair de la charte graphique (Matisse.css)
     setInputsNumber();
