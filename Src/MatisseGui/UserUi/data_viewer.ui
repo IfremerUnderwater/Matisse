@@ -101,17 +101,53 @@
      <widget class="QWidget" name="colmap_page">
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QPushButton" name="pushButton_2">
-         <property name="text">
-          <string>Colmap View</string>
+        <layout class="QVBoxLayout" name="colmap_layout" stretch="0">
+         <property name="spacing">
+          <number>0</number>
          </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="colmap_layout">
          <property name="topMargin">
-          <number>10</number>
+          <number>0</number>
          </property>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="recon_info_text">
+             <property name="text">
+              <string>Reconstruction info :</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="recon_info_label">
+             <property name="minimumSize">
+              <size>
+               <width>300</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
         </layout>
        </item>
       </layout>

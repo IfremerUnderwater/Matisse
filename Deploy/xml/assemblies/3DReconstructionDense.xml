@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatisseAssembly name="3DReconstructionDense" usable="false">
+    <DescriptorFields>
+        <Author></Author>
+        <Version></Version>
+        <Comments></Comments>
+        <Date>24/07/2024</Date>
+    </DescriptorFields>
+    <Source id="99" name="Flusher" order="0"/>
+    <Processors>
+        <Processor id="99" name="InitColmap3D" order="1"/>
+        <Processor id="99" name="ColmapMatching3D" order="2"/>
+        <Processor id="99" name="ColmapMapper" order="3"/>
+        <Processor id="99" name="InterfaceColmap" order="4"/>
+        <Processor id="99" name="PointCloudDensify" order="5"/>
+        <Processor id="99" name="Meshing3D" order="6"/>
+        <Processor id="99" name="TextureMesh" order="7"/>
+    </Processors>
+    <Destination id="99" name="ReconstructionLister" order="8"/>
+    <Connections>
+        <Connection startOrder="0" startLine="0" endOrder="1" endLine="0" color="4286578688"/>
+        <Connection startOrder="1" startLine="0" endOrder="2" endLine="0" color="4278222848"/>
+        <Connection startOrder="2" startLine="0" endOrder="3" endLine="0" color="4278190208"/>
+        <Connection startOrder="3" startLine="0" endOrder="4" endLine="0" color="4278222976"/>
+        <Connection startOrder="4" startLine="0" endOrder="5" endLine="0" color="4286611584"/>
+        <Connection startOrder="5" startLine="0" endOrder="6" endLine="0" color="4294901760"/>
+        <Connection startOrder="6" startLine="0" endOrder="7" endLine="0" color="4278255615"/>
+        <Connection startOrder="7" startLine="0" endOrder="8" endLine="0" color="4294902015"/>
+    </Connections>
+</MatisseAssembly>

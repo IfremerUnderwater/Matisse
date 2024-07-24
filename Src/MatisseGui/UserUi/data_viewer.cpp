@@ -24,19 +24,19 @@ DataViewer::DataViewer(QWidget *_parent) :
 
     m_colmap_viewer = new colmap::ModelViewerWidget(m_ui->colmap_page, &viewer_options);
 
-    m_colmap_viewer->statusbar_status_label =
-        new QLabel("0 Images - 0 Points", this); // Not really used for now but required by colmap
+    m_colmap_viewer->statusbar_status_label = m_ui->recon_info_label;
+    m_ui->recon_info_label->setText("0 Images - 0 Points");
+    m_ui->colmap_page->setStyleSheet("background-color: black;");
 
-    m_ui->colmap_layout->addWidget(m_colmap_viewer);
+    m_ui->colmap_layout->addWidget(m_colmap_viewer,1);
     m_colmap_viewer->EnableCoordinateGrid();
     m_colmap_viewer->SetBackgroundColor(0, 0, 0);
 
     // must be set to open osg files
     m_result_loading_task.setOSGWidget(m_ui->_OSG_viewer);
 
-    // Default view is OpenSceneGraphView
+    // Default view is Colmap View
     switchCartoViewTo(COLMAP_VIEW);
-    //switchCartoViewTo(OPEN_SCENE_GRAPH_VIEW);
 
     m_supported_raster_format << "tif" << "tiff";
     m_supported_vector_format << "shp";
@@ -293,6 +293,8 @@ void DataViewer::invokeThreaded3DFileLoader(QString _filename_p, bool _remove_pr
 
 void DataViewer::updateColmapViewer(std::shared_ptr<colmap::Reconstruction> _reconstruction)
 {
+    if (m_current_view_type != COLMAP_VIEW)
+        switchCartoViewTo(COLMAP_VIEW);
     m_colmap_viewer->reconstruction = _reconstruction;
     m_colmap_viewer->ReloadReconstruction();
 }
