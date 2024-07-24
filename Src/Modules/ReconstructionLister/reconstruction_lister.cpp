@@ -42,7 +42,7 @@ void ReconstructionLister::onFlush(quint32 _port)
     static const QString SEP = QDir::separator();
 
     // Dir checks
-    QString temp_out_dir = absoluteOutputTempDir() + QDir::separator() + "ModelPart";
+    QString temp_out_dir = absoluteOutputTempDir() + QDir::separator() + "openmvs_result";
     QString out_dir = absoluteOutputDir();
     QDir q_out_dir(out_dir);
 
@@ -61,7 +61,7 @@ void ReconstructionLister::onFlush(quint32 _port)
         {
             QDir temp_out_recons_dir(QString("%1_%2").arg(temp_out_dir).arg(rc->components_ids[i]));
             QString temp = temp_out_recons_dir.path();
-            QStringList recons_files = temp_out_recons_dir.entryList(QStringList() << fileNamePrefixStr+"*.png" << fileNamePrefixStr + "*.kml" << fileNamePrefixStr + "*.mtl" << fileNamePrefixStr + "*.obj" << fileNamePrefixStr + "*mesh.ply", QDir::Files);
+            QStringList recons_files = temp_out_recons_dir.entryList(QStringList() << fileNamePrefixStr + "*.jpg" <<fileNamePrefixStr+"*.png" << fileNamePrefixStr + "*.kml" << fileNamePrefixStr + "*.mtl" << fileNamePrefixStr + "*.obj" << fileNamePrefixStr + "*mesh.ply", QDir::Files);
 
             for (unsigned int j = 0; j < recons_files.size(); j++)
             {
