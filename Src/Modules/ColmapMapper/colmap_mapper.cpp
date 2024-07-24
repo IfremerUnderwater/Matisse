@@ -236,6 +236,9 @@ void ColmapMapper::onFlush(quint32 _port)
     QElapsedTimer timer;
     timer.start();
 
+    emit si_processCompletion(-1);
+    emit si_userInformation("3D Mapping...");
+
     if (!sfmMapper())
         return;
 

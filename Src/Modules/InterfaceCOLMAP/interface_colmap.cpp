@@ -1345,8 +1345,8 @@ namespace matisse {
 		QString proc_info = logPrefix() + "InterfaceCOLMAP\n";
 		emit si_addToLog(proc_info);
 
-		emit si_processCompletion(0);
-		emit si_userInformation("InterfaceColmap - start");
+		emit si_processCompletion(-1);
+		emit si_userInformation("Export scene to openMVS");
 
 
 		// Dir has been checked in previous modules

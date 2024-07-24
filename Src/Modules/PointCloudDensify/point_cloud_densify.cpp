@@ -108,7 +108,7 @@ bool PointCloudDensify::initDensify()
 bool PointCloudDensify::DensifyPointCloud(QString _scene_dir, QString _scene_file)
 {
 
-emit si_userInformation("PointCloudDensify - Densify");
+emit si_userInformation("Densify point cloud");
 emit si_processCompletion(-1);
 
 QFileInfo scene_file_info(_scene_dir + QDir::separator() + _scene_file);
@@ -237,9 +237,6 @@ void PointCloudDensify::onFlush(quint32 _port)
             fatalErrorExit("Input point Cloud is not in the right format. Only openMVS supported for now");
         }
 
-        emit si_processCompletion(-1);
-        emit si_userInformation("PointCloudDensify");
-
 
 
   
@@ -249,8 +246,6 @@ void PointCloudDensify::onFlush(quint32 _port)
     rc->current_format = ReconFormat::openMVS;
     rc->out_file_suffix = rc->out_file_suffix + "_dense";
 
-    emit si_userInformation("PointCloudDensify");
-    emit si_processCompletion(100);
 
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
     emit si_addToLog(proc_info);

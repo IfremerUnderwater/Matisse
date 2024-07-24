@@ -226,8 +226,8 @@ void TextureMesh::onFlush(quint32 _port)
 
     static const QString qsep = QDir::separator();
 
-    emit si_processCompletion(0);
-    emit si_userInformation("TextureMesh - start");
+    emit si_userInformation("Texturing...");
+    emit si_processCompletion(-1);
 
     QString proc_info = logPrefix() + "TextureMesh started\n";
     emit si_addToLog(proc_info);
@@ -284,12 +284,6 @@ void TextureMesh::onFlush(quint32 _port)
 
         // restore path
         fs::current_path(cur_working_dir);
-
-        //// Compute Mesh
-        emit si_userInformation("Meshing...");
-        emit si_processCompletion(-1);
-
-        emit si_processCompletion(100);
 
     }
 

@@ -198,8 +198,8 @@ void Meshing3D::onFlush(quint32 _port)
 
     static const QString SEP = QDir::separator();
 
-    emit si_processCompletion(0);
-    emit si_userInformation("Meshing3D - start");
+    emit si_userInformation("Meshing...");
+    emit si_processCompletion(-1);
 
     QString proc_info = logPrefix() + "Meshing started\n";
     emit si_addToLog(proc_info);
@@ -242,12 +242,6 @@ void Meshing3D::onFlush(quint32 _port)
         // restore path
         fs::current_path(cur_working_dir);
 
-        //// Compute Mesh
-        emit si_userInformation("Meshing...");
-        emit si_processCompletion(-1);
-
-        emit si_processCompletion(100);
-
     }
 
     // complete current file suffix
@@ -256,7 +250,7 @@ void Meshing3D::onFlush(quint32 _port)
     // Log elapsed time
     proc_info = logPrefix() + QString(" took %1 seconds\n").arg(timer.elapsed() / 1000.0);
     emit si_addToLog(proc_info);
-    //qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
+    qDebug() << logPrefix() << " took " << timer.elapsed() / 1000.0 << " seconds";
 
     // Flush next module port
 //    flush(0);
