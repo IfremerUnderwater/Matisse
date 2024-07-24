@@ -2,11 +2,6 @@ add_library(InterfaceColmap SHARED
     interface_colmap.cpp
     )
 
-target_include_directories(InterfaceColmap
-PUBLIC
-    ${OpenMVS_INCLUDE_DIRS})
-
-include_directories(${OpenMVS_INCLUDE_DIRS})
     
 target_link_libraries(InterfaceColmap PRIVATE
     MatisseCore

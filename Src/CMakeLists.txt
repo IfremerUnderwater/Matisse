@@ -122,6 +122,7 @@ find_package(CGAL)
 find_package(Boost COMPONENTS iostreams program_options filesystem system serialization)
 
 find_package(OpenMVS REQUIRED)
+include_directories(${OpenMVS_INCLUDE_DIRS})
 
 # find_package(QSsh)
 # find_package(QFtp)
