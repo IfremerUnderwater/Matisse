@@ -15,7 +15,7 @@ namespace matisse {
         m_remove_button = new QPushButton("-", m_container_widget);
 
         connect(m_add_button, &QPushButton::clicked, this, &EnrichedCameraList::addDefaultCameraWidget);
-        connect(m_remove_button, &QPushButton::clicked, this, &EnrichedCameraList::removeCameraWidget);
+        connect(m_remove_button, &QPushButton::clicked, this, &EnrichedCameraList::sl_removeCameraWidget);
 
         QHBoxLayout* buttonLayout = new QHBoxLayout();
         buttonLayout->addWidget(m_add_button);
@@ -53,6 +53,14 @@ namespace matisse {
         addCameraWidget(m_cam_default_value);
     }
 
+    void EnrichedCameraList::sl_removeCameraWidget()
+    {
+        if (m_main_layout->count() > 2) // On user action don't remove last camera
+        {
+            removeCameraWidget();
+        }
+    }
+
     void EnrichedCameraList::removeCameraWidget()
     {
         if (m_main_layout->count() > 1) // Ensure we don't remove the buttons
@@ -70,7 +78,7 @@ namespace matisse {
 
         for (int i = 0; i < m_main_layout->count() - 1; i++)
         {
-            QLayoutItem* item = m_main_layout->takeAt(i);
+            QLayoutItem* item = m_main_layout->itemAt(i);
             cam_widget_list.push_back( dynamic_cast<CameraWidget*>( item->widget() ) );
         }
         return cam_widget_list;
@@ -109,10 +117,12 @@ namespace matisse {
 
 		if (camera_list.size() > 0)
 		{
-			QString serialized_value = camera_list[0]->currentValue();
+            // We serialize in reverse order because widget are added from bottom to top
+			QString serialized_value = camera_list[camera_list.size()-1]->currentValue();
+            // We serialize in reverse order because widget are added from bottom to top
 			for (int i = 1; i < camera_list.size(); i++)
 			{
-				serialized_value = serialized_value + "|" + camera_list[i]->currentValue();
+				serialized_value = serialized_value + "|" + camera_list[camera_list.size()-1-i]->currentValue();
 			}
 			return serialized_value;
 
@@ -131,7 +141,7 @@ namespace matisse {
     void EnrichedCameraList::applyValue(QString _new_value)
     {
         qDebug() << "applyvalue camlist = " << _new_value;
-        _new_value = "Tata; 0; 0; 0, 0, 0, 0, 0, 0, 0, 0, 0; 0; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0|hgfdh|hgfdh";
+
         while (m_main_layout->count() > 1)
         {
             removeCameraWidget();

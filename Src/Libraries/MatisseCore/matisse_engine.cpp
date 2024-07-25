@@ -41,7 +41,7 @@ const QList<OutputDataWriter *> MatisseEngine::getAvailableOutputDataWriters()
 
 void MatisseEngine::addParametersForInputDataProvider(QString _name)
 {
-    qDebug() << "Loading parameters for image provider " << _name;
+    //qDebug() << "Loading parameters for image provider " << _name;
 
     if (!m_input_data_providers.contains(_name)) {
         qCritical() << QString("Image provider '%1' could not be found.").arg(_name);
@@ -73,7 +73,7 @@ void MatisseEngine::addParametersForProcessor(QString _name)
     m_expected_parameters_by_module.insert(_name, expected_params);
 
     foreach(MatisseParameter expected_param, expected_params) {
-        qDebug() << "Processor expects param " << expected_param.m_structure << expected_param.m_param;
+        //qDebug() << "Processor expects param " << expected_param.m_structure << expected_param.m_param;
         m_dico_param_mgr->addUserModuleForParameter(_name, expected_param.m_structure, expected_param.m_param);
     }
 
@@ -94,7 +94,7 @@ void MatisseEngine::addParametersForOutputDataWriter(QString _name)
     m_expected_parameters_by_module.insert(_name, expected_params);
 
     foreach(MatisseParameter expected_param, expected_params) {
-        qDebug() << "Destination expects param " << expected_param.m_structure << expected_param.m_param;
+        //qDebug() << "Destination expects param " << expected_param.m_structure << expected_param.m_param;
         m_dico_param_mgr->addUserModuleForParameter(_name, expected_param.m_structure, expected_param.m_param);
     }
 

@@ -27,10 +27,10 @@ namespace matisse {
 
     private slots:
         void addDefaultCameraWidget();
-        void removeCameraWidget();
+        void sl_removeCameraWidget();
 
     private:
-        void constructCameraListWidget();
+        void removeCameraWidget();
         QWidget* m_container_widget;
         QList<CameraWidget*> cameraWidgetList();
         QStringList camListStringToListOfCamString(QString _cam_list_string);

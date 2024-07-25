@@ -223,7 +223,7 @@ bool MatisseParametersManager::addUserModuleForParameter(QString _user_module, Q
     }
 
     if (!m_expected_parameters.contains(_param_name)) {
-        qDebug() << "Adding expected parameter " << dico_struct_name << _param_name;
+        //qDebug() << "Adding expected parameter " << dico_struct_name << _param_name;
         QSet<QString> *param_users = new QSet<QString>();
         param_users->insert(_user_module);
         m_expected_parameters.insert(_param_name, param_users);
@@ -241,12 +241,12 @@ bool MatisseParametersManager::addUserModuleForParameter(QString _user_module, Q
     QString group_name = m_group_by_parameter.value(_param_name);
 
     if (!m_expected_groups.contains(group_name)) {
-        qDebug() << "Adding expected group" << group_name;
+        //qDebug() << "Adding expected group" << group_name;
         QSet<QString> *group_members = new QSet<QString>();
         group_members->insert(_param_name);
         m_expected_groups.insert(group_name, group_members);
     } else {
-        qDebug() << "Adding param" << _param_name << "as member of expected group" << group_name;
+        //qDebug() << "Adding param" << _param_name << "as member of expected group" << group_name;
         QSet<QString> *group_members = m_expected_groups.value(group_name);
         if (group_members->contains(_param_name)) {
             qDebug() << QString("Param '%1' is already referenced as member of expected group '%2'").arg(_param_name).arg(group_name);
