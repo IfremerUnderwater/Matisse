@@ -30,6 +30,7 @@ namespace matisse {
         void removeCameraWidget();
 
     private:
+        void constructCameraListWidget();
         QWidget* m_container_widget;
         QList<CameraWidget*> cameraWidgetList();
         QStringList camListStringToListOfCamString(QString _cam_list_string);
@@ -39,6 +40,9 @@ namespace matisse {
 
         QString m_cam_list_default_value;
         QString m_cam_default_value;
+
+        int m_cam_nb;
+
     };
 
 }

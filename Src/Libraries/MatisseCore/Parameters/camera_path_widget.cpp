@@ -24,17 +24,17 @@ namespace matisse {
         connect(m_select_img_path_btn, &QPushButton::clicked, this, &CameraWidget::selectImgPath);
         connect(m_select_nav_path_btn, &QPushButton::clicked, this, &CameraWidget::selectNavPath);
 
-        // Vertical m_main_layout containing combo box, image path and nav path
+        // Vertical layout containing combo box, image path and nav path
         QVBoxLayout* v_layout = new QVBoxLayout(this);
         v_layout->addWidget(m_camera_combo_box);
 
-        // Image path m_main_layout
+        // Image path layout
         QHBoxLayout* img_path_layout = new QHBoxLayout();
         v_layout->addLayout(img_path_layout);
         img_path_layout->addWidget(m_img_path_le, 1);
         img_path_layout->addWidget(m_select_img_path_btn, 0);
 
-        // Image path m_main_layout
+        // Image path layout
         QHBoxLayout* nav_path_layout = new QHBoxLayout();
         v_layout->addLayout(nav_path_layout);
         nav_path_layout->addWidget(m_nav_path_le, 1);
@@ -82,6 +82,7 @@ namespace matisse {
         if (!filePath.isEmpty())
         {
             m_img_path_le->setText(filePath);
+            emit si_valueChanged();
         }
     }
 
@@ -91,6 +92,7 @@ namespace matisse {
         if (!filePath.isEmpty())
         {
             m_nav_path_le->setText(filePath);
+            emit si_valueChanged();
         }
     }
 
@@ -180,6 +182,11 @@ namespace matisse {
         m_camera_combo_box->setCurrentIndex(m_default_index);
         m_cam_info.fromQString(m_cam_default_value);
         connect(m_camera_combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(sl_valueChanged()));
+    }
+
+    void CameraWidget::sl_valueChanged()
+    {
+        emit si_valueChanged();
     }
 
 }

@@ -1,9 +1,10 @@
 #include "enriched_camera_list.h"
 #include <QtDebug>
+#include <QCoreApplication>
 
 namespace matisse {
 
-    EnrichedCameraList::EnrichedCameraList(QWidget* _parent, QString _label, QString _default_value) : EnrichedFormWidget(_parent)
+    EnrichedCameraList::EnrichedCameraList(QWidget* _parent, QString _label, QString _default_value) : EnrichedFormWidget(_parent), m_cam_nb(0), m_main_layout(nullptr)
     {
         // Graphical conception ***************************************************************
         m_container_widget = new QWidget(this);
@@ -25,6 +26,7 @@ namespace matisse {
         setLayout(m_main_layout);
 
         setWidget(_label, m_container_widget);
+
         // Graphical conception ***************************************************************
 
         m_cam_list_default_value = _default_value;
@@ -32,16 +34,18 @@ namespace matisse {
         QStringList list_cam_strings = camListStringToListOfCamString(m_cam_list_default_value);
         m_cam_default_value= list_cam_strings[0]; // Take the first as default
 
-        for (QString cam_value : list_cam_strings)
-        {
-            addCameraWidget(cam_value);
-        }
+        applyValue(m_cam_list_default_value);
     }
 
     void EnrichedCameraList::addCameraWidget(QString _cam_value)
     {
+        qDebug() << "Layout size = " << m_main_layout->count();
         CameraWidget* camera_widget = new CameraWidget(m_container_widget, _cam_value);
-        m_main_layout->insertWidget(m_main_layout->count() - 1, camera_widget);
+        m_main_layout->insertWidget(0, camera_widget);
+
+        connect(camera_widget, SIGNAL(si_valueChanged()), this, SLOT(sl_valueChanged()));
+        //while(m_cam_nb!= m_main_layout->count()-1)
+        //    QCoreApplication::processEvents();
     }
 
     void EnrichedCameraList::addDefaultCameraWidget()
@@ -53,7 +57,8 @@ namespace matisse {
     {
         if (m_main_layout->count() > 1) // Ensure we don't remove the buttons
         {
-            QLayoutItem* item = m_main_layout->takeAt(m_main_layout->count() - 2);
+            QLayoutItem* item = m_main_layout->takeAt(0);
+            disconnect(item->widget(), SIGNAL(si_valueChanged()), this, SLOT(sl_valueChanged()));
             delete item->widget();
             delete item;
         }
@@ -102,12 +107,20 @@ namespace matisse {
     {
         auto camera_list = cameraWidgetList();
 
-        QString serialized_value = camera_list[0]->currentValue();
-        for (int i=1; i< camera_list.size(); i++)
-        {
-            serialized_value = serialized_value + "|" + camera_list[i]->currentValue();
-        }
-        return serialized_value;
+		if (camera_list.size() > 0)
+		{
+			QString serialized_value = camera_list[0]->currentValue();
+			for (int i = 1; i < camera_list.size(); i++)
+			{
+				serialized_value = serialized_value + "|" + camera_list[i]->currentValue();
+			}
+			return serialized_value;
+
+		}
+		else
+		{
+			return "";
+		}
     }
 
     void EnrichedCameraList::restoreDefaultValue()
@@ -117,7 +130,9 @@ namespace matisse {
 
     void EnrichedCameraList::applyValue(QString _new_value)
     {
-        while (m_main_layout->count() > 1) // 1 for buttons
+        qDebug() << "applyvalue camlist = " << _new_value;
+        _new_value = "Tata; 0; 0; 0, 0, 0, 0, 0, 0, 0, 0, 0; 0; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0|hgfdh|hgfdh";
+        while (m_main_layout->count() > 1)
         {
             removeCameraWidget();
         }
@@ -129,6 +144,7 @@ namespace matisse {
 
         for (QString cam_value : list_cam_strings)
         {
+            qDebug() << "addcam with value = " << cam_value;
             addCameraWidget(cam_value);
         }
     }

@@ -29,6 +29,10 @@ namespace matisse {
         void selectImgPath();  // Slot to handle path selection
         void selectNavPath();  // Slot to handle path selection
         void sl_refreshCameraList();
+        void sl_valueChanged();
+
+    signals:
+        void si_valueChanged();
 
     private:
         QComboBox* m_camera_combo_box;
