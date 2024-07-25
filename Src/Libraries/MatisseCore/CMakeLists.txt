@@ -39,6 +39,8 @@ add_library(MatisseCore
     Parameters/enriched_list_box.cpp
     Parameters/enriched_spin_box.cpp
     Parameters/enriched_table_widget.cpp
+	Parameters/enriched_camera_list.cpp
+	Parameters/camera_path_widget.cpp
     Parameters/fold_unfold_button.cpp
     Parameters/matisse_parameters_manager.cpp
     Parameters/parameters_header_button.cpp

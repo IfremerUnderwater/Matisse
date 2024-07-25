@@ -17,6 +17,7 @@
             <xs:enumeration value="string"/>
             <xs:enumeration value="bool"/>
             <xs:enumeration value="camera"/>
+			<xs:enumeration value="camera_list"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="Show" final="restriction">
@@ -25,6 +26,7 @@
             <xs:enumeration value="spin"/>
             <xs:enumeration value="combo"/>
             <xs:enumeration value="cam_combo"/>
+			<xs:enumeration value="cam_list"/>
             <xs:enumeration value="check"/>
             <xs:enumeration value="table"/>
             <xs:enumeration value="dir"/>

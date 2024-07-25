@@ -28,6 +28,7 @@ InitColmap3D::InitColmap3D() :
 {
     addExpectedParameter("dataset_param", "dataset_dir");
     addExpectedParameter("dataset_param", "output_filename");
+    addExpectedParameter("cam_param", "camera_list");
 }
 
 InitColmap3D::~InitColmap3D(){

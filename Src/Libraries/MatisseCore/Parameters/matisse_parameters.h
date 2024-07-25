@@ -18,6 +18,11 @@
 
 namespace matisse {
 
+struct CamPathInfo {
+    CameraInfo cam_info;
+    QString img_path;
+    QString nav_path;
+};
 
 //structures utilitaires
 typedef QGenericMatrix<6, 1, double> Matrix6x1;
@@ -137,6 +142,8 @@ public:
     Matrix6x1 getMatrix6x1ParamValue(QString _param_struct_name, QString _param_name, bool &_ok);
 
     CameraInfo getCamInfoParamValue(QString _param_struct_name, QString _param_name, bool &_ok);
+
+    QList<CamPathInfo> getCamListInfoParamValue(QString _param_struct_name, QString _param_name, bool& _ok);
 
     ///
     /// \brief Override target parameter with the value of a source parameter

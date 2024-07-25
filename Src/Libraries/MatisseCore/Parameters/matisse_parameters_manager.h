@@ -20,6 +20,7 @@
 #include "key_value_list.h"
 #include "enriched_combo_box.h"
 #include "enriched_cam_combo_box.h"
+#include "enriched_camera_list.h"
 #include "enriched_line_edit.h"
 #include "enriched_list_box.h"
 #include "enriched_spin_box.h"

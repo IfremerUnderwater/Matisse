@@ -49,12 +49,14 @@ void MatisseParametersManager::loadStaticCollections()
     m_enum_types.insert("string", PAR_STRING);
     m_enum_types.insert("bool", PAR_BOOL);
     m_enum_types.insert("camera", PAR_CAMERA);
+    m_enum_types.insert("camera_list", PAR_CAMERA_LIST);
 
     //_enumShows.clear();
     //_enumShows.insert("unknown", UNKNOWN_SHOW);
     m_enum_shows.insert("line", LINE_EDIT);
     m_enum_shows.insert("combo", COMBO_BOX);
     m_enum_shows.insert("cam_combo", CAM_COMBO_BOX);
+    m_enum_shows.insert("cam_list", CAM_LIST);
     m_enum_shows.insert("list", LIST_BOX);
     m_enum_shows.insert("spin", SPIN_BOX);
     m_enum_shows.insert("spinDouble", DOUBLE_SPIN_BOX);
@@ -514,6 +516,8 @@ bool MatisseParametersManager::addParameter(QString _struct_name, QString _group
 
     parameter.value = _attributes.value("default").toString();
 
+    qDebug() << "Param = " << parameter.name << " has default value to : " << parameter.value;
+
     QString param_name = parameter.name;
 
     m_structures[_struct_name].parameters_groups[noGroup].parameters_names << param_name;
@@ -688,6 +692,10 @@ void MatisseParametersManager::generateLevelParametersWidget(eParameterLevel _le
             break;
         case CAM_COMBO_BOX: {
             widget = new EnrichedCamComboBox(m_full_parameters_widget, param_label_text, param.value.toString());
+        }
+            break;
+        case CAM_LIST: {
+            widget = new EnrichedCameraList(m_full_parameters_widget, param_label_text, param.value.toString());
         }
             break;
         case LIST_BOX: {

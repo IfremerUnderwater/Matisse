@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MatisseParametersDictionnary xmlns="Matisse" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="Matisse ../schemas/MatisseParametersDictionnary.xsd ">
-    <Structures publicationTimestamp="2023-01-06T16:53:25">
+    <Structures publicationTimestamp="2024-07-25T13:51:33">
         <Structure name="algo_param">
             <ParametersGroup name="general_algo_params">
                 <Parameter name="sift_code" level="expert" text="Sift algorithm" type="string" range= "{$SIFT_CODE}" show="combo" default="GPU_sift"/>
@@ -85,6 +85,7 @@
 		        <Parameter name="sensor_width" level="advanced" text="Full sensor width (px)" type="integer" range="[0,20000]" show="spin" default="1920"/>
 		        <Parameter name="sensor_height" level="advanced" text="Full sensor height (pixels)" type="integer" range="[0,20000]" show="spin" default="1080"/>
 		        <Parameter name="camera_equipment" level="user" text="Camera equipment" type="camera" show="cam_combo" default="Unknown; 0; 0; 0, 0, 0, 0, 0, 0, 0, 0, 0; 2; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0"/>
+				<Parameter name="camera_list" level="user" text="Camera list" type="camera_list" show="cam_list" default="Unknown; 0; 0; 0, 0, 0, 0, 0, 0, 0, 0, 0; 0; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0||"/>
             </ParametersGroup>
         </Structure>
         <Structure name="video_input_param">

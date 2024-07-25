@@ -1,5 +1,24 @@
 ﻿#include "matisse_parameters.h"
 
+// Helper
+QStringList camListStringToListOfCamString(QString _cam_list_string)
+{
+    QStringList params_split = _cam_list_string.split("|");
+    QStringList cam_split;
+    if ((params_split.size() % 3) != 0)
+        return QStringList();
+    for (int i = 0; i < params_split.size() / 3; i++)
+    {
+        QString cam_params("");
+        cam_params = params_split[3 * i + 0];
+        cam_params = cam_params + "|" + params_split[3 * i + 1];
+        cam_params = cam_params + "|" + params_split[3 * i + 2];
+        cam_split.append(cam_params);
+    }
+    return cam_split;
+}
+
+
 namespace matisse {
 
 QRegExp MatisseParameters::m_bool_reg_exp_true("^(true|1)$");
@@ -253,6 +272,40 @@ CameraInfo MatisseParameters::getCamInfoParamValue(QString _param_struct_name, Q
         _ok=false;
 
     return cam_info;
+}
+
+QList<CamPathInfo> MatisseParameters::getCamListInfoParamValue(QString _param_struct_name, QString _param_name, bool& _ok)
+{
+    // Get parameters as global string
+    QString values_str = m_hash_values.value(_param_struct_name, QHash<QString, QString>()).value(_param_name, "");
+
+    // Parse it
+    QList<CamPathInfo> cam_list_info;
+
+    for (auto camera_path_string : camListStringToListOfCamString(values_str))
+    {
+        QStringList camera_params_split = camera_path_string.split("|");
+        CamPathInfo cam_info;
+
+        if (camera_params_split.size() != 3)
+        {
+            _ok = false;
+            return cam_list_info;
+        }
+
+        cam_info.cam_info.fromQString(camera_params_split[0]);
+        cam_info.img_path = camera_params_split[1];
+        cam_info.nav_path = camera_params_split[2];
+
+        cam_list_info.append(cam_info);
+
+    }
+
+    if (cam_list_info.size() == 0)
+        _ok = false;
+
+    return cam_list_info;
+
 }
 
 QMatrix3x3 MatisseParameters::getMatrix3x3ParamValue(QString _param_struct_name, QString _param_name, bool &_ok)
