@@ -304,6 +304,7 @@ QList<CamPathInfo> MatisseParameters::getCamListInfoParamValue(QString _param_st
     if (cam_list_info.size() == 0)
         _ok = false;
 
+    _ok = true;
     return cam_list_info;
 
 }
