@@ -67,6 +67,10 @@ namespace matisse {
         if (!items_in_combo_box.contains(m_cam_info.cameraName()))
             m_camera_combo_box->addItem(m_cam_info.cameraName());
 
+        // add unknown option
+        if (!items_in_combo_box.contains("Unknown"))
+            m_camera_combo_box->addItem("Unknown");
+
         m_default_index = m_camera_combo_box->findText(m_cam_info.cameraName(), Qt::MatchExactly);
         m_camera_combo_box->setCurrentIndex(m_default_index);
 
@@ -144,6 +148,10 @@ namespace matisse {
         if (!items_in_combo_box.contains(m_cam_info.cameraName()))
             m_camera_combo_box->addItem(m_cam_info.cameraName());
 
+        // add unknown option
+        if (!items_in_combo_box.contains("Unknown"))
+            m_camera_combo_box->addItem("Unknown");
+
         int index = m_camera_combo_box->findText(m_cam_info.cameraName(), Qt::MatchExactly);
 
         if (index == -1) {
@@ -166,8 +174,14 @@ namespace matisse {
         m_camera_combo_box->clear();
         m_camera_combo_box->addItems(values);
 
+        // List items in combo
+        QStringList items_in_combo_box;
+        for (int index = 0; index < m_camera_combo_box->count(); index++)
+            items_in_combo_box << m_camera_combo_box->itemText(index);
+
         // add unknown option
-        m_camera_combo_box->addItem("Unknown");
+        if (!items_in_combo_box.contains("Unknown"))
+            m_camera_combo_box->addItem("Unknown");
 
         // apply back the current value
         applyValue(backup_current_value);
